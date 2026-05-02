@@ -1,0 +1,15 @@
+games:
+  antsim:
+    itchio_slug: rfd62794/antsim
+    channel: html5
+    build_dir: build/web
+
+  voidrift:
+    itchio_slug: rfd62794/voidrift
+    channel: android
+    build_dir: build/android
+
+  greengap:
+    itchio_slug: rfd62794/greengap
+    channel: html5
+    build_dir: public/
