@@ -4,58 +4,50 @@
 
 ## Current Phase
 
-**Phase 2 — TypeScript Runtime Core — CERTIFIED**
+**Phase 2b — Horse Racing Logic Extraction — CERTIFIED**
 
-## Phase 2 Completion Criteria
+## Phase 2b Completion Criteria
 
 | Criterion | Status |
 |---|---|
-| `games/horse_racing/ui.yaml` line 168 bug fixed (canonical) | ✅ |
-| `tests/fixtures/horse_racing/ui.yaml` same fix applied | ✅ |
-| Python floor: `uv run pytest -v` → 15 passed, 0 failed, 0 skipped | ✅ |
-| `ts/` scaffolded: `package.json`, `vite.config.ts`, `tsconfig.json` | ✅ |
-| `ts/src/engine/` — `types.ts`, `loader.ts`, `executor.ts`, `runtime.ts` | ✅ |
-| `ts/src/` — `App.tsx`, `main.tsx`, `index.css` | ✅ |
-| `ts/src/components/` — `StableTab.tsx`, `BettingTab.tsx`, `RaceTrack.tsx` | ✅ |
-| `ts/tests/` — 12 named Vitest tests | ✅ |
-| `npx vitest run` → 12 passed, 0 failed, 0 skipped | ✅ |
+| `data.yaml` — `starting_funds` corrected to 1000 | ✅ |
+| `data.yaml` — stable/betting/race constants added | ✅ |
+| `data.yaml` — `fee` field on all `race_classes` entries | ✅ |
+| `data.yaml` — `starter_horses` (2) and `public_studs` (5) appended | ✅ |
+| `tests/fixtures/horse_racing/data.yaml` — identical changes applied | ✅ |
+| `logic.lua` — `calculate_place_odds` added | ✅ |
+| `logic.lua` — `update_horse_after_race` added (pure, no mutation) | ✅ |
+| `logic.lua` — `settle_bets` added | ✅ |
+| `logic.lua` — `simulate_race` lupa-safe (pcall on absent keys) | ✅ |
+| Python floor: `uv run pytest -v` → **21 passed, 0 failed** | ✅ |
+| `types.ts` — `RaceParticipant.final_rank` added | ✅ |
+| `types.ts` — `Bet` interface with `type` + `payout_odds` added | ✅ |
+| `BettingTab.tsx` — Win/Place toggle, `calculate_place_odds` call | ✅ |
+| `BettingTab.tsx` — `simulate_race` is sole race authority | ✅ |
+| `BettingTab.tsx` — `settle_bets` handles all payout logic | ✅ |
+| `BreederTab.tsx` — new component, `breed_horses` + `public_studs` | ✅ |
+| `App.tsx` — `handleRaceComplete` wires `update_horse_after_race` | ✅ |
+| `App.tsx` — `handleAddOffspring` + Breeder tab wired | ✅ |
+| TS floor: `npx vitest run` → **12 passed, 0 failed** | ✅ |
 | `npx vite build` → exits 0, 3 assets emitted | ✅ |
-| All game logic in Lua; React components contain no game logic | ✅ |
-| `docs/state/current.md` updated to Phase 2 certified | ✅ |
 
 ## Proof Output
 
 ```
-# Python floor (Phase 1 — unchanged)
+# Python floor (Phase 2b)
 uv run pytest -v
-15 passed in 0.21s
+21 passed in 0.30s
 
-# TypeScript floor (Phase 2)
+# TypeScript floor (unchanged)
 npx vitest run --reporter=verbose
-
- ✓ tests/test_executor.ts (3)
-   ✓ test_executor_call_returns_value
-   ✓ test_executor_missing_function_throws
-   ✓ test_executor_lua_error_throws
- ✓ tests/test_loader.ts (5)
-   ✓ test_loader_returns_game_files
-   ✓ test_loader_parses_game_id
-   ✓ test_loader_parses_ui_tabs
-   ✓ test_loader_logic_is_string
-   ✓ test_loader_missing_game_id_throws
- ✓ tests/test_runtime.ts (4)
-   ✓ test_runtime_load_game_returns_session
-   ✓ test_runtime_call_delegates_to_executor
-   ✓ test_runtime_get_schema_returns_fields
-   ✓ test_runtime_get_schema_missing_throws
 Tests 12 passed (12)
 
 # Vite build
 npx vite build
 dist/index.html                   0.41 kB
 dist/assets/index.css             5.31 kB
-dist/assets/index.js            449.63 kB
-✓ built in 1.30s
+dist/assets/index.js            466.67 kB
+✓ built in 1.23s
 ```
 
 ## Directory Structure
@@ -90,6 +82,7 @@ RFDGameStudio/
       components/
         StableTab.tsx
         BettingTab.tsx
+        BreederTab.tsx
         RaceTrack.tsx
     tests/
       test_loader.ts            — 5 tests
@@ -114,6 +107,7 @@ RFDGameStudio/
 |---|---|---|
 | **1** | Python Runtime Core | ✅ **CERTIFIED** |
 | **2** | TypeScript Runtime | ✅ **CERTIFIED** |
+| **2b** | Horse Racing Logic Extraction | ✅ **CERTIFIED** |
 | 3 | Claude Tool Integration | Pending |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
