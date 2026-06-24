@@ -3,7 +3,8 @@ import type { CurrentRace, RaceResult, Bet } from '../engine/types';
 import { SVGRacer } from './SVGRacer';
 
 const TICK_RATE_MS = 50;
-const LANE_HEIGHT = 90;
+const LANE_HEIGHT = 58;          // condensed
+const BASE_SPEED = 5;             // old 5x is new 1x
 const TRACK_PADDING_LEFT = 48;
 const TRACK_PADDING_RIGHT = 60;
 
@@ -34,7 +35,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
   const distance = race.distance;
 
   const [isRunning, setIsRunning] = useState(false);
-  const [speedMultiplier, setSpeedMultiplier] = useState<1 | 3 | 5>(1);
+  const [speedMultiplier, setSpeedMultiplier] = useState<1 | 2 | 3>(1);
   const [resultsDeclared, setResultsDeclared] = useState(false);
   const [announcement, setAnnouncement] = useState('Horses are heading to the starting gates…');
 
@@ -70,20 +71,20 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
     if (!isRunning) return;
     const interval = setInterval(() => {
       setAnimParticipants(prev => {
-        const timeStep = (TICK_RATE_MS / 1000) * speedMultiplier;
+        const timeStep = (TICK_RATE_MS / 1000) * speedMultiplier * BASE_SPEED;
         const updated = prev.map(ap => {
           if (ap.anim_finished) return ap;
           const p = race.participants.find(rp => rp.horse.id === ap.horse_id)!;
           const h = p.horse;
 
           const energyBurnRate = (0.12 - (h.stamina / 100) * 0.08) * (distance / 800) * 0.45;
-          const newEnergy = Math.max(0, ap.anim_energy - energyBurnRate * speedMultiplier);
+          const newEnergy = Math.max(0, ap.anim_energy - energyBurnRate * speedMultiplier * BASE_SPEED);
 
           const baseMaxSpeed = 12.5 + (h.speed / 100) * 8.5;
           const energyRatio = 0.45 + (newEnergy / 100) * 0.55;
           const maxCapableSpeed = baseMaxSpeed * energyRatio;
           const accFactor = 0.08 + (h.acceleration / 100) * 0.12;
-          const newSpeed = ap.anim_speed + (maxCapableSpeed - ap.anim_speed) * accFactor * speedMultiplier;
+          const newSpeed = ap.anim_speed + (maxCapableSpeed - ap.anim_speed) * accFactor * speedMultiplier * BASE_SPEED;
 
           const tempVariance = (100 - h.temperament) / 120;
           const velocityFinal = newSpeed * (1 + (Math.random() - 0.5) * tempVariance);
@@ -97,7 +98,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
             anim_energy: newEnergy,
             anim_speed: newSpeed,
             anim_finished: finished,
-            anim_tick: ap.anim_tick + speedMultiplier,
+            anim_tick: ap.anim_tick + speedMultiplier * BASE_SPEED,
           };
         });
 
@@ -177,11 +178,11 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
           )}
           {isRunning && (
             <>
-              {([1, 3, 5] as const).map(s => (
+              {([1, 2, 3] as const).map(s => (
                 <button
                   key={s}
                   className={`btn-speed${speedMultiplier === s ? ' active' : ''}`}
-                  onClick={() => setSpeedMultiplier(s)}
+                  onClick={() => setSpeedMultiplier(s as 1 | 2 | 3)}
                 >{s}x</button>
               ))}
               <button className="btn-neutral" onClick={handleSkip}>Skip ⏭</button>
@@ -236,17 +237,17 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
                 </text>
 
                 {/* Energy bar */}
-                <rect x={spriteX - 20} y={laneY + 4} width={40} height={4} rx={2}
+                <rect x={spriteX - 18} y={laneY + 3} width={36} height={3} rx={1.5}
                   fill="rgba(0,0,0,0.4)" />
-                <rect x={spriteX - 20} y={laneY + 4} width={40 * energyPct / 100} height={4} rx={2}
+                <rect x={spriteX - 18} y={laneY + 3} width={36 * energyPct / 100} height={3} rx={1.5}
                   fill={energyColor(energyPct)} />
 
                 {/* SVGRacer sprite */}
                 <foreignObject
-                  x={spriteX - 36}
-                  y={laneY + 8}
-                  width={72}
-                  height={72}
+                  x={spriteX - 23}
+                  y={laneY + 6}
+                  width={46}
+                  height={46}
                 >
                   <SVGRacer
                     colorBody={p.horse.color_body}
@@ -256,7 +257,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
                     gateNumber={p.gate}
                     isRunning={isRunning && !(ap?.anim_finished)}
                     runTick={ap?.anim_tick ?? 0}
-                    size={72}
+                    size={46}
                   />
                 </foreignObject>
 
