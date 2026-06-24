@@ -1,0 +1,6 @@
+{
+  "name": "Horse Racing & Breeding",
+  "description": "A high-fidelity minimalist horse racing, breeding, and betting simulator. Customize colors, breed legacy lineages, calculate dynamic odds, and place bets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

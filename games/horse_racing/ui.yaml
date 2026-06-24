@@ -1,0 +1,97 @@
+# horse_racing/ui.yaml
+# Layout intent for the renderer. Describes *what* the UI means, not *how* it looks.
+# No pixel values. No colors. No fonts.
+
+meta:
+  game_id: horse_racing
+  description: "UI layout intent for the horse racing simulation."
+
+tabs:
+  - id: stable
+    label: "My Stable"
+    components:
+      - type: horse_card_grid
+        binding: player.roster
+        description: "Grid of owned horses with name, stats summary, and win record."
+        actions:
+          - event: select_horse
+            label: "View Horse"
+      - type: stat_display
+        binding: player.funds
+        label: "Stable Funds"
+        description: "Current currency balance."
+
+  - id: race_day
+    label: "Race Day"
+    components:
+      - type: race_track
+        binding: current_race
+        description: "Animated race resolution display showing field positions."
+      - type: betting_panel
+        binding: current_race.odds
+        description: "Pre-race odds table with bet placement controls."
+        actions:
+          - event: place_bet
+            label: "Place Bet"
+      - type: action_button
+        event: start_race
+        label: "Start Race"
+        description: "Resolves the current race via logic.lua."
+      - type: label
+        binding: current_race.results
+        label: "Results"
+        description: "Finishing order displayed after race resolves."
+
+  - id: breeding
+    label: "Breeding"
+    components:
+      - type: horse_card_grid
+        binding: player.roster
+        description: "Horse selection grid for parent pairing."
+        actions:
+          - event: select_sire
+            label: "Select Sire"
+          - event: select_dam
+            label: "Select Dam"
+      - type: action_button
+        event: breed_horses
+        label: "Breed"
+        description: "Generates offspring via BreedingSystem in logic.lua."
+      - type: label
+        binding: last_foal
+        label: "New Foal"
+        description: "Displays generated offspring card after breeding."
+
+  - id: stats
+    label: "Stats"
+    components:
+      - type: stat_bar
+        binding: selected_horse.stats.VIT
+        label: "VIT"
+        description: "Vitality bar (1–100)."
+      - type: stat_bar
+        binding: selected_horse.stats.PWR
+        label: "PWR"
+        description: "Power bar (1–100)."
+      - type: stat_bar
+        binding: selected_horse.stats.AGI
+        label: "AGI"
+        description: "Agility bar (1–100)."
+      - type: stat_bar
+        binding: selected_horse.stats.MND
+        label: "MND"
+        description: "Mind bar (1–100)."
+      - type: stat_bar
+        binding: selected_horse.stats.RES
+        label: "RES"
+        description: "Resilience bar (1–100)."
+      - type: stat_bar
+        binding: selected_horse.stats.CHM
+        label: "CHM"
+        description: "Charisma bar (1–100)."
+      - type: stat_display
+        binding: selected_horse.wins
+        label: "Career Wins"
+      - type: stat_display
+        binding: selected_horse.races
+        label: "Career Races"

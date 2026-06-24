@@ -1,0 +1,188 @@
+# horse_racing/data.yaml
+# Source of truth for all game state schemas, constants, and lookup tables.
+# No logic. No rendering. Pure data.
+
+meta:
+  game_id: horse_racing
+  version: "0.1"
+  description: >
+    A horse racing simulation with genetics, stat-based performance,
+    odds calculation, and betting.
+
+# ---------------------------------------------------------------------------
+# Constants — all numeric tuning lives here, never in logic.lua or renderers
+# ---------------------------------------------------------------------------
+constants:
+  race:
+    field_size: 8            # horses per race
+    base_distance: 1200      # furlongs * 100 (metres equivalent)
+    fatigue_factor: 0.04     # per-furlong stamina drain
+    upset_variance: 0.12     # random noise in race resolution
+
+  breeding:
+    max_generation: 10
+    litter_size: 1
+    trait_mutation_chance: 0.05
+
+  stats:
+    min_value: 1
+    max_value: 100
+    starting_budget: 5000
+
+  betting:
+    min_bet: 10
+    max_bet: 2000
+    house_take: 0.15         # fraction removed before payout
+
+# ---------------------------------------------------------------------------
+# Entity Schemas
+# ---------------------------------------------------------------------------
+schemas:
+  horse:
+    description: "A single racing horse with genetics and six-stat block."
+    fields:
+      id:
+        type: string
+        description: "Unique identifier, e.g. 'h_001'"
+      name:
+        type: string
+        description: "Display name"
+      generation:
+        type: integer
+        description: "Breeding generation (0 = founding stock)"
+      genome:
+        type: object
+        description: "Raw genetic encoding produced by GeneticsSystem"
+        fields:
+          speed_allele:
+            type: integer
+            range: [1, 10]
+            description: "Dominant speed gene expression"
+          stamina_allele:
+            type: integer
+            range: [1, 10]
+            description: "Dominant stamina gene expression"
+          temperament_allele:
+            type: integer
+            range: [1, 10]
+            description: "Affects CHM and race behavior"
+      stats:
+        type: object
+        description: "Six-stat block (StatSystem)"
+        fields:
+          VIT:
+            type: integer
+            range: [1, 100]
+            description: "Vitality — stamina and recovery"
+          PWR:
+            type: integer
+            range: [1, 100]
+            description: "Power — raw sprint force"
+          AGI:
+            type: integer
+            range: [1, 100]
+            description: "Agility — cornering and gait efficiency"
+          MND:
+            type: integer
+            range: [1, 100]
+            description: "Mind — trainability and focus under pressure"
+          RES:
+            type: integer
+            range: [1, 100]
+            description: "Resilience — injury resistance"
+          CHM:
+            type: integer
+            range: [1, 100]
+            description: "Charisma — crowd appeal, affects bet multipliers"
+      age:
+        type: integer
+        description: "Age in race-seasons"
+      wins:
+        type: integer
+        description: "Career win count"
+      races:
+        type: integer
+        description: "Career race count"
+      coat:
+        type: string
+        description: "Coat color from coat_colors table"
+
+  race:
+    description: "A single race event."
+    fields:
+      id:
+        type: string
+        description: "Unique race identifier"
+      field:
+        type: array
+        item_type: string
+        description: "List of horse IDs in the starting field"
+      distance:
+        type: integer
+        description: "Race distance (uses constants.race.base_distance if omitted)"
+      results:
+        type: array
+        item_type: string
+        description: "Horse IDs in finishing order (null until race resolved)"
+      odds:
+        type: object
+        description: "Map of horse_id -> decimal odds (OddsSystem)"
+
+  player:
+    description: "The human player's state."
+    fields:
+      id:
+        type: string
+      name:
+        type: string
+      funds:
+        type: integer
+        description: "Current currency balance"
+      roster:
+        type: array
+        item_type: string
+        description: "Owned horse IDs"
+      active_bets:
+        type: array
+        description: "Pending bet objects"
+        item_type:
+          horse_id: string
+          amount: integer
+          race_id: string
+
+# ---------------------------------------------------------------------------
+# Lookup Tables
+# ---------------------------------------------------------------------------
+tables:
+  coat_colors:
+    description: "Valid horse coat color identifiers."
+    values:
+      - bay
+      - chestnut
+      - grey
+      - black
+      - roan
+      - palomino
+      - dun
+      - pinto
+
+  race_class:
+    description: "Race tier definitions."
+    values:
+      - id: maiden
+        min_wins: 0
+        max_wins: 0
+        purse: 500
+      - id: allowance
+        min_wins: 1
+        max_wins: 4
+        purse: 1500
+      - id: stakes
+        min_wins: 5
+        max_wins: null
+        purse: 5000
+
+  xp_thresholds:
+    description: "Win counts required to advance race class."
+    maiden_to_allowance: 1
+    allowance_to_stakes: 5
