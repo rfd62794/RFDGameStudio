@@ -1,14 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import type { CurrentRace, RaceResult, GameSession, Bet } from '../engine/types';
+import type { CurrentRace, RaceParticipant, GameSession, Bet } from '../engine/types';
 import { call } from '../engine/runtime';
-import RaceTrack from './RaceTrack';
 
 interface Props {
   race: CurrentRace | null;
   funds: number;
   session: GameSession;
   onNewRace: () => void;
-  onRaceComplete: (results: RaceResult[], netPayout: number, betsPlaced: Bet[]) => void;
+  onStartRace: (enrichedParticipants: RaceParticipant[], bets: Bet[], netPayout: number) => void;
 }
 
 interface BetEntry {
@@ -16,10 +15,9 @@ interface BetEntry {
   type: 'Win' | 'Place';
 }
 
-export default function BettingTab({ race, funds, session, onNewRace, onRaceComplete }: Props) {
+export default function BettingTab({ race, funds, session, onNewRace, onStartRace }: Props) {
   const [betEntries, setBetEntries] = useState<Record<string, BetEntry>>({});
-  const [results, setResults] = useState<RaceResult[] | null>(null);
-  const [netPayout, setNetPayout] = useState<number>(0);
+  const [simulated, setSimulated] = useState(false);
 
   const data = session.files.data as Record<string, unknown>;
   const bettingCfg = (data['betting'] as Record<string, unknown>) ?? {};
@@ -79,12 +77,13 @@ export default function BettingTab({ race, funds, session, onNewRace, onRaceComp
     const simResults = call(session, 'simulate_race', luaParticipants, { distance: race.distance }) as
       Array<Record<string, unknown>>;
 
-    const ordered = (Array.isArray(simResults) ? simResults : Object.values(simResults))
-      .map(r => ({
+    const rawArr = (Array.isArray(simResults) ? simResults : Object.values(simResults)) as Array<Record<string, unknown>>;
+    const ordered = rawArr
+      .map((r) => ({
         rank: r['rank'] as number,
         horse_id: String(r['horse_id']),
         horse_name: String(r['horse_name']),
-        finish_time: r['finish_time'] as number,
+        finish_time: r['finish_time'] as number | undefined,
       }))
       .sort((a, b) => a.rank - b.rank);
 
@@ -93,36 +92,30 @@ export default function BettingTab({ race, funds, session, onNewRace, onRaceComp
 
     const settlement = call(
       session, 'settle_bets', activeBets, standings, race.prize_pool, prizeSplits
-    ) as { bet_payout: number; horse_earnings: Record<string, number> };
+    ) as Record<string, unknown>;
 
-    const betPayout = settlement['bet_payout'] as number ?? 0;
-    const horseEarnings = settlement['horse_earnings'] as Record<string, number> ?? {};
+    const betPayout = (settlement['bet_payout'] as number) ?? 0;
+    const horseEarnings = (settlement['horse_earnings'] as Record<string, number>) ?? {};
 
-    const raceResults: RaceResult[] = ordered.map(entry => {
-      const participant = race.participants.find(p => p.horse.id === entry.horse_id);
-      const horse = participant?.horse;
-      const prizeEarnings = horseEarnings[entry.horse_id] ?? 0;
-      return {
-        rank: entry.rank,
-        horse_id: horse?.id ?? entry.horse_id,
-        horse_name: horse?.name ?? entry.horse_name,
-        player_owned: horse?.player_owned ?? false,
-        payout: horse?.player_owned ? prizeEarnings : 0,
-      };
+    // Enrich participants with Lua-determined final_rank and finish_time
+    const enriched: RaceParticipant[] = race.participants.map(p => {
+      const r = ordered.find(o => o.horse_id === p.horse.id);
+      return { ...p, final_rank: r?.rank, finish_time: r?.finish_time };
     });
 
+    const prizeEarningsTotal = race.participants
+      .filter(p => p.horse.player_owned)
+      .reduce((s, p) => s + (horseEarnings[p.horse.id] ?? 0), 0);
     const totalBetsDeducted = activeBets.reduce((s, b) => s + b.amount, 0);
-    const net = betPayout - totalBetsDeducted + raceResults.filter(r => r.player_owned).reduce((s, r) => s + r.payout, 0);
+    const net = betPayout - totalBetsDeducted + prizeEarningsTotal;
 
-    setResults(raceResults);
-    setNetPayout(net);
-    onRaceComplete(raceResults, net, activeBets);
-  }, [race, betEntries, session, getPlaceOdds, onRaceComplete]);
+    setSimulated(true);
+    onStartRace(enriched, activeBets, net);
+  }, [race, betEntries, session, getPlaceOdds, onStartRace]);
 
   const handleNewRace = useCallback(() => {
     setBetEntries({});
-    setResults(null);
-    setNetPayout(0);
+    setSimulated(false);
     onNewRace();
   }, [onNewRace]);
 
@@ -138,7 +131,7 @@ export default function BettingTab({ race, funds, session, onNewRace, onRaceComp
     );
   }
 
-  const isCompleted = race.status === 'completed' || results !== null;
+  const isCompleted = race.status === 'completed' || simulated;
 
   return (
     <div>
@@ -212,37 +205,10 @@ export default function BettingTab({ race, funds, session, onNewRace, onRaceComp
             </table>
           </div>
 
-          {results && (
-            <>
-              <div className="race-result-banner" style={{ marginTop: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <strong>Race Complete</strong>
-                  <span style={{ color: netPayout >= 0 ? 'var(--green)' : 'var(--red)', fontWeight: 700 }}>
-                    Net: {netPayout >= 0 ? '+' : ''}${netPayout}
-                  </span>
-                </div>
-                <table className="result-table">
-                  <thead>
-                    <tr><th>Rank</th><th>Horse</th><th>Prize</th></tr>
-                  </thead>
-                  <tbody>
-                    {results.map(r => (
-                      <tr key={r.rank}>
-                        <td className={`rank-${r.rank}`}>{r.rank}</td>
-                        <td>
-                          {r.horse_name}
-                          {r.player_owned && <span className="badge-player">You</span>}
-                        </td>
-                        <td className={r.payout > 0 ? 'payout-pos' : ''}>
-                          {r.payout > 0 ? `+$${r.payout}` : '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <RaceTrack race={race} results={results} />
-            </>
+          {simulated && (
+            <div className="race-result-banner" style={{ marginTop: '1rem' }}>
+              <strong>Simulation complete — heading to the track…</strong>
+            </div>
           )}
         </div>
 
@@ -276,10 +242,10 @@ export default function BettingTab({ race, funds, session, onNewRace, onRaceComp
 
         {isCompleted && (
           <div className="bet-panel">
-            <h2>Race Settled</h2>
-            <button className="btn-primary" style={{ width: '100%' }} onClick={handleNewRace}>
-              Enter New Race
-            </button>
+            <h2>Going to Track</h2>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+              Race is starting…
+            </div>
           </div>
         )}
       </div>
