@@ -1,10 +1,22 @@
 import * as fengariNs from 'fengari-web';
 import { LuaError } from './types';
 
-const fengari = (fengariNs as unknown as { default: typeof fengariNs }).default ?? fengariNs;
+const fengari = (fengariNs as unknown as { default: typeof fengariNs & { to_jsstring: (s: unknown) => string; to_luastring: (s: string) => unknown } }).default ?? fengariNs;
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const lualib = fengari.lualib;
+// fengari requires strings to be converted to/from its internal LuaString byte arrays
+const to_luastring = (fengari as unknown as { to_luastring: (s: string) => unknown }).to_luastring as (s: string) => unknown;
+const to_jsstring = (fengari as unknown as { to_jsstring: (s: unknown) => string }).to_jsstring;
+
+function errFromStack(L: unknown): string {
+  try {
+    const raw = (lua as unknown as { lua_tostring: (L: unknown, idx: number) => unknown }).lua_tostring(L, -1);
+    return raw != null ? to_jsstring(raw) : 'unknown error';
+  } catch {
+    return 'unknown error';
+  }
+}
 
 type LuaState = ReturnType<typeof lauxlib.luaL_newstate>;
 
@@ -15,16 +27,16 @@ export class LuaExecutor {
     this.L = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(this.L);
     this.seedRandom(seed);
-    const status = lauxlib.luaL_dostring(this.L, luaSource);
+    const status = lauxlib.luaL_dostring(this.L, to_luastring(luaSource) as string);
     if (status !== lua.LUA_OK) {
-      const err = lua.lua_tojsstring(this.L, -1);
+      const err = errFromStack(this.L);
       lua.lua_pop(this.L, 1);
       throw new LuaError(`Lua load error: ${err}`);
     }
   }
 
   call(fnName: string, ...args: unknown[]): unknown {
-    lua.lua_getglobal(this.L, fnName);
+    lua.lua_getglobal(this.L, to_luastring(fnName) as string);
     if (lua.lua_type(this.L, -1) !== lua.LUA_TFUNCTION) {
       lua.lua_pop(this.L, 1);
       throw new LuaError(`Lua function not found: ${fnName}`);
@@ -34,7 +46,7 @@ export class LuaExecutor {
     }
     const status = lua.lua_pcall(this.L, args.length, 1, 0);
     if (status !== lua.LUA_OK) {
-      const err = lua.lua_tojsstring(this.L, -1);
+      const err = errFromStack(this.L);
       lua.lua_pop(this.L, 1);
       throw new LuaError(`Lua error in ${fnName}: ${err}`);
     }
@@ -44,7 +56,7 @@ export class LuaExecutor {
   }
 
   private seedRandom(seed: number): void {
-    lauxlib.luaL_dostring(this.L, `math.randomseed(${seed})`);
+    lauxlib.luaL_dostring(this.L, to_luastring(`math.randomseed(${seed})`) as string);
   }
 
   private pushValue(val: unknown): void {
@@ -55,7 +67,7 @@ export class LuaExecutor {
     } else if (typeof val === 'number') {
       lua.lua_pushnumber(this.L, val);
     } else if (typeof val === 'string') {
-      lua.lua_pushstring(this.L, val);
+      lua.lua_pushstring(this.L, to_luastring(val) as string);
     } else if (Array.isArray(val)) {
       lua.lua_newtable(this.L);
       val.forEach((item, i) => {
@@ -66,7 +78,7 @@ export class LuaExecutor {
     } else if (typeof val === 'object') {
       lua.lua_newtable(this.L);
       for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
-        lua.lua_pushstring(this.L, k);
+        lua.lua_pushstring(this.L, to_luastring(k) as string);
         this.pushValue(v);
         lua.lua_settable(this.L, -3);
       }
@@ -84,8 +96,10 @@ export class LuaExecutor {
         return lua.lua_toboolean(this.L, idx) !== 0;
       case lua.LUA_TNUMBER:
         return lua.lua_tonumber(this.L, idx);
-      case lua.LUA_TSTRING:
-        return lua.lua_tojsstring(this.L, idx);
+      case lua.LUA_TSTRING: {
+        const raw = (lua as unknown as { lua_tostring: (L: unknown, idx: number) => unknown }).lua_tostring(this.L, idx);
+        return raw != null ? to_jsstring(raw) : null;
+      }
       case lua.LUA_TTABLE:
         return this.pullTable(idx);
       default:
@@ -108,7 +122,8 @@ export class LuaExecutor {
         if (!Number.isInteger(key) || key < 1) isArray = false;
         else maxInt = Math.max(maxInt, key as number);
       } else {
-        key = lua.lua_tojsstring(this.L, -2);
+        const rawKey = (lua as unknown as { lua_tostring: (L: unknown, idx: number) => unknown }).lua_tostring(this.L, -2);
+        key = rawKey != null ? to_jsstring(rawKey) : String(Math.random());
         isArray = false;
       }
       result[key] = this.pullValue(-1);
