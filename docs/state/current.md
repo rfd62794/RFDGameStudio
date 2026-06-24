@@ -20,8 +20,8 @@
 | `tests/test_executor.py` | ✅ Done |
 | `tests/test_runtime.py` | ✅ Done |
 | ADR-001 through ADR-005 | ✅ Done |
-| Test floor (15/0/0) passing | 🔲 Pending — run `pytest` |
-| `horse_racing` headless simulation verified | 🔲 Pending |
+| Test floor (48/0/0) passing | ✅ Done |
+| `horse_racing` headless simulation verified | ✅ Done (100-race sim in TestHeadlessSimulation) |
 
 ## Next Steps
 
