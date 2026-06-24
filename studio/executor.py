@@ -83,6 +83,20 @@ class LuaExecutor:
             raise ExecutorError(f"Lua eval error: {exc}") from exc
 
 
+def _is_lua_table(obj: Any) -> bool:
+    """Return True if *obj* is a lupa Lua table proxy (version-agnostic)."""
+    if not _LUPA_AVAILABLE:
+        return False
+    # Duck-type check: lupa table proxies expose .items() and their type name
+    # contains 'Table'. Avoids depending on the private lupa._lupa submodule
+    # which moved between lupa versions.
+    return (
+        hasattr(obj, "items")
+        and hasattr(obj, "keys")
+        and "Table" in type(obj).__name__
+    )
+
+
 def lua_to_python(obj: Any) -> Any:
     """Recursively convert a lupa table proxy to a plain Python dict or list.
 
@@ -90,16 +104,13 @@ def lua_to_python(obj: Any) -> Any:
     Lua dicts (mixed/string keys) become dicts.
     Scalars pass through unchanged.
     """
-    if not _LUPA_AVAILABLE:
+    if not _is_lua_table(obj):
         return obj
 
-    if isinstance(obj, lupa._lupa.LuaTable):  # type: ignore[attr-defined]
-        # Determine if it's array-like (keys are 1..N with no gaps)
-        items = list(obj.items())
-        if items and all(isinstance(k, int) for k, _ in items):
-            keys = sorted(k for k, _ in items)
-            if keys == list(range(1, len(keys) + 1)):
-                return [lua_to_python(v) for _, v in sorted(items)]
-        return {k: lua_to_python(v) for k, v in items}
-
-    return obj
+    # Determine if it's array-like (keys are 1..N with no gaps)
+    items = list(obj.items())
+    if items and all(isinstance(k, int) for k, _ in items):
+        keys = sorted(k for k, _ in items)
+        if keys == list(range(1, len(keys) + 1)):
+            return [lua_to_python(v) for _, v in sorted(items)]
+    return {k: lua_to_python(v) for k, v in items}
