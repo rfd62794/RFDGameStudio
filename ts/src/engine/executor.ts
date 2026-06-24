@@ -1,6 +1,10 @@
-import fengari from 'fengari-web';
-const { lua, lauxlib, lualib } = fengari as typeof import('fengari-web');
+import * as fengariNs from 'fengari-web';
 import { LuaError } from './types';
+
+const fengari = (fengariNs as unknown as { default: typeof fengariNs }).default ?? fengariNs;
+const lua = fengari.lua;
+const lauxlib = fengari.lauxlib;
+const lualib = fengari.lualib;
 
 type LuaState = ReturnType<typeof lauxlib.luaL_newstate>;
 
