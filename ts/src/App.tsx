@@ -78,10 +78,10 @@ function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace {
     participants.push({ horse: h, gate: participants.length + 1, odds: 0, progress: 0, current_distance: 0, current_speed: 0, energy: 100, is_finished: false });
   }
 
-  const npcOptions = { min_stat: 25, max_stat: 65, generation: 1, player_owned: false };
+  const npcOptions = { min_stat: 25, max_stat: 65, generation: 1 };
   while (participants.length < 6) {
     const raw = call(session, 'generate_horse', npcOptions, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
-    const npc = luaHorseToTs(raw);
+    const npc = { ...luaHorseToTs(raw), player_owned: false };
     participants.push({ horse: npc, gate: participants.length + 1, odds: 0, progress: 0, current_distance: 0, current_speed: 0, energy: 100, is_finished: false });
   }
 
