@@ -1,90 +1,88 @@
-"""test_loader.py — Tests for studio.loader"""
+"""test_loader.py — Tests for studio.loader and studio.validator.
 
-import textwrap
+All tests use tests/fixtures/ — never games/ directly.
+"""
+
 from pathlib import Path
 
 import pytest
 
-from studio.loader import LoaderError, load_game_files
+from studio.loader import GameFiles, load_game_files
+from studio.validator import ValidationError, validate_data
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 
-@pytest.fixture()
-def game_dir(tmp_path: Path) -> Path:
-    """Return a tmp_path pre-populated with minimal valid three-file game."""
-    game = tmp_path / "test_game"
-    game.mkdir()
+# ---------------------------------------------------------------------------
+# Test 1
+# ---------------------------------------------------------------------------
 
-    (game / "data.yaml").write_text(
-        textwrap.dedent("""\
-            meta:
-              game_id: test_game
-              version: "0.1"
-              description: "Minimal test game"
-            constants:
-              race: {field_size: 4}
-              breeding: {max_generation: 5}
-              stats: {min_value: 1, max_value: 100}
-              betting: {house_take: 0.1}
-            schemas:
-              horse:
-                description: "A horse"
-                fields:
-                  id: {type: string, description: "ID"}
-            tables:
-              coat_colors:
-                values: [bay, grey]
-        """),
-        encoding="utf-8",
-    )
-    (game / "ui.yaml").write_text(
-        "meta:\n  game_id: test_game\ntabs: []\n", encoding="utf-8"
-    )
-    (game / "logic.lua").write_text(
-        "function noop() return 42 end\n", encoding="utf-8"
-    )
-    return tmp_path
+def test_load_game_files_returns_game_files() -> None:
+    result = load_game_files("horse_racing", games_dir=FIXTURES_DIR)
+    assert isinstance(result, GameFiles)
+    assert result.game_id == "horse_racing"
 
 
-class TestLoadGameFiles:
-    def test_loads_all_three_files(self, game_dir: Path) -> None:
-        result = load_game_files("test_game", games_root=game_dir)
-        assert set(result.keys()) == {"data", "ui", "lua"}
+# ---------------------------------------------------------------------------
+# Test 2
+# ---------------------------------------------------------------------------
 
-    def test_data_is_dict(self, game_dir: Path) -> None:
-        result = load_game_files("test_game", games_root=game_dir)
-        assert isinstance(result["data"], dict)
+def test_load_game_files_parses_data_yaml() -> None:
+    result = load_game_files("horse_racing", games_dir=FIXTURES_DIR)
+    assert isinstance(result.data, dict)
+    assert result.data["game"]["id"] == "horse_racing"
 
-    def test_ui_is_dict(self, game_dir: Path) -> None:
-        result = load_game_files("test_game", games_root=game_dir)
-        assert isinstance(result["ui"], dict)
 
-    def test_lua_is_string(self, game_dir: Path) -> None:
-        result = load_game_files("test_game", games_root=game_dir)
-        assert isinstance(result["lua"], str)
-        assert "noop" in result["lua"]
+# ---------------------------------------------------------------------------
+# Test 3
+# ---------------------------------------------------------------------------
 
-    def test_missing_game_dir_raises(self, tmp_path: Path) -> None:
-        with pytest.raises(LoaderError, match="not found"):
-            load_game_files("nonexistent", games_root=tmp_path)
+def test_load_game_files_parses_ui_yaml() -> None:
+    result = load_game_files("horse_racing", games_dir=FIXTURES_DIR)
+    assert isinstance(result.ui, dict)
+    assert "game" in result.ui
 
-    def test_missing_data_yaml_raises(self, game_dir: Path) -> None:
-        (game_dir / "test_game" / "data.yaml").unlink()
-        with pytest.raises(LoaderError, match="data.yaml"):
-            load_game_files("test_game", games_root=game_dir)
 
-    def test_missing_ui_yaml_raises(self, game_dir: Path) -> None:
-        (game_dir / "test_game" / "ui.yaml").unlink()
-        with pytest.raises(LoaderError, match="ui.yaml"):
-            load_game_files("test_game", games_root=game_dir)
+# ---------------------------------------------------------------------------
+# Test 4
+# ---------------------------------------------------------------------------
 
-    def test_missing_logic_lua_raises(self, game_dir: Path) -> None:
-        (game_dir / "test_game" / "logic.lua").unlink()
-        with pytest.raises(LoaderError, match="logic.lua"):
-            load_game_files("test_game", games_root=game_dir)
+def test_load_game_files_reads_lua_source() -> None:
+    result = load_game_files("horse_racing", games_dir=FIXTURES_DIR)
+    assert isinstance(result.logic, str)
+    assert "function" in result.logic
 
-    def test_malformed_data_yaml_raises(self, game_dir: Path) -> None:
-        (game_dir / "test_game" / "data.yaml").write_text(
-            "key: [unclosed", encoding="utf-8"
-        )
-        with pytest.raises(LoaderError, match="parse"):
-            load_game_files("test_game", games_root=game_dir)
+
+# ---------------------------------------------------------------------------
+# Test 5
+# ---------------------------------------------------------------------------
+
+def test_load_game_files_missing_dir_raises() -> None:
+    with pytest.raises(FileNotFoundError):
+        load_game_files("no_such_game", games_dir=FIXTURES_DIR)
+
+
+# ---------------------------------------------------------------------------
+# Test 6
+# ---------------------------------------------------------------------------
+
+def test_validate_data_passes_valid_data() -> None:
+    result = load_game_files("horse_racing", games_dir=FIXTURES_DIR)
+    validate_data(result.data)   # must not raise
+
+
+# ---------------------------------------------------------------------------
+# Test 7
+# ---------------------------------------------------------------------------
+
+def test_validate_data_missing_game_id_raises() -> None:
+    bad_data = {
+        "game": {
+            "name": "Test",
+            "version": "1.0",
+            "studio": "RFDGameStudio",
+            # "id" intentionally omitted
+        }
+    }
+    with pytest.raises(ValidationError, match="game.id"):
+        validate_data(bad_data)

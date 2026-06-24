@@ -46,9 +46,15 @@ def call(session: GameSession, fn_name: str, *args: Any) -> Any:
 
 
 def get_schema(session: GameSession, entity: str) -> dict[str, Any]:
-    """Return the schema dict for a named entity from data.yaml.
+    """Return the field definitions for a named entity from data.yaml.
 
-    Example: ``get_schema(session, "horse")`` returns the horse field definitions.
+    If the entity has a ``fields`` sub-key (the standard schema pattern),
+    returns that sub-dict so callers can work directly with field names.
+    Otherwise returns the full entity dict.
+
+    Example: ``get_schema(session, "horse")`` returns a dict whose keys are
+    the horse's field names (id, name, stats, …).
+
     Raises :class:`KeyError` if the entity is not in data.yaml.
     """
     data = session.files.data
@@ -56,4 +62,7 @@ def get_schema(session: GameSession, entity: str) -> dict[str, Any]:
         raise KeyError(
             f"Entity '{entity}' not found in data.yaml for game '{session.game_id}'"
         )
-    return data[entity]
+    entity_def = data[entity]
+    if isinstance(entity_def, dict) and "fields" in entity_def:
+        return entity_def["fields"]
+    return entity_def
