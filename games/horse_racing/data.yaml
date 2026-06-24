@@ -10,10 +10,26 @@ game:
 
 # --- STABLE ---
 stable:
-  starting_funds: 3000
+  starting_funds: 1000
   starting_slots: 3
   max_slots: 12
   unlock_cost_per_slot: 500
+  starter_horse_cost: 400
+  race_cooldown_ms: 90000
+  breed_cooldown_ms: 180000
+
+betting:
+  place_odds_multiplier: 0.38
+  place_odds_min: 1.15
+
+race:
+  overround: 1.12
+  field_size: 6
+  npc_pool_size: 20
+  prize_splits:
+    first: 0.60
+    second: 0.25
+    third: 0.15
 
 # --- HORSE SCHEMA ---
 horse:
@@ -120,30 +136,35 @@ race_classes:
     stat_min: 10
     stat_max: 40
     entry_fee: 0
+    fee: 0
     prize_pool: 300
     prize_split: [0.60, 0.25, 0.15]
   - name: Class III
     stat_min: 35
     stat_max: 55
     entry_fee: 30
+    fee: 30
     prize_pool: 600
     prize_split: [0.60, 0.25, 0.15]
   - name: Class II
     stat_min: 50
     stat_max: 70
     entry_fee: 75
+    fee: 75
     prize_pool: 1200
     prize_split: [0.60, 0.25, 0.15]
   - name: Class I
     stat_min: 65
     stat_max: 85
     entry_fee: 150
+    fee: 150
     prize_pool: 2500
     prize_split: [0.60, 0.25, 0.15]
   - name: Grand Prix
     stat_min: 80
     stat_max: 100
     entry_fee: 300
+    fee: 300
     prize_pool: 6000
     prize_split: [0.60, 0.25, 0.15]
 
@@ -177,3 +198,154 @@ race_venues:
 
 race_types:
   [Derby, Cup, Stakes, Grand Classic, Mile, Oaks, Sprint, Showdown, Championship]
+
+# --- STARTER HORSES (foundation stock for new game) ---
+starter_horses:
+  - id: horse_starter_sire
+    name: Vanguard Spirit
+    gender: Stallion
+    generation: 1
+    speed: 48
+    stamina: 52
+    acceleration: 45
+    temperament: 70
+    color_body: "#A15C21"
+    color_mane: "#1C1917"
+    color_socks: "#A15C21"
+    color_silk: "#EF4444"
+    runs: 0
+    wins: 0
+    places: 0
+    thirds: 0
+    earnings: 0
+    cooldown_until: 0
+    player_owned: true
+    price: 400
+
+  - id: horse_starter_dam
+    name: Starlight Dream
+    gender: Mare
+    generation: 1
+    speed: 44
+    stamina: 56
+    acceleration: 50
+    temperament: 78
+    color_body: "#FAFAF9"
+    color_mane: "#FAFAF9"
+    color_socks: "#FAFAF9"
+    color_silk: "#3B82F6"
+    runs: 0
+    wins: 0
+    places: 0
+    thirds: 0
+    earnings: 0
+    cooldown_until: 0
+    player_owned: true
+    price: 400
+
+# --- PUBLIC STUDS (from Breeder) ---
+public_studs:
+  - id: stud_gold_sovereign
+    name: Gold Sovereign
+    gender: Stallion
+    generation: 1
+    speed: 78
+    stamina: 66
+    acceleration: 74
+    temperament: 80
+    color_body: "#EAB308"
+    color_mane: "#FEF08A"
+    color_socks: "#FEF08A"
+    color_silk: "#EF4444"
+    runs: 24
+    wins: 12
+    places: 6
+    thirds: 3
+    earnings: 15400
+    cooldown_until: 0
+    player_owned: false
+    price: 550
+
+  - id: stud_emerald_fury
+    name: Emerald Fury
+    gender: Stallion
+    generation: 2
+    speed: 86
+    stamina: 84
+    acceleration: 80
+    temperament: 62
+    color_body: "#059669"
+    color_mane: "#34D399"
+    color_socks: "#059669"
+    color_silk: "#8B5CF6"
+    runs: 40
+    wins: 22
+    places: 8
+    thirds: 4
+    earnings: 32000
+    cooldown_until: 0
+    player_owned: false
+    price: 1100
+
+  - id: stud_steel_breeze
+    name: Steel Breeze
+    gender: Stallion
+    generation: 1
+    speed: 52
+    stamina: 60
+    acceleration: 55
+    temperament: 88
+    color_body: "#D6D3D1"
+    color_mane: "#FAFAF9"
+    color_socks: "#A8A29E"
+    color_silk: "#3B82F6"
+    runs: 10
+    wins: 3
+    places: 2
+    thirds: 1
+    earnings: 1800
+    cooldown_until: 0
+    player_owned: false
+    price: 180
+
+  - id: mate_ruby_dream
+    name: Ruby Dream
+    gender: Mare
+    generation: 2
+    speed: 82
+    stamina: 86
+    acceleration: 82
+    temperament: 72
+    color_body: "#DC2626"
+    color_mane: "#F87171"
+    color_socks: "#DC2626"
+    color_silk: "#10B981"
+    runs: 35
+    wins: 16
+    places: 9
+    thirds: 4
+    earnings: 24500
+    cooldown_until: 0
+    player_owned: false
+    price: 1050
+
+  - id: mate_sassy_spark
+    name: Sassy Spark
+    gender: Mare
+    generation: 1
+    speed: 46
+    stamina: 42
+    acceleration: 50
+    temperament: 90
+    color_body: "#91532B"
+    color_mane: "#1C1917"
+    color_socks: "#1C1917"
+    color_silk: "#EC4899"
+    runs: 6
+    wins: 1
+    places: 1
+    thirds: 0
+    earnings: 450
+    cooldown_until: 0
+    player_owned: false
+    price: 100

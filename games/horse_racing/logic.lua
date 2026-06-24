@@ -400,3 +400,95 @@ function sell_horse(horse, current_funds)
   local value = calculate_horse_price(horse)
   return current_funds + value, nil
 end
+
+-- ============================================================
+-- BETTING — PLACE ODDS
+-- ============================================================
+
+-- Calculate place bet odds from win odds.
+-- config: { place_odds_multiplier, place_odds_min }
+-- Returns: float — max(min, win_odds * multiplier)
+function calculate_place_odds(win_odds, config)
+  local multiplier = config and config.place_odds_multiplier or 0.38
+  local min_odds   = config and config.place_odds_min        or 1.15
+  local place = win_odds * multiplier
+  if place < min_odds then place = min_odds end
+  return math.floor(place * 100 + 0.5) / 100
+end
+
+-- ============================================================
+-- HORSE CAREER UPDATE
+-- ============================================================
+
+-- Apply race result to a horse's career stats.
+-- Does NOT mutate the input horse — returns a new table.
+-- rank: 1 = win, 2 = place, 3 = show, >3 = unplaced
+-- prize_earnings: integer amount this horse earned from the prize pool
+function update_horse_after_race(horse, rank, prize_earnings)
+  prize_earnings = prize_earnings or 0
+  local updated = {}
+  for k, v in pairs(horse) do updated[k] = v end
+  updated.runs     = (horse.runs or 0) + 1
+  updated.earnings = (horse.earnings or 0) + prize_earnings
+  if rank == 1 then
+    updated.wins   = (horse.wins or 0) + 1
+  elseif rank == 2 then
+    updated.places = (horse.places or 0) + 1
+  elseif rank == 3 then
+    updated.thirds = (horse.thirds or 0) + 1
+  end
+  return updated
+end
+
+-- ============================================================
+-- BET SETTLEMENT
+-- ============================================================
+
+-- Settle all bets for a completed race.
+-- bets: array of { horse_id, amount, type, payout_odds }
+--   type is "Win" (must finish 1st) or "Place" (must finish 1st/2nd/3rd)
+-- standings: array of { horse_id, final_rank } sorted rank ascending (from simulate_race)
+-- prize_pool: integer total purse
+-- prize_splits: array of fractions e.g. {0.60, 0.25, 0.15}
+--
+-- Returns: {
+--   bet_payout: integer (total won from bets, net — losing bets already deducted on placement),
+--   horse_earnings: table { horse_id = prize_integer }
+-- }
+function settle_bets(bets, standings, prize_pool, prize_splits)
+  -- Build rank lookup: horse_id -> rank
+  local rank_of = {}
+  for _, s in ipairs(standings) do
+    rank_of[s.horse_id] = s.final_rank
+  end
+
+  -- Calculate bet winnings (only winning bets; losing bets were deducted on placement)
+  local bet_payout = 0
+  for _, bet in ipairs(bets) do
+    local rank = rank_of[bet.horse_id]
+    if rank then
+      local is_winner = false
+      if bet.type == "Win" and rank == 1 then
+        is_winner = true
+      elseif bet.type == "Place" and rank <= 3 then
+        is_winner = true
+      end
+      if is_winner then
+        bet_payout = bet_payout + math.floor(bet.amount * bet.payout_odds)
+      end
+    end
+  end
+
+  -- Calculate prize pool earnings per horse
+  local horse_earnings = {}
+  for _, s in ipairs(standings) do
+    local fraction = prize_splits[s.final_rank] or 0
+    if fraction > 0 then
+      horse_earnings[s.horse_id] = math.floor(prize_pool * fraction)
+    else
+      horse_earnings[s.horse_id] = 0
+    end
+  end
+
+  return { bet_payout = bet_payout, horse_earnings = horse_earnings }
+end
