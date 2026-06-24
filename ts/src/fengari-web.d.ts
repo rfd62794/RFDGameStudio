@@ -1,5 +1,5 @@
-declare module 'fengari-web' {
-  export const lua: {
+﻿declare module 'fengari-web' {
+  interface LuaApi {
     LUA_OK: number;
     LUA_TNIL: number;
     LUA_TBOOLEAN: number;
@@ -22,12 +22,22 @@ declare module 'fengari-web' {
     lua_toboolean(L: unknown, idx: number): number;
     lua_tonumber(L: unknown, idx: number): number;
     lua_tojsstring(L: unknown, idx: number): string;
-  };
-  export const lauxlib: {
+  }
+  interface LauxLib {
     luaL_newstate(): unknown;
     luaL_dostring(L: unknown, s: string): number;
-  };
-  export const lualib: {
+  }
+  interface LuaLib {
     luaL_openlibs(L: unknown): void;
-  };
+  }
+  interface FengariExports {
+    lua: LuaApi;
+    lauxlib: LauxLib;
+    lualib: LuaLib;
+  }
+  export const lua: LuaApi;
+  export const lauxlib: LauxLib;
+  export const lualib: LuaLib;
+  const fengari: FengariExports;
+  export default fengari;
 }
