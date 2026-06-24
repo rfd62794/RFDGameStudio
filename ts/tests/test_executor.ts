@@ -3,7 +3,7 @@ import { LuaError } from '../src/engine/types';
 
 vi.mock('fengari-web', () => {
   const state = {};
-  return {
+  const mod = {
     lua: {
       LUA_OK: 0, LUA_TNIL: 0, LUA_TBOOLEAN: 1, LUA_TNUMBER: 3,
       LUA_TSTRING: 4, LUA_TTABLE: 5, LUA_TFUNCTION: 6,
@@ -29,6 +29,7 @@ vi.mock('fengari-web', () => {
     },
     lualib: { luaL_openlibs: vi.fn() },
   };
+  return { ...mod, default: mod };
 });
 
 import { lua } from 'fengari-web';

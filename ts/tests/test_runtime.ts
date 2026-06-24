@@ -1,29 +1,32 @@
 import { describe, it, expect, vi } from 'vitest';
 import { RuntimeError } from '../src/engine/types';
 
-vi.mock('fengari-web', () => ({
-  lua: {
-    LUA_OK: 0, LUA_TNIL: 0, LUA_TBOOLEAN: 1, LUA_TNUMBER: 3,
-    LUA_TSTRING: 4, LUA_TTABLE: 5, LUA_TFUNCTION: 6,
-    lua_type: vi.fn(() => 6),
-    lua_gettop: vi.fn(() => 1),
-    lua_pop: vi.fn(),
-    lua_pushnil: vi.fn(), lua_pushboolean: vi.fn(),
-    lua_pushnumber: vi.fn(), lua_pushstring: vi.fn(),
-    lua_newtable: vi.fn(), lua_settable: vi.fn(),
-    lua_getglobal: vi.fn(),
-    lua_pcall: vi.fn(() => 0),
-    lua_next: vi.fn(() => 0),
-    lua_toboolean: vi.fn(() => 0),
-    lua_tonumber: vi.fn(() => 5),
-    lua_tojsstring: vi.fn(() => ''),
-  },
-  lauxlib: {
-    luaL_newstate: vi.fn(() => ({})),
-    luaL_dostring: vi.fn(() => 0),
-  },
-  lualib: { luaL_openlibs: vi.fn() },
-}));
+vi.mock('fengari-web', () => {
+  const mod = {
+    lua: {
+      LUA_OK: 0, LUA_TNIL: 0, LUA_TBOOLEAN: 1, LUA_TNUMBER: 3,
+      LUA_TSTRING: 4, LUA_TTABLE: 5, LUA_TFUNCTION: 6,
+      lua_type: vi.fn(() => 6),
+      lua_gettop: vi.fn(() => 1),
+      lua_pop: vi.fn(),
+      lua_pushnil: vi.fn(), lua_pushboolean: vi.fn(),
+      lua_pushnumber: vi.fn(), lua_pushstring: vi.fn(),
+      lua_newtable: vi.fn(), lua_settable: vi.fn(),
+      lua_getglobal: vi.fn(),
+      lua_pcall: vi.fn(() => 0),
+      lua_next: vi.fn(() => 0),
+      lua_toboolean: vi.fn(() => 0),
+      lua_tonumber: vi.fn(() => 5),
+      lua_tojsstring: vi.fn(() => ''),
+    },
+    lauxlib: {
+      luaL_newstate: vi.fn(() => ({})),
+      luaL_dostring: vi.fn(() => 0),
+    },
+    lualib: { luaL_openlibs: vi.fn() },
+  };
+  return { ...mod, default: mod };
+});
 
 const MOCK_DATA = `
 game:
