@@ -1,213 +1,338 @@
--- horse_racing/logic.lua
--- Pure game logic. No I/O. No rendering. No side effects.
--- All functions are pure: same inputs -> same outputs.
--- The runtime seeds math.random() before calling any function here.
---
--- Systems implemented:
---   GeneticsSystem  — genome generation, inheritance, trait expression
---   StatSystem      — six-stat block derived from genome
---   OddsSystem      — race odds calculation from field stats
---   BreedingSystem  — parent selection, offspring generation
---   RaceSystem      — race resolution with fatigue and variance
+-- RFDGameStudio — Horse Racing & Breeding
+-- Logic Layer — extracted from utils.ts
+-- Runs identically in TypeScript (fengari), Python (lupa), Rust (mlua)
+-- Pure logic. No rendering. No I/O. Just math and rules.
 
--- ---------------------------------------------------------------------------
--- Utilities
--- ---------------------------------------------------------------------------
+-- ============================================================
+-- UTILITY
+-- ============================================================
 
---- Clamp a value between lo and hi.
-local function clamp(v, lo, hi)
-    if v < lo then return lo end
-    if v > hi then return hi end
-    return v
+-- Clamp a value between min and max
+function clamp(val, min_val, max_val)
+  return math.max(min_val, math.min(max_val, val))
 end
 
---- Weighted random choice. weights is {key: weight} table.
---- Returns chosen key.
-local function weighted_choice(weights)
-    local total = 0
-    for _, w in pairs(weights) do total = total + w end
-    local r = math.random() * total
-    local cumulative = 0
-    for k, w in pairs(weights) do
-        cumulative = cumulative + w
-        if r <= cumulative then return k end
+-- Random integer in range [min, max]
+function rand_int(min_val, max_val)
+  return math.floor(min_val + math.random() * (max_val - min_val))
+end
+
+-- Random item from a table (array)
+function rand_item(arr)
+  return arr[math.random(#arr)]
+end
+
+-- Generate a horse name from prefix + suffix pools
+function generate_horse_name(prefixes, suffixes)
+  return rand_item(prefixes) .. " " .. rand_item(suffixes)
+end
+
+-- ============================================================
+-- COLOR PROFILE
+-- ============================================================
+
+-- Pick a coat color based on probability weights
+function generate_color_profile(coat_colors)
+  local total_weight = 0
+  for _, c in ipairs(coat_colors) do
+    total_weight = total_weight + c.weight
+  end
+  
+  local roll = math.random() * total_weight
+  for _, profile in ipairs(coat_colors) do
+    if roll < profile.weight then
+      return {
+        body = profile.body,
+        mane = profile.mane,
+        socks = profile.socks,
+        color_name = profile.name
+      }
     end
+    roll = roll - profile.weight
+  end
+  
+  -- Fallback: Bay
+  return { body = "#91532B", mane = "#1C1917", socks = "#1C1917", color_name = "Bay" }
 end
 
--- ---------------------------------------------------------------------------
--- GeneticsSystem
--- ---------------------------------------------------------------------------
+-- ============================================================
+-- HORSE GENERATION
+-- ============================================================
 
---- Generate a founding-generation genome for a horse.
---- Returns a genome table with allele values in [1, 10].
-function generate_genome()
-    return {
-        speed_allele    = math.random(1, 10),
-        stamina_allele  = math.random(1, 10),
-        temperament_allele = math.random(1, 10),
+-- Generate a random horse with configurable stat ranges
+function generate_horse(options, coat_colors, silk_colors, prefixes, suffixes)
+  local min_stat = options.min_stat or 25
+  local max_stat = options.max_stat or 65
+  local generation = options.generation or 1
+  local player_owned = options.player_owned or false
+  local gender = options.gender or (math.random() > 0.5 and "Stallion" or "Mare")
+
+  local speed        = rand_int(min_stat, max_stat)
+  local stamina      = rand_int(min_stat, max_stat)
+  local acceleration = rand_int(min_stat, max_stat)
+  local temperament  = rand_int(min_stat, max_stat)
+
+  local avg_stat = (speed + stamina + acceleration + temperament) / 4
+  local price = math.floor(avg_stat * avg_stat * 0.35 + (generation * 100) + math.random() * 50)
+
+  local colors = generate_color_profile(coat_colors)
+
+  return {
+    id             = "horse_" .. tostring(math.random(100000, 999999)),
+    name           = generate_horse_name(prefixes, suffixes),
+    gender         = gender,
+    generation     = generation,
+    speed          = speed,
+    stamina        = stamina,
+    acceleration   = acceleration,
+    temperament    = temperament,
+    color_body     = colors.body,
+    color_mane     = colors.mane,
+    color_socks    = colors.socks,
+    color_silk     = rand_item(silk_colors),
+    runs           = 0,
+    wins           = 0,
+    places         = 0,
+    thirds         = 0,
+    earnings       = 0,
+    cooldown_until = 0,
+    player_owned   = player_owned,
+    price          = price,
+    parents        = nil
+  }
+end
+
+-- ============================================================
+-- BREEDING
+-- ============================================================
+
+-- Breed a single stat from two parents with mutation and generational boost
+function breed_stat(stat_a, stat_b)
+  local parent_avg = (stat_a + stat_b) / 2
+  -- Approximate normal distribution: sum of 3 uniform randoms centered on 0
+  -- Range: approximately -15 to +15, centered on 0
+  local mutation = (math.random() + math.random() + math.random() - 1.5) * 10
+  -- Generational boost: +2.0 average
+  local final_stat = math.round and math.round(parent_avg + mutation + 2.0)
+    or math.floor(parent_avg + mutation + 2.0 + 0.5)
+  return clamp(final_stat, 10, 100)
+end
+
+-- Breed two horses, inheriting stats and colors
+-- sire must be Stallion, dam must be Mare
+function breed_horses(sire, dam, coat_colors, silk_colors, prefixes, suffixes)
+  if sire.gender ~= "Stallion" then
+    return nil, "Sire must be a Stallion"
+  end
+  if dam.gender ~= "Mare" then
+    return nil, "Dam must be a Mare"
+  end
+
+  local next_gen = math.max(sire.generation, dam.generation) + 1
+  local gender   = math.random() > 0.5 and "Stallion" or "Mare"
+
+  local speed        = breed_stat(sire.speed, dam.speed)
+  local stamina      = breed_stat(sire.stamina, dam.stamina)
+  local acceleration = breed_stat(sire.acceleration, dam.acceleration)
+  local temperament  = breed_stat(sire.temperament, dam.temperament)
+
+  -- Color inheritance: 45% sire, 45% dam, 10% random mutation
+  local color_roll = math.random()
+  local color_body, color_mane, color_socks
+
+  if color_roll <= 0.45 then
+    color_body  = sire.color_body
+    color_mane  = sire.color_mane
+    color_socks = sire.color_socks
+  elseif color_roll <= 0.90 then
+    color_body  = dam.color_body
+    color_mane  = dam.color_mane
+    color_socks = dam.color_socks
+  else
+    local profile = generate_color_profile(coat_colors)
+    color_body  = profile.body
+    color_mane  = profile.mane
+    color_socks = profile.socks
+  end
+
+  -- Jockey silk: random from parents
+  local color_silk = math.random() > 0.5 and sire.color_silk or dam.color_silk
+
+  -- Child name: sire prefix + dam suffix
+  local sire_parts = {}
+  for part in sire.name:gmatch("%S+") do table.insert(sire_parts, part) end
+  local dam_parts = {}
+  for part in dam.name:gmatch("%S+") do table.insert(dam_parts, part) end
+
+  local child_name = (sire_parts[1] or "Unknown") .. " " ..
+                     (dam_parts[2] or rand_item(suffixes))
+
+  return {
+    id             = "horse_" .. tostring(math.random(100000, 999999)),
+    name           = child_name,
+    gender         = gender,
+    generation     = next_gen,
+    speed          = speed,
+    stamina        = stamina,
+    acceleration   = acceleration,
+    temperament    = temperament,
+    color_body     = color_body,
+    color_mane     = color_mane,
+    color_socks    = color_socks,
+    color_silk     = color_silk,
+    runs           = 0,
+    wins           = 0,
+    places         = 0,
+    thirds         = 0,
+    earnings       = 0,
+    cooldown_until = 0,
+    player_owned   = true,
+    parents        = {
+      sire_id   = sire.id,
+      sire_name = sire.name,
+      dam_id    = dam.id,
+      dam_name  = dam.name
     }
+  }, nil
 end
 
---- Inherit an allele from two parent alleles with optional mutation.
---- mutation_chance is a float in [0, 1] (from data.yaml constants.breeding).
-local function inherit_allele(parent_a, parent_b, mutation_chance)
-    local base = math.random() < 0.5 and parent_a or parent_b
-    if math.random() < mutation_chance then
-        base = clamp(base + math.random(-2, 2), 1, 10)
+-- ============================================================
+-- ODDS CALCULATION
+-- ============================================================
+
+-- Calculate decimal betting odds for a field of horses at a given distance
+-- Returns array of odds parallel to participants array
+function calculate_odds(participants, distance, overround)
+  overround = overround or 1.12
+
+  -- Score each horse based on distance-weighted stats
+  local scores = {}
+  for _, p in ipairs(participants) do
+    local h = p.horse or p  -- support both wrapped and unwrapped horse
+    local score
+
+    if distance <= 900 then
+      -- Sprint: acceleration dominant
+      score = h.acceleration * 0.45 + h.speed * 0.45 + h.stamina * 0.10
+    elseif distance <= 1400 then
+      -- Medium: speed dominant
+      score = h.speed * 0.40 + h.stamina * 0.35 + h.acceleration * 0.25
+    else
+      -- Long: stamina dominant
+      score = h.stamina * 0.55 + h.speed * 0.30 + h.acceleration * 0.15
     end
-    return base
+
+    -- Temperament bump: consistency of peak performance
+    score = score + h.temperament * 0.05
+    table.insert(scores, math.max(1, score))
+  end
+
+  local total_score = 0
+  for _, s in ipairs(scores) do total_score = total_score + s end
+
+  local odds = {}
+  for _, s in ipairs(scores) do
+    local prob = (s / total_score) * overround
+    local decimal_odds = 1 / math.max(0.01, prob)
+    -- Round to nearest tenth
+    decimal_odds = math.floor(decimal_odds * 10 + 0.5) / 10
+    table.insert(odds, math.max(1.1, decimal_odds))
+  end
+
+  return odds
 end
 
---- Produce an offspring genome from two parent genomes.
---- mutation_chance from data.yaml constants.breeding.trait_mutation_chance.
-function breed_genomes(genome_a, genome_b, mutation_chance)
-    return {
-        speed_allele = inherit_allele(
-            genome_a.speed_allele, genome_b.speed_allele, mutation_chance),
-        stamina_allele = inherit_allele(
-            genome_a.stamina_allele, genome_b.stamina_allele, mutation_chance),
-        temperament_allele = inherit_allele(
-            genome_a.temperament_allele, genome_b.temperament_allele, mutation_chance),
-    }
+-- ============================================================
+-- RACE SIMULATION (single tick)
+-- ============================================================
+
+-- Advance race simulation by one tick
+-- Returns updated participants and whether the race is complete
+function tick_race(participants, distance, delta_time)
+  local all_finished = true
+
+  for _, p in ipairs(participants) do
+    if not p.is_finished then
+      local h = p.horse
+
+      -- Energy drain: stamina slows drain rate
+      -- Base drain: 8% per second; high stamina reduces to ~3%
+      local energy_drain = (8 - (h.stamina / 100) * 5) * delta_time
+      p.energy = math.max(0, p.energy - energy_drain)
+
+      -- Speed calculation: base from speed stat, modified by energy and temperament
+      -- Temperament adds volatility: low temperament = wider random swings
+      local volatility = (100 - h.temperament) / 100
+      local random_factor = 1 + (math.random() - 0.5) * volatility * 0.3
+
+      local base_speed = (h.speed / 100) * 12  -- max ~12 m/s
+      local energy_factor = 0.4 + (p.energy / 100) * 0.6  -- never drops below 40%
+
+      -- Acceleration curve: horses start slower and build up
+      local accel_factor = 1.0
+      if p.current_distance < 200 then
+        accel_factor = 0.4 + (h.acceleration / 100) * 0.6 *
+                       (p.current_distance / 200)
+      end
+
+      p.current_speed = base_speed * energy_factor * accel_factor * random_factor
+      p.current_distance = p.current_distance + p.current_speed * delta_time
+      p.progress = math.min(100, (p.current_distance / distance) * 100)
+
+      if p.current_distance >= distance then
+        p.is_finished = true
+        p.finish_time = p.finish_time or (p.current_distance / p.current_speed)
+      else
+        all_finished = false
+      end
+    end
+  end
+
+  return participants, all_finished
 end
 
--- ---------------------------------------------------------------------------
--- StatSystem
--- ---------------------------------------------------------------------------
+-- ============================================================
+-- RACE OUTCOME — prize distribution
+-- ============================================================
 
---- Derive the six-stat block from a genome.
---- Returns {VIT, PWR, AGI, MND, RES, CHM} with values in [1, 100].
---- Allele range [1, 10] maps to stat range [1, 100] with variance.
-function derive_stats(genome)
-    local function stat_from_allele(allele, base_weight, variance)
-        local raw = allele * base_weight + math.random(-variance, variance)
-        return clamp(raw, 1, 100)
-    end
-
-    return {
-        VIT = stat_from_allele(genome.stamina_allele, 9, 5),
-        PWR = stat_from_allele(genome.speed_allele, 9, 5),
-        AGI = stat_from_allele(genome.speed_allele, 7, 8),
-        MND = stat_from_allele(genome.temperament_allele, 8, 6),
-        RES = stat_from_allele(genome.stamina_allele, 8, 7),
-        CHM = stat_from_allele(genome.temperament_allele, 9, 4),
-    }
+-- Calculate prize payouts from race results
+-- prize_split: array of fractions e.g. {0.60, 0.25, 0.15}
+function calculate_payouts(results, prize_pool, prize_split)
+  local payouts = {}
+  for i, result in ipairs(results) do
+    local fraction = prize_split[i] or 0
+    payouts[result.horse_id] = math.floor(prize_pool * fraction)
+  end
+  return payouts
 end
 
--- ---------------------------------------------------------------------------
--- OddsSystem
--- ---------------------------------------------------------------------------
+-- ============================================================
+-- HORSE PRICE (Turf Bid Value)
+-- ============================================================
 
---- Calculate decimal race odds for a field of horses.
---- field is a list of horse tables, each with a .stats block.
---- house_take is a float in [0, 1] (from data.yaml constants.betting.house_take).
---- Returns a map of horse_id -> decimal odds.
-function calculate_odds(field, house_take)
-    -- Performance score: simple linear combination
-    local scores = {}
-    local total = 0
-    for _, horse in ipairs(field) do
-        local s = horse.stats
-        local score = (s.PWR * 0.35) + (s.AGI * 0.25) + (s.VIT * 0.25) + (s.MND * 0.15)
-        scores[horse.id] = score
-        total = total + score
-    end
-
-    -- Convert scores to win probabilities then to decimal odds
-    local odds = {}
-    for id, score in pairs(scores) do
-        local prob = score / total
-        local fair_odds = 1.0 / prob
-        -- Apply house take: inflate odds by (1 - house_take)
-        odds[id] = fair_odds * (1.0 - house_take)
-    end
-    return odds
+-- Recalculate a horse's market value based on current stats and career
+function calculate_horse_price(horse)
+  local avg_stat = (horse.speed + horse.stamina +
+                    horse.acceleration + horse.temperament) / 4
+  local base_price = math.floor(avg_stat * avg_stat * 0.35 +
+                                (horse.generation * 100))
+  -- Career premium: each win adds value
+  local career_premium = horse.wins * 150 + horse.places * 60 + horse.thirds * 30
+  return base_price + career_premium
 end
 
--- ---------------------------------------------------------------------------
--- RaceSystem
--- ---------------------------------------------------------------------------
+-- ============================================================
+-- SELL HORSE
+-- ============================================================
 
---- Resolve a single race.
---- field: list of horse tables (each with .id and .stats)
---- distance: integer (from data.yaml constants.race.base_distance)
---- fatigue_factor: float (from data.yaml constants.race.fatigue_factor)
---- upset_variance: float (from data.yaml constants.race.upset_variance)
---- Returns finishing_order: list of horse IDs from first to last.
-function resolve_race(field, distance, fatigue_factor, upset_variance)
-    local performance = {}
-
-    for _, horse in ipairs(field) do
-        local s = horse.stats
-        -- Base speed from PWR and AGI
-        local base_speed = (s.PWR * 0.6) + (s.AGI * 0.4)
-        -- Stamina penalty over distance: VIT reduces fatigue drain
-        local fatigue_penalty = distance * fatigue_factor * (1.0 - (s.VIT / 200.0))
-        -- Mental composure under race pressure
-        local focus_bonus = s.MND * 0.05
-        -- Random upset factor (upset_variance controls spread)
-        local noise = (math.random() * 2 - 1) * upset_variance * base_speed
-        -- Final performance score (higher is faster)
-        local score = base_speed - fatigue_penalty + focus_bonus + noise
-        performance[#performance + 1] = {id = horse.id, score = score}
-    end
-
-    -- Sort descending by score
-    table.sort(performance, function(a, b) return a.score > b.score end)
-
-    local finishing_order = {}
-    for _, entry in ipairs(performance) do
-        finishing_order[#finishing_order + 1] = entry.id
-    end
-    return finishing_order
-end
-
--- ---------------------------------------------------------------------------
--- BreedingSystem
--- ---------------------------------------------------------------------------
-
---- Generate a foal from two parent horses.
---- sire, dam: full horse tables (id, name, genome, stats, generation)
---- foal_id: string identifier for the new horse
---- foal_name: display name
---- mutation_chance: float (from data.yaml constants.breeding.trait_mutation_chance)
---- coat_colors: list of valid coat color strings (from data.yaml tables.coat_colors)
---- Returns a new horse table ready for insertion into game state.
-function breed_horses(sire, dam, foal_id, foal_name, mutation_chance, coat_colors)
-    local genome = breed_genomes(sire.genome, dam.genome, mutation_chance)
-    local stats  = derive_stats(genome)
-    local generation = math.max(sire.generation, dam.generation) + 1
-
-    -- Random coat color
-    local coat = coat_colors[math.random(1, #coat_colors)]
-
-    return {
-        id         = foal_id,
-        name       = foal_name,
-        generation = generation,
-        genome     = genome,
-        stats      = stats,
-        age        = 0,
-        wins       = 0,
-        races      = 0,
-        coat       = coat,
-    }
-end
-
--- ---------------------------------------------------------------------------
--- Betting Resolution
--- ---------------------------------------------------------------------------
-
---- Resolve a placed bet against race results.
---- bet: {horse_id, amount, race_id}
---- finishing_order: list of horse IDs (first = winner)
---- odds: map of horse_id -> decimal odds
---- Returns {won: bool, payout: integer}
-function resolve_bet(bet, finishing_order, odds)
-    local winner_id = finishing_order[1]
-    if bet.horse_id == winner_id then
-        local payout = math.floor(bet.amount * odds[bet.horse_id])
-        return {won = true, payout = payout}
-    end
-    return {won = false, payout = 0}
+-- Validate and execute a horse sale
+-- Returns new_funds or nil + error
+function sell_horse(horse, current_funds)
+  if horse.runs == 0 then
+    -- Unraced: sell at base price
+    return current_funds + horse.price, nil
+  end
+  -- Raced: sell at current turf bid value
+  local value = calculate_horse_price(horse)
+  return current_funds + value, nil
 end

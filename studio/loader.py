@@ -1,61 +1,47 @@
-"""loader.py — Reads and validates the three game files for a given game_id."""
+"""loader.py — Reads the three game files for a given game_id.
+
+Single responsibility: read three files, return three objects.
+No validation beyond YAML parsing. Validation lives in validator.py.
+"""
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Any
 
 import yaml
 
-
-class LoaderError(Exception):
-    """Raised when the three-file contract is violated during loading."""
+GAMES_DIR = Path(__file__).parent.parent / "games"
 
 
-def _games_root() -> Path:
-    """Resolve the games/ directory relative to this file's package root."""
-    return Path(__file__).parent.parent / "games"
+class GameFiles:
+    """Container for the three parsed game definition files."""
+
+    def __init__(self, game_id: str, data: dict, ui: dict, logic: str) -> None:
+        self.game_id = game_id
+        self.data = data      # parsed data.yaml
+        self.ui = ui          # parsed ui.yaml
+        self.logic = logic    # raw Lua source string
 
 
-def load_game_files(game_id: str, games_root: Path | None = None) -> dict[str, Any]:
-    """Load the three game definition files for *game_id*.
+def load_game_files(game_id: str, games_dir: Path | None = None) -> GameFiles:
+    """Load data.yaml, ui.yaml, logic.lua for *game_id*.
 
-    Returns a dict with keys ``data``, ``ui``, and ``lua``.
-    - ``data``: parsed data.yaml as a dict
-    - ``ui``:   parsed ui.yaml as a dict
-    - ``lua``:  raw logic.lua source as a str
-
-    Raises :class:`LoaderError` if any file is missing or YAML is malformed.
+    Raises :class:`FileNotFoundError` with the exact path if any file is missing.
+    Raises :class:`yaml.YAMLError` if data.yaml or ui.yaml is malformed.
     """
-    root = games_root or _games_root()
+    root = games_dir if games_dir is not None else GAMES_DIR
     game_dir = root / game_id
 
-    if not game_dir.is_dir():
-        raise LoaderError(f"Game directory not found: {game_dir}")
+    data_path = game_dir / "data.yaml"
+    ui_path = game_dir / "ui.yaml"
+    lua_path = game_dir / "logic.lua"
 
-    required = {
-        "data": game_dir / "data.yaml",
-        "ui":   game_dir / "ui.yaml",
-        "lua":  game_dir / "logic.lua",
-    }
-
-    for key, path in required.items():
+    for path in (data_path, ui_path, lua_path):
         if not path.exists():
-            raise LoaderError(
-                f"Missing required file for game '{game_id}': {path.name}"
-            )
+            raise FileNotFoundError(f"Required game file not found: {path}")
 
-    try:
-        data = yaml.safe_load(required["data"].read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise LoaderError(f"Failed to parse data.yaml for '{game_id}': {exc}") from exc
+    data = yaml.safe_load(data_path.read_text(encoding="utf-8"))
+    ui = yaml.safe_load(ui_path.read_text(encoding="utf-8"))
+    logic = lua_path.read_text(encoding="utf-8")
 
-    try:
-        ui = yaml.safe_load(required["ui"].read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise LoaderError(f"Failed to parse ui.yaml for '{game_id}': {exc}") from exc
-
-    lua = required["lua"].read_text(encoding="utf-8")
-
-    return {"data": data, "ui": ui, "lua": lua}
+    return GameFiles(game_id=game_id, data=data, ui=ui, logic=logic)

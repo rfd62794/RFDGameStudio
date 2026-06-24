@@ -1,4 +1,9 @@
-"""validator.py — Schema validation for data.yaml game definitions."""
+"""validator.py — Validates a parsed data.yaml against the studio contract.
+
+Studio contract: every data.yaml must have a 'game' section with the four
+identity fields. This is the minimum required by the studio — not by any
+individual game's schema.
+"""
 
 from __future__ import annotations
 
@@ -9,80 +14,42 @@ class ValidationError(Exception):
     """Raised when a data.yaml fails the studio's structural contract."""
 
 
-# Required top-level sections in every data.yaml
-_REQUIRED_TOP_LEVEL = {"meta", "constants", "schemas", "tables"}
-
-# Required sub-keys inside meta
-_REQUIRED_META = {"game_id", "version", "description"}
-
-# Required sub-keys inside constants
-_REQUIRED_CONSTANTS = {"race", "breeding", "stats", "betting"}
+# The four required identity fields under the top-level 'game' key.
+_REQUIRED_GAME_FIELDS = ("id", "name", "version", "studio")
 
 
-def validate_data(data: dict[str, Any], game_id: str | None = None) -> None:
-    """Validate a parsed data.yaml dict against the studio's structural contract.
+def validate_data(data: dict[str, Any]) -> None:
+    """Validate a parsed data.yaml dict against the studio contract.
 
-    Raises :class:`ValidationError` with a descriptive message on any violation.
-    Does *not* validate field types — that is the runtime bridge's job.
+    Required structure::
+
+        game:
+          id: <string>
+          name: <string>
+          version: <string>
+          studio: <string>
+
+    Raises :class:`ValidationError` with the name of the missing/malformed
+    field if validation fails. Returns ``None`` on success.
     """
-    label = f"data.yaml for '{game_id}'" if game_id else "data.yaml"
-
     if not isinstance(data, dict):
-        raise ValidationError(f"{label}: root must be a YAML mapping, got {type(data).__name__}")
-
-    missing_top = _REQUIRED_TOP_LEVEL - set(data.keys())
-    if missing_top:
         raise ValidationError(
-            f"{label}: missing required top-level sections: {sorted(missing_top)}"
+            f"data.yaml must be a YAML mapping, got {type(data).__name__}"
         )
 
-    # Validate meta
-    meta = data["meta"]
-    if not isinstance(meta, dict):
-        raise ValidationError(f"{label}: 'meta' must be a mapping")
-    missing_meta = _REQUIRED_META - set(meta.keys())
-    if missing_meta:
+    if "game" not in data:
+        raise ValidationError("Missing field: game")
+
+    game = data["game"]
+    if not isinstance(game, dict):
         raise ValidationError(
-            f"{label}: 'meta' missing required keys: {sorted(missing_meta)}"
+            f"'game' must be a mapping, got {type(game).__name__}"
         )
 
-    # game_id consistency check when caller provides expected game_id
-    if game_id and meta.get("game_id") != game_id:
-        raise ValidationError(
-            f"{label}: meta.game_id '{meta.get('game_id')}' does not match "
-            f"expected game_id '{game_id}'"
-        )
-
-    # Validate constants structure
-    constants = data["constants"]
-    if not isinstance(constants, dict):
-        raise ValidationError(f"{label}: 'constants' must be a mapping")
-    missing_const = _REQUIRED_CONSTANTS - set(constants.keys())
-    if missing_const:
-        raise ValidationError(
-            f"{label}: 'constants' missing required sub-sections: {sorted(missing_const)}"
-        )
-
-    # Validate schemas is a non-empty mapping
-    schemas = data["schemas"]
-    if not isinstance(schemas, dict) or not schemas:
-        raise ValidationError(
-            f"{label}: 'schemas' must be a non-empty mapping of entity definitions"
-        )
-
-    for entity_name, entity_def in schemas.items():
-        if not isinstance(entity_def, dict):
+    for field in _REQUIRED_GAME_FIELDS:
+        if field not in game:
+            raise ValidationError(f"Missing field: game.{field}")
+        if not isinstance(game[field], str):
             raise ValidationError(
-                f"{label}: schema '{entity_name}' must be a mapping"
+                f"game.{field} must be a string, got {type(game[field]).__name__}"
             )
-        if "fields" not in entity_def:
-            raise ValidationError(
-                f"{label}: schema '{entity_name}' is missing required 'fields' key"
-            )
-
-    # Validate tables is a non-empty mapping
-    tables = data["tables"]
-    if not isinstance(tables, dict) or not tables:
-        raise ValidationError(
-            f"{label}: 'tables' must be a non-empty mapping of lookup tables"
-        )

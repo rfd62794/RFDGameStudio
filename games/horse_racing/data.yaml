@@ -1,188 +1,179 @@
-# horse_racing/data.yaml
-# Source of truth for all game state schemas, constants, and lookup tables.
-# No logic. No rendering. Pure data.
+# RFDGameStudio — Horse Racing & Breeding
+# Data Layer — extracted from types.ts
+# Renderer-agnostic. TypeScript, Python, Rust all read this.
 
-meta:
-  game_id: horse_racing
-  version: "0.1"
-  description: >
-    A horse racing simulation with genetics, stat-based performance,
-    odds calculation, and betting.
+game:
+  id: horse_racing
+  name: Derby Sim
+  version: "1.2"
+  studio: RFDGameStudio
 
-# ---------------------------------------------------------------------------
-# Constants — all numeric tuning lives here, never in logic.lua or renderers
-# ---------------------------------------------------------------------------
-constants:
-  race:
-    field_size: 8            # horses per race
-    base_distance: 1200      # furlongs * 100 (metres equivalent)
-    fatigue_factor: 0.04     # per-furlong stamina drain
-    upset_variance: 0.12     # random noise in race resolution
+# --- STABLE ---
+stable:
+  starting_funds: 3000
+  starting_slots: 3
+  max_slots: 12
+  unlock_cost_per_slot: 500
 
-  breeding:
-    max_generation: 10
-    litter_size: 1
-    trait_mutation_chance: 0.05
+# --- HORSE SCHEMA ---
+horse:
+  fields:
+    id: string
+    name: string
+    gender: [Stallion, Mare]
+    generation: integer
+    stats:
+      speed: {min: 0, max: 100, description: Maximum speed}
+      stamina: {min: 0, max: 100, description: Slower fatigue rate}
+      acceleration: {min: 0, max: 100, description: Time to reach top speed}
+      temperament: {min: 0, max: 100, description: Higher = more consistent, lower = volatile}
+    colors:
+      body: hex
+      mane: hex
+      socks: hex
+      jockey_silk: hex
+    career:
+      runs: integer
+      wins: integer
+      places: integer
+      thirds: integer
+      earnings: integer
+    cooldown_until: timestamp
+    player_owned: boolean
+    parents:
+      sire_id: string
+      sire_name: string
+      dam_id: string
+      dam_name: string
+    price: integer
 
-  stats:
-    min_value: 1
-    max_value: 100
-    starting_budget: 5000
+# --- COAT COLOR PROFILES ---
+coat_colors:
+  - name: Bay
+    body: "#91532B"
+    mane: "#1C1917"
+    socks: "#1C1917"
+    weight: 30
+  - name: Chestnut
+    body: "#A15C21"
+    mane: "#B46E2A"
+    socks: "#A15C21"
+    weight: 25
+  - name: Black
+    body: "#292524"
+    mane: "#1C1917"
+    socks: "#1C1917"
+    weight: 15
+  - name: Gray
+    body: "#D6D3D1"
+    mane: "#F5F5F4"
+    socks: "#A8A29E"
+    weight: 15
+  - name: Palomino
+    body: "#EAB308"
+    mane: "#FEF08A"
+    socks: "#FEF08A"
+    weight: 8
+  - name: Buckskin
+    body: "#EAB308"
+    mane: "#1C1917"
+    socks: "#1C1917"
+    weight: 5
+  - name: Albino
+    body: "#FAFAF9"
+    mane: "#FAFAF9"
+    socks: "#E7E5E4"
+    weight: 1
+  - name: Emerald (Rare Mutation)
+    body: "#059669"
+    mane: "#34D399"
+    socks: "#059669"
+    weight: 0.4
+    rare: true
+  - name: Sapphire (Rare Mutation)
+    body: "#2563EB"
+    mane: "#60A5FA"
+    socks: "#2563EB"
+    weight: 0.3
+    rare: true
+  - name: Ruby (Rare Mutation)
+    body: "#DC2626"
+    mane: "#F87171"
+    socks: "#DC2626"
+    weight: 0.3
+    rare: true
 
-  betting:
-    min_bet: 10
-    max_bet: 2000
-    house_take: 0.15         # fraction removed before payout
+# --- JOCKEY SILK COLORS ---
+silk_colors:
+  - "#EF4444"  # Red
+  - "#3B82F6"  # Blue
+  - "#10B981"  # Green
+  - "#F59E0B"  # Orange/Yellow
+  - "#8B5CF6"  # Purple
+  - "#EC4899"  # Pink
+  - "#06B6D4"  # Cyan
+  - "#14B8A6"  # Teal
 
-# ---------------------------------------------------------------------------
-# Entity Schemas
-# ---------------------------------------------------------------------------
-schemas:
-  horse:
-    description: "A single racing horse with genetics and six-stat block."
-    fields:
-      id:
-        type: string
-        description: "Unique identifier, e.g. 'h_001'"
-      name:
-        type: string
-        description: "Display name"
-      generation:
-        type: integer
-        description: "Breeding generation (0 = founding stock)"
-      genome:
-        type: object
-        description: "Raw genetic encoding produced by GeneticsSystem"
-        fields:
-          speed_allele:
-            type: integer
-            range: [1, 10]
-            description: "Dominant speed gene expression"
-          stamina_allele:
-            type: integer
-            range: [1, 10]
-            description: "Dominant stamina gene expression"
-          temperament_allele:
-            type: integer
-            range: [1, 10]
-            description: "Affects CHM and race behavior"
-      stats:
-        type: object
-        description: "Six-stat block (StatSystem)"
-        fields:
-          VIT:
-            type: integer
-            range: [1, 100]
-            description: "Vitality — stamina and recovery"
-          PWR:
-            type: integer
-            range: [1, 100]
-            description: "Power — raw sprint force"
-          AGI:
-            type: integer
-            range: [1, 100]
-            description: "Agility — cornering and gait efficiency"
-          MND:
-            type: integer
-            range: [1, 100]
-            description: "Mind — trainability and focus under pressure"
-          RES:
-            type: integer
-            range: [1, 100]
-            description: "Resilience — injury resistance"
-          CHM:
-            type: integer
-            range: [1, 100]
-            description: "Charisma — crowd appeal, affects bet multipliers"
-      age:
-        type: integer
-        description: "Age in race-seasons"
-      wins:
-        type: integer
-        description: "Career win count"
-      races:
-        type: integer
-        description: "Career race count"
-      coat:
-        type: string
-        description: "Coat color from coat_colors table"
+# --- RACE CLASSES ---
+race_classes:
+  - name: Maiden
+    stat_min: 10
+    stat_max: 40
+    entry_fee: 0
+    prize_pool: 300
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Class III
+    stat_min: 35
+    stat_max: 55
+    entry_fee: 30
+    prize_pool: 600
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Class II
+    stat_min: 50
+    stat_max: 70
+    entry_fee: 75
+    prize_pool: 1200
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Class I
+    stat_min: 65
+    stat_max: 85
+    entry_fee: 150
+    prize_pool: 2500
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Grand Prix
+    stat_min: 80
+    stat_max: 100
+    entry_fee: 300
+    prize_pool: 6000
+    prize_split: [0.60, 0.25, 0.15]
 
-  race:
-    description: "A single race event."
-    fields:
-      id:
-        type: string
-        description: "Unique race identifier"
-      field:
-        type: array
-        item_type: string
-        description: "List of horse IDs in the starting field"
-      distance:
-        type: integer
-        description: "Race distance (uses constants.race.base_distance if omitted)"
-      results:
-        type: array
-        item_type: string
-        description: "Horse IDs in finishing order (null until race resolved)"
-      odds:
-        type: object
-        description: "Map of horse_id -> decimal odds (OddsSystem)"
+# --- RACE DISTANCES ---
+race_distances:
+  - meters: 800
+    label: Sprint
+    stat_weights: {acceleration: 0.45, speed: 0.45, stamina: 0.10}
+  - meters: 1200
+    label: Medium
+    stat_weights: {speed: 0.40, stamina: 0.35, acceleration: 0.25}
+  - meters: 1600
+    label: Long
+    stat_weights: {stamina: 0.55, speed: 0.30, acceleration: 0.15}
 
-  player:
-    description: "The human player's state."
-    fields:
-      id:
-        type: string
-      name:
-        type: string
-      funds:
-        type: integer
-        description: "Current currency balance"
-      roster:
-        type: array
-        item_type: string
-        description: "Owned horse IDs"
-      active_bets:
-        type: array
-        description: "Pending bet objects"
-        item_type:
-          horse_id: string
-          amount: integer
-          race_id: string
+# --- NAME POOLS ---
+name_prefixes:
+  [Midnight, Golden, Silver, Blazing, Starlight, Stormy, Crimson, Desert,
+   Lunar, Solar, Gilded, Phantom, Velvet, Noble, Iron, Ocean, Rapid,
+   Whispering, Royal, Sassy, Classic, Copper, Platinum, Sovereign, Misty,
+   Zephyr, Slick, Voodoo, Dapper, Bold, Dusk, Dawn, Secret, Swift]
 
-# ---------------------------------------------------------------------------
-# Lookup Tables
-# ---------------------------------------------------------------------------
-tables:
-  coat_colors:
-    description: "Valid horse coat color identifiers."
-    values:
-      - bay
-      - chestnut
-      - grey
-      - black
-      - roan
-      - palomino
-      - dun
-      - pinto
+name_suffixes:
+  [Rider, Storm, Dancer, Bullet, Runner, Streak, Star, Flame, Shadow,
+   Whisper, Gallop, Dream, Spirit, Crown, Glory, Echo, Blitz, Breeze,
+   Arrow, Pride, Chaser, Quest, Comet, Heart, Legacy, Symphony, Slayer,
+   Crest, Tide, Monarch, Vanguard, Eclipse, Miracle, Spectre]
 
-  race_class:
-    description: "Race tier definitions."
-    values:
-      - id: maiden
-        min_wins: 0
-        max_wins: 0
-        purse: 500
-      - id: allowance
-        min_wins: 1
-        max_wins: 4
-        purse: 1500
-      - id: stakes
-        min_wins: 5
-        max_wins: null
-        purse: 5000
+race_venues:
+  [Kentucky, Royal Ascot, Melbourne, Epsom, Dubai, Tokyo, Saratoga, Chantilly, Belmont]
 
-  xp_thresholds:
-    description: "Win counts required to advance race class."
-    maiden_to_allowance: 1
-    allowance_to_stakes: 5
+race_types:
+  [Derby, Cup, Stakes, Grand Classic, Mile, Oaks, Sprint, Showdown, Championship]
