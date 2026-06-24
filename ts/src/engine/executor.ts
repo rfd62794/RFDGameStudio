@@ -6,8 +6,9 @@ const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const lualib = fengari.lualib;
 // fengari requires strings to be converted to/from its internal LuaString byte arrays
-const to_luastring = (fengari as unknown as { to_luastring: (s: string) => unknown }).to_luastring as (s: string) => unknown;
-const to_jsstring = (fengari as unknown as { to_jsstring: (s: unknown) => string }).to_jsstring;
+const _f = fengari as unknown as { to_luastring?: (s: string) => unknown; to_jsstring?: (s: unknown) => string };
+const to_luastring: (s: string) => unknown = _f.to_luastring ?? ((s) => s);
+const to_jsstring: (s: unknown) => string = _f.to_jsstring ?? ((s) => String(s));
 
 function errFromStack(L: unknown): string {
   try {
