@@ -1,0 +1,191 @@
+# RFDGameStudio — Horse Racing & Breeding
+# UI Layer — intent extracted from component structure
+# Describes WHAT the UI means, not HOW it looks.
+# Each renderer interprets this in its own visual language.
+
+game: horse_racing
+
+layout:
+  type: tabbed
+  tabs:
+    - id: stable
+      label: Stable
+      icon: home
+      default: true
+    - id: betting
+      label: Betting
+      icon: currency
+    - id: breed
+      label: Breed
+      icon: genetics
+    - id: history
+      label: History
+      icon: clock
+
+header:
+  components:
+    - type: label
+      text: "DERBY SIM v1.2"
+      style: title
+    - type: label
+      text: "CHAMPIONSHIP SEASON • RACING & BREEDING"
+      style: subtitle
+    - type: stat_display
+      label: "STABLE BANK"
+      field: game_state.funds
+      format: currency
+      icon: dollar
+
+# --- STABLE TAB ---
+tabs:
+  stable:
+    header:
+      - type: label
+        text: "Your Private Stables"
+        style: section_title
+      - type: label
+        text: "Inspect your breeding pedigree, stats distribution, and race metrics."
+        style: description
+      - type: stat_display
+        label: "TOTAL CAPACITY"
+        field: stable.occupied_slots
+        format: "{value} / {max} slots"
+    
+    content:
+      - type: horse_card_grid
+        data_source: game_state.horses
+        filter: player_owned
+        card_template: horse_card
+        empty_state: "No horses in stable. Visit the market."
+    
+    horse_card:
+      components:
+        - type: badge
+          field: horse.status
+          values: {ready: "Ready to Race", cooldown: "Resting"}
+        - type: badge
+          field: horse.generation
+          format: "GEN {value}"
+        - type: label
+          field: horse.name
+          style: card_title
+        - type: label
+          field: horse.gender
+          style: subtitle
+        - type: section
+          label: "HERITAGE PEDIGREE"
+          children:
+            - type: label
+              format: "SIRE: {horse.parents.sire_name}"
+            - type: label
+              format: "DAM: {horse.parents.dam_name}"
+        - type: stat_bar
+          label: "Top Speed"
+          field: horse.stats.speed
+          max: 100
+        - type: stat_bar
+          label: "Stamina Capacity"
+          field: horse.stats.stamina
+          max: 100
+        - type: stat_bar
+          label: "Launch Acceleration"
+          field: horse.stats.acceleration
+          max: 100
+        - type: stat_bar
+          label: "Temperament"
+          field: horse.stats.temperament
+          max: 100
+          label_style: lowercase
+        - type: stat_row
+          stats:
+            - {label: Runs, field: horse.career.runs}
+            - {label: Wins, field: horse.career.wins}
+            - {label: Place, field: horse.career.places}
+            - {label: Show, field: horse.career.thirds}
+        - type: stat_row
+          stats:
+            - {label: Earnings, field: horse.career.earnings, format: currency}
+            - {label: Turf Bid Value, field: horse.price, format: currency}
+        - type: action_button
+          label: "Sell Stall"
+          event: sell_horse
+          data: horse.id
+          style: danger
+
+  # --- BETTING TAB ---
+  betting:
+    content:
+      - type: race_info_card
+        data_source: game_state.current_race
+        components:
+          - type: label
+            field: race.name
+            style: title
+          - type: label
+            field: race.description
+          - type: label
+            format: "Prize Pool: {race.prize_pool}"
+            format_type: currency
+      - type: race_track
+        component: SVGRacer
+        data_source: game_state.current_race.participants
+      - type: betting_panel
+        data_source: game_state.current_race.participants
+        bet_types: [Win, Place]
+        actions:
+          - event: place_bet
+          - event: start_race
+          - event: new_race
+
+  # --- BREED TAB ---
+  breed:
+    content:
+      - type: breed_selector
+        label: "Select Sire (Stallion)"
+        data_source: game_state.horses
+        filter: {gender: Stallion, status: ready}
+        selection_event: select_sire
+      - type: breed_selector
+        label: "Select Dam (Mare)"
+        data_source: game_state.horses
+        filter: {gender: Mare, status: ready}
+        selection_event: select_dam
+      - type: breed_preview
+        shows: [stat_projections, color_inheritance, generation]
+      - type: action_button
+        label: "Breed"
+        event: breed_horses
+        requires: [sire_selected, dam_selected, stable_slot_available]
+
+  # --- HISTORY TAB ---
+  history:
+    content:
+      - type: race_history_list
+        data_source: game_state.race_history
+        item_template: history_item
+        empty_state: "No races completed yet."
+      
+      history_item:
+        components:
+          - type: label
+            field: race.name
+            style: title
+          - type: label
+            format: "{race.distance}m • Prize: {race.prize_pool}"
+            format_type: currency
+          - type: results_table
+            data_source: race.results
+            columns: [rank, horse_name, payout]
+          - type: timestamp
+            field: race.timestamp
+
+footer:
+  - type: label
+    text: "© 2026 DERBY SIMULATOR. ALL RIGHTS RESERVED."
+    style: footer
+  - type: link
+    label: "GAME RULES"
+    event: show_rules
+  - type: link
+    label: "PEDIGREE GENETICS DATA"
+    event: show_genetics
