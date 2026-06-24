@@ -282,7 +282,7 @@ export default function App() {
             }
           </div>
         )}
-        {activeTab === 'breeding' && (
+        {activeTab === 'breed' && (
           <BreederTab
             horses={gameState.horses}
             session={session}
