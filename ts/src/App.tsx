@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { loadGame, call, getSchema } from './engine/runtime';
-import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet } from './engine/types';
+import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from './engine/types';
 import { RuntimeError } from './engine/types';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
+import RaceTrack from './components/RaceTrack';
 
 const SEED = 42;
 const GAME_ID = 'horse_racing';
@@ -111,6 +112,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [activeTab, setActiveTab] = useState<string>('stable');
+  const [isRacingActive, setIsRacingActive] = useState(false);
+  const [pendingBets, setPendingBets] = useState<Bet[]>([]);
+  const [pendingNetPayout, setPendingNetPayout] = useState(0);
 
   useEffect(() => {
     try {
@@ -132,6 +136,17 @@ export default function App() {
       setError(e instanceof Error ? e.message : String(e));
     }
   }, [session, gameState]);
+
+  const handleStartRace = useCallback((enrichedParticipants: RaceParticipant[], bets: Bet[], netPayout: number) => {
+    if (!gameState) return;
+    setGameState(prev => {
+      if (!prev || !prev.current_race) return prev;
+      return { ...prev, current_race: { ...prev.current_race, participants: enrichedParticipants } };
+    });
+    setPendingBets(bets);
+    setPendingNetPayout(netPayout);
+    setIsRacingActive(true);
+  }, [gameState]);
 
   const handleRaceComplete = useCallback((results: RaceResult[], netPayout: number, _betsPlaced: Bet[]) => {
     if (!session || !gameState || !gameState.current_race) return;
@@ -169,6 +184,14 @@ export default function App() {
       };
     });
   }, [session, gameState]);
+
+  const handleCloseRaceTrack = useCallback((_results: RaceResult[]) => {
+    handleRaceComplete(_results, pendingNetPayout, pendingBets);
+    setIsRacingActive(false);
+    setPendingBets([]);
+    setPendingNetPayout(0);
+    setActiveTab('stable');
+  }, [handleRaceComplete, pendingNetPayout, pendingBets]);
 
   const handleAddOffspring = useCallback((foal: Horse, cost: number) => {
     if (!session || !gameState) return;
@@ -248,7 +271,7 @@ export default function App() {
             race={gameState.current_race}
             funds={gameState.funds}
             onNewRace={handleNewRace}
-            onRaceComplete={handleRaceComplete}
+            onStartRace={handleStartRace}
             session={session}
           />
         )}
