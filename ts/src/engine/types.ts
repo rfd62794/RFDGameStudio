@@ -44,6 +44,15 @@ export interface RaceParticipant {
   energy: number;
   is_finished: boolean;
   finish_time?: number;
+  final_rank?: number;
+}
+
+export interface Bet {
+  horse_id: string;
+  horse_name: string;
+  amount: number;
+  type: 'Win' | 'Place';
+  payout_odds: number;
 }
 
 export interface RaceResult {
