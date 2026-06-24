@@ -1,12 +1,34 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 2026*
+*Last updated: June 2026*
 
 ## Current Phase
 
-**Phase 2b — Horse Racing Logic Extraction — CERTIFIED**
+**Phase 2c — Race Animation — CERTIFIED**
 
-## Phase 2b Completion Criteria
+## Phase 2c Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `SVGRacer.tsx` copied from examples into `ts/src/components/` | ✅ |
+| `RaceTrack.tsx` — full animated 6-lane track | ✅ |
+| `RaceTrack.tsx` — `anim_` prefix on all display state | ✅ |
+| `RaceTrack.tsx` — Lua `final_rank` is authoritative result | ✅ |
+| `RaceTrack.tsx` — 1x / 3x / 5x speed multiplier buttons | ✅ |
+| `RaceTrack.tsx` — Skip button snaps all to 100%, reveals Lua results | ✅ |
+| `RaceTrack.tsx` — announcer line updates from leader `anim_progress` | ✅ |
+| `RaceTrack.tsx` — results panel with rank, time, bet won/lost | ✅ |
+| `BettingTab.tsx` — `onRaceComplete` replaced with `onStartRace` | ✅ |
+| `BettingTab.tsx` — enriches participants with `final_rank`/`finish_time` before handing off | ✅ |
+| `App.tsx` — `isRacingActive` state added | ✅ |
+| `App.tsx` — `handleStartRace` / `handleCloseRaceTrack` wired | ✅ |
+| `App.tsx` — `RaceTrack` renders as full overlay when `isRacingActive` | ✅ |
+| `index.css` — `.race-track-fullscreen`, `.race-track-header`, `.race-announcer`, `.btn-speed` added | ✅ |
+| Python floor: `uv run pytest -v` → **21 passed, 0 failed** (unchanged) | ✅ |
+| TS floor: `npx vitest run` → **12 passed, 0 failed** (unchanged) | ✅ |
+| `npx vite build` → exits 0, no TypeScript errors | ✅ |
+
+## Phase 2b Completion Criteria (archived)
 
 | Criterion | Status |
 |---|---|
@@ -34,20 +56,20 @@
 ## Proof Output
 
 ```
-# Python floor (Phase 2b)
+# Python floor (Phase 2c — unchanged)
 uv run pytest -v
-21 passed in 0.30s
+21 passed in 0.27s
 
-# TypeScript floor (unchanged)
-npx vitest run --reporter=verbose
-Tests 12 passed (12)
+# TypeScript floor (Phase 2c — unchanged)
+npx vitest run
+Tests  12 passed (12)
 
 # Vite build
 npx vite build
-dist/index.html                   0.41 kB
-dist/assets/index.css             5.31 kB
-dist/assets/index.js            466.67 kB
-✓ built in 1.23s
+dist/index.html                   0.41 kB │ gzip:   0.29 kB
+dist/assets/index-ClkC6YSK.css    6.23 kB │ gzip:   1.61 kB
+dist/assets/index-q8LBqzjn.js   476.15 kB │ gzip: 153.23 kB
+✓ built in 1.33s
 ```
 
 ## Directory Structure
@@ -83,7 +105,8 @@ RFDGameStudio/
         StableTab.tsx
         BettingTab.tsx
         BreederTab.tsx
-        RaceTrack.tsx
+        RaceTrack.tsx       — Phase 2c: animated 6-lane track
+        SVGRacer.tsx        — Phase 2c: horse+jockey SVG sprite
     tests/
       test_loader.ts            — 5 tests
       test_executor.ts          — 3 tests
@@ -108,6 +131,7 @@ RFDGameStudio/
 | **1** | Python Runtime Core | ✅ **CERTIFIED** |
 | **2** | TypeScript Runtime | ✅ **CERTIFIED** |
 | **2b** | Horse Racing Logic Extraction | ✅ **CERTIFIED** |
+| **2c** | Race Animation | ✅ **CERTIFIED** |
 | 3 | Claude Tool Integration | Pending |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
