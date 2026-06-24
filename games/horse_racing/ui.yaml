@@ -164,8 +164,8 @@ tabs:
         data_source: game_state.race_history
         item_template: history_item
         empty_state: "No races completed yet."
-      
-      history_item:
+
+    history_item:
         components:
           - type: label
             field: race.name
