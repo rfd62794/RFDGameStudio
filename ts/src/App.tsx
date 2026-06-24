@@ -12,7 +12,7 @@ function luaHorseToTs(raw: Record<string, unknown>): Horse {
   return {
     id: raw['id'] as string,
     name: raw['name'] as string,
-    gender: raw['gender'] as string,
+    gender: (raw['gender'] as string) as 'Stallion' | 'Mare',
     generation: raw['generation'] as number,
     speed: raw['speed'] as number,
     stamina: raw['stamina'] as number,
@@ -54,10 +54,10 @@ function buildInitialState(session: GameSession): GameState {
 
 function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace {
   const data = session.files.data as Record<string, unknown>;
-  const prefixes = data['name_prefixes'] as string[];
-  const suffixes = data['name_suffixes'] as string[];
-  const coatColors = data['coat_colors'] as Array<Record<string, unknown>>;
-  const silkColors = data['silk_colors'] as string[];
+  const prefixes = data['name_prefixes'];
+  const suffixes = data['name_suffixes'];
+  const coatColors = data['coat_colors'];
+  const silkColors = data['silk_colors'];
   const raceClasses = data['race_classes'] as Array<Record<string, unknown>>;
   const distances = data['race_distances'] as Array<Record<string, unknown>>;
   const venues = data['race_venues'] as string[];
