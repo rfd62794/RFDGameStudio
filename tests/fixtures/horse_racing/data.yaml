@@ -1,0 +1,179 @@
+# RFDGameStudio — Horse Racing & Breeding
+# Data Layer — extracted from types.ts
+# Renderer-agnostic. TypeScript, Python, Rust all read this.
+
+game:
+  id: horse_racing
+  name: Derby Sim
+  version: "1.2"
+  studio: RFDGameStudio
+
+# --- STABLE ---
+stable:
+  starting_funds: 3000
+  starting_slots: 3
+  max_slots: 12
+  unlock_cost_per_slot: 500
+
+# --- HORSE SCHEMA ---
+horse:
+  fields:
+    id: string
+    name: string
+    gender: [Stallion, Mare]
+    generation: integer
+    stats:
+      speed: {min: 0, max: 100, description: Maximum speed}
+      stamina: {min: 0, max: 100, description: Slower fatigue rate}
+      acceleration: {min: 0, max: 100, description: Time to reach top speed}
+      temperament: {min: 0, max: 100, description: Higher = more consistent, lower = volatile}
+    colors:
+      body: hex
+      mane: hex
+      socks: hex
+      jockey_silk: hex
+    career:
+      runs: integer
+      wins: integer
+      places: integer
+      thirds: integer
+      earnings: integer
+    cooldown_until: timestamp
+    player_owned: boolean
+    parents:
+      sire_id: string
+      sire_name: string
+      dam_id: string
+      dam_name: string
+    price: integer
+
+# --- COAT COLOR PROFILES ---
+coat_colors:
+  - name: Bay
+    body: "#91532B"
+    mane: "#1C1917"
+    socks: "#1C1917"
+    weight: 30
+  - name: Chestnut
+    body: "#A15C21"
+    mane: "#B46E2A"
+    socks: "#A15C21"
+    weight: 25
+  - name: Black
+    body: "#292524"
+    mane: "#1C1917"
+    socks: "#1C1917"
+    weight: 15
+  - name: Gray
+    body: "#D6D3D1"
+    mane: "#F5F5F4"
+    socks: "#A8A29E"
+    weight: 15
+  - name: Palomino
+    body: "#EAB308"
+    mane: "#FEF08A"
+    socks: "#FEF08A"
+    weight: 8
+  - name: Buckskin
+    body: "#EAB308"
+    mane: "#1C1917"
+    socks: "#1C1917"
+    weight: 5
+  - name: Albino
+    body: "#FAFAF9"
+    mane: "#FAFAF9"
+    socks: "#E7E5E4"
+    weight: 1
+  - name: Emerald (Rare Mutation)
+    body: "#059669"
+    mane: "#34D399"
+    socks: "#059669"
+    weight: 0.4
+    rare: true
+  - name: Sapphire (Rare Mutation)
+    body: "#2563EB"
+    mane: "#60A5FA"
+    socks: "#2563EB"
+    weight: 0.3
+    rare: true
+  - name: Ruby (Rare Mutation)
+    body: "#DC2626"
+    mane: "#F87171"
+    socks: "#DC2626"
+    weight: 0.3
+    rare: true
+
+# --- JOCKEY SILK COLORS ---
+silk_colors:
+  - "#EF4444"  # Red
+  - "#3B82F6"  # Blue
+  - "#10B981"  # Green
+  - "#F59E0B"  # Orange/Yellow
+  - "#8B5CF6"  # Purple
+  - "#EC4899"  # Pink
+  - "#06B6D4"  # Cyan
+  - "#14B8A6"  # Teal
+
+# --- RACE CLASSES ---
+race_classes:
+  - name: Maiden
+    stat_min: 10
+    stat_max: 40
+    entry_fee: 0
+    prize_pool: 300
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Class III
+    stat_min: 35
+    stat_max: 55
+    entry_fee: 30
+    prize_pool: 600
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Class II
+    stat_min: 50
+    stat_max: 70
+    entry_fee: 75
+    prize_pool: 1200
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Class I
+    stat_min: 65
+    stat_max: 85
+    entry_fee: 150
+    prize_pool: 2500
+    prize_split: [0.60, 0.25, 0.15]
+  - name: Grand Prix
+    stat_min: 80
+    stat_max: 100
+    entry_fee: 300
+    prize_pool: 6000
+    prize_split: [0.60, 0.25, 0.15]
+
+# --- RACE DISTANCES ---
+race_distances:
+  - meters: 800
+    label: Sprint
+    stat_weights: {acceleration: 0.45, speed: 0.45, stamina: 0.10}
+  - meters: 1200
+    label: Medium
+    stat_weights: {speed: 0.40, stamina: 0.35, acceleration: 0.25}
+  - meters: 1600
+    label: Long
+    stat_weights: {stamina: 0.55, speed: 0.30, acceleration: 0.15}
+
+# --- NAME POOLS ---
+name_prefixes:
+  [Midnight, Golden, Silver, Blazing, Starlight, Stormy, Crimson, Desert,
+   Lunar, Solar, Gilded, Phantom, Velvet, Noble, Iron, Ocean, Rapid,
+   Whispering, Royal, Sassy, Classic, Copper, Platinum, Sovereign, Misty,
+   Zephyr, Slick, Voodoo, Dapper, Bold, Dusk, Dawn, Secret, Swift]
+
+name_suffixes:
+  [Rider, Storm, Dancer, Bullet, Runner, Streak, Star, Flame, Shadow,
+   Whisper, Gallop, Dream, Spirit, Crown, Glory, Echo, Blitz, Breeze,
+   Arrow, Pride, Chaser, Quest, Comet, Heart, Legacy, Symphony, Slayer,
+   Crest, Tide, Monarch, Vanguard, Eclipse, Miracle, Spectre]
+
+race_venues:
+  [Kentucky, Royal Ascot, Melbourne, Epsom, Dubai, Tokyo, Saratoga, Chantilly, Belmont]
+
+race_types:
+  [Derby, Cup, Stakes, Grand Classic, Mile, Oaks, Sprint, Showdown, Championship]
