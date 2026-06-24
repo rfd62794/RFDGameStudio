@@ -307,18 +307,21 @@ function simulate_race(participants, config)
   local delta_time = config.delta_time or 0.2
   local MAX_TICKS  = 10000  -- safety ceiling (~33 minutes at 0.2s ticks)
 
-  -- Deep-copy participants so we don't mutate the caller's table
+  -- Deep-copy participants so we don't mutate the caller's table.
+  -- Use pcall when reading finish_time because lupa-proxied Python dicts
+  -- raise KeyError (not nil) for absent keys.
   local field = {}
   for i, p in ipairs(participants) do
     local h = p.horse or p
+    local ok, ft = pcall(function() return p.finish_time end)
     field[i] = {
-      horse          = h,
-      energy         = p.energy         or 100,
+      horse            = h,
+      energy           = p.energy           or 100,
       current_distance = p.current_distance or 0,
-      current_speed  = p.current_speed  or 0,
-      is_finished    = p.is_finished    or false,
-      progress       = p.progress       or 0,
-      finish_time    = p.finish_time    or nil,
+      current_speed    = p.current_speed    or 0,
+      is_finished      = p.is_finished      or false,
+      progress         = p.progress         or 0,
+      finish_time      = (ok and ft) or nil,
     }
   end
 

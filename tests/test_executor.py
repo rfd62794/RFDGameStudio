@@ -109,7 +109,7 @@ def test_simulate_race_returns_six_results() -> None:
     ex = Executor(LUA_SOURCE, seed=42)
     participants = _make_participants(6)
     results = ex.call("simulate_race", participants, {"distance": 1200})
-    assert isinstance(results, dict)
+    assert isinstance(results, list)
     assert len(results) == 6
 
 
@@ -121,7 +121,7 @@ def test_simulate_race_ranks_are_1_through_6() -> None:
     ex = Executor(LUA_SOURCE, seed=42)
     participants = _make_participants(6)
     results = ex.call("simulate_race", participants, {"distance": 1200})
-    ranks = sorted(int(r["rank"]) for r in results.values())
+    ranks = sorted(int(r["rank"]) for r in results)
     assert ranks == [1, 2, 3, 4, 5, 6]
 
 
