@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import type { Horse, GameSession } from '../engine/types';
 import { call } from '../engine/runtime';
+import { SVGRacer } from './SVGRacer';
 
 interface Props {
   horses: Horse[];
@@ -109,6 +110,18 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
 
   const horseCard = (h: Horse | null, label: string) => (
     <div className="breeder-horse-card">
+      {h && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '6px' }}>
+          <SVGRacer
+            colorBody={h.color_body}
+            colorMane={h.color_mane}
+            colorSocks={h.color_socks}
+            colorJockeySilk={h.color_silk}
+            isRunning={false}
+            size={60}
+          />
+        </div>
+      )}
       <div style={{ fontWeight: 600, marginBottom: '4px' }}>{h ? h.name : `— Select ${label} —`}</div>
       {h && (
         <>

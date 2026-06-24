@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import type { CurrentRace, RaceParticipant, GameSession, Bet } from '../engine/types';
 import { call } from '../engine/runtime';
+import { SVGRacer } from './SVGRacer';
 
 interface Props {
   race: CurrentRace | null;
@@ -10,13 +11,14 @@ interface Props {
   onStartRace: (enrichedParticipants: RaceParticipant[], bets: Bet[], netPayout: number) => void;
 }
 
-interface BetEntry {
-  amount: number;
-  type: 'Win' | 'Place';
+interface HorseBets {
+  win: number;
+  place: number;
+  show: number;
 }
 
 export default function BettingTab({ race, funds, session, onNewRace, onStartRace }: Props) {
-  const [betEntries, setBetEntries] = useState<Record<string, BetEntry>>({});
+  const [betEntries, setBetEntries] = useState<Record<string, HorseBets>>({});
   const [simulated, setSimulated] = useState(false);
 
   const data = session.files.data as Record<string, unknown>;
@@ -26,37 +28,28 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
     return call(session, 'calculate_place_odds', winOdds, bettingCfg) as number;
   }, [session, bettingCfg]);
 
-  const handleAmountChange = useCallback((horseId: string, amount: number) => {
+  const getShowOdds = useCallback((winOdds: number): number => {
+    return call(session, 'calculate_show_odds', winOdds, bettingCfg) as number;
+  }, [session, bettingCfg]);
+
+  const handleBetChange = useCallback((horseId: string, type: 'win' | 'place' | 'show', amount: number) => {
     setBetEntries(prev => ({
       ...prev,
-      [horseId]: { amount: Math.max(0, Math.min(amount, funds)), type: prev[horseId]?.type ?? 'Win' },
+      [horseId]: { ...(prev[horseId] ?? { win: 0, place: 0, show: 0 }), [type]: Math.max(0, Math.min(amount, funds)) },
     }));
   }, [funds]);
-
-  const handleTypeToggle = useCallback((horseId: string, type: 'Win' | 'Place') => {
-    setBetEntries(prev => ({
-      ...prev,
-      [horseId]: { amount: prev[horseId]?.amount ?? 0, type },
-    }));
-  }, []);
 
   const handleRace = useCallback(() => {
     if (!race) return;
 
-    const activeBets: Bet[] = race.participants
-      .filter(p => (betEntries[p.horse.id]?.amount ?? 0) > 0)
-      .map(p => {
-        const entry = betEntries[p.horse.id]!;
-        const winOdds = p.odds;
-        const payoutOdds = entry.type === 'Place' ? getPlaceOdds(winOdds) : winOdds;
-        return {
-          horse_id: p.horse.id,
-          horse_name: p.horse.name,
-          amount: entry.amount,
-          type: entry.type,
-          payout_odds: payoutOdds,
-        };
-      });
+    const activeBets: Bet[] = [];
+    for (const p of race.participants) {
+      const entry = betEntries[p.horse.id];
+      if (!entry) continue;
+      if (entry.win > 0) activeBets.push({ horse_id: p.horse.id, horse_name: p.horse.name, amount: entry.win, type: 'Win', payout_odds: p.odds });
+      if (entry.place > 0) activeBets.push({ horse_id: p.horse.id, horse_name: p.horse.name, amount: entry.place, type: 'Place', payout_odds: getPlaceOdds(p.odds) });
+      if (entry.show > 0) activeBets.push({ horse_id: p.horse.id, horse_name: p.horse.name, amount: entry.show, type: 'Show', payout_odds: getShowOdds(p.odds) });
+    }
 
     const luaParticipants = race.participants.map(p => ({
       horse: {
@@ -111,7 +104,7 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
 
     setSimulated(true);
     onStartRace(enriched, activeBets, net);
-  }, [race, betEntries, session, getPlaceOdds, onStartRace]);
+  }, [race, betEntries, session, getPlaceOdds, getShowOdds, onStartRace]);
 
   const handleNewRace = useCallback(() => {
     setBetEntries({});
@@ -153,49 +146,48 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
                   <th>Horse</th>
                   <th>Win</th>
                   <th>Place</th>
-                  {!isCompleted && <th>Type</th>}
-                  {!isCompleted && <th style={{ textAlign: 'right' }}>Bet $</th>}
+                  <th>Show</th>
+                  {!isCompleted && <th style={{ textAlign: 'right', minWidth: '200px' }}>Bets (W / P / S)</th>}
                 </tr>
               </thead>
               <tbody>
                 {race.participants.map(p => {
-                  const entry = betEntries[p.horse.id];
-                  const betType = entry?.type ?? 'Win';
-                  const placeOdds = getPlaceOdds(p.odds);
                   return (
                     <tr key={p.horse.id}>
                       <td style={{ color: 'var(--text-muted)' }}>{p.gate}</td>
                       <td>
-                        <span style={{ color: p.horse.color_silk, marginRight: '4px' }}>●</span>
+                        <span style={{ color: p.horse.color_silk, marginRight: '4px', display: 'inline-flex', verticalAlign: 'middle' }}>
+                          <SVGRacer
+                            colorBody={p.horse.color_body}
+                            colorMane={p.horse.color_mane}
+                            colorSocks={p.horse.color_socks}
+                            colorJockeySilk={p.horse.color_silk}
+                            isRunning={false}
+                            size={36}
+                          />
+                        </span>
                         {p.horse.name}
                         {p.horse.player_owned && <span className="badge-player">You</span>}
                       </td>
                       <td><span className="odds-badge">{p.odds.toFixed(1)}x</span></td>
-                      <td><span className="odds-badge" style={{ opacity: 0.75 }}>{placeOdds.toFixed(2)}x</span></td>
-                      {!isCompleted && (
-                        <td>
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            <button
-                              className={`btn-type${betType === 'Win' ? ' active' : ''}`}
-                              onClick={() => handleTypeToggle(p.horse.id, 'Win')}
-                            >W</button>
-                            <button
-                              className={`btn-type${betType === 'Place' ? ' active' : ''}`}
-                              onClick={() => handleTypeToggle(p.horse.id, 'Place')}
-                            >P</button>
-                          </div>
-                        </td>
-                      )}
+                      <td><span className="odds-badge" style={{ opacity: 0.75 }}>{getPlaceOdds(p.odds).toFixed(2)}x</span></td>
+                      <td><span className="odds-badge" style={{ opacity: 0.55 }}>{getShowOdds(p.odds).toFixed(2)}x</span></td>
                       {!isCompleted && (
                         <td style={{ textAlign: 'right' }}>
-                          <input
-                            type="number"
-                            min={0}
-                            max={funds}
-                            step={10}
-                            value={entry?.amount ?? 0}
-                            onChange={e => handleAmountChange(p.horse.id, Number(e.target.value))}
-                          />
+                          <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <input type="number" min={0} max={funds} step={10} placeholder="W"
+                              value={betEntries[p.horse.id]?.win || ''}
+                              onChange={e => handleBetChange(p.horse.id, 'win', Number(e.target.value))}
+                              style={{ width: '52px' }} />
+                            <input type="number" min={0} max={funds} step={10} placeholder="P"
+                              value={betEntries[p.horse.id]?.place || ''}
+                              onChange={e => handleBetChange(p.horse.id, 'place', Number(e.target.value))}
+                              style={{ width: '52px' }} />
+                            <input type="number" min={0} max={funds} step={10} placeholder="S"
+                              value={betEntries[p.horse.id]?.show || ''}
+                              onChange={e => handleBetChange(p.horse.id, 'show', Number(e.target.value))}
+                              style={{ width: '52px' }} />
+                          </div>
                         </td>
                       )}
                     </tr>
@@ -218,18 +210,24 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
               Available: <strong style={{ color: 'var(--text)' }}>${funds.toLocaleString()}</strong>
             </p>
-            {race.participants.filter(p => (betEntries[p.horse.id]?.amount ?? 0) > 0).map(p => {
-              const entry = betEntries[p.horse.id]!;
-              const odds = entry.type === 'Place' ? getPlaceOdds(p.odds) : p.odds;
-              return (
-                <div key={p.horse.id} className="bet-row">
-                  <span className="horse-name-short">{p.horse.name}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{entry.type}</span>
-                  <span className="odds-badge">{odds.toFixed(2)}x</span>
-                  <span style={{ color: 'var(--yellow)' }}>${entry.amount}</span>
+            {race.participants.filter(p => {
+              const e = betEntries[p.horse.id];
+              return e && (e.win > 0 || e.place > 0 || e.show > 0);
+            }).flatMap(p => {
+              const e = betEntries[p.horse.id]!;
+              const rows = [];
+              if (e.win > 0) rows.push({ horse: p.horse, type: 'Win', amount: e.win, odds: p.odds });
+              if (e.place > 0) rows.push({ horse: p.horse, type: 'Place', amount: e.place, odds: getPlaceOdds(p.odds) });
+              if (e.show > 0) rows.push({ horse: p.horse, type: 'Show', amount: e.show, odds: getShowOdds(p.odds) });
+              return rows;
+            }).map((row, i) => (
+                <div key={i} className="bet-row">
+                  <span className="horse-name-short">{row.horse.name}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{row.type}</span>
+                  <span className="odds-badge">{row.odds.toFixed(2)}x</span>
+                  <span style={{ color: 'var(--yellow)' }}>${row.amount}</span>
                 </div>
-              );
-            })}
+              ))}
             <button
               className="btn-primary"
               style={{ marginTop: '0.5rem', width: '100%' }}

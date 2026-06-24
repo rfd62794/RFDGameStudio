@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Horse, GameSession } from '../engine/types';
 import { getSchema } from '../engine/runtime';
+import { SVGRacer } from './SVGRacer';
 
 interface Props {
   horses: Horse[];
@@ -39,17 +40,20 @@ export default function StableTab({ horses, session, onNewRace }: Props) {
           <div className="card-grid">
             {horses.map(horse => (
               <div key={horse.id} className="horse-card">
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '0.25rem 0 0.5rem' }}>
+                  <SVGRacer
+                    colorBody={horse.color_body}
+                    colorMane={horse.color_mane}
+                    colorSocks={horse.color_socks}
+                    colorJockeySilk={horse.color_silk}
+                    isRunning={false}
+                    size={72}
+                  />
+                </div>
                 <div className="horse-name">{horse.name}</div>
                 <div className="horse-meta">
                   Gen {horse.generation} · {horse.gender}
                   {horse.player_owned && <span className="badge-player">Yours</span>}
-                </div>
-
-                <div className="horse-swatch">
-                  <div className="swatch" style={{ background: horse.color_body }} title="Body" />
-                  <div className="swatch" style={{ background: horse.color_mane }} title="Mane" />
-                  <div className="swatch" style={{ background: horse.color_socks }} title="Socks" />
-                  <div className="swatch" style={{ background: horse.color_silk }} title="Silk" />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginTop: '0.25rem' }}>

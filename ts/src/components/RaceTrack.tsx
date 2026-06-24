@@ -3,7 +3,7 @@ import type { CurrentRace, RaceResult, Bet } from '../engine/types';
 import { SVGRacer } from './SVGRacer';
 
 const TICK_RATE_MS = 50;
-const LANE_HEIGHT = 58;          // condensed
+const LANE_HEIGHT = 29;          // condensed
 const BASE_SPEED = 5;             // old 5x is new 1x
 const TRACK_PADDING_LEFT = 48;
 const TRACK_PADDING_RIGHT = 60;
@@ -89,7 +89,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
           const tempVariance = (100 - h.temperament) / 120;
           const velocityFinal = newSpeed * (1 + (Math.random() - 0.5) * tempVariance);
           const newDist = (ap.anim_progress / 100) * distance + velocityFinal * timeStep;
-          const newProgress = Math.min(100, (newDist / distance) * 100);
+          const newProgress = Math.min(100, Math.max(ap.anim_progress, (newDist / distance) * 100));
           const finished = newProgress >= 100;
 
           return {
@@ -98,7 +98,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
             anim_energy: newEnergy,
             anim_speed: newSpeed,
             anim_finished: finished,
-            anim_tick: ap.anim_tick + speedMultiplier * BASE_SPEED,
+            anim_tick: ap.anim_tick + BASE_SPEED,
           };
         });
 
@@ -231,23 +231,23 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
                   fill={laneIdx % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.1)'} />
 
                 {/* Gate number */}
-                <text x={18} y={laneY + LANE_HEIGHT / 2 + 4} textAnchor="middle"
-                  fontSize={11} fill="rgba(255,255,255,0.4)" fontFamily="monospace">
+                <text x={18} y={laneY + LANE_HEIGHT / 2 + 3} textAnchor="middle"
+                  fontSize={8} fill="rgba(255,255,255,0.4)" fontFamily="monospace">
                   {p.gate}
                 </text>
 
                 {/* Energy bar */}
-                <rect x={spriteX - 18} y={laneY + 3} width={36} height={3} rx={1.5}
+                <rect x={spriteX - 13} y={laneY + 1} width={26} height={2} rx={1}
                   fill="rgba(0,0,0,0.4)" />
-                <rect x={spriteX - 18} y={laneY + 3} width={36 * energyPct / 100} height={3} rx={1.5}
+                <rect x={spriteX - 13} y={laneY + 1} width={26 * energyPct / 100} height={2} rx={1}
                   fill={energyColor(energyPct)} />
 
                 {/* SVGRacer sprite */}
                 <foreignObject
-                  x={spriteX - 23}
-                  y={laneY + 6}
-                  width={46}
-                  height={46}
+                  x={spriteX - 13}
+                  y={laneY + 2}
+                  width={26}
+                  height={26}
                 >
                   <SVGRacer
                     colorBody={p.horse.color_body}
@@ -257,17 +257,17 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
                     gateNumber={p.gate}
                     isRunning={isRunning && !(ap?.anim_finished)}
                     runTick={ap?.anim_tick ?? 0}
-                    size={46}
+                    size={26}
                   />
                 </foreignObject>
 
                 {/* Rank badge — only after results declared, uses Lua final_rank */}
                 {resultsDeclared && p.final_rank && (
                   <g>
-                    <rect x={trackWidth - TRACK_PADDING_RIGHT + 8} y={laneY + LANE_HEIGHT / 2 - 11}
-                      width={36} height={22} rx={4} fill={p.final_rank <= 3 ? '#6c8ef7' : 'rgba(255,255,255,0.1)'} />
-                    <text x={trackWidth - TRACK_PADDING_RIGHT + 26} y={laneY + LANE_HEIGHT / 2 + 5}
-                      textAnchor="middle" fontSize={13} fontWeight="bold" fill="#fff">
+                    <rect x={trackWidth - TRACK_PADDING_RIGHT + 6} y={laneY + LANE_HEIGHT / 2 - 7}
+                      width={28} height={14} rx={3} fill={p.final_rank <= 3 ? '#6c8ef7' : 'rgba(255,255,255,0.1)'} />
+                    <text x={trackWidth - TRACK_PADDING_RIGHT + 20} y={laneY + LANE_HEIGHT / 2 + 4}
+                      textAnchor="middle" fontSize={9} fontWeight="bold" fill="#fff">
                       #{p.final_rank}
                     </text>
                   </g>

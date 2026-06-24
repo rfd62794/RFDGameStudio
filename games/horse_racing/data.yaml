@@ -21,6 +21,8 @@ stable:
 betting:
   place_odds_multiplier: 0.38
   place_odds_min: 1.15
+  show_odds_multiplier: 0.20
+  show_odds_min: 1.05
 
 race:
   overround: 1.12

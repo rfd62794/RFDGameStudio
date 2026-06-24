@@ -51,7 +51,7 @@ export interface Bet {
   horse_id: string;
   horse_name: string;
   amount: number;
-  type: 'Win' | 'Place';
+  type: 'Win' | 'Place' | 'Show';
   payout_odds: number;
 }
 

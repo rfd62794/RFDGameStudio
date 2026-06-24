@@ -419,6 +419,15 @@ function calculate_place_odds(win_odds, config)
   return math.floor(place * 100 + 0.5) / 100
 end
 
+-- Calculate show bet odds (1st, 2nd, or 3rd).
+function calculate_show_odds(win_odds, config)
+  local multiplier = config and config.show_odds_multiplier or 0.20
+  local min_odds   = config and config.show_odds_min        or 1.05
+  local show = win_odds * multiplier
+  if show < min_odds then show = min_odds end
+  return math.floor(show * 100 + 0.5) / 100
+end
+
 -- ============================================================
 -- HORSE CAREER UPDATE
 -- ============================================================
@@ -473,7 +482,9 @@ function settle_bets(bets, standings, prize_pool, prize_splits)
       local is_winner = false
       if bet.type == "Win" and rank == 1 then
         is_winner = true
-      elseif bet.type == "Place" and rank <= 3 then
+      elseif bet.type == "Place" and rank <= 2 then
+        is_winner = true
+      elseif bet.type == "Show" and rank <= 3 then
         is_winner = true
       end
       if is_winner then
