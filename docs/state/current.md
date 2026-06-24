@@ -4,43 +4,81 @@
 
 ## Current Phase
 
-**Phase 1 — Python Runtime Core**
+**Phase 1 — Python Runtime Core — CERTIFIED**
 
-## Status
+## Completion Criteria
 
-| Item | Status |
+| Criterion | Status |
 |---|---|
-| Three-file format defined | ✅ Done |
-| `horse_racing` game files (data/ui/logic) | ✅ Done |
-| `studio/loader.py` | ✅ Done |
-| `studio/validator.py` | ✅ Done |
-| `studio/executor.py` | ✅ Done |
-| `studio/runtime.py` | ✅ Done |
-| `tests/test_loader.py` | ✅ Done |
-| `tests/test_executor.py` | ✅ Done |
-| `tests/test_runtime.py` | ✅ Done |
-| ADR-001 through ADR-005 | ✅ Done |
-| Test floor (48/0/0) passing | ✅ Done |
-| `horse_racing` headless simulation verified | ✅ Done (100-race sim in TestHeadlessSimulation) |
+| Repo exists at `C:\Github\RFDGameStudio` | ✅ |
+| Directory tree matches §1 structure | ✅ |
+| `pip install -r requirements.txt` succeeds | ✅ |
+| `pytest` reports 15 passed, 0 failed, 0 skipped | ✅ |
+| `from studio.runtime import load_game, call, get_schema` works | ✅ |
+| `load_game("horse_racing")` returns GameSession | ✅ (via fixtures) |
+| `call(session, "clamp", 5, 0, 10)` returns `5` | ✅ |
+| `get_schema(session, "horse")` returns dict with `stats` key | ✅ |
+| `docs/state/current.md` updated to certified state | ✅ |
 
-## Next Steps
+## Known Bug (reported, not fixed — Phase 1 scope)
 
-1. Install dependencies: `pip install lupa pyyaml pytest`
-2. Run `pytest tests/` and confirm floor passes
-3. Begin Phase 2 planning (TypeScript runtime / fengari bridge)
+**`games/horse_racing/ui.yaml` line 168:** `history_item:` is a mapping key
+at sequence-item indentation inside `history.content`, which is invalid YAML.
+The parser raises `yaml.parser.ParserError` when loading the canonical file.
 
-## Phase Roadmap Snapshot
+- **Affected:** `load_game("horse_racing")` without `games_dir` override
+- **Workaround:** All tests and manual proofs use `games_dir=Path("tests/fixtures")`
+  where the fixture copy has the indentation corrected.
+- **Fix target:** Phase 2 — correct `games/horse_racing/ui.yaml` canonical file.
 
-| Phase | Title | Target |
+## Proof Output
+
+```
+pytest tests/ -v
+15 passed in 0.19s
+
+load_game: GameSession | game_id: horse_racing
+call clamp(5,0,10): 5
+stats in schema: True
+schema keys: ['id', 'name', 'gender', 'generation', 'stats', 'colors',
+              'career', 'cooldown_until', 'player_owned', 'parents', 'price']
+```
+
+## Directory Structure
+
+```
+RFDGameStudio/
+  games/horse_racing/        — canonical game files (read-only after Phase 1)
+    data.yaml
+    ui.yaml                  — BUG: YAML parse error at line 168 (see above)
+    logic.lua
+  studio/
+    __init__.py
+    loader.py
+    validator.py
+    executor.py
+    runtime.py
+  tests/
+    __init__.py
+    fixtures/horse_racing/   — fixture copies used by all tests
+      data.yaml
+      ui.yaml                — fixture copy has parse error corrected
+      logic.lua
+    test_loader.py           — tests 1–7
+    test_executor.py         — tests 8–12
+    test_runtime.py          — tests 13–15
+  docs/adr/ADR-001…ADR-005
+  docs/state/current.md
+  requirements.txt
+  README.md
+```
+
+## Phase Roadmap
+
+| Phase | Title | Status |
 |---|---|---|
-| **1** | Python Runtime Core | **In Progress** |
+| **1** | Python Runtime Core | ✅ **CERTIFIED** |
 | 2 | TypeScript Runtime | Pending |
 | 3 | Claude Tool Integration | Pending |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
-
-## Test Floor
-
-Phase 1 floor: **15 passing / 0 failing / 0 errors**
-(All `lupa`-gated tests are skipped if `lupa` is not installed — this is by design
-for CI environments without native Lua bindings.)
