@@ -8,41 +8,46 @@ import BettingTab from './components/BettingTab';
 const SEED = 42;
 const GAME_ID = 'horse_racing';
 
+function luaHorseToTs(raw: Record<string, unknown>): Horse {
+  return {
+    id: raw['id'] as string,
+    name: raw['name'] as string,
+    gender: raw['gender'] as string,
+    generation: raw['generation'] as number,
+    speed: raw['speed'] as number,
+    stamina: raw['stamina'] as number,
+    acceleration: raw['acceleration'] as number,
+    temperament: raw['temperament'] as number,
+    color_body: raw['color_body'] as string,
+    color_mane: raw['color_mane'] as string,
+    color_socks: raw['color_socks'] as string,
+    color_silk: raw['color_silk'] as string,
+    runs: (raw['runs'] as number) ?? 0,
+    wins: (raw['wins'] as number) ?? 0,
+    places: (raw['places'] as number) ?? 0,
+    thirds: (raw['thirds'] as number) ?? 0,
+    earnings: (raw['earnings'] as number) ?? 0,
+    cooldown_until: (raw['cooldown_until'] as number) ?? 0,
+    player_owned: (raw['player_owned'] as boolean) ?? false,
+    price: (raw['price'] as number) ?? 0,
+  };
+}
+
 function buildInitialState(session: GameSession): GameState {
   const data = session.files.data as Record<string, unknown>;
   const stable = data['stable'] as Record<string, unknown>;
   const funds = (stable['starting_funds'] as number) ?? 3000;
 
-  const prefixes = data['name_prefixes'] as string[];
-  const suffixes = data['name_suffixes'] as string[];
-  const coatColors = data['coat_colors'] as Array<Record<string, unknown>>;
-  const silkColors = data['silk_colors'] as string[];
+  const prefixes = data['name_prefixes'];
+  const suffixes = data['name_suffixes'];
+  const coatColors = data['coat_colors'];
+  const silkColors = data['silk_colors'];
+  const options = { min_stat: 30, max_stat: 70, generation: 1, player_owned: true };
 
   const horses: Horse[] = [];
   for (let i = 0; i < 3; i++) {
-    const name = call(session, 'generate_horse_name', prefixes, suffixes) as string;
-    const genome = call(session, 'generate_genome') as Record<string, unknown>;
-    const stats = call(session, 'derive_stats', genome) as Record<string, number>;
-    const coat = coatColors[Math.floor(Math.random() * coatColors.length)] as Record<string, string>;
-    const silk = silkColors[Math.floor(Math.random() * silkColors.length)];
-    horses.push({
-      id: `horse_${i}_${Date.now()}`,
-      name,
-      gender: Math.random() > 0.5 ? 'Stallion' : 'Mare',
-      generation: 1,
-      speed: Math.round((stats['speed'] ?? 50) as number),
-      stamina: Math.round((stats['stamina'] ?? 50) as number),
-      acceleration: Math.round((stats['acceleration'] ?? 50) as number),
-      temperament: Math.round((stats['temperament'] ?? 50) as number),
-      color_body: coat['body'],
-      color_mane: coat['mane'],
-      color_socks: coat['socks'],
-      color_silk: silk,
-      runs: 0, wins: 0, places: 0, thirds: 0, earnings: 0,
-      cooldown_until: 0,
-      player_owned: true,
-      price: 0,
-    });
+    const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
+    horses.push(luaHorseToTs({ ...raw, player_owned: true }));
   }
   return { funds, horses, current_race: null, race_history: [] };
 }
@@ -72,23 +77,10 @@ function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace {
     participants.push({ horse: h, gate: participants.length + 1, odds: 0, progress: 0, current_distance: 0, current_speed: 0, energy: 100, is_finished: false });
   }
 
+  const npcOptions = { min_stat: 25, max_stat: 65, generation: 1, player_owned: false };
   while (participants.length < 6) {
-    const name = call(session, 'generate_horse_name', prefixes, suffixes) as string;
-    const genome = call(session, 'generate_genome') as Record<string, unknown>;
-    const stats = call(session, 'derive_stats', genome) as Record<string, number>;
-    const coat = coatColors[Math.floor(Math.random() * coatColors.length)] as Record<string, string>;
-    const silk = silkColors[Math.floor(Math.random() * silkColors.length)];
-    const npc: Horse = {
-      id: `npc_${participants.length}_${Date.now()}`,
-      name, gender: 'Stallion', generation: 1,
-      speed: Math.round((stats['speed'] ?? 50) as number),
-      stamina: Math.round((stats['stamina'] ?? 50) as number),
-      acceleration: Math.round((stats['acceleration'] ?? 50) as number),
-      temperament: Math.round((stats['temperament'] ?? 50) as number),
-      color_body: coat['body'], color_mane: coat['mane'], color_socks: coat['socks'], color_silk: silk,
-      runs: 0, wins: 0, places: 0, thirds: 0, earnings: 0,
-      cooldown_until: 0, player_owned: false, price: 0,
-    };
+    const raw = call(session, 'generate_horse', npcOptions, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
+    const npc = luaHorseToTs(raw);
     participants.push({ horse: npc, gate: participants.length + 1, odds: 0, progress: 0, current_distance: 0, current_speed: 0, energy: 100, is_finished: false });
   }
 
