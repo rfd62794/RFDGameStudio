@@ -33,41 +33,50 @@ export default function BettingTab({ race, funds, session, onNewRace, onRaceComp
       .filter(p => (bets[p.horse.id] ?? 0) > 0)
       .map(p => ({ horseId: p.horse.id, horseName: p.horse.name, amount: bets[p.horse.id]!, odds: p.odds }));
 
-    const field = race.participants.map(p => ({
-      id: p.horse.id,
-      speed: p.horse.speed,
-      stamina: p.horse.stamina,
-      acceleration: p.horse.acceleration,
-      temperament: p.horse.temperament,
+    const luaParticipants = race.participants.map(p => ({
+      horse: {
+        id: p.horse.id,
+        name: p.horse.name,
+        speed: p.horse.speed,
+        stamina: p.horse.stamina,
+        acceleration: p.horse.acceleration,
+        temperament: p.horse.temperament,
+      },
+      energy: 100,
+      current_distance: 0,
+      current_speed: 0,
+      is_finished: false,
+      progress: 0,
     }));
+    const luaConfig = { distance: race.distance };
 
-    const rawOrder = call(session, 'resolve_race', field, race.distance, 0.04, 0.12) as
-      Array<Record<string, unknown>> | Record<number, unknown>;
-    const orderArr: Array<Record<string, unknown>> = Array.isArray(rawOrder)
-      ? rawOrder
-      : Object.values(rawOrder) as Array<Record<string, unknown>>;
+    const rawResults = call(session, 'simulate_race', luaParticipants, luaConfig) as
+      Record<number, Record<string, unknown>>;
 
-    const raceResults: RaceResult[] = orderArr.map((entry, i) => {
-      const horseId = String((entry as Record<string, unknown>)['id'] ?? '');
-      const participant = race.participants.find(p => p.horse.id === horseId) ??
-        race.participants[i];
+    const ordered: Array<{ rank: number; horse_id: string; horse_name: string }> =
+      Object.values(rawResults).map(r => ({
+        rank: r['rank'] as number,
+        horse_id: String(r['horse_id']),
+        horse_name: String(r['horse_name']),
+      })).sort((a, b) => a.rank - b.rank);
+
+    const raceResults: RaceResult[] = ordered.map(entry => {
+      const participant = race.participants.find(p => p.horse.id === entry.horse_id);
       const horse = participant?.horse;
-      const rank = i + 1;
-      const bet = activeBets.find(b => b.horseId === horseId);
+      const { rank, horse_id } = entry;
+      const bet = activeBets.find(b => b.horseId === horse_id);
       let payout = 0;
       if (bet) {
-        if (rank === 1) payout = Math.round(bet.amount * bet.odds);
-        else payout = -bet.amount;
+        payout = rank === 1 ? Math.round(bet.amount * bet.odds) : -bet.amount;
       }
-      const prizeIndex = rank - 1;
-      const prizeShare = race.prize_split[prizeIndex] ?? 0;
+      const prizeShare = race.prize_split[rank - 1] ?? 0;
       if (horse?.player_owned && rank <= 3) {
         payout += Math.round(race.prize_pool * prizeShare);
       }
       return {
         rank,
-        horse_id: horse?.id ?? horseId,
-        horse_name: horse?.name ?? `Horse ${rank}`,
+        horse_id: horse?.id ?? horse_id,
+        horse_name: horse?.name ?? entry.horse_name,
         player_owned: horse?.player_owned ?? false,
         payout,
       };

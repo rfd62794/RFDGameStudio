@@ -292,6 +292,70 @@ function tick_race(participants, distance, delta_time)
 end
 
 -- ============================================================
+-- FULL RACE SIMULATION (headless, returns ranked results)
+-- ============================================================
+
+-- Run the complete race in one call. No per-tick round-trips.
+-- participants: array of { horse: {id, speed, stamina, acceleration, temperament},
+--                          energy: 100, current_distance: 0, current_speed: 0,
+--                          is_finished: false, progress: 0 }
+-- config: { distance: number, delta_time: number (optional, default 0.2) }
+-- Returns: array of { rank, horse_id, horse_name, finish_time }
+--          ordered 1st to last
+function simulate_race(participants, config)
+  local distance   = config.distance or 1200
+  local delta_time = config.delta_time or 0.2
+  local MAX_TICKS  = 10000  -- safety ceiling (~33 minutes at 0.2s ticks)
+
+  -- Deep-copy participants so we don't mutate the caller's table
+  local field = {}
+  for i, p in ipairs(participants) do
+    local h = p.horse or p
+    field[i] = {
+      horse          = h,
+      energy         = p.energy         or 100,
+      current_distance = p.current_distance or 0,
+      current_speed  = p.current_speed  or 0,
+      is_finished    = p.is_finished    or false,
+      progress       = p.progress       or 0,
+      finish_time    = p.finish_time    or nil,
+    }
+  end
+
+  local ticks = 0
+  local all_finished = false
+  while not all_finished and ticks < MAX_TICKS do
+    field, all_finished = tick_race(field, distance, delta_time)
+    ticks = ticks + 1
+  end
+
+  -- Sort by finish_time ascending (finished horses first, then by distance desc as tiebreak)
+  table.sort(field, function(a, b)
+    if a.finish_time and b.finish_time then
+      return a.finish_time < b.finish_time
+    elseif a.finish_time then
+      return true
+    elseif b.finish_time then
+      return false
+    else
+      return (a.current_distance or 0) > (b.current_distance or 0)
+    end
+  end)
+
+  local results = {}
+  for rank, p in ipairs(field) do
+    results[rank] = {
+      rank        = rank,
+      horse_id    = p.horse.id,
+      horse_name  = p.horse.name or ("Horse " .. tostring(rank)),
+      finish_time = p.finish_time or 0,
+    }
+  end
+
+  return results
+end
+
+-- ============================================================
 -- RACE OUTCOME — prize distribution
 -- ============================================================
 
