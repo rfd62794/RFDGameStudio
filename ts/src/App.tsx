@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { loadGame, call, getSchema } from './engine/runtime';
-import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult } from './engine/types';
+import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet } from './engine/types';
 import { RuntimeError } from './engine/types';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
+import BreederTab from './components/BreederTab';
 
 const SEED = 42;
 const GAME_ID = 'horse_racing';
@@ -132,9 +133,13 @@ export default function App() {
     }
   }, [session, gameState]);
 
-  const handleRaceComplete = useCallback((results: RaceResult[], netPayout: number) => {
-    if (!gameState || !gameState.current_race) return;
+  const handleRaceComplete = useCallback((results: RaceResult[], netPayout: number, betsPlaced: Bet[]) => {
+    if (!session || !gameState || !gameState.current_race) return;
     const race = gameState.current_race;
+    const data = session.files.data as Record<string, unknown>;
+    const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+    const raceCooldownMs = (stableCfg['race_cooldown_ms'] as number) ?? 90000;
+
     const entry: RaceHistoryEntry = {
       race_name: race.name,
       distance: race.distance,
@@ -142,19 +147,18 @@ export default function App() {
       results,
       timestamp: Date.now(),
     };
+    const cooldownUntil = Date.now() + raceCooldownMs;
+
     setGameState(prev => {
       if (!prev) return prev;
+      const horseEarnings: Record<string, number> = {};
+      results.forEach(r => { if (r.player_owned) horseEarnings[r.horse_id] = r.payout; });
+
       const updatedHorses = prev.horses.map(h => {
         const r = results.find(res => res.horse_id === h.id);
         if (!r) return h;
-        return {
-          ...h,
-          runs: h.runs + 1,
-          wins: h.wins + (r.rank === 1 ? 1 : 0),
-          places: h.places + (r.rank === 2 ? 1 : 0),
-          thirds: h.thirds + (r.rank === 3 ? 1 : 0),
-          earnings: h.earnings + r.payout,
-        };
+        const updated = call(session!, 'update_horse_after_race', h, r.rank, horseEarnings[h.id] ?? 0) as Record<string, unknown>;
+        return { ...luaHorseToTs(updated), cooldown_until: cooldownUntil };
       });
       return {
         ...prev,
@@ -164,7 +168,7 @@ export default function App() {
         race_history: [entry, ...prev.race_history],
       };
     });
-  }, [gameState]);
+  }, [session, gameState]);
 
   const uiLayout = session
     ? (session.files.ui as Record<string, unknown>)['layout'] as Record<string, unknown>
