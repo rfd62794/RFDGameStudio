@@ -233,6 +233,20 @@ export default function App() {
     catch (e) { return e instanceof RuntimeError ? e.message : null; }
   })();
 
+  if (isRacingActive && gameState.current_race) {
+    return (
+      <RaceTrack
+        race={gameState.current_race}
+        bets={pendingBets}
+        onRaceFinish={handleCloseRaceTrack}
+        onClose={() => {
+          setIsRacingActive(false);
+          setActiveTab('stable');
+        }}
+      />
+    );
+  }
+
   return (
     <>
       <header className="app-header">
