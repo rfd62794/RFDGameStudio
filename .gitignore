@@ -1,44 +1,177 @@
+# =============================================================================
 # Python
+# =============================================================================
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.so
+*.pdb
+
+# Distribution / packaging
 *.egg
 *.egg-info/
 dist/
 build/
 .eggs/
+MANIFEST
+wheels/
+*.whl
+*.tar.gz
+sdist/
+
+# Virtual environments
 .venv/
 venv/
 env/
-.env
+ENV/
+.env/
+.venv*/
 
+# =============================================================================
+# uv
+# =============================================================================
+# uv.lock is intentionally TRACKED — do not add it here.
+# uv cache lives outside the repo by default; if ever local:
+.uv/
+
+# =============================================================================
 # Pytest / coverage
+# =============================================================================
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 coverage.xml
+coverage.json
+*.coveragerc
 
-# Type checking
+# =============================================================================
+# Type checking & linting
+# =============================================================================
 .mypy_cache/
 .pyright/
+.ruff_cache/
+pyrightconfig.json
 
-# Node / TypeScript (examples/)
+# =============================================================================
+# Jupyter
+# =============================================================================
+.ipynb_checkpoints/
+*.ipynb
+
+# =============================================================================
+# Node / TypeScript  (examples/horse-racing-&-breeding)
+# =============================================================================
 node_modules/
+.npm/
+.yarn/
+.pnp.*
+.pnp.js
+
+# Build output
 dist/
+out/
+.next/
+.nuxt/
+.output/
 *.tsbuildinfo
 
+# =============================================================================
+# Rust  (future Phase 5 runtime)
+# =============================================================================
+target/
+Cargo.lock
+**/*.rs.bk
+*.rlib
+
+# =============================================================================
 # IDE
+# =============================================================================
+
+# VS Code
 .vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, Rider, WebStorm)
 .idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim / Neovim
 *.swp
 *.swo
+*~
+Session.vim
+.netrwhist
 
+# Emacs
+\#*\#
+.\#*
+*.elc
+
+# Windsurf / Cline agent artifacts
+.windsurf/
+.cline/
+# .devin/workflows/ intentionally tracked
+
+# =============================================================================
 # OS
-.DS_Store
-Thumbs.db
+# =============================================================================
 
-# Secrets
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+
+# =============================================================================
+# Secrets & credentials
+# =============================================================================
 .env
-.env.local
+.env.*
+!.env.example
 *.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials.json
+service_account.json
+
+# =============================================================================
+# Logs & temp files
+# =============================================================================
+*.log
+*.log.*
+logs/
+tmp/
+temp/
+.tmp/
+
+# =============================================================================
+# Project-specific
+# =============================================================================
+
+# Never commit generated game state or simulation output
+output/
+sim_results/
+
+# Lua compiled bytecode (should never appear, but just in case)
+*.luac
