@@ -133,7 +133,7 @@ export default function App() {
     }
   }, [session, gameState]);
 
-  const handleRaceComplete = useCallback((results: RaceResult[], netPayout: number, betsPlaced: Bet[]) => {
+  const handleRaceComplete = useCallback((results: RaceResult[], netPayout: number, _betsPlaced: Bet[]) => {
     if (!session || !gameState || !gameState.current_race) return;
     const race = gameState.current_race;
     const data = session.files.data as Record<string, unknown>;
@@ -166,6 +166,23 @@ export default function App() {
         horses: updatedHorses,
         current_race: { ...race, status: 'completed', results },
         race_history: [entry, ...prev.race_history],
+      };
+    });
+  }, [session, gameState]);
+
+  const handleAddOffspring = useCallback((foal: Horse, cost: number) => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+    const breedCooldownMs = (stableCfg['breed_cooldown_ms'] as number) ?? 180000;
+    const cooldownUntil = Date.now() + breedCooldownMs;
+    setGameState(prev => {
+      if (!prev) return prev;
+      const foalWithId = { ...foal, id: `horse_${Date.now()}`, cooldown_until: cooldownUntil };
+      return {
+        ...prev,
+        funds: prev.funds - cost,
+        horses: [...prev.horses, foalWithId],
       };
     });
   }, [session, gameState]);
@@ -266,7 +283,12 @@ export default function App() {
           </div>
         )}
         {activeTab === 'breeding' && (
-          <div className="empty-state">Breeding — coming in Phase 4.</div>
+          <BreederTab
+            horses={gameState.horses}
+            session={session}
+            funds={gameState.funds}
+            onAddOffspring={handleAddOffspring}
+          />
         )}
       </main>
     </>
