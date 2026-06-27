@@ -54,9 +54,11 @@ function buildInitialState(session: GameSession): GameState {
   return { funds, horses, current_race: null, race_history: [], emergency_grant_shown: false };
 }
 
-function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace | null {
+function buildRace(session: GameSession, playerHorses: Horse[], horseId?: string): CurrentRace | null {
   const data = session.files.data as Record<string, unknown>;
-  const playerHorse = playerHorses.find(h => h.cooldown_until < Date.now()) ?? playerHorses[0];
+  const playerHorse = (horseId ? playerHorses.find(h => h.id === horseId) : null)
+    ?? playerHorses.find(h => h.cooldown_until < Date.now())
+    ?? playerHorses[0];
   if (!playerHorse) return null;
 
   const result = call(session, 'create_race', playerHorse, data) as unknown;
@@ -166,10 +168,10 @@ export default function App() {
     }));
   }, [gameState, unlockedSlots]);
 
-  const handleNewRace = useCallback(() => {
+  const handleNewRace = useCallback((horseId?: string) => {
     if (!session || !gameState) return;
     try {
-      const race = buildRace(session, gameState.horses);
+      const race = buildRace(session, gameState.horses, horseId);
       setGameState(prev => prev ? { ...prev, current_race: race } : prev);
       setActiveTab('betting');
     } catch (e) {
@@ -177,10 +179,10 @@ export default function App() {
     }
   }, [session, gameState]);
 
-  const handleSkipRace = useCallback(() => {
+  const handleSkipRace = useCallback((horseId?: string) => {
     if (!session || !gameState) return;
     try {
-      const race = buildRace(session, gameState.horses);
+      const race = buildRace(session, gameState.horses, horseId);
       setGameState(prev => prev ? { ...prev, current_race: race } : prev);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -453,8 +455,8 @@ export default function App() {
                 unlockedSlots={unlockedSlots}
                 lastRaceNetPayout={lastRaceNetPayout}
                 lastRaceBets={lastRaceBets}
-                onNewRace={() => { setLastRaceNetPayout(null); setLastRaceBets([]); handleNewRace(); }}
-                onSkipRace={() => { setLastRaceNetPayout(null); setLastRaceBets([]); handleSkipRace(); }}
+                onNewRace={(id?: string) => { setLastRaceNetPayout(null); setLastRaceBets([]); handleNewRace(id); }}
+                onSkipRace={(id?: string) => { setLastRaceNetPayout(null); setLastRaceBets([]); handleSkipRace(id); }}
                 onStartRace={handleStartRace}
                 onPurchaseStarter={handlePurchaseStarter}
                 session={session}
