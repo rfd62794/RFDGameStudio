@@ -10,6 +10,8 @@ import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
 import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
+import { resolveViewport, buildBoundsMap, type LayoutNode } from '../../engine/ui_resolver';
+import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
 
 const SAVE_KEY = 'derby_sim_state_v1';
 
@@ -326,6 +328,24 @@ export default function App({ session }: GameRendererProps) {
   const uiLayout = (session.files.ui as Record<string, unknown>)['layout'] as Record<string, unknown>;
   const tabs = (uiLayout['tabs'] as Array<Record<string, unknown>>) ?? [];
 
+  // UI resolver and interpreter
+  const ui = session.files.ui as Record<string, unknown>;
+  const layoutTree = ui['layout_tree'] as LayoutNode | undefined;
+  const regions = ui['regions'] as RegionsMap | undefined;
+
+  const resolved = layoutTree
+    ? resolveViewport(layoutTree, window.innerWidth, window.innerHeight)
+    : [];
+  const boundsMap = buildBoundsMap(resolved);
+
+  const { elements: uiElements, slots } = regions
+    ? interpretLayout(boundsMap, regions, gameState, {
+        activeTab,
+        tabs: tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string })),
+        onSelectTab: setActiveTab,
+      })
+    : { elements: [], slots: {} };
+
   if (error) {
     return (
       <div style={{ padding: '2rem' }}>
@@ -357,7 +377,20 @@ export default function App({ session }: GameRendererProps) {
   }
 
   return (
-    <div className="app-shell">
+    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+      {/* Interpreter renders structural scaffold */}
+      {uiElements}
+
+      {/* Game renders its own content in slot bounds */}
+      {slots['content'] && (
+        <div style={{
+          position: 'absolute',
+          left: slots['content'].bounds.x,
+          top: slots['content'].bounds.y,
+          width: slots['content'].bounds.w,
+          height: slots['content'].bounds.h,
+        }}>
+          <div className="app-shell">
       <header className="app-header-styled">
         <div className="header-brand">
           <div className="header-logo"><Trophy size={18} /></div>
@@ -497,6 +530,9 @@ export default function App({ session }: GameRendererProps) {
           <span>PEDIGREE GENETICS DATA</span>
         </div>
       </footer>
+    </div>
+        </div>
+      )}
     </div>
   );
 }

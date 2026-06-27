@@ -1,6 +1,36 @@
 layout:
   tabs: []   # No tabs — Slither Rogue uses screen-based routing (menu/game/gameover)
 
+# Dimensional layout for resolver
+layout_tree:
+  direction: column
+  children:
+    - id: hud
+      height: 0.14          # taller HUD for snake game stats
+    - id: game_area
+      flex: 1               # canvas fills all remaining
+
+screens_layout:
+  menu:
+    direction: column
+    children:
+      - id: title
+        height: 0.25
+      - id: config
+        flex: 1
+      - id: start_btn
+        height: 0.12
+
+regions:
+  hud:
+    component: hud
+    bindings:
+      score: game_state.score
+      time_left: game_state.time_left
+      peak_length: game_state.peak_length
+  game_area:
+    component: canvas       # slot — game renders canvas here
+
 screens:
   - id: menu
     title: Main Menu
