@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
-import { GameSession } from '../../../../engine/types';
-import { call } from '../../../../engine/runtime';
+import { useRef, useEffect } from 'react';
+import type { GameSession } from '../../../engine/types';
+import { call } from '../../../engine/runtime';
 
 interface PlayerRender {
   segs_x: number[]; segs_y: number[]; segs_a: number[];
