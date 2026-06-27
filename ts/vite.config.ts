@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { copyFileSync, mkdirSync, existsSync } from 'fs';
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
 import path from 'path';
 
 export default defineConfig({
@@ -11,23 +11,23 @@ export default defineConfig({
       name: 'copy-lua-files',
       writeBundle() {
         const outDir = path.resolve(__dirname, 'dist');
-        const srcDir = path.resolve(__dirname, 'src');
+        const repoRoot = path.resolve(__dirname, '..');
 
         // Copy engine primitives
-        const enginePrimitivesDir = path.join(srcDir, 'engine', 'primitives');
+        const enginePrimitivesDir = path.join(repoRoot, 'engine', 'primitives');
         const outEnginePrimitivesDir = path.join(outDir, 'engine', 'primitives');
         if (existsSync(enginePrimitivesDir)) {
           mkdirSync(outEnginePrimitivesDir, { recursive: true });
-          const files = ['action.lua', 'entity.lua', 'resolution.lua', 'consequence.lua', 'movement.lua', 'physics.lua', 'lifecycle.lua'];
+          const files = readdirSync(enginePrimitivesDir);
           files.forEach(file => {
-            const src = path.join(enginePrimitivesDir, file);
-            const dest = path.join(outEnginePrimitivesDir, file);
-            if (existsSync(src)) copyFileSync(src, dest);
+            if (file.endsWith('.lua')) {
+              copyFileSync(path.join(enginePrimitivesDir, file), path.join(outEnginePrimitivesDir, file));
+            }
           });
         }
 
-        // Copy game Lua files
-        const gamesDir = path.join(srcDir, 'games');
+        // Copy game Lua/YAML files
+        const gamesDir = path.join(repoRoot, 'games');
         const outGamesDir = path.join(outDir, 'games');
         if (existsSync(gamesDir)) {
           const gameIds = ['horse_racing', 'slither_rogue'];
@@ -36,11 +36,11 @@ export default defineConfig({
             const gameOutDir = path.join(outGamesDir, gameId);
             if (existsSync(gameSrcDir)) {
               mkdirSync(gameOutDir, { recursive: true });
-              const luaFiles = ['logic.lua', 'data.yaml', 'ui.yaml', 'systems.yaml', 'utils.lua', 'state.lua', 'physics.lua', 'collision.lua', 'render.lua'];
-              luaFiles.forEach(file => {
-                const src = path.join(gameSrcDir, file);
-                const dest = path.join(gameOutDir, file);
-                if (existsSync(src)) copyFileSync(src, dest);
+              const files = readdirSync(gameSrcDir);
+              files.forEach(file => {
+                if (file.endsWith('.lua') || file.endsWith('.yaml')) {
+                  copyFileSync(path.join(gameSrcDir, file), path.join(gameOutDir, file));
+                }
               });
             }
           });
