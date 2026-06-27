@@ -10,7 +10,7 @@ interface PlayerRender {
 }
 interface NpcRender {
   id: string; name: string; color: string; head_color: string;
-  angle: number; radius: number;
+  angle: number; radius: number; hunting: boolean;
   segs_x: number[]; segs_y: number[]; segs_a: number[];
 }
 interface FruitRender {
