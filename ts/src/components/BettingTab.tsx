@@ -11,8 +11,8 @@ interface Props {
   lastRaceNetPayout: number | null;
   lastRaceBets: Bet[];
   session: GameSession;
-  onNewRace: () => void;
-  onSkipRace: () => void;
+  onNewRace: (horseId?: string) => void;
+  onSkipRace: (horseId?: string) => void;
   onStartRace: (enrichedParticipants: RaceParticipant[], bets: Bet[], netPayout: number) => void;
   onPurchaseStarter: (gender: 'Stallion' | 'Mare', price: number) => void;
 }
@@ -112,17 +112,19 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
     onStartRace(enriched, activeBets, net);
   }, [race, betEntries, session, getPlaceOdds, getShowOdds, onStartRace]);
 
-  const handleNewRace = useCallback(() => {
-    setBetEntries({});
-    setSimulated(false);
-    onNewRace();
-  }, [onNewRace]);
+  const [selectedHorseId, setSelectedHorseId] = useState<string>('');
 
-  const handleSkipRace = useCallback(() => {
+  const handleNewRace = useCallback((id?: string) => {
     setBetEntries({});
     setSimulated(false);
-    onSkipRace();
-  }, [onSkipRace]);
+    onNewRace(id ?? selectedHorseId || undefined);
+  }, [onNewRace, selectedHorseId]);
+
+  const handleSkipRace = useCallback((id?: string) => {
+    setBetEntries({});
+    setSimulated(false);
+    onSkipRace(id ?? selectedHorseId || undefined);
+  }, [onSkipRace, selectedHorseId]);
 
   const handleClearBets = useCallback(() => {
     setBetEntries({});
@@ -130,15 +132,68 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
 
   const playerHorses = horses.filter(h => h.player_owned);
   const starterCost = 400;
+  const now = Date.now();
 
   if (!race) {
+    const readyHorses = playerHorses.filter(h => h.cooldown_until < now);
+    const restingHorses = playerHorses.filter(h => h.cooldown_until >= now);
+    const pickedHorse = playerHorses.find(h => h.id === selectedHorseId) ?? readyHorses[0] ?? playerHorses[0];
     return (
       <div>
         <div className="section-header">
           <h2>Betting Office</h2>
-          <button className="btn-primary" onClick={onNewRace}>Enter New Race</button>
         </div>
-        <div className="empty-state">No race scheduled. Enter a race from the Stable tab.</div>
+        <div className="bet-panel" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ marginBottom: '0.75rem' }}>Choose Your Racer</h3>
+          {playerHorses.length === 0 ? (
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No horses in stable.</div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                {playerHorses.map(h => {
+                  const resting = h.cooldown_until >= now;
+                  const selected = (selectedHorseId ? h.id === selectedHorseId : h.id === pickedHorse?.id);
+                  return (
+                    <button
+                      key={h.id}
+                      onClick={() => setSelectedHorseId(h.id)}
+                      style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '0.5rem 0.75rem', borderRadius: '6px', cursor: resting ? 'not-allowed' : 'pointer',
+                        border: selected ? '2px solid var(--accent)' : '2px solid var(--border)',
+                        background: selected ? 'rgba(99,102,241,0.12)' : 'var(--surface2)',
+                        opacity: resting ? 0.55 : 1,
+                        fontSize: '0.88rem', fontWeight: selected ? 700 : 400,
+                      }}
+                    >
+                      <span>{h.name} <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.78rem' }}>· Gen {h.generation} · {h.gender}</span></span>
+                      {resting
+                        ? <span style={{ fontSize: '0.75rem', color: 'var(--yellow)' }}>Resting</span>
+                        : <span style={{ fontSize: '0.75rem', color: 'var(--green)' }}>Ready</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {readyHorses.length === 0 && (
+                <div style={{ color: 'var(--yellow)', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
+                  All horses are resting — you can still race but cooldown applies.
+                </div>
+              )}
+              <button
+                className="btn-primary"
+                style={{ width: '100%' }}
+                onClick={() => handleNewRace(selectedHorseId || pickedHorse?.id)}
+              >
+                Enter Race with {pickedHorse?.name ?? '…'} →
+              </button>
+              {restingHorses.length > 0 && readyHorses.length > 0 && (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.4rem', textAlign: 'center' }}>
+                  Greyed horses are on cooldown
+                </div>
+              )}
+            </>
+          )}
+        </div>
         {playerHorses.length < unlockedSlots && (
           <div className="starter-market">
             <h3>Starter Market</h3>
