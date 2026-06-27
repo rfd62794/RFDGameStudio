@@ -1,6 +1,7 @@
--- Slither Rogue — Game-Specific Logic
--- Engine systems loaded by runtime: (none — physics is TypeScript for this game)
--- All functions here are discrete-event logic, not frame-by-frame physics.
+-- Slither Rogue — Full Game Logic (Phase 2h)
+-- Architecture: GAME_STATE global persists in Lua VM between tick_game calls.
+-- TypeScript calls init_game once, then tick_game(dt, input) every frame.
+-- TypeScript is a pure renderer — no game logic.
 
 -- ============================================================
 -- EVOLUTION SYSTEM
