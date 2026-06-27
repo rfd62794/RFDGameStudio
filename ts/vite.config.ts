@@ -26,6 +26,19 @@ export default defineConfig({
           });
         }
 
+        // Copy engine systems
+        const engineSystemsDir = path.join(repoRoot, 'engine', 'systems');
+        const outEngineSystemsDir = path.join(outDir, 'engine', 'systems');
+        if (existsSync(engineSystemsDir)) {
+          mkdirSync(outEngineSystemsDir, { recursive: true });
+          const files = readdirSync(engineSystemsDir);
+          files.forEach(file => {
+            if (file.endsWith('.lua')) {
+              copyFileSync(path.join(engineSystemsDir, file), path.join(outEngineSystemsDir, file));
+            }
+          });
+        }
+
         // Copy game Lua/YAML files
         const gamesDir = path.join(repoRoot, 'games');
         const outGamesDir = path.join(outDir, 'games');
