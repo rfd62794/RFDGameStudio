@@ -45,10 +45,16 @@ const MOCK_LOGIC = `function clamp(v,lo,hi) return v end`;
 
 vi.mock('../games/horse_racing/data.yaml?raw', () => ({ default: MOCK_DATA }));
 vi.mock('../games/horse_racing/ui.yaml?raw', () => ({ default: MOCK_UI }));
-vi.mock('../games/horse_racing/logic.lua?raw', () => ({ default: MOCK_LOGIC }));
 
-import { loadGameFiles } from '../src/engine/loader';
+import { createLoader } from '../src/engine/loader';
 import { ValidationError } from '../src/engine/types';
+
+// Create test loader with injected mock data
+const mockGameLuaFiles = {
+  '../../games/horse_racing/logic.lua': MOCK_LOGIC,
+};
+const mockEngineLuaFiles = {};
+const loadGameFiles = createLoader(mockGameLuaFiles, mockEngineLuaFiles);
 
 describe('loader', () => {
   it('test_loader_returns_game_files', () => {
