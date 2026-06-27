@@ -75,21 +75,35 @@ def load_game_files(game_id: str, games_dir: Path | None = None) -> GameFiles:
 
     data_path = game_dir / "data.yaml"
     ui_path = game_dir / "ui.yaml"
-    lua_path = game_dir / "logic.lua"
 
-    for path in (data_path, ui_path, lua_path):
+    for path in (data_path, ui_path):
         if not path.exists():
             raise FileNotFoundError(f"Required game file not found: {path}")
 
     data = yaml.safe_load(data_path.read_text(encoding="utf-8"))
     ui = yaml.safe_load(ui_path.read_text(encoding="utf-8"))
-    logic = lua_path.read_text(encoding="utf-8")
 
     systems_path = game_dir / "systems.yaml"
     engine_systems: list[str] = []
+    lua_files: list[str] | None = None
     if systems_path.exists():
         systems_data = yaml.safe_load(systems_path.read_text(encoding="utf-8")) or {}
         engine_systems = systems_data.get("engine_systems", [])
+        lua_files = systems_data.get("lua_files")
+
+    if lua_files:
+        parts: list[str] = []
+        for fname in lua_files:
+            fpath = game_dir / fname
+            if not fpath.exists():
+                raise FileNotFoundError(f"lua_files entry not found: {fpath}")
+            parts.append(fpath.read_text(encoding="utf-8"))
+        logic = "\n\n".join(parts)
+    else:
+        lua_path = game_dir / "logic.lua"
+        if not lua_path.exists():
+            raise FileNotFoundError(f"Required game file not found: {lua_path}")
+        logic = lua_path.read_text(encoding="utf-8")
 
     engine_source = load_engine_source(engine_systems)
 
