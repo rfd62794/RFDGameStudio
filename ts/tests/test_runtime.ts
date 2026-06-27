@@ -39,6 +39,47 @@ horse:
     stats:
       speed: {min: 0, max: 100}
     name: string
+starter_horses:
+  - id: horse_starter_sire
+    name: Vanguard Spirit
+    gender: Stallion
+    generation: 1
+    speed: 48
+    stamina: 52
+    acceleration: 45
+    temperament: 70
+    color_body: "#A15C21"
+    color_mane: "#1C1917"
+    color_socks: "#A15C21"
+    color_silk: "#EF4444"
+    runs: 0
+    wins: 0
+    places: 0
+    thirds: 0
+    earnings: 0
+    cooldown_until: 0
+    player_owned: true
+    price: 400
+  - id: horse_starter_dam
+    name: Starlight Dream
+    gender: Mare
+    generation: 1
+    speed: 44
+    stamina: 56
+    acceleration: 50
+    temperament: 78
+    color_body: "#FAFAF9"
+    color_mane: "#FAFAF9"
+    color_socks: "#FAFAF9"
+    color_silk: "#3B82F6"
+    runs: 0
+    wins: 0
+    places: 0
+    thirds: 0
+    earnings: 0
+    cooldown_until: 0
+    player_owned: true
+    price: 400
 `;
 const MOCK_UI = `
 layout:
