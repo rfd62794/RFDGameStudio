@@ -32,7 +32,7 @@ function luaHorseToTs(raw: Record<string, unknown>): Horse {
     thirds: (raw['thirds'] as number) ?? 0,
     earnings: (raw['earnings'] as number) ?? 0,
     cooldown_until: (raw['cooldown_until'] as number) ?? 0,
-    player_owned: true,
+    player_owned: (raw['player_owned'] as boolean) ?? false,
     price: (raw['price'] as number) ?? 0,
   };
 }
@@ -122,7 +122,23 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
           />
         </div>
       )}
-      <div style={{ fontWeight: 600, marginBottom: '4px' }}>{h ? h.name : `— Select ${label} —`}</div>
+      <div style={{ fontWeight: 600, marginBottom: '4px' }}>
+        {h ? h.name : `— Select ${label} —`}
+        {h && (
+          <span style={{
+            marginLeft: '6px',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            padding: '1px 5px',
+            borderRadius: '99px',
+            background: h.player_owned ? 'rgba(74,222,128,0.15)' : 'rgba(251,191,36,0.15)',
+            color: h.player_owned ? 'var(--green)' : 'var(--yellow)',
+            border: `1px solid ${h.player_owned ? 'rgba(74,222,128,0.4)' : 'rgba(251,191,36,0.4)'}`,
+          }}>
+            {h.player_owned ? 'YOURS' : 'FOUNDATION'}
+          </span>
+        )}
+      </div>
       {h && (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 8px', fontSize: '0.82rem', marginBottom: '6px' }}>
@@ -169,7 +185,7 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
             <option value="">— Choose stallion —</option>
             {allSires.map(h => (
               <option key={h.id} value={h.id} disabled={h.cooldown_until >= Date.now()}>
-                {h.name}{!h.player_owned ? ` ($${h.price})` : ''}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
+                {h.player_owned ? '★ ' : '◇ '}{h.name}{!h.player_owned ? ` ($${h.price} stud fee)` : ' [Yours]'}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
               </option>
             ))}
           </select>
@@ -186,7 +202,7 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
             <option value="">— Choose mare —</option>
             {allDams.map(h => (
               <option key={h.id} value={h.id} disabled={h.cooldown_until >= Date.now()}>
-                {h.name}{!h.player_owned ? ` ($${h.price})` : ''}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
+                {h.player_owned ? '★ ' : '◇ '}{h.name}{!h.player_owned ? ` ($${h.price} stud fee)` : ' [Yours]'}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
               </option>
             ))}
           </select>
