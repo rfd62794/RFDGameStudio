@@ -117,11 +117,15 @@ export interface GameRendererProps {
  * Each game exports one of these from its config.ts.
  */
 export interface GameConfig {
-  gameId: string;           // matches games/ directory name
-  label: string;            // display name in router/UI
-  description?: string;     // optional tagline
+  gameId: string;
+  label: string;
+  description?: string;
+  color?: string;           // hex accent color for arcade card
+  status?: GameStatus;      // displayed as badge on card
   component: React.LazyExoticComponent<React.ComponentType<GameRendererProps>>;
 }
+
+export type GameStatus = 'stable' | 'beta' | 'dev';
 
 export class RuntimeError extends Error {
   constructor(message: string) {

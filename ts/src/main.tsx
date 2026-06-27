@@ -4,19 +4,82 @@ import './ui/tokens.css';
 import './ui/base.css';
 import { loadGame } from './engine/runtime';
 import type { GameSession } from './engine/types';
-import { findGameOrDefault } from './games/registry';
+import { GAME_REGISTRY, findGameOrDefault } from './games/registry';
 
-const GAME_ID = new URLSearchParams(window.location.search).get('game')
-  ?? 'horse_racing';
+// ── URL routing ──────────────────────────────────────────────────────────────
 
-/**
- * GameLoader — loads the Lua session for the selected game,
- * then renders the game component with the session as a prop.
- * Handles loading and error states centrally so individual games don't have to.
- */
+function getGameId(): string | null {
+  return new URLSearchParams(window.location.search).get('game');
+}
+
+function navigateTo(gameId: string): void {
+  window.location.href = `?game=${gameId}`;
+}
+
+function navigateHome(): void {
+  window.location.href = '/';
+}
+
+// ── Game Selector (index page) ───────────────────────────────────────────────
+
+function GameSelector() {
+  return (
+    <div className="arcade-index">
+      <header className="arcade-header">
+        <div className="arcade-brand">
+          <div className="arcade-logo">RFD GAME STUDIO</div>
+          <div className="arcade-subtitle">Portable Game Definition Format · Multi-Renderer</div>
+        </div>
+      </header>
+
+      <main className="arcade-main">
+        <h2 className="arcade-section-title">SELECT A GAME</h2>
+        <div className="arcade-grid">
+          {GAME_REGISTRY.map(config => (
+            <button
+              key={config.gameId}
+              className="arcade-card"
+              style={{ '--card-color': config.color ?? 'var(--color-accent)' } as React.CSSProperties}
+              onClick={() => navigateTo(config.gameId)}
+            >
+              <div className="arcade-card-header">
+                <span className="arcade-card-title">{config.label}</span>
+                <span className={`arcade-status arcade-status--${config.status ?? 'stable'}`}>
+                  {(config.status ?? 'stable').toUpperCase()}
+                </span>
+              </div>
+              <p className="arcade-card-desc">{config.description ?? ''}</p>
+              <div className="arcade-card-id">{config.gameId}</div>
+            </button>
+          ))}
+
+          {/* Coming soon placeholder */}
+          <div className="arcade-card arcade-card--coming-soon">
+            <div className="arcade-card-header">
+              <span className="arcade-card-title">More Coming</span>
+              <span className="arcade-status arcade-status--dev">SOON</span>
+            </div>
+            <p className="arcade-card-desc">
+              Coin Pusher · Mutant Battle Ball · and more.
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <footer className="arcade-footer">
+        <span>© 2026 RFD IT Services Ltd.</span>
+        <span className="arcade-footer-sep">·</span>
+        <span>Lua + Python + TypeScript</span>
+      </footer>
+    </div>
+  );
+}
+
+// ── Game Loader (single game view) ───────────────────────────────────────────
+
 function GameLoader({ gameId }: { gameId: string }) {
   const [session, setSession] = useState<GameSession | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -29,36 +92,48 @@ function GameLoader({ gameId }: { gameId: string }) {
 
   if (error) {
     return (
-      <div style={{ padding: '2rem', color: '#f87171', fontFamily: 'monospace' }}>
-        <strong>Studio Error</strong>
-        <p>{error}</p>
-        <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-          Game ID: {gameId} — Check that {gameId}/data.yaml and {gameId}/logic.lua exist.
-        </p>
+      <div className="arcade-error">
+        <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+        <div className="arcade-error-box">
+          <strong>Studio Error</strong>
+          <p>{error}</p>
+          <small>Game ID: {gameId}</small>
+        </div>
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div style={{ padding: '2rem', color: '#6b7280' }}>
-        Loading {gameId}…
+      <div className="arcade-loading">
+        <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+        <span>Loading {gameId}…</span>
       </div>
     );
   }
 
-  const config = findGameOrDefault(gameId);
-  const GameComponent = config.component;
+  const config     = findGameOrDefault(gameId);
+  const GameApp    = config.component;
 
   return (
-    <React.Suspense
-      fallback={<div style={{ padding: '2rem', color: '#6b7280' }}>Loading renderer…</div>}
-    >
-      <GameComponent session={session} />
-    </React.Suspense>
+    <div className="arcade-game-wrap">
+      <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+      <React.Suspense
+        fallback={
+          <div className="arcade-loading">Loading renderer…</div>
+        }
+      >
+        <GameApp session={session} />
+      </React.Suspense>
+    </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <GameLoader gameId={GAME_ID} />
-);
+// ── Root ─────────────────────────────────────────────────────────────────────
+
+function Root() {
+  const gameId = getGameId();
+  return gameId ? <GameLoader gameId={gameId} /> : <GameSelector />;
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(<Root />);

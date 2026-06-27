@@ -41,3 +41,190 @@ input[type="number"] {
   width: 90px;
 }
 input[type="number"]:focus { outline: 1px solid var(--accent); }
+
+/* ── Arcade Index ─────────────────────────────────────── */
+
+.arcade-index {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.arcade-header {
+  padding: var(--space-8) var(--space-8) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.arcade-logo {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+
+.arcade-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--muted);
+  margin-top: var(--space-1);
+  letter-spacing: 0.06em;
+}
+
+.arcade-main {
+  flex: 1;
+  padding: var(--space-8);
+}
+
+.arcade-section-title {
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: var(--space-6);
+}
+
+.arcade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.arcade-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.arcade-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-color, var(--accent));
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.arcade-card:hover {
+  border-color: var(--card-color, var(--accent));
+  transform: translateY(-2px);
+}
+
+.arcade-card:hover::before {
+  opacity: 1;
+}
+
+.arcade-card--coming-soon {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.arcade-card--coming-soon:hover {
+  transform: none;
+  border-color: var(--border);
+}
+
+.arcade-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.arcade-card-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.arcade-status {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid currentColor;
+}
+
+.arcade-status--stable  { color: var(--green);  }
+.arcade-status--beta    { color: var(--yellow);  }
+.arcade-status--dev     { color: var(--muted);   }
+
+.arcade-card-desc {
+  font-size: var(--font-size-sm);
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+}
+
+.arcade-card-id {
+  font-size: var(--font-size-xs);
+  color: var(--border);
+  font-family: monospace;
+}
+
+.arcade-footer {
+  padding: var(--space-4) var(--space-8);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--muted);
+}
+
+.arcade-footer-sep { color: var(--border); }
+
+/* ── Back button + loading/error states ───────────────── */
+
+.arcade-back-btn {
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  z-index: 1000;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.arcade-back-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.arcade-game-wrap {
+  width: 100%;
+  height: 100vh;
+}
+
+.arcade-loading,
+.arcade-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: var(--space-4);
+  color: var(--muted);
+}
+
+.arcade-error-box {
+  background: var(--surface);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  max-width: 480px;
+  color: var(--red);
+}
+
+.arcade-error-box p  { color: var(--text); margin: var(--space-2) 0; }
+.arcade-error-box small { color: var(--muted); font-size: var(--font-size-xs); }

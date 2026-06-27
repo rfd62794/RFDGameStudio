@@ -497,3 +497,41 @@ def studio_screenshot(
         }
     except Exception as exc:
         return {'error': str(exc), 'tool': 'studio_screenshot'}
+
+
+def studio_build() -> dict:
+    """Run vite build and return structured output.
+
+    On success, RFDArcadeServe (port 5174) automatically picks up
+    the new dist/ at next request — no service restart needed.
+
+    Returns: {"success": bool, "output": str, "duration_ms": int}
+    """
+    import subprocess
+    import time
+
+    repo_root = Path(__file__).parent.parent
+    ts_dir    = repo_root / 'ts'
+
+    start = time.time()
+    try:
+        proc = subprocess.run(
+            'npx vite build',
+            cwd=str(ts_dir),
+            capture_output=True,
+            text=True,
+            timeout=120,
+            shell=True,        # required — npx is a .cmd file on Windows
+        )
+        duration_ms = int((time.time() - start) * 1000)
+        output = (proc.stdout + proc.stderr).strip()
+        return {
+            'success':     proc.returncode == 0,
+            'output':      output[-3000:],
+            'duration_ms': duration_ms,
+            'return_code': proc.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {'error': 'Build timed out (120s)', 'tool': 'studio_build'}
+    except Exception as exc:
+        return {'error': str(exc), 'tool': 'studio_build'}
