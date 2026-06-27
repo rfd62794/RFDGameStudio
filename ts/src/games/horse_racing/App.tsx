@@ -5,6 +5,7 @@ import { Trophy, Coins } from 'lucide-react';
 import { call, getSchema } from '../../engine/runtime';
 import type { GameRendererProps, GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
 import { RuntimeError } from '../../engine/types';
+import { useCooldownTicker, useLuaCall } from '../../hooks';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
@@ -147,12 +148,8 @@ export default function App({ session }: GameRendererProps) {
   const [lastRaceNetPayout, setLastRaceNetPayout] = useState<number | null>(null);
   const [lastRaceBets, setLastRaceBets] = useState<Bet[]>([]);
   const [unlockedSlots, setUnlockedSlots] = useState(3);
-  const [ticker, setTicker] = useState(0);
-
-  useEffect(() => {
-    const t = setInterval(() => setTicker(prev => prev + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
+  const ticker = useCooldownTicker();
+  const { call: luaCall, error: luaError, clearError } = useLuaCall(session);
 
   useEffect(() => {
     const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
@@ -455,10 +452,10 @@ export default function App({ session }: GameRendererProps) {
       })
     : { elements: [], slots: {} };
 
-  if (error) {
+  if (error || luaError) {
     return (
       <div style={{ padding: '2rem' }}>
-        <ErrorBox message={`Startup error: ${error}`} />
+        <ErrorBox message={`Startup error: ${error ?? luaError}`} />
       </div>
     );
   }

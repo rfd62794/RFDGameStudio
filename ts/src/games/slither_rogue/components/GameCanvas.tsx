@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import type { GameSession } from '../../../engine/types';
 import { call } from '../../../engine/runtime';
+import { useGameLoop } from '../../../hooks';
 
 interface PlayerRender {
   segs_x: number[]; segs_y: number[]; segs_a: number[];
@@ -109,55 +110,45 @@ export default function GameCanvas({
     };
   }, []);
 
-  useEffect(() => {
-    let animId: number;
-    const loop = (ts: number) => {
-      const s  = stateRef.current;
-      const dt = Math.min((ts - (s.lastTime || ts)) / 1000, 0.1);
-      s.lastTime = ts;
+  useGameLoop((dt) => {
+    const s = stateRef.current;
+    if (!s.initialized || !canvasRef.current) return;
 
-      if (!isPaused && s.initialized && canvasRef.current) {
-        const rs = call(session, 'tick_game', dt, {
-          control_type: controlType,
-          mouse_x: s.mouseX,
-          mouse_y: s.mouseY,
-          keys: {
-            w: !!s.keys['w'], s: !!s.keys['s'], a: !!s.keys['a'], d: !!s.keys['d'],
-            arrowup:    !!s.keys['arrowup'],   arrowdown:  !!s.keys['arrowdown'],
-            arrowleft:  !!s.keys['arrowleft'], arrowright: !!s.keys['arrowright'],
-          },
-        }) as RenderState;
+    const rs = call(session, 'tick_game', dt, {
+      control_type: controlType,
+      mouse_x: s.mouseX,
+      mouse_y: s.mouseY,
+      keys: {
+        w: !!s.keys['w'], s: !!s.keys['s'], a: !!s.keys['a'], d: !!s.keys['d'],
+        arrowup:    !!s.keys['arrowup'],   arrowdown:  !!s.keys['arrowdown'],
+        arrowleft:  !!s.keys['arrowleft'], arrowright: !!s.keys['arrowright'],
+      },
+    }) as RenderState;
 
-        for (const ev of (rs.events || [])) {
-          if (ev.type === 'fruit_eaten') {
-            onFruitEaten();
-            onUpdateMetrics({
-              currentLength: ev.current_length ?? 0,
-              peakLength:    ev.peak_length ?? 0,
-              score:         ev.score ?? 0,
-            });
-          } else if (ev.type === 'metrics_update') {
-            onUpdateMetrics({
-              currentLength: ev.current_length ?? 0,
-              peakLength:    ev.peak_length ?? 0,
-              score:         rs.score,
-            });
-          } else if (ev.type === 'shield_consumed') {
-            onShieldConsumed();
-          } else if (ev.type === 'game_over') {
-            onGameOver();
-          }
-        }
-
-        onTick(rs.time_left);
-        drawGame(canvasRef.current, rs, s.dims);
+    for (const ev of (rs.events || [])) {
+      if (ev.type === 'fruit_eaten') {
+        onFruitEaten();
+        onUpdateMetrics({
+          currentLength: ev.current_length ?? 0,
+          peakLength:    ev.peak_length ?? 0,
+          score:         ev.score ?? 0,
+        });
+      } else if (ev.type === 'metrics_update') {
+        onUpdateMetrics({
+          currentLength: ev.current_length ?? 0,
+          peakLength:    ev.peak_length ?? 0,
+          score:         rs.score,
+        });
+      } else if (ev.type === 'shield_consumed') {
+        onShieldConsumed();
+      } else if (ev.type === 'game_over') {
+        onGameOver();
       }
+    }
 
-      animId = requestAnimationFrame(loop);
-    };
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, [isPaused, controlType]);
+    onTick(rs.time_left);
+    drawGame(canvasRef.current, rs, s.dims);
+  }, { paused: isPaused, maxDt: 0.1 });
 
   return (
     <div ref={containerRef} className="sr-canvas-wrap">
