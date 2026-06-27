@@ -1,23 +1,9 @@
 -- Slither Rogue — Utilities
--- Pure functions. No global state. No side effects.
--- Loaded first — all other files may call these.
-
-local function clamp(v, lo, hi)
-  return math.max(lo, math.min(hi, v))
-end
-
-local function dist2(x1, y1, x2, y2)
-  local dx, dy = x1-x2, y1-y2
-  return dx*dx + dy*dy
-end
+-- Game-specific spawn and segment construction helpers.
+-- Engine math (clamp, dist2, normalize_angle) available from engine primitives.
+-- Loaded first in lua_files — other slither_rogue files may call these.
 
 local function atan2(y, x) return math.atan(y, x) end
-
-local function normalize_angle(a)
-  while a < -math.pi do a = a + math.pi*2 end
-  while a >  math.pi do a = a - math.pi*2 end
-  return a
-end
 
 local function build_segments(x, y, angle, length, radius)
   local segs = {}

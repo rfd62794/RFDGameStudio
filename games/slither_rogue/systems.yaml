@@ -7,7 +7,9 @@ lua_files:
   - logic.lua
 
 engine_version: "1.0"
-engine_systems: []   # No shared engine systems — physics is TypeScript for this game
+engine_systems: []   # All engine/primitives/ loaded unconditionally.
+                     # engine/systems/ files declared here: (none for slither_rogue)
+                     # slither_rogue uses: clamp (action), dist2/normalize_angle (movement)
 
 systems:
   - id: evolution
