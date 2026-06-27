@@ -254,3 +254,77 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
 
 .arcade-error-box p  { color: var(--text); margin: var(--space-2) 0; }
 .arcade-error-box small { color: var(--muted); font-size: var(--font-size-xs); }
+
+/* ── TabManager ───────────────────────────────────────── */
+
+.tab-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tab-manager-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab-manager-btn {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tab-manager-btn:hover { color: var(--text); }
+
+.tab-manager-btn--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-manager-shortcut {
+  font-size: var(--font-size-xs);
+  opacity: 0.5;
+  font-family: monospace;
+}
+
+.tab-manager-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ── GameShell ────────────────────────────────────────── */
+
+.game-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.game-shell-header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.game-shell-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-shell-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+}
