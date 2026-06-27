@@ -4,7 +4,7 @@ import { LuaExecutor } from './executor';
 
 export function loadGame(gameId: string, seed: number = 42): GameSession {
   const files: GameFiles = loadGameFiles(gameId);
-  const executor = new LuaExecutor(files.logic, seed);
+  const executor = new LuaExecutor(files.logic, seed, files.engineSource);
   return { gameId, files, executor };
 }
 

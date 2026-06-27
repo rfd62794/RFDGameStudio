@@ -3,6 +3,7 @@ export interface GameFiles {
   data: Record<string, unknown>;
   ui: Record<string, unknown>;
   logic: string;
+  engineSource: string;
 }
 
 export interface Horse {

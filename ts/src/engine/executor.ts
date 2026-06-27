@@ -24,11 +24,12 @@ type LuaState = ReturnType<typeof lauxlib.luaL_newstate>;
 export class LuaExecutor {
   private L: LuaState;
 
-  constructor(luaSource: string, seed: number = 42) {
+  constructor(luaSource: string, seed: number = 42, engineSource: string = '') {
     this.L = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(this.L);
     this.seedRandom(seed);
-    const status = lauxlib.luaL_dostring(this.L, to_luastring(luaSource) as string);
+    const combined = engineSource ? engineSource + '\n\n' + luaSource : luaSource;
+    const status = lauxlib.luaL_dostring(this.L, to_luastring(combined) as string);
     if (status !== lua.LUA_OK) {
       const err = errFromStack(this.L);
       lua.lua_pop(this.L, 1);
