@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Horse, GameSession } from '../../../engine/types';
 import { getSchema } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
-import { EmptyState, Badge } from '../../../ui/components';
+import { EmptyState, Badge, Button, Card } from '../../../ui/components';
 
 interface Props {
   horses: Horse[];
@@ -38,9 +38,7 @@ export default function StableTab({ horses, session, funds, unlockedSlots, ticke
     <div>
       <div className="section-header">
         <h2>Stable</h2>
-        <button className="btn-primary" onClick={onNewRace}>
-          Enter a Race →
-        </button>
+        <Button label="Enter a Race →" onClick={onNewRace} />
       </div>
 
       {horses.length === 0
@@ -53,7 +51,7 @@ export default function StableTab({ horses, session, funds, unlockedSlots, ticke
               const minsLeft = Math.floor(secsLeft / 60);
               const sLeft = secsLeft % 60;
               return (
-                <div key={horse.id} className="horse-card">
+                <Card key={horse.id} className="horse-card">
                   <div style={{ display: 'flex', justifyContent: 'center', margin: '0.25rem 0 0.5rem', position: 'relative' }}>
                     <SVGRacer
                       colorBody={horse.color_body}
@@ -134,7 +132,7 @@ export default function StableTab({ horses, session, funds, unlockedSlots, ticke
                   >
                     Sell (~${horse.price})
                   </button>
-                </div>
+                </Card>
               );
             })}
           </div>
@@ -150,13 +148,12 @@ export default function StableTab({ horses, session, funds, unlockedSlots, ticke
         return (
           <div className="slot-unlock-panel">
             <span>Stable slots: {horses.filter(h => h.player_owned).length} / {unlockedSlots}</span>
-            <button
-              className="btn-secondary"
-              disabled={funds < unlockCost}
+            <Button
+              label={`Unlock Slot ($${unlockCost})`}
               onClick={onUnlockSlot}
-            >
-              Unlock Slot (${unlockCost})
-            </button>
+              variant="secondary"
+              disabled={funds < unlockCost}
+            />
           </div>
         );
       })()}

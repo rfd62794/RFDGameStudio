@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import type { CurrentRace, RaceParticipant, GameSession, Bet, Horse } from '../../../engine/types';
 import { call } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
-import { Badge } from '../../../ui/components';
+import { Badge, Button } from '../../../ui/components';
 
 interface Props {
   race: CurrentRace | null;
@@ -200,14 +200,8 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
             <h3>Starter Market</h3>
             <p>Acquire replacement foundation stock to grow your stable.</p>
             <div className="starter-buttons">
-              <button className="btn-primary" onClick={() => onPurchaseStarter('Stallion', starterCost)}
-                disabled={funds < starterCost}>
-                Buy Stallion (${starterCost})
-              </button>
-              <button className="btn-primary" onClick={() => onPurchaseStarter('Mare', starterCost)}
-                disabled={funds < starterCost}>
-                Buy Mare (${starterCost})
-              </button>
+              <Button label={`Buy Stallion ($${starterCost})`} onClick={() => onPurchaseStarter('Stallion', starterCost)} disabled={funds < starterCost} />
+              <Button label={`Buy Mare ($${starterCost})`} onClick={() => onPurchaseStarter('Mare', starterCost)} disabled={funds < starterCost} />
             </div>
           </div>
         )}
@@ -222,8 +216,8 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
       <div className="section-header">
         <h2>Betting Office</h2>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn-neutral" onClick={() => handleSkipRace()}>Skip &amp; New Race</button>
-          <button className="btn-neutral" onClick={() => handleNewRace()}>New Race</button>
+          <Button label="Skip & New Race" onClick={() => handleSkipRace()} variant="neutral" />
+          <Button label="New Race" onClick={() => handleNewRace()} variant="neutral" />
         </div>
       </div>
 

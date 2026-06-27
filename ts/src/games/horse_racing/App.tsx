@@ -9,7 +9,7 @@ import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
-import { ErrorBox, EmptyState, Badge } from '../../ui/components';
+import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
 
 const SEED = 42;
 const GAME_ID = 'horse_racing';
@@ -400,15 +400,12 @@ export default function App() {
       </header>
 
       {!isRacingActive && (
-        <div className="mobile-tab-bar">
-          {tabs.map(t => (
-            <button key={t['id'] as string}
-              className={`mobile-tab-btn${activeTab === t['id'] ? ' active' : ''}`}
-              onClick={() => setActiveTab(t['id'] as string)}>
-              {t['label'] as string}
-            </button>
-          ))}
-        </div>
+        <TabBar
+          tabs={tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string }))}
+          active={activeTab}
+          onSelect={setActiveTab}
+          variant="mobile"
+        />
       )}
 
       <main className="tab-content">
@@ -468,7 +465,7 @@ export default function App() {
                 {gameState.race_history.length === 0
                   ? <EmptyState message="No races completed yet." />
                   : gameState.race_history.map((entry, i) => (
-                    <div key={i} className="history-card">
+                    <Card key={i} className="history-card">
                       <div className="history-card-header">
                         <div>
                           <span className="history-race-name">{entry.race_name}</span>
@@ -486,7 +483,7 @@ export default function App() {
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </Card>
                   ))
                 }
               </div>

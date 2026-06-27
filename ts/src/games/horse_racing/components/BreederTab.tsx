@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import type { Horse, GameSession } from '../../../engine/types';
 import { call } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
-import { ErrorBox } from '../../../ui/components';
+import { ErrorBox, Button } from '../../../ui/components';
 
 interface Props {
   horses: Horse[];
@@ -268,12 +268,8 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
             ))}
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className="btn-primary" onClick={handleClaim}>
-              Claim Foal (−${totalCost})
-            </button>
-            <button className="btn-neutral" onClick={() => setFoal(null)}>
-              Discard
-            </button>
+            <Button label={`Claim Foal (−$${totalCost})`} onClick={handleClaim} />
+            <Button label="Discard" onClick={() => setFoal(null)} variant="neutral" />
           </div>
         </div>
       )}
