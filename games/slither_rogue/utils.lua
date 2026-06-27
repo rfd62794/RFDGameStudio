@@ -3,7 +3,7 @@
 -- Engine math (clamp, dist2, normalize_angle) available from engine primitives.
 -- Loaded first in lua_files — other slither_rogue files may call these.
 
-local function atan2(y, x) return math.atan(y, x) end
+function atan2(y, x) return math.atan(y, x) end
 
 local function build_segments(x, y, angle, length, radius)
   local segs = {}

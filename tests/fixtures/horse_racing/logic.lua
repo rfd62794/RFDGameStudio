@@ -22,12 +22,20 @@
 --
 -- Returns: race_obj, nil       on success
 -- Returns: nil, error_string   if horse is ineligible for all classes
+-- Collect a Python-list-proxy (or Lua table) into a Lua-native sequence.
+-- Needed because lupa proxies don't support # (rawlen returns 0).
+local function collect(t)
+  local out = {}
+  for _, v in ipairs(t) do out[#out+1] = v end
+  return out
+end
+
 function create_race(player_horse, data)
-  local race_classes = data.race_classes
-  local distances    = data.race_distances
-  local venues       = data.race_venues
-  local types        = data.race_types
-  local coat_colors  = data.coat_colors
+  local race_classes = collect(data.race_classes)
+  local distances    = collect(data.race_distances)
+  local venues       = collect(data.race_venues)
+  local types        = collect(data.race_types)
+  local coat_colors  = collect(data.coat_colors)
   local silk_colors  = data.silk_colors
   local prefixes     = data.name_prefixes
   local suffixes     = data.name_suffixes
@@ -144,10 +152,10 @@ end
 -- race_class: one entry from data.race_classes
 -- data: full data.yaml parsed table
 function create_ai_race(race_class, data)
-  local distances  = data.race_distances
-  local venues     = data.race_venues
-  local types      = data.race_types
-  local coat_colors = data.coat_colors
+  local distances  = collect(data.race_distances)
+  local venues     = collect(data.race_venues)
+  local types      = collect(data.race_types)
+  local coat_colors = collect(data.coat_colors)
   local silk_colors = data.silk_colors
   local prefixes   = data.name_prefixes
   local suffixes   = data.name_suffixes
