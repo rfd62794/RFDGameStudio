@@ -81,11 +81,14 @@ def test_horse_racing_create_ai_race_sets_ai_only_flag() -> None:
     data = session.files.data
     race_class = data.get('race_classes', [{}])[0]
 
-    race, err = session.executor.call('create_ai_race', race_class, data)
-    assert err is None
+    result = session.executor.call('create_ai_race', race_class, data)
+    # Lua returns (race, err) as a lupa multi-return tuple
+    race, err = result
+    assert err is None, f"create_ai_race failed: {err}"
     assert race is not None
-    assert race.get('ai_only') is True
-    assert race.get('participants') is not None
+    race_dict = dict(race)
+    assert race_dict.get('ai_only') is True
+    assert race_dict.get('participants') is not None
 
 def test_horse_racing_create_ai_race_odds_are_valid() -> None:
     """create_ai_race calculates valid odds for all AI participants."""
@@ -93,16 +96,17 @@ def test_horse_racing_create_ai_race_odds_are_valid() -> None:
     data = session.files.data
     race_class = data.get('race_classes', [{}])[0]
 
-    race, err = session.executor.call('create_ai_race', race_class, data)
-    assert err is None
+    result = session.executor.call('create_ai_race', race_class, data)
+    race, err = result
+    assert err is None, f"create_ai_race failed: {err}"
     assert race is not None
 
-    participants = race.get('participants', {})
+    participants = dict(race).get('participants')
+    assert participants is not None
     for p in participants.values():
-        odds = p.get('odds')
-        assert odds is not None
-        assert odds > 0
-        assert odds < 100  # reasonable upper bound
+        p_dict = dict(p)
+        odds = float(p_dict.get('odds', 0))
+        assert 1.0 < odds < 100.0, f"Expected odds in (1, 100), got {odds}"
 
 # ── SLITHER ROGUE ────────────────────────────────────────────────────────────
 
