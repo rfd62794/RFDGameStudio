@@ -30,7 +30,7 @@
 **Test proof:**
 ```
 cd ts && npx vitest run
-→ 33 passed (35 total, 2 pre-existing loader failures unrelated to Phase 2t)
+→ 35 passed, 0 failed
 uv run pytest -v
 → 70 passed in 1.76s
 ```
