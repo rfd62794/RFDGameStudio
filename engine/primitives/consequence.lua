@@ -1,0 +1,4 @@
+-- engine/primitives/consequence.lua
+-- Placeholder — consequence patterns are game-specific for now.
+-- Will be populated when a shared consequence emerges across 2+ games.
+-- Convention: apply_{outcome}(entity, result) -> updated_entity
