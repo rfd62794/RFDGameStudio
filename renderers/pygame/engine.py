@@ -51,9 +51,24 @@ class PyGameEngine:
         else:
             self.bounds = {}
 
+        # Coordinate transform — set by subclass for games with their own space
+        # Default: 1:1 mapping, no offset (matches pixel-space games)
+        self.game_scale: float = 1.0
+        self.game_offset: tuple[int, int] = (0, 0)
+
     def lua(self, fn_name: str, *args: Any) -> Any:
         """Call a Lua discrete event function. Not for frame-by-frame use."""
         return self.session.executor.call(fn_name, *args)
+
+    def to_screen(self, gx: float, gy: float) -> tuple[int, int]:
+        """Convert game-space coordinates to screen pixels."""
+        sx = int(gx * self.game_scale + self.game_offset[0])
+        sy = int(gy * self.game_scale + self.game_offset[1])
+        return sx, sy
+
+    def scale_radius(self, r: float) -> int:
+        """Scale a game-space radius to screen space. Minimum 2px."""
+        return max(2, int(r * self.game_scale))
 
     def run(self) -> None:
         """Main event loop. Runs at 60fps."""

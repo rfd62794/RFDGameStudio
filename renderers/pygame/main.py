@@ -10,7 +10,8 @@ import sys
 
 
 AVAILABLE_GAMES = {
-    'horse_racing': 'renderers.pygame.games.horse_racing.renderer.HorseRacingRenderer',
+    'horse_racing':  'renderers.pygame.games.horse_racing.renderer.HorseRacingRenderer',
+    'slither_rogue': 'renderers.pygame.games.slither_rogue.renderer.SlitherRogueRenderer',
 }
 
 

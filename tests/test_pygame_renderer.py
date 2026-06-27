@@ -132,3 +132,38 @@ def test_pygame_save_and_reload() -> None:
     # Clean up
     if SAVE_FILE.exists():
         SAVE_FILE.unlink()
+
+def test_slither_rogue_pygame_renderer_initializes() -> None:
+    """SlitherRogueRenderer loads session and computes coordinate transform."""
+    from renderers.pygame.games.slither_rogue.renderer import SlitherRogueRenderer
+    r = SlitherRogueRenderer()
+    assert r.session is not None
+    assert r.session.game_id == 'slither_rogue'
+    assert r.game_scale > 0
+    assert r.arena_w == 2600
+
+def test_slither_rogue_pygame_arena_scale() -> None:
+    """Scale fits 2600×2600 arena into 1024×700 game area."""
+    from renderers.pygame.games.slither_rogue.renderer import SlitherRogueRenderer
+    r = SlitherRogueRenderer()
+    # Scaled arena must fit within window
+    assert r.arena_w * r.game_scale <= r.width + 1
+    assert r.arena_h * r.game_scale <= (r.height - 68) + 1
+
+def test_slither_rogue_pygame_start_game_no_crash() -> None:
+    """_start_game() calls init_game in Lua without error."""
+    from renderers.pygame.games.slither_rogue.renderer import SlitherRogueRenderer
+    r = SlitherRogueRenderer()
+    r._start_game()
+    assert r.screen_state == 'game'
+    assert r.fruits_eaten == 0
+
+def test_slither_rogue_pygame_tick_returns_render_state() -> None:
+    """After _start_game(), update() produces a non-empty render_state."""
+    from renderers.pygame.games.slither_rogue.renderer import SlitherRogueRenderer
+    r = SlitherRogueRenderer()
+    r._start_game()
+    r.update(0.016)
+    assert r.render_state is not None
+    assert 'player' in r.render_state
+    assert 'npcs' in r.render_state
