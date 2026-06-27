@@ -175,3 +175,6 @@ sim_results/
 
 # Lua compiled bytecode (should never appear, but just in case)
 *.luac
+
+# Examples
+examples/
