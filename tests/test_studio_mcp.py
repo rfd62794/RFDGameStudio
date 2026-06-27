@@ -144,7 +144,7 @@ def test_studio_validate_game_horse_racing() -> None:
 
 def test_studio_run_tests_returns_structure() -> None:
     """studio_run_tests returns dict with passed/failed keys."""
-    result = studio_run_tests(game_id='studio_mcp')
+    result = studio_run_tests(game_id='horse_racing')
     assert 'passed' in result or 'error' in result
     if 'passed' in result:
         assert isinstance(result['passed'], int)
