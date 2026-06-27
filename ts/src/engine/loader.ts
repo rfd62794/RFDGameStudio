@@ -22,7 +22,7 @@ export function createLoader(
   gameLuaFiles: Record<string, string> | null = null,
   engineLuaFiles: Record<string, string> | null = null
 ) {
-  const useRuntimeFetch = gameLuaFiles === null || engineLuaFiles === null;
+  const useRuntimeFetch = gameLuaFiles === null && engineLuaFiles === null;
 
   /**
    * Get the content of a game-specific Lua file.

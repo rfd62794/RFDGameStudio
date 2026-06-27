@@ -57,39 +57,39 @@ const mockEngineLuaFiles = {};
 const loadGameFiles = createLoader(mockGameLuaFiles, mockEngineLuaFiles);
 
 describe('loader', () => {
-  it('test_loader_returns_game_files', () => {
-    const files = loadGameFiles('horse_racing');
+  it('test_loader_returns_game_files', async () => {
+    const files = await loadGameFiles('horse_racing');
     expect(files).toHaveProperty('gameId', 'horse_racing');
     expect(files).toHaveProperty('data');
     expect(files).toHaveProperty('ui');
     expect(files).toHaveProperty('logic');
   });
 
-  it('test_loader_parses_game_id', () => {
-    const files = loadGameFiles('horse_racing');
+  it('test_loader_parses_game_id', async () => {
+    const files = await loadGameFiles('horse_racing');
     const game = files.data['game'] as Record<string, unknown>;
     expect(game['id']).toBe('horse_racing');
   });
 
-  it('test_loader_parses_ui_tabs', () => {
-    const files = loadGameFiles('horse_racing');
+  it('test_loader_parses_ui_tabs', async () => {
+    const files = await loadGameFiles('horse_racing');
     const layout = files.ui['layout'] as Record<string, unknown>;
     const tabs = layout['tabs'] as unknown[];
     expect(Array.isArray(tabs)).toBe(true);
     expect(tabs.length).toBeGreaterThan(0);
   });
 
-  it('test_loader_logic_is_string', () => {
-    const files = loadGameFiles('horse_racing');
+  it('test_loader_logic_is_string', async () => {
+    const files = await loadGameFiles('horse_racing');
     expect(typeof files.logic).toBe('string');
     expect(files.logic.length).toBeGreaterThan(0);
   });
 
-  it('test_loader_missing_game_id_throws', () => {
+  it('test_loader_missing_game_id_throws', async () => {
     expect(() => {
       throw new ValidationError('Missing required key: game.id');
     }).toThrow(ValidationError);
 
-    expect(() => loadGameFiles('wrong_id')).toThrow(ValidationError);
+    await expect(loadGameFiles('wrong_id')).rejects.toThrow(ValidationError);
   });
 });
