@@ -27,8 +27,6 @@ export const SVGRacer: React.FC<SVGRacerProps> = ({
   className = ''
 }) => {
   // Let's create leg swing angles if running
-  const speedScale = isRunning ? 1 : 0;
-  
   // High-frequency gallop oscillation
   const phase = runTick * 0.55; 
   
