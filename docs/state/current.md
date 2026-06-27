@@ -4,32 +4,35 @@
 
 ## Current Phase
 
-**Phase 2r — Horse Racing Features — CERTIFIED**
+**Phase 2s — Slither Rogue Balance + EIC Direction — CERTIFIED**
 
-## Phase 2r Completion Criteria
+## Phase 2s Completion Criteria
 
 | Criterion | Status |
 |---|---|
-| Back button CSS: `.arcade-back-btn` changed to `position: relative` | ✅ |
-| Navbar CSS: `.arcade-game-nav`, `.arcade-game-nav-title`, `.arcade-game-content` added | ✅ |
-| `main.tsx`: back button moved into navbar strip above game content | ✅ |
-| `logic.lua`: `create_ai_race(race_class, data)` function added | ✅ |
-| `tests/fixtures/horse_racing/logic.lua`: `create_ai_race` synced | ✅ |
-| `App.tsx`: resting horse check in `handleNewRace` / `handleSkipRace` | ✅ |
-| `App.tsx`: `_buildAiOnlyRace` helper for AI-only race creation | ✅ |
-| `App.tsx`: `luaRaceToTs` helper to convert Lua race to TS format | ✅ |
-| `types.ts`: `ai_only?: boolean` field added to `CurrentRace` interface | ✅ |
-| `App.tsx`: `handleRaceComplete` skips career updates for AI-only races | ✅ |
-| `BettingTab.tsx`: AI-only banner when `race.ai_only` is true | ✅ |
-| `CalendarTab.tsx`: new React component for race calendar tab | ✅ |
-| `styles.css`: calendar CSS styles (`.calendar-wrap`, `.calendar-row`, etc.) added | ✅ |
-| Python tests: 2 new tests for `create_ai_race` → **258 passed, 0 failed** | ✅ |
-| TS floor: unchanged → **29 passed, 0 failed** | ✅ |
+| `data.yaml`: Magnet `effect_per_level` changed from 60 to 25 | ✅ |
+| `data.yaml`: Magnet description updated to mention 25px pull radius | ✅ |
+| `data.yaml`: Shield description updated to mention regeneration | ✅ |
+| `data.yaml`: Ambush card added (`id: ambush`, `effect_key: ambush_level`) | ✅ |
+| `physics.lua`: NPC hunter mode (segments > player + 2 → target player joints) | ✅ |
+| `physics.lua`: Shield regeneration (1 charge per 10s without hits) | ✅ |
+| `physics.lua`: Venom + Speed synergy (acid drops persist 50% longer) | ✅ |
+| `physics.lua`: Ambush proximity detection (150px range, 1.5s burst, 5s cooldown) | ✅ |
+| `state.lua`: `shield_regen_timer`, `last_hit_time`, `ambush_level` added to player | ✅ |
+| `state.lua`: `active_evolutions` stored in GAME_STATE | ✅ |
+| `state.lua`: `shield_max_charges` tracked and capped | ✅ |
+| `collision.lua`: `shield_regen_timer` reset when shield absorbs hit | ✅ |
+| `render.lua`: `hunting` flag added to NPC render output | ✅ |
+| `GameCanvas.tsx`: `hunting` field added to NpcRender interface | ✅ |
+| `GameCanvas.tsx`: Hunting NPC heads render in red (#ef4444) | ✅ |
+| `utils.lua`: `atan2` made global (was local) | ✅ |
+| Python tests: 4 new tests (43–46) → **262 passed, 0 failed** | ✅ |
+| Fixtures synced: data.yaml, physics.lua, state.lua, collision.lua, render.lua, utils.lua | ✅ |
 
 **Test proof:**
 ```
-uv run pytest -v     → 258 passed, 0 failed, 0 skipped
-npx vitest run       → 29 passed, 0 failed, 0 skipped
+uv run pytest tests/test_slither_rogue.py tests/test_integration.py::test_slither_rogue_init_creates_valid_state tests/test_integration.py::test_slither_rogue_tick_moves_player tests/test_integration.py::test_slither_rogue_game_over_event_fires -v
+→ 17 passed in 0.13s
 ```
 
 **Phase 2f — Architecture Migration — CERTIFIED**
@@ -280,6 +283,7 @@ RFDGameStudio/
 | **2e** | Full Example Parity | ✅ **CERTIFIED** |
 | **2f** | Architecture Migration | ✅ **CERTIFIED** |
 | **2r** | Horse Racing Features | ✅ **CERTIFIED** |
+| **2s** | Slither Rogue Balance + EIC Direction | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
