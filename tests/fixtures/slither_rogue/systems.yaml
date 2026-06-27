@@ -1,0 +1,43 @@
+engine_version: "1.0"
+engine_systems: []   # No shared engine systems — physics is TypeScript for this game
+
+systems:
+  - id: evolution
+    description: "Card selection, effect calculation, trigger logic"
+    components: [evolution_card, effect_key, effect_per_level, active_evolutions]
+    functions:
+      - calculate_evolution_effects
+      - check_evolution_trigger
+      - select_evolution_pool
+
+  - id: spawn
+    description: "Fruit and NPC initialization"
+    components: [fruit, npc, position, color, speed, radius]
+    functions:
+      - spawn_fruit
+      - generate_npc
+
+  - id: npc_ai
+    description: "NPC decision-making (called every 400-800ms, not per frame)"
+    components: [position, angle, speed, target_angle]
+    functions:
+      - decide_npc_action
+
+  - id: scoring
+    description: "Grade calculation and score evaluation"
+    components: [score, grade]
+    functions:
+      - calculate_grade
+
+entities:
+  snake:
+    description: "Player or NPC snake with segments and evolution state"
+    systems: [spawn, npc_ai]
+
+  fruit:
+    description: "Collectible item on the arena map"
+    systems: [spawn]
+
+  evolution_card:
+    description: "Single evolution card definition with effect"
+    systems: [evolution]

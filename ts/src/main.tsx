@@ -5,7 +5,7 @@ import './ui/base.css';
 
 const GAMES: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   horse_racing: React.lazy(() => import('./games/horse_racing/App')),
-  // snake: React.lazy(() => import('./games/snake/App')),  // Phase 4
+  slither_rogue: React.lazy(() => import('./games/slither_rogue/App')),
 };
 
 const GAME_ID = (new URLSearchParams(window.location.search).get('game'))
