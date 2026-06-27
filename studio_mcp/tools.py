@@ -33,17 +33,31 @@ _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent /
 
 def _to_lua_table(lua_runtime, obj):
     """
-    Recursively convert Python dicts/lists to lupa Lua tables.
-    Python lists → 1-based Lua sequence tables (ipairs-compatible).
-    Python dicts → Lua hash tables (pairs-compatible).
-    Other values pass through unchanged.
+    Recursively convert Python dicts/lists to native lupa Lua tables.
+
+    Uses manual index assignment rather than table_from() to guarantee
+    deep conversion at every level of nesting. table_from() does not
+    recursively convert nested Python objects — assigning converted
+    values one-by-one into a Lua table forces full conversion at every
+    level of the object graph.
+
+    Python dicts  → Lua hash tables  (pairs-compatible, string keys)
+    Python lists  → Lua sequence tables (ipairs-compatible, 1-based)
+    Python bools  → Lua booleans (checked before int — bool subclasses int)
+    Python scalars → pass through (lupa converts numbers and strings)
     """
     if isinstance(obj, dict):
-        converted = {k: _to_lua_table(lua_runtime, v) for k, v in obj.items()}
-        return lua_runtime.table_from(converted)
+        tbl = lua_runtime.eval("{}")
+        for k, v in obj.items():
+            tbl[k] = _to_lua_table(lua_runtime, v)
+        return tbl
     elif isinstance(obj, (list, tuple)):
-        converted = [_to_lua_table(lua_runtime, v) for v in obj]
-        return lua_runtime.table_from(converted)
+        tbl = lua_runtime.eval("{}")
+        for i, v in enumerate(obj, 1):    # 1-based — Lua convention
+            tbl[i] = _to_lua_table(lua_runtime, v)
+        return tbl
+    elif isinstance(obj, bool):
+        return obj                         # must check before int (bool is int subclass)
     else:
         return obj
 
