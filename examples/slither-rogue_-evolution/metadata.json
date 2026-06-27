@@ -1,0 +1,6 @@
+{
+  "name": "Snake Roguelike",
+  "description": "A browser-based Snake Roguelike game with NPC snakes, segment stealing, and roguelike evolution cards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
