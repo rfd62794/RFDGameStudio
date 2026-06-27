@@ -1,0 +1,64 @@
+# systems.yaml — horse_racing
+# ECS-style system manifest per ADR-006.
+# Every function in logic.lua appears in exactly one system's functions list.
+engine_version: "1.0"
+
+systems:
+  - id: genetics
+    description: "Genome generation, trait inheritance, color profiles, naming"
+    components: [genome, generation, traits, coat_color, silk_color]
+    functions:
+      - generate_horse
+      - generate_horse_name
+      - generate_color_profile
+      - rand_int
+      - rand_item
+      - clamp
+
+  - id: breeding
+    description: "Pairing validation, stat inheritance, offspring generation"
+    components: [genome, generation, parents, cooldown]
+    functions:
+      - breed_horses
+      - breed_stat
+
+  - id: odds
+    description: "Race odds calculation from stat profiles"
+    components: [speed, stamina, acceleration, temperament, distance]
+    functions:
+      - calculate_odds
+      - calculate_place_odds
+      - calculate_show_odds
+
+  - id: simulation
+    description: "Race physics — headless and per-tick"
+    components: [position, velocity, energy, finish_time]
+    functions:
+      - simulate_race
+      - tick_race
+
+  - id: market
+    description: "Bet settlement, horse valuation, prize distribution, career update"
+    components: [bet, payout_odds, prize_pool, stake, career]
+    functions:
+      - settle_bets
+      - calculate_payouts
+      - calculate_horse_price
+      - sell_horse
+      - update_horse_after_race
+
+entities:
+  horse:
+    description: "A racing horse with stats, career, and lineage"
+    systems: [genetics, breeding, odds, simulation, market]
+    schema_ref: data.yaml#horse
+
+  race:
+    description: "A race event with participants, distance, and prize pool"
+    systems: [simulation, odds, market]
+    schema_ref: data.yaml#race_classes
+
+  bet:
+    description: "A wager on a race participant"
+    systems: [market]
+    schema_ref: data.yaml#betting
