@@ -73,13 +73,11 @@ function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace | n
     raceObj['participants'] as Record<string, unknown>
   ) as Array<Record<string, unknown>>;
 
-  console.debug('[buildRace] rawParticipants player_owned:', rawParticipants.map(p => {
-    const h = p['horse'] as Record<string, unknown>;
-    return { name: h?.['name'], player_owned: h?.['player_owned'], type: typeof h?.['player_owned'] };
-  }));
-
   const participants = rawParticipants.map((p, i) => ({
-    horse: luaHorseToTs(p['horse'] as Record<string, unknown>),
+    horse: luaHorseToTs({
+      ...(p['horse'] as Record<string, unknown>),
+      player_owned: i === 0,
+    }),
     gate: (p['gate'] as number) ?? i + 1,
     odds: (p['odds'] as number) ?? 4.0,
     progress: 0,
