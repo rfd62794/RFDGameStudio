@@ -56,7 +56,7 @@ function buildInitialState(session: GameSession): GameState {
 
 function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace | null {
   const data = session.files.data as Record<string, unknown>;
-  const playerHorse = playerHorses[0];
+  const playerHorse = playerHorses.find(h => h.cooldown_until < Date.now()) ?? playerHorses[0];
   if (!playerHorse) return null;
 
   const result = call(session, 'create_race', playerHorse, data) as unknown;
