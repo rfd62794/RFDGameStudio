@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import './styles.css';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Coins } from 'lucide-react';
-import { loadGame, call, getSchema } from './engine/runtime';
-import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from './engine/types';
-import { RuntimeError } from './engine/types';
+import { loadGame, call, getSchema } from '../../engine/runtime';
+import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
+import { RuntimeError } from '../../engine/types';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
+import { ErrorBox, EmptyState, Badge } from '../../ui/components';
 
 const SEED = 42;
 const GAME_ID = 'horse_racing';
@@ -338,9 +340,7 @@ export default function App() {
   if (error) {
     return (
       <div style={{ padding: '2rem' }}>
-        <div className="error-box">
-          <strong>Startup error:</strong> {error}
-        </div>
+        <ErrorBox message={`Startup error: ${error}`} />
       </div>
     );
   }
@@ -412,7 +412,7 @@ export default function App() {
       )}
 
       <main className="tab-content">
-        {schemaErr && <div className="error-box" style={{ marginBottom: '1rem' }}>{schemaErr}</div>}
+        {schemaErr && <div style={{ marginBottom: '1rem' }}><ErrorBox message={schemaErr} /></div>}
 
         {gameState.emergency_grant_shown && (
           <div className="emergency-grant-banner">
@@ -466,7 +466,7 @@ export default function App() {
               <div>
                 <h2 style={{ marginBottom: '1rem' }}>Race History</h2>
                 {gameState.race_history.length === 0
-                  ? <div className="empty-state">No races completed yet.</div>
+                  ? <EmptyState message="No races completed yet." />
                   : gameState.race_history.map((entry, i) => (
                     <div key={i} className="history-card">
                       <div className="history-card-header">
@@ -481,7 +481,7 @@ export default function App() {
                           <div key={r.rank} className="history-standing-row">
                             <span className={`rank-badge rank-${r.rank}`}>#{r.rank}</span>
                             <span className="history-horse-name">{r.horse_name}</span>
-                            {r.player_owned && <span className="badge-player">You</span>}
+                            {r.player_owned && <Badge label="You" variant="accent" />}
                             {r.payout > 0 && <span className="history-payout">+${r.payout}</span>}
                           </div>
                         ))}

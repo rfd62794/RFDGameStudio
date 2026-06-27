@@ -1,0 +1,16 @@
+/* tokens.css — Design token custom properties. Single source of truth for all colour, spacing, and typography values. */
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #22263a;
+  --border: #2e3350;
+  --text: #e8eaf0;
+  --text-muted: #8a8fa8;
+  --accent: #6c8ef7;
+  --accent-dim: #3d4f99;
+  --green: #34d399;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --radius: 8px;
+  --font: 'Segoe UI', system-ui, sans-serif;
+}

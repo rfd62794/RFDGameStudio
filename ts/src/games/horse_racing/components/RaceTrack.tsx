@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { CurrentRace, RaceResult, Bet } from '../engine/types';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import type { CurrentRace, RaceResult, Bet } from '../../../engine/types';
 import { SVGRacer } from './SVGRacer';
+import { Badge } from '../../../ui/components';
 
 const TICK_RATE_MS = 50;
 const LANE_HEIGHT = 29;          // condensed
@@ -311,7 +312,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
                     <td className={`rank-${p.final_rank}`}>#{p.final_rank}</td>
                     <td>
                       {p.horse.name}
-                      {p.horse.player_owned && <span className="badge-player">You</span>}
+                      {p.horse.player_owned && <Badge label="You" variant="accent" />}
                     </td>
                     <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                       {p.finish_time ? `${p.finish_time.toFixed(2)}s` : '—'}

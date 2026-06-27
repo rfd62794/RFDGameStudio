@@ -54,11 +54,15 @@ class Executor:
     The RNG is seeded at construction — tests always pass seed=42.
     """
 
-    def __init__(self, lua_source: str, seed: int = 42) -> None:
+    def __init__(self, lua_source: str, seed: int = 42, engine_source: str = "") -> None:
         _require_lupa()
         self._lua = LuaRuntime(unpack_returned_tuples=True)
         self._lua.execute(f"math.randomseed({seed})")
-        self._lua.execute(lua_source)
+        if engine_source:
+            full_source = engine_source + "\n\n" + lua_source
+        else:
+            full_source = lua_source
+        self._lua.execute(full_source)
 
     def _to_lua(self, obj: Any) -> Any:
         """Recursively convert Python dicts/lists to Lua tables."""

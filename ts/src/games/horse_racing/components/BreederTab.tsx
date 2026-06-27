@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import type { Horse, GameSession } from '../engine/types';
-import { call } from '../engine/runtime';
+import { useState, useCallback } from 'react';
+import type { Horse, GameSession } from '../../../engine/types';
+import { call } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
+import { ErrorBox } from '../../../ui/components';
 
 interface Props {
   horses: Horse[];
@@ -169,9 +170,9 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
         </span>
       </div>
 
-      {error && <div className="error-box" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div style={{ marginBottom: '1rem' }}><ErrorBox message={error} /></div>}
       {horses.length >= 12 && (
-        <div className="error-box" style={{ marginBottom: '1rem' }}>Stable full — sell a horse before breeding.</div>
+        <div style={{ marginBottom: '1rem' }}><ErrorBox message="Stable full — sell a horse before breeding." /></div>
       )}
 
       <div className="breeder-panel">

@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import type { CurrentRace, RaceParticipant, GameSession, Bet, Horse } from '../engine/types';
-import { call } from '../engine/runtime';
+import { useState, useCallback } from 'react';
+import type { CurrentRace, RaceParticipant, GameSession, Bet, Horse } from '../../../engine/types';
+import { call } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
+import { Badge } from '../../../ui/components';
 
 interface Props {
   race: CurrentRace | null;
@@ -221,8 +222,8 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
       <div className="section-header">
         <h2>Betting Office</h2>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn-neutral" onClick={handleSkipRace}>Skip &amp; New Race</button>
-          <button className="btn-neutral" onClick={handleNewRace}>New Race</button>
+          <button className="btn-neutral" onClick={() => handleSkipRace()}>Skip &amp; New Race</button>
+          <button className="btn-neutral" onClick={() => handleNewRace()}>New Race</button>
         </div>
       </div>
 
@@ -260,7 +261,7 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
                           />
                         </span>
                         {p.horse.name}
-                        {p.horse.player_owned && <span className="badge-player">You</span>}
+                        {p.horse.player_owned && <Badge label="You" variant="accent" />}
                       </td>
                       <td><span className="odds-badge">{p.odds.toFixed(1)}x</span></td>
                       <td><span className="odds-badge" style={{ opacity: 0.75 }}>{getPlaceOdds(p.odds).toFixed(2)}x</span></td>

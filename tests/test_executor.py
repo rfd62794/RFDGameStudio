@@ -9,10 +9,14 @@ import pytest
 import yaml
 
 from studio.executor import Executor, LuaError
+from studio.loader import load_engine_source
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 LUA_SOURCE = (FIXTURES_DIR / "horse_racing" / "logic.lua").read_text(encoding="utf-8")
 FIXTURE_DATA = yaml.safe_load((FIXTURES_DIR / "horse_racing" / "data.yaml").read_text(encoding="utf-8"))
+
+_systems_raw = yaml.safe_load((FIXTURES_DIR / "horse_racing" / "systems.yaml").read_text(encoding="utf-8")) or {}
+ENGINE_SOURCE = load_engine_source(_systems_raw.get("engine_systems", []))
 
 
 # ---------------------------------------------------------------------------
@@ -20,7 +24,7 @@ FIXTURE_DATA = yaml.safe_load((FIXTURES_DIR / "horse_racing" / "data.yaml").read
 # ---------------------------------------------------------------------------
 
 def test_executor_calls_clamp_function() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     result = ex.call("clamp", 5, 0, 10)
     assert result == 5
 
@@ -30,7 +34,7 @@ def test_executor_calls_clamp_function() -> None:
 # ---------------------------------------------------------------------------
 
 def test_executor_clamp_enforces_min() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     result = ex.call("clamp", -5, 0, 10)
     assert result == 0
 
@@ -40,7 +44,7 @@ def test_executor_clamp_enforces_min() -> None:
 # ---------------------------------------------------------------------------
 
 def test_executor_clamp_enforces_max() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     result = ex.call("clamp", 15, 0, 10)
     assert result == 10
 
@@ -50,7 +54,7 @@ def test_executor_clamp_enforces_max() -> None:
 # ---------------------------------------------------------------------------
 
 def test_executor_generate_horse_name_returns_string() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     prefixes = ["Midnight", "Golden", "Silver"]
     suffixes = ["Storm", "Dancer", "Bullet"]
     result = ex.call("generate_horse_name", prefixes, suffixes)
@@ -63,7 +67,7 @@ def test_executor_generate_horse_name_returns_string() -> None:
 # ---------------------------------------------------------------------------
 
 def test_executor_unknown_function_raises() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     with pytest.raises(AttributeError):
         ex.call("function_that_does_not_exist")
 
@@ -108,7 +112,7 @@ def _make_participants(n: int = 6) -> list:
 # ---------------------------------------------------------------------------
 
 def test_simulate_race_returns_six_results() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     participants = _make_participants(6)
     results = ex.call("simulate_race", participants, {"distance": 1200})
     assert isinstance(results, list)
@@ -120,7 +124,7 @@ def test_simulate_race_returns_six_results() -> None:
 # ---------------------------------------------------------------------------
 
 def test_simulate_race_ranks_are_1_through_6() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     participants = _make_participants(6)
     results = ex.call("simulate_race", participants, {"distance": 1200})
     ranks = sorted(int(r["rank"]) for r in results)
@@ -132,7 +136,7 @@ def test_simulate_race_ranks_are_1_through_6() -> None:
 # ---------------------------------------------------------------------------
 
 def test_calculate_place_odds_below_win_odds() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     config = {"place_odds_multiplier": 0.38, "place_odds_min": 1.15}
     place = ex.call("calculate_place_odds", 4.0, config)
     assert isinstance(place, float)
@@ -145,7 +149,7 @@ def test_calculate_place_odds_below_win_odds() -> None:
 # ---------------------------------------------------------------------------
 
 def test_update_horse_after_race_increments_wins() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     horse = {
         "id": "h1", "name": "Test", "gender": "Stallion",
         "generation": 1, "speed": 60, "stamina": 60,
@@ -164,7 +168,7 @@ def test_update_horse_after_race_increments_wins() -> None:
 # ---------------------------------------------------------------------------
 
 def test_update_horse_after_race_does_not_mutate() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     horse = {
         "id": "h1", "name": "Test", "gender": "Stallion",
         "generation": 1, "speed": 60, "stamina": 60,
@@ -182,7 +186,7 @@ def test_update_horse_after_race_does_not_mutate() -> None:
 # ---------------------------------------------------------------------------
 
 def test_settle_bets_win_bet_pays_correct_amount() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     bets = [
         {"horse_id": "h1", "amount": 100, "type": "Win", "payout_odds": 3.5},
         {"horse_id": "h2", "amount": 50,  "type": "Win", "payout_odds": 2.0},
@@ -204,7 +208,7 @@ def test_settle_bets_win_bet_pays_correct_amount() -> None:
 # ---------------------------------------------------------------------------
 
 def test_create_race_returns_field() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     player_horse = {
         "id": "h_player", "name": "Test Horse", "gender": "Stallion",
         "generation": 1, "speed": 30, "stamina": 30, "acceleration": 30,
@@ -224,7 +228,7 @@ def test_create_race_returns_field() -> None:
 # ---------------------------------------------------------------------------
 
 def test_create_race_npc_count() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     player_horse = {
         "id": "h_player", "name": "Test Horse", "gender": "Stallion",
         "generation": 1, "speed": 30, "stamina": 30, "acceleration": 30,
@@ -244,7 +248,7 @@ def test_create_race_npc_count() -> None:
 # ---------------------------------------------------------------------------
 
 def test_create_race_ineligible_returns_error() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     # avg stat of 5 is below Maiden minimum (10)
     player_horse = {
         "id": "h_bad", "name": "Weak Horse", "gender": "Mare",
@@ -265,7 +269,7 @@ def test_create_race_ineligible_returns_error() -> None:
 # ---------------------------------------------------------------------------
 
 def test_can_unlock_slot_insufficient_funds() -> None:
-    ex = Executor(LUA_SOURCE, seed=42)
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
     result, reason = ex.call("can_unlock_slot", 3, 12, 10, 500)
     assert result is False
     assert "Insufficient funds" in str(reason)

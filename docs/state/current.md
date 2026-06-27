@@ -4,6 +4,39 @@
 
 ## Current Phase
 
+**Phase 2f — Architecture Migration — CERTIFIED**
+
+## Phase 2f Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `engine/primitives/` — 7 .lua files (action, entity, resolution, consequence, movement, physics, lifecycle) | ✅ |
+| `engine/systems/` — genetics.lua, odds.lua, market.lua | ✅ |
+| `studio/loader.py` — `load_engine_source` + `engine_source` field on `GameFiles` | ✅ |
+| `studio/executor.py` — accepts `engine_source`, prepends to game logic | ✅ |
+| `studio/runtime.py` — passes `engine_source` to `Executor` | ✅ |
+| `games/horse_racing/systems.yaml` — `engine_systems: [genetics, odds, market]` | ✅ |
+| `games/horse_racing/logic.lua` — trimmed; only game-specific logic remains | ✅ |
+| `ts/src/ui/tokens.css` — CSS custom properties only | ✅ |
+| `ts/src/ui/base.css` — reset + typography | ✅ |
+| `ts/src/games/horse_racing/styles.css` — all game-specific classes | ✅ |
+| `ts/src/ui/components/` — 9 base components + index.ts barrel | ✅ |
+| `ts/src/games/horse_racing/App.tsx` — game shell moved | ✅ |
+| `ts/src/games/horse_racing/components/` — all 5 game components moved | ✅ |
+| `ts/src/components/` — deleted | ✅ |
+| `ts/src/App.tsx` — deleted | ✅ |
+| `ts/src/main.tsx` — lazy-loading game router | ✅ |
+| Python floor: `uv run pytest -v` → **32 passed, 0 failed** | ✅ |
+| TS floor: `npx vitest run` → **17 passed, 0 failed** | ✅ |
+| `npx vite build` → exits 0 (code-split: index + App chunks) | ✅ |
+
+**Test proof:**
+```
+uv run pytest -v     → 32 passed, 0 failed, 0 skipped
+npx vitest run       → 17 passed, 0 failed, 0 skipped
+npx vite build       → ✓ built in 2.60s, exit 0 (lazy split: index + App chunks)
+```
+
 **Phase 2e — Full Example Parity — CERTIFIED**
 
 ## Phase 2e Completion Criteria
@@ -216,6 +249,8 @@ RFDGameStudio/
 | **2b** | Horse Racing Logic Extraction | ✅ **CERTIFIED** |
 | **2c** | Race Animation | ✅ **CERTIFIED** |
 | **2d** | Gap Closure | ✅ **CERTIFIED** |
+| **2e** | Full Example Parity | ✅ **CERTIFIED** |
+| **2f** | Architecture Migration | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import type { Horse, GameSession } from '../engine/types';
-import { getSchema } from '../engine/runtime';
+import { useState } from 'react';
+import type { Horse, GameSession } from '../../../engine/types';
+import { getSchema } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
+import { EmptyState, Badge } from '../../../ui/components';
 
 interface Props {
   horses: Horse[];
@@ -43,7 +44,7 @@ export default function StableTab({ horses, session, funds, unlockedSlots, ticke
       </div>
 
       {horses.length === 0
-        ? <div className="empty-state">No horses in stable.</div>
+        ? <EmptyState message="No horses in stable." />
         : (
           <div className="card-grid">
             {horses.map(horse => {
@@ -88,7 +89,7 @@ export default function StableTab({ horses, session, funds, unlockedSlots, ticke
 
                   <div className="horse-meta">
                     Gen {horse.generation} · {horse.gender}
-                    {horse.player_owned && <span className="badge-player">Yours</span>}
+                    {horse.player_owned && <Badge label="Yours" variant="accent" />}
                   </div>
 
                   {isResting && (

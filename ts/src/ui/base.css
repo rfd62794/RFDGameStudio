@@ -1,0 +1,43 @@
+/* base.css — Resets, typography, and global element defaults.
+   Depends on tokens.css for custom properties. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+#root { display: flex; flex-direction: column; min-height: 100vh; }
+
+h1 { font-size: 1.5rem; font-weight: 700; }
+h2 { font-size: 1.1rem; font-weight: 600; }
+h3 { font-size: 0.95rem; font-weight: 600; }
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+button:hover:not(:disabled) { opacity: 0.85; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+input[type="number"] {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+  width: 90px;
+}
+input[type="number"]:focus { outline: 1px solid var(--accent); }

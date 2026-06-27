@@ -33,7 +33,7 @@ def load_game(game_id: str, seed: int = 42, games_dir: Path | None = None) -> Ga
     """
     files = load_game_files(game_id, games_dir=games_dir)
     validate_data(files.data)
-    executor = Executor(files.logic, seed=seed)
+    executor = Executor(files.logic, seed=seed, engine_source=files.engine_source)
     return GameSession(game_id=game_id, files=files, executor=executor)
 
 
