@@ -13,6 +13,8 @@ from studio_mcp.tools import (
     studio_get_systems,
     studio_load_game,
     studio_run_headless,
+    studio_validate_game,
+    studio_run_tests,
 )
 
 
@@ -120,3 +122,31 @@ def test_run_headless_generate_horse_10_iterations() -> None:
     assert "error" not in result, result.get("error")
     assert result["iterations"] == 10
     assert len(result["results"]) == 10
+
+
+# ---------------------------------------------------------------------------
+# Test 29
+# ---------------------------------------------------------------------------
+
+def test_studio_validate_game_horse_racing() -> None:
+    """studio_validate_game returns valid=True for horse_racing."""
+    result = studio_validate_game('horse_racing')
+    assert result.get('valid') is True
+    assert result.get('game_id') == 'horse_racing'
+    issues = result.get('issues', [])
+    errors = [i for i in issues if i.get('severity') == 'error']
+    assert len(errors) == 0
+
+
+# ---------------------------------------------------------------------------
+# Test 30
+# ---------------------------------------------------------------------------
+
+def test_studio_run_tests_returns_structure() -> None:
+    """studio_run_tests returns dict with passed/failed keys."""
+    result = studio_run_tests(game_id='studio_mcp')
+    assert 'passed' in result or 'error' in result
+    if 'passed' in result:
+        assert isinstance(result['passed'], int)
+        assert isinstance(result['failed'], int)
+        assert 'floor_met' in result

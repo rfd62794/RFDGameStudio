@@ -92,3 +92,28 @@ function decide_npc_action(npc_head, npc_angle, nearby_fruits, arena)
   end
   return npc_angle + (math.random()*1.2 - 0.6)
 end
+
+-- Returns a safe summary of GAME_STATE for external inspection.
+-- Called by studio_get_state MCP tool.
+function get_state_summary()
+  if not GAME_STATE then return nil end
+  local p = GAME_STATE.player
+  local seg_count = 0
+  if p and p.segments then
+    for _ in ipairs(p.segments) do seg_count = seg_count + 1 end
+  end
+  return {
+    initialized     = true,
+    time_left       = GAME_STATE.time_left or 0,
+    score           = GAME_STATE.score or 0,
+    peak_length     = GAME_STATE.peak_length or 0,
+    player_segments = seg_count,
+    player_x        = (p and p.segments and p.segments[1]) and p.segments[1].x or 0,
+    player_y        = (p and p.segments and p.segments[1]) and p.segments[1].y or 0,
+    npc_count       = GAME_STATE.npcs and #GAME_STATE.npcs or 0,
+    fruit_count     = GAME_STATE.fruits and #GAME_STATE.fruits or 0,
+    acid_drops      = GAME_STATE.acid_drops and #GAME_STATE.acid_drops or 0,
+    speed_mult      = GAME_STATE.speed_mult or 1.0,
+    events_pending  = GAME_STATE.events and #GAME_STATE.events or 0,
+  }
+end
