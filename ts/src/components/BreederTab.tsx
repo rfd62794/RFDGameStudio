@@ -185,7 +185,7 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
             <option value="">— Choose stallion —</option>
             {allSires.map(h => (
               <option key={h.id} value={h.id} disabled={h.cooldown_until >= Date.now()}>
-                {h.player_owned ? '★ ' : '◇ '}{h.name}{!h.player_owned ? ` ($${h.price} stud fee)` : ' [Yours]'}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
+                {h.player_owned ? '(Yours) ' : '(Donate) '}{h.name}{!h.player_owned ? ` — $${h.price} stud fee` : ''}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
               </option>
             ))}
           </select>
@@ -202,7 +202,7 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
             <option value="">— Choose mare —</option>
             {allDams.map(h => (
               <option key={h.id} value={h.id} disabled={h.cooldown_until >= Date.now()}>
-                {h.player_owned ? '★ ' : '◇ '}{h.name}{!h.player_owned ? ` ($${h.price} stud fee)` : ' [Yours]'}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
+                {h.player_owned ? '(Yours) ' : '(Donate) '}{h.name}{!h.player_owned ? ` — $${h.price} stud fee` : ''}{h.cooldown_until >= Date.now() ? ' [resting]' : ''}
               </option>
             ))}
           </select>
