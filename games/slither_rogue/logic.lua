@@ -195,7 +195,7 @@ function _update_player(st, dt, input)
   if (input.control_type or "mouse") == "mouse" then
     local mx, my = input.mouse_x or 0, input.mouse_y or 0
     if mx*mx + my*my > 225 then
-      p.target_angle = math.atan2(my, mx)
+      p.target_angle = atan2(my, mx)
     end
   else
     local k = input.keys or {}
@@ -204,7 +204,7 @@ function _update_player(st, dt, input)
     if k.s or k.arrowdown  then dy =  1 end
     if k.a or k.arrowleft  then dx = -1 end
     if k.d or k.arrowright then dx =  1 end
-    if dx ~= 0 or dy ~= 0 then p.target_angle = math.atan2(dy, dx) end
+    if dx ~= 0 or dy ~= 0 then p.target_angle = atan2(dy, dx) end
   end
 
   local diff = normalize_angle(p.target_angle - p.angle)
@@ -256,7 +256,7 @@ function _follow(snake)
     local dx, dy = prev.x-curr.x, prev.y-curr.y
     local d = math.sqrt(dx*dx + dy*dy)
     if d > sp then
-      local ang = math.atan2(dy, dx)
+      local ang = atan2(dy, dx)
       curr.x = prev.x - math.cos(ang)*sp
       curr.y = prev.y - math.sin(ang)*sp
       curr.angle = ang
@@ -293,7 +293,7 @@ function _update_npcs(st, dt)
           if d2 < min_d2 then min_d2=d2; nearest=f end
         end
         if nearest then
-          npc.target_angle = math.atan2(nearest.y-nh.y, nearest.x-nh.x)
+          npc.target_angle = atan2(nearest.y-nh.y, nearest.x-nh.x)
         else
           npc.target_angle = npc.angle + (math.random()*1.2 - 0.6)
         end
@@ -339,7 +339,7 @@ function _collisions(st)
     local mr2  = p.magnetism_radius * p.magnetism_radius
     for _, f in ipairs(st.fruits) do
       if dist2(ph.x, ph.y, f.x, f.y) <= mr2 then
-        local ang = math.atan2(ph.y-f.y, ph.x-f.x)
+        local ang = atan2(ph.y-f.y, ph.x-f.x)
         f.x = f.x + math.cos(ang)*pull*0.016
         f.y = f.y + math.sin(ang)*pull*0.016
       end
@@ -634,7 +634,7 @@ function decide_npc_action(npc_head, npc_angle, nearby_fruits, arena)
       local d2 = dist2(f.x, f.y, npc_head.x, npc_head.y)
       if d2 < min_d2 then min_d2=d2; nearest=f end
     end
-    return math.atan2(nearest.y-npc_head.y, nearest.x-npc_head.x)
+    return atan2(nearest.y-npc_head.y, nearest.x-npc_head.x)
   end
   return npc_angle + (math.random()*1.2 - 0.6)
 end

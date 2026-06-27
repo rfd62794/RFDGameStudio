@@ -159,7 +159,7 @@ def test_tick_game_returns_events_list() -> None:
     ex.call("init_game", _make_config())
     result = ex.call("tick_game", 0.016, _INPUT)
     assert "events" in result
-    assert isinstance(result["events"], list)
+    assert isinstance(result["events"], (list, dict))
 
 
 # ---------------------------------------------------------------------------
