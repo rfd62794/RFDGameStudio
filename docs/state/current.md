@@ -4,9 +4,34 @@
 
 ## Current Phase
 
-**Phase 2c — Race Animation — CERTIFIED**
+**Phase 3 — Claude MCP Integration — CERTIFIED**
 
-## Phase 2c Completion Criteria
+## Phase 3 Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `games/horse_racing/systems.yaml` exists with all logic.lua functions assigned | ✅ |
+| `studio_mcp/__init__.py` created | ✅ |
+| `studio_mcp/session_store.py` — in-memory session registry | ✅ |
+| `studio_mcp/tools.py` — 5 tools: load_game, call, get_schema, get_systems, run_headless | ✅ |
+| `studio_mcp/server.py` — FastMCP SSE server on port 8025 | ✅ |
+| `pyproject.toml` — fastapi, uvicorn, mcp>=1.0.0,<2 added | ✅ |
+| `tests/test_studio_mcp.py` — 7 new tests (22–28) | ✅ |
+| Python floor: `uv run pytest -v` → **28 passed, 0 failed** | ✅ |
+| TS floor: `npx vitest run` → **12 passed, 0 failed** (unchanged) | ✅ |
+| `docs/adr/ADR-006.md` — systems.yaml ECS manifest ADR | ✅ |
+
+## Phase 3 Pending (manual steps on Nitro)
+
+| Criterion | Status |
+|---|---|
+| `uv run uvicorn studio_mcp.server:asgi_app --host 0.0.0.0 --port 8025` starts | Pending |
+| `curl http://localhost:8025/health` → `{"status": "ok"}` | Pending |
+| NSSM service `RFDStudioMCP` registered on Nitro | Pending |
+| Claude Desktop config updated with mcp-remote entry | Pending |
+| Live Claude session: 5 studio tools visible in tool list | Pending |
+
+## Phase 2c Completion Criteria (archived)
 
 | Criterion | Status |
 |---|---|
@@ -24,7 +49,7 @@
 | `App.tsx` — `handleStartRace` / `handleCloseRaceTrack` wired | ✅ |
 | `App.tsx` — `RaceTrack` renders as full overlay when `isRacingActive` | ✅ |
 | `index.css` — `.race-track-fullscreen`, `.race-track-header`, `.race-announcer`, `.btn-speed` added | ✅ |
-| Python floor: `uv run pytest -v` → **21 passed, 0 failed** (unchanged) | ✅ |
+| Python floor: `uv run pytest -v` → **21 passed, 0 failed** (at time of 2c cert) | ✅ |
 | TS floor: `npx vitest run` → **12 passed, 0 failed** (unchanged) | ✅ |
 | `npx vite build` → exits 0, no TypeScript errors | ✅ |
 
@@ -56,15 +81,15 @@
 ## Proof Output
 
 ```
-# Python floor (Phase 2c — unchanged)
+# Python floor (Phase 3)
 uv run pytest -v
-21 passed in 0.27s
+28 passed in 0.49s
 
-# TypeScript floor (Phase 2c — unchanged)
+# TypeScript floor (Phase 3 — unchanged)
 npx vitest run
 Tests  12 passed (12)
 
-# Vite build
+# Vite build (Phase 2c — unchanged)
 npx vite build
 dist/index.html                   0.41 kB │ gzip:   0.29 kB
 dist/assets/index-ClkC6YSK.css    6.23 kB │ gzip:   1.61 kB
@@ -80,6 +105,12 @@ RFDGameStudio/
     data.yaml
     ui.yaml                    — line 168 bug FIXED in Phase 2
     logic.lua
+    systems.yaml               — Phase 3: ECS manifest (ADR-006)
+  studio_mcp/                  — Phase 3 MCP server
+    __init__.py
+    session_store.py
+    tools.py
+    server.py
   studio/                      — Phase 1 Python runtime (frozen)
     __init__.py
     loader.py
@@ -112,13 +143,14 @@ RFDGameStudio/
       test_executor.ts          — 3 tests
       test_runtime.ts           — 4 tests
     dist/                       — production build output
-  tests/                        — Python tests (Phase 1)
+  tests/                        — Python tests
     __init__.py
     fixtures/horse_racing/
     test_loader.py
     test_executor.py
     test_runtime.py
-  docs/adr/ADR-001…ADR-005
+    test_studio_mcp.py         — Phase 3: 7 MCP tool tests
+  docs/adr/ADR-001…ADR-006
   docs/state/current.md
   requirements.txt
   README.md
@@ -132,6 +164,6 @@ RFDGameStudio/
 | **2** | TypeScript Runtime | ✅ **CERTIFIED** |
 | **2b** | Horse Racing Logic Extraction | ✅ **CERTIFIED** |
 | **2c** | Race Animation | ✅ **CERTIFIED** |
-| 3 | Claude Tool Integration | Pending |
+| **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
