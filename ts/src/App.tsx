@@ -51,57 +51,47 @@ function buildInitialState(session: GameSession): GameState {
     const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
     horses.push(luaHorseToTs({ ...raw, player_owned: true }));
   }
-  return { funds, horses, current_race: null, race_history: [] };
+  return { funds, horses, current_race: null, race_history: [], emergency_grant_shown: false };
 }
 
-function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace {
+function buildRace(session: GameSession, playerHorses: Horse[]): CurrentRace | null {
   const data = session.files.data as Record<string, unknown>;
-  const prefixes = data['name_prefixes'];
-  const suffixes = data['name_suffixes'];
-  const coatColors = data['coat_colors'];
-  const silkColors = data['silk_colors'];
-  const raceClasses = data['race_classes'] as Array<Record<string, unknown>>;
-  const distances = data['race_distances'] as Array<Record<string, unknown>>;
-  const venues = data['race_venues'] as string[];
-  const types = data['race_types'] as string[];
+  const playerHorse = playerHorses[0];
+  if (!playerHorse) return null;
 
-  const distEntry = distances[Math.floor(Math.random() * distances.length)] as Record<string, unknown>;
-  const distance = distEntry['meters'] as number;
-  const raceClass = raceClasses[Math.floor(Math.random() * raceClasses.length)] as Record<string, unknown>;
-  const prizePool = raceClass['prize_pool'] as number;
-  const prizeSplit = raceClass['prize_split'] as number[];
-  const venue = venues[Math.floor(Math.random() * venues.length)];
-  const type = types[Math.floor(Math.random() * types.length)];
+  const result = call(session, 'create_race', playerHorse, data) as unknown;
+  const resultArr = Array.isArray(result) ? result : [result, null];
+  const raceObj = resultArr[0] as Record<string, unknown> | null;
+  const errMsg = resultArr[1] as string | null;
 
-  const participants: CurrentRace['participants'] = [];
-
-  for (const h of playerHorses.slice(0, 1)) {
-    participants.push({ horse: h, gate: participants.length + 1, odds: 0, progress: 0, current_distance: 0, current_speed: 0, energy: 100, is_finished: false });
+  if (!raceObj || errMsg) {
+    console.warn('create_race error:', errMsg);
+    return null;
   }
 
-  const npcOptions = { min_stat: 25, max_stat: 65, generation: 1 };
-  while (participants.length < 6) {
-    const raw = call(session, 'generate_horse', npcOptions, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
-    const npc = { ...luaHorseToTs(raw), player_owned: false };
-    participants.push({ horse: npc, gate: participants.length + 1, odds: 0, progress: 0, current_distance: 0, current_speed: 0, energy: 100, is_finished: false });
-  }
+  const rawParticipants = Object.values(
+    raceObj['participants'] as Record<string, unknown>
+  ) as Array<Record<string, unknown>>;
 
-  const horseList = participants.map(p => ({
-    speed: p.horse.speed, stamina: p.horse.stamina,
-    acceleration: p.horse.acceleration, temperament: p.horse.temperament,
+  const participants = rawParticipants.map((p, i) => ({
+    horse: luaHorseToTs(p['horse'] as Record<string, unknown>),
+    gate: (p['gate'] as number) ?? i + 1,
+    odds: (p['odds'] as number) ?? 4.0,
+    progress: 0,
+    current_distance: 0,
+    current_speed: 0,
+    energy: 100,
+    is_finished: false,
   }));
-  const oddsRaw = call(session, 'calculate_odds', horseList, distance) as Record<number, number> | number[];
-  const oddsArr = Array.isArray(oddsRaw) ? oddsRaw : Object.values(oddsRaw);
-  participants.forEach((p, i) => { p.odds = (oddsArr[i] as number) ?? 4.0; });
 
   return {
-    id: `race_${Date.now()}`,
-    name: `${venue} ${type}`,
-    description: `${raceClass['name']} · ${distance}m · Prize $${prizePool}`,
-    distance,
-    race_class: raceClass['name'] as string,
-    prize_pool: prizePool,
-    prize_split: prizeSplit,
+    id: raceObj['id'] as string,
+    name: raceObj['name'] as string,
+    description: raceObj['description'] as string,
+    distance: raceObj['distance'] as number,
+    race_class: raceObj['race_class'] as string,
+    prize_pool: raceObj['prize_pool'] as number,
+    prize_split: Object.values(raceObj['prize_split'] as Record<string, number>),
     participants,
     status: 'scheduled',
   };
@@ -115,12 +105,16 @@ export default function App() {
   const [isRacingActive, setIsRacingActive] = useState(false);
   const [pendingBets, setPendingBets] = useState<Bet[]>([]);
   const [pendingNetPayout, setPendingNetPayout] = useState(0);
+  const [unlockedSlots, setUnlockedSlots] = useState(3);
 
   useEffect(() => {
     try {
       const s = loadGame(GAME_ID, SEED);
       setSession(s);
-      setGameState(buildInitialState(s));
+      const initial = buildInitialState(s);
+      const stableCfg = (s.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
+      setUnlockedSlots((stableCfg['starting_slots'] as number) ?? 3);
+      setGameState(initial);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -175,13 +169,17 @@ export default function App() {
         const updated = call(session!, 'update_horse_after_race', h, r.rank, horseEarnings[h.id] ?? 0) as Record<string, unknown>;
         return { ...luaHorseToTs(updated), cooldown_until: cooldownUntil };
       });
-      return {
+      let next = {
         ...prev,
         funds: prev.funds + netPayout,
         horses: updatedHorses,
-        current_race: { ...race, status: 'completed', results },
+        current_race: { ...race, status: 'completed' as const, results },
         race_history: [entry, ...prev.race_history],
       };
+      if (next.funds < 50 && next.horses.filter(h => h.player_owned).length === 0) {
+        next = { ...next, funds: next.funds + 250, emergency_grant_shown: true };
+      }
+      return next;
     });
   }, [session, gameState]);
 
@@ -209,6 +207,24 @@ export default function App() {
       };
     });
   }, [session, gameState]);
+
+  const handleUnlockSlot = useCallback(() => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+    const maxSlots = (stableCfg['max_slots'] as number) ?? 12;
+    const unlockCost = (stableCfg['unlock_cost_per_slot'] as number) ?? 500;
+    const canResult = call(session, 'can_unlock_slot', unlockedSlots, maxSlots, gameState.funds, unlockCost) as unknown;
+    const resultArr = Array.isArray(canResult) ? canResult : [canResult, null];
+    const ok = resultArr[0] as boolean;
+    const reason = resultArr[1] as string | null;
+    if (!ok) {
+      setError(reason ?? 'Cannot unlock slot');
+      return;
+    }
+    setUnlockedSlots(prev => prev + 1);
+    setGameState(prev => prev ? { ...prev, funds: prev.funds - unlockCost } : prev);
+  }, [session, gameState, unlockedSlots]);
 
   const uiLayout = session
     ? (session.files.ui as Record<string, unknown>)['layout'] as Record<string, unknown>
@@ -273,11 +289,26 @@ export default function App() {
       <main className="tab-content">
         {schemaErr && <div className="error-box" style={{ marginBottom: '1rem' }}>{schemaErr}</div>}
 
+        {gameState.emergency_grant_shown && (
+          <div className="emergency-grant-banner">
+            You're broke and horseless. Here's $250. Don't waste it.
+            <button
+              className="btn-dismiss"
+              onClick={() => setGameState(prev => prev ? { ...prev, emergency_grant_shown: false } : prev)}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {activeTab === 'stable' && (
           <StableTab
             horses={gameState.horses}
             session={session}
+            funds={gameState.funds}
+            unlockedSlots={unlockedSlots}
             onNewRace={handleNewRace}
+            onUnlockSlot={handleUnlockSlot}
           />
         )}
         {activeTab === 'betting' && (

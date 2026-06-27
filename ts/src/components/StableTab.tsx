@@ -6,12 +6,15 @@ import { SVGRacer } from './SVGRacer';
 interface Props {
   horses: Horse[];
   session: GameSession;
+  funds: number;
+  unlockedSlots: number;
   onNewRace: () => void;
+  onUnlockSlot: () => void;
 }
 
 const STAT_KEYS: (keyof Horse)[] = ['speed', 'stamina', 'acceleration', 'temperament'];
 
-export default function StableTab({ horses, session, onNewRace }: Props) {
+export default function StableTab({ horses, session, funds, unlockedSlots, onNewRace, onUnlockSlot }: Props) {
   const schema = (() => {
     try { return getSchema(session, 'horse'); }
     catch { return null; }
@@ -89,6 +92,26 @@ export default function StableTab({ horses, session, onNewRace }: Props) {
           </div>
         )
       }
+
+      {(() => {
+        const data = session.files.data as Record<string, unknown>;
+        const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+        const maxSlots = (stableCfg['max_slots'] as number) ?? 12;
+        const unlockCost = (stableCfg['unlock_cost_per_slot'] as number) ?? 500;
+        if (unlockedSlots >= maxSlots) return null;
+        return (
+          <div className="slot-unlock-panel">
+            <span>Stable slots: {horses.filter(h => h.player_owned).length} / {unlockedSlots}</span>
+            <button
+              className="btn-secondary"
+              disabled={funds < unlockCost}
+              onClick={onUnlockSlot}
+            >
+              Unlock Slot (${unlockCost})
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -243,6 +243,129 @@ function calculate_odds(participants, distance, overround)
 end
 
 -- ============================================================
+-- RACE CREATION
+-- ============================================================
+
+-- Create a complete race from player horse + full data table.
+-- Selects eligible race class, generates NPC field within class stat range,
+-- picks distance and venue name, calculates odds for the full field.
+--
+-- player_horse: Horse table
+-- data: full data.yaml parsed table
+--
+-- Returns: race_obj, nil       on success
+-- Returns: nil, error_string   if horse is ineligible for all classes
+function create_race(player_horse, data)
+  local race_classes = data.race_classes
+  local distances    = data.race_distances
+  local venues       = data.race_venues
+  local types        = data.race_types
+  local coat_colors  = data.coat_colors
+  local silk_colors  = data.silk_colors
+  local prefixes     = data.name_prefixes
+  local suffixes     = data.name_suffixes
+  local field_size   = (data.race and data.race.field_size) or 6
+
+  local avg_stat = (player_horse.speed + player_horse.stamina +
+                    player_horse.acceleration + player_horse.temperament) / 4
+
+  local eligible = {}
+  for _, rc in ipairs(race_classes) do
+    local min_s = rc.stat_min or 0
+    local max_s = rc.stat_max or 100
+    if avg_stat >= min_s and avg_stat <= max_s then
+      table.insert(eligible, rc)
+    end
+  end
+
+  if #eligible == 0 then
+    return nil, "Horse avg stat " .. string.format("%.1f", avg_stat) ..
+                " is not eligible for any race class"
+  end
+
+  local race_class = eligible[math.random(#eligible)]
+  local dist_entry = distances[math.random(#distances)]
+  local distance   = dist_entry.meters
+  local venue      = venues[math.random(#venues)]
+  local race_type  = types[math.random(#types)]
+  local race_name  = venue .. " " .. race_type
+
+  local participants = {}
+  table.insert(participants, {
+    horse            = player_horse,
+    gate             = 1,
+    odds             = 0,
+    progress         = 0,
+    current_distance = 0,
+    current_speed    = 0,
+    energy           = 100,
+    is_finished      = false,
+  })
+
+  local npc_min  = race_class.stat_min or 10
+  local npc_max  = race_class.stat_max or 100
+  local npc_opts = { min_stat = npc_min, max_stat = npc_max,
+                     generation = 1, player_owned = false }
+
+  while #participants < field_size do
+    local npc = generate_horse(npc_opts, coat_colors, silk_colors, prefixes, suffixes)
+    table.insert(participants, {
+      horse            = npc,
+      gate             = #participants + 1,
+      odds             = 0,
+      progress         = 0,
+      current_distance = 0,
+      current_speed    = 0,
+      energy           = 100,
+      is_finished      = false,
+    })
+  end
+
+  local horse_stats = {}
+  for _, p in ipairs(participants) do
+    table.insert(horse_stats, {
+      speed        = p.horse.speed,
+      stamina      = p.horse.stamina,
+      acceleration = p.horse.acceleration,
+      temperament  = p.horse.temperament,
+    })
+  end
+  local odds_arr = calculate_odds(horse_stats, distance)
+  for i, p in ipairs(participants) do
+    p.odds = odds_arr[i] or 4.0
+  end
+
+  local prize_split = race_class.prize_split or {0.60, 0.25, 0.15}
+
+  return {
+    id           = "race_" .. tostring(math.random(100000, 999999)),
+    name         = race_name,
+    description  = (race_class.name or "Race") .. " \xc2\xb7 " .. tostring(distance) ..
+                   "m \xc2\xb7 Prize $" .. tostring(race_class.prize_pool or 0),
+    distance     = distance,
+    race_class   = race_class.name or "Unknown",
+    prize_pool   = race_class.prize_pool or 0,
+    prize_split  = prize_split,
+    entry_fee    = race_class.fee or 0,
+    participants = participants,
+    status       = "scheduled",
+  }, nil
+end
+
+-- Validate whether the player can unlock a stable slot.
+-- Returns: true, nil             if unlockable
+-- Returns: false, reason_string  if not
+function can_unlock_slot(current_slots, max_slots, funds, unlock_cost)
+  if current_slots >= max_slots then
+    return false, "Stable is already at maximum capacity"
+  end
+  if funds < unlock_cost then
+    return false, "Insufficient funds (need $" .. tostring(unlock_cost) .. ")"
+  end
+  return true, nil
+end
+
+-- ============================================================
 -- RACE SIMULATION (single tick)
 -- ============================================================
 
@@ -362,8 +485,9 @@ end
 -- RACE OUTCOME — prize distribution
 -- ============================================================
 
--- Calculate prize payouts from race results
--- prize_split: array of fractions e.g. {0.60, 0.25, 0.15}
+-- DEPRECATED: Use settle_bets() instead.
+-- settle_bets() returns horse_earnings alongside bet_payout in one call.
+-- This function will be removed in Phase 4.
 function calculate_payouts(results, prize_pool, prize_split)
   local payouts = {}
   for i, result in ipairs(results) do

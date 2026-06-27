@@ -68,6 +68,7 @@ export interface GameState {
   horses: Horse[];
   current_race: CurrentRace | null;
   race_history: RaceHistoryEntry[];
+  emergency_grant_shown: boolean;
 }
 
 export interface CurrentRace {

@@ -4,7 +4,25 @@
 
 ## Current Phase
 
-**Phase 3 — Claude MCP Integration — CERTIFIED**
+**Phase 2d — Gap Closure — CERTIFIED**
+
+## Phase 2d Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `create_race` in `logic.lua` — full race creation, class eligibility, NPC generation, odds | ✅ |
+| `can_unlock_slot` in `logic.lua` — slot unlock validation | ✅ |
+| `calculate_payouts` deprecated in `logic.lua` (comment, not removed) | ✅ |
+| `systems.yaml` — `create_race` added to simulation, `can_unlock_slot` to market | ✅ |
+| `buildRace()` TS implementation deleted — replaced with thin `create_race` Lua wrapper | ✅ |
+| Emergency grant: `funds < 50 && playerOwnedHorses == 0` → $250 + dismissible banner | ✅ |
+| Slot unlock button in `StableTab.tsx` — calls `can_unlock_slot` via Lua | ✅ |
+| `GameState.emergency_grant_shown` field added to `types.ts` | ✅ |
+| Python floor: `uv run pytest -v` → **32 passed, 0 failed** | ✅ |
+| TS floor: `npx vitest run` → **15 passed, 0 failed** | ✅ |
+| `npx vite build` → exits 0, no TypeScript errors | ✅ |
+| `tests/fixtures/horse_racing/logic.lua` synced with game file | ✅ |
+| Executor `_to_lua()` deep conversion — nested dicts/lists fully converted | ✅ |
 
 ## Phase 3 Completion Criteria
 
@@ -81,20 +99,20 @@
 ## Proof Output
 
 ```
-# Python floor (Phase 3)
+# Python floor (Phase 2d)
 uv run pytest -v
-28 passed in 0.49s
+32 passed in 0.47s
 
-# TypeScript floor (Phase 3 — unchanged)
+# TypeScript floor (Phase 2d)
 npx vitest run
-Tests  12 passed (12)
+Tests  15 passed (15)
 
-# Vite build (Phase 2c — unchanged)
+# Vite build (Phase 2d)
 npx vite build
 dist/index.html                   0.41 kB │ gzip:   0.29 kB
-dist/assets/index-ClkC6YSK.css    6.23 kB │ gzip:   1.61 kB
-dist/assets/index-q8LBqzjn.js   476.15 kB │ gzip: 153.23 kB
-✓ built in 1.33s
+dist/assets/index-BUE2ICXj.css    7.14 kB │ gzip:   1.75 kB
+dist/assets/index-D6OhiBk9.js   482.46 kB │ gzip: 154.86 kB
+✓ built in 1.18s
 ```
 
 ## Directory Structure
@@ -105,7 +123,7 @@ RFDGameStudio/
     data.yaml
     ui.yaml                    — line 168 bug FIXED in Phase 2
     logic.lua
-    systems.yaml               — Phase 3: ECS manifest (ADR-006)
+    systems.yaml               — Phase 3: ECS manifest / Phase 2d: updated
   studio_mcp/                  — Phase 3 MCP server
     __init__.py
     session_store.py
@@ -164,6 +182,7 @@ RFDGameStudio/
 | **2** | TypeScript Runtime | ✅ **CERTIFIED** |
 | **2b** | Horse Racing Logic Extraction | ✅ **CERTIFIED** |
 | **2c** | Race Animation | ✅ **CERTIFIED** |
+| **2d** | Gap Closure | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |

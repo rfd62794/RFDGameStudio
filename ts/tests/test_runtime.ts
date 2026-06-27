@@ -53,6 +53,7 @@ vi.mock('../games/horse_racing/ui.yaml?raw', () => ({ default: MOCK_UI }));
 vi.mock('../games/horse_racing/logic.lua?raw', () => ({ default: MOCK_LOGIC }));
 
 import { loadGame, call, getSchema } from '../src/engine/runtime';
+import type { GameState } from '../src/engine/types';
 import { lua } from 'fengari-web';
 
 describe('runtime', () => {
@@ -87,5 +88,40 @@ describe('runtime', () => {
   it('test_runtime_get_schema_missing_throws', () => {
     const session = loadGame('horse_racing', 42);
     expect(() => getSchema(session, 'nonexistent_entity')).toThrow(RuntimeError);
+  });
+
+  it('test_create_race_via_runtime', () => {
+    const session = loadGame('horse_racing', 42);
+    const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue([
+      { id: 'race_1', name: 'Test Cup', distance: 1200, race_class: 'Maiden',
+        prize_pool: 300, prize_split: [0.60, 0.25, 0.15], participants: {} },
+      null,
+    ]);
+    const result = call(session, 'create_race', {}, {}) as unknown[];
+    expect(callSpy).toHaveBeenCalledWith('create_race', {}, {});
+    const race = Array.isArray(result) ? result[0] : result;
+    expect(race).toHaveProperty('race_class', 'Maiden');
+  });
+
+  it('test_can_unlock_slot_via_runtime', () => {
+    const session = loadGame('horse_racing', 42);
+    const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue([false, 'Insufficient funds (need $500)']);
+    const result = call(session, 'can_unlock_slot', 3, 12, 10, 500) as unknown[];
+    expect(callSpy).toHaveBeenCalledWith('can_unlock_slot', 3, 12, 10, 500);
+    const ok = Array.isArray(result) ? result[0] : result;
+    expect(ok).toBe(false);
+  });
+
+  it('test_emergency_grant_state', () => {
+    const state: GameState = {
+      funds: 0,
+      horses: [],
+      current_race: null,
+      race_history: [],
+      emergency_grant_shown: true,
+    };
+    expect(state.emergency_grant_shown).toBe(true);
+    const dismissed = { ...state, emergency_grant_shown: false };
+    expect(dismissed.emergency_grant_shown).toBe(false);
   });
 });

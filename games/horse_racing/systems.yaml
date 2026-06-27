@@ -36,6 +36,7 @@ systems:
     functions:
       - simulate_race
       - tick_race
+      - create_race
 
   - id: market
     description: "Bet settlement, horse valuation, prize distribution, career update"
@@ -46,6 +47,7 @@ systems:
       - calculate_horse_price
       - sell_horse
       - update_horse_after_race
+      - can_unlock_slot
 
 entities:
   horse:

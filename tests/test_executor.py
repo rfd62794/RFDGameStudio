@@ -6,11 +6,13 @@ All tests use seed=42. Uses the fixture logic.lua loaded from tests/fixtures/.
 from pathlib import Path
 
 import pytest
+import yaml
 
 from studio.executor import Executor, LuaError
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 LUA_SOURCE = (FIXTURES_DIR / "horse_racing" / "logic.lua").read_text(encoding="utf-8")
+FIXTURE_DATA = yaml.safe_load((FIXTURES_DIR / "horse_racing" / "data.yaml").read_text(encoding="utf-8"))
 
 
 # ---------------------------------------------------------------------------
@@ -195,3 +197,75 @@ def test_settle_bets_win_bet_pays_correct_amount() -> None:
     assert int(result["bet_payout"]) == 350   # 100 * 3.5; h2 Win on rank2 loses
     assert int(result["horse_earnings"]["h1"]) == 720   # 1200 * 0.60
     assert int(result["horse_earnings"]["h2"]) == 300   # 1200 * 0.25
+
+
+# ---------------------------------------------------------------------------
+# Test 29
+# ---------------------------------------------------------------------------
+
+def test_create_race_returns_field() -> None:
+    ex = Executor(LUA_SOURCE, seed=42)
+    player_horse = {
+        "id": "h_player", "name": "Test Horse", "gender": "Stallion",
+        "generation": 1, "speed": 30, "stamina": 30, "acceleration": 30,
+        "temperament": 30, "color_body": "#000", "color_mane": "#000",
+        "color_socks": "#000", "color_silk": "#f00",
+        "runs": 0, "wins": 0, "places": 0, "thirds": 0, "earnings": 0,
+        "cooldown_until": 0, "player_owned": True, "price": 400,
+    }
+    race, err = ex.call("create_race", player_horse, FIXTURE_DATA)
+    assert err is None, f"create_race returned error: {err}"
+    assert race is not None
+    assert "participants" in race
+
+
+# ---------------------------------------------------------------------------
+# Test 30
+# ---------------------------------------------------------------------------
+
+def test_create_race_npc_count() -> None:
+    ex = Executor(LUA_SOURCE, seed=42)
+    player_horse = {
+        "id": "h_player", "name": "Test Horse", "gender": "Stallion",
+        "generation": 1, "speed": 30, "stamina": 30, "acceleration": 30,
+        "temperament": 30, "color_body": "#000", "color_mane": "#000",
+        "color_socks": "#000", "color_silk": "#f00",
+        "runs": 0, "wins": 0, "places": 0, "thirds": 0, "earnings": 0,
+        "cooldown_until": 0, "player_owned": True, "price": 400,
+    }
+    race, err = ex.call("create_race", player_horse, FIXTURE_DATA)
+    assert err is None
+    field_size = FIXTURE_DATA["race"]["field_size"]
+    assert len(race["participants"]) == field_size
+
+
+# ---------------------------------------------------------------------------
+# Test 31
+# ---------------------------------------------------------------------------
+
+def test_create_race_ineligible_returns_error() -> None:
+    ex = Executor(LUA_SOURCE, seed=42)
+    # avg stat of 5 is below Maiden minimum (10)
+    player_horse = {
+        "id": "h_bad", "name": "Weak Horse", "gender": "Mare",
+        "generation": 1, "speed": 5, "stamina": 5, "acceleration": 5,
+        "temperament": 5, "color_body": "#000", "color_mane": "#000",
+        "color_socks": "#000", "color_silk": "#f00",
+        "runs": 0, "wins": 0, "places": 0, "thirds": 0, "earnings": 0,
+        "cooldown_until": 0, "player_owned": True, "price": 0,
+    }
+    race, err = ex.call("create_race", player_horse, FIXTURE_DATA)
+    assert race is None
+    assert err is not None
+    assert "not eligible" in str(err)
+
+
+# ---------------------------------------------------------------------------
+# Test 32
+# ---------------------------------------------------------------------------
+
+def test_can_unlock_slot_insufficient_funds() -> None:
+    ex = Executor(LUA_SOURCE, seed=42)
+    result, reason = ex.call("can_unlock_slot", 3, 12, 10, 500)
+    assert result is False
+    assert "Insufficient funds" in str(reason)

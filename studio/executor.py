@@ -60,6 +60,18 @@ class Executor:
         self._lua.execute(f"math.randomseed({seed})")
         self._lua.execute(lua_source)
 
+    def _to_lua(self, obj: Any) -> Any:
+        """Recursively convert Python dicts/lists to Lua tables."""
+        if isinstance(obj, dict):
+            return self._lua.table_from(
+                {k: self._to_lua(v) for k, v in obj.items()}
+            )
+        if isinstance(obj, list):
+            return self._lua.table_from(
+                [self._to_lua(v) for v in obj]
+            )
+        return obj
+
     def call(self, fn_name: str, *args: Any) -> Any:
         """Call a Lua function by name with positional args.
 
@@ -74,10 +86,7 @@ class Executor:
                 f"Lua function '{fn_name}' not found in logic.lua"
             )
 
-        converted_args = [
-            self._lua.table_from(a) if isinstance(a, (dict, list)) else a
-            for a in args
-        ]
+        converted_args = [self._to_lua(a) for a in args]
 
         try:
             result = fn(*converted_args)
