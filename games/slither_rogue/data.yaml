@@ -1,0 +1,176 @@
+game:
+  id: slither_rogue
+  name: Snake Roguelike
+  version: "1.0"
+  studio: RFDGameStudio
+
+arena:
+  map_width: 2600
+  map_height: 2600
+  num_fruits: 45
+  num_npcs: 12
+  grid_size: 100
+  wall_buffer: 120
+
+fruit:
+  golden_chance: 0.08
+  golden_points: 3
+  standard_points: 1
+  colors:
+    - "#ef4444"
+    - "#10b981"
+    - "#3b82f6"
+    - "#ec4899"
+    - "#f43f5e"
+  golden_color: "#fbbf24"
+
+evolution:
+  fruits_per_level: 3
+  cards_offered: 3
+
+npc_profiles:
+  - name: Gorgon
+    color: "#ef4444"
+    head_color: "#f87171"
+  - name: Naga
+    color: "#f97316"
+    head_color: "#fb923c"
+  - name: Adder
+    color: "#eab308"
+    head_color: "#facc15"
+  - name: Sidewinder
+    color: "#a855f7"
+    head_color: "#c084fc"
+  - name: Basilisk
+    color: "#ec4899"
+    head_color: "#f472b6"
+  - name: Python
+    color: "#3b82f6"
+    head_color: "#60a5fa"
+  - name: Anaconda
+    color: "#06b6d4"
+    head_color: "#22d3ee"
+
+npc_stats:
+  min_radius: 10
+  max_radius: 13
+  min_speed: 110
+  max_speed: 140
+  min_initial_length: 4
+  max_initial_length: 9
+
+player_stats:
+  initial_radius: 11
+  initial_speed: 160
+  initial_length: 5
+  turn_speed: 5.2
+
+player_presets:
+  - name: Electric Teal
+    color: "#14b8a6"
+    head_color: "#06b6d4"
+  - name: Toxic Lime
+    color: "#84cc16"
+    head_color: "#a3e635"
+  - name: Cyber Purple
+    color: "#a855f7"
+    head_color: "#c084fc"
+  - name: Amber Fury
+    color: "#f59e0b"
+    head_color: "#fbbf24"
+  - name: Rose Phantom
+    color: "#f43f5e"
+    head_color: "#f472b6"
+
+run_durations:
+  - label: "2 Mins"
+    seconds: 120
+    sub: Quickie
+  - label: "5 Mins"
+    seconds: 300
+    sub: Standard
+  - label: Endless
+    seconds: 999999
+    sub: Chill / Practice
+
+evolution_cards:
+  - id: speed
+    title: Nitrous Slither
+    description: "Permanent +15% boost to snake base speed."
+    icon: speed
+    rarity: common
+    effect_key: speed_multiplier
+    effect_per_level: 0.15
+
+  - id: magnet
+    title: Magnetic Glide
+    description: "Nearby fruits pulled towards your head (+60px pull radius)."
+    icon: magnet
+    rarity: common
+    effect_key: magnetism_radius
+    effect_per_level: 60
+
+  - id: shield
+    title: Reinforced Joints
+    description: "Grants +1 Node Armor shield charge to block a segment theft."
+    icon: shield
+    rarity: rare
+    effect_key: shield_charges
+    effect_per_level: 1
+
+  - id: wide
+    title: Thick Scales
+    description: "Increases segment radius by +3px."
+    icon: wide
+    rarity: common
+    effect_key: wide_body_add
+    effect_per_level: 3
+
+  - id: sense
+    title: Fruity Radar
+    description: "Draws indicators pointing to off-screen fruits (+200px range)."
+    icon: sense
+    rarity: common
+    effect_key: fruit_sense_range
+    effect_per_level: 200
+
+  - id: ghost
+    title: Spectral End
+    description: "Protects last +1 segment from being stolen."
+    icon: ghost
+    rarity: epic
+    effect_key: ghost_tail_count
+    effect_per_level: 1
+
+  - id: regen
+    title: Chrono Growth
+    description: "Automatically spawns a new tail segment every few seconds."
+    icon: regen
+    rarity: rare
+    effect_key: tail_growth_level
+    effect_per_level: 1
+
+  - id: venom
+    title: Acidic Sprayer
+    description: "Emits slow-inducing acid drops from tail."
+    icon: venom
+    rarity: epic
+    effect_key: venom_trail_level
+    effect_per_level: 1
+
+grade_thresholds:
+  - min_score: 100
+    title: Apex Leviathan
+    description: "A creature of legend. The entire world trembled in your slither."
+  - min_score: 60
+    title: Ancient Serpent
+    description: "Highly evolved. Your DNA holds wisdom of a hundred mutations."
+  - min_score: 30
+    title: Venomous Viper
+    description: "A formidable hunter. Quick, clever, and genetically advanced."
+  - min_score: 15
+    title: Nimble Adder
+    description: "Decent adaptability. You managed to hold your ground."
+  - min_score: 0
+    title: Newborn Hatchling
+    description: "Survival is tough. Gather more mutations next time to grow strong!"

@@ -1,0 +1,31 @@
+layout:
+  tabs: []   # No tabs — Slither Rogue uses screen-based routing (menu/game/gameover)
+
+screens:
+  - id: menu
+    title: Main Menu
+    components:
+      - type: panel
+        id: config_panel
+      - type: panel
+        id: scores_panel
+      - type: action_button
+        id: start_btn
+        label: Launch Run
+
+  - id: game
+    title: Arena
+    components:
+      - type: panel
+        id: hud
+      - type: canvas
+        id: game_canvas
+      - type: modal
+        id: evolution_modal
+        trigger: on_evolution
+
+  - id: gameover
+    title: Game Over
+    components:
+      - type: modal
+        id: gameover_modal
