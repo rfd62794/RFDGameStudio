@@ -16,7 +16,7 @@ systems:
     description: "Card selection, effect calculation, trigger logic"
     components: [evolution_card, effect_key, effect_per_level, active_evolutions]
     functions:
-      - calculate_evolution_effects
+      - update_evolution_effects
       - check_evolution_trigger
       - select_evolution_pool
 

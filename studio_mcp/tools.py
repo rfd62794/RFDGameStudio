@@ -31,6 +31,23 @@ from studio_mcp.session_store import create_session, get_session
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
 
 
+def _to_lua_table(lua_runtime, obj):
+    """
+    Recursively convert Python dicts/lists to lupa Lua tables.
+    Python lists → 1-based Lua sequence tables (ipairs-compatible).
+    Python dicts → Lua hash tables (pairs-compatible).
+    Other values pass through unchanged.
+    """
+    if isinstance(obj, dict):
+        converted = {k: _to_lua_table(lua_runtime, v) for k, v in obj.items()}
+        return lua_runtime.table_from(converted)
+    elif isinstance(obj, (list, tuple)):
+        converted = [_to_lua_table(lua_runtime, v) for v in obj]
+        return lua_runtime.table_from(converted)
+    else:
+        return obj
+
+
 def studio_load_game(game_id: str, seed: int = 42) -> dict:
     """Load a game by ID. Returns session_id for use in subsequent calls.
 
@@ -272,8 +289,8 @@ def studio_run_tests(
     import subprocess
 
     repo_root = Path(__file__).parent.parent
-
-    cmd = ['uv', 'run', 'pytest', '-v', '--tb=short', '--no-header', '-q']
+    uv_path = os.environ.get('UV_PATH', r'C:\Users\cheat\.local\bin\uv.exe')
+    cmd = [uv_path, 'run', 'pytest', '-v', '--tb=short', '--no-header', '-q']
     if game_id:
         target = f'tests/test_{game_id}.py'
         cmd.append(target)
@@ -346,13 +363,16 @@ def studio_balance_report(
 
         for i in range(iterations):
             sess_i = load_game(game_id, seed=42 + i, games_dir=_GAMES_DIR)
+            lua = sess_i.executor._lua
             try:
-                race_result = sess_i.executor.call('create_race', player_horse, data)
+                lua_horse = _to_lua_table(lua, player_horse)
+                lua_data  = _to_lua_table(lua, data)
+
+                race_result = sess_i.executor.call('create_race', lua_horse, lua_data)
                 if race_result is None:
                     errors += 1
                     continue
 
-                # create_race returns (race, error) — handle both tuple and single
                 if isinstance(race_result, (list, tuple)) and len(race_result) == 2:
                     race_obj, err = race_result
                 else:
@@ -368,13 +388,15 @@ def studio_balance_report(
                     'distance':   race_dict.get('distance', 1200),
                     'delta_time': 0.2,
                 }
-                results = sess_i.executor.call('simulate_race', parts, config)
+                lua_parts  = _to_lua_table(lua, parts)
+                lua_config = _to_lua_table(lua, config)
+                results = sess_i.executor.call('simulate_race', lua_parts, lua_config)
                 if not results:
                     errors += 1
                     continue
 
                 result_list = [dict(r) for r in results]
-                player_id = player_horse.get('id', '')
+                player_id   = player_horse.get('id', '')
                 player_result = next(
                     (r for r in result_list if r.get('horse_id') == player_id), None
                 )
