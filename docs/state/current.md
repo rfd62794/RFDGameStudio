@@ -4,6 +4,34 @@
 
 ## Current Phase
 
+**Phase 2r — Horse Racing Features — CERTIFIED**
+
+## Phase 2r Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| Back button CSS: `.arcade-back-btn` changed to `position: relative` | ✅ |
+| Navbar CSS: `.arcade-game-nav`, `.arcade-game-nav-title`, `.arcade-game-content` added | ✅ |
+| `main.tsx`: back button moved into navbar strip above game content | ✅ |
+| `logic.lua`: `create_ai_race(race_class, data)` function added | ✅ |
+| `tests/fixtures/horse_racing/logic.lua`: `create_ai_race` synced | ✅ |
+| `App.tsx`: resting horse check in `handleNewRace` / `handleSkipRace` | ✅ |
+| `App.tsx`: `_buildAiOnlyRace` helper for AI-only race creation | ✅ |
+| `App.tsx`: `luaRaceToTs` helper to convert Lua race to TS format | ✅ |
+| `types.ts`: `ai_only?: boolean` field added to `CurrentRace` interface | ✅ |
+| `App.tsx`: `handleRaceComplete` skips career updates for AI-only races | ✅ |
+| `BettingTab.tsx`: AI-only banner when `race.ai_only` is true | ✅ |
+| `CalendarTab.tsx`: new React component for race calendar tab | ✅ |
+| `styles.css`: calendar CSS styles (`.calendar-wrap`, `.calendar-row`, etc.) added | ✅ |
+| Python tests: 2 new tests for `create_ai_race` → **258 passed, 0 failed** | ✅ |
+| TS floor: unchanged → **29 passed, 0 failed** | ✅ |
+
+**Test proof:**
+```
+uv run pytest -v     → 258 passed, 0 failed, 0 skipped
+npx vitest run       → 29 passed, 0 failed, 0 skipped
+```
+
 **Phase 2f — Architecture Migration — CERTIFIED**
 
 ## Phase 2f Completion Criteria
@@ -251,6 +279,7 @@ RFDGameStudio/
 | **2d** | Gap Closure | ✅ **CERTIFIED** |
 | **2e** | Full Example Parity | ✅ **CERTIFIED** |
 | **2f** | Architecture Migration | ✅ **CERTIFIED** |
+| **2r** | Horse Racing Features | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
