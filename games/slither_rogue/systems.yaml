@@ -1,3 +1,11 @@
+lua_files:
+  - utils.lua
+  - state.lua
+  - physics.lua
+  - collision.lua
+  - render.lua
+  - logic.lua
+
 engine_version: "1.0"
 engine_systems: []   # No shared engine systems — physics is TypeScript for this game
 

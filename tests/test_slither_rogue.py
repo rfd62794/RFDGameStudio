@@ -13,7 +13,12 @@ from studio.executor import Executor
 from studio.loader import load_engine_source
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
-LUA_SOURCE = (FIXTURES_DIR / "slither_rogue" / "logic.lua").read_text(encoding="utf-8")
+_lua_files = ["utils.lua", "state.lua", "physics.lua",
+              "collision.lua", "render.lua", "logic.lua"]
+LUA_SOURCE = "\n\n".join(
+    (FIXTURES_DIR / "slither_rogue" / f).read_text(encoding="utf-8")
+    for f in _lua_files
+)
 FIXTURE_DATA = yaml.safe_load(
     (FIXTURES_DIR / "slither_rogue" / "data.yaml").read_text(encoding="utf-8")
 )
