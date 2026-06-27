@@ -4,7 +4,40 @@
 
 ## Current Phase
 
-**Phase 2d — Gap Closure — CERTIFIED**
+**Phase 2e — Full Example Parity — CERTIFIED**
+
+## Phase 2e Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `framer-motion` + `lucide-react` installed | ✅ |
+| `starter_min_stat` / `starter_max_stat` added to `stable` block in both `data.yaml` + fixture | ✅ |
+| `buildInitialState` seeds from `data.yaml.starter_horses` — Vanguard Spirit + Starlight Dream | ✅ |
+| Persistence: `derby_sim_state_v1` localStorage save on every state change, restore on mount | ✅ |
+| Cooldown ticker: 1s interval increments `ticker`, passed to StableTab for live badge recompute | ✅ |
+| Skip race: `handleSkipRace` builds new race without navigating, `BettingTab` "Skip & New Race" | ✅ |
+| Rename horse: inline click-to-edit in StableTab, Enter/Blur confirms, Escape cancels | ✅ |
+| Sell horse: Sell button on each card calls `calculate_horse_price` via Lua, removes horse + adds funds | ✅ |
+| Purchase starter: `handlePurchaseStarter` generates horse via `generate_horse` Lua, BettingTab market | ✅ |
+| Styled sticky header with Trophy icon, DERBY SIM title, desktop tab nav, bank balance widget | ✅ |
+| Framer Motion `AnimatePresence` tab transitions (opacity + y slide, 150ms) | ✅ |
+| Mobile tab bar: second tab row, hidden on desktop, visible on ≤768px | ✅ |
+| Footer: GAME RULES · PEDIGREE GENETICS DATA | ✅ |
+| History tab: styled `history-card` components — no more raw table | ✅ |
+| Cooldown badge on resting horses: "Resting Xm Xs" amber italic text | ✅ |
+| Clear bets button in bet slip: clears `betEntries` local state | ✅ |
+| Starter market in BettingTab: visible when `playerHorses.length < unlockedSlots` | ✅ |
+| All new CSS classes added to `index.css` without removing existing ones | ✅ |
+| Python floor: `uv run pytest -v` → **32 passed, 0 failed** (unchanged) | ✅ |
+| TS floor: `npx vitest run` → **17 passed, 0 failed** (was 15) | ✅ |
+| `npx vite build` → exits 0 | ✅ |
+
+**Test proof:**
+```
+uv run pytest -v     → 32 passed, 0 failed, 0 skipped
+npx vitest run       → 17 passed, 0 failed, 0 skipped (tests/test_runtime.ts: 9)
+npx vite build       → ✓ built in 2.97s, exit 0
+```
 
 ## Phase 2d Completion Criteria
 
