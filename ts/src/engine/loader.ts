@@ -1,82 +1,67 @@
 import yaml from 'js-yaml';
 import { GameFiles, ValidationError } from './types';
 
-// Static YAML imports (still needed for data/ui/systems)
-import hrDataRaw from '../../../games/horse_racing/data.yaml?raw';
-import hrUiRaw from '../../../games/horse_racing/ui.yaml?raw';
+// ── Static YAML imports (all games) ──────────────────────────────────────────
+// YAML is always statically imported — small, safe, no glob needed.
 
-import srDataRaw from '../../../games/slither_rogue/data.yaml?raw';
-import srUiRaw from '../../../games/slither_rogue/ui.yaml?raw';
+import hrDataRaw    from '../../../games/horse_racing/data.yaml?raw';
+import hrUiRaw     from '../../../games/horse_racing/ui.yaml?raw';
+import hrSystemsRaw from '../../../games/horse_racing/systems.yaml?raw';
+
+import srDataRaw    from '../../../games/slither_rogue/data.yaml?raw';
+import srUiRaw     from '../../../games/slither_rogue/ui.yaml?raw';
 import srSystemsRaw from '../../../games/slither_rogue/systems.yaml?raw';
 
-const GAME_ASSETS: Record<string, { data: string; ui: string; systems?: string }> = {
-  horse_racing: { data: hrDataRaw, ui: hrUiRaw },
+const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }> = {
+  horse_racing: { data: hrDataRaw, ui: hrUiRaw, systems: hrSystemsRaw },
   slither_rogue: { data: srDataRaw, ui: srUiRaw, systems: srSystemsRaw },
 };
 
+// ── Lua files — bundled at build time via import.meta.glob ───────────────────
+// Paths are relative to THIS file (ts/src/engine/loader.ts).
+// ../../../ resolves to RFDGameStudio/ (the repo root).
+// eager: true → all Lua files are embedded as string constants in the bundle.
+// No runtime fetch. Works identically in dev and production.
+
+const GAME_LUA_FILES = import.meta.glob(
+  '../../../games/**/*.lua',
+  { query: '?raw', import: 'default', eager: true }
+) as Record<string, string>;
+
+const ENGINE_LUA_FILES = import.meta.glob(
+  '../../../engine/**/*.lua',
+  { query: '?raw', import: 'default', eager: true }
+) as Record<string, string>;
+
+// ── Loader factory (injectable for testing) ──────────────────────────────────
+
 /**
- * Create a loader function with injectable glob results (for testing).
- * In production, uses runtime fetch for Lua files (copied to dist by Vite plugin).
+ * Create a loader with injectable glob maps.
+ * Production: pass null to use the real import.meta.glob results above.
+ * Tests:      pass mock maps via createLoader(mockGame, mockEngine).
  */
 export function createLoader(
   gameLuaFiles: Record<string, string> | null = null,
   engineLuaFiles: Record<string, string> | null = null
 ) {
-  const useRuntimeFetch = gameLuaFiles === null && engineLuaFiles === null;
+  const gameLua    = gameLuaFiles    ?? GAME_LUA_FILES;
+  const engineLua  = engineLuaFiles  ?? ENGINE_LUA_FILES;
 
-  /**
-   * Get the content of a game-specific Lua file.
-   * gameId: directory name under games/ (e.g. 'horse_racing')
-   * fileName: file name with extension (e.g. 'logic.lua', 'utils.lua')
-   */
-  async function getGameLua(gameId: string, fileName: string): Promise<string> {
-    if (useRuntimeFetch) {
-      try {
-        const response = await fetch(`./games/${gameId}/${fileName}`);
-        if (!response.ok) {
-          console.warn(`[loader] Lua file not found: ./games/${gameId}/${fileName}`);
-          return '';
-        }
-        return await response.text();
-      } catch (e) {
-        console.warn(`[loader] Failed to fetch ./games/${gameId}/${fileName}:`, e);
-        return '';
-      }
-    }
-
-    const key = `../../games/${gameId}/${fileName}`;
-    const content = gameLuaFiles![key];
+  function getGameLua(gameId: string, fileName: string): string {
+    const key = `../../../games/${gameId}/${fileName}`;
+    const content = gameLua[key];
     if (content === undefined) {
-      console.warn(`[loader] Lua file not found: ${key}`);
+      console.warn(`[loader] Lua file not found in bundle: ${key}`);
       return '';
     }
     return content;
   }
 
-  /**
-   * Get the content of an engine Lua file.
-   * subdir: 'primitives' or 'systems'
-   * fileName: file name with extension (e.g. 'action.lua')
-   */
-  async function getEngineLua(subdir: string, fileName: string): Promise<string> {
-    if (useRuntimeFetch) {
-      try {
-        const response = await fetch(`./engine/${subdir}/${fileName}`);
-        if (!response.ok) {
-          console.warn(`[loader] Engine Lua file not found: ./engine/${subdir}/${fileName}`);
-          return '';
-        }
-        return await response.text();
-      } catch (e) {
-        console.warn(`[loader] Failed to fetch ./engine/${subdir}/${fileName}:`, e);
-        return '';
-      }
-    }
-
-    const key = `../../engine/${subdir}/${fileName}`;
-    const content = engineLuaFiles![key];
+  function getEngineLua(subdir: string, fileName: string): string {
+    const key = `../../../engine/${subdir}/${fileName}`;
+    const content = engineLua[key];
     if (content === undefined) {
-      console.warn(`[loader] Engine Lua file not found: ${key}`);
+      console.warn(`[loader] Engine Lua file not found in bundle: ${key}`);
       return '';
     }
     return content;
@@ -92,71 +77,56 @@ export function createLoader(
     'lifecycle.lua',
   ];
 
-  async function buildEngineSource(engineSystems: string[]): Promise<string> {
+  function buildEngineSource(engineSystems: string[]): string {
     const parts: string[] = [];
-
-    // Load primitives in dependency order
     for (const fileName of PRIMITIVE_ORDER) {
-      const src = await getEngineLua('primitives', fileName);
+      const src = getEngineLua('primitives', fileName);
       if (src) parts.push(src);
     }
-
-    // Load declared engine systems
     for (const systemId of (engineSystems ?? [])) {
-      const src = await getEngineLua('systems', `${systemId}.lua`);
+      const src = getEngineLua('systems', `${systemId}.lua`);
       if (src) parts.push(src);
     }
-
     return parts.join('\n\n');
   }
 
-  return async function loadGameFiles(gameId: string): Promise<GameFiles> {
+  return function loadGameFiles(gameId: string): GameFiles {
     const assets = GAME_ASSETS[gameId];
     if (!assets) throw new ValidationError(`Unknown game: ${gameId}`);
+
     const data = yaml.load(assets.data) as Record<string, unknown>;
-    const ui = yaml.load(assets.ui) as Record<string, unknown>;
+    const ui   = yaml.load(assets.ui)   as Record<string, unknown>;
     validateData(data, gameId);
 
-    const systemsData = (assets.systems
-      ? yaml.load(assets.systems) as Record<string, unknown>
-      : {}) as Record<string, unknown> ?? {};
-    const luaFileList = systemsData['lua_files'] as string[] | undefined;
+    const systemsData = (yaml.load(assets.systems) ?? {}) as Record<string, unknown>;
+    const luaFileList  = systemsData['lua_files']     as string[] | undefined;
     const engineSystems = systemsData['engine_systems'] as string[] | undefined;
 
-    // Build engine source
-    const engineSource = await buildEngineSource(engineSystems ?? []);
+    const engineSource = buildEngineSource(engineSystems ?? []);
 
-    // Build game logic source
     let logicSource: string;
     if (luaFileList && luaFileList.length > 0) {
-      // Multi-file game: load in declared order
-      const sources = await Promise.all(luaFileList.map(f => getGameLua(gameId, f)));
-      logicSource = sources.join('\n\n');
+      logicSource = luaFileList.map(f => getGameLua(gameId, f)).join('\n\n');
     } else {
-      // Single-file game (horse_racing backward compat)
-      logicSource = await getGameLua(gameId, 'logic.lua');
+      logicSource = getGameLua(gameId, 'logic.lua');
     }
 
-    return {
-      gameId,
-      data,
-      ui,
-      logic: logicSource,
-      engineSource,
-    };
+    return { gameId, data, ui, logic: logicSource, engineSource };
   };
 }
 
-// Default loader using runtime fetch
+// Default loader — uses real bundled glob maps
 export const loadGameFiles = createLoader(null, null);
+
+// ── Validation ───────────────────────────────────────────────────────────────
 
 function validateData(data: Record<string, unknown>, gameId: string): void {
   const game = data['game'] as Record<string, unknown> | undefined;
-  if (!game) throw new ValidationError('Missing required key: game');
-  if (!game['id']) throw new ValidationError('Missing required key: game.id');
-  if (!game['name']) throw new ValidationError('Missing required key: game.name');
+  if (!game)          throw new ValidationError('Missing required key: game');
+  if (!game['id'])    throw new ValidationError('Missing required key: game.id');
+  if (!game['name'])  throw new ValidationError('Missing required key: game.name');
   if (!game['version']) throw new ValidationError('Missing required key: game.version');
-  if (!game['studio']) throw new ValidationError('Missing required key: game.studio');
+  if (!game['studio'])  throw new ValidationError('Missing required key: game.studio');
   if (game['id'] !== gameId) {
     throw new ValidationError(
       `game.id mismatch: expected "${gameId}", got "${String(game['id'])}"`
