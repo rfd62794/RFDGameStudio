@@ -272,3 +272,68 @@ function update_horse_after_race(horse, rank, prize_earnings)
   return updated
 end
 
+-- ============================================================
+-- BALANCE TEST HELPER (called by studio_balance_report MCP tool)
+-- ============================================================
+
+-- Run one race simulation using only scalar horse stats.
+-- Builds all Lua-native data internally — no Python table conversion needed.
+-- speed, stamina, acceleration, temperament: player horse stats (0-100)
+-- Returns: player rank (1-6), or nil on failure
+function run_balance_test(speed, stamina, acceleration, temperament)
+  local player_horse = {
+    id           = "balance_player",
+    name         = "Test Horse",
+    speed        = speed,
+    stamina      = stamina,
+    acceleration = acceleration,
+    temperament  = temperament,
+  }
+
+  local field_size  = 6
+  local player_avg  = (speed + stamina + acceleration + temperament) / 4
+
+  local participants = {{
+    horse            = player_horse,
+    gate             = 1,
+    energy           = 100,
+    current_distance = 0,
+    current_speed    = 0,
+    is_finished      = false,
+    progress         = 0,
+  }}
+
+  for i = 2, field_size do
+    local base = player_avg + (math.random() - 0.5) * 20
+    base = math.max(10, math.min(100, base))
+    local npc = {
+      id           = "npc_" .. i,
+      name         = "NPC " .. i,
+      speed        = math.max(10, math.min(100, base + (math.random()-0.5)*10)),
+      stamina      = math.max(10, math.min(100, base + (math.random()-0.5)*10)),
+      acceleration = math.max(10, math.min(100, base + (math.random()-0.5)*10)),
+      temperament  = math.max(10, math.min(100, 60 + math.random()*20)),
+    }
+    table.insert(participants, {
+      horse            = npc,
+      gate             = i,
+      energy           = 100,
+      current_distance = 0,
+      current_speed    = 0,
+      is_finished      = false,
+      progress         = 0,
+    })
+  end
+
+  local config = { distance = 1200, delta_time = 0.2 }
+  local results = simulate_race(participants, config)
+  if not results then return nil end
+
+  for _, r in ipairs(results) do
+    if r.horse_id == "balance_player" then
+      return r.rank
+    end
+  end
+  return nil
+end
+

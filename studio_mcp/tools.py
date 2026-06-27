@@ -377,52 +377,21 @@ def studio_balance_report(
 
         for i in range(iterations):
             sess_i = load_game(game_id, seed=42 + i, games_dir=_GAMES_DIR)
-            lua = sess_i.executor._lua
             try:
-                lua_horse = _to_lua_table(lua, player_horse)
-                lua_data  = _to_lua_table(lua, data)
-
-                race_result = sess_i.executor.call('create_race', lua_horse, lua_data)
-                if race_result is None:
-                    errors += 1
-                    continue
-
-                if isinstance(race_result, (list, tuple)) and len(race_result) == 2:
-                    race_obj, err = race_result
-                else:
-                    race_obj = race_result
-
-                if not race_obj:
-                    errors += 1
-                    continue
-
-                race_dict = dict(race_obj)
-                parts = list(race_dict.get('participants', []))
-                config = {
-                    'distance':   race_dict.get('distance', 1200),
-                    'delta_time': 0.2,
-                }
-                lua_parts  = _to_lua_table(lua, parts)
-                lua_config = _to_lua_table(lua, config)
-                results = sess_i.executor.call('simulate_race', lua_parts, lua_config)
-                if not results:
-                    errors += 1
-                    continue
-
-                result_list = [dict(r) for r in results]
-                player_id   = player_horse.get('id', '')
-                player_result = next(
-                    (r for r in result_list if r.get('horse_id') == player_id), None
+                # Pass only scalars — Lua builds all tables internally.
+                # Avoids Python→Lua table conversion entirely.
+                rank = sess_i.executor.call(
+                    'run_balance_test',
+                    float(player_horse.get('speed', 50)),
+                    float(player_horse.get('stamina', 50)),
+                    float(player_horse.get('acceleration', 50)),
+                    float(player_horse.get('temperament', 70)),
                 )
-                if player_result:
-                    rank = int(player_result.get('rank', 6))
-                    rank_counts[min(rank, 6)] = rank_counts.get(min(rank, 6), 0) + 1
-                    ft = player_result.get('finish_time', 0)
-                    if ft:
-                        finish_times.append(float(ft))
-                else:
+                if rank is None:
                     errors += 1
-
+                    continue
+                rank_int = int(rank)
+                rank_counts[min(rank_int, 6)] = rank_counts.get(min(rank_int, 6), 0) + 1
             except Exception:
                 errors += 1
 
