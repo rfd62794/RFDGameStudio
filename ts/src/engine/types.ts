@@ -103,6 +103,26 @@ export interface GameSession {
   executor: LuaExecutor;
 }
 
+/**
+ * Props received by every game renderer component.
+ * The router loads the session and passes it here.
+ * Games must not call loadGame() internally.
+ */
+export interface GameRendererProps {
+  session: GameSession;
+}
+
+/**
+ * Registration entry for a game in the studio router.
+ * Each game exports one of these from its config.ts.
+ */
+export interface GameConfig {
+  gameId: string;           // matches games/ directory name
+  label: string;            // display name in router/UI
+  description?: string;     // optional tagline
+  component: React.LazyExoticComponent<React.ComponentType<GameRendererProps>>;
+}
+
 export class RuntimeError extends Error {
   constructor(message: string) {
     super(message);

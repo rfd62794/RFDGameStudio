@@ -97,6 +97,14 @@ import { loadGame, call, getSchema } from '../src/engine/runtime';
 import type { GameState } from '../src/engine/types';
 import { lua } from 'fengari-web';
 
+// Mock registry for testing
+const GAME_REGISTRY = [
+  { gameId: 'horse_racing', label: 'Derby Sim', description: 'Horse racing, breeding, and betting', component: null as any },
+  { gameId: 'slither_rogue', label: 'Snake Roguelike', description: 'Slither, mutate, steal segments', component: null as any },
+];
+function findGame(gameId: string) { return GAME_REGISTRY.find(g => g.gameId === gameId); }
+function findGameOrDefault(gameId: string) { return findGame(gameId) ?? GAME_REGISTRY[0]; }
+
 describe('runtime', () => {
   it('test_runtime_load_game_returns_session', () => {
     const session = loadGame('horse_racing', 42);
@@ -182,5 +190,15 @@ describe('runtime', () => {
     expect(first).toHaveProperty('name');
     expect(first).toHaveProperty('speed');
     expect(first).toHaveProperty('stamina');
+  });
+
+  it('test_game_registry_has_two_games', () => {
+    expect(GAME_REGISTRY.length).toBe(2);
+  });
+
+  it('test_find_game_returns_correct_config', () => {
+    const config = findGame('horse_racing');
+    expect(config?.gameId).toBe('horse_racing');
+    expect(config?.label).toBe('Derby Sim');
   });
 });

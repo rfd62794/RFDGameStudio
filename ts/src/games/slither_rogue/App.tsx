@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { loadGame, call } from '../../engine/runtime';
-import type { GameSession } from '../../engine/types';
+import { call } from '../../engine/runtime';
+import type { GameRendererProps } from '../../engine/types';
 import type { EvolutionCard } from './types';
 import MainMenu from './components/MainMenu';
 import GameHUD from './components/GameHUD';
@@ -10,11 +10,7 @@ import EvolutionModal from './components/EvolutionModal';
 import GameOverModal from './components/GameOverModal';
 import './styles.css';
 
-const GAME_ID = 'slither_rogue';
-const SEED = 42;
-
-export default function App() {
-  const [session] = useState<GameSession>(() => loadGame(GAME_ID, SEED));
+export default function App({ session }: GameRendererProps) {
   const [screen, setScreen] = useState<'menu' | 'game' | 'gameover'>('menu');
 
   const [controlType, setControlType] = useState<'mouse' | 'keyboard'>('mouse');

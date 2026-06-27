@@ -2,8 +2,8 @@ import './styles.css';
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Coins } from 'lucide-react';
-import { loadGame, call, getSchema } from '../../engine/runtime';
-import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
+import { call, getSchema } from '../../engine/runtime';
+import type { GameRendererProps, GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
 import { RuntimeError } from '../../engine/types';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
@@ -11,8 +11,6 @@ import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
 import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
 
-const SEED = 42;
-const GAME_ID = 'horse_racing';
 const SAVE_KEY = 'derby_sim_state_v1';
 
 const safeGetStorage = (key: string): string | null => {
@@ -104,8 +102,7 @@ function buildRace(session: GameSession, playerHorses: Horse[], horseId?: string
   };
 }
 
-export default function App() {
-  const [session, setSession] = useState<GameSession | null>(null);
+export default function App({ session }: GameRendererProps) {
   const [error, setError] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [activeTab, setActiveTab] = useState<string>('stable');
@@ -123,42 +120,36 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    try {
-      const s = loadGame(GAME_ID, SEED);
-      setSession(s);
-      const stableCfg = (s.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
-      const defaultSlots = (stableCfg['starting_slots'] as number) ?? 3;
+    const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
+    const defaultSlots = (stableCfg['starting_slots'] as number) ?? 3;
 
-      const saved = safeGetStorage(SAVE_KEY);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved) as {
-            funds: number;
-            horses: Horse[];
-            race_history: RaceHistoryEntry[];
-            unlocked_slots: number;
-          };
-          if (Array.isArray(parsed.horses) && parsed.horses.length > 0) {
-            setUnlockedSlots(parsed.unlocked_slots ?? defaultSlots);
-            setGameState({
-              funds: parsed.funds,
-              horses: parsed.horses,
-              current_race: null,
-              race_history: parsed.race_history ?? [],
-              emergency_grant_shown: false,
-            });
-            return;
-          }
-        } catch {
-          // invalid save — fall through
+    const saved = safeGetStorage(SAVE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as {
+          funds: number;
+          horses: Horse[];
+          race_history: RaceHistoryEntry[];
+          unlocked_slots: number;
+        };
+        if (Array.isArray(parsed.horses) && parsed.horses.length > 0) {
+          setUnlockedSlots(parsed.unlocked_slots ?? defaultSlots);
+          setGameState({
+            funds: parsed.funds,
+            horses: parsed.horses,
+            current_race: null,
+            race_history: parsed.race_history ?? [],
+            emergency_grant_shown: false,
+          });
+          return;
         }
+      } catch {
+        // invalid save — fall through
       }
-      setUnlockedSlots(defaultSlots);
-      setGameState(buildInitialState(s));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
     }
-  }, []);
+    setUnlockedSlots(defaultSlots);
+    setGameState(buildInitialState(session));
+  }, [session]);
 
   useEffect(() => {
     if (!gameState) return;
@@ -332,10 +323,8 @@ export default function App() {
     setGameState(prev => prev ? { ...prev, funds: prev.funds - unlockCost } : prev);
   }, [session, gameState, unlockedSlots]);
 
-  const uiLayout = session
-    ? (session.files.ui as Record<string, unknown>)['layout'] as Record<string, unknown>
-    : null;
-  const tabs = uiLayout ? (uiLayout['tabs'] as Array<Record<string, unknown>>) : [];
+  const uiLayout = (session.files.ui as Record<string, unknown>)['layout'] as Record<string, unknown>;
+  const tabs = (uiLayout['tabs'] as Array<Record<string, unknown>>) ?? [];
 
   if (error) {
     return (
@@ -344,8 +333,8 @@ export default function App() {
       </div>
     );
   }
-  if (!session || !gameState) {
-    return <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading engine…</div>;
+  if (!gameState) {
+    return <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading game state…</div>;
   }
 
   const schemaErr = (() => {
