@@ -117,13 +117,13 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
   const handleNewRace = useCallback((id?: string) => {
     setBetEntries({});
     setSimulated(false);
-    onNewRace(id ?? selectedHorseId || undefined);
+    onNewRace((id ?? selectedHorseId) || undefined);
   }, [onNewRace, selectedHorseId]);
 
   const handleSkipRace = useCallback((id?: string) => {
     setBetEntries({});
     setSimulated(false);
-    onSkipRace(id ?? selectedHorseId || undefined);
+    onSkipRace((id ?? selectedHorseId) || undefined);
   }, [onSkipRace, selectedHorseId]);
 
   const handleClearBets = useCallback(() => {
