@@ -8,7 +8,7 @@ function _calc_effects(active, cards)
   local e = {
     speed_multiplier=1.0, magnetism_radius=0, shield_charges=0,
     wide_body_add=0, fruit_sense_range=0, ghost_tail_count=0,
-    tail_growth_level=0, venom_trail_level=0,
+    tail_growth_level=0, venom_trail_level=0, ambush_level=0,
   }
   for _, card in ipairs(cards) do
     local lvl = active[card.id] or 0
@@ -22,6 +22,7 @@ function _calc_effects(active, cards)
       elseif k == "ghost_tail_count"  then e.ghost_tail_count  = lvl*ppl
       elseif k == "tail_growth_level" then e.tail_growth_level = lvl*ppl
       elseif k == "venom_trail_level" then e.venom_trail_level = lvl*ppl
+      elseif k == "ambush_level"      then e.ambush_level      = lvl*ppl
       end
     end
   end
@@ -46,11 +47,15 @@ function init_game(config)
     base_speed        = ps.initial_speed or 160,
     radius            = radius,
     shield_charges    = eff.shield_charges or 0,
+    shield_max_charges = eff.shield_charges or 0,
+    shield_regen_timer = 0,
+    last_hit_time     = 0,
     magnetism_radius  = eff.magnetism_radius or 0,
     fruit_sense_range = eff.fruit_sense_range or 0,
     ghost_tail_count  = eff.ghost_tail_count or 0,
     regen_level       = eff.tail_growth_level or 0,
     venom_level       = eff.venom_trail_level or 0,
+    ambush_level      = eff.ambush_level or 0,
     regen_timer       = 0,
     acid_timer        = 0,
     is_slowing        = false,
@@ -100,6 +105,7 @@ function init_game(config)
     score       = 0,
     peak_length = ps.initial_length or 5,
     speed_mult  = eff.speed_multiplier or 1.0,
+    active_evolutions = config.active_evolutions or {},
     events      = {},
   }
 end
@@ -108,15 +114,18 @@ end
 function update_evolution_effects(active_evolutions)
   if not GAME_STATE then return end
   local st  = GAME_STATE
+  st.active_evolutions = active_evolutions
   local eff = _calc_effects(active_evolutions, st.config.evolution_cards or {})
   local p   = st.player
   local base_r = st.config.player_stats.initial_radius or 11
   p.radius            = base_r + (eff.wide_body_add or 0)
-  p.shield_charges    = eff.shield_charges
+  p.shield_max_charges = eff.shield_charges
+  p.shield_charges    = math.min(p.shield_charges or 0, eff.shield_charges)
   p.magnetism_radius  = eff.magnetism_radius
   p.fruit_sense_range = eff.fruit_sense_range
   p.ghost_tail_count  = eff.ghost_tail_count
   p.regen_level       = eff.tail_growth_level
   p.venom_level       = eff.venom_trail_level
+  p.ambush_level      = eff.ambush_level
   st.speed_mult       = eff.speed_multiplier
 end

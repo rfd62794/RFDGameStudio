@@ -76,6 +76,7 @@ function _collisions(st)
         end
         if (p.shield_charges or 0) > 0 then
           p.shield_charges = p.shield_charges - 1
+          p.shield_regen_timer = 0
           npc.angle = (npc.angle + math.pi) % (math.pi*2)
           npc.target_angle = npc.angle
           table.insert(st.events, { type="shield_consumed", charges=p.shield_charges })

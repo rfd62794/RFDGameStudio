@@ -227,7 +227,7 @@ function drawGame(canvas: HTMLCanvasElement, rs: RenderState, dims: { w: number;
       i === 0 ? ctx.moveTo(sx[i], sy[i]) : ctx.lineTo(sx[i], sy[i]);
     }
     ctx.stroke();
-    ctx.fillStyle = npc.head_color;
+    ctx.fillStyle = npc.hunting ? '#ef4444' : npc.head_color;
     ctx.beginPath(); ctx.arc(sx[0], sy[0], npc.radius * 1.3, 0, Math.PI * 2); ctx.fill();
     _drawEyes(ctx, sx[0], sy[0], npc.angle, npc.radius, false);
     ctx.fillStyle = 'rgba(255,255,255,0.4)';

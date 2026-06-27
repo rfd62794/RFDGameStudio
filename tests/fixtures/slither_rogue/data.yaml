@@ -104,15 +104,15 @@ evolution_cards:
 
   - id: magnet
     title: Magnetic Glide
-    description: "Nearby fruits pulled towards your head (+60px pull radius)."
+    description: "Nearby fruits pulled towards your head (+25px pull radius per level)."
     icon: magnet
     rarity: common
     effect_key: magnetism_radius
-    effect_per_level: 60
+    effect_per_level: 25
 
   - id: shield
     title: Reinforced Joints
-    description: "Grants +1 Node Armor shield charge to block a segment theft."
+    description: "Grants +1 Node Armor shield charge. Charges regenerate if you avoid hits for 10 seconds."
     icon: shield
     rarity: rare
     effect_key: shield_charges
@@ -156,6 +156,14 @@ evolution_cards:
     icon: venom
     rarity: epic
     effect_key: venom_trail_level
+    effect_per_level: 1
+
+  - id: ambush
+    title: Ambush Protocol
+    description: "Brief speed burst when your head gets within 150px of an NPC joint. Rewards aggressive play."
+    icon: ambush
+    rarity: rare
+    effect_key: ambush_level
     effect_per_level: 1
 
 grade_thresholds:
