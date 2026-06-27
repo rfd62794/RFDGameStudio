@@ -4,7 +4,45 @@
 
 ## Current Phase
 
-**Phase 2u — PyGame Universal Renderer — CERTIFIED**
+**Phase 2v — Mutant Battle Ball — CERTIFIED**
+
+## Phase 2v Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `games/mutant_battle_ball/data.yaml` — parts catalog, starter mutants, match config, opponents | ✅ |
+| `games/mutant_battle_ball/logic.lua` — match simulation, role assignment, tackle/block, wounds, substitutions | ✅ |
+| `games/mutant_battle_ball/ui.yaml` — layout_tree with 5 tabs (roster, workshop, match, shop, infirmary) | ✅ |
+| `games/mutant_battle_ball/systems.yaml` — match + management systems, entity definitions | ✅ |
+| `ts/src/games/mutant_battle_ball/types.ts` — Part, MutantParts, Mutant, MatchAgent, MatchState, MBBGameState | ✅ |
+| `ts/src/games/mutant_battle_ball/config.ts` — game config with #f87171 red color, lazy-loaded App | ✅ |
+| `ts/src/games/mutant_battle_ball/App.tsx` — React app with GameShell, TabManager, match start/end logic | ✅ |
+| `ts/src/games/mutant_battle_ball/components/MatchCanvas.tsx` — canvas renderer, court, agents, ball, health bars | ✅ |
+| `ts/src/games/mutant_battle_ball/components/RosterTab.tsx` — roster display, start match button | ✅ |
+| `ts/src/games/mutant_battle_ball/components/WorkshopTab.tsx` — mutant assembly UI | ✅ |
+| `ts/src/games/mutant_battle_ball/components/ShopTab.tsx` — parts shop UI | ✅ |
+| `ts/src/games/mutant_battle_ball/components/InfirmaryTab.tsx` — injured mutant management | ✅ |
+| `ts/src/games/mutant_battle_ball/styles.css` — game-specific styles | ✅ |
+| `ts/src/games/registry.ts` — mutant_battle_ball registered | ✅ |
+| `tests/test_integration.py` — 6 new MBB tests (80 total) | ✅ |
+| `ts/tests/test_arcade.ts` — 2 new MBB registry tests (37 total) | ✅ |
+| Python floor: `pytest -v` → **80 passed, 0 failed** (was 74) | ✅ |
+| TS floor: `npx vitest run` → **37 passed, 0 failed** (was 35) | ✅ |
+| `studio_validate_game('mutant_battle_ball')` → valid=True, no issues | ✅ |
+
+**Test proof:**
+```
+pytest -v
+→ 80 passed in 2.50s
+cd ts && npx vitest run
+→ 37 passed (37)
+```
+
+**Validation proof:**
+```
+studio_validate_game('mutant_battle_ball')
+→ {'valid': True, 'game_id': 'mutant_battle_ball', 'issues': []}
+```
 
 ## Phase 2u Completion Criteria
 
@@ -293,6 +331,7 @@ RFDGameStudio/
 | **2s** | Slither Rogue Balance + EIC Direction | ✅ **CERTIFIED** |
 | **2t** | Shared TypeScript Infrastructure | ✅ **CERTIFIED** |
 | **2u** | PyGame Universal Renderer | ✅ **CERTIFIED** |
+| **2v** | Mutant Battle Ball | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |

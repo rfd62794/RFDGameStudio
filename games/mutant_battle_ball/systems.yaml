@@ -1,0 +1,28 @@
+game_id: mutant_battle_ball
+
+systems:
+  - id: match
+    description: "Real-time 2v2 match simulation"
+    components: [agent, ball, possession, score, time]
+    functions:
+      - init_match
+      - tick_match
+      - call_timeout
+      - resume_match
+      - make_substitution
+
+  - id: management
+    description: "Roster, parts, assembly, infirmary"
+    components: [mutant, part, roster, infirmary]
+    functions:
+      - calculate_stats
+      - assemble_mutant
+      - apply_wound
+
+entities:
+  mutant:
+    fields: [id, name, color, parts, status, matches_played]
+  part:
+    fields: [id, name, slot, accuracy, endurance, power, speed, price]
+  agent:
+    fields: [id, name, team, x, y, role, status, has_ball, health, max_health]

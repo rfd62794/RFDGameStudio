@@ -1,0 +1,37 @@
+layout_tree:
+  direction: column
+  children:
+    - id: header
+      height: 0.10
+    - id: tab_nav
+      height: 0.06
+    - id: content
+      flex: 1
+    - id: footer
+      height: 0.05
+
+regions:
+  header:
+    component: app_header
+    bindings:
+      title: "MUTANT BATTLE BALL"
+      bank_label: IRON
+  tab_nav:
+    component: tab_bar
+  content:
+    component: tab_content
+  footer:
+    component: app_footer
+    text: "© 2026 MUTANT BATTLE BALL — RFD IT Services Ltd."
+
+tabs:
+  - id: roster
+    label: Roster
+  - id: workshop
+    label: Workshop
+  - id: match
+    label: Match
+  - id: shop
+    label: Shop
+  - id: infirmary
+    label: Infirmary

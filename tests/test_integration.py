@@ -201,3 +201,185 @@ def test_slither_rogue_evolution_effects_update_player() -> None:
     })
     assert render_state is not None
     assert 'player' in render_state
+
+# ── MUTANT BATTLE BALL ────────────────────────────────────────────────────────
+
+def _load_mbb():
+    return load_game('mutant_battle_ball', seed=42)
+
+def test_mbb_calculate_stats_sums_parts() -> None:
+    """calculate_stats returns stat totals from equipped parts."""
+    session = _load_mbb()
+    data = session.files.data
+    starters = list(data.get('starter_mutants', []))
+    assert len(starters) >= 1
+    parts_data = list(data.get('parts', []))
+    parts_map = {dict(p)['id']: dict(p) for p in parts_data}
+
+    raw = dict(starters[0])
+    raw_parts = dict(raw.get('parts', {}))
+    mutant = {
+        'id': raw['id'],
+        'name': raw['name'],
+        'parts': {slot: parts_map.get(pid, None)
+                  for slot, pid in raw_parts.items()},
+    }
+    stats = session.executor.call('calculate_stats', mutant)
+    assert stats is not None
+    sd = dict(stats)
+    assert sd.get('endurance', 0) > 0
+    assert sd.get('speed', 0) > 0
+
+def test_mbb_init_match_creates_agents() -> None:
+    """init_match creates 4 agents (2 per team) in GAME_STATE."""
+    session = _load_mbb()
+    data = session.files.data
+    starters = list(data.get('starter_mutants', []))
+    opponents = list(data.get('opponents', []))
+    assert len(starters) >= 2
+    assert len(opponents) >= 1
+
+    parts_data = list(data.get('parts', []))
+    parts_map = {dict(p)['id']: dict(p) for p in parts_data}
+
+    player_mutants = []
+    for raw_m in starters[:2]:
+        rm = dict(raw_m)
+        rp = dict(rm.get('parts', {}))
+        player_mutants.append({
+            'id': rm['id'], 'name': rm['name'], 'color': rm.get('color', '#fff'),
+            'parts': {slot: parts_map.get(pid) for slot, pid in rp.items()},
+        })
+
+    opp = dict(opponents[0])
+    opp_mutants = [dict(m) for m in opp.get('mutants', [])][:2]
+    session.executor.call('init_match', player_mutants, opp_mutants, data)
+
+    render_state = session.executor.call('build_match_render_state')
+    assert render_state is not None
+    rs = dict(render_state)
+    agents = list(rs.get('agents', []))
+    assert len(agents) == 4
+
+def test_mbb_tick_match_advances_time() -> None:
+    """tick_match reduces time_remaining."""
+    session = _load_mbb()
+    data = session.files.data
+    starters = list(data.get('starter_mutants', []))
+    opponents = list(data.get('opponents', []))
+    parts_data = list(data.get('parts', []))
+    parts_map = {dict(p)['id']: dict(p) for p in parts_data}
+
+    player_mutants = []
+    for rm in [dict(s) for s in starters[:2]]:
+        rp = dict(rm.get('parts', {}))
+        player_mutants.append({
+            'id': rm['id'], 'name': rm['name'], 'color': rm.get('color', '#fff'),
+            'parts': {slot: parts_map.get(pid) for slot, pid in rp.items()},
+        })
+    opp_mutants = [dict(m) for m in dict(opponents[0]).get('mutants', [])][:2]
+    session.executor.call('init_match', player_mutants, opp_mutants, data)
+
+    rs = None
+    for _ in range(5):
+        raw = session.executor.call('tick_match', 0.1)
+        if raw:
+            rs = dict(raw)
+    assert rs is not None
+    assert rs.get('time_remaining', 180) < 180
+
+def test_mbb_tick_match_agents_move() -> None:
+    """Agents have different positions after ticking."""
+    session = _load_mbb()
+    data = session.files.data
+    starters = list(data.get('starter_mutants', []))
+    opponents = list(data.get('opponents', []))
+    parts_data = list(data.get('parts', []))
+    parts_map = {dict(p)['id']: dict(p) for p in parts_data}
+
+    player_mutants = []
+    for rm in [dict(s) for s in starters[:2]]:
+        rp = dict(rm.get('parts', {}))
+        player_mutants.append({
+            'id': rm['id'], 'name': rm['name'], 'color': rm.get('color','#fff'),
+            'parts': {slot: parts_map.get(pid) for slot, pid in rp.items()},
+        })
+    opp_mutants = [dict(m) for m in dict(opponents[0]).get('mutants',[])][:2]
+    session.executor.call('init_match', player_mutants, opp_mutants, data)
+
+    rs0 = dict(session.executor.call('tick_match', 0.0))
+    agents0 = [dict(a) for a in rs0.get('agents', [])]
+
+    for _ in range(20):
+        session.executor.call('tick_match', 0.1)
+    rs1 = dict(session.executor.call('tick_match', 0.0))
+    agents1 = [dict(a) for a in rs1.get('agents', [])]
+
+    moved = any(
+        abs(a0['x'] - a1['x']) > 0.1 or abs(a0['y'] - a1['y']) > 0.1
+        for a0, a1 in zip(agents0, agents1)
+        if a0['status'] == 'active' and a1['status'] == 'active'
+    )
+    assert moved
+
+def test_mbb_call_timeout_decrements_count() -> None:
+    """call_timeout reduces timeouts_left by 1."""
+    session = _load_mbb()
+    data = session.files.data
+    starters = list(data.get('starter_mutants', []))
+    opponents = list(data.get('opponents', []))
+    parts_data = list(data.get('parts', []))
+    parts_map = {dict(p)['id']: dict(p) for p in parts_data}
+
+    player_mutants = []
+    for rm in [dict(s) for s in starters[:2]]:
+        rp = dict(rm.get('parts', {}))
+        player_mutants.append({
+            'id': rm['id'], 'name': rm['name'], 'color': rm.get('color','#fff'),
+            'parts': {slot: parts_map.get(pid) for slot, pid in rp.items()},
+        })
+    opp_mutants = [dict(m) for m in dict(opponents[0]).get('mutants',[])][:2]
+    session.executor.call('init_match', player_mutants, opp_mutants, data)
+
+    rs_before = dict(session.executor.call('tick_match', 0.1))
+    to_before = rs_before.get('timeouts_left', 3)
+
+    session.executor.call('call_timeout')
+    rs_after = dict(session.executor.call('build_match_render_state'))
+    to_after = rs_after.get('timeouts_left', 3)
+
+    assert to_after == to_before - 1
+
+def test_mbb_assemble_mutant_from_parts() -> None:
+    """assemble_mutant returns a mutant with calculated stats."""
+    session = _load_mbb()
+    data = session.files.data
+    parts_data = list(data.get('parts', []))
+
+    head  = next((dict(p) for p in parts_data if dict(p).get('slot') == 'head'), None)
+    chest = next((dict(p) for p in parts_data if dict(p).get('slot') == 'chest'), None)
+    l_arm = next((dict(p) for p in parts_data if dict(p).get('slot') == 'left_arm'), None)
+    r_arm = next((dict(p) for p in parts_data if dict(p).get('slot') == 'right_arm'), None)
+    l_leg = next((dict(p) for p in parts_data if dict(p).get('slot') == 'left_leg'), None)
+    r_leg = next((dict(p) for p in parts_data if dict(p).get('slot') == 'right_leg'), None)
+
+    if not all([head, chest, l_arm, r_arm, l_leg, r_leg]):
+        return
+
+    part_ids = {
+        'head': head['id'], 'chest': chest['id'],
+        'left_arm': l_arm['id'], 'right_arm': r_arm['id'],
+        'left_leg': l_leg['id'], 'right_leg': r_leg['id'],
+    }
+
+    result = session.executor.call('assemble_mutant', 'Test Mutant', '#ff0000',
+                                   part_ids, parts_data)
+    assert result is not None
+    if isinstance(result, (list, tuple)):
+        mutant, err = result
+    else:
+        mutant, err = result, None
+    assert err is None
+    assert mutant is not None
+    md = dict(mutant)
+    assert md.get('name') == 'Test Mutant'

@@ -1,0 +1,209 @@
+game:
+  id: mutant_battle_ball
+  name: Mutant Battle Ball
+  version: "1.0"
+  studio: RFDGameStudio
+
+match:
+  court_width: 100
+  court_height: 60
+  end_zone_depth: 10
+  duration: 180
+  timeouts: 3
+  tackle_range: 6.0
+  block_range: 7.0
+  carrier_speed_mult: 0.85
+  tackle_stun_time: 1.2
+  escort_intercept_dist: 15
+
+scoring:
+  iron_per_win: 60
+  iron_per_loss: 25
+  iron_per_score: 10
+  salvage_choice_count: 1
+
+infirmary:
+  limb_loss_recovery_matches: 2
+  heavy_wound_recovery_matches: 3
+
+part_slots:
+  - head
+  - chest
+  - left_arm
+  - right_arm
+  - left_leg
+  - right_leg
+
+parts:
+  - id: head_basic
+    name: Cracked Skull
+    slot: head
+    accuracy: 35
+    endurance: 8
+    power: 5
+    speed: 5
+    price: 40
+    description: "A dented but functional head. Gets the job done."
+
+  - id: head_tactical
+    name: Tactical Visor
+    slot: head
+    accuracy: 55
+    endurance: 10
+    power: 5
+    speed: 5
+    price: 90
+    description: "Enhanced optics for precision decision-making."
+
+  - id: head_iron
+    name: Iron Dome
+    slot: head
+    accuracy: 30
+    endurance: 20
+    power: 5
+    speed: 5
+    price: 70
+    description: "Reinforced skull. Won't win on brains but won't lose one either."
+
+  - id: chest_basic
+    name: Ribcage Plating
+    slot: chest
+    accuracy: 5
+    endurance: 40
+    power: 8
+    speed: 5
+    price: 45
+
+  - id: chest_heavy
+    name: Blast Shield Torso
+    slot: chest
+    accuracy: 5
+    endurance: 65
+    power: 12
+    speed: 0
+    price: 110
+    description: "Absorbs punishment. Slows you down."
+
+  - id: chest_light
+    name: Carbon Mesh
+    slot: chest
+    accuracy: 8
+    endurance: 30
+    power: 5
+    speed: 8
+    price: 75
+    description: "Light. Doesn't absorb much. But you'll run."
+
+  - id: arm_basic
+    name: Scrap Arm
+    slot: left_arm
+    accuracy: 3
+    endurance: 5
+    power: 30
+    speed: 3
+    price: 35
+
+  - id: arm_pile
+    name: Pile Driver
+    slot: right_arm
+    accuracy: 3
+    endurance: 5
+    power: 50
+    speed: 0
+    price: 80
+    description: "One hit. That's all you need."
+
+  - id: arm_grab
+    name: Grapple Claw
+    slot: left_arm
+    accuracy: 10
+    endurance: 5
+    power: 40
+    speed: 3
+    price: 70
+
+  - id: leg_basic
+    name: Salvage Leg
+    slot: left_leg
+    accuracy: 3
+    endurance: 5
+    power: 5
+    speed: 30
+    price: 35
+
+  - id: leg_sprint
+    name: Sprint Coil
+    slot: right_leg
+    accuracy: 3
+    endurance: 5
+    power: 3
+    speed: 55
+    price: 90
+    description: "Built for pursuit. Falls apart under pressure."
+
+  - id: leg_stomp
+    name: Stomp Boot
+    slot: left_leg
+    accuracy: 3
+    endurance: 8
+    power: 12
+    speed: 35
+    price: 60
+
+starter_mutants:
+  - id: mutant_alpha
+    name: Alpha
+    color: "#3b82f6"
+    parts:
+      head:      head_basic
+      chest:     chest_basic
+      left_arm:  arm_basic
+      right_arm: arm_basic
+      left_leg:  leg_basic
+      right_leg: leg_basic
+
+  - id: mutant_beta
+    name: Beta
+    color: "#10b981"
+    parts:
+      head:      head_tactical
+      chest:     chest_light
+      left_arm:  arm_grab
+      right_arm: arm_basic
+      left_leg:  leg_sprint
+      right_leg: leg_basic
+
+starting_iron: 120
+starting_parts:
+  - arm_basic
+  - leg_basic
+  - head_basic
+  - chest_basic
+
+opponents:
+  - name: The Scrappers
+    difficulty: easy
+    iron_reward: 25
+    mutants:
+      - { name: "Bolt", color: "#ef4444",
+          accuracy: 32, endurance: 38, power: 28, speed: 32, max_health: 38 }
+      - { name: "Ratch", color: "#f97316",
+          accuracy: 28, endurance: 35, power: 35, speed: 30, max_health: 35 }
+
+  - name: The Ironborn
+    difficulty: medium
+    iron_reward: 45
+    mutants:
+      - { name: "Gorge", color: "#8b5cf6",
+          accuracy: 40, endurance: 55, power: 45, speed: 28, max_health: 55 }
+      - { name: "Vex",   color: "#ec4899",
+          accuracy: 45, endurance: 42, power: 38, speed: 42, max_health: 42 }
+
+  - name: The Chrome Elite
+    difficulty: hard
+    iron_reward: 70
+    mutants:
+      - { name: "Titan", color: "#14b8a6",
+          accuracy: 58, endurance: 70, power: 62, speed: 35, max_health: 70 }
+      - { name: "Slick", color: "#fbbf24",
+          accuracy: 62, endurance: 48, power: 45, speed: 65, max_health: 48 }

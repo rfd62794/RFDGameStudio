@@ -1,0 +1,188 @@
+.mbb-loading {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+}
+
+.mbb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.mbb-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #f87171;
+}
+
+.mbb-iron {
+  font-family: monospace;
+  color: #fbbf24;
+}
+
+.mbb-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-left: 1rem;
+}
+
+.match-placeholder {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+}
+
+.mbb-hint {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.match-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.match-scoreboard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+.score-label {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.score-val {
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.score-time {
+  color: #fbbf24;
+  font-size: 1.2rem;
+}
+
+.timeout-indicator {
+  color: #fbbf24;
+  letter-spacing: 0.2rem;
+}
+
+.match-canvas {
+  border: 2px solid #4a5070;
+  border-radius: 4px;
+  background: #1a1d27;
+}
+
+.match-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeout-btn {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.timeout-btn:disabled {
+  background: #4a5070;
+  cursor: not-allowed;
+}
+
+.sub-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.sub-modal {
+  background: #2a3040;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #4a5070;
+  max-width: 400px;
+  text-align: center;
+}
+
+.sub-modal h3 {
+  margin-top: 0;
+  color: #f87171;
+}
+
+.sub-modal button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.roster-tab,
+.workshop-tab,
+.shop-tab,
+.infirmary-tab {
+  padding: 1rem;
+}
+
+.mutant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.mutant-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #2a3040;
+  border-radius: 4px;
+  border: 1px solid #4a5070;
+}
+
+.mutant-name {
+  font-weight: bold;
+}
+
+.mutant-status {
+  font-size: 0.85rem;
+  color: #888;
+  text-transform: capitalize;
+}
+
+.start-match-btn {
+  padding: 0.75rem 1.5rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.start-match-btn:hover {
+  background: #059669;
+}
