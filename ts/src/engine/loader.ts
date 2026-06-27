@@ -16,7 +16,7 @@ const GAME_ASSETS: Record<string, { data: string; ui: string; systems?: string }
 
 /**
  * Create a loader function with injectable glob results (for testing).
- * In production, uses runtime fetch for Lua files.
+ * In production, uses runtime fetch for Lua files (copied to dist by Vite plugin).
  */
 export function createLoader(
   gameLuaFiles: Record<string, string> | null = null,
