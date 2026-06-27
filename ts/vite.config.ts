@@ -73,4 +73,10 @@ export default defineConfig({
       define: { global: 'globalThis' },
     },
   },
+  server: {
+    fs: {
+      // Allow serving files from parent directories
+      allow: ['..'],
+    },
+  },
 });
