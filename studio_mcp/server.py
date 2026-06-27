@@ -10,7 +10,13 @@ Run with:
 
 from __future__ import annotations
 
+import json
+
 from mcp.server.fastmcp import FastMCP
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.routing import Mount, Route
 
 from studio_mcp.tools import (
     studio_call,
@@ -28,4 +34,15 @@ mcp.tool()(studio_get_schema)
 mcp.tool()(studio_get_systems)
 mcp.tool()(studio_run_headless)
 
-asgi_app = mcp.sse_app()
+
+async def health(request: Request) -> Response:
+    body = json.dumps({"status": "ok", "service": "RFDStudioMCP", "port": 8025})
+    return Response(content=body, media_type="application/json")
+
+
+asgi_app = Starlette(
+    routes=[
+        Route("/health", health),
+        Mount("/", app=mcp.sse_app()),
+    ]
+)
