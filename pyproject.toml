@@ -9,6 +9,9 @@ requires-python = "==3.12.*"
 dependencies = [
     "lupa>=2.0",
     "pyyaml>=6.0",
+    "fastapi>=0.111.0",
+    "uvicorn>=0.29.0",
+    "mcp>=1.0.0,<2",
 ]
 
 [dependency-groups]
@@ -20,7 +23,10 @@ dev = [
 testpaths = ["tests"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["studio"]
+packages = ["studio", "studio_mcp"]
+
+[project.scripts]
+studio-mcp = "studio_mcp.server:asgi_app"
 
 [build-system]
 requires = ["hatchling"]
