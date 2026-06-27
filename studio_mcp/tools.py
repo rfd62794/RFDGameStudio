@@ -58,7 +58,10 @@ def studio_call(session_id: str, fn_name: str, args: dict | None = None) -> dict
         session = get_session(session_id)
         if session is None:
             return {"error": f"Session '{session_id}' not found. Call studio_load_game first.", "tool": "studio_call"}
-        call_args = [args] if args else []
+        if args:
+            call_args = list(args.values())
+        else:
+            call_args = []
         result = session.executor.call(fn_name, *call_args)
         return {"result": result, "fn_name": fn_name}
     except (AttributeError, LuaError) as exc:
@@ -135,7 +138,10 @@ def studio_run_headless(
             seed = seed_start + i
             session.executor._lua.execute(f"math.randomseed({seed})")
             try:
-                call_args = [args] if args else []
+                if args:
+                    call_args = list(args.values())
+                else:
+                    call_args = []
                 result = session.executor.call(fn_name, *call_args)
                 results.append(result)
             except Exception:
