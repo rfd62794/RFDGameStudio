@@ -16,6 +16,8 @@ local function dist2(x1, y1, x2, y2)
   return dx*dx + dy*dy
 end
 
+local function atan2(y, x) return math.atan(y, x) end
+
 local function normalize_angle(a)
   while a < -math.pi do a = a + math.pi*2 end
   while a >  math.pi do a = a - math.pi*2 end

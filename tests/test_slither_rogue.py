@@ -1,4 +1,4 @@
-"""test_slither_rogue.py — Tests for Slither Rogue game logic (tests 33–38).
+"""test_slither_rogue.py — Tests for Slither Rogue game logic (tests 33–42).
 
 All tests use tests/fixtures/slither_rogue/ — never games/ directly.
 Uses seed=42 throughout for reproducibility.
@@ -95,3 +95,80 @@ def test_calculate_grade_zero_score_returns_hatchling() -> None:
     result = ex.call("calculate_grade", 0, thresholds)
     assert isinstance(result, dict)
     assert result["title"] == "Newborn Hatchling"
+
+
+# ---------------------------------------------------------------------------
+# Shared config helper for init_game / tick_game tests
+# ---------------------------------------------------------------------------
+
+def _make_config(game_duration: float = 300.0) -> dict:
+    arena = dict(FIXTURE_DATA["arena"])
+    arena["num_npcs"] = 2
+    arena["num_fruits"] = 5
+    return {
+        "arena":             arena,
+        "fruit":             FIXTURE_DATA["fruit"],
+        "player_stats":      FIXTURE_DATA["player_stats"],
+        "player_preset":     FIXTURE_DATA["player_presets"][0],
+        "npc_profiles":      FIXTURE_DATA["npc_profiles"],
+        "npc_stats":         FIXTURE_DATA["npc_stats"],
+        "evolution_cards":   FIXTURE_DATA["evolution_cards"],
+        "active_evolutions": {},
+        "game_duration":     game_duration,
+    }
+
+
+_INPUT = {"control_type": "mouse", "mouse_x": 10, "mouse_y": 0, "keys": {}}
+
+
+# ---------------------------------------------------------------------------
+# Test 39 — init_game + tick_game returns render state with player key
+# ---------------------------------------------------------------------------
+
+def test_init_game_sets_global_state() -> None:
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
+    ex.call("init_game", _make_config())
+    result = ex.call("tick_game", 0.016, _INPUT)
+    assert isinstance(result, dict)
+    assert "player" in result
+
+
+# ---------------------------------------------------------------------------
+# Test 40 — tick_game moves player head away from initial spawn
+# ---------------------------------------------------------------------------
+
+def test_tick_game_moves_player() -> None:
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
+    cfg = _make_config()
+    arena = cfg["arena"]
+    initial_x = arena["map_width"] / 2
+    initial_y = arena["map_height"] / 2
+    ex.call("init_game", cfg)
+    result = ex.call("tick_game", 0.25, _INPUT)
+    segs_x = result["player"]["segs_x"]
+    segs_y = result["player"]["segs_y"]
+    assert segs_x[0] != initial_x or segs_y[0] != initial_y
+
+
+# ---------------------------------------------------------------------------
+# Test 41 — tick_game result always contains an events list
+# ---------------------------------------------------------------------------
+
+def test_tick_game_returns_events_list() -> None:
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
+    ex.call("init_game", _make_config())
+    result = ex.call("tick_game", 0.016, _INPUT)
+    assert "events" in result
+    assert isinstance(result["events"], list)
+
+
+# ---------------------------------------------------------------------------
+# Test 42 — game_over event fires when time expires
+# ---------------------------------------------------------------------------
+
+def test_tick_game_game_over_event() -> None:
+    ex = Executor(LUA_SOURCE, seed=42, engine_source=ENGINE_SOURCE)
+    ex.call("init_game", _make_config(game_duration=0.01))
+    result = ex.call("tick_game", 0.1, _INPUT)
+    event_types = [e["type"] for e in result["events"]]
+    assert "game_over" in event_types
