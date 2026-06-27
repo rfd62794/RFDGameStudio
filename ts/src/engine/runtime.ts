@@ -2,8 +2,8 @@ import { GameFiles, GameSession, RuntimeError } from './types';
 import { loadGameFiles } from './loader';
 import { LuaExecutor } from './executor';
 
-export function loadGame(gameId: string, seed: number = 42): GameSession {
-  const files: GameFiles = loadGameFiles(gameId);
+export async function loadGame(gameId: string, seed: number = 42): Promise<GameSession> {
+  const files: GameFiles = await loadGameFiles(gameId);
   const executor = new LuaExecutor(files.logic, seed, files.engineSource);
   return { gameId, files, executor };
 }

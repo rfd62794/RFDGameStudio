@@ -82,12 +82,16 @@ function GameLoader({ gameId }: { gameId: string }) {
   const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const s = loadGame(gameId, 42);
-      setSession(s);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : `Failed to load game: ${gameId}`);
-    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await loadGame(gameId, 42);
+        if (!cancelled) setSession(s);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : `Failed to load game: ${gameId}`);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [gameId]);
 
   if (error) {

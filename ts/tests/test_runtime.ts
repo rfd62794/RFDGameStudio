@@ -106,8 +106,8 @@ function findGame(gameId: string) { return GAME_REGISTRY.find(g => g.gameId === 
 function findGameOrDefault(gameId: string) { return findGame(gameId) ?? GAME_REGISTRY[0]; }
 
 describe('runtime', () => {
-  it('test_runtime_load_game_returns_session', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_runtime_load_game_returns_session', async () => {
+    const session = await loadGame('horse_racing', 42);
     expect(session).toHaveProperty('gameId', 'horse_racing');
     expect(session).toHaveProperty('files');
     expect(session.files).toHaveProperty('data');
@@ -115,32 +115,32 @@ describe('runtime', () => {
     expect(session.files).toHaveProperty('logic');
   });
 
-  it('test_runtime_call_delegates_to_executor', () => {
+  it('test_runtime_call_delegates_to_executor', async () => {
     (lua.lua_type as ReturnType<typeof vi.fn>)
       .mockReturnValueOnce(lua.LUA_TFUNCTION)
       .mockReturnValueOnce(lua.LUA_TNUMBER);
     (lua.lua_tonumber as ReturnType<typeof vi.fn>).mockReturnValue(5);
 
-    const session = loadGame('horse_racing', 42);
+    const session = await loadGame('horse_racing', 42);
     const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue(5);
     const result = call(session, 'clamp', 5, 0, 10);
     expect(callSpy).toHaveBeenCalledWith('clamp', 5, 0, 10);
     expect(result).toBe(5);
   });
 
-  it('test_runtime_get_schema_returns_fields', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_runtime_get_schema_returns_fields', async () => {
+    const session = await loadGame('horse_racing', 42);
     const schema = getSchema(session, 'horse');
     expect(schema).toHaveProperty('stats');
   });
 
-  it('test_runtime_get_schema_missing_throws', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_runtime_get_schema_missing_throws', async () => {
+    const session = await loadGame('horse_racing', 42);
     expect(() => getSchema(session, 'nonexistent_entity')).toThrow(RuntimeError);
   });
 
-  it('test_create_race_via_runtime', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_create_race_via_runtime', async () => {
+    const session = await loadGame('horse_racing', 42);
     const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue([
       { id: 'race_1', name: 'Test Cup', distance: 1200, race_class: 'Maiden',
         prize_pool: 300, prize_split: [0.60, 0.25, 0.15], participants: {} },
@@ -152,8 +152,8 @@ describe('runtime', () => {
     expect(race).toHaveProperty('race_class', 'Maiden');
   });
 
-  it('test_can_unlock_slot_via_runtime', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_can_unlock_slot_via_runtime', async () => {
+    const session = await loadGame('horse_racing', 42);
     const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue([false, 'Insufficient funds (need $500)']);
     const result = call(session, 'can_unlock_slot', 3, 12, 10, 500) as unknown[];
     expect(callSpy).toHaveBeenCalledWith('can_unlock_slot', 3, 12, 10, 500);
@@ -174,16 +174,16 @@ describe('runtime', () => {
     expect(dismissed.emergency_grant_shown).toBe(false);
   });
 
-  it('test_starter_horses_in_data_yaml', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_starter_horses_in_data_yaml', async () => {
+    const session = await loadGame('horse_racing', 42);
     const data = session.files.data as Record<string, unknown>;
     const starters = data['starter_horses'];
     expect(Array.isArray(starters)).toBe(true);
     expect((starters as unknown[]).length).toBe(2);
   });
 
-  it('test_starter_horse_has_required_fields', () => {
-    const session = loadGame('horse_racing', 42);
+  it('test_starter_horse_has_required_fields', async () => {
+    const session = await loadGame('horse_racing', 42);
     const data = session.files.data as Record<string, unknown>;
     const starters = data['starter_horses'] as Array<Record<string, unknown>>;
     const first = starters[0];
