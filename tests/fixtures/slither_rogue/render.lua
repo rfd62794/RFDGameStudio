@@ -17,7 +17,7 @@ function build_render_state(st)
     end
     npcs_out[#npcs_out+1] = {
       id=npc.id, name=npc.name, color=npc.color, head_color=npc.head_color,
-      angle=npc.angle, radius=npc.radius,
+      angle=npc.angle, radius=npc.radius, hunting=npc.hunting or false,
       segs_x=sx, segs_y=sy, segs_a=sa,
     }
   end
