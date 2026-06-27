@@ -36,6 +36,7 @@ export default function App() {
   });
   const [showEvolutionModal, setShowEvolutionModal] = useState(false);
   const [evolutionPool, setEvolutionPool] = useState<EvolutionCard[]>([]);
+  const [restartKey, setRestartKey] = useState(0);
 
   const data = session.files.data as Record<string, unknown>;
   const evolutionCfg = (data['evolution'] as Record<string, unknown>) ?? {};
@@ -60,6 +61,7 @@ export default function App() {
     setLevel(1);
     setIsPaused(false);
     setActiveEvolutions({ speed: 0, magnet: 0, shield: 0, wide: 0, sense: 0, ghost: 0, regen: 0, venom: 0 });
+    setRestartKey(prev => prev + 1);
     setScreen('game');
   };
 
@@ -106,14 +108,7 @@ export default function App() {
 
   const handleGoHome = () => setScreen('menu');
 
-  const speedMultiplier = 1 + (activeEvolutions.speed * 0.15);
-  const magnetismRadius = activeEvolutions.magnet * 60;
   const shieldCharges = activeEvolutions.shield;
-  const wideBodyAdd = activeEvolutions.wide * 3;
-  const fruitSenseRange = activeEvolutions.sense * 200;
-  const ghostTailCount = activeEvolutions.ghost;
-  const tailGrowthLevel = activeEvolutions.regen;
-  const venomTrailLevel = activeEvolutions.venom;
 
   return (
     <div className="sr-shell">
@@ -139,33 +134,22 @@ export default function App() {
             activeEvolutions={activeEvolutions}
           />
 
-          <div className="sr-canvas-wrap">
-            <GameCanvas
-              session={session}
-              controlType={controlType}
-              playerColor={playerColor}
-              playerHeadColor={playerHeadColor}
-              gameDuration={gameDuration}
-              isPaused={isPaused}
-              onFruitEaten={handleFruitEaten}
-              onUpdateMetrics={(metrics) => {
-                setCurrentLength(metrics.currentLength);
-                setPeakLength(metrics.peakLength);
-                setScore(metrics.score);
-              }}
-              onGameOver={handleGameOver}
-              onTick={setTimeLeft}
-              speedMultiplier={speedMultiplier}
-              magnetismRadius={magnetismRadius}
-              shieldCharges={shieldCharges}
-              onShieldConsumed={handleShieldConsumed}
-              wideBodyAdd={wideBodyAdd}
-              fruitSenseRange={fruitSenseRange}
-              ghostTailCount={ghostTailCount}
-              tailGrowthLevel={tailGrowthLevel}
-              venomTrailLevel={venomTrailLevel}
-            />
-          </div>
+          <GameCanvas
+            key={restartKey}
+            session={session}
+            controlType={controlType}
+            isPaused={isPaused}
+            activeEvolutions={activeEvolutions}
+            onFruitEaten={handleFruitEaten}
+            onUpdateMetrics={(metrics) => {
+              setCurrentLength(metrics.currentLength);
+              setPeakLength(metrics.peakLength);
+              setScore(metrics.score);
+            }}
+            onGameOver={handleGameOver}
+            onTick={setTimeLeft}
+            onShieldConsumed={handleShieldConsumed}
+          />
 
           {isPaused && !showEvolutionModal && (
             <div className="sr-pause-overlay">
