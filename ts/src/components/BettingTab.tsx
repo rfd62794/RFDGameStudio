@@ -8,6 +8,8 @@ interface Props {
   funds: number;
   horses: Horse[];
   unlockedSlots: number;
+  lastRaceNetPayout: number | null;
+  lastRaceBets: Bet[];
   session: GameSession;
   onNewRace: () => void;
   onSkipRace: () => void;
@@ -21,7 +23,7 @@ interface HorseBets {
   show: number;
 }
 
-export default function BettingTab({ race, funds, horses, unlockedSlots, session, onNewRace, onSkipRace, onStartRace, onPurchaseStarter }: Props) {
+export default function BettingTab({ race, funds, horses, unlockedSlots, lastRaceNetPayout, lastRaceBets, session, onNewRace, onSkipRace, onStartRace, onPurchaseStarter }: Props) {
   const [betEntries, setBetEntries] = useState<Record<string, HorseBets>>({});
   const [simulated, setSimulated] = useState(false);
 
@@ -281,7 +283,49 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, session
           </div>
         )}
 
-        {isCompleted && (
+        {isCompleted && lastRaceNetPayout !== null && (
+          <div className="bet-panel">
+            <h3 style={{ marginBottom: '0.6rem' }}>Bet Results</h3>
+            {lastRaceBets.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No bets placed.</div>
+            ) : (
+              lastRaceBets.map((b, i) => {
+                const p = race.participants.find(x => x.horse.id === b.horse_id);
+                const finished = p?.final_rank;
+                const won =
+                  (b.type === 'Win' && finished === 1) ||
+                  (b.type === 'Place' && finished != null && finished <= 2) ||
+                  (b.type === 'Show' && finished != null && finished <= 3);
+                return (
+                  <div key={i} className="bet-row">
+                    <span className="horse-name-short">{b.horse_name}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.type}</span>
+                    <span className="odds-badge">{b.payout_odds.toFixed(2)}x</span>
+                    <span style={{ color: 'var(--yellow)' }}>${b.amount}</span>
+                    <span style={{ marginLeft: 'auto', fontWeight: 700, color: won ? 'var(--green)' : 'var(--red)' }}>
+                      {won ? `+$${Math.floor(b.amount * b.payout_odds)}` : '✗'}
+                    </span>
+                  </div>
+                );
+              })
+            )}
+            <div style={{
+              marginTop: '0.75rem',
+              paddingTop: '0.5rem',
+              borderTop: '1px solid var(--border)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+            }}>
+              <span>Net Payout</span>
+              <span style={{ color: lastRaceNetPayout >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                {lastRaceNetPayout >= 0 ? '+' : ''}{lastRaceNetPayout.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        )}
+        {isCompleted && lastRaceNetPayout === null && (
           <div className="bet-panel">
             <h2>Going to Track</h2>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>

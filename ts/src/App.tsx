@@ -108,6 +108,8 @@ export default function App() {
   const [isRacingActive, setIsRacingActive] = useState(false);
   const [pendingBets, setPendingBets] = useState<Bet[]>([]);
   const [pendingNetPayout, setPendingNetPayout] = useState(0);
+  const [lastRaceNetPayout, setLastRaceNetPayout] = useState<number | null>(null);
+  const [lastRaceBets, setLastRaceBets] = useState<Bet[]>([]);
   const [unlockedSlots, setUnlockedSlots] = useState(3);
   const [ticker, setTicker] = useState(0);
 
@@ -238,11 +240,13 @@ export default function App() {
   }, [session, gameState]);
 
   const handleCloseRaceTrack = useCallback((_results: RaceResult[]) => {
+    setLastRaceNetPayout(pendingNetPayout);
+    setLastRaceBets(pendingBets);
     handleRaceComplete(_results, pendingNetPayout, pendingBets);
     setIsRacingActive(false);
     setPendingBets([]);
     setPendingNetPayout(0);
-    setActiveTab('stable');
+    setActiveTab('betting');
   }, [handleRaceComplete, pendingNetPayout, pendingBets]);
 
   const handleRenameHorse = useCallback((id: string, newName: string) => {
@@ -447,8 +451,10 @@ export default function App() {
                 funds={gameState.funds}
                 horses={gameState.horses}
                 unlockedSlots={unlockedSlots}
-                onNewRace={handleNewRace}
-                onSkipRace={handleSkipRace}
+                lastRaceNetPayout={lastRaceNetPayout}
+                lastRaceBets={lastRaceBets}
+                onNewRace={() => { setLastRaceNetPayout(null); setLastRaceBets([]); handleNewRace(); }}
+                onSkipRace={() => { setLastRaceNetPayout(null); setLastRaceBets([]); handleSkipRace(); }}
                 onStartRace={handleStartRace}
                 onPurchaseStarter={handlePurchaseStarter}
                 session={session}
