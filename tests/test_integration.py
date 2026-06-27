@@ -75,6 +75,35 @@ def test_horse_racing_can_unlock_slot_requires_sufficient_funds() -> None:
     result, reason = session.executor.call('can_unlock_slot', 3, 6, 10, 100)
     assert result is False
 
+def test_horse_racing_create_ai_race_sets_ai_only_flag() -> None:
+    """create_ai_race returns a race with ai_only = true and full AI field."""
+    session = load_game('horse_racing', seed=42)
+    data = session.files.data
+    race_class = data.get('race_classes', [{}])[0]
+
+    race, err = session.executor.call('create_ai_race', race_class, data)
+    assert err is None
+    assert race is not None
+    assert race.get('ai_only') is True
+    assert race.get('participants') is not None
+
+def test_horse_racing_create_ai_race_odds_are_valid() -> None:
+    """create_ai_race calculates valid odds for all AI participants."""
+    session = load_game('horse_racing', seed=42)
+    data = session.files.data
+    race_class = data.get('race_classes', [{}])[0]
+
+    race, err = session.executor.call('create_ai_race', race_class, data)
+    assert err is None
+    assert race is not None
+
+    participants = race.get('participants', {})
+    for p in participants.values():
+        odds = p.get('odds')
+        assert odds is not None
+        assert odds > 0
+        assert odds < 100  # reasonable upper bound
+
 # ── SLITHER ROGUE ────────────────────────────────────────────────────────────
 
 def _make_slither_config(data: dict, duration: float = 300) -> dict:

@@ -182,9 +182,10 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
 /* ── Back button + loading/error states ───────────────── */
 
 .arcade-back-btn {
-  position: fixed;
-  top: var(--space-4);
-  left: var(--space-4);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--muted);
@@ -192,8 +193,8 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
   cursor: pointer;
-  z-index: 1000;
   transition: color 0.15s, border-color 0.15s;
+  text-decoration: none;
 }
 
 .arcade-back-btn:hover {
@@ -202,8 +203,33 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
 }
 
 .arcade-game-wrap {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
+}
+
+.arcade-game-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  height: 40px;
+}
+
+.arcade-game-nav-title {
+  font-size: var(--font-size-sm);
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.arcade-game-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
 }
 
 .arcade-loading,

@@ -97,7 +97,10 @@ function GameLoader({ gameId }: { gameId: string }) {
   if (error) {
     return (
       <div className="arcade-error">
-        <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+        <div className="arcade-game-nav">
+          <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+          <span className="arcade-game-nav-title">{gameId}</span>
+        </div>
         <div className="arcade-error-box">
           <strong>Studio Error</strong>
           <p>{error}</p>
@@ -110,7 +113,10 @@ function GameLoader({ gameId }: { gameId: string }) {
   if (!session) {
     return (
       <div className="arcade-loading">
-        <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+        <div className="arcade-game-nav">
+          <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+          <span className="arcade-game-nav-title">{gameId}</span>
+        </div>
         <span>Loading {gameId}…</span>
       </div>
     );
@@ -121,14 +127,19 @@ function GameLoader({ gameId }: { gameId: string }) {
 
   return (
     <div className="arcade-game-wrap">
-      <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
-      <React.Suspense
-        fallback={
-          <div className="arcade-loading">Loading renderer…</div>
-        }
-      >
-        <GameApp session={session} />
-      </React.Suspense>
+      <div className="arcade-game-nav">
+        <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
+        <span className="arcade-game-nav-title">{config.label}</span>
+      </div>
+      <div className="arcade-game-content">
+        <React.Suspense
+          fallback={
+            <div className="arcade-loading">Loading renderer…</div>
+          }
+        >
+          <GameApp session={session} />
+        </React.Suspense>
+      </div>
     </div>
   );
 }

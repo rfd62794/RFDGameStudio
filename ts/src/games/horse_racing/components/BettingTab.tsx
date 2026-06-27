@@ -221,6 +221,21 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
         </div>
       </div>
 
+      {race.ai_only && (
+        <div style={{
+          padding: '0.75rem 1rem',
+          background: 'rgba(251,191,36,0.12)',
+          border: '1px solid rgba(251,191,36,0.3)',
+          borderRadius: '6px',
+          marginBottom: '1rem',
+          fontSize: '0.85rem',
+          color: 'var(--yellow)',
+          fontWeight: 600,
+        }}>
+          🏇 AI-Only Race — Your horse is resting. You can still bet on the field.
+        </div>
+      )}
+
       <div className="race-panel">
         <div>
           <div className="race-info">

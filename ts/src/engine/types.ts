@@ -83,6 +83,7 @@ export interface CurrentRace {
   participants: RaceParticipant[];
   status: 'scheduled' | 'running' | 'completed';
   results?: RaceResult[];
+  ai_only?: boolean;
 }
 
 export interface RaceHistoryEntry {

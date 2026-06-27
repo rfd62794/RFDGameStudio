@@ -1,6 +1,95 @@
 /* games/horse_racing/styles.css — Horse Racing game-specific styles.
    Depends on tokens.css and base.css. */
 
+/* ── Calendar Tab ───────────────────────────────────────────────────────── */
+
+.calendar-wrap {
+  padding: 1rem;
+}
+
+.calendar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.calendar-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.calendar-header-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 70px 120px 100px;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  padding: 0 0.75rem;
+  text-transform: uppercase;
+}
+
+.calendar-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 70px 120px 100px;
+  gap: 0.5rem;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.calendar-row.eligible-ready  { border-left: 3px solid var(--green); }
+.calendar-row.eligible-resting { border-left: 3px solid var(--yellow); }
+.calendar-row.ineligible       { opacity: 0.45; }
+
+.cal-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.cal-badge--ready   { background: rgba(52,211,153,0.15); color: var(--green); }
+.cal-badge--resting { background: rgba(251,191,36,0.15);  color: var(--yellow); }
+.cal-badge--locked  { background: rgba(138,143,168,0.1);  color: var(--muted); }
+
+.cal-enter-btn {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: rgba(108,142,247,0.12);
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cal-enter-btn:hover { background: rgba(108,142,247,0.22); }
+
+.cal-enter-btn.ai-only {
+  border-color: var(--yellow);
+  background: rgba(251,191,36,0.1);
+  color: var(--yellow);
+}
+
+/* When rendered inside arcade-game-content, use 100% height */
+.arcade-game-content .app-root {
+  height: 100%;
+}
+
 .app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);

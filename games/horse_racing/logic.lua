@@ -133,6 +133,87 @@ function can_unlock_slot(current_slots, max_slots, funds, unlock_cost)
 end
 
 -- ============================================================
+-- AI-ONLY RACE CREATION
+-- ============================================================
+
+-- Create a race with no player horse — full AI field.
+-- Used when the player's horse is resting or ineligible.
+-- Player can still bet on any participant.
+-- Returns same format as create_race, with ai_only = true.
+--
+-- race_class: one entry from data.race_classes
+-- data: full data.yaml parsed table
+function create_ai_race(race_class, data)
+  local distances  = data.race_distances
+  local venues     = data.race_venues
+  local types      = data.race_types
+  local coat_colors = data.coat_colors
+  local silk_colors = data.silk_colors
+  local prefixes   = data.name_prefixes
+  local suffixes   = data.name_suffixes
+  local field_size = (data.race and data.race.field_size) or 6
+
+  local dist_entry = distances[math.random(#distances)]
+  local venue      = venues[math.random(#venues)]
+  local race_type  = types[math.random(#types)]
+  local race_name  = venue .. " " .. race_type
+
+  local npc_min  = race_class.stat_min or 10
+  local npc_max  = race_class.stat_max or 100
+  local npc_opts = { min_stat=npc_min, max_stat=npc_max,
+                     generation=1, player_owned=false }
+
+  local participants = {}
+  for i = 1, field_size do
+    local npc = generate_horse(npc_opts, coat_colors, silk_colors,
+                               prefixes, suffixes)
+    table.insert(participants, {
+      horse            = npc,
+      gate             = i,
+      odds             = 0,
+      progress         = 0,
+      current_distance = 0,
+      current_speed    = 0,
+      energy           = 100,
+      is_finished      = false,
+    })
+  end
+
+  -- Calculate odds for the full AI field
+  local horse_stats = {}
+  for _, p in ipairs(participants) do
+    table.insert(horse_stats, {
+      speed        = p.horse.speed,
+      stamina      = p.horse.stamina,
+      acceleration = p.horse.acceleration,
+      temperament  = p.horse.temperament,
+    })
+  end
+  local odds_arr = calculate_odds(horse_stats, dist_entry.meters)
+  for i, p in ipairs(participants) do
+    p.odds = odds_arr[i] or 4.0
+  end
+
+  local prize_split = race_class.prize_split or {0.60, 0.25, 0.15}
+
+  return {
+    id          = "race_" .. tostring(math.random(100000, 999999)),
+    name        = race_name,
+    description = (race_class.name or "Race") .. " \xc2\xb7 " ..
+                  tostring(dist_entry.meters) .. "m \xc2\xb7 Prize $" ..
+                  tostring(race_class.prize_pool or 0),
+    distance    = dist_entry.meters,
+    race_class  = race_class.name or "Unknown",
+    prize_pool  = race_class.prize_pool or 0,
+    prize_split = prize_split,
+    entry_fee   = race_class.fee or 0,
+    participants = participants,
+    status      = "scheduled",
+    ai_only     = true,
+  }, nil
+end
+
+-- ============================================================
 -- RACE SIMULATION (single tick)
 -- ============================================================
 

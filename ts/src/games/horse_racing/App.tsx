@@ -47,6 +47,39 @@ function luaHorseToTs(raw: Record<string, unknown>): Horse {
   };
 }
 
+function luaRaceToTs(raw: Record<string, unknown>): CurrentRace {
+  const rawParticipants = Object.values(
+    raw['participants'] as Record<string, unknown>
+  ) as Array<Record<string, unknown>>;
+
+  const participants = rawParticipants.map((p, i) => ({
+    horse: luaHorseToTs({
+      ...(p['horse'] as Record<string, unknown>),
+      player_owned: false,
+    }),
+    gate: (p['gate'] as number) ?? i + 1,
+    odds: (p['odds'] as number) ?? 4.0,
+    progress: 0,
+    current_distance: 0,
+    current_speed: 0,
+    energy: 100,
+    is_finished: false,
+  }));
+
+  return {
+    id: raw['id'] as string,
+    name: raw['name'] as string,
+    description: raw['description'] as string,
+    distance: raw['distance'] as number,
+    race_class: raw['race_class'] as string,
+    prize_pool: raw['prize_pool'] as number,
+    prize_split: Object.values(raw['prize_split'] as Record<string, number>),
+    participants,
+    status: 'scheduled',
+    ai_only: raw['ai_only'] as boolean ?? false,
+  };
+}
+
 function buildInitialState(session: GameSession): GameState {
   const data = session.files.data as Record<string, unknown>;
   const stable = data['stable'] as Record<string, unknown>;
@@ -165,6 +198,24 @@ export default function App({ session }: GameRendererProps) {
 
   const handleNewRace = useCallback((horseId?: string) => {
     if (!session || !gameState) return;
+
+    const playerHorses = gameState.horses.filter(h => h.player_owned);
+    const target = horseId
+      ? playerHorses.find(h => h.id === horseId)
+      : playerHorses.find(h => (h.cooldown_until ?? 0) < Date.now())
+        ?? playerHorses[0];
+
+    if (!target) {
+      _buildAiOnlyRace();
+      return;
+    }
+
+    const isResting = (target.cooldown_until ?? 0) > Date.now();
+    if (isResting) {
+      _buildAiOnlyRace(target);
+      return;
+    }
+
     try {
       const race = buildRace(session, gameState.horses, horseId);
       setGameState(prev => prev ? { ...prev, current_race: race } : prev);
@@ -176,11 +227,53 @@ export default function App({ session }: GameRendererProps) {
 
   const handleSkipRace = useCallback((horseId?: string) => {
     if (!session || !gameState) return;
+
+    const playerHorses = gameState.horses.filter(h => h.player_owned);
+    const target = horseId
+      ? playerHorses.find(h => h.id === horseId)
+      : playerHorses.find(h => (h.cooldown_until ?? 0) < Date.now())
+        ?? playerHorses[0];
+
+    if (!target) {
+      _buildAiOnlyRace();
+      return;
+    }
+
+    const isResting = (target.cooldown_until ?? 0) > Date.now();
+    if (isResting) {
+      _buildAiOnlyRace(target);
+      return;
+    }
+
     try {
       const race = buildRace(session, gameState.horses, horseId);
       setGameState(prev => prev ? { ...prev, current_race: race } : prev);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [session, gameState]);
+
+  const _buildAiOnlyRace = useCallback((forHorse?: Horse) => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const raceClasses = data['race_classes'] as Array<Record<string, unknown>>;
+
+    let raceClass = raceClasses[0];
+    if (forHorse) {
+      const avg = (forHorse.speed + forHorse.stamina +
+                   forHorse.acceleration + forHorse.temperament) / 4;
+      raceClass = raceClasses.find(rc =>
+        avg >= (rc['stat_min'] as number) && avg <= (rc['stat_max'] as number)
+      ) ?? raceClasses[0];
+    }
+
+    const result = call(session, 'create_ai_race', raceClass, data) as [Record<string, unknown>, string | null];
+    const [race] = result;
+    if (race) {
+      setGameState(prev => prev ? {
+        ...prev,
+        current_race: { ...luaRaceToTs(race), ai_only: true },
+      } : prev);
     }
   }, [session, gameState]);
 
@@ -213,6 +306,22 @@ export default function App({ session }: GameRendererProps) {
 
     setGameState(prev => {
       if (!prev) return prev;
+
+      // AI-only race: skip career updates, only settle bets
+      if (race.ai_only) {
+        let next = {
+          ...prev,
+          funds: prev.funds + netPayout,
+          current_race: { ...race, status: 'completed' as const, results },
+          race_history: [entry, ...prev.race_history],
+        };
+        if (next.funds < 50 && next.horses.filter(h => h.player_owned).length === 0) {
+          next = { ...next, funds: next.funds + 250, emergency_grant_shown: true };
+        }
+        return next;
+      }
+
+      // Normal race: update horse career stats
       const horseEarnings: Record<string, number> = {};
       results.forEach(r => { if (r.player_owned) horseEarnings[r.horse_id] = r.payout; });
 
