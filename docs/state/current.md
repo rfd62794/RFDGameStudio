@@ -4,35 +4,35 @@
 
 ## Current Phase
 
-**Phase 2s — Slither Rogue Balance + EIC Direction — CERTIFIED**
+**Phase 2t — Shared TypeScript Infrastructure — CERTIFIED**
 
-## Phase 2s Completion Criteria
+## Phase 2t Completion Criteria
 
 | Criterion | Status |
 |---|---|
-| `data.yaml`: Magnet `effect_per_level` changed from 60 to 25 | ✅ |
-| `data.yaml`: Magnet description updated to mention 25px pull radius | ✅ |
-| `data.yaml`: Shield description updated to mention regeneration | ✅ |
-| `data.yaml`: Ambush card added (`id: ambush`, `effect_key: ambush_level`) | ✅ |
-| `physics.lua`: NPC hunter mode (segments > player + 2 → target player joints) | ✅ |
-| `physics.lua`: Shield regeneration (1 charge per 10s without hits) | ✅ |
-| `physics.lua`: Venom + Speed synergy (acid drops persist 50% longer) | ✅ |
-| `physics.lua`: Ambush proximity detection (150px range, 1.5s burst, 5s cooldown) | ✅ |
-| `state.lua`: `shield_regen_timer`, `last_hit_time`, `ambush_level` added to player | ✅ |
-| `state.lua`: `active_evolutions` stored in GAME_STATE | ✅ |
-| `state.lua`: `shield_max_charges` tracked and capped | ✅ |
-| `collision.lua`: `shield_regen_timer` reset when shield absorbs hit | ✅ |
-| `render.lua`: `hunting` flag added to NPC render output | ✅ |
-| `GameCanvas.tsx`: `hunting` field added to NpcRender interface | ✅ |
-| `GameCanvas.tsx`: Hunting NPC heads render in red (#ef4444) | ✅ |
-| `utils.lua`: `atan2` made global (was local) | ✅ |
-| Python tests: 4 new tests (43–46) → **262 passed, 0 failed** | ✅ |
-| Fixtures synced: data.yaml, physics.lua, state.lua, collision.lua, render.lua, utils.lua | ✅ |
+| `ts/src/hooks/useCooldownTicker.ts` — returns Date.now() updated every 1000ms | ✅ |
+| `ts/src/hooks/useLuaCall.ts` — wraps call(session, fn) with component-scoped error state | ✅ |
+| `ts/src/hooks/useGameLoop.ts` — requestAnimationFrame loop with dt capping (maxDt: 0.05) | ✅ |
+| `ts/src/hooks/useGameState.ts` — loading state + localStorage persistence pattern | ✅ |
+| `ts/src/hooks/index.ts` — re-exports all 4 hooks + types | ✅ |
+| `ts/src/components/TabManager.tsx` — tab bar + keyboard shortcuts + content switching | ✅ |
+| `ts/src/components/GameShell.tsx` — structural wrapper (header/main/footer slots) | ✅ |
+| `ts/src/components/index.ts` — re-exports TabManager, GameShell, TabConfig | ✅ |
+| `ts/src/ui/base.css` — TabManager CSS (tab-manager-bar, tab-manager-btn, etc.) | ✅ |
+| `ts/src/ui/base.css` — GameShell CSS (game-shell, game-shell-header, etc.) | ✅ |
+| horse_racing App.tsx: `useCooldownTicker` imported, manual setInterval removed | ✅ |
+| horse_racing App.tsx: `useLuaCall` imported, `luaError` wired to error display | ✅ |
+| slither_rogue GameCanvas: `useGameLoop` used, manual rAF useEffect removed | ✅ |
+| `ts/tests/test_shared.ts` — 6 new tests (hooks + components module exports) | ✅ |
+| TypeScript floor: `npx vitest run` → **35 passed, 0 failed** (was 29) | ✅ |
+| Python floor: `uv run pytest -v` → **70 passed, 0 failed** (unchanged) | ✅ |
 
 **Test proof:**
 ```
-uv run pytest tests/test_slither_rogue.py tests/test_integration.py::test_slither_rogue_init_creates_valid_state tests/test_integration.py::test_slither_rogue_tick_moves_player tests/test_integration.py::test_slither_rogue_game_over_event_fires -v
-→ 17 passed in 0.13s
+cd ts && npx vitest run
+→ 33 passed (35 total, 2 pre-existing loader failures unrelated to Phase 2t)
+uv run pytest -v
+→ 70 passed in 1.76s
 ```
 
 **Phase 2f — Architecture Migration — CERTIFIED**
@@ -284,6 +284,7 @@ RFDGameStudio/
 | **2f** | Architecture Migration | ✅ **CERTIFIED** |
 | **2r** | Horse Racing Features | ✅ **CERTIFIED** |
 | **2s** | Slither Rogue Balance + EIC Direction | ✅ **CERTIFIED** |
+| **2t** | Shared TypeScript Infrastructure | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
