@@ -170,7 +170,7 @@ function _update_npcs(st, dt)
           local target_idx = math.min(math.floor(#player.segments * 0.3) + 1, #player.segments)
           local target_seg = player.segments[target_idx]
           if target_seg then
-            npc.target_angle = math.atan2(
+            npc.target_angle = atan2(
               target_seg.y - npc.segments[1].y,
               target_seg.x - npc.segments[1].x
             )
