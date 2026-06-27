@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy, Coins } from 'lucide-react';
 import { loadGame, call, getSchema } from './engine/runtime';
 import type { GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from './engine/types';
 import { RuntimeError } from './engine/types';
@@ -9,6 +11,14 @@ import RaceTrack from './components/RaceTrack';
 
 const SEED = 42;
 const GAME_ID = 'horse_racing';
+const SAVE_KEY = 'derby_sim_state_v1';
+
+const safeGetStorage = (key: string): string | null => {
+  try { return localStorage.getItem(key); } catch { return null; }
+};
+const safeSetStorage = (key: string, value: string): void => {
+  try { localStorage.setItem(key, value); } catch { }
+};
 
 function luaHorseToTs(raw: Record<string, unknown>): Horse {
   return {
@@ -38,19 +48,9 @@ function luaHorseToTs(raw: Record<string, unknown>): Horse {
 function buildInitialState(session: GameSession): GameState {
   const data = session.files.data as Record<string, unknown>;
   const stable = data['stable'] as Record<string, unknown>;
-  const funds = (stable['starting_funds'] as number) ?? 3000;
-
-  const prefixes = data['name_prefixes'];
-  const suffixes = data['name_suffixes'];
-  const coatColors = data['coat_colors'];
-  const silkColors = data['silk_colors'];
-  const options = { min_stat: 30, max_stat: 70, generation: 1, player_owned: true };
-
-  const horses: Horse[] = [];
-  for (let i = 0; i < 3; i++) {
-    const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
-    horses.push(luaHorseToTs({ ...raw, player_owned: true }));
-  }
+  const funds = (stable['starting_funds'] as number) ?? 1000;
+  const starterHorses = data['starter_horses'] as Array<Record<string, unknown>>;
+  const horses: Horse[] = (starterHorses ?? []).map(h => luaHorseToTs(h));
   return { funds, horses, current_race: null, race_history: [], emergency_grant_shown: false };
 }
 
@@ -106,19 +106,60 @@ export default function App() {
   const [pendingBets, setPendingBets] = useState<Bet[]>([]);
   const [pendingNetPayout, setPendingNetPayout] = useState(0);
   const [unlockedSlots, setUnlockedSlots] = useState(3);
+  const [ticker, setTicker] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setTicker(prev => prev + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     try {
       const s = loadGame(GAME_ID, SEED);
       setSession(s);
-      const initial = buildInitialState(s);
       const stableCfg = (s.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
-      setUnlockedSlots((stableCfg['starting_slots'] as number) ?? 3);
-      setGameState(initial);
+      const defaultSlots = (stableCfg['starting_slots'] as number) ?? 3;
+
+      const saved = safeGetStorage(SAVE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as {
+            funds: number;
+            horses: Horse[];
+            race_history: RaceHistoryEntry[];
+            unlocked_slots: number;
+          };
+          if (Array.isArray(parsed.horses) && parsed.horses.length > 0) {
+            setUnlockedSlots(parsed.unlocked_slots ?? defaultSlots);
+            setGameState({
+              funds: parsed.funds,
+              horses: parsed.horses,
+              current_race: null,
+              race_history: parsed.race_history ?? [],
+              emergency_grant_shown: false,
+            });
+            return;
+          }
+        } catch {
+          // invalid save — fall through
+        }
+      }
+      setUnlockedSlots(defaultSlots);
+      setGameState(buildInitialState(s));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   }, []);
+
+  useEffect(() => {
+    if (!gameState) return;
+    safeSetStorage(SAVE_KEY, JSON.stringify({
+      funds: gameState.funds,
+      horses: gameState.horses,
+      race_history: gameState.race_history,
+      unlocked_slots: unlockedSlots,
+    }));
+  }, [gameState, unlockedSlots]);
 
   const handleNewRace = useCallback(() => {
     if (!session || !gameState) return;
@@ -126,6 +167,16 @@ export default function App() {
       const race = buildRace(session, gameState.horses);
       setGameState(prev => prev ? { ...prev, current_race: race } : prev);
       setActiveTab('betting');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [session, gameState]);
+
+  const handleSkipRace = useCallback(() => {
+    if (!session || !gameState) return;
+    try {
+      const race = buildRace(session, gameState.horses);
+      setGameState(prev => prev ? { ...prev, current_race: race } : prev);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -190,6 +241,50 @@ export default function App() {
     setPendingNetPayout(0);
     setActiveTab('stable');
   }, [handleRaceComplete, pendingNetPayout, pendingBets]);
+
+  const handleRenameHorse = useCallback((id: string, newName: string) => {
+    setGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        horses: prev.horses.map(h => h.id === id ? { ...h, name: newName.trim() } : h),
+      };
+    });
+  }, []);
+
+  const handleSellHorse = useCallback((id: string) => {
+    if (!session || !gameState) return;
+    const horse = gameState.horses.find(h => h.id === id);
+    if (!horse) return;
+    const price = call(session, 'calculate_horse_price', horse) as number;
+    setGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        funds: prev.funds + price,
+        horses: prev.horses.filter(h => h.id !== id),
+      };
+    });
+  }, [session, gameState]);
+
+  const handlePurchaseStarter = useCallback((gender: 'Stallion' | 'Mare', price: number) => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const stable = (data['stable'] as Record<string, unknown>) ?? {};
+    const minStat = (stable['starter_min_stat'] as number) ?? 35;
+    const maxStat = (stable['starter_max_stat'] as number) ?? 55;
+    const prefixes = data['name_prefixes'];
+    const suffixes = data['name_suffixes'];
+    const coatColors = data['coat_colors'];
+    const silkColors = data['silk_colors'];
+    const options = { min_stat: minStat, max_stat: maxStat, generation: 1, player_owned: true, gender };
+    const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
+    const horse = luaHorseToTs({ ...raw, player_owned: true, id: `horse_${Date.now()}` });
+    setGameState(prev => {
+      if (!prev) return prev;
+      return { ...prev, funds: prev.funds - price, horses: [...prev.horses, horse] };
+    });
+  }, [session, gameState]);
 
   const handleAddOffspring = useCallback((foal: Horse, cost: number) => {
     if (!session || !gameState) return;
