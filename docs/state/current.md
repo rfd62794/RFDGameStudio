@@ -4,35 +4,42 @@
 
 ## Current Phase
 
-**Phase 2t — Shared TypeScript Infrastructure — CERTIFIED**
+**Phase 2u — PyGame Universal Renderer — CERTIFIED**
 
-## Phase 2t Completion Criteria
+## Phase 2u Completion Criteria
 
 | Criterion | Status |
 |---|---|
-| `ts/src/hooks/useCooldownTicker.ts` — returns Date.now() updated every 1000ms | ✅ |
-| `ts/src/hooks/useLuaCall.ts` — wraps call(session, fn) with component-scoped error state | ✅ |
-| `ts/src/hooks/useGameLoop.ts` — requestAnimationFrame loop with dt capping (maxDt: 0.05) | ✅ |
-| `ts/src/hooks/useGameState.ts` — loading state + localStorage persistence pattern | ✅ |
-| `ts/src/hooks/index.ts` — re-exports all 4 hooks + types | ✅ |
-| `ts/src/components/TabManager.tsx` — tab bar + keyboard shortcuts + content switching | ✅ |
-| `ts/src/components/GameShell.tsx` — structural wrapper (header/main/footer slots) | ✅ |
-| `ts/src/components/index.ts` — re-exports TabManager, GameShell, TabConfig | ✅ |
-| `ts/src/ui/base.css` — TabManager CSS (tab-manager-bar, tab-manager-btn, etc.) | ✅ |
-| `ts/src/ui/base.css` — GameShell CSS (game-shell, game-shell-header, etc.) | ✅ |
-| horse_racing App.tsx: `useCooldownTicker` imported, manual setInterval removed | ✅ |
-| horse_racing App.tsx: `useLuaCall` imported, `luaError` wired to error display | ✅ |
-| slither_rogue GameCanvas: `useGameLoop` used, manual rAF useEffect removed | ✅ |
-| `ts/tests/test_shared.ts` — 6 new tests (hooks + components module exports) | ✅ |
-| TypeScript floor: `npx vitest run` → **35 passed, 0 failed** (was 29) | ✅ |
-| Python floor: `uv run pytest -v` → **70 passed, 0 failed** (unchanged) | ✅ |
+| `renderers/pygame/components.py` — draw_circle, draw_glow, draw_snake, draw_overlay, draw_card, draw_centered_text | ✅ |
+| `renderers/pygame/components.py` — _hex_to_rgb helper for hex color conversion | ✅ |
+| `renderers/pygame/engine.py` — game_scale, game_offset fields for coordinate transform | ✅ |
+| `renderers/pygame/engine.py` — to_screen(gx, gy) converts game-space to screen pixels | ✅ |
+| `renderers/pygame/engine.py` — scale_radius(r) scales game-space radius to screen space | ✅ |
+| `renderers/pygame/games/slither_rogue/__init__.py` — package init | ✅ |
+| `renderers/pygame/games/slither_rogue/renderer.py` — full SlitherRogueRenderer (menu, game, gameover, evolution overlay) | ✅ |
+| SlitherRogueRenderer: arena scale fits 2600×2600 into 1024×700 game area (scale ≈ 0.269) | ✅ |
+| SlitherRogueRenderer: _start_game() calls init_game(config) once | ✅ |
+| SlitherRogueRenderer: update(dt) calls tick_game(dt, input) every frame (real-time pattern) | ✅ |
+| SlitherRogueRenderer: WASD controls, evolution selection, hunting NPC red heads | ✅ |
+| `renderers/pygame/main.py` — slither_rogue registered in AVAILABLE_GAMES | ✅ |
+| `tests/test_pygame_renderer.py` — 4 new tests (74 total) | ✅ |
+| Python floor: `uv run pytest -v` → **74 passed, 0 failed** (was 70) | ✅ |
+| TypeScript floor: `npx vitest run` → **35 passed, 0 failed** (unchanged) | ✅ |
+| Proof: `grep tick_game\|init_game renderers/pygame/games/slither_rogue/` → init_game once, tick_game once | ✅ |
 
 **Test proof:**
 ```
+uv run pytest -v
+→ 74 passed in 1.69s
 cd ts && npx vitest run
 → 35 passed, 0 failed
-uv run pytest -v
-→ 70 passed in 1.76s
+```
+
+**Port-Engine pattern proof:**
+```
+grep tick_game\|init_game renderers/pygame/games/slither_rogue/
+→ Line 152: init_game (in _start_game)
+→ Line 217: tick_game (in update)
 ```
 
 **Phase 2f — Architecture Migration — CERTIFIED**
@@ -285,6 +292,7 @@ RFDGameStudio/
 | **2r** | Horse Racing Features | ✅ **CERTIFIED** |
 | **2s** | Slither Rogue Balance + EIC Direction | ✅ **CERTIFIED** |
 | **2t** | Shared TypeScript Infrastructure | ✅ **CERTIFIED** |
+| **2u** | PyGame Universal Renderer | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
