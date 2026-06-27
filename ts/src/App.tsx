@@ -359,27 +359,48 @@ export default function App() {
   }
 
   return (
-    <>
-      <header className="app-header">
-        <span className="title">
-          <strong>{(session.files.data as Record<string, unknown>)['game']
-            ? ((session.files.data as Record<string, unknown>)['game'] as Record<string, unknown>)['name'] as string
-            : 'Derby Sim'}</strong>
-        </span>
-        <span className="funds">${gameState.funds.toLocaleString()}</span>
+    <div className="app-shell">
+      <header className="app-header-styled">
+        <div className="header-brand">
+          <div className="header-logo"><Trophy size={18} /></div>
+          <div>
+            <div className="header-title">DERBY SIM <span className="header-version">v1.2</span></div>
+            <div className="header-subtitle">CHAMPIONSHIP SEASON • RACING &amp; BREEDING</div>
+          </div>
+        </div>
+
+        {!isRacingActive && (
+          <nav className="header-tabs">
+            {tabs.map(t => (
+              <button key={t['id'] as string}
+                className={`header-tab-btn${activeTab === t['id'] ? ' active' : ''}`}
+                onClick={() => setActiveTab(t['id'] as string)}>
+                {t['label'] as string}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        <div className="header-bank">
+          <div className="bank-icon"><Coins size={14} /></div>
+          <div>
+            <div className="bank-label">STABLE BANK</div>
+            <div className="bank-amount">${gameState.funds.toLocaleString()}</div>
+          </div>
+        </div>
       </header>
 
-      <nav className="tab-bar">
-        {tabs.map((t) => (
-          <button
-            key={t['id'] as string}
-            className={`tab-btn${activeTab === t['id'] ? ' active' : ''}`}
-            onClick={() => setActiveTab(t['id'] as string)}
-          >
-            {t['label'] as string}
-          </button>
-        ))}
-      </nav>
+      {!isRacingActive && (
+        <div className="mobile-tab-bar">
+          {tabs.map(t => (
+            <button key={t['id'] as string}
+              className={`mobile-tab-btn${activeTab === t['id'] ? ' active' : ''}`}
+              onClick={() => setActiveTab(t['id'] as string)}>
+              {t['label'] as string}
+            </button>
+          ))}
+        </div>
+      )}
 
       <main className="tab-content">
         {schemaErr && <div className="error-box" style={{ marginBottom: '1rem' }}>{schemaErr}</div>}
@@ -396,64 +417,89 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'stable' && (
-          <StableTab
-            horses={gameState.horses}
-            session={session}
-            funds={gameState.funds}
-            unlockedSlots={unlockedSlots}
-            onNewRace={handleNewRace}
-            onUnlockSlot={handleUnlockSlot}
-          />
-        )}
-        {activeTab === 'betting' && (
-          <BettingTab
-            race={gameState.current_race}
-            funds={gameState.funds}
-            onNewRace={handleNewRace}
-            onStartRace={handleStartRace}
-            session={session}
-          />
-        )}
-        {activeTab === 'history' && (
-          <div>
-            <h2 style={{ marginBottom: '1rem' }}>Race History</h2>
-            {gameState.race_history.length === 0
-              ? <div className="empty-state">No races completed yet.</div>
-              : gameState.race_history.map((entry, i) => (
-                <div key={i} className="race-result-banner" style={{ marginBottom: '1rem' }}>
-                  <strong>{entry.race_name}</strong>
-                  <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem', fontSize: '0.85rem' }}>
-                    {entry.distance}m · Prize ${entry.prize_pool}
-                  </span>
-                  <table className="result-table">
-                    <thead><tr><th>Rank</th><th>Horse</th><th>Payout</th></tr></thead>
-                    <tbody>
-                      {entry.results.map((r) => (
-                        <tr key={r.rank}>
-                          <td className={`rank-${r.rank}`}>{r.rank}</td>
-                          <td>{r.horse_name}{r.player_owned && <span className="badge-player">You</span>}</td>
-                          <td className={r.payout > 0 ? 'payout-pos' : 'payout-neg'}>
-                            {r.payout > 0 ? `+$${r.payout}` : r.payout === 0 ? '—' : `-$${Math.abs(r.payout)}`}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))
-            }
-          </div>
-        )}
-        {activeTab === 'breed' && (
-          <BreederTab
-            horses={gameState.horses}
-            session={session}
-            funds={gameState.funds}
-            onAddOffspring={handleAddOffspring}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+          >
+            {activeTab === 'stable' && (
+              <StableTab
+                horses={gameState.horses}
+                session={session}
+                funds={gameState.funds}
+                unlockedSlots={unlockedSlots}
+                ticker={ticker}
+                onNewRace={handleNewRace}
+                onUnlockSlot={handleUnlockSlot}
+                onRenameHorse={handleRenameHorse}
+                onSellHorse={handleSellHorse}
+              />
+            )}
+            {activeTab === 'betting' && (
+              <BettingTab
+                race={gameState.current_race}
+                funds={gameState.funds}
+                horses={gameState.horses}
+                unlockedSlots={unlockedSlots}
+                onNewRace={handleNewRace}
+                onSkipRace={handleSkipRace}
+                onStartRace={handleStartRace}
+                onPurchaseStarter={handlePurchaseStarter}
+                session={session}
+              />
+            )}
+            {activeTab === 'history' && (
+              <div>
+                <h2 style={{ marginBottom: '1rem' }}>Race History</h2>
+                {gameState.race_history.length === 0
+                  ? <div className="empty-state">No races completed yet.</div>
+                  : gameState.race_history.map((entry, i) => (
+                    <div key={i} className="history-card">
+                      <div className="history-card-header">
+                        <div>
+                          <span className="history-race-name">{entry.race_name}</span>
+                          <span className="history-distance-badge">{entry.distance}m</span>
+                        </div>
+                        <span className="history-purse">Purse: ${entry.prize_pool}</span>
+                      </div>
+                      <div className="history-standings">
+                        {entry.results.slice(0, 3).map(r => (
+                          <div key={r.rank} className="history-standing-row">
+                            <span className={`rank-badge rank-${r.rank}`}>#{r.rank}</span>
+                            <span className="history-horse-name">{r.horse_name}</span>
+                            {r.player_owned && <span className="badge-player">You</span>}
+                            {r.payout > 0 && <span className="history-payout">+${r.payout}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            )}
+            {activeTab === 'breed' && (
+              <BreederTab
+                horses={gameState.horses}
+                session={session}
+                funds={gameState.funds}
+                onAddOffspring={handleAddOffspring}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
-    </>
+
+      <footer className="app-footer">
+        <span className="footer-copy">© 2026 DERBY SIMULATOR. ALL RIGHTS RESERVED.</span>
+        <div className="footer-links">
+          <span>GAME RULES</span>
+          <span className="footer-sep">•</span>
+          <span>PEDIGREE GENETICS DATA</span>
+        </div>
+      </footer>
+    </div>
   );
 }

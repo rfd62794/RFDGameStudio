@@ -124,4 +124,22 @@ describe('runtime', () => {
     const dismissed = { ...state, emergency_grant_shown: false };
     expect(dismissed.emergency_grant_shown).toBe(false);
   });
+
+  it('test_starter_horses_in_data_yaml', () => {
+    const session = loadGame('horse_racing', 42);
+    const data = session.files.data as Record<string, unknown>;
+    const starters = data['starter_horses'];
+    expect(Array.isArray(starters)).toBe(true);
+    expect((starters as unknown[]).length).toBe(2);
+  });
+
+  it('test_starter_horse_has_required_fields', () => {
+    const session = loadGame('horse_racing', 42);
+    const data = session.files.data as Record<string, unknown>;
+    const starters = data['starter_horses'] as Array<Record<string, unknown>>;
+    const first = starters[0];
+    expect(first).toHaveProperty('name');
+    expect(first).toHaveProperty('speed');
+    expect(first).toHaveProperty('stamina');
+  });
 });

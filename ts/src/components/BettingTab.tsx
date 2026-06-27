@@ -1,14 +1,18 @@
 import React, { useState, useCallback } from 'react';
-import type { CurrentRace, RaceParticipant, GameSession, Bet } from '../engine/types';
+import type { CurrentRace, RaceParticipant, GameSession, Bet, Horse } from '../engine/types';
 import { call } from '../engine/runtime';
 import { SVGRacer } from './SVGRacer';
 
 interface Props {
   race: CurrentRace | null;
   funds: number;
+  horses: Horse[];
+  unlockedSlots: number;
   session: GameSession;
   onNewRace: () => void;
+  onSkipRace: () => void;
   onStartRace: (enrichedParticipants: RaceParticipant[], bets: Bet[], netPayout: number) => void;
+  onPurchaseStarter: (gender: 'Stallion' | 'Mare', price: number) => void;
 }
 
 interface HorseBets {
@@ -17,7 +21,7 @@ interface HorseBets {
   show: number;
 }
 
-export default function BettingTab({ race, funds, session, onNewRace, onStartRace }: Props) {
+export default function BettingTab({ race, funds, horses, unlockedSlots, session, onNewRace, onSkipRace, onStartRace, onPurchaseStarter }: Props) {
   const [betEntries, setBetEntries] = useState<Record<string, HorseBets>>({});
   const [simulated, setSimulated] = useState(false);
 
@@ -112,6 +116,19 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
     onNewRace();
   }, [onNewRace]);
 
+  const handleSkipRace = useCallback(() => {
+    setBetEntries({});
+    setSimulated(false);
+    onSkipRace();
+  }, [onSkipRace]);
+
+  const handleClearBets = useCallback(() => {
+    setBetEntries({});
+  }, []);
+
+  const playerHorses = horses.filter(h => h.player_owned);
+  const starterCost = 400;
+
   if (!race) {
     return (
       <div>
@@ -120,6 +137,22 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
           <button className="btn-primary" onClick={onNewRace}>Enter New Race</button>
         </div>
         <div className="empty-state">No race scheduled. Enter a race from the Stable tab.</div>
+        {playerHorses.length < unlockedSlots && (
+          <div className="starter-market">
+            <h3>Starter Market</h3>
+            <p>Acquire replacement foundation stock to grow your stable.</p>
+            <div className="starter-buttons">
+              <button className="btn-primary" onClick={() => onPurchaseStarter('Stallion', starterCost)}
+                disabled={funds < starterCost}>
+                Buy Stallion (${starterCost})
+              </button>
+              <button className="btn-primary" onClick={() => onPurchaseStarter('Mare', starterCost)}
+                disabled={funds < starterCost}>
+                Buy Mare (${starterCost})
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -130,7 +163,10 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
     <div>
       <div className="section-header">
         <h2>Betting Office</h2>
-        <button className="btn-neutral" onClick={handleNewRace}>New Race</button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn-neutral" onClick={handleSkipRace}>Skip &amp; New Race</button>
+          <button className="btn-neutral" onClick={handleNewRace}>New Race</button>
+        </div>
       </div>
 
       <div className="race-panel">
@@ -228,6 +264,13 @@ export default function BettingTab({ race, funds, session, onNewRace, onStartRac
                   <span style={{ color: 'var(--yellow)' }}>${row.amount}</span>
                 </div>
               ))}
+            <button
+              className="btn-neutral"
+              style={{ marginTop: '0.25rem', width: '100%' }}
+              onClick={handleClearBets}
+            >
+              Clear Bets
+            </button>
             <button
               className="btn-primary"
               style={{ marginTop: '0.5rem', width: '100%' }}
