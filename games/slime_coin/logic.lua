@@ -1,8 +1,6 @@
 -- logic.lua — SlimeCoin game logic
 -- Real-time coin pusher with shooter, two-layer board, and chip synergies
 
-local collect = require "engine.primitives.entity".collect
-
 -- ── Global State ─────────────────────────────────────────────────────────────
 
 GAME_STATE = {
@@ -90,7 +88,7 @@ local POCKET_EFFECTS = {
 
 -- ── Helper Functions ─────────────────────────────────────────────────────────
 
-local function collect_list(list)
+local function copy_table(list)
   local result = {}
   for i, v in pairs(list) do
     result[i] = v
@@ -275,7 +273,7 @@ end
 
 function trigger_pocket_boom(coin)
   local effect = POCKET_EFFECTS.boom
-  local shelf_coins = collect_list(GAME_STATE.shelf_coins)
+  local shelf_coins = copy_table(GAME_STATE.shelf_coins)
   
   for _, other in pairs(shelf_coins) do
     if other.id ~= coin.id then
@@ -292,8 +290,8 @@ end
 -- ── Physics: Shelf Layer ───────────────────────────────────────────────────
 
 function update_shelf_physics(dt)
-  local shelf_coins = collect_list(GAME_STATE.shelf_coins)
-  local obstacles = collect_list(GAME_STATE.obstacles)
+  local shelf_coins = copy_table(GAME_STATE.shelf_coins)
+  local obstacles = copy_table(GAME_STATE.obstacles)
   
   -- Update pusher phase
   GAME_STATE.pusher_phase = GAME_STATE.pusher_phase + dt * GAME_STATE.pusher_speed * BOARD.pusher_frequency
@@ -397,7 +395,7 @@ function trigger_landing_effects(coin)
   
   -- Heavy slime: push adjacent coins
   if coin.type_id == 'heavy' then
-    local floor_coins = collect_list(GAME_STATE.floor_coins)
+    local floor_coins = copy_table(GAME_STATE.floor_coins)
     for _, other in pairs(floor_coins) do
       if other.id ~= coin.id then
         local d = distance(coin.x, coin.y, other.x, other.y)
@@ -422,7 +420,7 @@ end
 -- ── Physics: Floor Layer ───────────────────────────────────────────────────
 
 function update_floor_physics(dt)
-  local floor_coins = collect_list(GAME_STATE.floor_coins)
+  local floor_coins = copy_table(GAME_STATE.floor_coins)
   
   for _, coin in pairs(floor_coins) do
     -- Apply friction (floor has more friction)
@@ -484,7 +482,7 @@ end
 
 function trigger_chip_synergy(coin1, coin2)
   -- Check for owned chip cards and trigger effects
-  local owned = collect_list(GAME_STATE.owned_chips)
+  local owned = copy_table(GAME_STATE.owned_chips)
   
   for _, card_id in pairs(owned) do
     if card_id == 'zombie_slime' and coin1.type_id == 'basic' then
@@ -506,7 +504,7 @@ end
 
 function count_adjacent_type(coin, type_id)
   local count = 0
-  local floor_coins = collect_list(GAME_STATE.floor_coins)
+  local floor_coins = copy_table(GAME_STATE.floor_coins)
   
   for _, other in pairs(floor_coins) do
     if other.id ~= coin.id and other.type_id == type_id then
@@ -535,7 +533,7 @@ function update_scoring(dt)
   end
   
   -- Score coins on floor (simplified: all floor coins contribute)
-  local floor_coins = collect_list(GAME_STATE.floor_coins)
+  local floor_coins = copy_table(GAME_STATE.floor_coins)
   local round_score = 0
   
   for _, coin in pairs(floor_coins) do
@@ -599,9 +597,9 @@ function tick_game(dt, input)
     hand_in = GAME_STATE.hand_in,
     shooter_aim = GAME_STATE.shooter_aim,
     pusher_phase = GAME_STATE.pusher_phase,
-    shelf_coins = collect_list(GAME_STATE.shelf_coins),
-    floor_coins = collect_list(GAME_STATE.floor_coins),
-    obstacles = collect_list(GAME_STATE.obstacles),
+    shelf_coins = copy_table(GAME_STATE.shelf_coins),
+    floor_coins = copy_table(GAME_STATE.floor_coins),
+    obstacles = copy_table(GAME_STATE.obstacles),
     combo_count = GAME_STATE.combo_count,
   }
 end
@@ -617,9 +615,9 @@ function get_state_summary()
     target_score = GAME_STATE.target_score,
     score_rate = GAME_STATE.score_rate,
     hand_in = GAME_STATE.hand_in,
-    shelf_coin_count = #collect_list(GAME_STATE.shelf_coins),
-    floor_coin_count = #collect_list(GAME_STATE.floor_coins),
-    owned_chips = collect_list(GAME_STATE.owned_chips),
+    shelf_coin_count = #copy_table(GAME_STATE.shelf_coins),
+    floor_coin_count = #copy_table(GAME_STATE.floor_coins),
+    owned_chips = copy_table(GAME_STATE.owned_chips),
     combo_count = GAME_STATE.combo_count,
   }
 end
