@@ -1,3 +1,4 @@
+import { Modal } from '../../../ui/components';
 import type { ChipCard } from '../types';
 
 interface CardSelectModalProps {
@@ -13,26 +14,23 @@ const RARITY_COLORS: Record<string, string> = {
 
 export default function CardSelectModal({ cards, onSelect }: CardSelectModalProps) {
   return (
-    <div className="sc-modal-overlay">
-      <div className="sc-card-select-modal">
-        <h2 className="sc-modal-title">Choose a Chip Card</h2>
-        <div className="sc-card-options">
-          {cards.map((card, index) => (
-            <div
-              key={`${card.card_id}-${index}`}
-              className="sc-card"
-              onClick={() => onSelect(card.card_id)}
-              style={{ borderColor: RARITY_COLORS[card.rarity] }}
-            >
-              <div className="sc-card-rarity" style={{ color: RARITY_COLORS[card.rarity] }}>
-                {card.rarity.toUpperCase()}
-              </div>
-              <div className="sc-card-name">{card.name}</div>
-              <div className="sc-card-description">{card.description}</div>
+    <Modal title="Choose a Chip Card" showClose={false}>
+      <div className="sc-card-options">
+        {cards.map((card, index) => (
+          <div
+            key={`${card.card_id}-${index}`}
+            className="sc-card"
+            onClick={() => onSelect(card.card_id)}
+            style={{ borderColor: RARITY_COLORS[card.rarity] }}
+          >
+            <div className="sc-card-rarity" style={{ color: RARITY_COLORS[card.rarity] }}>
+              {card.rarity.toUpperCase()}
             </div>
-          ))}
-        </div>
+            <div className="sc-card-name">{card.name}</div>
+            <div className="sc-card-description">{card.description}</div>
+          </div>
+        ))}
       </div>
-    </div>
+    </Modal>
   );
 }

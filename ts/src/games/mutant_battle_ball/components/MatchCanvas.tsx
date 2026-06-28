@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useGameLoop } from '../../../hooks';
+import { Modal } from '../../../ui/components';
 import type { MatchState, MatchAgent } from '../types';
 
 const COURT_W = 700;
@@ -183,17 +184,14 @@ export default function MatchCanvas(
               className="match-canvas" />
 
       {showSubModal && (
-        <div className="sub-modal-overlay">
-          <div className="sub-modal">
-            <h3>Mutant Down</h3>
-            <p>Choose a bench replacement or continue without substitution.</p>
-            <button onClick={() => {
-              call('resume_match');
-              setShowSubModal(false);
-              setDownAgentId(null);
-            }}>Continue Without Sub</button>
-          </div>
-        </div>
+        <Modal title="Mutant Down" showClose={false}>
+          <p>Choose a bench replacement or continue without substitution.</p>
+          <button onClick={() => {
+            call('resume_match');
+            setShowSubModal(false);
+            setDownAgentId(null);
+          }}>Continue Without Sub</button>
+        </Modal>
       )}
 
       <div className="match-controls">
