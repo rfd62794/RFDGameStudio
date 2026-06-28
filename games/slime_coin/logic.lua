@@ -402,13 +402,22 @@ function update_shelf_physics(dt)
 end
 
 function transition_to_floor(coin)
-  -- Coin falls from shelf to floor
-  coin.y = 0  -- Start at top of floor
-  coin.vy = 100  -- Downward velocity
-  table.insert(GAME_STATE.floor_coins, coin)
-  
-  -- Trigger landing effects
-  trigger_landing_effects(coin)
+  -- Coin falls from shelf to floor - create a copy to avoid shared reference
+  local floor_coin = {
+    id = coin.id,
+    type_id = coin.type_id,
+    x = coin.x,
+    y = 0,  -- Start at top of floor
+    vx = coin.vx,
+    vy = 100,  -- Downward velocity
+    mass = coin.mass,
+    radius = coin.radius,
+    value = coin.value,
+  }
+  table.insert(GAME_STATE.floor_coins, floor_coin)
+
+  -- Trigger landing effects on the floor copy
+  trigger_landing_effects(floor_coin)
 end
 
 function trigger_landing_effects(coin)
