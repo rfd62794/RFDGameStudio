@@ -6,6 +6,43 @@
 
 **Phase 2w — SlimeCoin — CERTIFIED**
 
+## Phase 2w Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `games/slime_coin/data.yaml` — slime types, pocket coins, obstacles, chip cards, round configs, board dimensions | ✅ |
+| `games/slime_coin/logic.lua` — physics simulation, shooter mechanics, card synergies, scoring, round management | ✅ |
+| `games/slime_coin/ui.yaml` — layout_tree with main game screen, card select modal, pocket picker modal | ✅ |
+| `games/slime_coin/systems.yaml` — match + cards + pocket systems, entity definitions | ✅ |
+| `ts/src/games/slime_coin/types.ts` — SlimeCoinRenderState, Coin, Obstacle, ChipCard, GameConfig interfaces | ✅ |
+| `ts/src/games/slime_coin/config.ts` — game config with #a855f7 purple color, lazy-loaded App | ✅ |
+| `ts/src/games/slime_coin/App.tsx` — React app with game state, input handling, modals, game loop | ✅ |
+| `ts/src/games/slime_coin/components/BoardCanvas.tsx` — canvas renderer, coins, obstacles, pusher, shooter, aim indicator | ✅ |
+| `ts/src/games/slime_coin/components/CardSelectModal.tsx` — card selection modal with rarity styling | ✅ |
+| `ts/src/games/slime_coin/components/PocketPicker.tsx` — pocket coin selection modal | ✅ |
+| `ts/src/games/slime_coin/styles.css` — game-specific styles | ✅ |
+| `ts/src/engine/loader.ts` — slime_coin YAML imports added to GAME_ASSETS | ✅ |
+| `ts/src/games/registry.ts` — slime_coin registered | ✅ |
+| `tests/test_integration.py` — 6 new SlimeCoin tests (86 total) | ✅ |
+| `ts/tests/test_arcade.ts` — 2 new SlimeCoin registry tests (39 total) | ✅ |
+| Python floor: `pytest -v` → **86 passed, 0 failed** (was 80) | ✅ |
+| TS floor: `npx vitest run` → **39 passed, 0 failed** (was 37) | ✅ |
+| `studio_validate_game('slime_coin')` → valid=True, no issues | ✅ |
+
+**Test proof:**
+```
+pytest -v
+→ 86 passed in 1.89s
+cd ts && npx vitest run
+→ 39 passed (39)
+```
+
+**Validation proof:**
+```
+studio_validate_game('slime_coin')
+→ {'valid': True, 'game_id': 'slime_coin', 'issues': []}
+```
+
 ## Phase 2v Completion Criteria
 
 | Criterion | Status |
