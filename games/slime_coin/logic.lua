@@ -142,6 +142,27 @@ function init_game(config)
     {id = next_id(), type_id = 'peg', x = 300, y = 100, hits_remaining = 999},
   }
   
+  -- Populate starting shelf (5 rows × 8 cols = 40 coins)
+  local start_types = {'basic', 'basic', 'basic', 'heavy', 'light'}
+  for row = 0, 4 do
+    for col = 0, 7 do
+      local idx = (row * 8 + col) % 5 + 1
+      local type_id = start_types[idx]
+      local slime = SLIME_TYPES[type_id]
+      table.insert(GAME_STATE.shelf_coins, {
+        id = next_id(),
+        type_id = type_id,
+        x = 30 + col * 45,
+        y = 80 + row * 28,
+        vx = 0,
+        vy = 0,
+        mass = slime.mass,
+        radius = slime.radius,
+        value = slime.value,
+      })
+    end
+  end
+  
   return {success = true}
 end
 
@@ -228,46 +249,47 @@ end
 
 -- ── Shooter Mechanics ───────────────────────────────────────────────────────
 
-function fire_coin(type_id, aim_x)
+function fire_coin(type_id, side)
   if GAME_STATE.hand_in <= 0 then
     return {error = 'No hand in remaining'}
   end
-  
-  -- Get slime type properties
+
   local slime = SLIME_TYPES[type_id] or SLIME_TYPES.basic
-  
-  -- Calculate launch velocity based on aim
-  local launch_speed = 400
-  local angle = aim_x * 0.5  -- -0.5 to 0.5 radians
-  local vx = math.sin(angle) * launch_speed
-  local vy = -math.cos(angle) * launch_speed
-  
-  -- Create coin on shelf
+
+  local spawn_x, vx
+  if side == 'left' then
+    -- Left arrow → right-side shooter → coin travels LEFT
+    spawn_x = BOARD.shelf_width - 20
+    vx = -280
+  else
+    -- Right arrow → left-side shooter → coin travels RIGHT
+    spawn_x = 20
+    vx = 280
+  end
+
   local coin = {
     id = next_id(),
     type_id = type_id,
-    x = BOARD.shooter_x,
-    y = BOARD.shooter_y,
+    x = spawn_x,
+    y = 15,
     vx = vx,
-    vy = vy,
+    vy = 80,
     mass = slime.mass,
     radius = slime.radius,
     value = slime.value,
   }
-  
+
   table.insert(GAME_STATE.shelf_coins, coin)
   GAME_STATE.hand_in = GAME_STATE.hand_in - 1
-  
-  -- Check for pocket coin effects
-  if type_id == 'boom' then
-    trigger_pocket_boom(coin)
-  elseif type_id == 'echo' then
+
+  -- Pocket coin effects
+  if type_id == 'echo' then
     GAME_STATE.hand_in = GAME_STATE.hand_in + 5
   elseif type_id == 'giga' then
     coin.mass = coin.mass * 10
     coin.radius = coin.radius * 3
   end
-  
+
   return {coin_id = coin.id, hand_in = GAME_STATE.hand_in}
 end
 
@@ -560,33 +582,30 @@ end
 
 function tick_game(dt, input)
   input = input or {}
-  
+
   if GAME_STATE.phase ~= 'playing' then
     return {phase = GAME_STATE.phase}
   end
-  
-  -- Update shooter aim
-  GAME_STATE.shooter_aim = input.aim_x or 0.0
-  GAME_STATE.shooter_aim = math.max(-1.0, math.min(1.0, GAME_STATE.shooter_aim))
-  
-  -- Handle fire input
-  if input.fire and GAME_STATE.hand_in > 0 then
+
+  -- Handle fire input — one coin per keypress (fire resets each tick in TS)
+  if input.fire then
     local coin_type = input.pocket_coin_type or 'basic'
-    fire_coin(coin_type, GAME_STATE.shooter_aim)
+    local side = input.side or 'right'
+    fire_coin(coin_type, side)
   end
-  
+
   -- Update physics
   update_shelf_physics(dt)
   update_floor_physics(dt)
-  
+
   -- Update scoring
   update_scoring(dt)
-  
+
   -- Check round end
   if GAME_STATE.hand_in <= 0 and #GAME_STATE.shelf_coins == 0 then
     return end_round()
   end
-  
+
   -- Return render state
   return {
     phase = GAME_STATE.phase,
@@ -595,7 +614,6 @@ function tick_game(dt, input)
     target_score = GAME_STATE.target_score,
     score_rate = GAME_STATE.score_rate,
     hand_in = GAME_STATE.hand_in,
-    shooter_aim = GAME_STATE.shooter_aim,
     pusher_phase = GAME_STATE.pusher_phase,
     shelf_coins = copy_table(GAME_STATE.shelf_coins),
     floor_coins = copy_table(GAME_STATE.floor_coins),

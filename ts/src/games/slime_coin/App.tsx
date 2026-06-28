@@ -21,7 +21,6 @@ function buildInitialState(session: unknown): SlimeCoinGameState {
     score_rate: 1.0,
     hand_in: (roundConfig?.['base_hand_in'] as number) ?? 10,
     max_hand_in: (roundConfig?.['base_hand_in'] as number) ?? 10,
-    shooter_aim: 0.0,
     pocket_coin_type: null,
     pusher_phase: 0.0,
     pusher_speed: 1.0,
@@ -49,7 +48,7 @@ export default function App({ session }: GameRendererProps) {
   const { call } = useLuaCall(session);
   
   const [renderState, setRenderState] = useState<SlimeCoinRenderState | null>(null);
-  const [input, setInput] = useState<SlimeCoinInput>({ aim_x: 0, fire: false });
+  const [input, setInput] = useState<SlimeCoinInput>({ fire: false, side: 'right' });
   const [showPocketPicker, setShowPocketPicker] = useState(false);
   
   // Initialize game
@@ -62,22 +61,24 @@ export default function App({ session }: GameRendererProps) {
   // Game loop
   const tick = useCallback((dt: number) => {
     if (!state || state.phase !== 'playing') return;
-    
-    const result = call('tick_game', dt, input) as SlimeCoinRenderState;
+
+    const currentInput = input;
+
+    // Reset fire immediately so it only fires once per keypress
+    if (currentInput.fire) {
+      setInput(prev => ({ ...prev, fire: false }));
+    }
+
+    const result = call('tick_game', dt, currentInput) as SlimeCoinRenderState;
     if (result) {
       setRenderState(result);
-      
+
       // Check for phase transition
       if (result.phase === 'card_select') {
         setState(prev => prev ? { ...prev, phase: 'card_select', offered_cards: result.offered_cards ?? [] } : prev);
       } else if (result.phase === 'run_end') {
         setState(prev => prev ? { ...prev, phase: 'run_end' } : prev);
       }
-    }
-    
-    // Reset fire input
-    if (input.fire) {
-      setInput(prev => ({ ...prev, fire: false }));
     }
   }, [state, input, call, setState]);
   
@@ -87,17 +88,17 @@ export default function App({ session }: GameRendererProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!state || state.phase !== 'playing') return;
-      
+
       switch (e.key) {
         case 'ArrowLeft':
-          setInput(prev => ({ ...prev, aim_x: Math.max(-1, prev.aim_x - 0.1) }));
+          e.preventDefault();
+          // Left arrow fires from RIGHT shooter, coin travels LEFT
+          setInput({ fire: true, side: 'left', pocket_coin_type: state.pocket_coin_type ?? undefined });
           break;
         case 'ArrowRight':
-          setInput(prev => ({ ...prev, aim_x: Math.min(1, prev.aim_x + 0.1) }));
-          break;
-        case ' ':
           e.preventDefault();
-          setInput(prev => ({ ...prev, fire: true }));
+          // Right arrow fires from LEFT shooter, coin travels RIGHT
+          setInput({ fire: true, side: 'right', pocket_coin_type: state.pocket_coin_type ?? undefined });
           break;
         case 'p':
         case 'P':
@@ -108,7 +109,7 @@ export default function App({ session }: GameRendererProps) {
           break;
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [state]);
@@ -147,7 +148,6 @@ export default function App({ session }: GameRendererProps) {
       <div className="sc-main">
         <BoardCanvas
           renderState={renderState}
-          shooterAim={input.aim_x}
         />
       </div>
       
@@ -175,7 +175,7 @@ export default function App({ session }: GameRendererProps) {
       )}
       
       <div className="sc-footer">
-        <span>← → Aim | SPACE Fire | P: Pocket Coins</span>
+        <span>← Right shooter fires left | → Left shooter fires right | P: Pocket Coins</span>
       </div>
     </GameShell>
   );

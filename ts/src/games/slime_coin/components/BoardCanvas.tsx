@@ -3,7 +3,6 @@ import type { SlimeCoinRenderState, SlimeCoin } from '../types';
 
 interface BoardCanvasProps {
   renderState: SlimeCoinRenderState | null;
-  shooterAim: number;
 }
 
 const SLIME_COLORS: Record<string, string> = {
@@ -16,7 +15,7 @@ const SLIME_COLORS: Record<string, string> = {
   bad: '#ef4444',
 };
 
-export default function BoardCanvas({ renderState, shooterAim }: BoardCanvasProps) {
+export default function BoardCanvas({ renderState }: BoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   useEffect(() => {
@@ -75,35 +74,48 @@ export default function BoardCanvas({ renderState, shooterAim }: BoardCanvasProp
       }
     }
     
-    // Draw shooter
-    ctx.fillStyle = '#8b5cf6';
-    ctx.beginPath();
-    ctx.arc(250, 460, 20, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Draw aim indicator
-    const aimAngle = shooterAim * 0.5;
-    const aimLength = 60;
-    const aimEndX = 250 + Math.sin(aimAngle) * aimLength;
-    const aimEndY = 460 - Math.cos(aimAngle) * aimLength;
-    
-    ctx.strokeStyle = '#a78bfa';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(250, 460);
-    ctx.lineTo(aimEndX, aimEndY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    
     // Draw combo indicator
     if (renderState.combo_count > 0) {
       ctx.fillStyle = '#fbbf24';
       ctx.font = 'bold 24px sans-serif';
       ctx.fillText(`Combo: ${renderState.combo_count}`, 470, 100);
     }
-    
-  }, [renderState, shooterAim]);
+
+    // Left-side shooter indicator (top-left of shelf, fires RIGHT)
+    // Visually positioned at LEFT edge of shelf — player presses RIGHT arrow
+    ctx.fillStyle = '#8b5cf6';
+    ctx.beginPath();
+    ctx.arc(60, 70, 12, 0, Math.PI * 2);
+    ctx.fill();
+    // Arrow pointing right
+    ctx.strokeStyle = '#c4b5fd';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(72, 70);
+    ctx.lineTo(88, 70);
+    ctx.lineTo(83, 65);
+    ctx.moveTo(88, 70);
+    ctx.lineTo(83, 75);
+    ctx.stroke();
+
+    // Right-side shooter indicator (top-right of shelf, fires LEFT)
+    // Player presses LEFT arrow
+    ctx.fillStyle = '#8b5cf6';
+    ctx.beginPath();
+    ctx.arc(440, 70, 12, 0, Math.PI * 2);
+    ctx.fill();
+    // Arrow pointing left
+    ctx.strokeStyle = '#c4b5fd';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(428, 70);
+    ctx.lineTo(412, 70);
+    ctx.lineTo(417, 65);
+    ctx.moveTo(412, 70);
+    ctx.lineTo(417, 75);
+    ctx.stroke();
+
+  }, [renderState]);
   
   return (
     <canvas

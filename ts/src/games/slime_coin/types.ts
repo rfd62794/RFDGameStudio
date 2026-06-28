@@ -41,7 +41,6 @@ export interface SlimeCoinGameState {
   score_rate: number;
   hand_in: number;
   max_hand_in: number;
-  shooter_aim: number;
   pocket_coin_type: string | null;
   pusher_phase: number;
   pusher_speed: number;
@@ -59,8 +58,8 @@ export interface SlimeCoinGameState {
 }
 
 export interface SlimeCoinInput {
-  aim_x: number;
   fire: boolean;
+  side: 'left' | 'right';
   pocket_coin_type?: string;
 }
 
@@ -71,12 +70,12 @@ export interface SlimeCoinRenderState {
   target_score: number;
   score_rate: number;
   hand_in: number;
-  shooter_aim: number;
   pusher_phase: number;
   shelf_coins: SlimeCoin[];
   floor_coins: SlimeCoin[];
   obstacles: Obstacle[];
   combo_count: number;
+  offered_cards?: ChipCard[];
 }
 
 export interface SlimeType {

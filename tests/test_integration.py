@@ -396,16 +396,16 @@ def test_slime_coin_fire_coin_creates_coin_on_shelf() -> None:
     """fire_coin creates a coin on the shelf and decrements hand_in."""
     session = load_game('slime_coin', seed=42)
     session.executor.call('init_game', {})
-    
-    result = session.executor.call('fire_coin', 'basic', 0.0)
+
+    result = session.executor.call('fire_coin', 'basic', 'right')
     assert result is not None
 
 def test_slime_coin_tick_game_updates_physics() -> None:
     """tick_game advances physics simulation for shelf and floor."""
     session = load_game('slime_coin', seed=42)
     session.executor.call('init_game', {})
-    
-    state = session.executor.call('tick_game', 0.1, {'aim_x': 0.0, 'fire': False})
+
+    state = session.executor.call('tick_game', 0.1, {'fire': False, 'side': 'right'})
     assert state is not None
 
 def test_slime_coin_start_round_resets_round_state() -> None:
