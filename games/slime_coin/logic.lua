@@ -359,13 +359,50 @@ function update_shelf_physics(dt)
           coin.vx = coin.vx + dx * 100
           coin.vy = coin.vy + dy * 100
         end
-        
+
         -- Check for slime tower collapse
         if obs.type_id == 'slime_tower' then
           obs.hits_remaining = (obs.hits_remaining or 3) - 1
           if obs.hits_remaining <= 0 then
             -- Remove obstacle and scatter coins
             obs.hits_remaining = 0
+          end
+        end
+      end
+    end
+
+    -- Coin-to-coin collision on shelf
+    for _, other in pairs(shelf_coins) do
+      if other.id ~= coin.id then
+        local d = distance(coin.x, coin.y, other.x, other.y)
+        local min_dist = coin.radius + other.radius
+        if d < min_dist and d > 0 then
+          -- Position correction (separate overlapping coins)
+          local overlap = min_dist - d
+          local dx = (coin.x - other.x) / d
+          local dy = (coin.y - other.y) / d
+
+          -- Move coins apart proportional to inverse mass
+          local total_mass = coin.mass + other.mass
+          local coin_ratio = other.mass / total_mass
+          local other_ratio = coin.mass / total_mass
+
+          coin.x = coin.x + dx * overlap * coin_ratio
+          coin.y = coin.y + dy * overlap * coin_ratio
+          other.x = other.x - dx * overlap * other_ratio
+          other.y = other.y - dy * overlap * other_ratio
+
+          -- Elastic collision response
+          local rel_vx = coin.vx - other.vx
+          local rel_vy = coin.vy - other.vy
+          local rel_v_dot_n = rel_vx * dx + rel_vy * dy
+
+          if rel_v_dot_n < 0 then
+            local impulse = 2 * rel_v_dot_n / total_mass
+            coin.vx = coin.vx - impulse * other.mass * dx
+            coin.vy = coin.vy - impulse * other.mass * dy
+            other.vx = other.vx + impulse * coin.mass * dx
+            other.vy = other.vy + impulse * coin.mass * dy
           end
         end
       end
@@ -485,23 +522,33 @@ function update_floor_physics(dt)
         local d = distance(coin.x, coin.y, other.x, other.y)
         local min_dist = coin.radius + other.radius
         if d < min_dist and d > 0 then
-          -- Elastic collision
+          -- Position correction (separate overlapping coins)
+          local overlap = min_dist - d
           local dx = (coin.x - other.x) / d
           local dy = (coin.y - other.y) / d
-          
+
+          -- Move coins apart proportional to inverse mass
+          local total_mass = coin.mass + other.mass
+          local coin_ratio = other.mass / total_mass
+          local other_ratio = coin.mass / total_mass
+
+          coin.x = coin.x + dx * overlap * coin_ratio
+          coin.y = coin.y + dy * overlap * coin_ratio
+          other.x = other.x - dx * overlap * other_ratio
+          other.y = other.y - dy * overlap * other_ratio
+
+          -- Elastic collision response
           local rel_vx = coin.vx - other.vx
           local rel_vy = coin.vy - other.vy
           local rel_v_dot_n = rel_vx * dx + rel_vy * dy
-          
+
           if rel_v_dot_n < 0 then
-            local mass_sum = coin.mass + other.mass
-            local impulse = 2 * rel_v_dot_n / mass_sum
-            
+            local impulse = 2 * rel_v_dot_n / total_mass
             coin.vx = coin.vx - impulse * other.mass * dx
             coin.vy = coin.vy - impulse * other.mass * dy
             other.vx = other.vx + impulse * coin.mass * dx
             other.vy = other.vy + impulse * coin.mass * dy
-            
+
             -- Trigger chip synergies on contact
             trigger_chip_synergy(coin, other)
           end
