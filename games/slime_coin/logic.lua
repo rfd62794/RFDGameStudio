@@ -142,19 +142,19 @@ function init_game(config)
     {id = next_id(), type_id = 'peg', x = 100, y = 100, hits_remaining = 999},
     {id = next_id(), type_id = 'peg', x = 300, y = 100, hits_remaining = 999},
   }
-  
-  -- Populate starting shelf (5 rows × 8 cols = 40 coins)
-  local start_types = {'basic', 'basic', 'basic', 'heavy', 'light'}
-  for row = 0, 4 do
-    for col = 0, 7 do
-      local idx = (row * 8 + col) % 5 + 1
+
+  -- Populate starting shelf (8 rows × 10 cols = 80 coins)
+  local start_types = {'basic', 'basic', 'basic', 'heavy', 'light', 'sticky', 'dense', 'rare'}
+  for row = 0, 7 do
+    for col = 0, 9 do
+      local idx = (row * 10 + col) % 8 + 1
       local type_id = start_types[idx]
       local slime = SLIME_TYPES[type_id]
       table.insert(GAME_STATE.shelf_coins, {
         id = next_id(),
         type_id = type_id,
-        x = 30 + col * 45,
-        y = 80 + row * 28,
+        x = 15 + col * 38,
+        y = 20 + row * 30,
         vx = 0,
         vy = 0,
         mass = slime.mass,
@@ -372,38 +372,40 @@ function update_shelf_physics(dt)
       end
     end
 
-    -- Coin-to-coin collision on shelf
-    for _, other in pairs(shelf_coins) do
-      if other.id ~= coin.id then
-        local d = distance(coin.x, coin.y, other.x, other.y)
-        local min_dist = coin.radius + other.radius
-        if d < min_dist and d > 0 then
-          -- Position correction (separate overlapping coins)
-          local overlap = min_dist - d
-          local dx = (coin.x - other.x) / d
-          local dy = (coin.y - other.y) / d
+    -- Coin-to-coin collision on shelf (6 iterations for proper stacking)
+    for iter = 1, 6 do
+      for _, other in pairs(shelf_coins) do
+        if other.id ~= coin.id then
+          local d = distance(coin.x, coin.y, other.x, other.y)
+          local min_dist = coin.radius + other.radius
+          if d < min_dist and d > 0 then
+            -- Position correction (separate overlapping coins)
+            local overlap = min_dist - d
+            local dx = (coin.x - other.x) / d
+            local dy = (coin.y - other.y) / d
 
-          -- Move coins apart proportional to inverse mass
-          local total_mass = coin.mass + other.mass
-          local coin_ratio = other.mass / total_mass
-          local other_ratio = coin.mass / total_mass
+            -- Move coins apart proportional to inverse mass
+            local total_mass = coin.mass + other.mass
+            local coin_ratio = other.mass / total_mass
+            local other_ratio = coin.mass / total_mass
 
-          coin.x = coin.x + dx * overlap * coin_ratio
-          coin.y = coin.y + dy * overlap * coin_ratio
-          other.x = other.x - dx * overlap * other_ratio
-          other.y = other.y - dy * overlap * other_ratio
+            coin.x = coin.x + dx * overlap * coin_ratio
+            coin.y = coin.y + dy * overlap * coin_ratio
+            other.x = other.x - dx * overlap * other_ratio
+            other.y = other.y - dy * overlap * other_ratio
 
-          -- Elastic collision response
-          local rel_vx = coin.vx - other.vx
-          local rel_vy = coin.vy - other.vy
-          local rel_v_dot_n = rel_vx * dx + rel_vy * dy
+            -- Elastic collision response
+            local rel_vx = coin.vx - other.vx
+            local rel_vy = coin.vy - other.vy
+            local rel_v_dot_n = rel_vx * dx + rel_vy * dy
 
-          if rel_v_dot_n < 0 then
-            local impulse = 2 * rel_v_dot_n / total_mass
-            coin.vx = coin.vx - impulse * other.mass * dx
-            coin.vy = coin.vy - impulse * other.mass * dy
-            other.vx = other.vx + impulse * coin.mass * dx
-            other.vy = other.vy + impulse * coin.mass * dy
+            if rel_v_dot_n < 0 then
+              local impulse = 2 * rel_v_dot_n / total_mass
+              coin.vx = coin.vx - impulse * other.mass * dx
+              coin.vy = coin.vy - impulse * other.mass * dy
+              other.vx = other.vx + impulse * coin.mass * dx
+              other.vy = other.vy + impulse * coin.mass * dy
+            end
           end
         end
       end
