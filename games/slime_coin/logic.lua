@@ -64,7 +64,8 @@ local BOARD = {
   shooter_y = 450,
   pusher_amplitude = 50,
   pusher_frequency = 1.0,
-  gravity = 50.0,
+  shelf_gravity = 0.0,  -- No gravity on shelf - pusher provides all movement
+  floor_gravity = 500.0,  -- Normal gravity on floor for landing
   friction = 0.96,
   restitution = 0.7,
 }
@@ -321,9 +322,9 @@ function update_shelf_physics(dt)
   
   -- Update coin positions
   for _, coin in pairs(shelf_coins) do
-    -- Apply gravity
-    coin.vy = coin.vy + BOARD.gravity * dt
-    
+    -- Apply gravity (shelf has no gravity - pusher provides movement)
+    coin.vy = coin.vy + BOARD.shelf_gravity * dt
+
     -- Apply friction
     coin.vx = coin.vx * BOARD.friction
     coin.vy = coin.vy * BOARD.friction
@@ -491,10 +492,13 @@ function update_floor_physics(dt)
   local floor_coins = copy_table(GAME_STATE.floor_coins)
   
   for _, coin in pairs(floor_coins) do
+    -- Apply gravity (floor has normal gravity for landing)
+    coin.vy = coin.vy + BOARD.floor_gravity * dt
+
     -- Apply friction (floor has more friction)
     coin.vx = coin.vx * 0.95
     coin.vy = coin.vy * 0.95
-    
+
     -- Update position
     coin.x = coin.x + coin.vx * dt
     coin.y = coin.y + coin.vy * dt
