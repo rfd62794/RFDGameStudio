@@ -54,11 +54,4 @@ entities:
       - rarity: string
       - description: string
 
-engine_systems:
-  - action
-  - entity
-  - resolution
-  - consequence
-  - movement
-  - physics
-  - lifecycle
+engine_systems: []
