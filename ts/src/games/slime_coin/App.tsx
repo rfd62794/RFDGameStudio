@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { GameShell } from '../../components';
-import { useLuaCall, useGameLoop } from '../../hooks';
+import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
 import BoardCanvas from './components/BoardCanvas';
