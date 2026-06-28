@@ -244,10 +244,14 @@ function start_round(round_num)
   
   -- Increase pusher speed
   GAME_STATE.pusher_speed = 1.0 + (round_num - 1) * 0.1
-  
-  -- Clear shelf for new round
+
+  -- v0.3: Clear shelf for new round, but floor persists
   GAME_STATE.shelf_coins = {}
-  
+  -- floor_coins NOT cleared - persists across rounds
+
+  -- v0.3: Reset exchange counter for new round
+  GAME_STATE.exchanges_used = 0
+
   -- Apply round modifiers
   GAME_STATE.active_modifiers = {}
   if round_num % 5 == 0 then
@@ -897,6 +901,11 @@ function tick_game(dt, input)
     floor_coins = copy_table(GAME_STATE.floor_coins),
     obstacles = copy_table(GAME_STATE.obstacles),
     combo_count = GAME_STATE.combo_count,
+    -- v0.3 fields
+    shot_queue = copy_table(GAME_STATE.shot_queue),
+    tokens = GAME_STATE.tokens,
+    vat_coins = copy_table(GAME_STATE.vat_coins),
+    exchanges_used = GAME_STATE.exchanges_used,
   }
 end
 
