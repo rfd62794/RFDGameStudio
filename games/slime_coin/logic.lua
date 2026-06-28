@@ -67,7 +67,7 @@ local BOARD = {
   shelf_gravity = 0.0,  -- No gravity on shelf - pusher provides all movement
   floor_gravity = 500.0,  -- Normal gravity on floor for landing
   friction = 0.96,
-  restitution = 0.7,
+  restitution = 0.15,
 }
 
 local SLIME_TYPES = {
@@ -401,10 +401,11 @@ function update_shelf_physics(dt)
 
             if rel_v_dot_n < 0 then
               local impulse = 2 * rel_v_dot_n / total_mass
-              coin.vx = coin.vx - impulse * other.mass * dx
-              coin.vy = coin.vy - impulse * other.mass * dy
-              other.vx = other.vx + impulse * coin.mass * dx
-              other.vy = other.vy + impulse * coin.mass * dy
+              local damping = 0.3
+              coin.vx = coin.vx - impulse * other.mass * dx * damping
+              coin.vy = coin.vy - impulse * other.mass * dy * damping
+              other.vx = other.vx + impulse * coin.mass * dx * damping
+              other.vy = other.vy + impulse * coin.mass * dy * damping
             end
           end
         end
@@ -518,8 +519,15 @@ function update_floor_physics(dt)
       coin.y = coin.radius
       coin.vy = -coin.vy * 0.5
     elseif coin.y > BOARD.floor_height - coin.radius then
-      coin.y = BOARD.floor_height - coin.radius
-      coin.vy = -coin.vy * 0.5
+      -- Collect: score once, remove from floor
+      local val = math.floor(coin.value * GAME_STATE.score_rate)
+      GAME_STATE.score = GAME_STATE.score + val
+      GAME_STATE.combo_count = GAME_STATE.combo_count + 1
+      GAME_STATE.combo_timer = 2.0
+      if GAME_STATE.combo_count > 10 then
+        GAME_STATE.score_rate = 1.0 + (GAME_STATE.combo_count / 20)
+      end
+      coin._collected = true
     end
     
     -- Coin-to-coin collision
@@ -550,16 +558,25 @@ function update_floor_physics(dt)
 
           if rel_v_dot_n < 0 then
             local impulse = 2 * rel_v_dot_n / total_mass
-            coin.vx = coin.vx - impulse * other.mass * dx
-            coin.vy = coin.vy - impulse * other.mass * dy
-            other.vx = other.vx + impulse * coin.mass * dx
-            other.vy = other.vy + impulse * coin.mass * dy
+            local damping = 0.3
+            coin.vx = coin.vx - impulse * other.mass * dx * damping
+            coin.vy = coin.vy - impulse * other.mass * dy * damping
+            other.vx = other.vx + impulse * coin.mass * dx * damping
+            other.vy = other.vy + impulse * coin.mass * dy * damping
 
             -- Trigger chip synergies on contact
             trigger_chip_synergy(coin, other)
           end
         end
       end
+    end
+  end
+
+  -- Write back: remove collected coins
+  GAME_STATE.floor_coins = {}
+  for _, coin in pairs(floor_coins) do
+    if not coin._collected then
+      table.insert(GAME_STATE.floor_coins, coin)
     end
   end
 end
@@ -607,35 +624,13 @@ end
 function update_scoring(dt)
   local current_time = GAME_STATE._time or 0
   GAME_STATE._time = current_time + dt
-  
-  -- Decay combo timer
+
+  -- Decay combo timer and reset combo when expired
   if GAME_STATE.combo_timer > 0 then
     GAME_STATE.combo_timer = GAME_STATE.combo_timer - dt
     if GAME_STATE.combo_timer <= 0 then
       GAME_STATE.combo_count = 0
-    end
-  end
-  
-  -- Score coins on floor (simplified: all floor coins contribute)
-  local floor_coins = copy_table(GAME_STATE.floor_coins)
-  local round_score = 0
-  
-  for _, coin in pairs(floor_coins) do
-    round_score = round_score + coin.value
-  end
-  
-  -- Apply score rate
-  round_score = math.floor(round_score * GAME_STATE.score_rate)
-  GAME_STATE.score = GAME_STATE.score + round_score
-  
-  -- Update combo
-  if round_score > 0 then
-    GAME_STATE.combo_count = GAME_STATE.combo_count + 1
-    GAME_STATE.combo_timer = 2.0  -- 2 second combo window
-    
-    -- Increase score rate with combos
-    if GAME_STATE.combo_count > 10 then
-      GAME_STATE.score_rate = 1.0 + (GAME_STATE.combo_count / 20)
+      GAME_STATE.score_rate = 1.0
     end
   end
 end
