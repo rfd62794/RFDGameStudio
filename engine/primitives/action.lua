@@ -16,3 +16,16 @@ end
 function rand_item(arr)
   return arr[math.random(#arr)]
 end
+
+-- Collect a Python list proxy (or any Lua table) into a Lua-native sequence.
+-- Required when receiving list arguments from lupa (Python→Lua bridge).
+-- lupa proxies do not support the # operator — rawlen returns 0.
+-- Always use collect() before iterating or measuring Python-origin lists.
+--
+-- t: any table or lupa list proxy
+-- Returns: Lua-native sequence table
+function collect(t)
+  local out = {}
+  for _, v in ipairs(t) do out[#out+1] = v end
+  return out
+end

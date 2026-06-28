@@ -22,14 +22,6 @@
 --
 -- Returns: race_obj, nil       on success
 -- Returns: nil, error_string   if horse is ineligible for all classes
--- Collect a Python-list-proxy (or Lua table) into a Lua-native sequence.
--- Needed because lupa proxies don't support # (rawlen returns 0).
-local function collect(t)
-  local out = {}
-  for _, v in ipairs(t) do out[#out+1] = v end
-  return out
-end
-
 function create_race(player_horse, data)
   local race_classes = collect(data.race_classes)
   local distances    = collect(data.race_distances)

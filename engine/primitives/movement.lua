@@ -35,3 +35,10 @@ function normalize_angle(a)
   while a >  math.pi do a = a - math.pi * 2 end
   return a
 end
+
+-- Lua 5.2+ compatibility wrapper for atan2.
+-- math.atan2(y, x) was removed in Lua 5.2; math.atan(y, x) is the replacement.
+-- Use this wrapper in any game that needs arctangent of two arguments.
+function atan2(y, x)
+  return math.atan(y, x)
+end

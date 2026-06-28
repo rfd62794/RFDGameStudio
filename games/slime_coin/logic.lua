@@ -107,14 +107,6 @@ local POCKET_EFFECTS = {
 
 -- ── Helper Functions ─────────────────────────────────────────────────────────
 
-local function copy_table(list)
-  local result = {}
-  for i, v in pairs(list) do
-    result[i] = v
-  end
-  return result
-end
-
 local function distance(x1, y1, x2, y2)
   return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
 end
@@ -440,7 +432,7 @@ end
 
 function trigger_pocket_boom(coin)
   local effect = POCKET_EFFECTS.boom
-  local shelf_coins = copy_table(GAME_STATE.shelf_coins)
+  local shelf_coins = copy_entity(GAME_STATE.shelf_coins)
   
   for _, other in pairs(shelf_coins) do
     if other.id ~= coin.id then
@@ -457,8 +449,8 @@ end
 -- ── Physics: Shelf Layer ───────────────────────────────────────────────────
 
 function update_shelf_physics(dt)
-  local shelf_coins = copy_table(GAME_STATE.shelf_coins)
-  local obstacles = copy_table(GAME_STATE.obstacles)
+  local shelf_coins = copy_entity(GAME_STATE.shelf_coins)
+  local obstacles = copy_entity(GAME_STATE.obstacles)
   
   -- Update pusher phase
   GAME_STATE.pusher_phase = GAME_STATE.pusher_phase + dt * GAME_STATE.pusher_speed * BOARD.pusher_frequency
@@ -611,7 +603,7 @@ function trigger_landing_effects(coin)
   
   -- Heavy slime: push adjacent coins
   if coin.type_id == 'heavy' then
-    local floor_coins = copy_table(GAME_STATE.floor_coins)
+    local floor_coins = copy_entity(GAME_STATE.floor_coins)
     for _, other in pairs(floor_coins) do
       if other.id ~= coin.id then
         local d = distance(coin.x, coin.y, other.x, other.y)
@@ -636,7 +628,7 @@ end
 -- ── Physics: Floor Layer ───────────────────────────────────────────────────
 
 function update_floor_physics(dt)
-  local floor_coins = copy_table(GAME_STATE.floor_coins)
+  local floor_coins = copy_entity(GAME_STATE.floor_coins)
   
   for _, coin in pairs(floor_coins) do
     -- Apply gravity (floor has normal gravity for landing)
@@ -757,7 +749,7 @@ end
 
 function trigger_chip_synergy(coin1, coin2)
   -- Check for owned chip cards and trigger effects
-  local owned = copy_table(GAME_STATE.owned_chips)
+  local owned = copy_entity(GAME_STATE.owned_chips)
   
   for _, card_id in pairs(owned) do
     if card_id == 'zombie_slime' and coin1.type_id == 'basic' then
@@ -810,7 +802,7 @@ function trigger_synergy_effect(effect_id, coin1, coin2)
     GAME_STATE.tokens = GAME_STATE.tokens + 2
   elseif effect_id == 'clear_area' then
     -- Void + Iron: clear 5-radius area
-    local floor_coins = copy_table(GAME_STATE.floor_coins)
+    local floor_coins = copy_entity(GAME_STATE.floor_coins)
     for _, other in pairs(floor_coins) do
       if other.id ~= coin1.id and other.id ~= coin2.id then
         local d = distance(coin1.x, coin1.y, other.x, other.y)
@@ -830,7 +822,7 @@ end
 
 function count_adjacent_type(coin, type_id)
   local count = 0
-  local floor_coins = copy_table(GAME_STATE.floor_coins)
+  local floor_coins = copy_entity(GAME_STATE.floor_coins)
   
   for _, other in pairs(floor_coins) do
     if other.id ~= coin.id and other.type_id == type_id then
@@ -897,14 +889,14 @@ function tick_game(dt, input)
     score_rate = GAME_STATE.score_rate,
     hand_in = GAME_STATE.hand_in,
     pusher_phase = GAME_STATE.pusher_phase,
-    shelf_coins = copy_table(GAME_STATE.shelf_coins),
-    floor_coins = copy_table(GAME_STATE.floor_coins),
-    obstacles = copy_table(GAME_STATE.obstacles),
+    shelf_coins = copy_entity(GAME_STATE.shelf_coins),
+    floor_coins = copy_entity(GAME_STATE.floor_coins),
+    obstacles = copy_entity(GAME_STATE.obstacles),
     combo_count = GAME_STATE.combo_count,
     -- v0.3 fields
-    shot_queue = copy_table(GAME_STATE.shot_queue),
+    shot_queue = copy_entity(GAME_STATE.shot_queue),
     tokens = GAME_STATE.tokens,
-    vat_coins = copy_table(GAME_STATE.vat_coins),
+    vat_coins = copy_entity(GAME_STATE.vat_coins),
     exchanges_used = GAME_STATE.exchanges_used,
   }
 end
@@ -920,9 +912,9 @@ function get_state_summary()
     target_score = GAME_STATE.target_score,
     score_rate = GAME_STATE.score_rate,
     hand_in = GAME_STATE.hand_in,
-    shelf_coin_count = #copy_table(GAME_STATE.shelf_coins),
-    floor_coin_count = #copy_table(GAME_STATE.floor_coins),
-    owned_chips = copy_table(GAME_STATE.owned_chips),
+    shelf_coin_count = #copy_entity(GAME_STATE.shelf_coins),
+    floor_coin_count = #copy_entity(GAME_STATE.floor_coins),
+    owned_chips = copy_entity(GAME_STATE.owned_chips),
     combo_count = GAME_STATE.combo_count,
   }
 end
