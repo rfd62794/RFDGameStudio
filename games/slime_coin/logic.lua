@@ -64,7 +64,7 @@ local BOARD = {
   shooter_y = 450,
   pusher_amplitude = 50,
   pusher_frequency = 1.0,
-  gravity = 500.0,
+  gravity = 50.0,
   friction = 0.90,
   restitution = 0.7,
 }
