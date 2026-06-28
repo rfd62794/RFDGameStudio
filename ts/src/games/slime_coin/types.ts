@@ -25,6 +25,17 @@ export interface ChipCard {
   name: string;
   rarity: 'common' | 'rare' | 'epic';
   description: string;
+  slime_type_added?: string;
+  synergy_partner?: string;
+  synergy_effect?: string;
+}
+
+export interface ShopItem {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  item_type: 'pocket_coin' | 'hand_upgrade' | 'card';
 }
 
 export interface PocketCoin {
@@ -55,6 +66,9 @@ export interface SlimeCoinGameState {
   last_score_time: number;
   offered_cards: ChipCard[];
   selected_card: string | null;
+  tokens: number;
+  shot_queue: string[];
+  exchanges_used: number;
 }
 
 export interface SlimeCoinInput {
@@ -76,6 +90,15 @@ export interface SlimeCoinRenderState {
   obstacles: Obstacle[];
   combo_count: number;
   offered_cards?: ChipCard[];
+  tokens: number;
+  shot_queue: string[];
+  vat_coins: SlimeCoin[];
+  exchanges_used: number;
+  active_synergies: Array<{
+    type_a: string;
+    type_b: string;
+    effect_id: string;
+  }>;
 }
 
 export interface SlimeType {

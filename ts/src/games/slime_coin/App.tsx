@@ -4,7 +4,7 @@ import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
 import BoardCanvas from './components/BoardCanvas';
-import CardSelectModal from './components/CardSelectModal';
+import ShopModal from './components/ShopModal';
 import PocketPicker from './components/PocketPicker';
 import './styles.css';
 
@@ -40,6 +40,9 @@ function buildInitialState(session: unknown): SlimeCoinGameState {
     last_score_time: 0,
     offered_cards: [],
     selected_card: null,
+    tokens: 0,
+    shot_queue: [],
+    exchanges_used: 0,
   };
 }
 
@@ -72,6 +75,17 @@ export default function App({ session }: GameRendererProps) {
     const result = call('tick_game', dt, currentInput) as SlimeCoinRenderState;
     if (result) {
       setRenderState(result);
+
+      // Sync v0.3 fields into game state
+      setState(prev => prev ? {
+        ...prev,
+        score: result.score,
+        score_rate: result.score_rate,
+        hand_in: result.hand_in,
+        tokens: result.tokens ?? prev.tokens,
+        shot_queue: result.shot_queue ?? prev.shot_queue,
+        exchanges_used: result.exchanges_used ?? prev.exchanges_used,
+      } : prev);
 
       // Check for phase transition
       if (result.phase === 'card_select') {
@@ -142,6 +156,7 @@ export default function App({ session }: GameRendererProps) {
           <span className="sc-score">{state.score} / {state.target_score}</span>
           <span className="sc-rate">×{state.score_rate.toFixed(1)}</span>
           <span className="sc-hand">Hand: {state.hand_in}</span>
+          <span className="sc-tokens">🟢 {state.tokens}</span>
         </div>
       }
     >
@@ -150,11 +165,41 @@ export default function App({ session }: GameRendererProps) {
           renderState={renderState}
         />
       </div>
-      
+
+      {state.phase === 'playing' && state.hand_in === 0 && state.exchanges_used < 3 && (
+        <div className="sc-exchange">
+          <button
+            className="btn-exchange"
+            onClick={() => {
+              const result = call('exchange') as { tokens: number; hand_in: number } | null;
+              if (result) {
+                setState(prev => prev ? {
+                  ...prev,
+                  tokens: result.tokens,
+                  hand_in: result.hand_in,
+                  exchanges_used: (prev.exchanges_used ?? 0) + 1,
+                } : prev);
+              }
+            }}
+          >
+            Exchange ({state.exchanges_used ?? 0}/3) — Cost: {
+              [5, 8, 12][state.exchanges_used ?? 0] ?? 12
+            } tokens
+          </button>
+        </div>
+      )}
+
       {state.phase === 'card_select' && state.offered_cards.length > 0 && (
-        <CardSelectModal
-          cards={state.offered_cards}
-          onSelect={handleSelectCard}
+        <ShopModal
+          offeredCards={state.offered_cards}
+          tokens={state.tokens ?? 0}
+          onSelectCard={handleSelectCard}
+          onPurchase={(itemId) => {
+            const result = call('shop_purchase', itemId) as { tokens: number } | null;
+            if (result) {
+              setState(prev => prev ? { ...prev, tokens: result.tokens } : prev);
+            }
+          }}
         />
       )}
       
