@@ -773,6 +773,57 @@ function trigger_chip_synergy(coin1, coin2)
   end
 end
 
+-- v0.3: Check pairwise synergies between two slime types
+function check_pairwise_synergy(coin1, coin2)
+  local active = GAME_STATE.active_synergies
+
+  for _, synergy in pairs(active) do
+    -- Check if this pair matches the synergy (order-independent)
+    local match = false
+    if (coin1.type_id == synergy.type_a and coin2.type_id == synergy.type_b) or
+       (coin1.type_id == synergy.type_b and coin2.type_id == synergy.type_a) then
+      match = true
+    end
+
+    if match then
+      -- Trigger the synergy effect
+      trigger_synergy_effect(synergy.effect_id, coin1, coin2)
+    end
+  end
+end
+
+-- v0.3: Trigger specific synergy effects
+function trigger_synergy_effect(effect_id, coin1, coin2)
+  if effect_id == 'convert_basic_to_zombie' then
+    -- Zombie + Basic: convert Basic to Zombie
+    if coin1.type_id == 'basic' then
+      coin1.type_id = 'zombie'
+    elseif coin2.type_id == 'basic' then
+      coin2.type_id = 'zombie'
+    end
+  elseif effect_id == 'double_crystal_tokens' then
+    -- Mirror + Crystal: double token yield for both
+    GAME_STATE.tokens = GAME_STATE.tokens + 2
+  elseif effect_id == 'clear_area' then
+    -- Void + Iron: clear 5-radius area
+    local floor_coins = copy_table(GAME_STATE.floor_coins)
+    for _, other in pairs(floor_coins) do
+      if other.id ~= coin1.id and other.id ~= coin2.id then
+        local d = distance(coin1.x, coin1.y, other.x, other.y)
+        if d < 5 then
+          other._collected = true
+        end
+      end
+    end
+  elseif effect_id == 'launch_to_shelf' then
+    -- Spark + Bubble: launch both back to shelf
+    coin1.y = 50
+    coin1.vy = -200
+    coin2.y = 50
+    coin2.vy = -200
+  end
+end
+
 function count_adjacent_type(coin, type_id)
   local count = 0
   local floor_coins = copy_table(GAME_STATE.floor_coins)
