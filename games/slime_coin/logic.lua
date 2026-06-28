@@ -65,7 +65,7 @@ local BOARD = {
   pusher_amplitude = 50,
   pusher_frequency = 1.0,
   gravity = 500.0,
-  friction = 0.98,
+  friction = 0.90,
   restitution = 0.7,
 }
 
