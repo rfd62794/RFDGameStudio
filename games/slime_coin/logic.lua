@@ -26,7 +26,25 @@ GAME_STATE = {
   
   -- Coins on floor (lower layer)
   floor_coins = {},  -- {id, type_id, x, y, vx, vy, mass, radius, value}
-  
+
+  -- v0.3: Vat layer (collection tray)
+  vat_coins = {},  -- {id, type_id, x, y, value} for visual fill
+
+  -- v0.3: Slime pool (weighted types for shot queue)
+  slime_pool = {},  -- {type_id, weight}
+
+  -- v0.3: Shot queue (next N slimes to fire)
+  shot_queue = {},  -- ordered list of type_ids
+
+  -- v0.3: Tokens (currency)
+  tokens = 0,
+
+  -- v0.3: Exchange tracking
+  exchanges_used = 0,  -- resets per round
+
+  -- v0.3: Active synergies (from owned cards)
+  active_synergies = {},  -- {type_a, type_b, effect_id}
+
   -- Obstacles on shelf
   obstacles = {},  -- {id, type_id, x, y, hits_remaining}
   
@@ -106,6 +124,32 @@ local function next_id()
   return GAME_STATE._next_id
 end
 
+-- v0.3: Weighted random draw from slime pool
+local function draw_from_pool()
+  local pool = GAME_STATE.slime_pool
+  if #pool == 0 then
+    return 'basic'  -- fallback
+  end
+
+  -- Calculate total weight
+  local total_weight = 0
+  for _, entry in pairs(pool) do
+    total_weight = total_weight + entry.weight
+  end
+
+  -- Weighted random selection
+  local roll = math.random() * total_weight
+  local cumulative = 0
+  for _, entry in pairs(pool) do
+    cumulative = cumulative + entry.weight
+    if roll <= cumulative then
+      return entry.type_id
+    end
+  end
+
+  return pool[1].type_id  -- fallback
+end
+
 -- ── Initialization ─────────────────────────────────────────────────────────
 
 function init_game(config)
@@ -133,6 +177,25 @@ function init_game(config)
   GAME_STATE.last_score_time = 0
   GAME_STATE.phase = 'playing'
   GAME_STATE._next_id = 0
+
+  -- v0.3: Initialize slime pool (starting pool from data.yaml)
+  GAME_STATE.slime_pool = {
+    {type_id = 'basic', weight = 5},
+    {type_id = 'heavy', weight = 2},
+    {type_id = 'light', weight = 2},
+  }
+
+  -- v0.3: Initialize shot queue (5 pre-drawn types)
+  GAME_STATE.shot_queue = {}
+  for i = 1, 5 do
+    table.insert(GAME_STATE.shot_queue, draw_from_pool())
+  end
+
+  -- v0.3: Initialize tokens and vat
+  GAME_STATE.tokens = 0
+  GAME_STATE.vat_coins = {}
+  GAME_STATE.exchanges_used = 0
+  GAME_STATE.active_synergies = {}
   
   -- Set target score for round 1
   GAME_STATE.target_score = 100
@@ -238,14 +301,77 @@ function generate_card_offer(count)
     {id = 'tar_cluster', name = 'Tar Cluster', rarity = 'common', description = 'Cluster bonus'},
     {id = 'iron_path', name = 'Iron Path', rarity = 'rare', description = 'Wider path clear'},
   }
-  
+
   local offer = {}
   for i = 1, count do
     local idx = math.random(1, #card_pool)
     table.insert(offer, card_pool[idx])
   end
-  
+
   return offer
+end
+
+-- v0.3: Exchange function (mid-round token spend for more shots)
+function exchange()
+  -- Check limits
+  if GAME_STATE.exchanges_used >= 3 then
+    return {error = 'Max exchanges reached this round'}
+  end
+
+  local base_cost = 5
+  local cost_growth = 1.5
+  local cost = math.floor(base_cost * math.pow(cost_growth, GAME_STATE.exchanges_used))
+
+  if GAME_STATE.tokens < cost then
+    return {error = 'Insufficient tokens'}
+  end
+
+  -- Perform exchange
+  GAME_STATE.tokens = GAME_STATE.tokens - cost
+  GAME_STATE.hand_in = GAME_STATE.hand_in + 5
+  GAME_STATE.exchanges_used = GAME_STATE.exchanges_used + 1
+
+  return {
+    success = true,
+    cost = cost,
+    shots_added = 5,
+    hand_in = GAME_STATE.hand_in,
+    tokens = GAME_STATE.tokens,
+    exchanges_used = GAME_STATE.exchanges_used,
+  }
+end
+
+-- v0.3: Shop function (end-of-round token spend)
+function shop_purchase(item_type, item_id)
+  local cost = 0
+
+  if item_type == 'hand_upgrade' then
+    cost = 20
+    if GAME_STATE.tokens < cost then
+      return {error = 'Insufficient tokens'}
+    end
+    GAME_STATE.tokens = GAME_STATE.tokens - cost
+    GAME_STATE.max_hand_in = GAME_STATE.max_hand_in + 2
+    return {success = true, cost = cost, max_hand_in = GAME_STATE.max_hand_in, tokens = GAME_STATE.tokens}
+  elseif item_type == 'pocket_coin' then
+    cost = 10
+    if GAME_STATE.tokens < cost then
+      return {error = 'Insufficient tokens'}
+    end
+    GAME_STATE.tokens = GAME_STATE.tokens - cost
+    GAME_STATE.pocket_coins[item_id] = (GAME_STATE.pocket_coins[item_id] or 0) + 1
+    return {success = true, cost = cost, pocket_coins = GAME_STATE.pocket_coins, tokens = GAME_STATE.tokens}
+  elseif item_type == 'card' then
+    cost = 15
+    if GAME_STATE.tokens < cost then
+      return {error = 'Insufficient tokens'}
+    end
+    GAME_STATE.tokens = GAME_STATE.tokens - cost
+    table.insert(GAME_STATE.owned_chips, item_id)
+    return {success = true, cost = cost, owned_chips = GAME_STATE.owned_chips, tokens = GAME_STATE.tokens}
+  else
+    return {error = 'Unknown item type'}
+  end
 end
 
 -- ── Shooter Mechanics ───────────────────────────────────────────────────────
@@ -253,6 +379,15 @@ end
 function fire_coin(type_id, side)
   if GAME_STATE.hand_in <= 0 then
     return {error = 'No hand in remaining'}
+  end
+
+  -- v0.3: Use shot queue for type_id if not provided (pocket coins override)
+  if not type_id or type_id == '' then
+    if #GAME_STATE.shot_queue > 0 then
+      type_id = table.remove(GAME_STATE.shot_queue, 1)
+    else
+      type_id = 'basic'  -- fallback
+    end
   end
 
   local slime = SLIME_TYPES[type_id] or SLIME_TYPES.basic
@@ -282,6 +417,11 @@ function fire_coin(type_id, side)
 
   table.insert(GAME_STATE.shelf_coins, coin)
   GAME_STATE.hand_in = GAME_STATE.hand_in - 1
+
+  -- v0.3: Refill shot queue to maintain 5 pre-drawn types
+  while #GAME_STATE.shot_queue < 5 do
+    table.insert(GAME_STATE.shot_queue, draw_from_pool())
+  end
 
   -- Pocket coin effects
   if type_id == 'echo' then
@@ -519,7 +659,8 @@ function update_floor_physics(dt)
       coin.y = coin.radius
       coin.vy = -coin.vy * 0.5
     elseif coin.y > BOARD.floor_height - coin.radius then
-      -- Collect: score once, remove from floor
+      -- v0.3: Drop into vat (collection tray at front edge)
+      -- Score event
       local val = math.floor(coin.value * GAME_STATE.score_rate)
       GAME_STATE.score = GAME_STATE.score + val
       GAME_STATE.combo_count = GAME_STATE.combo_count + 1
@@ -527,6 +668,32 @@ function update_floor_physics(dt)
       if GAME_STATE.combo_count > 10 then
         GAME_STATE.score_rate = 1.0 + (GAME_STATE.combo_count / 20)
       end
+
+      -- Token event (base 1 token, modified by slime type)
+      local token_yield = 1
+      if coin.type_id == 'rare' then
+        token_yield = 8
+      elseif coin.type_id == 'dense' then
+        token_yield = 5
+      elseif coin.type_id == 'sticky' then
+        token_yield = 4
+      elseif coin.type_id == 'light' then
+        token_yield = 3
+      elseif coin.type_id == 'heavy' then
+        token_yield = 2
+      end
+      GAME_STATE.tokens = GAME_STATE.tokens + token_yield
+
+      -- Add to vat for visual fill
+      table.insert(GAME_STATE.vat_coins, {
+        id = coin.id,
+        type_id = coin.type_id,
+        x = coin.x,
+        y = coin.y,
+        value = coin.value,
+      })
+
+      -- Mark for removal from floor
       coin._collected = true
     end
     
@@ -566,6 +733,9 @@ function update_floor_physics(dt)
 
             -- Trigger chip synergies on contact
             trigger_chip_synergy(coin, other)
+
+            -- v0.3: Check pairwise synergies
+            check_pairwise_synergy(coin, other)
           end
         end
       end

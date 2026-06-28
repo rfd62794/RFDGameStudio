@@ -297,3 +297,61 @@ bad_slime:
   value: -5
   color: "#ef4444"
   description: Reduces Score Rate on floor contact.
+
+# v0.3: Slime pool configuration
+slime_pool:
+  starting_pool:
+    - type_id: basic
+      weight: 5
+    - type_id: heavy
+      weight: 2
+    - type_id: light
+      weight: 2
+  queue_size: 5
+
+# v0.3: Vat configuration
+vat:
+  width: 400
+  height: 50
+  fill_rate: 1.0  # visual fill speed
+
+# v0.3: Exchange configuration
+exchange:
+  base_cost: 5
+  base_shots: 5
+  max_per_round: 3
+  cost_growth: 1.5  # cost multiplier per exchange in same round
+
+# v0.3: Shop configuration
+shop:
+  free_cards_per_round: 1
+  cards_offered: 3
+  hand_upgrade_cost: 20
+  hand_upgrade_bonus: 2
+
+# v0.3: Pairwise synergies (examples from GDD)
+synergies:
+  - id: zombie_conversion
+    type_a: zombie
+    type_b: basic
+    effect: convert_basic_to_zombie
+    description: Zombie + Basic contact converts Basic to Zombie
+
+  - id: mirror_echo
+    type_a: mirror
+    type_b: rare
+    effect: double_crystal_tokens
+    description: Mirror + Crystal contact doubles token yield
+
+  - id: void_clear
+    type_a: void
+    type_b: dense
+    effect: clear_area
+    radius: 5
+    description: Void + Iron contact clears 5-radius area
+
+  - id: spark_launch
+    type_a: spark
+    type_b: light
+    effect: launch_to_shelf
+    description: Spark + Bubble contact launches both back to shelf
