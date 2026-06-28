@@ -16,10 +16,15 @@ import mbbDataRaw    from '../../../games/mutant_battle_ball/data.yaml?raw';
 import mbbUiRaw     from '../../../games/mutant_battle_ball/ui.yaml?raw';
 import mbbSystemsRaw from '../../../games/mutant_battle_ball/systems.yaml?raw';
 
+import scDataRaw    from '../../../games/slime_coin/data.yaml?raw';
+import scUiRaw     from '../../../games/slime_coin/ui.yaml?raw';
+import scSystemsRaw from '../../../games/slime_coin/systems.yaml?raw';
+
 const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }> = {
   horse_racing: { data: hrDataRaw, ui: hrUiRaw, systems: hrSystemsRaw },
   slither_rogue: { data: srDataRaw, ui: srUiRaw, systems: srSystemsRaw },
   mutant_battle_ball: { data: mbbDataRaw, ui: mbbUiRaw, systems: mbbSystemsRaw },
+  slime_coin: { data: scDataRaw, ui: scUiRaw, systems: scSystemsRaw },
 };
 
 // ── Lua files — bundled at build time via import.meta.glob ───────────────────

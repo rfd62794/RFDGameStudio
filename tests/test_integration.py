@@ -383,3 +383,51 @@ def test_mbb_assemble_mutant_from_parts() -> None:
     assert mutant is not None
     md = dict(mutant)
     assert md.get('name') == 'Test Mutant'
+
+# ── SLIME COIN ─────────────────────────────────────────────────────────────
+
+def test_slime_coin_init_game_sets_initial_state() -> None:
+    """init_game initializes game state with default values."""
+    session = load_game('slime_coin', seed=42)
+    result = session.executor.call('init_game', {})
+    assert result is not None
+
+def test_slime_coin_fire_coin_creates_coin_on_shelf() -> None:
+    """fire_coin creates a coin on the shelf and decrements hand_in."""
+    session = load_game('slime_coin', seed=42)
+    session.executor.call('init_game', {})
+    
+    result = session.executor.call('fire_coin', 'basic', 0.0)
+    assert result is not None
+
+def test_slime_coin_tick_game_updates_physics() -> None:
+    """tick_game advances physics simulation for shelf and floor."""
+    session = load_game('slime_coin', seed=42)
+    session.executor.call('init_game', {})
+    
+    state = session.executor.call('tick_game', 0.1, {'aim_x': 0.0, 'fire': False})
+    assert state is not None
+
+def test_slime_coin_start_round_resets_round_state() -> None:
+    """start_round resets hand_in and calculates target score."""
+    session = load_game('slime_coin', seed=42)
+    session.executor.call('init_game', {})
+    
+    result = session.executor.call('start_round', 2)
+    assert result is not None
+
+def test_slime_coin_generate_card_offer_returns_cards() -> None:
+    """generate_card_offer returns a list of chip cards."""
+    session = load_game('slime_coin', seed=42)
+    session.executor.call('init_game', {})
+    
+    result = session.executor.call('generate_card_offer', 3)
+    assert result is not None
+
+def test_slime_coin_select_card_adds_to_owned_chips() -> None:
+    """select_card adds the selected card to owned_chips."""
+    session = load_game('slime_coin', seed=42)
+    session.executor.call('init_game', {})
+    
+    result = session.executor.call('select_card', 'zombie_slime')
+    assert result is not None

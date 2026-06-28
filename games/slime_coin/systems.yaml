@@ -1,0 +1,64 @@
+systems:
+  - id: match
+    name: Match System
+    description: Real-time coin pusher simulation with shooter, physics, and scoring
+    functions:
+      - init_game
+      - tick_game
+      - start_round
+      - end_round
+      - fire_coin
+  
+  - id: cards
+    name: Card System
+    description: Chip card selection and synergy effects
+    functions:
+      - generate_card_offer
+      - select_card
+      - trigger_chip_synergy
+  
+  - id: pocket
+    name: Pocket System
+    description: Special pocket coin management
+    functions:
+      - trigger_pocket_boom
+
+entities:
+  slime_coin:
+    description: Slime coin on shelf or floor
+    fields:
+      - id: string
+      - type_id: string
+      - x: number
+      - y: number
+      - vx: number
+      - vy: number
+      - mass: number
+      - radius: number
+      - value: number
+  
+  obstacle:
+    description: Board obstacle on shelf
+    fields:
+      - id: string
+      - type_id: string
+      - x: number
+      - y: number
+      - hits_remaining: number
+  
+  chip_card:
+    description: Chip card owned by player
+    fields:
+      - card_id: string
+      - name: string
+      - rarity: string
+      - description: string
+
+engine_systems:
+  - action
+  - entity
+  - resolution
+  - consequence
+  - movement
+  - physics
+  - lifecycle

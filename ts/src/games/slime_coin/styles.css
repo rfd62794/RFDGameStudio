@@ -1,0 +1,259 @@
+/* styles.css — SlimeCoin game styles */
+
+.sc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 24px;
+  color: #a855f7;
+}
+
+.sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+  border-bottom: 2px solid #6366f1;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.sc-round {
+  color: #a855f7;
+  font-size: 18px;
+}
+
+.sc-score {
+  color: #4ade80;
+  font-size: 18px;
+}
+
+.sc-rate {
+  color: #fbbf24;
+  font-size: 18px;
+}
+
+.sc-hand {
+  color: #3b82f6;
+  font-size: 18px;
+}
+
+.sc-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background: #0f0f1a;
+  overflow: hidden;
+}
+
+.sc-board-canvas {
+  border: 2px solid #4a4a6a;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.sc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: #1a1a2e;
+  border-top: 1px solid #4a4a6a;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Modal overlay */
+.sc-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Card select modal */
+.sc-card-select-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+  border: 2px solid #6366f1;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.sc-modal-title {
+  margin: 0 0 20px 0;
+  color: #e2e8f0;
+  font-size: 24px;
+  text-align: center;
+}
+
+.sc-card-options {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.sc-card {
+  flex: 1;
+  background: #252538;
+  border: 3px solid;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sc-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+}
+
+.sc-card-rarity {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.sc-card-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+}
+
+.sc-card-description {
+  font-size: 14px;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+/* Pocket picker */
+.sc-pocket-picker {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+  border: 2px solid #6366f1;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.sc-pocket-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sc-pocket-coin {
+  background: #252538;
+  border: 3px solid;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sc-pocket-coin:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+}
+
+.sc-pocket-coin-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.sc-pocket-coin-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.sc-pocket-coin-count {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.sc-pocket-coin-description {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.sc-close-button {
+  width: 100%;
+  padding: 12px;
+  background: #4a4a6a;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sc-close-button:hover {
+  background: #6366f1;
+}
+
+/* Run end screen */
+.sc-run-end {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+  border: 2px solid #6366f1;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.sc-run-end h2 {
+  margin: 0 0 16px 0;
+  color: #e2e8f0;
+  font-size: 32px;
+}
+
+.sc-run-end p {
+  margin: 0 0 24px 0;
+  color: #4ade80;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.sc-run-end button {
+  padding: 12px 32px;
+  background: #6366f1;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sc-run-end button:hover {
+  background: #818cf8;
+}

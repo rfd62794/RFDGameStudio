@@ -26,4 +26,15 @@ describe('Arcade Registry', () => {
     const config = findGame('mutant_battle_ball');
     expect(config?.color).toBe('#f87171');
   });
+
+  it('test_slime_coin_in_registry', () => {
+    const config = findGame('slime_coin');
+    expect(config).toBeDefined();
+    expect(config?.gameId).toBe('slime_coin');
+  });
+
+  it('test_slime_coin_has_purple_color', () => {
+    const config = findGame('slime_coin');
+    expect(config?.color).toBe('#a855f7');
+  });
 });

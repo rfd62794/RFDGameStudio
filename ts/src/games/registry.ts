@@ -2,6 +2,7 @@ import type { GameConfig } from '../engine/types';
 import { horseRacingConfig } from './horse_racing/config';
 import { slitherRogueConfig } from './slither_rogue/config';
 import { mutantBattleBallConfig } from './mutant_battle_ball/config';
+import { slimeCoinConfig } from './slime_coin/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -11,6 +12,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   horseRacingConfig,
   slitherRogueConfig,
   mutantBattleBallConfig,
+  slimeCoinConfig,
 ];
 
 /**

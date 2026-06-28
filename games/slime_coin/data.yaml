@@ -1,0 +1,299 @@
+game:
+  id: slime_coin
+  name: SlimeCoin
+  version: 1.0.0
+  studio: RFDGameStudio
+
+# Slime coin types (6 variants)
+slime_types:
+  - id: basic
+    name: Green Slime
+    mass: 1.0
+    radius: 14
+    value: 1
+    color: "#4ade80"
+    description: Standard slime. No special behavior.
+
+  - id: heavy
+    name: Rock Slime
+    mass: 2.2
+    radius: 16
+    value: 3
+    color: "#78716c"
+    description: High mass. Pushes adjacent coins on landing.
+
+  - id: light
+    name: Bubble Slime
+    mass: 0.8
+    radius: 13
+    value: 5
+    color: "#a5f3fc"
+    description: Low mass. Bounces on landing.
+
+  - id: sticky
+    name: Tar Slime
+    mass: 1.5
+    radius: 15
+    value: 10
+    color: "#44403c"
+    description: Clusters with adjacent slimes on floor contact.
+
+  - id: dense
+    name: Iron Slime
+    mass: 3.5
+    radius: 18
+    value: 15
+    color: "#94a3b8"
+    description: Very heavy. Clears a path through the pile.
+
+  - id: rare
+    name: Crystal Slime
+    mass: 1.8
+    radius: 17
+    value: 25
+    color: "#e879f9"
+    description: Triggers chip synergy bonuses. Glows.
+
+# Pocket coin types (4 special launches)
+pocket_coins:
+  - id: boom
+    name: Blast Slime
+    effect: explode
+    description: Explodes on shelf contact — launches adjacent coins forward off the edge
+    color: "#f97316"
+
+  - id: pull
+    name: Magnet Slime
+    effect: pull
+    description: Pulls all floor coins toward a center point on landing
+    color: "#3b82f6"
+
+  - id: echo
+    name: Echo Slime
+    effect: echo
+    description: Adds +5 to Hand In count (more shots this round)
+    color: "#a855f7"
+
+  - id: giga
+    name: Giant Slime
+    effect: giga
+    description: 3× size, 10× mass — steamrolls everything in its path on the shelf
+    color: "#ef4444"
+
+# Board obstacles (4 types)
+obstacles:
+  - id: peg
+    name: Peg
+    bounce: 0.5
+    description: Standard deflector. Slight bounce on contact.
+    color: "#fbbf24"
+
+  - id: bumper
+    name: Bumper
+    bounce: 1.2
+    description: High-bounce peg. Unlocked via wheel reward.
+    color: "#f59e0b"
+
+  - id: multiplier_pad
+    name: Multiplier Pad
+    multiplier: 2.0
+    description: Doubles score value of any coin that passes over it.
+    color: "#10b981"
+
+  - id: slime_tower
+    name: Slime Tower
+    hits_to_collapse: 3
+    description: Collapses after 3 hits, scattering coins across the shelf.
+    color: "#8b5cf6"
+
+# Chip cards (12 cards minimum)
+chip_cards:
+  - id: zombie_slime
+    name: Zombie Slime
+    rarity: epic
+    slime_type: basic
+    effect: convert_adjacent
+    max_triggers: 20
+    description: Converts coins it touches into Zombie Slimes. Up to 20 times per round.
+    color: "#22c55e"
+
+  - id: crystal_burst
+    name: Crystal Burst
+    rarity: rare
+    slime_type: rare
+    effect: multiply_adjacent
+    description: Crystal Slimes multiply the value of adjacent coins on contact.
+    color: "#d946ef"
+
+  - id: heavy_impact
+    name: Heavy Impact
+    rarity: common
+    slime_type: heavy
+    effect: shockwave
+    radius: 3
+    description: Rock Slimes trigger a shockwave on landing that moves 3 adjacent coins.
+    color: "#6b7280"
+
+  - id: bubble_chain
+    name: Bubble Chain
+    rarity: rare
+    slime_type: light
+    effect: chain_pop
+    min_chain: 5
+    description: Bubble Slimes link into chains — if 5+ are adjacent, all pop for bonus score.
+    color: "#67e8f9"
+
+  - id: tar_cluster
+    name: Tar Cluster
+    rarity: common
+    slime_type: sticky
+    effect: cluster_bonus
+    description: Tar Slimes grant bonus score when 3+ are clustered together.
+    color: "#57534e"
+
+  - id: iron_path
+    name: Iron Path
+    rarity: rare
+    slime_type: dense
+    effect: path_clear
+    description: Iron Slimes clear a wider path through the pile on landing.
+    color: "#64748b"
+
+  - id: crystal_echo
+    name: Crystal Echo
+    rarity: epic
+    slime_type: rare
+    effect: echo_multiplier
+    description: Crystal Slimes echo their multiplier to all Crystal Slimes on the floor.
+    color: "#c026d3"
+
+  - id: zombie_horde
+    name: Zombie Horde
+    rarity: epic
+    slime_type: basic
+    effect: horde_convert
+    max_triggers: 30
+    description: Zombie Slimes convert up to 30 adjacent coins per round.
+    color: "#16a34a"
+
+  - id: bubble_float
+    name: Bubble Float
+    rarity: common
+    slime_type: light
+    effect: float_bonus
+    description: Bubble Slimes float back to the shelf after falling (once per round).
+    color: "#22d3ee"
+
+  - id: tar_anchor
+    name: Tar Anchor
+    rarity: rare
+    slime_type: sticky
+    effect: anchor
+    description: Tar Slimes anchor adjacent coins, preventing them from being pushed.
+    color: "#44403c"
+
+  - id: iron_crush
+    name: Iron Crush
+    rarity: epic
+    slime_type: dense
+    effect: crush
+    description: Iron Slimes crush Bad Slimes on contact, removing them without penalty.
+    color: "#475569"
+
+  - id: crystal_prism
+    name: Crystal Prism
+    rarity: rare
+    slime_type: rare
+    effect: prism
+    description: Crystal Slimes split their value evenly among adjacent coins.
+    color: "#a21caf"
+
+# Round configuration
+round_config:
+  total_rounds: 15
+  base_hand_in: 10
+  base_target_score: 100
+  target_growth: 1.5
+  pusher_base_speed: 1.0
+  pusher_speed_growth: 0.1
+
+# Round modifiers
+round_modifiers:
+  - id: no_bad_coins
+    name: No Bad Coins
+    description: Bad Slimes do not appear this round.
+    positive: true
+
+  - id: double_hand
+    name: Double Hand
+    description: Hand In count is doubled this round.
+    positive: true
+
+  - id: bonus_start
+    name: Bonus Start
+    description: Start with Score Rate +5.
+    positive: true
+
+  - id: bad_coins
+    name: Bad Coins
+    description: Bad Slimes appear in the Hand queue.
+    positive: false
+
+  - id: reduced_pusher
+    name: Reduced Pusher
+    description: Pusher speed is reduced by 50%.
+    positive: false
+
+# Spin wheel rewards
+spin_wheel:
+  - id: extra_hand
+    name: Extra Hand
+    description: +3 Hand In for next round
+    weight: 30
+
+  - id: bumper_unlock
+    name: Bumper Unlock
+    description: Unlock Bumper obstacle
+    weight: 20
+
+  - id: pocket_boom
+    name: Pocket Boom
+    description: Add Blast Slime to pocket
+    weight: 15
+
+  - id: pocket_pull
+    name: Pocket Pull
+    description: Add Magnet Slime to pocket
+    weight: 15
+
+  - id: score_boost
+    name: Score Boost
+    description: +500 bonus score
+    weight: 10
+
+  - id: rare_card
+    name: Rare Card
+    description: Next card offer is guaranteed Rare
+    weight: 10
+
+# Board dimensions
+board:
+  shelf_width: 400
+  shelf_height: 200
+  shelf_depth: 100
+  floor_width: 400
+  floor_height: 150
+  shooter_x: 200
+  shooter_y: 450
+  pusher_amplitude: 50
+  pusher_frequency: 1.0
+
+# Bad slime configuration
+bad_slime:
+  id: bad
+  name: Bad Slime
+  mass: 1.0
+  radius: 14
+  value: -5
+  color: "#ef4444"
+  description: Reduces Score Rate on floor contact.

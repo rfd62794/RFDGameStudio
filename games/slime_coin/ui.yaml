@@ -1,0 +1,126 @@
+layout_tree:
+  - id: header
+    type: row
+    height: 60
+    children:
+      - id: round_info
+        type: text
+        flex: 1
+        content: "Round {round}/15"
+      - id: score_info
+        type: text
+        flex: 1
+        content: "{score} / {target_score}"
+      - id: score_rate
+        type: text
+        flex: 1
+        content: "×{score_rate}"
+  
+  - id: main_content
+    type: row
+    flex: 1
+    children:
+      - id: left_panel
+        type: column
+        width: 120
+        children:
+          - id: spin_wheel
+            type: custom
+            height: 200
+          - id: pocket_coins
+            type: custom
+            flex: 1
+      
+      - id: board_area
+        type: custom
+        flex: 1
+      
+      - id: right_panel
+        type: column
+        width: 120
+        children:
+          - id: hand_in
+            type: text
+            height: 40
+            content: "Hand: {hand_in}"
+          - id: modifiers
+            type: custom
+            flex: 1
+  
+  - id: footer
+    type: row
+    height: 40
+    children:
+      - id: shooter_controls
+        type: text
+        flex: 1
+        content: "← → Aim | SPACE Fire"
+      - id: pocket_hint
+        type: text
+        flex: 1
+        content: "P: Pocket Coins"
+
+modals:
+  - id: card_select
+    type: column
+    children:
+      - id: card_select_title
+        type: text
+        height: 40
+        content: "Choose a Chip Card"
+      - id: card_options
+        type: row
+        flex: 1
+        children:
+          - id: card_1
+            type: custom
+            flex: 1
+          - id: card_2
+            type: custom
+            flex: 1
+          - id: card_3
+            type: custom
+            flex: 1
+  
+  - id: pocket_picker
+    type: column
+    children:
+      - id: pocket_title
+        type: text
+        height: 40
+        content: "Select Pocket Coin"
+      - id: pocket_options
+        type: row
+        flex: 1
+        children:
+          - id: pocket_boom
+            type: custom
+            flex: 1
+          - id: pocket_pull
+            type: custom
+            flex: 1
+          - id: pocket_echo
+            type: custom
+            flex: 1
+          - id: pocket_giga
+            type: custom
+            flex: 1
+  
+  - id: run_end
+    type: column
+    children:
+      - id: run_end_title
+        type: text
+        height: 40
+        content: "Run Complete"
+      - id: final_score
+        type: text
+        height: 40
+        content: "Final Score: {score}"
+      - id: run_summary
+        type: custom
+        flex: 1
+      - id: restart_button
+        type: button
+        height: 40
+        content: "New Run"
