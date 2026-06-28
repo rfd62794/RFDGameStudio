@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-**Phase 2v — Mutant Battle Ball — CERTIFIED**
+**Phase 2w — SlimeCoin — CERTIFIED**
 
 ## Phase 2v Completion Criteria
 
