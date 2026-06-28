@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
