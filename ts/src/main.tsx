@@ -16,8 +16,8 @@ function navigateTo(gameId: string): void {
   window.location.href = `?game=${gameId}`;
 }
 
-function navigateHome(): void {
-  window.location.href = '/';
+export function navigateHome(): void {
+  window.location.href = window.location.pathname;
 }
 
 // ── Game Selector (index page) ───────────────────────────────────────────────
@@ -140,4 +140,7 @@ function Root() {
   return gameId ? <GameLoader gameId={gameId} /> : <GameSelector />;
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<Root />);
+const rootEl = document.getElementById('root');
+if (rootEl) {
+  ReactDOM.createRoot(rootEl).render(<Root />);
+}
