@@ -1,4 +1,4 @@
-"""test_studio_mcp.py — Tests for studio_mcp tools (tests 22–28).
+"""test_studio_mcp.py — Tests for studio_mcp tools (tests 22–35).
 
 Tests call tool functions directly — no HTTP server needed.
 """
@@ -15,6 +15,9 @@ from studio_mcp.tools import (
     studio_run_headless,
     studio_validate_game,
     studio_run_tests,
+    studio_write_arcade_index,
+    studio_write_arcade_page,
+    studio_deploy_arcade,
 )
 
 
@@ -150,3 +153,134 @@ def test_studio_run_tests_returns_structure() -> None:
         assert isinstance(result['passed'], int)
         assert isinstance(result['failed'], int)
         assert 'floor_met' in result
+
+
+# ---------------------------------------------------------------------------
+# Test 31
+# ---------------------------------------------------------------------------
+
+def test_write_arcade_index_creates_file(tmp_path, monkeypatch) -> None:
+    """studio_write_arcade_index writes _index.md with valid frontmatter."""
+    import studio_mcp.tools as tools
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", tmp_path)
+
+    result = studio_write_arcade_index("RFDGameStudio", "Four games, one engine.")
+
+    assert "error" not in result
+    index_path = tmp_path / "content" / "games" / "rfdgamestudio" / "_index.md"
+    assert index_path.exists()
+    text = index_path.read_text(encoding="utf-8")
+    assert 'title: "RFDGameStudio"' in text
+    assert 'description: "Four games, one engine."' in text
+
+
+# ---------------------------------------------------------------------------
+# Test 32
+# ---------------------------------------------------------------------------
+
+def test_write_arcade_page_rejects_unknown_game_id(tmp_path, monkeypatch) -> None:
+    """studio_write_arcade_page returns error for unregistered game_id."""
+    import studio_mcp.tools as tools
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", tmp_path)
+
+    result = studio_write_arcade_page(
+        game_id="not_a_real_game",
+        slug="fake-game",
+        title="Fake",
+        demo_link="/arcade/rfdgamestudio/?game=fake",
+    )
+
+    assert "error" in result
+    assert "not_a_real_game" in result["error"]
+    # No file should have been written
+    assert not (tmp_path / "content" / "games" / "rfdgamestudio" / "fake-game.md").exists()
+
+
+# ---------------------------------------------------------------------------
+# Test 33
+# ---------------------------------------------------------------------------
+
+def test_write_arcade_page_creates_file_with_demo_link(tmp_path, monkeypatch) -> None:
+    """studio_write_arcade_page writes a .md file with demo_link in frontmatter."""
+    import studio_mcp.tools as tools
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", tmp_path)
+
+    result = studio_write_arcade_page(
+        game_id="horse_racing",
+        slug="horse-racing",
+        title="Horse Racing",
+        demo_link="/arcade/rfdgamestudio/?game=horse_racing",
+        engine="Lua + TypeScript",
+        controls_hint="Click to bet.",
+    )
+
+    assert "error" not in result
+    page_path = tmp_path / "content" / "games" / "rfdgamestudio" / "horse-racing.md"
+    assert page_path.exists()
+    text = page_path.read_text(encoding="utf-8")
+    assert 'demo_link: "/arcade/rfdgamestudio/?game=horse_racing"' in text
+    assert 'engine: "Lua + TypeScript"' in text
+    assert 'controls_hint: "Click to bet."' in text
+
+
+# ---------------------------------------------------------------------------
+# Test 34
+# ---------------------------------------------------------------------------
+
+def test_deploy_arcade_errors_without_dist(tmp_path, monkeypatch) -> None:
+    """studio_deploy_arcade returns error when ts/dist/ does not exist."""
+    import studio_mcp.tools as tools
+
+    # Monkeypatch __file__ parent so dist_dir points to a nonexistent path
+    fake_module_dir = tmp_path / "fake_module"
+    fake_module_dir.mkdir()
+    monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", tmp_path / "site")
+
+    result = studio_deploy_arcade()
+
+    assert "error" in result
+    assert "ts/dist/" in result["error"]
+
+
+# ---------------------------------------------------------------------------
+# Test 35
+# ---------------------------------------------------------------------------
+
+def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> None:
+    """studio_deploy_arcade copies dist/ files and invokes hugo + deploy."""
+    from unittest.mock import patch, MagicMock
+    import studio_mcp.tools as tools
+
+    # Create a fake dist/ with some files
+    fake_module_dir = tmp_path / "fake_module"
+    fake_module_dir.mkdir()
+    dist_dir = fake_module_dir.parent / "ts" / "dist"
+    # __file__ is fake_module/tools.py, so parent.parent is fake_module's parent
+    # dist_dir = Path(__file__).parent.parent / "ts" / "dist"
+    # = fake_module.parent / "ts" / "dist" = tmp_path / "ts" / "dist"
+    dist_dir = tmp_path / "ts" / "dist"
+    dist_dir.mkdir(parents=True)
+    (dist_dir / "index.html").write_text("<h1>Game</h1>", encoding="utf-8")
+    (dist_dir / "assets").mkdir()
+    (dist_dir / "assets" / "game.js").write_text("console.log('hi')", encoding="utf-8")
+
+    site_repo = tmp_path / "site"
+    site_repo.mkdir()
+    monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
+
+    mock_build = MagicMock(returncode=0, stdout="", stderr="")
+    mock_deploy = MagicMock(returncode=0, stdout="160 files uploaded")
+
+    with patch("subprocess.run", side_effect=[mock_build, mock_deploy]):
+        result = studio_deploy_arcade()
+
+    assert "error" not in result
+    assert result["copied_files"] >= 2
+    assert result["build"]["returncode"] == 0
+    assert result["deploy"]["returncode"] == 0
+    # Verify files were actually copied
+    target = site_repo / "static" / "arcade" / "rfdgamestudio"
+    assert (target / "index.html").exists()
+    assert (target / "assets" / "game.js").exists()

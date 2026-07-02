@@ -1,16 +1,20 @@
 """tools.py — MCP tool definitions for RFDStudioMCP.
 
-Ten tools exposed to Claude:
-  studio_load_game      — load a game session, return session_id
-  studio_call           — call a named Lua function on a session
-  studio_get_schema     — return entity schema from data.yaml
-  studio_get_systems    — return the systems.yaml manifest
-  studio_run_headless   — run a Lua function N times, return aggregated results
-  studio_validate_game  — validate all four game files
-  studio_run_tests      — run pytest and return structured results
-  studio_balance_report — run N race simulations, return win/place/show distribution
-  studio_get_state      — inspect GAME_STATE after init_game (slither_rogue)
-  studio_screenshot     — render PyGame frame and save as PNG
+Fourteen tools exposed to Claude:
+  studio_load_game           — load a game session, return session_id
+  studio_call                — call a named Lua function on a session
+  studio_get_schema          — return entity schema from data.yaml
+  studio_get_systems         — return the systems.yaml manifest
+  studio_run_headless        — run a Lua function N times, return aggregated results
+  studio_validate_game       — validate all four game files
+  studio_run_tests           — run pytest and return structured results
+  studio_balance_report      — run N race simulations, return win/place/show distribution
+  studio_get_state           — inspect GAME_STATE after init_game (slither_rogue)
+  studio_screenshot          — render PyGame frame and save as PNG
+  studio_build               — run vite build and return structured output
+  studio_write_arcade_index  — write the _index.md for the arcade bundle in the site repo
+  studio_write_arcade_page   — write a child game page under the arcade bundle
+  studio_deploy_arcade       — copy dist/ to site repo static, then hugo build + SFTP deploy
 
 All tools return dicts. Errors are returned as {"error": str, "tool": str}.
 No exceptions are raised to the MCP client.
@@ -29,6 +33,8 @@ from studio.runtime import load_game
 from studio_mcp.session_store import create_session, get_session
 
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
+
+_SITE_REPO_PATH = Path(os.environ.get("SITE_REPO_PATH", r"C:\Github\RFD_IT_Services_Site"))
 
 
 def _to_lua_table(lua_runtime, obj):
@@ -535,3 +541,122 @@ def studio_build() -> dict:
         return {'error': 'Build timed out (120s)', 'tool': 'studio_build'}
     except Exception as exc:
         return {'error': str(exc), 'tool': 'studio_build'}
+
+
+# ── ARCADE PUBLISHING TOOLS ─────────────────────────────────────────────────
+
+_KNOWN_GAME_IDS = {"horse_racing", "slither_rogue", "mutant_battle_ball", "slime_coin"}
+
+
+def studio_write_arcade_index(title: str, description: str) -> dict:
+    """Write content/games/rfdgamestudio/_index.md in the site repo.
+
+    Bundle index page — no relation to SECTION_SCHEMAS['games'], which
+    is a leaf-page schema. Only title and description required, matching
+    the existing top-level content/games/_index.md pattern.
+
+    Returns: {"path": str}
+    """
+    try:
+        bundle_dir = _SITE_REPO_PATH / "content" / "games" / "rfdgamestudio"
+        bundle_dir.mkdir(parents=True, exist_ok=True)
+        index_path = bundle_dir / "_index.md"
+        content = f"---\ntitle: \"{title}\"\ndescription: \"{description}\"\n---\n"
+        index_path.write_text(content, encoding="utf-8")
+        return {"path": str(index_path)}
+    except Exception as exc:
+        return {"error": str(exc), "tool": "studio_write_arcade_index"}
+
+
+def studio_write_arcade_page(
+    game_id: str,
+    slug: str,
+    title: str,
+    demo_link: str,
+    engine: str | None = None,
+    controls_hint: str | None = None,
+) -> dict:
+    """Write one child page under content/games/rfdgamestudio/ in the site repo.
+
+    game_id must exist in the TS GAME_REGISTRY — checked against the known
+    set: horse_racing, slither_rogue, mutant_battle_ball, slime_coin.
+    Writing a page for an unregistered game_id is a hard error.
+
+    demo_link renders via the site's existing game-embed.html partial.
+
+    Returns: {"path": str}
+    """
+    if game_id not in _KNOWN_GAME_IDS:
+        return {
+            "error": f"Unknown game_id: {game_id!r}. Must be one of {sorted(_KNOWN_GAME_IDS)}.",
+            "tool": "studio_write_arcade_page",
+        }
+    try:
+        bundle_dir = _SITE_REPO_PATH / "content" / "games" / "rfdgamestudio"
+        bundle_dir.mkdir(parents=True, exist_ok=True)
+        page_path = bundle_dir / f"{slug}.md"
+
+        fm_lines = [
+            "---",
+            f'title: "{title}"',
+            f'demo_link: "{demo_link}"',
+        ]
+        if engine:
+            fm_lines.append(f'engine: "{engine}"')
+        if controls_hint:
+            fm_lines.append(f'controls_hint: "{controls_hint}"')
+        fm_lines.append("---")
+        page_path.write_text("\n".join(fm_lines) + "\n", encoding="utf-8")
+
+        return {"path": str(page_path)}
+    except Exception as exc:
+        return {"error": str(exc), "tool": "studio_write_arcade_page"}
+
+
+def studio_deploy_arcade() -> dict:
+    """Copy ts/dist/ into the site repo's static/arcade/rfdgamestudio/,
+    then invoke the site repo's hugo build and deploy_smart.py as
+    subprocesses. Does not call studio_build first — dist/ must already
+    be fresh.
+
+    Returns: {"copied_files": int, "build": dict, "deploy": dict}
+    """
+    import shutil
+    import subprocess
+
+    dist_dir = Path(__file__).parent.parent / "ts" / "dist"
+    if not dist_dir.exists():
+        return {
+            "error": "ts/dist/ does not exist. Call studio_build first.",
+            "tool": "studio_deploy_arcade",
+        }
+
+    target_dir = _SITE_REPO_PATH / "static" / "arcade" / "rfdgamestudio"
+
+    try:
+        if target_dir.exists():
+            shutil.rmtree(target_dir)
+        shutil.copytree(dist_dir, target_dir)
+        copied_files = sum(1 for _ in target_dir.rglob("*") if _.is_file())
+
+        hugo_exe = _SITE_REPO_PATH / "hugo.exe"
+        build_proc = subprocess.run(
+            [str(hugo_exe), "--minify"],
+            cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
+        )
+        build_result = {"returncode": build_proc.returncode, "stderr": build_proc.stderr[-1000:]}
+        if build_proc.returncode != 0:
+            return {"copied_files": copied_files, "build": build_result,
+                     "error": "hugo build failed", "tool": "studio_deploy_arcade"}
+
+        venv_python = _SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe"
+        deploy_script = _SITE_REPO_PATH / "deploy_smart.py"
+        deploy_proc = subprocess.run(
+            [str(venv_python), str(deploy_script)],
+            cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
+        )
+        deploy_result = {"returncode": deploy_proc.returncode, "stdout": deploy_proc.stdout[-1000:]}
+
+        return {"copied_files": copied_files, "build": build_result, "deploy": deploy_result}
+    except Exception as exc:
+        return {"error": str(exc), "tool": "studio_deploy_arcade"}

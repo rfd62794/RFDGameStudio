@@ -1,10 +1,11 @@
 """server.py — RFDStudioMCP FastMCP SSE server on port 8025.
 
-Exposes eleven tools to Claude:
+Exposes fourteen tools to Claude:
   studio_load_game, studio_call, studio_get_schema,
   studio_get_systems, studio_run_headless, studio_validate_game,
   studio_run_tests, studio_balance_report, studio_get_state,
-  studio_screenshot, studio_build
+  studio_screenshot, studio_build,
+  studio_write_arcade_index, studio_write_arcade_page, studio_deploy_arcade
 
 Run with:
   uv run uvicorn studio_mcp.server:asgi_app --host 0.0.0.0 --port 8025
@@ -32,6 +33,9 @@ from studio_mcp.tools import (
     studio_run_tests,
     studio_screenshot,
     studio_validate_game,
+    studio_write_arcade_index,
+    studio_write_arcade_page,
+    studio_deploy_arcade,
 )
 
 mcp = FastMCP("RFDStudioMCP")
@@ -47,6 +51,9 @@ mcp.tool()(studio_balance_report)
 mcp.tool()(studio_get_state)
 mcp.tool()(studio_screenshot)
 mcp.tool()(studio_build)
+mcp.tool()(studio_write_arcade_index)
+mcp.tool()(studio_write_arcade_page)
+mcp.tool()(studio_deploy_arcade)
 
 
 async def health(request: Request) -> Response:

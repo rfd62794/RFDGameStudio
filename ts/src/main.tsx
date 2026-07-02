@@ -52,17 +52,6 @@ function GameSelector() {
               <div className="arcade-card-id">{config.gameId}</div>
             </button>
           ))}
-
-          {/* Coming soon placeholder */}
-          <div className="arcade-card arcade-card--coming-soon">
-            <div className="arcade-card-header">
-              <span className="arcade-card-title">More Coming</span>
-              <span className="arcade-status arcade-status--dev">SOON</span>
-            </div>
-            <p className="arcade-card-desc">
-              Coin Pusher · Mutant Battle Ball · and more.
-            </p>
-          </div>
         </div>
       </main>
 
