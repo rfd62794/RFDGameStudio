@@ -7,17 +7,19 @@ from __future__ import annotations
 import sys, time
 from pathlib import Path
 from dataclasses import dataclass, field
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 import pygame
+import pygame_gui
 from renderers.pygame.engine import PyGameEngine
 from renderers.pygame.colors import COLORS
 from renderers.pygame.shared.pygame_renderer import PyGameRenderer
 from .lua_to_entities import state_to_layers
 from .persistence import save_state, load_state
-from renderers.pygame.shared.ui_interpreter import interpret_region, interpret_component
-from renderers.pygame.shared.ui_hit_targets import HitTarget, dispatch_click
+from renderers.pygame.shared.ui_manager import UIManager
+from renderers.pygame.shared.ui_reconciler import UIReconciler
 
 # Panel split constants
 LEFT_SPLIT = 0.55   # left panel takes 55% of content width
@@ -123,19 +125,22 @@ class HorseRacingRenderer(PyGameEngine):
         self._generic_renderer = PyGameRenderer(width, height)
         self._generic_renderer.initialize(self.screen)
 
-        # Load ui.yaml component specs for interpreter
+        # pygame_gui UI manager + reconciler
+        self._ui_manager = UIManager(pygame.Rect(0, 0, width, height))
+        self._reconciler = UIReconciler(self._ui_manager)
+        self._last_tab = ''
+
+        # Load ui.yaml component specs
         ui = self.session.files.ui or {}
         self._ui_header = ui.get('header', {}).get('components', [])
         self._ui_footer = ui.get('footer', [])
         self._ui_tabs = ui.get('tabs', {})
 
-        # Hit targets rebuilt each frame
-        self._hit_targets: list[HitTarget] = []
-
         if saved:
             self._msg('Save loaded. Welcome back.')
 
     def update(self, dt: float) -> None:
+        self._ui_manager.update(dt)
         st = self.state
         # Decay message
         if st.message_timer > 0:
@@ -149,8 +154,11 @@ class HorseRacingRenderer(PyGameEngine):
             save_state(st)
 
     def handle_event(self, event: pygame.event.Event) -> None:
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self._handle_click(event.pos)
+        # Let pygame_gui process first — if it consumed the event, skip game input
+        if self._ui_manager.handle_event(event):
+            # Check for button press events
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                self._handle_button_event(event.ui_element)
             return
         if event.type != pygame.KEYDOWN:
             return
@@ -526,59 +534,24 @@ class HorseRacingRenderer(PyGameEngine):
 
     def render(self) -> None:
         data = self.session.files.data or {}
+
+        # state_to_layers owns game-world content only (skip_chrome=True)
+        # header/footer/tab_nav are owned by the pygame_gui reconciler
         layers = state_to_layers(
             state=self.state,
             bounds=self.bounds,
             colors=COLORS,
             data=data,
             lua_call=self.lua,
+            skip_chrome=True,
         )
-
-        # Reset hit targets for this frame
-        self._hit_targets = []
-
-        # Interpreter: header region
-        if self._ui_header and 'header' in self.bounds:
-            header_layers = interpret_region(
-                self._ui_header, self.bounds['header'], COLORS,
-                context=self.state, hit_targets=self._hit_targets,
-            )
-            for layer in header_layers:
-                layers[layer].extend(header_layers[layer])
-
-        # Interpreter: footer region
-        if self._ui_footer and 'footer' in self.bounds:
-            footer_layers = interpret_region(
-                self._ui_footer, self.bounds['footer'], COLORS,
-                context=self.state, hit_targets=self._hit_targets,
-            )
-            for layer in footer_layers:
-                layers[layer].extend(footer_layers[layer])
-
-        # Interpreter: simple components inside the active tab's content
-        tab_spec = self._ui_tabs.get(self.state.active_tab, {})
-        tab_content = tab_spec.get('content', [])
-        if tab_content and 'content' in self.bounds:
-            y = self.bounds['content'].y + 12
-            for node in tab_content:
-                node_type = node.get('type', '')
-                # Only interpret simple types; composites stay with state_to_layers
-                if node_type in ('label', 'stat_display', 'stat_bar', 'stat_row',
-                                 'badge', 'section', 'action_button',
-                                 'timestamp', 'link'):
-                    entities, cursor_advance = interpret_component(
-                        node,
-                        self.bounds['content'].x + 12,
-                        y,
-                        self.bounds['content'].w - 24,
-                        COLORS,
-                        context=self.state,
-                        hit_targets=self._hit_targets,
-                    )
-                    layers['hud'].extend(entities)
-                    y += cursor_advance
-
         self._generic_renderer.render_layered_entities(layers)
+
+        # Reconcile ui.yaml chrome (header, footer, tab content simple types)
+        self._reconcile_chrome()
+
+        # Draw pygame_gui on top of the game world
+        self._ui_manager.draw_ui(self.screen)
 
     def _msg(self, text: str, duration: float = 4.0) -> None:
         self.state.message = text
@@ -598,25 +571,53 @@ class HorseRacingRenderer(PyGameEngine):
             'stable_slot_available': len(st.horses) < st.unlocked_slots,
         }
 
-    def _handle_click(self, pos: tuple[int, int]) -> None:
-        """Route a mouse click to the first matching hit target."""
+    def _reconcile_chrome(self) -> None:
+        """Reconcile ui.yaml header/footer/tab-content into pygame_gui widgets."""
+        st = self.state
         ctx = self._build_requires_context()
-        # Find which target was hit before dispatch (to know the event name)
-        hit_event = None
-        for target in self._hit_targets:
-            if target.rect.collidepoint(pos):
-                if all(ctx.get(req, False) for req in target.requires):
-                    hit_event = target.event
-                    break
-                return  # disabled button
 
-        if hit_event is None:
+        # Clear widgets on tab switch
+        if self._last_tab != st.active_tab:
+            self._reconciler.clear()
+            self._last_tab = st.active_tab
+
+        # Reconcile header
+        if self._ui_header and 'header' in self.bounds:
+            hb = self.bounds['header']
+            self._reconciler.reconcile(
+                self._ui_header, hb.x + 12, hb.y + 4, hb.w - 24,
+                context=st, key_prefix='header',
+            )
+
+        # Reconcile footer
+        if self._ui_footer and 'footer' in self.bounds:
+            fb = self.bounds['footer']
+            self._reconciler.reconcile(
+                self._ui_footer, fb.x + 12, fb.y + 4, fb.w - 24,
+                context=st, key_prefix='footer',
+            )
+
+        # Reconcile simple types in active tab content
+        tab_spec = self._ui_tabs.get(st.active_tab, {})
+        tab_content = tab_spec.get('content', [])
+        if tab_content and 'content' in self.bounds:
+            cb = self.bounds['content']
+            self._reconciler.reconcile(
+                tab_content, cb.x + 12, cb.y + 12, cb.w - 24,
+                context=st, requires_context=ctx,
+                key_prefix=f'tab_{st.active_tab}',
+            )
+
+    def _handle_button_event(self, element: Any) -> None:
+        """Handle a pygame_gui UI_BUTTON_PRESSED event."""
+        found = self._reconciler.find_button_by_element(element)
+        if found is None:
             return
-
+        event_name, event_data = found
         data = self.session.files.data or {}
         st = self.state
 
-        if hit_event == 'sell_horse':
+        if event_name == 'sell_horse':
             if st.horses:
                 idx = min(st.selected_horse_idx, len(st.horses) - 1)
                 horse = st.horses[idx]
@@ -629,7 +630,7 @@ class HorseRacingRenderer(PyGameEngine):
                     save_state(st)
                     self._msg(f'Sold for ${price}.')
 
-        elif hit_event == 'breed_horses':
+        elif event_name == 'breed_horses':
             sires = ([h for h in st.horses if h.get('gender') == 'Stallion'] +
                      [h for h in data.get('public_studs', []) if h.get('gender') == 'Stallion'])
             dams = ([h for h in st.horses if h.get('gender') == 'Mare'] +
@@ -655,13 +656,8 @@ class HorseRacingRenderer(PyGameEngine):
                     else:
                         self._msg(str(err or 'Breeding failed.'))
 
-        elif hit_event == 'show_rules':
+        elif event_name == 'show_rules':
             self._msg('Race rules: Win=1st, Place=1st/2nd, Show=1st/2nd/3rd')
 
-        elif hit_event == 'show_genetics':
+        elif event_name == 'show_genetics':
             self._msg('Genetics: foals inherit averaged parent stats ± variation.')
-
-        else:
-            # Generic dispatch for unknown events
-            dispatch_click(pos, self._hit_targets, ctx, self.lua)
-            save_state(st)

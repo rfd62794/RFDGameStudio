@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Tuple
 
+import pygame
+
 from .ui_interpreter import resolve_binding
 
 # Only these two component types are handled this pass

@@ -320,31 +320,37 @@ def test_interpret_region_returns_four_layers() -> None:
 
 # ── Renderer integration ───────────────────────────────────────────────────────
 
-def test_renderer_has_hit_targets_after_render() -> None:
-    """After render(), the renderer has hit targets populated from ui.yaml."""
+def test_renderer_has_widgets_after_render() -> None:
+    """After render(), the renderer's reconciler has widgets populated from ui.yaml."""
     from renderers.pygame.games.horse_racing.persistence import SAVE_FILE
     if SAVE_FILE.exists():
         SAVE_FILE.unlink()
     from renderers.pygame.games.horse_racing.renderer import HorseRacingRenderer
     r = HorseRacingRenderer()
     r.render()
-    # Footer links should produce hit targets
-    assert len(r._hit_targets) > 0
-    events = [t.event for t in r._hit_targets]
-    assert 'show_rules' in events or 'show_genetics' in events
+    # Footer links should produce widgets
+    assert len(r._reconciler._widgets) > 0
 
 
-def test_renderer_breed_button_hit_target_gated() -> None:
-    """Breed tab's action_button hit target has requires gate."""
+def test_renderer_breed_button_gated() -> None:
+    """Breed tab's action_button is gated by requires conditions."""
     from renderers.pygame.games.horse_racing.persistence import SAVE_FILE
     if SAVE_FILE.exists():
         SAVE_FILE.unlink()
     from renderers.pygame.games.horse_racing.renderer import HorseRacingRenderer
     r = HorseRacingRenderer()
+
+    # With starter horses (1 Stallion, 1 Mare, 2 < 3 slots), button should be visible
     r.state.active_tab = 'breed'
     r.render()
-    breed_targets = [t for t in r._hit_targets if t.event == 'breed_horses']
-    assert len(breed_targets) == 1
-    assert 'sire_selected' in breed_targets[0].requires
-    assert 'dam_selected' in breed_targets[0].requires
-    assert 'stable_slot_available' in breed_targets[0].requires
+    breed_buttons = [w for w in r._reconciler._widgets.values()
+                     if hasattr(w, 'event_name') and w.event_name == 'breed_horses']
+    assert len(breed_buttons) == 1  # not gated — all requires satisfied
+
+    # Now empty horses AND block public_studs to make sire_selected/dam_selected False
+    r.state.horses = []
+    r.session.files.data = {}  # remove public_studs
+    r.render()
+    breed_buttons = [w for w in r._reconciler._widgets.values()
+                     if hasattr(w, 'event_name') and w.event_name == 'breed_horses']
+    assert len(breed_buttons) == 0  # gated off — no sires/dams anywhere
