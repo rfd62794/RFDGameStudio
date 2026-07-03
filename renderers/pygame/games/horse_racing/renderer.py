@@ -559,22 +559,24 @@ class HorseRacingRenderer(PyGameEngine):
         tab_spec = self._ui_tabs.get(self.state.active_tab, {})
         tab_content = tab_spec.get('content', [])
         if tab_content and 'content' in self.bounds:
+            y = self.bounds['content'].y + 12
             for node in tab_content:
                 node_type = node.get('type', '')
                 # Only interpret simple types; composites stay with state_to_layers
                 if node_type in ('label', 'stat_display', 'stat_bar', 'stat_row',
                                  'badge', 'section', 'action_button',
                                  'timestamp', 'link'):
-                    entities, _ = interpret_component(
+                    entities, cursor_advance = interpret_component(
                         node,
                         self.bounds['content'].x + 12,
-                        self.bounds['content'].y + 12,
+                        y,
                         self.bounds['content'].w - 24,
                         COLORS,
                         context=self.state,
                         hit_targets=self._hit_targets,
                     )
                     layers['hud'].extend(entities)
+                    y += cursor_advance
 
         self._generic_renderer.render_layered_entities(layers)
 
