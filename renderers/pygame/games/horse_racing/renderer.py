@@ -16,6 +16,8 @@ from renderers.pygame.colors import COLORS
 from renderers.pygame.shared.pygame_renderer import PyGameRenderer
 from .lua_to_entities import state_to_layers
 from .persistence import save_state, load_state
+from renderers.pygame.shared.ui_interpreter import interpret_region, interpret_component
+from renderers.pygame.shared.ui_hit_targets import HitTarget, dispatch_click
 
 # Panel split constants
 LEFT_SPLIT = 0.55   # left panel takes 55% of content width
@@ -121,6 +123,15 @@ class HorseRacingRenderer(PyGameEngine):
         self._generic_renderer = PyGameRenderer(width, height)
         self._generic_renderer.initialize(self.screen)
 
+        # Load ui.yaml component specs for interpreter
+        ui = self.session.files.ui or {}
+        self._ui_header = ui.get('header', {}).get('components', [])
+        self._ui_footer = ui.get('footer', [])
+        self._ui_tabs = ui.get('tabs', {})
+
+        # Hit targets rebuilt each frame
+        self._hit_targets: list[HitTarget] = []
+
         if saved:
             self._msg('Save loaded. Welcome back.')
 
@@ -138,6 +149,9 @@ class HorseRacingRenderer(PyGameEngine):
             save_state(st)
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self._handle_click(event.pos)
+            return
         if event.type != pygame.KEYDOWN:
             return
 
@@ -519,8 +533,133 @@ class HorseRacingRenderer(PyGameEngine):
             data=data,
             lua_call=self.lua,
         )
+
+        # Reset hit targets for this frame
+        self._hit_targets = []
+
+        # Interpreter: header region
+        if self._ui_header and 'header' in self.bounds:
+            header_layers = interpret_region(
+                self._ui_header, self.bounds['header'], COLORS,
+                context=self.state, hit_targets=self._hit_targets,
+            )
+            for layer in header_layers:
+                layers[layer].extend(header_layers[layer])
+
+        # Interpreter: footer region
+        if self._ui_footer and 'footer' in self.bounds:
+            footer_layers = interpret_region(
+                self._ui_footer, self.bounds['footer'], COLORS,
+                context=self.state, hit_targets=self._hit_targets,
+            )
+            for layer in footer_layers:
+                layers[layer].extend(footer_layers[layer])
+
+        # Interpreter: simple components inside the active tab's content
+        tab_spec = self._ui_tabs.get(self.state.active_tab, {})
+        tab_content = tab_spec.get('content', [])
+        if tab_content and 'content' in self.bounds:
+            for node in tab_content:
+                node_type = node.get('type', '')
+                # Only interpret simple types; composites stay with state_to_layers
+                if node_type in ('label', 'stat_display', 'stat_bar', 'stat_row',
+                                 'badge', 'section', 'action_button',
+                                 'timestamp', 'link'):
+                    entities, _ = interpret_component(
+                        node,
+                        self.bounds['content'].x + 12,
+                        self.bounds['content'].y + 12,
+                        self.bounds['content'].w - 24,
+                        COLORS,
+                        context=self.state,
+                        hit_targets=self._hit_targets,
+                    )
+                    layers['hud'].extend(entities)
+
         self._generic_renderer.render_layered_entities(layers)
 
     def _msg(self, text: str, duration: float = 4.0) -> None:
         self.state.message = text
         self.state.message_timer = duration
+
+    def _build_requires_context(self) -> dict:
+        """Build the requires-gate context from existing state."""
+        st = self.state
+        data = self.session.files.data or {}
+        sires = ([h for h in st.horses if h.get('gender') == 'Stallion'] +
+                 [h for h in data.get('public_studs', []) if h.get('gender') == 'Stallion'])
+        dams = ([h for h in st.horses if h.get('gender') == 'Mare'] +
+                [h for h in data.get('public_studs', []) if h.get('gender') == 'Mare'])
+        return {
+            'sire_selected': len(sires) > 0 and st.sire_idx < len(sires),
+            'dam_selected': len(dams) > 0 and st.dam_idx < len(dams),
+            'stable_slot_available': len(st.horses) < st.unlocked_slots,
+        }
+
+    def _handle_click(self, pos: tuple[int, int]) -> None:
+        """Route a mouse click to the first matching hit target."""
+        ctx = self._build_requires_context()
+        # Find which target was hit before dispatch (to know the event name)
+        hit_event = None
+        for target in self._hit_targets:
+            if target.rect.collidepoint(pos):
+                if all(ctx.get(req, False) for req in target.requires):
+                    hit_event = target.event
+                    break
+                return  # disabled button
+
+        if hit_event is None:
+            return
+
+        data = self.session.files.data or {}
+        st = self.state
+
+        if hit_event == 'sell_horse':
+            if st.horses:
+                idx = min(st.selected_horse_idx, len(st.horses) - 1)
+                horse = st.horses[idx]
+                result = self.lua('sell_horse', horse, st.funds)
+                if result:
+                    price = result.get('price', 0) if isinstance(result, dict) else 0
+                    st.funds += price
+                    st.horses.pop(idx)
+                    st.selected_horse_idx = max(0, idx - 1)
+                    save_state(st)
+                    self._msg(f'Sold for ${price}.')
+
+        elif hit_event == 'breed_horses':
+            sires = ([h for h in st.horses if h.get('gender') == 'Stallion'] +
+                     [h for h in data.get('public_studs', []) if h.get('gender') == 'Stallion'])
+            dams = ([h for h in st.horses if h.get('gender') == 'Mare'] +
+                    [h for h in data.get('public_studs', []) if h.get('gender') == 'Mare'])
+            if sires and dams:
+                sire = sires[min(st.sire_idx, len(sires) - 1)]
+                dam = dams[min(st.dam_idx, len(dams) - 1)]
+                stud_fee = 0
+                if not sire.get('player_owned', True):
+                    stud_fee += sire.get('price', 0) // 4
+                if not dam.get('player_owned', True):
+                    stud_fee += dam.get('price', 0) // 4
+                if st.funds >= stud_fee:
+                    foal, err = self.lua('breed_horses', sire, dam,
+                                         data.get('coat_colors', []),
+                                         data.get('silk_colors', []),
+                                         data.get('name_prefixes', []),
+                                         data.get('name_suffixes', []))
+                    if foal:
+                        st.foal = dict(foal)
+                        st.foal_cost = stud_fee
+                        self._msg(f'Foal ready: {st.foal.get("name")}. K=Claim, ESC=Discard')
+                    else:
+                        self._msg(str(err or 'Breeding failed.'))
+
+        elif hit_event == 'show_rules':
+            self._msg('Race rules: Win=1st, Place=1st/2nd, Show=1st/2nd/3rd')
+
+        elif hit_event == 'show_genetics':
+            self._msg('Genetics: foals inherit averaged parent stats ± variation.')
+
+        else:
+            # Generic dispatch for unknown events
+            dispatch_click(pos, self._hit_targets, ctx, self.lua)
+            save_state(st)
