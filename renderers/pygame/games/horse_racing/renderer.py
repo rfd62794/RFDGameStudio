@@ -135,6 +135,7 @@ class HorseRacingRenderer(PyGameEngine):
         self._ui_header = ui.get('header', {}).get('components', [])
         self._ui_footer = ui.get('footer', [])
         self._ui_tabs = ui.get('tabs', {})
+        self._ui_tab_list = ui.get('layout', {}).get('tabs', [])
 
         if saved:
             self._msg('Save loaded. Welcome back.')
@@ -537,6 +538,7 @@ class HorseRacingRenderer(PyGameEngine):
 
         # state_to_layers owns game-world content only (skip_chrome=True)
         # header/footer/tab_nav are owned by the pygame_gui reconciler
+        # (tab_bar via reconcile_tab_bar, header/footer via reconcile)
         layers = state_to_layers(
             state=self.state,
             bounds=self.bounds,
@@ -597,6 +599,14 @@ class HorseRacingRenderer(PyGameEngine):
                 context=st, key_prefix='footer',
             )
 
+        # Reconcile tab bar (tab_nav region)
+        if self._ui_tab_list and 'tab_nav' in self.bounds:
+            tb = self.bounds['tab_nav']
+            self._reconciler.reconcile_tab_bar(
+                self._ui_tab_list, st.active_tab,
+                tb.x, tb.y, tb.w,
+            )
+
         # Reconcile simple types in active tab content
         tab_spec = self._ui_tabs.get(st.active_tab, {})
         tab_content = tab_spec.get('content', [])
@@ -610,6 +620,13 @@ class HorseRacingRenderer(PyGameEngine):
 
     def _handle_button_event(self, element: Any) -> None:
         """Handle a pygame_gui UI_BUTTON_PRESSED event."""
+        # Check if it's a tab bar button first
+        tab_id = self._reconciler.find_tab_id_by_element(element)
+        if tab_id is not None:
+            self.state.active_tab = tab_id
+            return
+
+        # Otherwise it's an action_button
         found = self._reconciler.find_button_by_element(element)
         if found is None:
             return

@@ -210,6 +210,57 @@ class UIReconciler:
                 return (widget.event_name, widget.event_data)
         return None
 
+    def find_tab_id_by_element(self, element: Any) -> str | None:
+        """Find the tab_id for a given tab bar UI element."""
+        for key, widget in self._widgets.items():
+            if widget is element and key.startswith('tabbar_'):
+                return key[len('tabbar_'):]
+        return None
+
+    def reconcile_tab_bar(
+        self,
+        tabs: List[dict],
+        active_tab: str,
+        x: float,
+        y: float,
+        w: float,
+    ) -> float:
+        """One UIButton per layout.tabs entry. Active tab gets .select(),
+        inactive ones get .unselect() — using pygame_gui's native button states.
+
+        Returns the tab bar height (32px).
+        """
+        import pygame_gui
+
+        tab_h = 32
+        if not tabs:
+            return 0.0
+
+        tab_w = w / len(tabs)
+
+        for i, tab in enumerate(tabs):
+            tab_id = tab.get('id', str(i))
+            key = f"tabbar_{tab_id}"
+            tab_x = x + (i * tab_w)
+
+            if key not in self._widgets:
+                btn = pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect(int(tab_x), int(y), int(tab_w), tab_h),
+                    text=tab.get('label', tab_id),
+                    manager=self._manager.manager,
+                )
+                self._widgets[key] = btn
+
+            # Update active/inactive visual state
+            is_active = (tab_id == active_tab)
+            btn = self._widgets[key]
+            if is_active:
+                btn.select()
+            else:
+                btn.unselect()
+
+        return float(tab_h)
+
     def clear(self) -> None:
         """Kill all widgets — used when switching tabs."""
         for widget in self._widgets.values():

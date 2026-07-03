@@ -210,3 +210,89 @@ def test_no_double_render_header() -> None:
                        if e.get('y', 0) > 730 and e.get('type') == 'text'
                        and 'RIGHTS' in e.get('text', '')]
     assert len(footer_entities) == 0, "Footer text should not appear with skip_chrome=True"
+
+
+# ── Tab bar tests ──────────────────────────────────────────────────────────────
+
+TABS = [
+    {'id': 'stable', 'label': 'Stable', 'icon': 'home', 'default': True},
+    {'id': 'betting', 'label': 'Betting', 'icon': 'currency'},
+    {'id': 'breed', 'label': 'Breed', 'icon': 'genetics'},
+    {'id': 'history', 'label': 'History', 'icon': 'clock'},
+]
+
+
+def test_tab_bar_creates_one_button_per_tab(ui_setup) -> None:
+    """4 entries in layout.tabs → 4 UIButtons created."""
+    mgr, reconciler = ui_setup
+
+    reconciler.reconcile_tab_bar(TABS, 'stable', 0, 0, 800)
+    tab_buttons = {k: w for k, w in reconciler._widgets.items()
+                   if k.startswith('tabbar_')}
+    assert len(tab_buttons) == 4
+    assert 'tabbar_stable' in tab_buttons
+    assert 'tabbar_betting' in tab_buttons
+    assert 'tabbar_breed' in tab_buttons
+    assert 'tabbar_history' in tab_buttons
+
+
+def test_tab_bar_active_tab_visually_distinct(ui_setup) -> None:
+    """Active tab's button is selected, inactive ones are not."""
+    mgr, reconciler = ui_setup
+
+    reconciler.reconcile_tab_bar(TABS, 'betting', 0, 0, 800)
+    active_btn = reconciler._widgets['tabbar_betting']
+    inactive_btn = reconciler._widgets['tabbar_stable']
+
+    # pygame_gui UIButton.select() sets is_selected
+    assert active_btn.is_selected is True
+    assert inactive_btn.is_selected is False
+
+
+def test_tab_bar_click_updates_active_tab() -> None:
+    """UI_BUTTON_PRESSED on a tab button → st.active_tab changes to match."""
+    import os
+    os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
+    import pygame
+    import pygame_gui
+
+    from renderers.pygame.games.horse_racing.persistence import SAVE_FILE
+    if SAVE_FILE.exists():
+        SAVE_FILE.unlink()
+    from renderers.pygame.games.horse_racing.renderer import HorseRacingRenderer
+
+    pygame.init()
+    r = HorseRacingRenderer()
+    r.render()
+
+    # Find the 'betting' tab button
+    betting_btn = r._reconciler._widgets.get('tabbar_betting')
+    assert betting_btn is not None
+
+    # Simulate clicking it
+    r._handle_button_event(betting_btn)
+    assert r.state.active_tab == 'betting'
+
+    pygame.quit()
+
+
+def test_tab_bar_keyboard_still_works() -> None:
+    """K_2 still sets active_tab = 'betting' — existing path not broken."""
+    import os
+    os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
+    import pygame
+
+    from renderers.pygame.games.horse_racing.persistence import SAVE_FILE
+    if SAVE_FILE.exists():
+        SAVE_FILE.unlink()
+    from renderers.pygame.games.horse_racing.renderer import HorseRacingRenderer
+
+    pygame.init()
+    r = HorseRacingRenderer()
+    assert r.state.active_tab == 'stable'
+
+    # Press K_2 (keyboard shortcut for betting tab)
+    r.handle_event(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_2}))
+    assert r.state.active_tab == 'betting'
+
+    pygame.quit()
