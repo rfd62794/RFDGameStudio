@@ -46,7 +46,7 @@ def test_pygame_horse_racing_renderer_initializes() -> None:
 def test_pygame_betting_place_bet_deducts_funds() -> None:
     """Place a bet — funds decrease by bet amount."""
     from renderers.pygame.games.horse_racing.renderer import HorseRacingRenderer
-    from renderers.pygame.games.horse_racing.state import BetEntry
+    from renderers.pygame.games.horse_racing.renderer import BetEntry
     renderer = HorseRacingRenderer()
     initial_funds = renderer.state.funds
 
@@ -67,7 +67,7 @@ def test_pygame_betting_place_bet_deducts_funds() -> None:
 def test_pygame_run_race_settles_bets() -> None:
     """Run race after placing a bet — settle_bets called, bets cleared."""
     from renderers.pygame.games.horse_racing.renderer import HorseRacingRenderer
-    from renderers.pygame.games.horse_racing.state import BetResult
+    from renderers.pygame.games.horse_racing.renderer import BetResult
     renderer = HorseRacingRenderer()
 
     # Simulate race results state
