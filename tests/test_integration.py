@@ -101,10 +101,10 @@ def test_horse_racing_create_ai_race_odds_are_valid() -> None:
     assert err is None, f"create_ai_race failed: {err}"
     assert race is not None
 
-    participants = dict(race).get('participants')
+    participants = race.get('participants') if isinstance(race, dict) else dict(race).get('participants')
     assert participants is not None
-    for p in participants.values():
-        p_dict = dict(p)
+    for p in participants:
+        p_dict = p if isinstance(p, dict) else dict(p)
         odds = float(p_dict.get('odds', 0))
         assert 1.0 < odds < 100.0, f"Expected odds in (1, 100), got {odds}"
 

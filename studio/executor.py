@@ -38,6 +38,8 @@ def _is_lua_table(obj: Any) -> bool:
 
 def _to_python(obj: Any) -> Any:
     """Recursively convert lupa table proxies to plain Python dicts/lists."""
+    if isinstance(obj, tuple):
+        return tuple(_to_python(v) for v in obj)
     if not _is_lua_table(obj):
         return obj
     items = list(obj.items())
