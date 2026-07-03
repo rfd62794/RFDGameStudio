@@ -87,7 +87,7 @@ def _render_header(
     layers['hud'].append({
         "type": "text", "text": "DERBY SIM",
         "x": b.x + 20, "y": b.y + b.h // 2 - 10,
-        "color": text_c, "size": 18,
+        "color": text_c, "size": 18, "bold": True,
     })
 
     # Funds
@@ -99,7 +99,7 @@ def _render_header(
     layers['hud'].append({
         "type": "text", "text": f"${state.funds:,}",
         "x": b.x + b.w - 160, "y": b.y + 22,
-        "color": green, "size": 15,
+        "color": green, "size": 15, "bold": True,
     })
 
     # Message
@@ -143,6 +143,7 @@ def _render_tab_nav(
             "type": "text", "text": lbl,
             "x": tx + 10, "y": b.y + b.h // 2 - 7,
             "color": accent if active else muted, "size": 12,
+            "bold": active,
         })
 
 
@@ -215,7 +216,7 @@ def _render_stable(
         layers['hud'].append({
             "type": "text", "text": name,
             "x": b.x + pad + 10, "y": cy + 8,
-            "color": text_c, "size": 13,
+            "color": text_c, "size": 13, "bold": True,
         })
         layers['hud'].append({
             "type": "text", "text": f"G{gen} {gender}",
@@ -265,7 +266,7 @@ def _render_stable(
 
     layers['hud'].append({
         "type": "text", "text": h.get('name', '?'),
-        "x": dx, "y": dy, "color": text_c, "size": 15,
+        "x": dx, "y": dy, "color": text_c, "size": 15, "bold": True,
     })
     dy += 22
     gen_str = f"Gen {h.get('generation', 1)}  {h.get('gender', '')}"
@@ -360,7 +361,7 @@ def _render_betting(
     lx, ly = b.x + PAD, b.y + PAD
     layers['hud'].append({
         "type": "text", "text": "BETTING OFFICE",
-        "x": lx, "y": ly, "color": text_c, "size": 14,
+        "x": lx, "y": ly, "color": text_c, "size": 14, "bold": True,
     })
     ly += 22
 
@@ -377,7 +378,7 @@ def _render_betting(
         race = state.current_race
         layers['hud'].append({
             "type": "text", "text": race.get('name', 'Race'),
-            "x": lx, "y": ly, "color": accent, "size": 13,
+            "x": lx, "y": ly, "color": accent, "size": 13, "bold": True,
         })
         ly += 18
         layers['hud'].append({
@@ -433,7 +434,7 @@ def _render_betting(
 
     layers['hud'].append({
         "type": "text", "text": "BET SLIP",
-        "x": rx, "y": ry, "color": text_c, "size": 13,
+        "x": rx, "y": ry, "color": text_c, "size": 13, "bold": True,
     })
     ry += 20
 
@@ -449,7 +450,7 @@ def _render_betting(
     ry += 4
     layers['hud'].append({
         "type": "text", "text": f'Amount: ${state.bet_amount}',
-        "x": rx, "y": ry, "color": text_c, "size": 12,
+        "x": rx, "y": ry, "color": text_c, "size": 12, "bold": True,
     })
     ry += 20
 
@@ -490,7 +491,7 @@ def _render_betting(
             layers['hud'].append({
                 "type": "text", "text": pout,
                 "x": rx + rw - 70, "y": ry,
-                "color": won_color, "size": 11,
+                "color": won_color, "size": 11, "bold": True,
             })
             ry += 15
 
@@ -499,7 +500,7 @@ def _render_betting(
         layers['hud'].append({
             "type": "text",
             "text": f"Net: {'+' if net >= 0 else ''}${net}",
-            "x": rx, "y": ry + 4, "color": net_color, "size": 13,
+            "x": rx, "y": ry + 4, "color": net_color, "size": 13, "bold": True,
         })
 
     if state.race_results:
@@ -537,11 +538,11 @@ def _render_breed(
 
     layers['hud'].append({
         "type": "text", "text": "SIRES  (↑↓)",
-        "x": lx, "y": cy, "color": text_c, "size": 12,
+        "x": lx, "y": cy, "color": text_c, "size": 12, "bold": True,
     })
     layers['hud'].append({
         "type": "text", "text": "DAMS   (←→)",
-        "x": rx, "y": cy, "color": text_c, "size": 12,
+        "x": rx, "y": cy, "color": text_c, "size": 12, "bold": True,
     })
     cy += 20
 
@@ -574,7 +575,7 @@ def _render_breed(
         layers['hud'].append({
             "type": "text",
             "text": f'Foal ready: {state.foal.get("name", "?")}',
-            "x": b.x + PAD, "y": footer_y, "color": green, "size": 13,
+            "x": b.x + PAD, "y": footer_y, "color": green, "size": 13, "bold": True,
         })
         layers['hud'].append({
             "type": "text", "text": "K = Claim  ESC = Discard",
@@ -626,7 +627,7 @@ def _render_history(
         layers['hud'].append({
             "type": "text", "text": name,
             "x": b.x + PAD + 10, "y": cy + 8,
-            "color": text_c, "size": 13,
+            "color": text_c, "size": 13, "bold": True,
         })
         layers['hud'].append({
             "type": "text", "text": f'{dist}m · Prize ${prize:,}',

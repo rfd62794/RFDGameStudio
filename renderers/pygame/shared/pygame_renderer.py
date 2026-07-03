@@ -115,9 +115,10 @@ class PyGameRenderer(RenderAdapter):
                     pygame.draw.ellipse(layer_surface, color, rect, entity.get("line_width", 0))
                 elif e_type == "text":
                     text_str = entity.get("text", "")
-                    font_name = entity.get("font", "monospace")
+                    font_name = entity.get("font", "Segoe UI")
                     font_size = entity.get("size", 14)
-                    text_surface = FontManager().render_text(text_str, font_name, font_size, color)
+                    bold = entity.get("bold", False)
+                    text_surface = FontManager().render_text(text_str, font_name, font_size, color, bold)
                     layer_surface.blit(text_surface, (x, y))
                 elif e_type == "sprite":
                     sprite_key = entity.get("sprite_key", "")

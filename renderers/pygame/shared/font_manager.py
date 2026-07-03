@@ -24,28 +24,26 @@ class FontManager:
             pygame.font.init()
         self._initialized = True
 
-    def get_font(self, name: str, size: int) -> Any:
+    def get_font(self, name: str, size: int, bold: bool = False) -> Any:
         # For tests, return a dummy object
         if os.environ.get("PYTEST_CURRENT_TEST"):
             return "DummyFont"
             
         import pygame
-        key = f"{name}_{size}"
+        key = f"{name}_{size}_{bold}"
         if key not in self._fonts:
             try:
-                # Attempt to use a system font
-                self._fonts[key] = pygame.font.SysFont(name, size)
+                self._fonts[key] = pygame.font.SysFont(name, size, bold=bold)
             except Exception:
-                # Fallback to default
                 self._fonts[key] = pygame.font.Font(None, size)
                 
         return self._fonts[key]
 
-    def render_text(self, text: str, font_name: str, size: int, color: tuple = (255, 255, 255)) -> Any:
+    def render_text(self, text: str, font_name: str, size: int, color: tuple = (255, 255, 255), bold: bool = False) -> Any:
         if os.environ.get("PYTEST_CURRENT_TEST"):
             return "DummySurface"
             
-        font = self.get_font(font_name, size)
+        font = self.get_font(font_name, size, bold)
         return font.render(str(text), True, color)
 
     def clear(self) -> None:
