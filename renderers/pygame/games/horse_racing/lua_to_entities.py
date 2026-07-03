@@ -27,6 +27,7 @@ def state_to_layers(
     colors: dict,
     data: dict,
     lua_call: Any | None = None,
+    skip_chrome: bool = False,
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
     Translate horse_racing renderer state into a layers_dict.
@@ -44,6 +45,7 @@ def state_to_layers(
         data: parsed data.yaml dict
         lua_call: optional callable for Lua function invocations
                   (e.g. lua_call('calculate_horse_price', horse))
+        skip_chrome: if True, skip header/footer/tab_nav rendering (owned by reconciler)
 
     Returns:
         dict with keys from VALID_LAYERS, each a list of entity dicts.
@@ -52,10 +54,12 @@ def state_to_layers(
         layer: [] for layer in VALID_LAYERS
     }
 
-    _render_header(layers, state, bounds, colors)
-    _render_tab_nav(layers, state, bounds, colors)
+    if not skip_chrome:
+        _render_header(layers, state, bounds, colors)
+        _render_tab_nav(layers, state, bounds, colors)
     _render_content(layers, state, bounds, colors, data, lua_call)
-    _render_footer(layers, state, bounds, colors)
+    if not skip_chrome:
+        _render_footer(layers, state, bounds, colors)
     _render_confirm_overlay(layers, state, bounds, colors)
 
     return layers

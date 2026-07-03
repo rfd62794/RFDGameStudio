@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.111.0",
     "uvicorn>=0.29.0",
     "mcp>=1.0.0,<2",
+    "pygame_gui>=0.6.9",
 ]
 
 [dependency-groups]
