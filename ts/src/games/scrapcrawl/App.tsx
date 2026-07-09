@@ -198,13 +198,14 @@ export default function App({ session }: GameRendererProps) {
 
             <div className="sc-interact">
               <div className="sc-interact-label">Interact Node</div>
-              {canFight ? (
-                <button className="sc-button sc-fight-button" onClick={handleFight}>
-                  <Dices size={14} /> Resolve Combat (D20)
-                </button>
-              ) : (
-                <div className="sc-safe-zone">Safe zone. No hostilities here.</div>
-              )}
+              <button
+                className="sc-button sc-fight-button"
+                onClick={handleFight}
+                disabled={!canFight}
+                title={canFight ? 'Resolve a D20 combat encounter' : 'No combat encounters detected in this node'}
+              >
+                <Dices size={14} /> {canFight ? 'Resolve Combat (D20)' : 'No Combat Here'}
+              </button>
             </div>
 
             {lastResult && (

@@ -124,15 +124,61 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(ScrapCrawlApp, { session }));
     });
 
-    const button = container.querySelector('button');
-    expect(button).toBeTruthy();
+    // Move from Home Base to a fight room first.
+    const moveButton = container.querySelector('.sc-connection');
+    expect(moveButton).toBeTruthy();
 
     await act(async () => {
-      button!.click();
+      moveButton!.click();
+    });
+
+    const fightButton = container.querySelector('.sc-fight-button') as HTMLButtonElement | null;
+    expect(fightButton).toBeTruthy();
+    expect(fightButton!.disabled).toBe(false);
+
+    await act(async () => {
+      fightButton!.click();
     });
 
     const text = container.textContent ?? '';
     expect(text.includes('WIN') || text.includes('LOSS')).toBe(true);
+    root.unmount();
+  });
+
+  it('test_fight_button_disabled_at_home_base', async () => {
+    const session = loadGame('scrapcrawl');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    const fightButton = container.querySelector('.sc-fight-button') as HTMLButtonElement | null;
+    expect(fightButton).toBeTruthy();
+    expect(fightButton!.disabled).toBe(true);
+    root.unmount();
+  });
+
+  it('test_fight_button_enabled_in_fight_room', async () => {
+    const session = loadGame('scrapcrawl');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    const moveButton = container.querySelector('.sc-connection') as HTMLButtonElement | null;
+    expect(moveButton).toBeTruthy();
+
+    await act(async () => {
+      moveButton!.click();
+    });
+
+    const fightButton = container.querySelector('.sc-fight-button') as HTMLButtonElement | null;
+    expect(fightButton).toBeTruthy();
+    expect(fightButton!.disabled).toBe(false);
     root.unmount();
   });
 });
