@@ -128,9 +128,10 @@ export default function App({ session }: GameRendererProps) {
 
   return (
     <GameShell
-      header={
+      gameLabel="MUTANT BATTLE BALL"
+      gameId="mutant_battle_ball"
+      statusArea={
         <div className="mbb-header">
-          <span className="mbb-title">MUTANT BATTLE BALL</span>
           <span className="mbb-iron">⚙ {state.iron} IRON</span>
           {error && <span className="mbb-error">{error}</span>}
         </div>

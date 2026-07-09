@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
 import type { EvolutionCard } from './types';
+import { GameShell } from '../../components';
 import MainMenu from './components/MainMenu';
 import GameHUD from './components/GameHUD';
 import GameCanvas from './components/GameCanvas';
@@ -107,7 +108,20 @@ export default function App({ session }: GameRendererProps) {
   const shieldCharges = activeEvolutions.shield;
 
   return (
-    <div className="sr-shell">
+    <GameShell
+      gameLabel="SLITHER ROGUE"
+      gameId="slither_rogue"
+      statusArea={
+        screen === 'game' ? (
+          <div className="sr-shell-status">
+            <span>Score {score}</span>
+            <span>Length {currentLength}</span>
+            <span>Time {Math.ceil(timeLeft)}</span>
+          </div>
+        ) : null
+      }
+    >
+      <div className="sr-shell" style={{ minHeight: 'auto', height: '100%' }}>
       {screen === 'menu' && (
         <MainMenu session={session} onStartGame={handleStartGame} />
       )}
@@ -184,5 +198,6 @@ export default function App({ session }: GameRendererProps) {
         />
       )}
     </div>
+    </GameShell>
   );
 }

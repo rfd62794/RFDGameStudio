@@ -150,7 +150,9 @@ export default function App({ session }: GameRendererProps) {
   
   return (
     <GameShell
-      header={
+      gameLabel="SLIME COIN"
+      gameId="slime_coin"
+      statusArea={
         <div className="sc-header">
           <span className="sc-round">Round {state.round}/{state.total_rounds}</span>
           <span className="sc-score">{state.score} / {state.target_score}</span>

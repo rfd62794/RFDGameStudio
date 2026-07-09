@@ -1,7 +1,7 @@
 import './styles.css';
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Coins } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { call, getSchema } from '../../engine/runtime';
 import type { GameRendererProps, GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
 import { RuntimeError } from '../../engine/types';
@@ -10,6 +10,7 @@ import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
+import { GameShell } from '../../components';
 import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
 import { resolveViewport, buildBoundsMap, type LayoutNode } from '../../engine/ui_resolver';
 import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
@@ -483,7 +484,20 @@ export default function App({ session }: GameRendererProps) {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+    <GameShell
+      gameLabel="DERBY SIM"
+      gameId="horse_racing"
+      statusArea={
+        <div className="header-bank">
+          <div className="bank-icon"><Coins size={14} /></div>
+          <div>
+            <div className="bank-label">STABLE BANK</div>
+            <div className="bank-amount">${gameState.funds.toLocaleString()}</div>
+          </div>
+        </div>
+      }
+    >
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Interpreter renders structural scaffold */}
       {uiElements}
 
@@ -497,35 +511,15 @@ export default function App({ session }: GameRendererProps) {
           height: slots['content'].bounds.h,
         }}>
           <div className="app-shell">
-      <header className="app-header-styled">
-        <div className="header-brand">
-          <div className="header-logo"><Trophy size={18} /></div>
-          <div>
-            <div className="header-title">DERBY SIM <span className="header-version">v1.2</span></div>
-            <div className="header-subtitle">CHAMPIONSHIP SEASON • RACING &amp; BREEDING</div>
-          </div>
-        </div>
 
-        {!isRacingActive && (
-          <nav className="header-tabs">
-            {tabs.map(t => (
-              <button key={t['id'] as string}
-                className={`header-tab-btn${activeTab === t['id'] ? ' active' : ''}`}
-                onClick={() => setActiveTab(t['id'] as string)}>
-                {t['label'] as string}
-              </button>
-            ))}
-          </nav>
-        )}
-
-        <div className="header-bank">
-          <div className="bank-icon"><Coins size={14} /></div>
-          <div>
-            <div className="bank-label">STABLE BANK</div>
-            <div className="bank-amount">${gameState.funds.toLocaleString()}</div>
-          </div>
-        </div>
-      </header>
+      {!isRacingActive && (
+        <TabBar
+          tabs={tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string }))}
+          active={activeTab}
+          onSelect={setActiveTab}
+          variant="default"
+        />
+      )}
 
       {!isRacingActive && (
         <TabBar
@@ -640,5 +634,6 @@ export default function App({ session }: GameRendererProps) {
         </div>
       )}
     </div>
+    </GameShell>
   );
 }

@@ -73,9 +73,10 @@ export default function App({ session }: GameRendererProps) {
 
   return (
     <GameShell
-      header={
+      gameLabel="CHIMERA WILDS"
+      gameId="chimera_wilds"
+      statusArea={
         <div className="cw-header">
-          <span className="cw-title">CHIMERA WILDS</span>
           <span className="cw-player">Player {state.player.power} PWR / {state.player.endurance} END</span>
           {error && <span className="cw-error">{error}</span>}
         </div>

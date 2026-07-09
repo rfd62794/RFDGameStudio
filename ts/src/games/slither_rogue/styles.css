@@ -1,16 +1,34 @@
 /* ─── Shell & Layout ─────────────────────────────────────────────────────── */
 .sr-shell {
-  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   background: #030712;
   color: #f1f5f9;
   font-family: system-ui, sans-serif;
+  overflow: hidden;
 }
 
 .sr-game-wrap {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
+}
+
+.sr-shell-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text);
+}
+
+.sr-shell-status span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .sr-canvas-wrap {
