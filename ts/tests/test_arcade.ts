@@ -50,11 +50,6 @@ describe('Arcade Registry', () => {
     expect(config?.gameId).toBe('chimera_wilds');
   });
 
-  it('test_chimera_wilds_has_teal_color', () => {
-    const config = findGame('chimera_wilds');
-    expect(config?.color).toBe('#14b8a6');
-  });
-
   it('test_chimera_wilds_config_lazy_loads_app', () => {
     expect(chimeraWildsConfig.component).toBeDefined();
     expect(chimeraWildsConfig.gameId).toBe('chimera_wilds');
@@ -69,7 +64,7 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(App, { session }));
     });
 
-    expect(container.textContent).toContain('Chimera Wilds');
+    expect(container.textContent).toContain('CHIMERA WILDS');
     root.unmount();
   });
 

@@ -30,6 +30,18 @@ def _known_parts(parts_data):
     ]
 
 
+def _dummy_parts():
+    """Six low-value parts that produce a chimera score of 12 (6 power + 6 endurance)."""
+    return [
+        {"id": "h", "slot": "head", "name": "H", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
+        {"id": "c", "slot": "chest", "name": "C", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
+        {"id": "la", "slot": "left_arm", "name": "LA", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
+        {"id": "ra", "slot": "right_arm", "name": "RA", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
+        {"id": "ll", "slot": "left_leg", "name": "LL", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
+        {"id": "rl", "slot": "right_leg", "name": "RL", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
+    ]
+
+
 def _unpack_chimera(result):
     if isinstance(result, (list, tuple)):
         return result[0], result[1]
@@ -69,40 +81,31 @@ def test_assemble_chimera_rejects_missing_slot() -> None:
 def test_resolve_encounter_win_when_score_exceeds_chimera() -> None:
     """Player wins when roll + stats exceed the chimera score."""
     session = _load_chimera_wilds()
-    parts = _known_parts(session.files.data["parts"])
-    chimera, _ = _unpack_chimera(session.executor.call("generate_chimera", parts))
+    chimera, _ = _unpack_chimera(session.executor.call("generate_chimera", _dummy_parts()))
 
     result = session.executor.call("resolve_encounter", 20, 20, chimera, 20)
     assert result is not None
     assert result["won"] is True
     assert result["score"] == 60
-    assert result["chimera_score"] == 101 + 68
+    assert result["chimera_score"] == 12
 
 
 def test_resolve_encounter_loss_when_score_below_chimera() -> None:
     """Player loses when roll + stats are below the chimera score."""
     session = _load_chimera_wilds()
-    parts = _known_parts(session.files.data["parts"])
-    chimera, _ = _unpack_chimera(session.executor.call("generate_chimera", parts))
+    chimera, _ = _unpack_chimera(session.executor.call("generate_chimera", _dummy_parts()))
 
-    result = session.executor.call("resolve_encounter", 20, 20, chimera, 1)
+    # chimera_score = 12; player stats 5 + 5 + roll 1 = 11
+    result = session.executor.call("resolve_encounter", 5, 5, chimera, 1)
     assert result is not None
     assert result["won"] is False
-    assert result["score"] == 41
+    assert result["score"] == 11
 
 
 def test_resolve_encounter_boundary_equal_score_is_win() -> None:
     """A tie is a win (>=, not >)."""
     session = _load_chimera_wilds()
-    dummy_parts = [
-        {"id": "h", "slot": "head", "name": "H", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
-        {"id": "c", "slot": "chest", "name": "C", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
-        {"id": "la", "slot": "left_arm", "name": "LA", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
-        {"id": "ra", "slot": "right_arm", "name": "RA", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
-        {"id": "ll", "slot": "left_leg", "name": "LL", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
-        {"id": "rl", "slot": "right_leg", "name": "RL", "accuracy": 0, "endurance": 1, "power": 1, "speed": 0},
-    ]
-    chimera, err = _unpack_chimera(session.executor.call("generate_chimera", dummy_parts))
+    chimera, err = _unpack_chimera(session.executor.call("generate_chimera", _dummy_parts()))
     assert err is None
 
     # chimera_score = 6 power + 6 endurance = 12

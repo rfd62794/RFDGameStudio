@@ -1,10 +1,48 @@
 # RFDGameStudio — Project State
 
-*Last updated: June 2026*
+*Last updated: July 2026*
 
 ## Current Phase
 
 **Phase 2w — SlimeCoin — CERTIFIED**
+
+## Chimera Wilds Phase 1 — Minimal Encounter Loop — PENDING
+
+## Chimera Wilds Phase 1 Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `games/chimera_wilds/data.yaml` — copied MBB part catalog, baseline player stats | ✅ |
+| `games/chimera_wilds/logic.lua` — `generate_chimera` + `resolve_encounter` | ✅ |
+| `games/chimera_wilds/ui.yaml` — single-screen layout with `hud` slot | ✅ |
+| `games/chimera_wilds/systems.yaml` — encounter system, empty `engine_systems` | ✅ |
+| `ts/src/games/chimera_wilds/types.ts` — `Part`, `Chimera`, `EncounterResult`, `ChimeraWildsGameState` | ✅ |
+| `ts/src/games/chimera_wilds/config.ts` — game config with `#14b8a6` teal color, lazy-loaded `App` | ✅ |
+| `ts/src/games/chimera_wilds/App.tsx` — React app with `GameShell`, `useLuaCall`, encounter button | ✅ |
+| `ts/src/games/chimera_wilds/styles.css` — game-specific styles | ✅ |
+| `ts/src/engine/loader.ts` — `chimera_wilds` YAML imports added to `GAME_ASSETS` | ✅ |
+| `ts/src/games/registry.ts` — `chimera_wilds` registered | ✅ |
+| `tests/test_chimera_wilds.py` — 8 new tests (163 total) | ✅ |
+| `ts/tests/test_arcade.ts` — 4 new Chimera Wilds tests (45 total) | ✅ |
+| Python floor: `pytest -v` → **163 passed, 0 failed** (was 155) | ✅ |
+| TS floor: `cd ts && npx vitest run` → **45 passed, 0 failed** (was 41) | ✅ |
+| `studio_validate_game('chimera_wilds')` → valid=True, no issues | ✅ |
+
+**Test proof:**
+```
+pytest -v
+→ 163 passed in 3.20s
+cd ts && npx vitest run
+→ 45 passed (45)
+```
+
+**Validation proof:**
+```
+studio_validate_game('chimera_wilds')
+→ {'valid': True, 'game_id': 'chimera_wilds', 'issues': []}
+```
+
+
 
 ## Phase 2w Completion Criteria
 
