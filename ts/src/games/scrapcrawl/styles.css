@@ -1,133 +1,661 @@
+/* scrapcrawl/styles.css — Phase A.1 redesign
+   Uses shared tokens from ui/tokens.css. The only deliberate hex override is
+   the ScrapCrawl signature background, chosen to match the original
+   examples/scrapcrawl near-black canvas (#07090d) while staying inside the
+   token system via the --sc-surface override below. */
+
 .sc-loading {
   padding: 2rem;
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
-.sc-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: #1f2937;
-  border-bottom: 2px solid #f59e0b;
-}
+/* Signature override: original ScrapCrawl identity is a near-black canvas.
+   Everything else derives from shared tokens or transparent overlays. */
+.sc-dashboard {
+  --sc-surface: #07090d;
 
-.sc-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #f59e0b;
-  letter-spacing: 0.05em;
-}
-
-.sc-status {
-  font-size: 0.875rem;
-  color: #d1d5db;
-}
-
-.sc-error {
-  color: #f87171;
-  font-size: 0.875rem;
-}
-
-.sc-footer {
-  padding: 0.5rem 1rem;
-  font-size: 0.75rem;
-  color: #9ca3af;
-  text-align: center;
-  background: #111827;
-  border-top: 1px solid #374151;
-}
-
-.sc-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
   overflow-y: auto;
-  background: #111827;
+  background: var(--sc-surface);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.sc-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .sc-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .sc-panel {
-  background: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 1rem;
-}
-
-.sc-panel h2,
-.sc-panel h3 {
-  margin: 0 0 0.75rem 0;
-  color: #f59e0b;
-  font-size: 1rem;
-}
-
-.sc-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sc-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.25rem 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Header (inside GameShell) */
+.sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-header-brand {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
 }
 
-.sc-button {
+.sc-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.sc-phase {
+  padding: 0.15rem 0.4rem;
+  border-radius: calc(var(--radius) / 2);
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sc-header-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.sc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.sc-stat-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sc-stat-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sc-stat-accent {
+  color: var(--accent);
+}
+
+.sc-stat-badge {
+  padding: 0.15rem 0.45rem;
+  border-radius: calc(var(--radius) / 2);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.sc-badge-active {
+  background: color-mix(in srgb, var(--green) 10%, transparent);
+  color: var(--green);
+  border-color: color-mix(in srgb, var(--green) 25%, transparent);
+}
+
+.sc-badge-locked {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.sc-error {
+  color: var(--red);
+  font-size: 0.8rem;
+}
+
+.sc-footer {
   padding: 0.5rem 1rem;
-  background: #f59e0b;
-  color: #111827;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 600;
-  cursor: pointer;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 }
 
-.sc-button:hover {
-  background: #fbbf24;
+/* Buttons */
+.sc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) / 2);
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.sc-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .sc-button:disabled {
-  background: #4b5563;
   cursor: not-allowed;
+  opacity: 0.55;
 }
 
-.sc-message {
-  margin: 0.5rem 0 0 0;
-  font-size: 0.875rem;
-  color: #d1d5db;
+@media (prefers-reduced-motion: reduce) {
+  .sc-button {
+    transition: none;
+  }
 }
 
-.sc-badge {
-  display: inline-block;
-  margin-top: 0.75rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.25rem;
+.sc-fight-button {
+  width: 100%;
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 35%, transparent);
+}
+
+.sc-fight-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+.sc-connection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) / 2);
+  color: var(--text);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sc-connection:hover {
+  background: var(--surface2);
+  border-color: var(--border);
+}
+
+.sc-connection:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.sc-craft-button {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.6rem;
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.sc-craft-button:hover:not(:disabled) {
+  border-color: var(--accent-dim);
+}
+
+.sc-button-affordable {
+  color: var(--text);
+}
+
+.sc-button-unaffordable {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* World graph */
+.sc-current-room {
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: var(--radius);
+}
+
+.sc-current-room-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.sc-current-room-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  font-size: 0.875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
-.sc-win {
-  background: #065f46;
-  color: #34d399;
+.sc-current-room-id {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-.sc-loss {
-  background: #7f1d1d;
-  color: #f87171;
+.sc-current-room-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
-.sc-history ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.sc-room-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
-.sc-history li {
-  padding: 0.35rem 0;
-  border-bottom: 1px solid #374151;
-  font-size: 0.875rem;
-  color: #d1d5db;
+.sc-room-tag {
+  padding: 0.15rem 0.45rem;
+  border-radius: calc(var(--radius) / 2);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
 }
 
-.sc-history li:last-child {
+.sc-tag-fight {
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 25%, transparent);
+}
+
+.sc-tag-craft {
+  background: color-mix(in srgb, var(--yellow) 10%, transparent);
+  color: var(--yellow);
+  border-color: color-mix(in srgb, var(--yellow) 25%, transparent);
+}
+
+.sc-tag-safe {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.sc-tag-diff {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.sc-interact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sc-interact-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sc-safe-zone {
+  padding: 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.sc-last-roll {
+  padding: 0.65rem;
+  background: var(--sc-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+}
+
+.sc-last-roll-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.sc-last-roll-body span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sc-text-win {
+  color: var(--green);
+}
+
+.sc-text-loss {
+  color: var(--red);
+}
+
+.sc-connections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sc-connection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sc-connection-name {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.sc-connection-badge {
+  padding: 0.1rem 0.35rem;
+  border-radius: calc(var(--radius) / 2);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.sc-badge-fight {
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 25%, transparent);
+}
+
+.sc-badge-safe {
+  background: color-mix(in srgb, var(--green) 10%, transparent);
+  color: var(--green);
+  border-color: color-mix(in srgb, var(--green) 25%, transparent);
+}
+
+/* Equipment table */
+.sc-equipment-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.sc-equipment-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 45px 140px 120px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.65rem 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-equipment-row:last-child {
   border-bottom: none;
+}
+
+.sc-equipment-header {
+  padding-top: 0;
+  padding-bottom: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-slot-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.sc-asset-name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sc-durability-cell,
+.sc-proficiency-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sc-durability-bar,
+.sc-proficiency-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sc-durability-fill,
+.sc-proficiency-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.sc-durability-low {
+  background: var(--red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-durability-fill,
+  .sc-proficiency-fill {
+    transition: none;
+  }
+}
+
+.sc-durability-text,
+.sc-proficiency-text {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.sc-durability-empty {
+  color: var(--text-muted);
+}
+
+.sc-broken {
+  margin-left: 0.35rem;
+  color: var(--red);
+  font-weight: 700;
+}
+
+.sc-proficiency-factor {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.sc-rule {
+  margin-top: auto;
+  padding: 0.65rem;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: var(--radius);
+  font-size: 0.65rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* Crafting catalog */
+.sc-crafting {
+  min-height: 0;
+}
+
+.sc-recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  overflow-y: auto;
+}
+
+.sc-recipe-card {
+  padding: 0.75rem;
+  background: var(--sc-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.sc-recipe-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.sc-recipe-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sc-recipe-slot {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sc-recipe-icon {
+  color: var(--text-muted);
+}
+
+.sc-recipe-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.sc-recipe-tier {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sc-recipe-tier svg {
+  display: inline;
+  vertical-align: -0.1em;
+  margin-right: 0.15rem;
+}
+
+.sc-recipe-cost {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Terminal trace */
+.sc-trace {
+  flex: 1;
+  min-height: 10rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background: var(--sc-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.sc-trace-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.sc-trace-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sc-trace-line {
+  padding: 0.1rem 0;
+}
+
+.sc-trace-info {
+  color: var(--text-muted);
+}
+
+.sc-trace-win {
+  color: var(--green);
+}
+
+.sc-trace-loss {
+  color: var(--red);
+}
+
+.sc-trace-craft {
+  color: var(--yellow);
+}
+
+.sc-trace-move {
+  color: var(--accent);
 }

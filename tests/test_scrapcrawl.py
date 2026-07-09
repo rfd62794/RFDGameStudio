@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import yaml
 
+from studio.executor import LuaError
 from studio.runtime import load_game
 from studio_mcp.tools import studio_validate_game
 
@@ -311,6 +312,33 @@ def test_data_yaml_room_graph_matches_original_topology() -> None:
 def test_systems_yaml_engine_systems_empty() -> None:
     systems = yaml.safe_load((SC_DIR / "systems.yaml").read_text(encoding="utf-8"))
     assert systems["engine_systems"] == []
+
+
+def test_resolve_fight_rejects_non_fight_room() -> None:
+    session = _load_scrapcrawl()
+    data = session.files.data
+    player = session.executor.call("init_player")
+    home = session.executor.call("get_room", data, "home_base")
+    with pytest.raises(LuaError, match="Cannot fight"):
+        session.executor.call("resolve_fight", data, player, home, 20)
+
+
+def test_resolve_fight_still_works_in_real_fight_rooms() -> None:
+    session = _load_scrapcrawl()
+    data = session.files.data
+    player = session.executor.call("init_player")
+    for room_id in ("scrap_pit", "vent_stack", "chemical_leak", "furnace_core"):
+        room = session.executor.call("get_room", data, room_id)
+        result = session.executor.call("resolve_fight", data, player, room, 20)
+        assert result["won"] is True, f"expected win in {room_id}"
+
+
+def test_data_yaml_home_base_has_no_difficulty() -> None:
+    cw_data = yaml.safe_load((SC_DIR / "data.yaml").read_text(encoding="utf-8"))
+    home = cw_data["rooms"]["home_base"]
+    assert "difficulty" not in home
+    assert home["interaction_types"] == ["home", "craft", "rest"]
+    assert "fight" not in home["interaction_types"]
 
 
 def test_studio_validate_game_scrapcrawl() -> None:
