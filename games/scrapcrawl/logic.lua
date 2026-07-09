@@ -77,10 +77,26 @@ function growth_factor(data, xp)
 end
 
 -- ============================================================
+-- ROOM INTERACTION HELPERS
+-- ============================================================
+
+local function room_has_interaction(room, interaction)
+  local types = room.interaction_types or room.interactionTypes or {}
+  for _, t in ipairs(types) do
+    if t == interaction then return true end
+  end
+  return false
+end
+
+-- ============================================================
 -- CRAFTING
 -- ============================================================
 
-function can_craft(data, player, catalog_id, tier)
+function can_craft(data, player, room, catalog_id, tier)
+  if not room_has_interaction(room, "craft") then
+    return false
+  end
+
   local entry = data.catalog[catalog_id]
   if entry == nil then return false end
 
@@ -100,7 +116,11 @@ function can_craft(data, player, catalog_id, tier)
   return player.scrap >= cost
 end
 
-function craft(data, player, catalog_id, tier)
+function craft(data, player, room, catalog_id, tier)
+  if not room_has_interaction(room, "craft") then
+    error('Crafting rejected: Room "' .. tostring(room.id) .. '" does not support crafting.')
+  end
+
   local entry = data.catalog[catalog_id]
   if entry == nil then
     error('Crafting rejected: Catalog entry for "' .. tostring(catalog_id) .. '" does not exist.')
@@ -147,14 +167,6 @@ end
 -- ============================================================
 -- COMBAT
 -- ============================================================
-
-local function room_has_interaction(room, interaction)
-  local types = room.interaction_types or room.interactionTypes or {}
-  for _, t in ipairs(types) do
-    if t == interaction then return true end
-  end
-  return false
-end
 
 function resolve_fight(data, player, room, roll, scrap_reward)
   if not room_has_interaction(room, "fight") then

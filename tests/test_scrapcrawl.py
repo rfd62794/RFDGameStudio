@@ -79,7 +79,8 @@ def _player_with_scrap(scrap: int):
     session = _load_scrapcrawl()
     player = session.executor.call("init_player")
     player["scrap"] = scrap
-    return session, player
+    home = session.executor.call("get_room", session.files.data, "home_base")
+    return session, player, home
 
 
 def _equip_weapon(tier: int = 1, life: int = 10):
@@ -133,40 +134,40 @@ def test_move_rejects_unconnected_no_op() -> None:
 
 
 def test_can_craft_true_sufficient_scrap() -> None:
-    session, player = _player_with_scrap(10)
+    session, player, home = _player_with_scrap(10)
     data = session.files.data
-    assert session.executor.call("can_craft", data, player, "beatStick") is True
+    assert session.executor.call("can_craft", data, player, home, "beatStick") is True
 
 
 def test_can_craft_false_insufficient_scrap() -> None:
-    session, player = _player_with_scrap(5)
+    session, player, home = _player_with_scrap(5)
     data = session.files.data
-    assert session.executor.call("can_craft", data, player, "beatStick") is False
+    assert session.executor.call("can_craft", data, player, home, "beatStick") is False
 
 
 def test_craft_deducts_correct_tier1_cost() -> None:
-    session, player = _player_with_scrap(15)
+    session, player, home = _player_with_scrap(15)
     data = session.files.data
-    updated = session.executor.call("craft", data, player, "beatStick")
+    updated = session.executor.call("craft", data, player, home, "beatStick")
     assert updated["scrap"] == 5
     assert updated["equipped"]["weapon"] is not None
     assert updated["equipped"]["weapon"]["tier"] == 1
 
 
 def test_craft_tier2_rejected_before_tool() -> None:
-    session, player = _player_with_scrap(30)
+    session, player, home = _player_with_scrap(30)
     data = session.files.data
-    assert session.executor.call("can_craft", data, player, "beatStick", 2) is False
+    assert session.executor.call("can_craft", data, player, home, "beatStick", 2) is False
 
 
 def test_craft_tool_unlocks_all_three_slots_simultaneously() -> None:
-    session, player = _player_with_scrap(100)
+    session, player, home = _player_with_scrap(100)
     data = session.files.data
-    unlocked = session.executor.call("craft", data, player, "tool")
+    unlocked = session.executor.call("craft", data, player, home, "tool")
     assert unlocked["tier2Unlocked"] is True
-    assert session.executor.call("can_craft", data, unlocked, "beatStick", 2) is True
-    assert session.executor.call("can_craft", data, unlocked, "shield", 2) is True
-    assert session.executor.call("can_craft", data, unlocked, "bodyArmor", 2) is True
+    assert session.executor.call("can_craft", data, unlocked, home, "beatStick", 2) is True
+    assert session.executor.call("can_craft", data, unlocked, home, "shield", 2) is True
+    assert session.executor.call("can_craft", data, unlocked, home, "bodyArmor", 2) is True
 
 
 def test_tier1_cost_unchanged_after_tier2_unlock() -> None:
@@ -175,13 +176,14 @@ def test_tier1_cost_unchanged_after_tier2_unlock() -> None:
     player = session.executor.call("init_player")
     player["scrap"] = 100
     player["tier2Unlocked"] = True
-    updated = session.executor.call("craft", data, player, "beatStick", 1)
+    home = session.executor.call("get_room", data, "home_base")
+    updated = session.executor.call("craft", data, player, home, "beatStick", 1)
     assert updated["scrap"] == 90
     assert updated["equipped"]["weapon"]["tier"] == 1
 
 
 def test_craft_replaces_existing_slot_item() -> None:
-    session, player = _player_with_scrap(20)
+    session, player, home = _player_with_scrap(20)
     data = session.files.data
     old_weapon = {
         "id": "old_stick",
@@ -192,7 +194,7 @@ def test_craft_replaces_existing_slot_item() -> None:
         "maxLife": 10,
     }
     player["equipped"] = {"weapon": old_weapon}
-    updated = session.executor.call("craft", data, player, "beatStick")
+    updated = session.executor.call("craft", data, player, home, "beatStick")
     assert updated["equipped"]["weapon"]["id"] != "old_stick"
     assert updated["equipped"]["weapon"]["life"] == 10
 
@@ -340,6 +342,35 @@ def test_data_yaml_home_base_has_no_difficulty() -> None:
     assert "difficulty" not in home
     assert home["interaction_types"] == ["home", "craft", "rest"]
     assert "fight" not in home["interaction_types"]
+
+
+def test_can_craft_rejects_non_craft_room() -> None:
+    session = _load_scrapcrawl()
+    data = session.files.data
+    player = session.executor.call("init_player")
+    player["scrap"] = 100
+    scrap_pit = session.executor.call("get_room", data, "scrap_pit")
+    assert session.executor.call("can_craft", data, player, scrap_pit, "beatStick") is False
+
+
+def test_craft_rejects_non_craft_room() -> None:
+    session = _load_scrapcrawl()
+    data = session.files.data
+    player = session.executor.call("init_player")
+    player["scrap"] = 100
+    scrap_pit = session.executor.call("get_room", data, "scrap_pit")
+    with pytest.raises(LuaError, match="does not support crafting"):
+        session.executor.call("craft", data, player, scrap_pit, "beatStick")
+
+
+def test_craft_allowed_in_home_base() -> None:
+    session = _load_scrapcrawl()
+    data = session.files.data
+    player = session.executor.call("init_player")
+    player["scrap"] = 10
+    home = session.executor.call("get_room", data, "home_base")
+    updated = session.executor.call("craft", data, player, home, "beatStick")
+    assert updated["equipped"]["weapon"] is not None
 
 
 def test_studio_validate_game_scrapcrawl() -> None:

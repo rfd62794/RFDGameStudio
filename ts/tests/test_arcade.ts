@@ -187,8 +187,51 @@ describe('Arcade Registry', () => {
     const data = session.files.data;
     const player = session.executor.call('init_player') as Record<string, unknown>;
     player.scrap = 10;
-    const next = session.executor.call('craft', data, player, 'beatStick', 1) as Record<string, unknown>;
+    const home = session.executor.call('get_room', data, 'home_base') as Record<string, unknown>;
+    const next = session.executor.call('craft', data, player, home, 'beatStick', 1) as Record<string, unknown>;
     expect(next.scrap).toBe(0);
     expect((next.equipped as Record<string, unknown>).weapon).toBeDefined();
+  });
+
+  it('test_craft_buttons_disabled_in_non_craft_room', async () => {
+    const session = loadGame('scrapcrawl', 42);
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    const moveButton = container.querySelector('.sc-connection') as HTMLButtonElement | null;
+    expect(moveButton).toBeTruthy();
+
+    await act(async () => {
+      moveButton!.click();
+    });
+
+    const craftButtons = container.querySelectorAll('.sc-craft-button');
+    expect(craftButtons.length).toBeGreaterThan(0);
+    craftButtons.forEach((btn) => {
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
+      expect((btn as HTMLButtonElement).title).toBe('No workbench detected in this node');
+    });
+    root.unmount();
+  });
+
+  it('test_craft_buttons_show_workbench_at_home_base', async () => {
+    const session = loadGame('scrapcrawl', 42);
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    const craftButtons = container.querySelectorAll('.sc-craft-button');
+    expect(craftButtons.length).toBeGreaterThan(0);
+    craftButtons.forEach((btn) => {
+      expect((btn as HTMLButtonElement).title).toBe('Craft at Home Base workbench');
+    });
+    root.unmount();
   });
 });

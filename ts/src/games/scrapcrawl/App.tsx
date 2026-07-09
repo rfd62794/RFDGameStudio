@@ -80,6 +80,7 @@ export default function App({ session }: GameRendererProps) {
   const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
 
   const canFight = state?.currentRoom.interaction_types?.includes('fight') ?? false;
+  const canCraft = state?.currentRoom.interaction_types?.includes('craft') ?? false;
 
   const handleFight = useCallback(() => {
     if (!state || !canFight) return;
@@ -115,8 +116,8 @@ export default function App({ session }: GameRendererProps) {
   }, [state, call, data, rooms, setState]);
 
   const handleCraft = useCallback((catalogId: string, tier?: number) => {
-    if (!state) return;
-    const next = call('craft', data, state.player, catalogId, tier) as PlayerState | null;
+    if (!state || !canCraft) return;
+    const next = call('craft', data, state.player, state.currentRoom, catalogId, tier) as PlayerState | null;
     if (!next) return;
     const entry = getCatalogEntry(data, catalogId);
     const resolvedTier = catalogId === 'tool' ? 1 : (tier ?? (next.tier2Unlocked ? 2 : 1));
@@ -127,7 +128,7 @@ export default function App({ session }: GameRendererProps) {
       combatHistory: pushLog(prev, `[CRAFT] ${name} (Tier ${resolvedTier}) equipped`),
       message: `Crafted ${name} Tier ${resolvedTier}`,
     } : prev);
-  }, [state, call, data, setState]);
+  }, [state, canCraft, call, data, setState]);
 
   if (!isInitialized || !state) {
     return <div className="sc-loading">Loading ScrapCrawl…</div>;
@@ -325,17 +326,19 @@ export default function App({ session }: GameRendererProps) {
                     </div>
                     <div className="sc-recipe-buttons">
                       <button
-                        className={`sc-button sc-craft-button ${player.scrap >= tier1Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
+                        className={`sc-button sc-craft-button ${canCraft && player.scrap >= tier1Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
                         onClick={() => handleCraft(id, 1)}
-                        disabled={isTool ? player.tier2Unlocked : player.scrap < tier1Cost}
+                        disabled={!canCraft || (isTool ? player.tier2Unlocked : player.scrap < tier1Cost)}
+                        title={canCraft ? 'Craft at Home Base workbench' : 'No workbench detected in this node'}
                       >
                         <span className="sc-recipe-tier">Tier 1</span>
                         <span className="sc-recipe-cost">{tier1Cost} Scrap</span>
                       </button>
                       <button
-                        className={`sc-button sc-craft-button ${!isTool && player.tier2Unlocked && player.scrap >= tier2Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
+                        className={`sc-button sc-craft-button ${canCraft && !isTool && player.tier2Unlocked && player.scrap >= tier2Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
                         onClick={() => handleCraft(id, 2)}
-                        disabled={isTool ? player.tier2Unlocked : (!player.tier2Unlocked || player.scrap < tier2Cost)}
+                        disabled={!canCraft || (isTool ? player.tier2Unlocked : (!player.tier2Unlocked || player.scrap < tier2Cost))}
+                        title={canCraft ? 'Craft at Home Base workbench' : 'No workbench detected in this node'}
                       >
                         <span className="sc-recipe-tier">
                           {!player.tier2Unlocked && <Lock size={10} />} Tier 2
