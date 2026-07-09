@@ -9,6 +9,10 @@ end
 -- Cross-runtime helper: YAML numeric keys may arrive as integers (lupa) or strings (fengari).
 local function lookup_tier(map, tier)
   if map == nil then return nil end
+  print('lookup_tier map type=' .. type(map) .. ' tier=' .. tostring(tier) .. ' tostring=' .. tostring(tostring(tier)))
+  for k, v in pairs(map) do
+    print('  key=' .. tostring(k) .. ' (' .. type(k) .. ') val=' .. tostring(v))
+  end
   local v = map[tier]
   if v ~= nil then return v end
   return map[tostring(tier)]

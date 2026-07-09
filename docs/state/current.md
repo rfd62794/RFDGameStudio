@@ -4,7 +4,59 @@
 
 ## Current Phase
 
-**ScrapCrawl Phase A — Core Loop Port — CERTIFIED**
+**ScrapCrawl Phase A.1 — Combat Gating Fix + UI Design Pass — CERTIFIED**
+
+## ScrapCrawl Phase A.1 — Combat Gating Fix + UI Design Pass — CERTIFIED
+
+### What changed
+- Fixed a real bug discovered by playing: `resolve_fight` and the `Fight` button both lacked room-type validation, allowing free infinite wins at Home Base (no `difficulty` field → `difficulty` defaulted to `0`).
+- Added a defensive backend guard in `logic.lua` that rejects fights in rooms without `fight` in their interaction types.
+- Added a frontend gate in `App.tsx` that renders the `Fight` button as disabled in safe rooms.
+- Redesigned the ScrapCrawl UI to match the original `examples/scrapcrawl` identity: near-black canvas, equipment durability bars with threshold colour shift, proficiency bars, terminal-style combat trace, and crafting catalog cards.
+- Rewrote `styles.css` using the shared token layer from `ui/tokens.css`; only deliberate hex override is the signature background `#07090d`, documented in-file.
+- Added 3 Python and 2 TypeScript tests anchoring the gating fix.
+
+## ScrapCrawl Phase A.1 Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `games/scrapcrawl/logic.lua` — `resolve_fight` rejects non-fight rooms | ✅ |
+| `ts/src/games/scrapcrawl/App.tsx` — Fight button disabled in safe rooms | ✅ |
+| `ts/src/games/scrapcrawl/App.tsx` — equipment cards, durability bars, proficiency bars, terminal trace, crafting catalog | ✅ |
+| `ts/src/games/scrapcrawl/styles.css` — shared tokens only, one documented signature-background override | ✅ |
+| `tests/test_scrapcrawl.py` — 3 new tests (191 total) | ✅ |
+| `ts/tests/test_arcade.ts` — 2 new ScrapCrawl tests (51 total) | ✅ |
+| Python floor: `uv run pytest -q` → **191 passed, 0 failed, 0 skipped** | ✅ |
+| TS floor: `cd ts && npx vitest run` → **51 passed, 0 failed, 0 skipped** | ✅ |
+| `npx tsc --noEmit` — zero new errors attributable to scrapcrawl | ✅ |
+| `npx vite build` → exits 0 | ✅ |
+| Manual trace — Fight disabled at Home Base, real fight resolves in `scrap_pit` | ✅ |
+| `git diff --stat` empty for `examples/`, `games/chimera_wilds/`, `games/mutant_battle_ball/` | ✅ |
+
+**Test proof:**
+```
+uv run pytest -q
+→ 191 passed, 8 warnings in 4.14s
+
+cd ts; npx vitest run
+→ 51 passed (51)
+```
+
+**Manual trace proof:**
+```
+[TRACE] INIT room=home_base scrap=0 tier2=False
+[TRACE] HOME BASE interaction_types=['home', 'craft', 'rest'] difficulty=<none>
+[TRACE] SCRAP_PIT interaction_types=['fight'] difficulty=8
+[TRACE] GUARD OK: resolve_fight rejected Home Base fight -> Lua error ... Cannot fight in room "home_base"
+[TRACE] MOVE home_base -> scrap_pit: now at scrap_pit
+[TRACE] FIGHT in scrap_pit: won=True roll=20 score=21.6 diff=8 scrap=8 xp=15
+[TRACE] UI: Fight button at Home Base is disabled (visible, non-clickable)
+[TRACE] UI: Move to scrap_pit enables the Fight button
+```
+
+**Browser preview:** http://127.0.0.1:54037
+
+---
 
 ## ScrapCrawl Phase A — Core Loop Port — CERTIFIED
 
