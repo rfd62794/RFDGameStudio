@@ -9,30 +9,13 @@ game: horse_racing
 layout_tree:
   direction: column
   children:
-    - id: header
-      height: 0.10
-    - id: tab_nav
-      height: 0.06
     - id: content
       flex: 1
-    - id: footer
-      height: 0.05
 
 # Component type mapping for interpreter
 regions:
-  header:
-    component: app_header
-    bindings:
-      title: "DERBY SIM v1.2"
-      bank: game_state.funds
-  tab_nav:
-    component: tab_bar
-    tabs_from: layout.tabs
   content:
     component: tab_content   # rendered by game's existing tab system
-  footer:
-    component: app_footer
-    text: "© 2026 DERBY SIMULATOR. ALL RIGHTS RESERVED."
 
 layout:
   type: tabbed

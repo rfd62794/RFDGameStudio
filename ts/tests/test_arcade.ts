@@ -79,11 +79,12 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(App, { session }));
     });
 
-    const button = container.querySelector('button');
-    expect(button).toBeTruthy();
+    const buttons = container.querySelectorAll('button');
+    const encounterButton = Array.from(buttons).find(b => b.textContent?.includes('Face the Wilds'));
+    expect(encounterButton).toBeTruthy();
 
     await act(async () => {
-      button!.click();
+      encounterButton!.click();
     });
 
     const text = container.textContent ?? '';
