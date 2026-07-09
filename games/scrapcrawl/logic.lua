@@ -144,7 +144,19 @@ end
 -- COMBAT
 -- ============================================================
 
+local function room_has_interaction(room, interaction)
+  local types = room.interaction_types or room.interactionTypes or {}
+  for _, t in ipairs(types) do
+    if t == interaction then return true end
+  end
+  return false
+end
+
 function resolve_fight(data, player, room, roll, scrap_reward)
+  if not room_has_interaction(room, "fight") then
+    error('Cannot fight in room "' .. tostring(room.id) .. '" — not a fight-capable room.')
+  end
+
   local difficulty = room.difficulty or 0
 
   local weapon = player.equipped.weapon

@@ -20,7 +20,7 @@ export interface Equipment {
 export interface Room {
   id: string;
   name: string;
-  interactionTypes: InteractionType[];
+  interaction_types: InteractionType[];
   connections: string[];
   difficulty?: number;
 }
