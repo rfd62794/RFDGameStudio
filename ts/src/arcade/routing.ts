@@ -3,7 +3,7 @@ export function getGameId(): string | null {
 }
 
 export function navigateTo(gameId: string): void {
-  window.location.href = `?game=${gameId}`;
+  window.location.href = `${window.location.pathname}?game=${gameId}`;
 }
 
 export function navigateHome(): void {

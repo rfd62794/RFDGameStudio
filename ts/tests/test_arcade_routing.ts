@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
@@ -70,6 +70,7 @@ describe('Arcade GameSelector', () => {
 
   it('test_game_selector_card_click_navigates', async () => {
     window.history.pushState({}, '', '/arcade/rfdgamestudio/');
+    const setHref = vi.spyOn(window.location, 'href', 'set');
     const container = document.createElement('div');
     const root = createRoot(container);
     await act(async () => {
@@ -80,7 +81,8 @@ describe('Arcade GameSelector', () => {
     await act(async () => {
       firstCard!.click();
     });
-    expect(window.location.search).toContain(`?game=${GAME_REGISTRY[0]!.gameId}`);
+    expect(setHref).toHaveBeenCalledWith(`/arcade/rfdgamestudio/?game=${GAME_REGISTRY[0]!.gameId}`);
+    setHref.mockRestore();
     root.unmount();
   });
 });
@@ -88,6 +90,7 @@ describe('Arcade GameSelector', () => {
 describe('Arcade GameLoader', () => {
   it('test_game_loader_back_button_returns_clean_url', async () => {
     window.history.pushState({}, '', '/arcade/rfdgamestudio/?game=horse_racing');
+    const setHref = vi.spyOn(window.location, 'href', 'set');
     const container = document.createElement('div');
     const root = createRoot(container);
     await act(async () => {
@@ -101,8 +104,8 @@ describe('Arcade GameLoader', () => {
     await act(async () => {
       backButton!.click();
     });
-    expect(window.location.search).toBe('');
-    expect(window.location.pathname).toBe('/arcade/rfdgamestudio/');
+    expect(setHref).toHaveBeenCalledWith('/arcade/rfdgamestudio/');
+    setHref.mockRestore();
     root.unmount();
   });
 });
