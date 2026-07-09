@@ -4,6 +4,7 @@ import { slitherRogueConfig } from './slither_rogue/config';
 import { mutantBattleBallConfig } from './mutant_battle_ball/config';
 import { slimeCoinConfig } from './slime_coin/config';
 import { chimeraWildsConfig } from './chimera_wilds/config';
+import { scrapcrawlConfig } from './scrapcrawl/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -15,6 +16,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   mutantBattleBallConfig,
   slimeCoinConfig,
   chimeraWildsConfig,
+  scrapcrawlConfig,
 ];
 
 /**

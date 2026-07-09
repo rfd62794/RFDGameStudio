@@ -6,6 +6,8 @@ import { GAME_REGISTRY, findGame } from '../src/games/registry';
 import { loadGame } from '../src/engine/runtime';
 import { chimeraWildsConfig } from '../src/games/chimera_wilds/config';
 import App from '../src/games/chimera_wilds/App';
+import { scrapcrawlConfig } from '../src/games/scrapcrawl/config';
+import ScrapCrawlApp from '../src/games/scrapcrawl/App';
 
 describe('Arcade Registry', () => {
   it('test_all_games_have_color', () => {
@@ -75,6 +77,51 @@ describe('Arcade Registry', () => {
 
     await act(async () => {
       root.render(React.createElement(App, { session }));
+    });
+
+    const button = container.querySelector('button');
+    expect(button).toBeTruthy();
+
+    await act(async () => {
+      button!.click();
+    });
+
+    const text = container.textContent ?? '';
+    expect(text.includes('WIN') || text.includes('LOSS')).toBe(true);
+    root.unmount();
+  });
+
+  it('test_scrapcrawl_in_registry', () => {
+    const config = findGame('scrapcrawl');
+    expect(config).toBeDefined();
+    expect(config?.gameId).toBe('scrapcrawl');
+  });
+
+  it('test_scrapcrawl_config_lazy_loads_app', () => {
+    expect(scrapcrawlConfig.component).toBeDefined();
+    expect(scrapcrawlConfig.gameId).toBe('scrapcrawl');
+  });
+
+  it('test_scrapcrawl_app_renders_without_crash', async () => {
+    const session = loadGame('scrapcrawl');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    expect(container.textContent).toContain('SCRAPCRAWL');
+    root.unmount();
+  });
+
+  it('test_scrapcrawl_fight_button_triggers_lua_call', async () => {
+    const session = loadGame('scrapcrawl');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(ScrapCrawlApp, { session }));
     });
 
     const button = container.querySelector('button');

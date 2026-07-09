@@ -1,0 +1,22 @@
+engine_version: "1.0"
+engine_systems: []   # self-contained port — no shared engine system wiring
+
+systems:
+  - id: scrapcrawl_core
+    description: "ScrapCrawl core loop: rooms, crafting, combat, and player state"
+    functions:
+      - get_room
+      - can_move_to
+      - move_player
+      - growth_factor
+      - can_craft
+      - craft
+      - resolve_fight
+      - init_player
+      - reset_position
+
+entities:
+  player:
+    description: "ScrapCrawl player state: position, scrap, equipment, proficiency"
+    systems: [scrapcrawl_core]
+    schema_ref: data.yaml#constants
