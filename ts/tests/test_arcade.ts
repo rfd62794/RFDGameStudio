@@ -181,4 +181,14 @@ describe('Arcade Registry', () => {
     expect(fightButton!.disabled).toBe(false);
     root.unmount();
   });
+
+  it('test_scrapcrawl_craft_reduces_scrap_in_ts_runtime', () => {
+    const session = loadGame('scrapcrawl', 42);
+    const data = session.files.data;
+    const player = session.executor.call('init_player') as Record<string, unknown>;
+    player.scrap = 10;
+    const next = session.executor.call('craft', data, player, 'beatStick', 1) as Record<string, unknown>;
+    expect(next.scrap).toBe(0);
+    expect((next.equipped as Record<string, unknown>).weapon).toBeDefined();
+  });
 });
