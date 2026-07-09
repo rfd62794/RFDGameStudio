@@ -8,6 +8,7 @@ import { chimeraWildsConfig } from '../src/games/chimera_wilds/config';
 import App from '../src/games/chimera_wilds/App';
 import { scrapcrawlConfig } from '../src/games/scrapcrawl/config';
 import ScrapCrawlApp from '../src/games/scrapcrawl/App';
+import GameSelector from '../src/arcade/GameSelector';
 
 describe('Arcade Registry', () => {
   it('test_all_games_have_color', () => {
@@ -233,6 +234,65 @@ describe('Arcade Registry', () => {
     craftButtons.forEach((btn) => {
       expect((btn as HTMLButtonElement).title).toBe('Craft at Home Base workbench');
     });
+    root.unmount();
+  });
+});
+
+describe('GameSelector runtime detail', () => {
+  async function renderSelector() {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(React.createElement(GameSelector));
+    });
+    return { container, root };
+  }
+
+  it('shows PyGame renderer and race class count for horse_racing', async () => {
+    const { container, root } = await renderSelector();
+    const text = container.textContent ?? '';
+    expect(text).toContain('PyGame renderer');
+    expect(text).toContain('race classes');
+    root.unmount();
+  });
+
+  it('shows PyGame renderer and evolution card count for slither_rogue', async () => {
+    const { container, root } = await renderSelector();
+    const text = container.textContent ?? '';
+    expect(text).toContain('PyGame renderer');
+    expect(text).toContain('evolution cards');
+    root.unmount();
+  });
+
+  it('shows real part and opponent counts for mutant_battle_ball', async () => {
+    const { container, root } = await renderSelector();
+    const text = container.textContent ?? '';
+    expect(text).toContain('mutant parts');
+    expect(text).toContain('opponents');
+    root.unmount();
+  });
+
+  it('shows real round and chip card counts for slime_coin', async () => {
+    const { container, root } = await renderSelector();
+    const text = container.textContent ?? '';
+    expect(text).toContain('rounds');
+    expect(text).toContain('chip cards');
+    root.unmount();
+  });
+
+  it('shows real part and body slot counts for chimera_wilds', async () => {
+    const { container, root } = await renderSelector();
+    const text = container.textContent ?? '';
+    expect(text).toContain('mutant parts');
+    expect(text).toContain('body slots');
+    root.unmount();
+  });
+
+  it('shows real room and craftable counts for scrapcrawl', async () => {
+    const { container, root } = await renderSelector();
+    const text = container.textContent ?? '';
+    expect(text).toContain('rooms');
+    expect(text).toContain('craftables');
     root.unmount();
   });
 });
