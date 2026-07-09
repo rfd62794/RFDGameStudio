@@ -4,7 +4,57 @@
 
 ## Current Phase
 
-**Chimera Wilds Phase 1 — Minimal Encounter Loop — CERTIFIED**
+**ScrapCrawl Phase A — Core Loop Port — CERTIFIED**
+
+## ScrapCrawl Phase A — Core Loop Port — CERTIFIED
+
+## ScrapCrawl Phase A Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `games/scrapcrawl/data.yaml` — 5-room graph, real catalog, real constants | ✅ |
+| `games/scrapcrawl/logic.lua` — `get_room`, `can_move_to`, `move_player`, `can_craft`, `craft`, `resolve_fight`, `init_player`, `reset_position`, `growth_factor` | ✅ |
+| `games/scrapcrawl/ui.yaml` — `layout_tree` with ADR-008 vocabulary | ✅ |
+| `games/scrapcrawl/systems.yaml` — core system manifest, `engine_systems: []` | ✅ |
+| `ts/src/games/scrapcrawl/types.ts` — real entities and game state | ✅ |
+| `ts/src/games/scrapcrawl/config.ts` — game config with `#f59e0b` amber color, lazy-loaded `App` | ✅ |
+| `ts/src/games/scrapcrawl/App.tsx` — React app with `GameShell`, `useLuaCall`, move/craft/fight actions | ✅ |
+| `ts/src/games/scrapcrawl/styles.css` — game-specific styles | ✅ |
+| `ts/src/engine/loader.ts` — `scrapcrawl` YAML imports added to `GAME_ASSETS` | ✅ |
+| `ts/src/games/registry.ts` — `scrapcrawl` registered | ✅ |
+| `tests/test_scrapcrawl.py` — 25 new tests (188 total) | ✅ |
+| `ts/tests/test_arcade.ts` — 4 new ScrapCrawl tests (49 total) | ✅ |
+| Python floor: `uv run pytest -q` → **188 passed, 0 failed, 0 skipped** (was 163) | ✅ |
+| TS floor: `cd ts && npx vitest run` → **49 passed, 0 failed, 0 skipped** (was 45) | ✅ |
+| `npx tsc --noEmit` — zero new errors in scrapcrawl files | ✅ |
+| `npx vite build` → exits 0 | ✅ |
+| `studio_validate_game('scrapcrawl')` → valid=True, no issues | ✅ |
+| `git diff --stat` empty for `examples/`, `games/chimera_wilds/`, `games/mutant_battle_ball/` | ✅ |
+
+**Test proof:**
+```
+uv run pytest -q
+→ 188 passed, 8 warnings in 3.58s
+
+cd ts; npx vitest run
+→ 49 passed (49)
+```
+
+**Validation proof:**
+```
+studio_validate_game('scrapcrawl')
+→ {'valid': True, 'game_id': 'scrapcrawl', 'issues': []}
+```
+
+**Verb-naming decisions (per §2):**
+- `can_move_to` — flagged as non-ADR-007-compliant; kept as-is because no locked verb fits.
+- `can_craft` / `craft` — flagged as non-ADR-007-compliant; kept as-is per Chimera Wilds precedent for `assemble`/`generate`.
+- `move_player` — compliant (`move_` prefix).
+- `resolve_fight` — compliant (ADR-007 worked example).
+- `init_player` — compliant (`init_` prefix).
+- `reset_position` — renamed from `wipe`; flagged as a naming call because `wipe` does not cleanly fit any locked verb.
+
+---
 
 ## Chimera Wilds Phase 1 — Minimal Encounter Loop — CERTIFIED
 
@@ -408,5 +458,6 @@ RFDGameStudio/
 | **2u** | PyGame Universal Renderer | ✅ **CERTIFIED** |
 | **2v** | Mutant Battle Ball | ✅ **CERTIFIED** |
 | **3** | Claude Tool Integration | ✅ **CERTIFIED** |
+| **ScrapCrawl A** | ScrapCrawl Core Loop Port | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
