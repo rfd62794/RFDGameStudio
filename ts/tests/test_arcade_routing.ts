@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
@@ -107,8 +107,11 @@ describe('Arcade GameLoader', () => {
     await act(async () => {
       await new Promise(r => setTimeout(r, 0));
     });
-    const backButton = container.querySelector('.arcade-back-btn') as HTMLButtonElement | null;
-    expect(backButton).toBeTruthy();
+    const backButton = await vi.waitFor(() => {
+      const btn = container.querySelector('.game-shell-back') as HTMLButtonElement | null;
+      expect(btn).toBeTruthy();
+      return btn;
+    });
     await act(async () => {
       backButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });

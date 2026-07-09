@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { loadGame } from '../engine/runtime';
 import type { GameSession, GameConfig } from '../engine/types';
 import { findGame } from '../games/registry';
-import { navigateHome } from './routing';
 
 export default function GameLoader({ gameId }: { gameId: string }) {
   const [session, setSession] = useState<GameSession | null>(null);
@@ -37,10 +36,6 @@ export default function GameLoader({ gameId }: { gameId: string }) {
   if (error) {
     return (
       <div className="arcade-error">
-        <div className="arcade-game-nav">
-          <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
-          <span className="arcade-game-nav-title">{gameId}</span>
-        </div>
         <div className="arcade-error-box">
           <strong>Studio Error</strong>
           <p>{error}</p>
@@ -53,10 +48,6 @@ export default function GameLoader({ gameId }: { gameId: string }) {
   if (!session || !config) {
     return (
       <div className="arcade-loading">
-        <div className="arcade-game-nav">
-          <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
-          <span className="arcade-game-nav-title">{gameId}</span>
-        </div>
         <span>Loading {gameId}…</span>
       </div>
     );
@@ -66,10 +57,6 @@ export default function GameLoader({ gameId }: { gameId: string }) {
 
   return (
     <div className="arcade-game-wrap">
-      <div className="arcade-game-nav">
-        <button className="arcade-back-btn" onClick={navigateHome}>← Arcade</button>
-        <span className="arcade-game-nav-title">{config.label}</span>
-      </div>
       <div className="arcade-game-content">
         <React.Suspense
           fallback={
