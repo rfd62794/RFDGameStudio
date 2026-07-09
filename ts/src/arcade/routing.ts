@@ -3,9 +3,10 @@ export function getGameId(): string | null {
 }
 
 export function navigateTo(gameId: string): void {
-  window.location.href = `${window.location.pathname}?game=${gameId}`;
+  const base = window.location.href.split('?')[0];
+  window.location.href = `${base}?game=${gameId}`;
 }
 
 export function navigateHome(): void {
-  window.location.href = window.location.pathname;
+  window.location.href = window.location.href.split('?')[0];
 }
