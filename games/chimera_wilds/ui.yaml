@@ -1,0 +1,20 @@
+layout_tree:
+  direction: column
+  children:
+    - id: header
+      height: 0.10
+    - id: main
+      flex: 1
+    - id: footer
+      height: 0.05
+
+regions:
+  header:
+    component: app_header
+    bindings:
+      title: "Chimera Wilds"
+  main:
+    component: hud
+  footer:
+    component: app_footer
+    text: "© 2026 Chimera Wilds — RFD IT Services Ltd."

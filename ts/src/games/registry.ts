@@ -3,6 +3,7 @@ import { horseRacingConfig } from './horse_racing/config';
 import { slitherRogueConfig } from './slither_rogue/config';
 import { mutantBattleBallConfig } from './mutant_battle_ball/config';
 import { slimeCoinConfig } from './slime_coin/config';
+import { chimeraWildsConfig } from './chimera_wilds/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -13,6 +14,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   slitherRogueConfig,
   mutantBattleBallConfig,
   slimeCoinConfig,
+  chimeraWildsConfig,
 ];
 
 /**

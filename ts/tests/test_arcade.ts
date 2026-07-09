@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { act } from 'react-dom/test-utils';
 import { GAME_REGISTRY, findGame } from '../src/games/registry';
+import { loadGame } from '../src/engine/runtime';
+import { chimeraWildsConfig } from '../src/games/chimera_wilds/config';
+import App from '../src/games/chimera_wilds/App';
 
 describe('Arcade Registry', () => {
   it('test_all_games_have_color', () => {
@@ -36,5 +42,55 @@ describe('Arcade Registry', () => {
   it('test_slime_coin_has_purple_color', () => {
     const config = findGame('slime_coin');
     expect(config?.color).toBe('#a855f7');
+  });
+
+  it('test_chimera_wilds_in_registry', () => {
+    const config = findGame('chimera_wilds');
+    expect(config).toBeDefined();
+    expect(config?.gameId).toBe('chimera_wilds');
+  });
+
+  it('test_chimera_wilds_has_teal_color', () => {
+    const config = findGame('chimera_wilds');
+    expect(config?.color).toBe('#14b8a6');
+  });
+
+  it('test_chimera_wilds_config_lazy_loads_app', () => {
+    expect(chimeraWildsConfig.component).toBeDefined();
+    expect(chimeraWildsConfig.gameId).toBe('chimera_wilds');
+  });
+
+  it('test_chimera_wilds_app_renders_without_crash', async () => {
+    const session = loadGame('chimera_wilds');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(App, { session }));
+    });
+
+    expect(container.textContent).toContain('Chimera Wilds');
+    root.unmount();
+  });
+
+  it('test_encounter_button_triggers_lua_call', async () => {
+    const session = loadGame('chimera_wilds');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(App, { session }));
+    });
+
+    const button = container.querySelector('button');
+    expect(button).toBeTruthy();
+
+    await act(async () => {
+      button!.click();
+    });
+
+    const text = container.textContent ?? '';
+    expect(text.includes('WIN') || text.includes('LOSS')).toBe(true);
+    root.unmount();
   });
 });

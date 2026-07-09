@@ -20,11 +20,16 @@ import scDataRaw    from '../../../games/slime_coin/data.yaml?raw';
 import scUiRaw     from '../../../games/slime_coin/ui.yaml?raw';
 import scSystemsRaw from '../../../games/slime_coin/systems.yaml?raw';
 
+import cwDataRaw    from '../../../games/chimera_wilds/data.yaml?raw';
+import cwUiRaw     from '../../../games/chimera_wilds/ui.yaml?raw';
+import cwSystemsRaw from '../../../games/chimera_wilds/systems.yaml?raw';
+
 const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }> = {
   horse_racing: { data: hrDataRaw, ui: hrUiRaw, systems: hrSystemsRaw },
   slither_rogue: { data: srDataRaw, ui: srUiRaw, systems: srSystemsRaw },
   mutant_battle_ball: { data: mbbDataRaw, ui: mbbUiRaw, systems: mbbSystemsRaw },
   slime_coin: { data: scDataRaw, ui: scUiRaw, systems: scSystemsRaw },
+  chimera_wilds: { data: cwDataRaw, ui: cwUiRaw, systems: cwSystemsRaw },
 };
 
 // ── Lua files — bundled at build time via import.meta.glob ───────────────────

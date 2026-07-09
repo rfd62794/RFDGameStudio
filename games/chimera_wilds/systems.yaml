@@ -1,0 +1,15 @@
+engine_version: "1.0"
+engine_systems: []   # self-contained, matches slither_rogue/slime_coin precedent
+
+systems:
+  - id: encounter
+    description: "Chimera assembly and single-roll combat resolution"
+    functions:
+      - generate_chimera
+      - resolve_encounter
+
+entities:
+  chimera:
+    description: "A randomly-assembled six-part enemy, disposed after one encounter"
+    systems: [encounter]
+    schema_ref: data.yaml#parts
