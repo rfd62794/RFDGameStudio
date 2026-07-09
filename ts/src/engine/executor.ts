@@ -95,7 +95,7 @@ export class LuaExecutor {
       case lua.LUA_TNIL:
         return null;
       case lua.LUA_TBOOLEAN:
-        return lua.lua_toboolean(this.L, idx) !== 0;
+        return lua.lua_toboolean(this.L, idx) ? true : false;
       case lua.LUA_TNUMBER:
         return lua.lua_tonumber(this.L, idx);
       case lua.LUA_TSTRING: {

@@ -21,6 +21,7 @@ vi.mock('fengari-web', () => {
       lua_next: vi.fn(() => 0),
       lua_toboolean: vi.fn(() => 0),
       lua_tonumber: vi.fn(() => 5),
+      lua_tostring: vi.fn(() => 'mocked'),
       lua_tojsstring: vi.fn(() => 'mocked'),
     },
     lauxlib: {
@@ -70,5 +71,41 @@ describe('executor', () => {
     const executor = new LuaExecutor('-- lua', 42);
     expect(() => executor.call('bad_fn')).toThrow(LuaError);
     expect(() => executor.call('bad_fn')).toThrow('Lua error in bad_fn');
+  });
+
+  it('test_executor_pulls_boolean_false', () => {
+    (lua.lua_type as ReturnType<typeof vi.fn>)
+      .mockReturnValueOnce(lua.LUA_TFUNCTION)
+      .mockReturnValueOnce(lua.LUA_TBOOLEAN);
+    (lua.lua_toboolean as ReturnType<typeof vi.fn>).mockReturnValue(false);
+
+    const executor = new LuaExecutor('-- lua', 42);
+    const result = executor.call('return_false');
+    expect(result).toBe(false);
+  });
+
+  it('test_executor_pulls_table_with_booleans', () => {
+    (lua.lua_type as ReturnType<typeof vi.fn>)
+      .mockReturnValueOnce(lua.LUA_TFUNCTION)
+      .mockReturnValueOnce(lua.LUA_TTABLE);
+    // Simulate a single table iteration returning key='z', value=false, then done.
+    let iteration = 0;
+    (lua.lua_next as ReturnType<typeof vi.fn>).mockImplementation(() => {
+      iteration += 1;
+      if (iteration === 1) {
+        // key
+        (lua.lua_type as ReturnType<typeof vi.fn>).mockReturnValueOnce(lua.LUA_TSTRING);
+        // value
+        (lua.lua_type as ReturnType<typeof vi.fn>).mockReturnValueOnce(lua.LUA_TBOOLEAN);
+        (lua.lua_tostring as ReturnType<typeof vi.fn>).mockReturnValue('z');
+        (lua.lua_toboolean as ReturnType<typeof vi.fn>).mockReturnValue(false);
+        return 1;
+      }
+      return 0;
+    });
+
+    const executor = new LuaExecutor('-- lua', 42);
+    const result = executor.call('return_table');
+    expect(result).toEqual({ z: false });
   });
 });
