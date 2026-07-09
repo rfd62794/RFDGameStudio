@@ -4,7 +4,65 @@
 
 ## Current Phase
 
-**ScrapCrawl Phase A.1 — Combat Gating Fix + UI Design Pass — CERTIFIED**
+**Arcade Core System Hardening — CERTIFIED**
+
+## Arcade Core System Hardening — CERTIFIED
+
+### What changed
+- Extracted the Arcade shell (routing, selector, loader) from `ts/src/main.tsx` into a dedicated `ts/src/arcade/` module with a barrel export, matching the existing `hooks/`, `components/`, and `engine/` structure.
+- Moved `getGameId`, `navigateTo`, and `navigateHome` to `ts/src/arcade/routing.ts` with no semantic drift for `navigateHome`.
+- Fixed `navigateTo` so it preserves the current mount path (e.g., `/arcade/rfdgamestudio/`) when setting `?game={id}`, closing the same path-portability risk that `navigateHome` already handled.
+- Moved `GameSelector` and `GameLoader` to `ts/src/arcade/GameSelector.tsx` and `ts/src/arcade/GameLoader.tsx`.
+- Closed the registry-mismatch bug: `GameLoader` now calls `findGame()` after a successful `loadGame()` and shows a distinct error when a game exists on disk but is missing from `GAME_REGISTRY`.
+- Removed the now-unused `findGameOrDefault()` from `ts/src/games/registry.ts`; no other callers existed.
+- Replaced the `ts/tests/test_navigation.ts` file with `ts/tests/test_arcade_routing.ts`, extending it with the new Arcade tests.
+
+### What was verified, not assumed
+- A genuinely bad `?game=totally_fake_id` URL still fails correctly with the existing `Unknown game: ...` error from `loadGame()`. This path was already fine and was not touched.
+- The registry-mismatch scenario was reproduced by temporarily removing `scrapcrawl` from `GAME_REGISTRY` while leaving its files on disk. `GameLoader` rendered the new distinct error: `Game "scrapcrawl" loaded successfully but has no registered config in registry.ts — this is a studio configuration error...`. The registry was restored immediately after the trace.
+
+## Arcade Core System Hardening Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `ts/src/arcade/routing.ts` — `getGameId`, `navigateTo`, `navigateHome` extracted | ✅ |
+| `ts/src/arcade/GameSelector.tsx` — extracted, no visual change | ✅ |
+| `ts/src/arcade/GameLoader.tsx` — extracted, registry-mismatch fix applied | ✅ |
+| `ts/src/arcade/index.ts` — barrel export matching project convention | ✅ |
+| `ts/src/main.tsx` — reduced to Root + mount | ✅ |
+| `ts/src/games/registry.ts` — `findGameOrDefault` removed, no other callers | ✅ |
+| `ts/tests/test_arcade_routing.ts` — routing + selector + loader tests | ✅ |
+| `ts/tests/test_arcade_loader.ts` — registry-mismatch error test | ✅ |
+| TypeScript floor: `npx vitest run` → **64 passed, 0 failed** | ✅ |
+| Python floor: `uv run pytest -q` → **194 passed, 0 failed** | ✅ |
+| `npx tsc --noEmit` — zero new errors attributable to arcade extraction | ✅ |
+| `npx vite build` → exits 0 | ✅ |
+| Manual proof: `?game=totally_fake_id` still shows "Unknown game" error | ✅ |
+| Manual proof: registry-mismatch scenario shows distinct new error | ✅ |
+| `git diff --stat` shows only files listed in scope | ✅ |
+
+**Test proof:**
+```
+uv run pytest -q
+→ 194 passed, 8 warnings in 3.76s
+
+cd ts; npx vitest run
+→ 64 passed (64)
+```
+
+**Manual trace proof:**
+```
+[TRACE] navigateTo('slime_coin') at /arcade/rfdgamestudio/
+        → href = http://localhost:3000/arcade/rfdgamestudio/?game=slime_coin
+[TRACE] navigateHome() from /arcade/rfdgamestudio/?game=horse_racing
+        → href = http://localhost:3000/arcade/rfdgamestudio/
+[TRACE] ?game=totally_fake_game_xyz
+        → GameLoader text: "Unknown game: totally_fake_game_xyz"
+[TRACE] registry-mismatch: scrapcrawl files present, config removed
+        → GameLoader text: "Game "scrapcrawl" loaded successfully but has no registered config in registry.ts — this is a studio configuration error..."
+```
+
+---
 
 ## ScrapCrawl Phase A.1 — Combat + Craft Gating Fix + UI Design Pass — CERTIFIED
 
