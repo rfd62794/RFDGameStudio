@@ -333,9 +333,9 @@ export default function App({ session }: GameRendererProps) {
                         <span className="sc-recipe-cost">{tier1Cost} Scrap</span>
                       </button>
                       <button
-                        className={`sc-button sc-craft-button ${player.tier2Unlocked && player.scrap >= tier2Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
+                        className={`sc-button sc-craft-button ${!isTool && player.tier2Unlocked && player.scrap >= tier2Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
                         onClick={() => handleCraft(id, 2)}
-                        disabled={!player.tier2Unlocked || player.scrap < tier2Cost}
+                        disabled={isTool ? player.tier2Unlocked : (!player.tier2Unlocked || player.scrap < tier2Cost)}
                       >
                         <span className="sc-recipe-tier">
                           {!player.tier2Unlocked && <Lock size={10} />} Tier 2

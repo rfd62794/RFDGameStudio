@@ -16,6 +16,10 @@
 - Rewrote `styles.css` using the shared token layer from `ui/tokens.css`; only deliberate hex override is the signature background `#07090d`, documented in-file.
 - Added 3 Python and 2 TypeScript tests anchoring the gating fix.
 
+### Hotfix (fengari numeric keys + Tool re-craft button)
+- The TS runtime (`fengari-web`) passes JavaScript numbers as Lua floats (`1.0`) and YAML numeric keys as strings (`"1"`). `lookup_tier` in `logic.lua` now tries numeric, integer, and string forms so that `craft`, `can_craft`, and `resolve_fight` all work in the browser. A TS runtime regression test guards this.
+- The Tier 2 craft button for the Tool recipe was incorrectly enabled after Tier 2 was unlocked (it looked affordable once the lock disappeared). Both Tool tier buttons are now disabled once the Tool has been crafted, matching the one-time-gate semantics in `logic.lua`.
+
 ## ScrapCrawl Phase A.1 Completion Criteria
 
 | Criterion | Status |
@@ -25,9 +29,9 @@
 | `ts/src/games/scrapcrawl/App.tsx` — equipment cards, durability bars, proficiency bars, terminal trace, crafting catalog | ✅ |
 | `ts/src/games/scrapcrawl/styles.css` — shared tokens only, one documented signature-background override | ✅ |
 | `tests/test_scrapcrawl.py` — 3 new tests (191 total) | ✅ |
-| `ts/tests/test_arcade.ts` — 2 new ScrapCrawl tests (51 total) | ✅ |
+| `ts/tests/test_arcade.ts` — 3 new ScrapCrawl tests (52 total) | ✅ |
 | Python floor: `uv run pytest -q` → **191 passed, 0 failed, 0 skipped** | ✅ |
-| TS floor: `cd ts && npx vitest run` → **51 passed, 0 failed, 0 skipped** | ✅ |
+| TS floor: `cd ts && npx vitest run` → **52 passed, 0 failed, 0 skipped** | ✅ |
 | `npx tsc --noEmit` — zero new errors attributable to scrapcrawl | ✅ |
 | `npx vite build` → exits 0 | ✅ |
 | Manual trace — Fight disabled at Home Base, real fight resolves in `scrap_pit` | ✅ |
@@ -39,7 +43,7 @@ uv run pytest -q
 → 191 passed, 8 warnings in 4.14s
 
 cd ts; npx vitest run
-→ 51 passed (51)
+→ 52 passed (52)
 ```
 
 **Manual trace proof:**
