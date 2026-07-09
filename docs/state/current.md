@@ -4,7 +4,63 @@
 
 ## Current Phase
 
-**Arcade Core System Hardening — CERTIFIED**
+**Shared Marquee Identity — CERTIFIED**
+
+## Shared Marquee Identity — CERTIFIED
+
+### What changed
+- Added display and monospace font tokens plus a marquee glow custom property to `ts/src/ui/tokens.css`.
+- Wrote real CSS for the nine base UI components in `ts/src/ui/base.css` and added a shared GameShell marquee header treatment.
+- Refactored `ts/src/components/GameShell.tsx` to a structured contract: `gameLabel`, `gameId`, `phase?`, `statusArea?`, `children`, `footer?`, `className?`.
+- Migrated every game App to the new `GameShell` contract: ScrapCrawl, Chimera Wilds, Mutant Battle Ball, Slime Coin, Horse Racing, and Slither Rogue.
+- Removed the duplicate `arcade-game-nav` bar from `ts/src/arcade/GameLoader.tsx`; GameShell now owns the back button and title treatment.
+- For Horse Racing, suppressed the interpreter-rendered `ui-header`/`ui-tab-bar`/`ui-footer` copies so the GameShell header and the game's own tab/footer are the only ones shown, while leaving `games/horse_racing/ui.yaml` intact for the PyGame renderer.
+- Redesigned `ts/src/arcade/GameSelector.tsx` with a marquee title, cabinet-frame cards, and a per-card runtime detail line derived from each game's real `data.yaml` (rooms, parts, race classes, evolution cards, chip cards, etc.) plus the confirmed PyGame renderer roster.
+- Added `ts/tests/test_gameshell.tsx` (6 tests) and extended `ts/tests/test_arcade.ts` with GameSelector runtime detail tests (6 tests).
+
+### Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| `ts/src/ui/tokens.css` — `--font-display`, `--font-mono`, `--marquee-glow` | ✅ |
+| `ts/src/ui/base.css` — real CSS for 9 base components + GameShell marquee | ✅ |
+| `ts/src/components/GameShell.tsx` — new props contract, back link, title, phase badge, statusArea | ✅ |
+| ScrapCrawl `App.tsx` migrated to new `GameShell` | ✅ |
+| Chimera Wilds `App.tsx` migrated to new `GameShell` | ✅ |
+| Mutant Battle Ball `App.tsx` migrated to new `GameShell` | ✅ |
+| Slime Coin `App.tsx` migrated to new `GameShell` | ✅ |
+| Horse Racing `App.tsx` migrated to new `GameShell` | ✅ |
+| Slither Rogue `App.tsx` migrated to new `GameShell` | ✅ |
+| `ts/src/arcade/GameLoader.tsx` no longer renders duplicate `arcade-game-nav` | ✅ |
+| `ts/src/arcade/GameSelector.tsx` — marquee title + cabinet-frame cards + real `data.yaml` detail | ✅ |
+| Python floor: `python -m pytest` → **194 passed, 0 failed** | ✅ |
+| TS floor: `cd ts && npx vitest run` → **76 passed, 0 failed** | ✅ |
+| `npx tsc --noEmit` — no new errors beyond pre-existing baseline | ✅ |
+| `npx vite build` → exits 0 | ✅ |
+| Manual proof: browser preview of Derby Sim shows only the GameShell header | ✅ |
+| Manual proof: Arcade lobby shows marquee title and per-card runtime detail | ✅ |
+
+**Test proof:**
+```
+python -m pytest
+→ 194 passed, 8 warnings in 3.59s
+
+cd ts; npx vitest run
+→ 76 passed (76)
+```
+
+**Manual trace proof:**
+```
+[TRACE] Arcade lobby
+        → RFD GAME STUDIO marquee title renders with display font + glow
+        → Each cabinet card shows real detail: e.g. "PyGame renderer · 4 race classes"
+[TRACE] ?game=horse_racing
+        → Only one header bar: GameShell with "DERBY SIM", "horse_racing", "STABLE BANK $0"
+        → No second "← Arcade / Derby Sim" nav bar
+        → No duplicate interpreter tab bar
+```
+
+---
 
 ## Arcade Core System Hardening — CERTIFIED
 
