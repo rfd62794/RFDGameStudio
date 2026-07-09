@@ -445,13 +445,24 @@ export default function App({ session }: GameRendererProps) {
     : [];
   const boundsMap = buildBoundsMap(resolved);
 
-  const { elements: uiElements, slots } = regions
+  const { elements: rawUiElements, slots: rawSlots } = regions
     ? interpretLayout(boundsMap, regions, gameState, {
         activeTab,
         tabs: tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string })),
         onSelectTab: setActiveTab,
       })
     : { elements: [], slots: {} };
+
+  // GameShell owns the title, bank, tabs, and footer; hide the interpreter's copies.
+  const uiElements = rawUiElements.filter(el => {
+    const className = String((el.props as { className?: string }).className ?? '');
+    return !className.includes('ui-header') && !className.includes('ui-tab-bar') && !className.includes('ui-footer');
+  });
+
+  const fullBounds = { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight };
+  const slots = rawSlots['content']
+    ? { ...rawSlots, content: { ...rawSlots['content'], bounds: fullBounds } }
+    : rawSlots;
 
   if (error || luaError) {
     return (
