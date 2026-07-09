@@ -125,7 +125,7 @@ describe('Arcade Registry', () => {
     });
 
     // Move from Home Base to a fight room first.
-    const moveButton = container.querySelector('.sc-connection');
+    const moveButton = container.querySelector('.sc-connection') as HTMLButtonElement | null;
     expect(moveButton).toBeTruthy();
 
     await act(async () => {

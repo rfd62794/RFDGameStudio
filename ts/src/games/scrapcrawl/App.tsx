@@ -13,7 +13,7 @@ import {
 import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps, GameSession } from '../../engine/types';
-import type { Room, PlayerState, FightResult, Equipment, ScrapCrawlGameState, GearSlot } from './types';
+import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
 import './styles.css';
 
 const SLOTS: { key: GearSlot; label: string; icon: typeof Sword }[] = [
@@ -66,10 +66,6 @@ function getGrowthFactor(session: GameSession, data: Record<string, unknown>, xp
   } catch {
     return 0.8;
   }
-}
-
-function getRoomName(rooms: Record<string, Room>, id: string): string {
-  return rooms[id]?.name ?? id;
 }
 
 function pushLog(prev: ScrapCrawlGameState | null, entry: string): string[] {
@@ -318,7 +314,6 @@ export default function App({ session }: GameRendererProps) {
                 const tier1Cost = getTierCost(entry, 1);
                 const tier2Cost = getTierCost(entry, 2);
                 const isTool = id === 'tool';
-                const resolvedTier = isTool ? 1 : (player.tier2Unlocked ? 2 : 1);
                 return (
                   <div key={id} className="sc-recipe-card">
                     <div className="sc-recipe-header">
