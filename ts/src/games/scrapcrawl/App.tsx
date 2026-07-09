@@ -138,27 +138,24 @@ export default function App({ session }: GameRendererProps) {
 
   return (
     <GameShell
-      header={
-        <div className="sc-header">
-          <div className="sc-header-brand">
-            <span className="sc-title">SCRAPCRAWL</span>
-            <span className="sc-phase">PHASE A.1</span>
+      gameLabel="SCRAPCRAWL"
+      gameId="scrapcrawl"
+      phase="PHASE A.1"
+      statusArea={
+        <div className="sc-header-stats">
+          <div className="sc-stat">
+            <span className="sc-stat-label">Scrap</span>
+            <span className="sc-stat-value sc-stat-accent">{String(player.scrap).padStart(3, '0')}</span>
           </div>
-          <div className="sc-header-stats">
-            <div className="sc-stat">
-              <span className="sc-stat-label">Scrap</span>
-              <span className="sc-stat-value sc-stat-accent">{String(player.scrap).padStart(3, '0')}</span>
-            </div>
-            <div className="sc-stat">
-              <span className="sc-stat-label">Tier 2</span>
-              <span className={`sc-stat-badge ${player.tier2Unlocked ? 'sc-badge-active' : 'sc-badge-locked'}`}>
-                {player.tier2Unlocked ? 'ACTIVE' : 'LOCKED'}
-              </span>
-            </div>
-            <div className="sc-stat">
-              <span className="sc-stat-label">Room</span>
-              <span className="sc-stat-value">{currentRoom.name}</span>
-            </div>
+          <div className="sc-stat">
+            <span className="sc-stat-label">Tier 2</span>
+            <span className={`sc-stat-badge ${player.tier2Unlocked ? 'sc-badge-active' : 'sc-badge-locked'}`}>
+              {player.tier2Unlocked ? 'ACTIVE' : 'LOCKED'}
+            </span>
+          </div>
+          <div className="sc-stat">
+            <span className="sc-stat-label">Room</span>
+            <span className="sc-stat-value">{currentRoom.name}</span>
           </div>
           {error && <span className="sc-error">{error}</span>}
         </div>
