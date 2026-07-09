@@ -6,15 +6,17 @@
 
 **ScrapCrawl Phase A.1 — Combat Gating Fix + UI Design Pass — CERTIFIED**
 
-## ScrapCrawl Phase A.1 — Combat Gating Fix + UI Design Pass — CERTIFIED
+## ScrapCrawl Phase A.1 — Combat + Craft Gating Fix + UI Design Pass — CERTIFIED
 
 ### What changed
 - Fixed a real bug discovered by playing: `resolve_fight` and the `Fight` button both lacked room-type validation, allowing free infinite wins at Home Base (no `difficulty` field → `difficulty` defaulted to `0`).
 - Added a defensive backend guard in `logic.lua` that rejects fights in rooms without `fight` in their interaction types.
 - Added a frontend gate in `App.tsx` that renders the `Fight` button as disabled in safe rooms.
+- Fixed a second play-discovered bug: `craft`/`can_craft` took no room context, allowing crafting in any node. They now accept a `room` parameter and reject rooms without `craft` in their interaction types.
+- Added a frontend craft-room gate in `App.tsx` that disables all craft buttons outside Home Base (the only craft-capable node) and shows a "No workbench detected" tooltip.
 - Redesigned the ScrapCrawl UI to match the original `examples/scrapcrawl` identity: near-black canvas, equipment durability bars with threshold colour shift, proficiency bars, terminal-style combat trace, and crafting catalog cards.
 - Rewrote `styles.css` using the shared token layer from `ui/tokens.css`; only deliberate hex override is the signature background `#07090d`, documented in-file.
-- Added 3 Python and 2 TypeScript tests anchoring the gating fix.
+- Added 3 Python and 2 TypeScript tests anchoring the fight gating fix, plus 3 Python and 2 TypeScript tests anchoring the craft gating fix.
 
 ### Hotfix (fengari numeric keys + Tool re-craft button + executor boolean bug)
 - The TS runtime (`fengari-web`) passes JavaScript numbers as Lua floats (`1.0`) and YAML numeric keys as strings (`"1"`). `lookup_tier` in `logic.lua` now tries numeric, integer, and string forms so that `craft`, `can_craft`, and `resolve_fight` all work in the browser. A TS runtime regression test guards this.
@@ -26,14 +28,16 @@
 | Criterion | Status |
 |---|---|
 | `games/scrapcrawl/logic.lua` — `resolve_fight` rejects non-fight rooms | ✅ |
+| `games/scrapcrawl/logic.lua` — `craft`/`can_craft` reject non-craft rooms | ✅ |
 | `ts/src/games/scrapcrawl/App.tsx` — Fight button disabled in safe rooms | ✅ |
+| `ts/src/games/scrapcrawl/App.tsx` — Craft buttons disabled outside craft rooms | ✅ |
 | `ts/src/games/scrapcrawl/App.tsx` — equipment cards, durability bars, proficiency bars, terminal trace, crafting catalog | ✅ |
 | `ts/src/games/scrapcrawl/styles.css` — shared tokens only, one documented signature-background override | ✅ |
-| `tests/test_scrapcrawl.py` — 3 new tests (191 total) | ✅ |
-| `ts/tests/test_arcade.ts` + `ts/tests/test_executor.ts` — 4 new TS tests (54 total) | ✅ |
-| Python floor: `uv run pytest -q` → **191 passed, 0 failed, 0 skipped** | ✅ |
-| TS floor: `cd ts && npx vitest run` → **54 passed, 0 failed, 0 skipped** | ✅ |
-| `npx tsc --noEmit` — zero new errors attributable to scrapcrawl | ✅ |
+| `tests/test_scrapcrawl.py` — 6 ScrapCrawl gating tests (194 total) | ✅ |
+| `ts/tests/test_arcade.ts` + `ts/tests/test_executor.ts` — 7 new TS tests (56 total) | ✅ |
+| Python floor: `uv run pytest -q` → **194 passed, 0 failed, 0 skipped** | ✅ |
+| TS floor: `cd ts && npx vitest run` → **56 passed, 0 failed, 0 skipped** | ✅ |
+| `npx tsc --noEmit` — zero new errors attributable to scrapcrawl/executor | ✅ |
 | `npx vite build` → exits 0 | ✅ |
 | Manual trace — Fight disabled at Home Base, real fight resolves in `scrap_pit` | ✅ |
 | `git diff --stat` empty for `examples/`, `games/chimera_wilds/`, `games/mutant_battle_ball/` | ✅ |
@@ -41,10 +45,10 @@
 **Test proof:**
 ```
 uv run pytest -q
-→ 191 passed, 8 warnings in 4.14s
+→ 194 passed, 8 warnings in 3.64s
 
 cd ts; npx vitest run
-→ 54 passed (54)
+→ 56 passed (56)
 ```
 
 **Manual trace proof:**

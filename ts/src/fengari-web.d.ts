@@ -21,6 +21,7 @@
     lua_next(L: unknown, idx: number): number;
     lua_toboolean(L: unknown, idx: number): number;
     lua_tonumber(L: unknown, idx: number): number;
+    lua_tostring(L: unknown, idx: number): unknown;
     lua_tojsstring(L: unknown, idx: number): string;
   }
   interface LauxLib {
