@@ -26,9 +26,3 @@ export function findGame(gameId: string): GameConfig | undefined {
   return GAME_REGISTRY.find(g => g.gameId === gameId);
 }
 
-/**
- * Look up a game config by ID. Returns the first registered game as fallback.
- */
-export function findGameOrDefault(gameId: string): GameConfig {
-  return findGame(gameId) ?? GAME_REGISTRY[0];
-}
