@@ -291,8 +291,8 @@ describe('GameSelector runtime detail', () => {
   it('shows real room and craftable counts for scrapcrawl', async () => {
     const { container, root } = await renderSelector();
     const text = container.textContent ?? '';
-    expect(text).toContain('rooms');
-    expect(text).toContain('craftables');
+    expect(text).toContain('5 rooms');
+    expect(text).toContain('4 craftables');
     root.unmount();
   });
 });

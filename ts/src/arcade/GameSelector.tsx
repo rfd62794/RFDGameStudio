@@ -7,7 +7,9 @@ const PYGAME_GAMES = new Set(['horse_racing', 'slither_rogue']);
 
 function countArray(data: Record<string, unknown>, key: string): number {
   const value = data[key];
-  return Array.isArray(value) ? value.length : 0;
+  if (Array.isArray(value)) return value.length;
+  if (value && typeof value === 'object') return Object.keys(value).length;
+  return 0;
 }
 
 function getRuntimeDetail(gameId: string, data: Record<string, unknown>): string {

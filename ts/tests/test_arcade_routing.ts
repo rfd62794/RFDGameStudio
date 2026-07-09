@@ -104,14 +104,14 @@ describe('Arcade GameLoader', () => {
     await act(async () => {
       root.render(React.createElement(GameLoader, { gameId: 'horse_racing' }));
     });
-    await act(async () => {
-      await new Promise(r => setTimeout(r, 0));
-    });
-    const backButton = await vi.waitFor(() => {
-      const btn = container.querySelector('.game-shell-back') as HTMLButtonElement | null;
-      expect(btn).toBeTruthy();
-      return btn;
-    });
+    const backButton = await vi.waitFor(
+      () => {
+        const btn = container.querySelector('.game-shell-back') as HTMLButtonElement | null;
+        if (!btn) throw new Error('GameShell back button not rendered yet');
+        return btn;
+      },
+      { timeout: 5000, interval: 20 }
+    );
     await act(async () => {
       backButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
