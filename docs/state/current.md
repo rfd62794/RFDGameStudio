@@ -4,9 +4,9 @@
 
 ## Current Phase
 
-**Phase 2w — SlimeCoin — CERTIFIED**
+**Chimera Wilds Phase 1 — Minimal Encounter Loop — CERTIFIED**
 
-## Chimera Wilds Phase 1 — Minimal Encounter Loop — PENDING
+## Chimera Wilds Phase 1 — Minimal Encounter Loop — CERTIFIED
 
 ## Chimera Wilds Phase 1 Completion Criteria
 
