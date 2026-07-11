@@ -14,6 +14,7 @@ dependencies = [
     "mcp>=1.0.0,<2",
     "pygame>=2.5",
     "pygame_gui>=0.6.9,<0.6.10",
+    "playwright>=1.61.0",
 ]
 
 [dependency-groups]
