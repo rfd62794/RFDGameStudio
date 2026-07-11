@@ -1,8 +1,17 @@
 import { useMemo } from 'react';
 import { GAME_REGISTRY } from '../games/registry';
-import gameMetadata from '../games/game-metadata.json';
+import gameMetadataRaw from '../games/game-metadata.json';
 import { loadGameFiles } from '../engine/loader';
 import { navigateTo } from './routing';
+
+interface GameMetadataEntry {
+  created: string;
+  last_updated: string;
+  version: string;
+  tracked: boolean;
+}
+
+const gameMetadata = gameMetadataRaw as Record<string, GameMetadataEntry>;
 
 const PYGAME_GAMES = new Set(['horse_racing', 'slither_rogue']);
 
