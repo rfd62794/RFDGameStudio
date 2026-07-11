@@ -1,0 +1,6 @@
+{
+  "name": "Trinity Siege",
+  "description": "A tactical wave defense game featuring hex ring geometry, shape counters, and persistent defensive fortifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

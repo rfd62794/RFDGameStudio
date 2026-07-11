@@ -179,8 +179,12 @@ ts/src/games/game-metadata.json
 # Lua compiled bytecode (should never appear, but just in case)
 *.luac
 
-# Examples
-examples/
+# Examples — pre-port originals and scratch work stay untracked;
+# active standalone demos (embedUrl tier) need real version control.
+examples/*
+!examples/ledger/
+!examples/shoal/
+!examples/trinity-siege/
 
 # Screenshots
 screenshots/
