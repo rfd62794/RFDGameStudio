@@ -344,7 +344,7 @@ describe('VoidDrift external entry', () => {
     });
 
     const cards = Array.from(container.querySelectorAll('.arcade-card'));
-    const hrCard = cards.find(c => c.textContent?.includes('DERBY SIM')) as HTMLButtonElement | undefined;
+    const hrCard = cards.find(c => c.textContent?.includes('Derby Sim')) as HTMLButtonElement | undefined;
     expect(hrCard).toBeDefined();
 
     await act(async () => {
