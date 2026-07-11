@@ -8,6 +8,8 @@ import { chimeraWildsConfig } from '../src/games/chimera_wilds/config';
 import App from '../src/games/chimera_wilds/App';
 import { scrapcrawlConfig } from '../src/games/scrapcrawl/config';
 import ScrapCrawlApp from '../src/games/scrapcrawl/App';
+import brewfieldConfig from '../src/games/brewfield/config';
+import BrewfieldApp from '../src/games/brewfield/App';
 import GameSelector from '../src/arcade/GameSelector';
 import * as routing from '../src/arcade/routing';
 
@@ -100,9 +102,22 @@ describe('Arcade Registry', () => {
     expect(config?.gameId).toBe('scrapcrawl');
   });
 
+  it('test_brewfield_in_registry', () => {
+    const config = findGame('brewfield');
+    expect(config).toBeDefined();
+    expect(config?.gameId).toBe('brewfield');
+    expect(config?.status).toBe('stable');
+  });
+
   it('test_scrapcrawl_config_lazy_loads_app', () => {
     expect(scrapcrawlConfig.component).toBeDefined();
     expect(scrapcrawlConfig.gameId).toBe('scrapcrawl');
+  });
+
+  it('test_brewfield_config_lazy_loads_app', () => {
+    expect(brewfieldConfig.component).toBeDefined();
+    expect(brewfieldConfig.gameId).toBe('brewfield');
+    expect(brewfieldConfig.embedUrl).toBeUndefined();
   });
 
   it('test_scrapcrawl_app_renders_without_crash', async () => {
@@ -115,6 +130,19 @@ describe('Arcade Registry', () => {
     });
 
     expect(container.textContent).toContain('SCRAPCRAWL');
+    root.unmount();
+  });
+
+  it('test_brewfield_app_renders_without_crash', async () => {
+    const session = loadGame('brewfield');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(React.createElement(BrewfieldApp, { session }));
+    });
+
+    expect(container.textContent).toContain('BREWFIELD');
     root.unmount();
   });
 
