@@ -124,7 +124,10 @@ export interface GameConfig {
   color?: string;           // hex accent color for arcade card
   status?: GameStatus;      // displayed as badge on card
   component?: React.LazyExoticComponent<React.ComponentType<GameRendererProps>>;
-  externalUrl?: string;     // if set, card opens this URL instead of loading via engine
+  externalUrl?: string;     // fallback: direct link to the game's own itch.io/store page
+  embedUrl?: string;        // if set, GameLoader renders this inline instead of redirecting
+  embedWidth?: number;      // intrinsic width of the embed, for aspect-ratio sizing
+  embedHeight?: number;     // intrinsic height of the embed, for aspect-ratio sizing
 }
 
 export type GameStatus = 'stable' | 'beta' | 'dev' | 'external';
