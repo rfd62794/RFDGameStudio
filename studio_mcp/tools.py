@@ -613,13 +613,23 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
-_EXAMPLE_DEMOS = ["brewfield", "ledger", "shoal", "trinity-siege"]
+_EXAMPLE_DEMOS = ["brewfield", "ledger", "shoal", "trinity-siege", "slimebreeder"]
 # folder name → deployed static subpath (gameId convention uses underscores)
 _DEMO_STATIC_NAME = {
     "brewfield": "brewfield",
     "ledger": "ledger",
     "shoal": "shoal",
     "trinity-siege": "trinity_siege",
+    "slimebreeder": "slimebreeder",
+}
+
+# demo slug → source directory (allows demos outside the examples/ tree)
+_DEMO_SOURCE_PATHS: dict[str, Path] = {
+    "brewfield": Path(__file__).parent.parent / "examples" / "brewfield",
+    "ledger": Path(__file__).parent.parent / "examples" / "ledger",
+    "shoal": Path(__file__).parent.parent / "examples" / "shoal",
+    "trinity-siege": Path(__file__).parent.parent / "examples" / "trinity-siege",
+    "slimebreeder": Path(r"C:\Github\SlimeBreeder"),
 }
 
 
@@ -645,10 +655,10 @@ def studio_deploy_arcade() -> dict:
 
     # Verify all example demo dists exist before copying anything
     for demo_slug in _EXAMPLE_DEMOS:
-        demo_dist = repo_root / "examples" / demo_slug / "dist"
+        demo_dist = _DEMO_SOURCE_PATHS[demo_slug] / "dist"
         if not demo_dist.exists():
             return {
-                "error": f"examples/{demo_slug}/dist/ does not exist. Build it first.",
+                "error": f"{_DEMO_SOURCE_PATHS[demo_slug]} / dist/ does not exist. Build it first.",
                 "tool": "studio_deploy_arcade",
             }
 
@@ -663,7 +673,7 @@ def studio_deploy_arcade() -> dict:
 
         # Copy each example demo
         for demo_slug in _EXAMPLE_DEMOS:
-            demo_dist = repo_root / "examples" / demo_slug / "dist"
+            demo_dist = _DEMO_SOURCE_PATHS[demo_slug] / "dist"
             static_name = _DEMO_STATIC_NAME[demo_slug]
             demo_target = _SITE_REPO_PATH / "static" / "arcade" / static_name
             if demo_target.exists():

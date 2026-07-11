@@ -10,6 +10,7 @@ import brewfieldConfig from './brewfield/config';
 import ledgerConfig from './ledger/config';
 import shoalConfig from './shoal/config';
 import trinitySiegeConfig from './trinity_siege/config';
+import slimebreederConfig from './slimebreeder/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -27,6 +28,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   ledgerConfig,
   shoalConfig,
   trinitySiegeConfig,
+  slimebreederConfig,
 ];
 
 /**

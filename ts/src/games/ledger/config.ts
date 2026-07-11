@@ -3,7 +3,7 @@ import type { GameConfig } from '../../engine/types';
 const config: GameConfig = {
   gameId: 'ledger',
   label: 'Ledger',
-  description: 'A narrative-bookkeeping RPG — manage a fantasy merchant ledger, balance income vs debt, and uncover story through transactions. Known UI-density issue.',
+  description: 'A Dutch-auction trading and appraisal simulator — compounding debt, a volatile resale market, and soft lockout consequences for missed payments.',
   color: '#06b6d4',
   status: 'external',
   embedUrl: '/arcade/ledger/',
