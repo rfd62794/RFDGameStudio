@@ -4,7 +4,48 @@
 
 ## Current Phase
 
-**Shared Marquee Identity — CERTIFIED**
+**External Game Entries (VoidDrift) — CERTIFIED**
+
+## External Game Entries (VoidDrift) — CERTIFIED
+
+### What changed
+- Extended `GameConfig` in `ts/src/engine/types.ts`: `component` is now optional, added `externalUrl?: string`, added `'external'` to `GameStatus`.
+- `GameSelector.tsx` click handler branches: cards with `externalUrl` open via `window.open` in a new tab; internal cards use `navigateTo` unchanged.
+- `GameLoader.tsx` guards against external games: if someone manually navigates `?game=voiddrift`, it opens the itch.io URL and redirects home; also handles missing `component` gracefully with a fallback error screen.
+- Created `ts/src/games/voiddrift/config.ts` with `externalUrl: 'https://rdug627.itch.io/voidrift'`, `status: 'external'`, no `component` field.
+- Registered VoidDrift in `GAME_REGISTRY` in `ts/src/games/registry.ts`.
+- Added `.arcade-status--external` CSS badge styling in `ts/src/ui/base.css`.
+- External cards show "Rust/Bevy · itch.io" as their runtime detail instead of attempting `loadGameFiles`.
+
+### Completion Criteria
+
+| Criterion | Status |
+|---|---|
+| Pre-flight floor reproduced: Python 194/0, TS 76/0 | ✅ |
+| `GameConfig.component` now optional, `externalUrl` added | ✅ |
+| `GameStatus` includes `'external'` | ✅ |
+| Click handler branches: external → `window.open`, internal → `navigateTo` | ✅ |
+| VoidDrift config created with real verified itch.io URL | ✅ |
+| VoidDrift added to `GAME_REGISTRY` | ✅ |
+| External badge styling distinct from internal statuses | ✅ |
+| `GameLoader` guards external games (redirect + no-renderer fallback) | ✅ |
+| `test_voiddrift_registry_entry_present` | ✅ |
+| `test_game_selector_opens_external_url_on_click` | ✅ |
+| `test_game_selector_internal_click_unchanged` | ✅ |
+| `test_external_card_shows_itch_detail` | ✅ |
+| Post-change floor: Python 194/0 (untouched), TS 80/0 (+4 new) | ✅ |
+| `npx vite build` → exits 0 | ✅ |
+
+**Test proof:**
+```
+python -m pytest
+→ 194 passed, 8 warnings in 3.53s
+
+cd ts; npx vitest run
+→ 80 passed (80)
+```
+
+---
 
 ## Shared Marquee Identity — CERTIFIED
 

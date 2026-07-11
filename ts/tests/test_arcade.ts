@@ -318,7 +318,7 @@ describe('VoidDrift external entry', () => {
     });
 
     const cards = Array.from(container.querySelectorAll('.arcade-card'));
-    const voiddriftCard = cards.find(c => c.textContent?.includes('VoidDrift')) as HTMLButtonElement | undefined;
+    const voiddriftCard = cards.find(c => c.textContent?.includes('VoidRift')) as HTMLButtonElement | undefined;
     expect(voiddriftCard).toBeDefined();
 
     await act(async () => {
