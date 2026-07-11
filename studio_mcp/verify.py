@@ -238,15 +238,19 @@ def verify_arcade_deploy(public_dir: Path = PUBLIC_DIR) -> dict:
             embed_url = game["embed_url"]
 
             if embed_url.startswith("http://") or embed_url.startswith("https://"):
-                # Remote embed (e.g. VoidRift itch iframe).
-                deployed_path: Path | None = None
-                preview_url = embed_url
+                # Remote embed (e.g. VoidRift itch iframe). Tier 1 does a simple
+                # HTTP reachability check; Tier 2 is not run because the page is
+                # not under our control and headless WebGL often fails without a GPU.
+                http_result = _check_remote_reachable(embed_url)
+                render_result: dict = {
+                    "ok": None,
+                    "reason": "remote embed; Tier 2 not run",
+                }
             else:
                 deployed_path = public_dir / embed_url.lstrip("/")
                 preview_url = server.url + embed_url
-
-            http_result = check_http_reachable(embed_url, deployed_path)
-            render_result = check_renders(preview_url, game_id, SCREENSHOT_DIR)
+                http_result = check_http_reachable(embed_url, deployed_path)
+                render_result = check_renders(preview_url, game_id, SCREENSHOT_DIR)
 
             verification[game_id] = {
                 "embed_url": embed_url,
@@ -255,7 +259,7 @@ def verify_arcade_deploy(public_dir: Path = PUBLIC_DIR) -> dict:
             }
 
     overall_ok = all(
-        v["http"].get("ok") and v["render"]["ok"]
+        v["http"].get("ok") and (v["render"]["ok"] if v["render"]["ok"] is not None else True)
         for v in verification.values()
     )
 
