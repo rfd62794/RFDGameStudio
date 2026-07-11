@@ -3,6 +3,11 @@
 function init_game(data)
     GAME_STATE = new_game_state(data)
     spawn_initial_entities(GAME_STATE, data)
+    local st = GAME_STATE
+    st.stats.fish_count = count_alive(st.fish)
+    st.stats.shark_count = count_alive(st.sharks)
+    st.stats.algae_count = count_algae_nodules(st)
+    st.stats.chunk_count = #st.chunks
     return build_render_state(GAME_STATE)
 end
 
@@ -34,14 +39,15 @@ end
 function handle_input(st, input)
     if not input then return end
     local tool = input.tool
-    if not tool then return end
-    if tool == "cull" and input.x and input.y then
+    if not tool or not input.clicked then return end
+    if not input.x or not input.y then return end
+    if tool == "cull" then
         cull_at(st, input.x, input.y, 40)
-    elseif tool == "fish" and input.x and input.y then
+    elseif tool == "fish" then
         spawn_fish(st, input.x, input.y)
-    elseif tool == "shark" and input.x and input.y then
+    elseif tool == "shark" then
         spawn_shark(st, input.x, input.y)
-    elseif tool == "algae" and input.x and input.y then
+    elseif tool == "algae" then
         spawn_algae_core(st, input.x, input.y)
     end
 end
@@ -276,7 +282,7 @@ function build_render_state(st)
                 depth = f.depth,
                 radius = f.radius,
                 color = f.lineage_color,
-                angle = math.atan2(f.vd, f.vx),
+                angle = math.atan(f.vd, f.vx),
                 mature = f.mature,
             })
         end
@@ -290,7 +296,7 @@ function build_render_state(st)
                 depth = s.depth,
                 radius = s.radius,
                 color = s.lineage_color,
-                angle = math.atan2(s.vd, s.vx),
+                angle = math.atan(s.vd, s.vx),
                 exposure = s.exposure,
                 mature = s.mature,
             })

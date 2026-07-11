@@ -32,7 +32,7 @@ GAME_PATHS: dict[str, list[str]] = {
     "brewfield": ["games/brewfield", "ts/src/games/brewfield"],
     "voiddrift": ["ts/src/games/voiddrift"],  # config only, real source is external
     "ledger": ["examples/ledger"],
-    "shoal": ["examples/shoal"],
+    "shoal": ["games/shoal", "ts/src/games/shoal"],
     "trinity_siege": ["examples/trinity-siege"],
     "slimebreeder": [],  # external repo, see _EXTERNAL_REPOS
 }

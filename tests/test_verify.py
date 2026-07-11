@@ -25,11 +25,11 @@ def test_get_embed_games_includes_embedded_games_and_lobby() -> None:
     games = get_embed_games()
     game_ids = {g["game_id"] for g in games}
     assert "ledger" in game_ids
-    assert "shoal" in game_ids
     assert "trinity_siege" in game_ids
     assert "slimebreeder" in game_ids
     assert "voiddrift" in game_ids
     assert "arcade" in game_ids
+    assert "shoal" not in game_ids
 
 
 # ---------------------------------------------------------------------------

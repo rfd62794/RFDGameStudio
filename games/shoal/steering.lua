@@ -104,8 +104,8 @@ function compute_fish_forces(f, st, hash)
 
     -- separate from other fish
     local others = hash and hash[f.lineage_id] or st.fish
-    local sep = force_separate(f.x, f.depth, others, cfg.perception.separate * cfg.perception.separate, weights.separate, f.max_force)
-    fx, fy = fx + sep.x, fy + sep.y
+    local sep_x, sep_y = force_separate(f.x, f.depth, others, cfg.perception.separate * cfg.perception.separate, weights.separate, f.max_force)
+    fx, fy = fx + sep_x, fy + sep_y
 
     -- depth bias (mild upward pull)
     local bias = -weights.depth_bias * f.max_force

@@ -1,12 +1,13 @@
+import React from 'react';
 import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
   gameId: 'shoal',
   label: 'Shoal',
-  description: 'A Wa-Tor ecosystem simulation turned into a survival strategy game — balance predator/prey populations across a toroidal ocean grid.',
+  description: 'A continuous steering-based reef ecosystem — fish graze, sharks hunt, and algae rises and sinks with the pressure of grazing.',
   color: '#3b82f6',
-  status: 'external',
-  embedUrl: '/arcade/shoal/',
+  status: 'stable',
+  component: React.lazy(() => import('./App')),
 };
 
 export default config;
