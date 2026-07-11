@@ -31,6 +31,7 @@ import yaml
 from studio.executor import LuaError
 from studio.runtime import load_game
 from studio_mcp.game_metadata import write_game_metadata
+from studio_mcp.intake import process_intake
 from studio_mcp.session_store import create_session, get_session
 
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
@@ -713,3 +714,18 @@ def studio_deploy_arcade() -> dict:
         return {"copied_files": copied_files, "build": build_result, "deploy": deploy_result}
     except Exception as exc:
         return {"error": str(exc), "tool": "studio_deploy_arcade"}
+
+
+def studio_process_intake(concept_slug: str, bump: str | None = None, note: str | None = None) -> dict:
+    """Process any newly-dropped, generically-named zips in intake/{concept_slug}/.
+
+    Default bump is R (revision) — pass bump='minor'/'patch'/'major' only when
+    explicitly declaring a semantic change.
+
+    Returns: {"concept_slug": str, "processed": list, "duplicates": list,
+              "errors": list, "current_version": str, "manifest_path": str}
+    """
+    try:
+        return process_intake(concept_slug, bump=bump, note=note)
+    except Exception as exc:
+        return {'error': str(exc), 'tool': 'studio_process_intake'}

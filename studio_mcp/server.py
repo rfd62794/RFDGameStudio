@@ -29,6 +29,7 @@ from studio_mcp.tools import (
     studio_get_state,
     studio_get_systems,
     studio_load_game,
+    studio_process_intake,
     studio_run_headless,
     studio_run_tests,
     studio_screenshot,
@@ -54,6 +55,7 @@ mcp.tool()(studio_build)
 mcp.tool()(studio_write_arcade_index)
 mcp.tool()(studio_write_arcade_page)
 mcp.tool()(studio_deploy_arcade)
+mcp.tool()(studio_process_intake)
 
 
 async def health(request: Request) -> Response:
