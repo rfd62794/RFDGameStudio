@@ -126,8 +126,8 @@ export interface GameConfig {
   component?: React.LazyExoticComponent<React.ComponentType<GameRendererProps>>;
   externalUrl?: string;     // fallback: direct link to the game's own itch.io/store page
   embedUrl?: string;        // if set, GameLoader renders this inline instead of redirecting
-  embedWidth?: number;      // intrinsic width of the embed, for aspect-ratio sizing
-  embedHeight?: number;     // intrinsic height of the embed, for aspect-ratio sizing
+  embedWidth?: number;      // present + embedHeight → fixed aspect-ratio container (itch.io)
+  embedHeight?: number;     // absent → responsive full-bleed container (same-origin demos)
 }
 
 export type GameStatus = 'stable' | 'beta' | 'dev' | 'external';

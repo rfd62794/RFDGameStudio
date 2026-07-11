@@ -46,8 +46,16 @@ export default function GameSelector() {
   const details = useMemo(() => {
     const map: Record<string, string> = {};
     for (const config of GAME_REGISTRY) {
-      if (config.externalUrl) {
+      if (config.externalUrl && config.embedUrl) {
         map[config.gameId] = 'Rust/Bevy · itch.io';
+        continue;
+      }
+      if (config.embedUrl) {
+        map[config.gameId] = 'React/Tailwind · Standalone';
+        continue;
+      }
+      if (config.externalUrl) {
+        map[config.gameId] = 'External link';
         continue;
       }
       try {

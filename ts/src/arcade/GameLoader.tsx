@@ -49,29 +49,43 @@ export default function GameLoader({ gameId }: { gameId: string }) {
 
   const cfg = findGame(gameId);
   if (cfg?.embedUrl) {
-    const ratio = (cfg.embedHeight && cfg.embedWidth)
-      ? (cfg.embedHeight / cfg.embedWidth) * 100
-      : 135.4; // fallback: VoidRift's real 1300/960 ratio
-    return (
-      <div className="arcade-game-wrap">
-        <div className="arcade-game-content" style={{ position: 'relative', width: '100%', maxWidth: `${cfg.embedWidth ?? 960}px`, margin: '0 auto' }}>
-          <div style={{ position: 'relative', width: '100%', paddingTop: `${ratio}%` }}>
+    if (cfg.embedWidth && cfg.embedHeight) {
+      // Fixed aspect-ratio container (VoidRift's itch.io iframe)
+      const ratio = (cfg.embedHeight / cfg.embedWidth) * 100;
+      return (
+        <div className="arcade-game-wrap">
+          <div className="arcade-game-content" style={{ position: 'relative', width: '100%', maxWidth: `${cfg.embedWidth}px`, margin: '0 auto' }}>
+            <div style={{ position: 'relative', width: '100%', paddingTop: `${ratio}%` }}>
+              <iframe
+                src={cfg.embedUrl}
+                allowFullScreen
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                title={`${cfg.label} — playable embed`}
+              />
+            </div>
+            {cfg.externalUrl && (
+              <a href={cfg.externalUrl} target="_blank" rel="noopener noreferrer"
+                 style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '0.8rem' }}>
+                Open on itch.io ↗
+              </a>
+            )}
+          </div>
+        </div>
+      );
+    } else {
+      // Responsive full-bleed container (same-origin static demos)
+      return (
+        <div className="arcade-game-wrap">
+          <div style={{ width: '100%', maxWidth: '1200px', height: 'min(85vh, 900px)', margin: '0 auto' }}>
             <iframe
               src={cfg.embedUrl}
-              allowFullScreen
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+              style={{ width: '100%', height: '100%', border: 0 }}
               title={`${cfg.label} — playable embed`}
             />
           </div>
-          {cfg.externalUrl && (
-            <a href={cfg.externalUrl} target="_blank" rel="noopener noreferrer"
-               style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '0.8rem' }}>
-              Open on itch.io ↗
-            </a>
-          )}
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   if (error) {

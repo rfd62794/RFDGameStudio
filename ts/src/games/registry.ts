@@ -6,6 +6,10 @@ import { slimeCoinConfig } from './slime_coin/config';
 import { chimeraWildsConfig } from './chimera_wilds/config';
 import { scrapcrawlConfig } from './scrapcrawl/config';
 import voiddriftConfig from './voiddrift/config';
+import brewfieldConfig from './brewfield/config';
+import ledgerConfig from './ledger/config';
+import shoalConfig from './shoal/config';
+import trinitySiegeConfig from './trinity_siege/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -19,6 +23,10 @@ export const GAME_REGISTRY: GameConfig[] = [
   chimeraWildsConfig,
   scrapcrawlConfig,
   voiddriftConfig,
+  brewfieldConfig,
+  ledgerConfig,
+  shoalConfig,
+  trinitySiegeConfig,
 ];
 
 /**

@@ -265,6 +265,12 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     (dist_dir / "assets").mkdir()
     (dist_dir / "assets" / "game.js").write_text("console.log('hi')", encoding="utf-8")
 
+    # Create fake example demo dist/ directories
+    for demo_slug in tools._EXAMPLE_DEMOS:
+        demo_dist = tmp_path / "examples" / demo_slug / "dist"
+        demo_dist.mkdir(parents=True)
+        (demo_dist / "index.html").write_text(f"<h1>{demo_slug}</h1>", encoding="utf-8")
+
     site_repo = tmp_path / "site"
     site_repo.mkdir()
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))

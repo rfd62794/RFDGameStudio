@@ -613,8 +613,19 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
+_EXAMPLE_DEMOS = ["brewfield", "ledger", "shoal", "trinity-siege"]
+# folder name → deployed static subpath (gameId convention uses underscores)
+_DEMO_STATIC_NAME = {
+    "brewfield": "brewfield",
+    "ledger": "ledger",
+    "shoal": "shoal",
+    "trinity-siege": "trinity_siege",
+}
+
+
 def studio_deploy_arcade() -> dict:
     """Copy ts/dist/ into the site repo's static/arcade/rfdgamestudio/,
+    copy each example demo's dist/ into static/arcade/{gameId}/,
     then invoke the site repo's hugo build and deploy_smart.py as
     subprocesses. Does not call studio_build first — dist/ must already
     be fresh.
@@ -624,20 +635,41 @@ def studio_deploy_arcade() -> dict:
     import shutil
     import subprocess
 
-    dist_dir = Path(__file__).parent.parent / "ts" / "dist"
+    repo_root = Path(__file__).parent.parent
+    dist_dir = repo_root / "ts" / "dist"
     if not dist_dir.exists():
         return {
             "error": "ts/dist/ does not exist. Call studio_build first.",
             "tool": "studio_deploy_arcade",
         }
 
+    # Verify all example demo dists exist before copying anything
+    for demo_slug in _EXAMPLE_DEMOS:
+        demo_dist = repo_root / "examples" / demo_slug / "dist"
+        if not demo_dist.exists():
+            return {
+                "error": f"examples/{demo_slug}/dist/ does not exist. Build it first.",
+                "tool": "studio_deploy_arcade",
+            }
+
     target_dir = _SITE_REPO_PATH / "static" / "arcade" / "rfdgamestudio"
 
     try:
+        # Copy main arcade app
         if target_dir.exists():
             shutil.rmtree(target_dir)
         shutil.copytree(dist_dir, target_dir)
         copied_files = sum(1 for _ in target_dir.rglob("*") if _.is_file())
+
+        # Copy each example demo
+        for demo_slug in _EXAMPLE_DEMOS:
+            demo_dist = repo_root / "examples" / demo_slug / "dist"
+            static_name = _DEMO_STATIC_NAME[demo_slug]
+            demo_target = _SITE_REPO_PATH / "static" / "arcade" / static_name
+            if demo_target.exists():
+                shutil.rmtree(demo_target)
+            shutil.copytree(demo_dist, demo_target)
+            copied_files += sum(1 for _ in demo_target.rglob("*") if _.is_file())
 
         hugo_exe = _SITE_REPO_PATH / "hugo.exe"
         build_proc = subprocess.run(
