@@ -461,6 +461,7 @@ local function build_run_nodes(data)
       id = n.id,
       type = n.type,
       name = n.name,
+      description = n.description,
       enemy = n.enemy,
       completed = false
     })

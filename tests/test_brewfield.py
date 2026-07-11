@@ -28,8 +28,20 @@ def test_data_yaml_run_nodes_match_source() -> None:
     data = yaml.safe_load((BF_DIR / "data.yaml").read_text(encoding="utf-8"))
     nodes = data["run_nodes"]
     assert len(nodes) == 9
-    assert nodes[0] == {"id": 1, "type": "fight", "name": "Alchemical Chamber", "enemy": "ashling"}
-    assert nodes[8] == {"id": 9, "type": "fight", "name": "The Cauldron Heart", "enemy": "rootbound"}
+    assert nodes[0] == {
+        "id": 1,
+        "type": "fight",
+        "name": "Alchemical Chamber",
+        "description": "A cinder beast blocks the descent.",
+        "enemy": "ashling",
+    }
+    assert nodes[8] == {
+        "id": 9,
+        "type": "fight",
+        "name": "The Cauldron Heart",
+        "description": "The rootbound guardian awaits at the core.",
+        "enemy": "rootbound",
+    }
 
 
 def test_get_relation_same_adjacent_opposed() -> None:

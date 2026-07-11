@@ -81,6 +81,7 @@ export interface RunNode {
   id: number;
   type: NodeType;
   name: string;
+  description: string;
   enemy?: 'ashling' | 'bulwark' | 'molten_ashling' | 'rootbound';
   completed: boolean;
 }

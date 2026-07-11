@@ -57,12 +57,12 @@ enemies:
 
 # Run map, ported directly from generateRunNodes() — 9 nodes, node 9 is the boss
 run_nodes:
-  - {id: 1, type: fight, name: "Alchemical Chamber", enemy: ashling}
-  - {id: 2, type: forage, name: "Shattered Herbarium"}
-  - {id: 3, type: fight, name: "The Obsidian Hearth", enemy: bulwark}
-  - {id: 4, type: forage, name: "Overgrown Drainage"}
-  - {id: 5, type: rest, name: "The Purging Flame"}
-  - {id: 6, type: fight, name: "Cinder Ruins", enemy: molten_ashling}
-  - {id: 7, type: forage, name: "Antechamber Shelf"}
-  - {id: 8, type: rest, name: "The Hall of Solace"}
-  - {id: 9, type: fight, name: "The Cauldron Heart", enemy: rootbound}
+  - {id: 1, type: fight, name: "Alchemical Chamber", description: "A cinder beast blocks the descent.", enemy: ashling}
+  - {id: 2, type: forage, name: "Shattered Herbarium", description: "Ruined shelves hold raw elemental compounds."}
+  - {id: 3, type: fight, name: "The Obsidian Hearth", description: "A stone golem guards the inner passages.", enemy: bulwark}
+  - {id: 4, type: forage, name: "Overgrown Drainage", description: "Moist tunnels hide volatile reagents."}
+  - {id: 5, type: rest, name: "The Purging Flame", description: "A furnace site where toxins can be burned away."}
+  - {id: 6, type: fight, name: "Cinder Ruins", description: "Molten plating drips from a golem warden.", enemy: molten_ashling}
+  - {id: 7, type: forage, name: "Antechamber Shelf", description: "A narrow storage room with salvageable elements."}
+  - {id: 8, type: rest, name: "The Hall of Solace", description: "A quiet chamber to restore the matrix."}
+  - {id: 9, type: fight, name: "The Cauldron Heart", description: "The rootbound guardian awaits at the core.", enemy: rootbound}

@@ -1,0 +1,60 @@
+src/games/brewfield/components/IntroScreen.tsx(6,3): error TS6133: 'Mountain' is declared but its value is never read.
+src/games/brewfield/components/IntroScreen.tsx(7,3): error TS6133: 'Wind' is declared but its value is never read.
+src/games/horse_racing/App.tsx(153,17): error TS6133: 'luaCall' is declared but its value is never read.
+src/games/horse_racing/App.tsx(153,43): error TS6133: 'clearError' is declared but its value is never read.
+src/games/mutant_battle_ball/App.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/games/mutant_battle_ball/App.tsx(69,10): error TS6133: 'matchState' is declared but its value is never read.
+src/games/mutant_battle_ball/App.tsx(94,11): error TS6133: 'opponent' is declared but its value is never read.
+src/games/mutant_battle_ball/App.tsx(142,36): error TS2322: Type 'Dispatch<SetStateAction<MBBGameState | null>>' is not assignable to type '(fn: (prev: MBBGameState) => MBBGameState) => void'.
+  Types of parameters 'value' and 'fn' are incompatible.
+    Type '(prev: MBBGameState) => MBBGameState' is not assignable to type 'SetStateAction<MBBGameState | null>'.
+      Type '(prev: MBBGameState) => MBBGameState' is not assignable to type '(prevState: MBBGameState | null) => MBBGameState | null'.
+        Types of parameters 'prev' and 'prevState' are incompatible.
+          Type 'MBBGameState | null' is not assignable to type 'MBBGameState'.
+            Type 'null' is not assignable to type 'MBBGameState'.
+src/games/mutant_battle_ball/App.tsx(148,38): error TS2322: Type 'Dispatch<SetStateAction<MBBGameState | null>>' is not assignable to type '(fn: (prev: MBBGameState) => MBBGameState) => void'.
+  Types of parameters 'value' and 'fn' are incompatible.
+    Type '(prev: MBBGameState) => MBBGameState' is not assignable to type 'SetStateAction<MBBGameState | null>'.
+      Type '(prev: MBBGameState) => MBBGameState' is not assignable to type '(prevState: MBBGameState | null) => MBBGameState | null'.
+        Types of parameters 'prev' and 'prevState' are incompatible.
+          Type 'MBBGameState | null' is not assignable to type 'MBBGameState'.
+            Type 'null' is not assignable to type 'MBBGameState'.
+src/games/mutant_battle_ball/App.tsx(157,13): error TS2322: Type 'Dispatch<SetStateAction<MBBGameState | null>>' is not assignable to type '(fn: (prev: unknown) => unknown) => void'.
+  Types of parameters 'value' and 'fn' are incompatible.
+    Type '(prev: unknown) => unknown' is not assignable to type 'SetStateAction<MBBGameState | null>'.
+      Type '(prev: unknown) => unknown' is not assignable to type '(prevState: MBBGameState | null) => MBBGameState | null'.
+        Type 'unknown' is not assignable to type 'MBBGameState | null'.
+src/games/mutant_battle_ball/App.tsx(162,34): error TS2322: Type 'Dispatch<SetStateAction<MBBGameState | null>>' is not assignable to type '(fn: (prev: MBBGameState) => MBBGameState) => void'.
+  Types of parameters 'value' and 'fn' are incompatible.
+    Type '(prev: MBBGameState) => MBBGameState' is not assignable to type 'SetStateAction<MBBGameState | null>'.
+      Type '(prev: MBBGameState) => MBBGameState' is not assignable to type '(prevState: MBBGameState | null) => MBBGameState | null'.
+        Types of parameters 'prev' and 'prevState' are incompatible.
+          Type 'MBBGameState | null' is not assignable to type 'MBBGameState'.
+            Type 'null' is not assignable to type 'MBBGameState'.
+src/games/mutant_battle_ball/App.tsx(166,39): error TS2322: Type 'Dispatch<SetStateAction<MBBGameState | null>>' is not assignable to type '(fn: (prev: MBBGameState) => MBBGameState) => void'.
+  Types of parameters 'value' and 'fn' are incompatible.
+    Type '(prev: MBBGameState) => MBBGameState' is not assignable to type 'SetStateAction<MBBGameState | null>'.
+      Type '(prev: MBBGameState) => MBBGameState' is not assignable to type '(prevState: MBBGameState | null) => MBBGameState | null'.
+        Types of parameters 'prev' and 'prevState' are incompatible.
+          Type 'MBBGameState | null' is not assignable to type 'MBBGameState'.
+            Type 'null' is not assignable to type 'MBBGameState'.
+src/games/mutant_battle_ball/components/InfirmaryTab.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/games/mutant_battle_ball/components/InfirmaryTab.tsx(9,38): error TS6198: All destructured elements are unused.
+src/games/mutant_battle_ball/components/MatchCanvas.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/games/mutant_battle_ball/components/MatchCanvas.tsx(26,5): error TS6133: 'session' is declared but its value is never read.
+src/games/mutant_battle_ball/components/MatchCanvas.tsx(26,30): error TS6133: 'state' is declared but its value is never read.
+src/games/mutant_battle_ball/components/MatchCanvas.tsx(26,37): error TS6133: 'setState' is declared but its value is never read.
+src/games/mutant_battle_ball/components/MatchCanvas.tsx(31,10): error TS6133: 'downAgentId' is declared but its value is never read.
+src/games/mutant_battle_ball/components/RosterTab.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/games/mutant_battle_ball/components/RosterTab.tsx(13,44): error TS6133: 'setState' is declared but its value is never read.
+src/games/mutant_battle_ball/components/RosterTab.tsx(13,54): error TS6133: 'session' is declared but its value is never read.
+src/games/mutant_battle_ball/components/RosterTab.tsx(13,63): error TS6133: 'call' is declared but its value is never read.
+src/games/mutant_battle_ball/components/RosterTab.tsx(13,69): error TS6133: 'opponent' is declared but its value is never read.
+src/games/mutant_battle_ball/components/ShopTab.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/games/mutant_battle_ball/components/ShopTab.tsx(11,33): error TS6198: All destructured elements are unused.
+src/games/mutant_battle_ball/components/WorkshopTab.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/games/mutant_battle_ball/components/WorkshopTab.tsx(11,37): error TS6198: All destructured elements are unused.
+src/games/slither_rogue/components/EvolutionModal.tsx(1,18): error TS6133: 'AnimatePresence' is declared but its value is never read.
+src/games/slither_rogue/components/GameOverModal.tsx(2,1): error TS6133: 'motion' is declared but its value is never read.
+tests/test_runtime.ts(106,10): error TS6133: 'findGameOrDefault' is declared but its value is never read.
+tests/test_shared.ts(1,32): error TS6133: 'vi' is declared but its value is never read.
