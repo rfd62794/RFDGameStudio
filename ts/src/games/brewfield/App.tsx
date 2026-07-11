@@ -171,11 +171,11 @@ export default function App({ session }: GameRendererProps) {
   const activeNode = state.nodes.find((n) => n.id === state.currentNodeId);
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-200 flex flex-col relative overflow-hidden font-sans">
+    <div className="h-screen bg-stone-950 text-stone-200 flex flex-col relative overflow-hidden font-sans">
       <div className="absolute top-1/3 left-10 w-96 h-96 bg-stone-900/10 rounded-full blur-3xl -z-10 pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-stone-900/10 rounded-full blur-3xl -z-10 pointer-events-none" />
 
-      <header className="w-full bg-stone-950 border-b border-stone-900 p-3 flex items-center justify-between select-none">
+      <header className="shrink-0 w-full bg-stone-950 border-b border-stone-900 p-3 flex items-center justify-between select-none">
         <div className="flex items-center gap-2">
           <span className="text-amber-500 text-lg">⚗️</span>
           <h1 className="text-lg font-serif font-extrabold tracking-widest text-stone-100">
@@ -190,9 +190,11 @@ export default function App({ session }: GameRendererProps) {
         </div>
       </header>
 
-      <MapProgress nodes={state.nodes} currentNodeId={state.currentNodeId} />
+      <div className="shrink-0">
+        <MapProgress nodes={state.nodes} currentNodeId={state.currentNodeId} />
+      </div>
 
-      <div className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      <div className="flex-1 overflow-y-auto w-full max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         <div className="lg:col-span-1 bg-stone-900/40 border border-stone-900/60 p-4 rounded-xl flex flex-col gap-4">
           <div>
             <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono font-bold block mb-1">
