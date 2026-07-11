@@ -1,6 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import './ui/tokens.css';
-import './ui/base.css';
+import './index.css';
 import { GameSelector, GameLoader, getGameId } from './arcade';
 
 function Root() {
