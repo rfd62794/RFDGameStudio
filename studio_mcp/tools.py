@@ -30,6 +30,7 @@ import yaml
 
 from studio.executor import LuaError
 from studio.runtime import load_game
+from studio_mcp.game_metadata import write_game_metadata
 from studio_mcp.session_store import create_session, get_session
 
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
@@ -521,6 +522,11 @@ def studio_build() -> dict:
 
     start = time.time()
     try:
+        write_game_metadata()
+    except Exception as exc:
+        return {'error': f'game metadata generation failed: {exc}', 'tool': 'studio_build'}
+
+    try:
         proc = subprocess.run(
             'npx vite build',
             cwd=str(ts_dir),
@@ -644,6 +650,11 @@ def studio_deploy_arcade() -> dict:
     """
     import shutil
     import subprocess
+
+    try:
+        write_game_metadata()
+    except Exception as exc:
+        return {'error': f'game metadata generation failed: {exc}', 'tool': 'studio_deploy_arcade'}
 
     repo_root = Path(__file__).parent.parent
     dist_dir = repo_root / "ts" / "dist"

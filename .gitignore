@@ -173,6 +173,9 @@ temp/
 output/
 sim_results/
 
+# Generated arcade metadata (built from git history at build time)
+ts/src/games/game-metadata.json
+
 # Lua compiled bytecode (should never appear, but just in case)
 *.luac
 
