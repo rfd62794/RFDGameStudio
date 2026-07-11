@@ -78,7 +78,9 @@ export default function GameSelector() {
               className="arcade-card"
               style={{ '--card-color': config.color ?? 'var(--accent)' } as React.CSSProperties}
               onClick={() => {
-                if (config.externalUrl) {
+                if (config.embedUrl) {
+                  navigateTo(config.gameId);
+                } else if (config.externalUrl) {
                   window.open(config.externalUrl, '_blank', 'noopener,noreferrer');
                 } else {
                   navigateTo(config.gameId);

@@ -307,9 +307,9 @@ describe('VoidDrift external entry', () => {
     expect(cfg!.component).toBeUndefined();
   });
 
-  it('test_game_selector_opens_external_url_on_click', async () => {
+  it('test_game_selector_embed_click_navigates_inline', async () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
-    const navSpy = vi.spyOn(routing, 'navigateTo');
+    const navSpy = vi.spyOn(routing, 'navigateTo').mockImplementation(() => {});
 
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -325,8 +325,9 @@ describe('VoidDrift external entry', () => {
       voiddriftCard!.click();
     });
 
-    expect(openSpy).toHaveBeenCalledWith('https://rdug627.itch.io/voidrift', '_blank', 'noopener,noreferrer');
-    expect(navSpy).not.toHaveBeenCalled();
+    // embedUrl takes priority — navigates inline, does NOT open new tab
+    expect(navSpy).toHaveBeenCalledWith('voiddrift');
+    expect(openSpy).not.toHaveBeenCalled();
 
     openSpy.mockRestore();
     navSpy.mockRestore();
