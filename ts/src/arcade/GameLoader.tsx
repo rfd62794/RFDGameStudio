@@ -54,6 +54,11 @@ export default function GameLoader({ gameId }: { gameId: string }) {
       const ratio = (cfg.embedHeight / cfg.embedWidth) * 100;
       return (
         <div className="arcade-game-wrap">
+          <div className="arcade-game-lobby-bar">
+            <button onClick={navigateHome} className="arcade-back-to-lobby">
+              ← Back to Arcade
+            </button>
+          </div>
           <div className="arcade-game-content" style={{ position: 'relative', width: '100%', maxWidth: `${cfg.embedWidth}px`, margin: '0 auto' }}>
             <div style={{ position: 'relative', width: '100%', paddingTop: `${ratio}%` }}>
               <iframe
@@ -76,6 +81,11 @@ export default function GameLoader({ gameId }: { gameId: string }) {
       // Responsive full-bleed container (same-origin static demos)
       return (
         <div className="arcade-game-wrap">
+          <div className="arcade-game-lobby-bar">
+            <button onClick={navigateHome} className="arcade-back-to-lobby">
+              ← Back to Arcade
+            </button>
+          </div>
           <div style={{ width: '100%', maxWidth: '1200px', height: 'min(85vh, 900px)', margin: '0 auto' }}>
             <iframe
               src={cfg.embedUrl}

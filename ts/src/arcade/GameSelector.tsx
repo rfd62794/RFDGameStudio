@@ -71,6 +71,9 @@ export default function GameSelector() {
   return (
     <div className="arcade-index">
       <header className="arcade-header">
+        <a href="https://rfditservices.com/games/" className="arcade-back-to-site">
+          ← rfditservices.com
+        </a>
         <div className="arcade-marquee">
           <h1 className="arcade-logo">RFD GAME STUDIO</h1>
           <p className="arcade-subtitle">Portable Game Definition Format · Multi-Renderer</p>

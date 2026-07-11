@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { BrewfieldGameState, ElementType, ComponentType } from './types';
@@ -146,165 +147,159 @@ export default function App({ session }: GameRendererProps) {
     [state, call, data, setState]
   );
 
-  if (!isInitialized || !state) {
-    return (
-      <div className="min-h-screen bg-stone-950 text-stone-300 flex items-center justify-center font-mono text-sm">
-        Loading Brewfield…
-      </div>
-    );
-  }
+  const activeNode = state?.nodes.find((n) => n.id === state?.currentNodeId);
 
-  if (state.screen === 'intro') {
-    return <IntroScreen onStartGame={handleStart} />;
-  }
-
-  if (state.screen === 'game_over') {
-    return (
-      <GameOverScreen
-        won={!!state.runWon}
-        stats={state.stats}
-        onRestart={handleStart}
-      />
-    );
-  }
-
-  const activeNode = state.nodes.find((n) => n.id === state.currentNodeId);
+  const statusArea = state ? (
+    <span className="text-[10px] font-mono text-stone-500 uppercase tracking-widest">
+      Turn {state.currentTurn}
+    </span>
+  ) : undefined;
 
   return (
-    <div className="h-screen bg-stone-950 text-stone-200 flex flex-col relative overflow-hidden font-sans">
-      <div className="absolute top-1/3 left-10 w-96 h-96 bg-stone-900/10 rounded-full blur-3xl -z-10 pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-stone-900/10 rounded-full blur-3xl -z-10 pointer-events-none" />
-
-      <header className="shrink-0 w-full bg-stone-950 border-b border-stone-900 p-3 flex items-center justify-between select-none">
-        <div className="flex items-center gap-2">
-          <span className="text-amber-500 text-lg">⚗️</span>
-          <h1 className="text-lg font-serif font-extrabold tracking-widest text-stone-100">
-            BREWFIELD
-          </h1>
-          <span className="text-[10px] font-mono text-stone-600 uppercase tracking-wider hidden sm:inline">
-            Alchemical Battler
-          </span>
+    <GameShell
+      gameLabel="Brewfield"
+      gameId="brewfield"
+      phase="Phase A"
+      statusArea={statusArea}
+    >
+      {!isInitialized || !state ? (
+        <div className="h-full flex items-center justify-center bg-stone-950 text-stone-300 font-mono text-sm">
+          Loading Brewfield…
         </div>
-        <div className="text-[10px] font-mono text-stone-500 uppercase tracking-widest">
-          Phase A · Shared Engine
+      ) : state.screen === 'intro' ? (
+        <div className="h-full overflow-y-auto">
+          <IntroScreen onStartGame={handleStart} />
         </div>
-      </header>
+      ) : state.screen === 'game_over' ? (
+        <div className="h-full overflow-y-auto">
+          <GameOverScreen
+            won={!!state.runWon}
+            stats={state.stats}
+            onRestart={handleStart}
+          />
+        </div>
+      ) : (
+        <div className="h-full bg-stone-950 text-stone-200 flex flex-col relative overflow-hidden font-sans">
+          <div className="absolute top-1/3 left-10 w-96 h-96 bg-stone-900/10 rounded-full blur-3xl -z-10 pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-stone-900/10 rounded-full blur-3xl -z-10 pointer-events-none" />
 
-      <div className="shrink-0">
-        <MapProgress nodes={state.nodes} currentNodeId={state.currentNodeId} />
-      </div>
+          <div className="shrink-0">
+            <MapProgress nodes={state.nodes} currentNodeId={state.currentNodeId} />
+          </div>
 
-      <div className="flex-1 overflow-y-auto w-full max-w-7xl mx-auto p-3 md:p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        <div className="lg:col-span-1 bg-stone-900/40 border border-stone-900/60 p-4 rounded-xl flex flex-col gap-4">
-          <div>
-            <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono font-bold block mb-1">
-              Persistent Pool ({state.deck.length} Elements)
-            </span>
-            <div className="flex flex-wrap gap-1.5 py-1">
-              {state.deck.map((el, i) => (
-                <span
-                  key={i}
-                  className="w-5 h-5 rounded-full text-[10px] font-bold font-mono flex items-center justify-center border uppercase select-none"
-                  style={{
-                    color: getElementColorInline(el),
-                    borderColor: `${getElementColorInline(el)}30`,
-                    backgroundColor: `${getElementColorInline(el)}10`,
-                  }}
-                >
-                  {el[0]}
+          <div className="flex-1 overflow-y-auto w-full max-w-7xl mx-auto p-3 md:p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+            <div className="lg:col-span-1 bg-stone-900/40 border border-stone-900/60 p-4 rounded-xl flex flex-col gap-4">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono font-bold block mb-1">
+                  Persistent Pool ({state.deck.length} Elements)
                 </span>
-              ))}
-            </div>
-            <span className="text-[9px] font-mono text-stone-500 leading-normal block mt-1.5">
-              These elements are shuffled to form your draw pile at the start of each fight.
-            </span>
-          </div>
-
-          <div className="border-t border-stone-900 pt-3">
-            <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono font-bold block mb-1">
-              Active Objective
-            </span>
-            {activeNode?.type === 'fight' ? (
-              <div className="text-xs font-mono text-rose-400">
-                ⚔️ Combat: Defeat the hostile {state.enemy?.name} to descend.
+                <div className="flex flex-wrap gap-1.5 py-1">
+                  {state.deck.map((el, i) => (
+                    <span
+                      key={i}
+                      className="w-5 h-5 rounded-full text-[10px] font-bold font-mono flex items-center justify-center border uppercase select-none"
+                      style={{
+                        color: getElementColorInline(el),
+                        borderColor: `${getElementColorInline(el)}30`,
+                        backgroundColor: `${getElementColorInline(el)}10`,
+                      }}
+                    >
+                      {el[0]}
+                    </span>
+                  ))}
+                </div>
+                <span className="text-[9px] font-mono text-stone-500 leading-normal block mt-1.5">
+                  These elements are shuffled to form your draw pile at the start of each fight.
+                </span>
               </div>
-            ) : activeNode?.type === 'forage' ? (
-              <div className="text-xs font-mono text-amber-400">
-                🌾 Exploration: Search the herbarium for compounds.
-              </div>
-            ) : (
-              <div className="text-xs font-mono text-emerald-400">
-                🔥 Camp: stoke furnace flames or clone an element.
-              </div>
-            )}
-          </div>
-        </div>
 
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          <AnimatePresence mode="wait">
-            {activeNode?.type === 'fight' && state.enemy && (
-              <div key="combat" className="flex flex-col gap-4">
-                <EnemySection enemy={state.enemy} />
-
-                {state.combatOutcome ? (
-                  <CombatOutcomeCard
-                    outcome={state.combatOutcome}
-                    isBoss={state.currentNodeId >= 9}
-                    onAdvance={handleAdvance}
-                  />
+              <div className="border-t border-stone-900 pt-3">
+                <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono font-bold block mb-1">
+                  Active Objective
+                </span>
+                {activeNode?.type === 'fight' ? (
+                  <div className="text-xs font-mono text-rose-400">
+                    ⚔️ Combat: Defeat the hostile {state.enemy?.name} to descend.
+                  </div>
+                ) : activeNode?.type === 'forage' ? (
+                  <div className="text-xs font-mono text-amber-400">
+                    🌾 Exploration: Search the herbarium for compounds.
+                  </div>
                 ) : (
-                  <>
-                    <CauldronSection
-                      element1={selectedSlot1 !== null ? state.hand[selectedSlot1] : null}
-                      element2={selectedSlot2 !== null ? state.hand[selectedSlot2] : null}
-                      component={selectedComponent}
-                      residues={state.residues}
-                      onRemoveElement={handleRemoveElement}
-                      onRemoveComponent={() => setSelectedComponent(null)}
-                      onBrew={handleBrew}
-                      currentTurn={state.currentTurn}
-                    />
-                    <PlayerSection
-                      player={state.player}
-                      hand={state.hand}
-                      selectedElements={[selectedSlot1, selectedSlot2]}
-                      activeComponent={selectedComponent}
-                      drawPileSize={state.drawPile.length}
-                      discardPileSize={state.discardPile.length}
-                      onSelectElement={handleSelectElement}
-                      onSelectComponent={handleSelectComponent}
-                    />
-                  </>
+                  <div className="text-xs font-mono text-emerald-400">
+                    🔥 Camp: stoke furnace flames or clone an element.
+                  </div>
                 )}
               </div>
-            )}
+            </div>
 
-            {activeNode?.type === 'forage' && state.forageOptions && (
-              <div key="forage">
-                <ForageNode
-                  options={state.forageOptions}
-                  onSelectIngredient={handleForage}
-                />
-              </div>
-            )}
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <AnimatePresence mode="wait">
+                {activeNode?.type === 'fight' && state.enemy && (
+                  <div key="combat" className="flex flex-col gap-4">
+                    <EnemySection enemy={state.enemy} />
 
-            {activeNode?.type === 'rest' && (
-              <div key="rest">
-                <RestNode
-                  playerHp={state.player.hp}
-                  playerMaxHp={state.player.maxHp}
-                  deck={state.deck}
-                  onStokeFurnace={handleRestHeal}
-                  onSynthesizeElement={handleRestClone}
-                />
-              </div>
-            )}
-          </AnimatePresence>
+                    {state.combatOutcome ? (
+                      <CombatOutcomeCard
+                        outcome={state.combatOutcome}
+                        isBoss={state.currentNodeId >= 9}
+                        onAdvance={handleAdvance}
+                      />
+                    ) : (
+                      <>
+                        <CauldronSection
+                          element1={selectedSlot1 !== null ? state.hand[selectedSlot1] : null}
+                          element2={selectedSlot2 !== null ? state.hand[selectedSlot2] : null}
+                          component={selectedComponent}
+                          residues={state.residues}
+                          onRemoveElement={handleRemoveElement}
+                          onRemoveComponent={() => setSelectedComponent(null)}
+                          onBrew={handleBrew}
+                          currentTurn={state.currentTurn}
+                        />
+                        <PlayerSection
+                          player={state.player}
+                          hand={state.hand}
+                          selectedElements={[selectedSlot1, selectedSlot2]}
+                          activeComponent={selectedComponent}
+                          drawPileSize={state.drawPile.length}
+                          discardPileSize={state.discardPile.length}
+                          onSelectElement={handleSelectElement}
+                          onSelectComponent={handleSelectComponent}
+                        />
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {activeNode?.type === 'forage' && state.forageOptions && (
+                  <div key="forage">
+                    <ForageNode
+                      options={state.forageOptions}
+                      onSelectIngredient={handleForage}
+                    />
+                  </div>
+                )}
+
+                {activeNode?.type === 'rest' && (
+                  <div key="rest">
+                    <RestNode
+                      playerHp={state.player.hp}
+                      playerMaxHp={state.player.maxHp}
+                      deck={state.deck}
+                      onStokeFurnace={handleRestHeal}
+                      onSynthesizeElement={handleRestClone}
+                    />
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <Logbook logs={state.gameLogs} />
+          </div>
         </div>
-
-        <Logbook logs={state.gameLogs} />
-      </div>
-    </div>
+      )}
+    </GameShell>
   );
 }
 
