@@ -276,6 +276,10 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
 
+    # Don't let metadata/verification hit git or the network in this test.
+    monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
+    monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
+
     mock_build = MagicMock(returncode=0, stdout="", stderr="")
     mock_deploy = MagicMock(returncode=0, stdout="160 files uploaded")
 
