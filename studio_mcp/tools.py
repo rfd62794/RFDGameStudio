@@ -33,6 +33,7 @@ from studio.runtime import load_game
 from studio_mcp.game_metadata import write_game_metadata
 from studio_mcp.intake import process_intake
 from studio_mcp.session_store import create_session, get_session
+from studio_mcp.verify import verify_arcade_deploy
 
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
 
@@ -703,6 +704,10 @@ def studio_deploy_arcade() -> dict:
             return {"copied_files": copied_files, "build": build_result,
                      "error": "hugo build failed", "tool": "studio_deploy_arcade"}
 
+        # Tier 1 + Tier 2 verification before pushing live. Verification does not
+        # block deploy; it adds information to the same report Robert reviews.
+        verification = verify_arcade_deploy()
+
         venv_python = _SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe"
         deploy_script = _SITE_REPO_PATH / "deploy_smart.py"
         deploy_proc = subprocess.run(
@@ -711,7 +716,12 @@ def studio_deploy_arcade() -> dict:
         )
         deploy_result = {"returncode": deploy_proc.returncode, "stdout": deploy_proc.stdout[-1000:]}
 
-        return {"copied_files": copied_files, "build": build_result, "deploy": deploy_result}
+        return {
+            "copied_files": copied_files,
+            "build": build_result,
+            "deploy": deploy_result,
+            "verification": verification,
+        }
     except Exception as exc:
         return {"error": str(exc), "tool": "studio_deploy_arcade"}
 
