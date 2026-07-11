@@ -83,6 +83,14 @@ def _format_version(major: int, minor: int, patch: int, revision: int) -> str:
     return f"{major}.{minor}.{patch}R{revision}"
 
 
+_VALID_BUMPS = {"patch", "minor", "major"}
+
+
+def _validate_bump(bump: str | None) -> None:
+    if bump is not None and bump not in _VALID_BUMPS:
+        raise ValueError(f"Invalid bump: {bump!r}. Use None, 'patch', 'minor', or 'major'.")
+
+
 def bump_version(current_version: str | None, bump: str | None) -> str:
     """Compute the next version according to the cascade rules.
 
@@ -94,6 +102,8 @@ def bump_version(current_version: str | None, bump: str | None) -> str:
     The very first zip for a concept is always 0.1.0R1, per the version
     scheme. Bumps only apply to subsequent versions.
     """
+    _validate_bump(bump)
+
     if current_version is None:
         return "0.1.0R1"
 
@@ -113,8 +123,6 @@ def bump_version(current_version: str | None, bump: str | None) -> str:
         minor = 0
         patch = 0
         revision = 1
-    else:
-        raise ValueError(f"Invalid bump: {bump!r}. Use None, 'patch', 'minor', or 'major'.")
 
     return _format_version(major, minor, patch, revision)
 
@@ -225,6 +233,7 @@ def process_intake(concept_slug: str, bump: str | None = None, note: str | None 
     explicitly declaring a semantic change.
     """
     _validate_slug(concept_slug)
+    _validate_bump(bump)
 
     concept_dir = REPO_ROOT / "intake" / concept_slug
     concept_dir.mkdir(parents=True, exist_ok=True)
