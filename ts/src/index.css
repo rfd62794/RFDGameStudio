@@ -1,6 +1,7 @@
 ﻿/* index.css -- DO NOT ADD STYLES HERE
    This file will be deleted in Phase 2f.4.
    Import from ui/tokens.css, ui/base.css, or games/{id}/styles.css */
+@import "tailwindcss";
 @import './ui/tokens.css';
 @import './ui/base.css';
 @import './games/horse_racing/styles.css';

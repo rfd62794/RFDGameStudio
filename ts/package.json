@@ -11,13 +11,15 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^4.3.4",
     "fengari-web": "^0.1.4",
     "framer-motion": "^12.42.0",
     "js-yaml": "^4.1.0",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.1.14"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
