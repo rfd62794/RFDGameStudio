@@ -1,0 +1,38 @@
+engine_version: "1.0"
+engine_systems: []   # self-contained port — no shared engine system wiring
+
+lua_files:
+  - utils.lua
+  - state.lua
+  - entities.lua
+  - steering.lua
+  - logic.lua
+
+systems:
+  - id: shoal_core
+    description: "Shoal 2.0 continuous steering simulation"
+    components:
+      - fish
+      - shark
+      - algae
+      - flesh_chunk
+    functions:
+      - init_game
+      - tick_game
+      - handle_input
+      - get_state_summary
+      - build_render_state
+
+entities:
+  - id: fish
+    description: "Prey creature driven by steering behaviors"
+    systems: [shoal_core]
+  - id: shark
+    description: "Predator driven by hunting and flesh-seeking"
+    systems: [shoal_core]
+  - id: algae
+    description: "Algae Core with nodules that fish graze"
+    systems: [shoal_core]
+  - id: flesh_chunk
+    description: "Remains left by dead creatures, edible by sharks"
+    systems: [shoal_core]

@@ -1,0 +1,31 @@
+layout:
+  tabs: []
+
+layout_tree:
+  direction: column
+  children:
+    - id: hud
+      height: 0.12
+    - id: game_area
+      flex: 1
+
+regions:
+  hud:
+    component: hud
+    bindings:
+      fish_count: game_state.fish_count
+      shark_count: game_state.shark_count
+      algae_count: game_state.algae_count
+      chunk_count: game_state.chunk_count
+      tick_count: game_state.tick_count
+  game_area:
+    component: canvas
+
+screens:
+  - id: game
+    title: Reef
+    components:
+      - type: panel
+        id: hud
+      - type: canvas
+        id: game_canvas

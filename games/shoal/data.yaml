@@ -1,0 +1,126 @@
+game:
+  id: shoal
+  name: Shoal
+  version: "2.0"
+  studio: RFDGameStudio
+
+world:
+  width: 1200
+  height: 800
+  surface_depth: 0
+  floor_depth: 800
+  discrete_tick: 0.25
+
+spawn:
+  initial_fish: 60
+  initial_sharks: 8
+  initial_algae_hubs: 3
+
+lineages:
+  fish:
+    - { id: f-coral, color: "#f97316", name: "Coral Amber" }
+    - { id: f-teal, color: "#0d9488", name: "Deep Teal" }
+    - { id: f-orchid, color: "#a855f7", name: "Orchid Purple" }
+    - { id: f-rose, color: "#ec4899", name: "Rose Petal" }
+    - { id: f-azure, color: "#2563eb", name: "Royal Azure" }
+  shark:
+    - { id: s-obsidian, color: "#1e293b", name: "Slate Obsidian" }
+    - { id: s-crimson, color: "#dc2626", name: "Deep Crimson" }
+    - { id: s-emerald, color: "#059669", name: "Abyssal Emerald" }
+    - { id: s-indigo, color: "#4f46e5", name: "Deep Indigo" }
+
+creatures:
+  fish:
+    max_speed: 120
+    max_force: 80
+    radius: 4
+    perception:
+      algae: 250
+      shark: 140
+      separate: 24
+    breed_age: 5
+    hunger_rate: 0.05
+    graze_radius: 8
+  shark:
+    max_speed: 150
+    max_force: 90
+    radius: 7
+    perception:
+      fish: 220
+      flesh: 200
+    breed_age: 15
+    starve_limit: 10
+    exposure:
+      threshold: 100
+      damage_rate: 20
+
+steering_weights:
+  fish:
+    seek_algae: 1.0
+    flee_shark: 2.5
+    separate: 1.0
+    wander: 0.4
+    depth_bias: 0.2
+  shark:
+    seek_fish: 1.5
+    seek_flesh: 1.0
+    wander: 0.3
+
+wander:
+  circle_distance: 40
+  circle_radius: 15
+  change_interval: 0.4
+
+algae:
+  nodule_radius: 6
+  spoke_distances: [24, 48]
+  regrow_cooldown: 3.0
+  max_sunk_depth: 600
+  min_surface_depth: 80
+  depth_lerp_speed: 20
+
+flesh_chunk:
+  radius: 5
+  decay_time: 8
+  min_spawn: 1
+  max_spawn: 3
+
+depth_bands:
+  - id: epipelagic
+    top: 0
+    bottom: 120
+    exposure_rate: 0
+    color: "#7dd3fc"
+  - id: mesopelagic
+    top: 120
+    bottom: 280
+    exposure_rate: 2
+    color: "#38bdf8"
+  - id: bathypelagic
+    top: 280
+    bottom: 480
+    exposure_rate: 5
+    color: "#0ea5e9"
+  - id: abyssopelagic
+    top: 480
+    bottom: 680
+    exposure_rate: 12
+    color: "#0369a1"
+  - id: hadopelagic
+    top: 680
+    bottom: 800
+    exposure_rate: 25
+    color: "#0c4a6e"
+
+spatial_hash:
+  bucket_width: 120
+  bucket_depth: 80
+
+render:
+  fish_radius: 4
+  shark_radius: 7
+  nodule_radius: 6
+  chunk_radius: 5
+  algae_color: "#10b981"
+  algae_dim_color: "#064e3b"
+  chunk_color: "#f43f5e"
