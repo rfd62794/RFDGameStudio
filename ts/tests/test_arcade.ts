@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
@@ -9,6 +9,7 @@ import App from '../src/games/chimera_wilds/App';
 import { scrapcrawlConfig } from '../src/games/scrapcrawl/config';
 import ScrapCrawlApp from '../src/games/scrapcrawl/App';
 import GameSelector from '../src/arcade/GameSelector';
+import * as routing from '../src/arcade/routing';
 
 describe('Arcade Registry', () => {
   it('test_all_games_have_color', () => {
@@ -293,6 +294,80 @@ describe('GameSelector runtime detail', () => {
     const text = container.textContent ?? '';
     expect(text).toContain('5 rooms');
     expect(text).toContain('4 craftables');
+    root.unmount();
+  });
+});
+
+describe('VoidDrift external entry', () => {
+  it('test_voiddrift_registry_entry_present', () => {
+    const cfg = findGame('voiddrift');
+    expect(cfg).toBeDefined();
+    expect(cfg!.externalUrl).toBe('https://rdug627.itch.io/voidrift');
+    expect(cfg!.status).toBe('external');
+    expect(cfg!.component).toBeUndefined();
+  });
+
+  it('test_game_selector_opens_external_url_on_click', async () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const navSpy = vi.spyOn(routing, 'navigateTo');
+
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(React.createElement(GameSelector));
+    });
+
+    const cards = Array.from(container.querySelectorAll('.arcade-card'));
+    const voiddriftCard = cards.find(c => c.textContent?.includes('VoidDrift')) as HTMLButtonElement | undefined;
+    expect(voiddriftCard).toBeDefined();
+
+    await act(async () => {
+      voiddriftCard!.click();
+    });
+
+    expect(openSpy).toHaveBeenCalledWith('https://rdug627.itch.io/voidrift', '_blank', 'noopener,noreferrer');
+    expect(navSpy).not.toHaveBeenCalled();
+
+    openSpy.mockRestore();
+    navSpy.mockRestore();
+    root.unmount();
+  });
+
+  it('test_game_selector_internal_click_unchanged', async () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const navSpy = vi.spyOn(routing, 'navigateTo').mockImplementation(() => {});
+
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(React.createElement(GameSelector));
+    });
+
+    const cards = Array.from(container.querySelectorAll('.arcade-card'));
+    const hrCard = cards.find(c => c.textContent?.includes('DERBY SIM')) as HTMLButtonElement | undefined;
+    expect(hrCard).toBeDefined();
+
+    await act(async () => {
+      hrCard!.click();
+    });
+
+    expect(navSpy).toHaveBeenCalledWith('horse_racing');
+    expect(openSpy).not.toHaveBeenCalled();
+
+    openSpy.mockRestore();
+    navSpy.mockRestore();
+    root.unmount();
+  });
+
+  it('test_external_card_shows_itch_detail', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(React.createElement(GameSelector));
+    });
+    const text = container.textContent ?? '';
+    expect(text).toContain('Rust/Bevy');
+    expect(text).toContain('itch.io');
     root.unmount();
   });
 });

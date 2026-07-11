@@ -183,9 +183,10 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
   white-space: nowrap;
 }
 
-.arcade-status--stable  { color: var(--green);  }
-.arcade-status--beta    { color: var(--yellow);  }
-.arcade-status--dev     { color: var(--muted);   }
+.arcade-status--stable   { color: var(--green);  }
+.arcade-status--beta     { color: var(--yellow); }
+.arcade-status--dev      { color: var(--muted);  }
+.arcade-status--external { color: var(--accent); }
 
 .arcade-card-desc {
   font-size: var(--font-size-sm);

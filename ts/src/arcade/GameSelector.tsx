@@ -46,6 +46,10 @@ export default function GameSelector() {
   const details = useMemo(() => {
     const map: Record<string, string> = {};
     for (const config of GAME_REGISTRY) {
+      if (config.externalUrl) {
+        map[config.gameId] = 'Rust/Bevy · itch.io';
+        continue;
+      }
       try {
         const files = loadGameFiles(config.gameId);
         map[config.gameId] = getRuntimeDetail(config.gameId, files.data);
@@ -73,7 +77,13 @@ export default function GameSelector() {
               key={config.gameId}
               className="arcade-card"
               style={{ '--card-color': config.color ?? 'var(--accent)' } as React.CSSProperties}
-              onClick={() => navigateTo(config.gameId)}
+              onClick={() => {
+                if (config.externalUrl) {
+                  window.open(config.externalUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                  navigateTo(config.gameId);
+                }
+              }}
             >
               <div className="arcade-card-frame">
                 <div className="arcade-card-header">

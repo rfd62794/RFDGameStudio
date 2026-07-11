@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { loadGame } from '../engine/runtime';
 import type { GameSession, GameConfig } from '../engine/types';
 import { findGame } from '../games/registry';
+import { navigateHome } from './routing';
 
 export default function GameLoader({ gameId }: { gameId: string }) {
   const [session, setSession] = useState<GameSession | null>(null);
@@ -9,11 +10,18 @@ export default function GameLoader({ gameId }: { gameId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // External games have no engine files — redirect immediately
+    const cfg = findGame(gameId);
+    if (cfg?.externalUrl) {
+      window.open(cfg.externalUrl, '_blank', 'noopener,noreferrer');
+      navigateHome();
+      return;
+    }
+
     let cancelled = false;
     (async () => {
       try {
         const s = await loadGame(gameId, 42);
-        const cfg = findGame(gameId);
         if (!cfg) {
           setError(
             `Game "${gameId}" loaded successfully but has no registered config in registry.ts — this is a studio configuration error, not a player-facing one. Check that the game is added to GAME_REGISTRY.`
@@ -54,6 +62,17 @@ export default function GameLoader({ gameId }: { gameId: string }) {
   }
 
   const GameApp = config.component;
+
+  if (!GameApp) {
+    return (
+      <div className="arcade-error">
+        <div className="arcade-error-box">
+          <strong>No Renderer</strong>
+          <p>Game "{gameId}" has no in-app component. It may be an external game.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="arcade-game-wrap">

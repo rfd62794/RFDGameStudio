@@ -123,10 +123,11 @@ export interface GameConfig {
   description?: string;
   color?: string;           // hex accent color for arcade card
   status?: GameStatus;      // displayed as badge on card
-  component: React.LazyExoticComponent<React.ComponentType<GameRendererProps>>;
+  component?: React.LazyExoticComponent<React.ComponentType<GameRendererProps>>;
+  externalUrl?: string;     // if set, card opens this URL instead of loading via engine
 }
 
-export type GameStatus = 'stable' | 'beta' | 'dev';
+export type GameStatus = 'stable' | 'beta' | 'dev' | 'external';
 
 export class RuntimeError extends Error {
   constructor(message: string) {
