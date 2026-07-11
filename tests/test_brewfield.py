@@ -207,3 +207,61 @@ def test_init_fight_resets_player_fight_state() -> None:
     assert next_state["player"]["burnDebuff"] == 0
     assert next_state["currentTurn"] == 1
     assert next_state["enemy"] is not None
+
+
+def _best_pair(hand, primary):
+    """Return a pair from hand preferring (primary, primary), else (primary, any), else (any, any)."""
+    indices = [i for i, el in enumerate(hand) if el == primary]
+    if len(indices) >= 2:
+        return hand[indices[0]], hand[indices[1]]
+    if len(hand) >= 2:
+        return hand[0], hand[1]
+    return hand[0] if hand else "fire", None
+
+
+def test_full_run_programmatic_simulation_completes() -> None:
+    """Simulate a full 9-node run through the Lua engine; every node must resolve."""
+    import random
+    random.seed(0)
+    session = _load_brewfield()
+    data = session.files.data
+    state = session.executor.call("init_run", data)
+    # Boost HP for this flow test so suboptimal play still clears all nodes.
+    state["player"]["hp"] = 100
+    state["player"]["maxHp"] = 100
+
+    for node in state["nodes"]:
+        state["currentNodeId"] = node["id"]
+        if node["type"] == "fight":
+            state = session.executor.call("init_fight", data, state, node["id"])
+            assert state["enemy"] is not None
+            while state.get("combatOutcome") is None:
+                hand = state["hand"]
+                intent = state["enemy"]["intent"]
+                # Simple heuristic: ward if about to be hit, mend if low, otherwise strike.
+                if state["player"]["hp"] <= 25:
+                    el1, el2 = _best_pair(hand, "water")
+                    component = "mend"
+                elif intent["action"] == "attack" and state["player"]["shield"] < intent["value"]:
+                    el1, el2 = _best_pair(hand, "earth")
+                    component = "ward"
+                else:
+                    el1, el2 = _best_pair(hand, "fire")
+                    component = "strike"
+                state = session.executor.call(
+                    "resolve_turn", data, state, el1, el2, component, state["currentTurn"]
+                )
+            assert state.get("combatOutcome") == "victory"
+            state = session.executor.call("advance_node", state)
+        elif node["type"] == "forage":
+            state = session.executor.call("init_node", data, state, node["id"])
+            choice = state["forageOptions"][0]
+            state = session.executor.call("choose_forage", state, choice)
+            state = session.executor.call("advance_node", state)
+        elif node["type"] == "rest":
+            state = session.executor.call("init_node", data, state, node["id"])
+            state = session.executor.call("rest_stoke_furnace", state)
+            state = session.executor.call("advance_node", state)
+
+    assert state["screen"] == "game_over"
+    assert state["runWon"] is True
