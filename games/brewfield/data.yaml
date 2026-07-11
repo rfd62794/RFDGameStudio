@@ -1,0 +1,68 @@
+game:
+  id: brewfield
+  name: Brewfield
+  version: "Phase A"
+  studio: RFDGameStudio
+  description: >-
+    Turn-based potions-brewing roguelike. Element × Component combinations,
+    a living Residue field, deck-based Element economy.
+
+constants:
+  player_starting_hp: 20
+  hand_size: 5
+  reshuffle_threshold: 5   # reshuffle discard into draw pile when draw pile < this
+  rest_heal_amount: 12
+  residue_field_max_slots: 2
+
+elements: [fire, air, water, earth]   # order matters — defines the wheel cycle for adjacency/opposition
+components: [strike, ward, mend, blight]
+
+# Player deck at the start of every run.
+starting_deck: [fire, fire, water, water, earth, earth, air, air]
+
+# Enemy archetypes, ported directly from instantiateEnemy() + getEnemyIntent()
+enemies:
+  ashling:
+    name: "Ashling (Cinder Beast)"
+    hp: 16
+    intent_pattern:   # 4-turn cycle, index = (turn - 1) % 4
+      - {action: attack, value: 6, description: "Scorching Strike"}
+      - {action: attack, value: 8, description: "Flame Burst"}
+      - {action: defend, value: 4, description: "Embershield"}
+      - {action: attack, value: 7, description: "Cinder Splash"}
+  bulwark:
+    name: "Bulwark (Stone Golem)"
+    hp: 20
+    intent_pattern:
+      - {action: defend, value: 6, description: "Iron Defense"}
+      - {action: attack, value: 5, description: "Shield Slam"}
+      - {action: defend, value: 8, description: "Fortify Core"}
+      - {action: attack, value: 7, description: "Crushing Blow"}
+  molten_ashling:
+    name: "Pyre Bulwark (Molten Golem)"
+    hp: 26
+    intent_pattern:
+      - {action: defend, value: 5, description: "Molten Plating"}
+      - {action: attack, value: 8, description: "Magma Slam"}
+      - {action: special, value: 4, description: "Spit Fire", applies_burn: true}
+      - {action: attack, value: 10, description: "Pyre Eruption"}
+  rootbound:
+    name: "Rootbound Guardian (Hall Boss)"
+    hp: 40
+    intent_pattern:
+      - {action: attack, value: 6, description: "Vines of Restraint"}
+      - {action: heal, value: 8, description: "Tidal Rejuvenation"}
+      - {action: attack, value: 12, description: "Gale-Force Slam"}
+      - {action: special, value: 5, description: "Siphon Sap", self_heal: 5}
+
+# Run map, ported directly from generateRunNodes() — 9 nodes, node 9 is the boss
+run_nodes:
+  - {id: 1, type: fight, name: "Alchemical Chamber", enemy: ashling}
+  - {id: 2, type: forage, name: "Shattered Herbarium"}
+  - {id: 3, type: fight, name: "The Obsidian Hearth", enemy: bulwark}
+  - {id: 4, type: forage, name: "Overgrown Drainage"}
+  - {id: 5, type: rest, name: "The Purging Flame"}
+  - {id: 6, type: fight, name: "Cinder Ruins", enemy: molten_ashling}
+  - {id: 7, type: forage, name: "Antechamber Shelf"}
+  - {id: 8, type: rest, name: "The Hall of Solace"}
+  - {id: 9, type: fight, name: "The Cauldron Heart", enemy: rootbound}
