@@ -28,6 +28,10 @@ import scrDataRaw    from '../../../games/scrapcrawl/data.yaml?raw';
 import scrUiRaw     from '../../../games/scrapcrawl/ui.yaml?raw';
 import scrSystemsRaw from '../../../games/scrapcrawl/systems.yaml?raw';
 
+import bfDataRaw    from '../../../games/brewfield/data.yaml?raw';
+import bfUiRaw     from '../../../games/brewfield/ui.yaml?raw';
+import bfSystemsRaw from '../../../games/brewfield/systems.yaml?raw';
+
 const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }> = {
   horse_racing: { data: hrDataRaw, ui: hrUiRaw, systems: hrSystemsRaw },
   slither_rogue: { data: srDataRaw, ui: srUiRaw, systems: srSystemsRaw },
@@ -35,6 +39,7 @@ const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }>
   slime_coin: { data: scDataRaw, ui: scUiRaw, systems: scSystemsRaw },
   chimera_wilds: { data: cwDataRaw, ui: cwUiRaw, systems: cwSystemsRaw },
   scrapcrawl: { data: scrDataRaw, ui: scrUiRaw, systems: scrSystemsRaw },
+  brewfield: { data: bfDataRaw, ui: bfUiRaw, systems: bfSystemsRaw },
 };
 
 // ── Lua files — bundled at build time via import.meta.glob ───────────────────

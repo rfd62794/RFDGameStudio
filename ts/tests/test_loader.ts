@@ -46,6 +46,23 @@ const MOCK_LOGIC = `function clamp(v,lo,hi) return v end`;
 vi.mock('../games/horse_racing/data.yaml?raw', () => ({ default: MOCK_DATA }));
 vi.mock('../games/horse_racing/ui.yaml?raw', () => ({ default: MOCK_UI }));
 
+const MOCK_BF_DATA = `
+game:
+  id: brewfield
+  name: Brewfield
+  version: "Phase A"
+  studio: RFDGameStudio
+`;
+const MOCK_BF_UI = `
+layout_tree:
+  - id: header
+    type: row
+`;
+
+vi.mock('../games/brewfield/data.yaml?raw', () => ({ default: MOCK_BF_DATA }));
+vi.mock('../games/brewfield/ui.yaml?raw', () => ({ default: MOCK_BF_UI }));
+vi.mock('../games/brewfield/systems.yaml?raw', () => ({ default: '' }));
+
 import { createLoader } from '../src/engine/loader';
 import { ValidationError } from '../src/engine/types';
 
@@ -84,6 +101,14 @@ describe('loader', () => {
     expect(typeof files.logic).toBe('string');
     // Logic may be empty string if file not found in bundle - accept either
     expect(files.logic.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('test_loader_loads_brewfield', async () => {
+    const files = await loadGameFiles('brewfield');
+    expect(files).toHaveProperty('gameId', 'brewfield');
+    const game = files.data['game'] as Record<string, unknown>;
+    expect(game['id']).toBe('brewfield');
+    expect(game['name']).toBe('Brewfield');
   });
 
   it('test_loader_missing_game_id_throws', async () => {
