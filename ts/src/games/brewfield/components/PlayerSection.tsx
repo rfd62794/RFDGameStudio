@@ -33,10 +33,10 @@ export default function PlayerSection({
     return (
       <motion.button
         key={index}
-        whileHover={{ y: -6, scale: 1.03 }}
+        whileHover={{ y: -4, scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
         onClick={() => onSelectElement(index)}
-        className={`w-28 h-40 rounded-xl border-2 p-3 flex flex-col justify-between cursor-pointer text-left transition-all duration-200 select-none relative shadow-md
+        className={`w-20 h-28 rounded-xl border-2 p-2 flex flex-col justify-between cursor-pointer text-left transition-all duration-200 select-none relative shadow-md
           ${
             isSelected
               ? 'opacity-35 cursor-default translate-y-3 border-dashed border-stone-800 bg-stone-900/30'
@@ -59,12 +59,12 @@ export default function PlayerSection({
 
         <div className="my-auto text-center flex flex-col items-center">
           <span
-            className="text-3xl font-extrabold capitalize select-none font-serif"
+            className="text-2xl font-extrabold capitalize select-none font-serif"
             style={!isSelected ? { color } : { color: '#444' }}
           >
             {element[0].toUpperCase()}
           </span>
-          <span className="text-[10px] font-mono tracking-tight font-semibold mt-1 text-stone-400 capitalize">
+          <span className="text-[9px] font-mono tracking-tight font-semibold mt-0.5 text-stone-400 capitalize">
             {element}
           </span>
         </div>
@@ -78,7 +78,7 @@ export default function PlayerSection({
 
         {isSelected && (
           <div className="absolute inset-0 bg-stone-950/20 rounded-xl flex items-center justify-center">
-            <span className="text-[8px] font-mono font-extrabold uppercase tracking-widest bg-stone-900 px-2 py-1 rounded border border-stone-800 text-stone-500 shadow-sm">
+            <span className="text-[7px] font-mono font-extrabold uppercase tracking-widest bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800 text-stone-500 shadow-sm">
               In Pot
             </span>
           </div>

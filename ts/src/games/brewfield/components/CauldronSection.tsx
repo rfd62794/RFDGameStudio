@@ -90,7 +90,7 @@ export default function CauldronSection({
 
   return (
     <div
-      className="w-full bg-stone-950/40 border border-stone-900/60 rounded-xl p-6 flex flex-col items-center relative min-h-[380px]"
+      className="w-full bg-stone-950/40 border border-stone-900/60 rounded-xl p-5 flex flex-col items-center relative min-h-[260px]"
       id="cauldron-section"
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full border border-stone-900/40 pointer-events-none flex items-center justify-center -z-10">
@@ -116,7 +116,7 @@ export default function CauldronSection({
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
-                    className={`border p-3 rounded-lg flex flex-col justify-between h-20 transition-all ${getResidueBg(res.tag)}`}
+                    className={`border p-2.5 rounded-lg flex flex-col justify-between h-16 transition-all ${getResidueBg(res.tag)}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold font-mono tracking-tight flex items-center gap-1.5 capitalize">
@@ -132,7 +132,7 @@ export default function CauldronSection({
                     </p>
                   </motion.div>
                 ) : (
-                  <div className="border border-dashed border-stone-900 bg-stone-950/20 text-stone-600 rounded-lg p-3 flex flex-col items-center justify-center h-20 text-[10px] font-mono">
+                  <div className="border border-dashed border-stone-900 bg-stone-950/20 text-stone-600 rounded-lg p-2.5 flex flex-col items-center justify-center h-16 text-[10px] font-mono">
                     <HelpCircle className="w-4 h-4 text-stone-700 mb-1" />
                     [ EMPTY SEDIMENT SLOT ]
                   </div>

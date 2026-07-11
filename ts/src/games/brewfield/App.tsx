@@ -194,7 +194,7 @@ export default function App({ session }: GameRendererProps) {
         <MapProgress nodes={state.nodes} currentNodeId={state.currentNodeId} />
       </div>
 
-      <div className="flex-1 overflow-y-auto w-full max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      <div className="flex-1 overflow-y-auto w-full max-w-7xl mx-auto p-3 md:p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-1 bg-stone-900/40 border border-stone-900/60 p-4 rounded-xl flex flex-col gap-4">
           <div>
             <span className="text-[10px] uppercase tracking-widest text-stone-500 font-mono font-bold block mb-1">
@@ -243,7 +243,7 @@ export default function App({ session }: GameRendererProps) {
         <div className="lg:col-span-2 flex flex-col gap-6">
           <AnimatePresence mode="wait">
             {activeNode?.type === 'fight' && state.enemy && (
-              <div key="combat" className="flex flex-col gap-6">
+              <div key="combat" className="flex flex-col gap-4">
                 <EnemySection enemy={state.enemy} />
 
                 {state.combatOutcome ? (
@@ -359,7 +359,7 @@ function CombatOutcomeCard({
 
 function Logbook({ logs }: { logs: { sender: 'player' | 'enemy' | 'field' | 'system'; turn: number; message: string }[] }) {
   return (
-    <div className="lg:col-span-1 flex flex-col h-[500px] lg:h-[650px] bg-stone-900/40 border border-stone-900/60 rounded-xl overflow-hidden shadow-sm">
+    <div className="lg:col-span-1 flex flex-col h-auto max-h-[calc(100vh-180px)] bg-stone-900/40 border border-stone-900/60 rounded-xl overflow-hidden shadow-sm">
       <div className="p-3 border-b border-stone-900 bg-stone-950/60 flex items-center gap-1.5 text-stone-400 text-xs font-mono font-bold select-none">
         <ScrollIcon className="w-4 h-4 text-amber-500" />
         Alchemical Logbook
