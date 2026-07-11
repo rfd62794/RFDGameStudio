@@ -142,7 +142,7 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(BrewfieldApp, { session }));
     });
 
-    expect(container.textContent).toContain('BREWFIELD');
+    expect(container.textContent).toContain('Brewfield');
     root.unmount();
   });
 
