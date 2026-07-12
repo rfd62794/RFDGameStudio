@@ -824,8 +824,8 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
     fx, fy = call(session, "compute_shark_forces", s, st, None)
     assert fy < 0
     # expected: -home_bias_weight * max_force * min(((700-300)/(800-300)), 1.0)
-    # = -0.4 * 90 * 0.8 = -28.8
-    assert math.isclose(fy, -28.8, abs_tol=0.0001)
+    # = -0.2 * 90 * 0.8 = -14.4
+    assert math.isclose(fy, -14.4, abs_tol=0.0001)
 
 
 def test_shark_home_bias_off_during_active_hunt() -> None:

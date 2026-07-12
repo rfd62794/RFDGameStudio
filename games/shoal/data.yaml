@@ -64,7 +64,7 @@ creatures:
     starve_limit: 20
     max_turn_rate: 6.0
     home_depth: 300
-    home_bias_weight: 0.4
+    home_bias_weight: 0.2
     exposure:
       threshold: 100
       damage_rate: 20
