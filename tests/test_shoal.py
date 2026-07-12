@@ -987,3 +987,149 @@ def test_chunk_despawns_after_floor_grace_period() -> None:
     for _ in range(6):
         state = call(session, "tick_game", 0.1, {})
     assert state["stats"]["chunk_count"] == 0
+
+
+def test_hadopelagic_exposure_rate_is_zero() -> None:
+    """The deepest band is no longer a death trap; exposure rate is near zero."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    assert math.isclose(call(session, "compute_exposure_rate", 700, data), 0.0, abs_tol=0.001)
+    assert math.isclose(call(session, "compute_exposure_rate", 750, data), 0.0, abs_tol=0.001)
+    assert math.isclose(call(session, "compute_exposure_rate", 790, data), 0.0, abs_tol=0.001)
+
+
+def test_exposure_retreat_is_graded() -> None:
+    """Exposure retreat scales from zero at the threshold to max force at the cap."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    s = {
+        "id": "shark_retreat",
+        "type": "shark",
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+    }
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": [],
+        "chunks": [],
+    }
+
+    s["exposure"] = 0
+    _, fy_0 = call(session, "compute_shark_forces", s, st, None)
+    assert math.isclose(fy_0, 0.0, abs_tol=0.0001)
+
+    s["exposure"] = 69
+    _, fy_69 = call(session, "compute_shark_forces", s, st, None)
+    assert math.isclose(fy_69, 0.0, abs_tol=0.0001)
+
+    s["exposure"] = 70
+    _, fy_70 = call(session, "compute_shark_forces", s, st, None)
+    assert math.isclose(fy_70, 0.0, abs_tol=0.0001)
+
+    s["exposure"] = 85
+    _, fy_85 = call(session, "compute_shark_forces", s, st, None)
+    # ratio = (85 - 70) / (100 - 70) = 0.5; force = -3.0 * 90 * 0.5 = -135
+    assert math.isclose(fy_85, -135.0, abs_tol=0.01)
+
+    s["exposure"] = 100
+    _, fy_100 = call(session, "compute_shark_forces", s, st, None)
+    assert math.isclose(fy_100, -270.0, abs_tol=0.01)
+
+
+def test_exposure_retreat_interrupts_active_hunt() -> None:
+    """A high-exposure shark chasing prey still gets an upward retreat force."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 1.0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    s = {
+        "id": "shark_hunt",
+        "type": "shark",
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+    }
+    prey = {
+        "id": "fish_prey",
+        "type": "fish",
+        "alive": True,
+        "x": 300,
+        "depth": 400,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 100,
+        "max_force": 50,
+        "radius": 4,
+    }
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": [prey],
+        "chunks": [],
+    }
+
+    # Healthy shark: active pursuit pulls downward (positive fy).
+    s["exposure"] = 0
+    _, fy_healthy = call(session, "compute_shark_forces", s, st, None)
+    assert fy_healthy > 0
+
+    # Critical exposure: retreat override pulls upward against the hunt.
+    s["exposure"] = 90
+    _, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    assert fy_critical < 0
+    assert fy_critical < fy_healthy
+
+
+def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
+    """A high-exposure shark chasing a chunk also gets an upward retreat force."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 1.0
+
+    s = {
+        "id": "shark_chunk",
+        "type": "shark",
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+    }
+    chunk = {
+        "x": 300,
+        "depth": 400,
+        "vx": 0,
+        "vd": 0,
+    }
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": [],
+        "chunks": [chunk],
+    }
+
+    s["exposure"] = 0
+    _, fy_healthy = call(session, "compute_shark_forces", s, st, None)
+    assert fy_healthy > 0
+
+    s["exposure"] = 90
+    _, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    assert fy_critical < 0
+    assert fy_critical < fy_healthy

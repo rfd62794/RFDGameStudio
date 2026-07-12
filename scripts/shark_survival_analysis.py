@@ -207,6 +207,7 @@ def main() -> None:
         print(f"Median hunger trend: {statistics.median(hunger_trends):.2f}")
     if exposures:
         print(f"Mean exposure at death: {statistics.mean(exposures):.2f}")
+        print(f"Median exposure at death: {statistics.median(exposures):.2f}")
 
     print("\n" + "=" * 80)
     print("VERDICT")
