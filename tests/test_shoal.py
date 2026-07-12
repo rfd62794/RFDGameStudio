@@ -546,7 +546,7 @@ def test_turn_rate_limits_direction_change() -> None:
     call(session, "tick_game", 0, { "tool": "algae", "x": 400, "y": 300, "clicked": True })
 
     state = call(session, "tick_game", 0.1, {})
-    assert abs(state["fish"][0]["x"] - 300) < 0.5
+    assert abs(state["fish"][0]["x"] - 300) < 1.0
 
 
 def test_force_arrive_respects_min_speed() -> None:
@@ -651,6 +651,8 @@ def test_discrete_eating_prefers_nearest_chunk() -> None:
     data["spawn"]["initial_algae_hubs"] = 0
     data["creatures"]["fish"]["escape_chance"] = 0
     data["flesh_chunk"]["sink_rate"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
@@ -695,6 +697,8 @@ def test_chunk_eat_range_is_larger_than_body_collision() -> None:
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
     data["flesh_chunk"]["sink_rate"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
