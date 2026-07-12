@@ -254,6 +254,8 @@ def test_shark_sunlit_surface_hits_exposure_threshold() -> None:
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
     data["steering_weights"]["shark"]["wander"] = 0
+    data["creatures"]["shark"]["home_depth"] = 10
+    data["creatures"]["shark"]["exposure_retreat_threshold"] = 200
 
     call(session, "init_game", data)
     call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 0, "clicked": True })
@@ -827,8 +829,8 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
 
     fx, fy = call(session, "compute_shark_forces", s, st, None)
     assert fy < 0
-    # With force_depth_arrive: desired_vd = -150, weight 0.2 => fy = -30
-    assert math.isclose(fy, -30.0, abs_tol=0.1)
+    # With force_depth_arrive: desired_vd = -150, weight 1.0 => fy = -150
+    assert math.isclose(fy, -150.0, abs_tol=0.1)
 
 
 def test_shark_home_bias_off_during_active_hunt() -> None:
