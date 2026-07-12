@@ -696,8 +696,10 @@ def studio_deploy_arcade() -> dict:
         build_proc = subprocess.run(
             [str(hugo_exe), "--minify"],
             cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
         )
-        build_result = {"returncode": build_proc.returncode, "stderr": build_proc.stderr[-1000:]}
+        build_stderr = build_proc.stderr or ""
+        build_result = {"returncode": build_proc.returncode, "stderr": build_stderr[-1000:]}
         if build_proc.returncode != 0:
             return {"copied_files": copied_files, "build": build_result,
                      "error": "hugo build failed", "tool": "studio_deploy_arcade"}
@@ -718,8 +720,16 @@ def studio_deploy_arcade() -> dict:
         deploy_proc = subprocess.run(
             [str(venv_python), str(deploy_script)],
             cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
+            # deploy_smart.py prints emoji (🚀, ✓, etc.) — without an explicit
+            # encoding, Windows' locale-default codec (often cp1252) can fail
+            # to decode them, leaving stdout as None instead of raising a
+            # clean error. This was the actual cause of the NoneType crash,
+            # confirmed via a real traceback, not the stale-server theory
+            # this was originally attributed to.
         )
-        deploy_result = {"returncode": deploy_proc.returncode, "stdout": deploy_proc.stdout[-1000:]}
+        deploy_stdout = deploy_proc.stdout or ""
+        deploy_result = {"returncode": deploy_proc.returncode, "stdout": deploy_stdout[-1000:]}
 
         return {
             "copied_files": copied_files,
