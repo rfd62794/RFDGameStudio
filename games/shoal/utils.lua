@@ -157,6 +157,7 @@ function generate_procedural_color(id, live_colors)
     local saturation = 0.5 + 0.3 * jitter_t
     local lightness = 0.45 + 0.25 * (1 - jitter_t)
 
+    -- First try the coarse 40° nudges from the directive.
     for attempt = 0, 8 do
         local try_hue = (hue + attempt * 40) % 360
         local r, g, b = hsl_to_rgb(try_hue, saturation, lightness)
@@ -165,6 +166,17 @@ function generate_procedural_color(id, live_colors)
         end
     end
 
-    local r, g, b = hsl_to_rgb(hue, saturation, lightness)
-    return rgb_to_hex(r, g, b)
+    -- If the coarse nudges are all blocked, do a fine sweep across the wheel
+    -- before ever falling back — a reserved-color collision is unacceptable.
+    for attempt = 1, 360 do
+        local try_hue = (hue + attempt) % 360
+        local r, g, b = hsl_to_rgb(try_hue, saturation, lightness)
+        if not is_too_close(r, g, b) and not is_too_close_to_live(r, g, b, live_colors) then
+            return rgb_to_hex(r, g, b)
+        end
+    end
+
+    -- Extremely rare: even the whole wheel is blocked by live colors. Return a
+    -- neutral gray that is guaranteed outside the reserved-color spheres.
+    return rgb_to_hex(128, 128, 128)
 end
