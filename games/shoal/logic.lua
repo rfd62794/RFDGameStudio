@@ -443,6 +443,7 @@ function build_render_state(st)
                 color = s.lineage_color,
                 angle = math.atan(s.vd, s.vx),
                 exposure = s.exposure,
+                hunger = s.hunger,
                 mature = s.mature,
             })
         end
