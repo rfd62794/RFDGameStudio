@@ -415,3 +415,46 @@ def test_depth_bias_scales_with_cold_danger() -> None:
     shallow_change = shallow_before - shallow_after
     deep_change = deep_before - deep_after
     assert deep_change > shallow_change
+
+
+def test_fish_ignores_unsafe_algae() -> None:
+    """Fish do not seek algae whose depth exceeds the safe cold rate."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 1.0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 400, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 600, "clicked": True })
+
+    for _ in range(10):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["fish"][0]["depth"] < 420
+
+
+def test_shark_prefers_nearby_chunk_over_farther_fish() -> None:
+    """Sharks seek a closer chunk even when a live fish is also visible."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    # Spawn a chunk by culling a fish near the shark's eventual depth.
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 140, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 140, "clicked": True })
+    # Place a shark between the chunk (below) and a fish (above).
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 100, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 50, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["sharks"][0]["depth"] > 100

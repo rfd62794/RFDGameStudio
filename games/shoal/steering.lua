@@ -106,15 +106,19 @@ function compute_fish_forces(f, st, hash)
     local cfg = data.creatures.fish
     local fx, fy = 0, 0
 
-    -- seek nearest live algae nodule
+    -- seek nearest live, safe algae nodule
+    local max_safe_rate = cfg.max_safe_cold_rate
     local nearest_nodule, nearest_dist2 = nil, cfg.perception.algae * cfg.perception.algae
     for _, core in ipairs(st.algae) do
         for _, n in ipairs(core.nodules) do
             if n.live then
-                local d2 = dist2(f.x, f.depth, n.x, n.depth)
-                if d2 < nearest_dist2 then
-                    nearest_dist2 = d2
-                    nearest_nodule = n
+                local nodule_danger = compute_fish_cold_rate(n.depth, data)
+                if nodule_danger <= max_safe_rate then
+                    local d2 = dist2(f.x, f.depth, n.x, n.depth)
+                    if d2 < nearest_dist2 then
+                        nearest_dist2 = d2
+                        nearest_nodule = n
+                    end
                 end
             end
         end
@@ -172,7 +176,6 @@ function compute_shark_forces(s, st, hash)
     local cfg = data.creatures.shark
     local fx, fy = 0, 0
 
-    -- seek nearest fish
     local nearest_fish, fish_dist2 = nil, cfg.perception.fish * cfg.perception.fish
     for _, f in ipairs(st.fish) do
         if f.alive then
@@ -183,27 +186,25 @@ function compute_shark_forces(s, st, hash)
             end
         end
     end
-    if nearest_fish then
+
+    local nearest_chunk, chunk_dist2 = nil, cfg.perception.flesh * cfg.perception.flesh
+    for _, c in ipairs(st.chunks) do
+        local d2 = dist2(s.x, s.depth, c.x, c.depth)
+        if d2 < chunk_dist2 then
+            chunk_dist2 = d2
+            nearest_chunk = c
+        end
+    end
+
+    if nearest_fish and (not nearest_chunk or fish_dist2 <= chunk_dist2) then
         local sx, sy = force_seek(s.x, s.depth, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_force)
         fx, fy = fx + sx, fy + sy
+    elseif nearest_chunk then
+        local sx, sy = force_seek(s.x, s.depth, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_force)
+        fx, fy = fx + sx, fy + sy
     else
-        -- no fish: seek nearest flesh chunk
-        local nearest_chunk, chunk_dist2 = nil, cfg.perception.flesh * cfg.perception.flesh
-        for _, c in ipairs(st.chunks) do
-            local d2 = dist2(s.x, s.depth, c.x, c.depth)
-            if d2 < chunk_dist2 then
-                chunk_dist2 = d2
-                nearest_chunk = c
-            end
-        end
-        if nearest_chunk then
-            local sx, sy = force_seek(s.x, s.depth, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_force)
-            fx, fy = fx + sx, fy + sy
-        else
-            -- wander
-            local wx, wy = force_wander(s.id, s.x, s.depth, s.vx, s.vd, weights.wander, s.max_force, data.wander)
-            fx, fy = fx + wx, fy + wy
-        end
+        local wx, wy = force_wander(s.id, s.x, s.depth, s.vx, s.vd, weights.wander, s.max_force, data.wander)
+        fx, fy = fx + wx, fy + wy
     end
 
     return fx, fy

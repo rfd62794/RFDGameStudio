@@ -46,6 +46,7 @@ creatures:
     breed_fed_threshold: 2
     hunger_rate: 0.05
     graze_radius: 8
+    max_safe_cold_rate: 8
     cold:
       threshold: 100
       damage_rate: 15
