@@ -32,6 +32,7 @@ creatures:
     escape_knockback: 20
     breed_age: 4
     breed_fed_threshold: 2
+    carrying_capacity: 100
     hunger_rate: 0.05
     graze_radius: 8
     max_safe_cold_rate: 8

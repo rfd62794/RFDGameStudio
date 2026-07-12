@@ -272,9 +272,14 @@ function update_discrete_events(st, dt)
                     if graze_nodule(st, n, core) then
                         f.fed = f.fed + 1
                         if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
-                            spawn_fish(st, f.x, f.depth)
-                            f.fed = 0
-                            f.age = 0
+                            local current_fish = count_alive(st.fish)
+                            local capacity = data.creatures.fish.carrying_capacity
+                            local breed_probability = math.max(0, 1 - (current_fish / capacity))
+                            if math.random() < breed_probability then
+                                spawn_fish(st, f.x, f.depth)
+                                f.fed = 0
+                                f.age = 0
+                            end
                         end
                     end
                     break
