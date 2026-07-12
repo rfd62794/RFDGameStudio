@@ -64,7 +64,7 @@ def summarize_series(series: list[dict]) -> dict:
     sharks = [s["sharks"] for s in series]
     live = [s["live_nodules"] for s in series]
     total = [s["total_nodules"] for s in series]
-    utilization = [l / t if t else 0 for l, t in zip(live, total)]
+    available_ratio = [l / t if t else 0 for l, t in zip(live, total)]
 
     return {
         "final_fish": fish[-1],
@@ -75,9 +75,9 @@ def summarize_series(series: list[dict]) -> dict:
         "final_live_nodules": live[-1],
         "mean_live_nodules": statistics.mean(live),
         "total_nodules": total[-1],
-        "mean_nodule_utilization": statistics.mean(utilization),
-        "min_nodule_utilization": min(utilization),
-        "max_nodule_utilization": max(utilization),
+        "mean_available_ratio": statistics.mean(available_ratio),
+        "min_available_ratio": min(available_ratio),
+        "max_available_ratio": max(available_ratio),
     }
 
 
@@ -130,8 +130,8 @@ def main() -> None:
             writer.writerows(series)
 
         print(f"  seed {seed}: final fish={summary['final_fish']} sharks={summary['final_sharks']} "
-              f"live_nodules={summary['final_live_nodules']:.1f} "
-              f"mean_util={summary['mean_nodule_utilization']:.2%}")
+              f"live_nodules={summary['final_live_nodules']:.1f}/{summary['total_nodules']} "
+              f"available={summary['mean_available_ratio']:.2%}")
 
     # Aggregate across seeds.
     def mean(key: str) -> float:
