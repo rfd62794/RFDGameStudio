@@ -319,6 +319,7 @@ def test_chunk_despawns_when_it_reaches_floor() -> None:
     data["flesh_chunk"]["min_spawn"] = 1
     data["flesh_chunk"]["max_spawn"] = 1
     data["flesh_chunk"]["sink_rate"] = 500
+    data["flesh_chunk"]["floor_grace_time"] = 0.5
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
     data["steering_weights"]["shark"]["wander"] = 0
@@ -872,3 +873,117 @@ def test_shark_home_bias_off_during_active_hunt() -> None:
 
     fx, fy = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy, 0.0, abs_tol=0.0001)
+
+
+def test_fish_kill_uses_configured_hunger_refund() -> None:
+    """A fish kill subtracts data.creatures.shark.fish_hunger_refund (4), not a hardcoded value."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["creatures"]["fish"]["max_speed"] = 0
+    data["creatures"]["shark"]["fish_hunger_refund"] = 4
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["world"]["discrete_tick"] = 0.001
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    # Accumulate 5.0 hunger with no food available.
+    for _ in range(50):
+        call(session, "tick_game", 0.1, {})
+
+    before = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    assert before["stats"]["fish_count"] == 1
+    assert math.isclose(before["sharks"][0]["hunger"], 5.0, abs_tol=0.001)
+
+    # One small tick triggers discrete eating.
+    after = call(session, "tick_game", 0.001, {})
+    assert after["stats"]["fish_count"] == 0
+    # hunger accumulated dt=0.001, then refund of 4 applied.
+    assert math.isclose(after["sharks"][0]["hunger"], 1.001, abs_tol=0.01)
+
+
+def test_chunk_eating_uses_configured_hunger_refund() -> None:
+    """A chunk eaten subtracts data.flesh_chunk.hunger_refund (3), not the old -2."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["flesh_chunk"]["hunger_refund"] = 3
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 1.5
+    data["world"]["discrete_tick"] = 0.001
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    # Accumulate hunger with no food.
+    for _ in range(50):
+        call(session, "tick_game", 0.1, {})
+
+    # Spawn and kill a fish 48 units below the shark; the shark is safe (40 + 7 = 47 < 48).
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 348, "clicked": True })
+    before = call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 348, "clicked": True })
+    assert before["stats"]["chunk_count"] == 1
+    assert before["stats"]["shark_count"] == 1
+    assert math.isclose(before["sharks"][0]["hunger"], 5.0, abs_tol=0.001)
+
+    # Let the shark seek and eat the chunk. discrete_tick is small, so discrete runs every tick.
+    after = before
+    for _ in range(100):
+        after = call(session, "tick_game", 0.1, {})
+        if after["stats"]["chunk_count"] == 0:
+            break
+    assert after["stats"]["chunk_count"] == 0
+
+    tick_delta = after["tick_count"] - before["tick_count"]
+    expected = before["sharks"][0]["hunger"] + tick_delta * 0.1 - 3
+    assert math.isclose(after["sharks"][0]["hunger"], expected, abs_tol=0.01)
+
+
+def test_chunk_despawns_after_floor_grace_period() -> None:
+    """A chunk reaching the floor survives until floor_grace_time has elapsed."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["flesh_chunk"]["sink_rate"] = 500
+    data["flesh_chunk"]["floor_grace_time"] = 0.5
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+
+    state = call(session, "tick_game", 0, {})
+    assert state["stats"]["chunk_count"] == 1
+
+    # Let the chunk sink to the floor.
+    for _ in range(20):
+        state = call(session, "tick_game", 0.1, {})
+        if state["chunks"][0]["depth"] >= 799.5:
+            break
+
+    assert state["stats"]["chunk_count"] == 1
+    assert state["chunks"][0]["depth"] >= 799.5
+
+    # floor_grace_time is 0.5s; after 6 ticks (0.6s) the chunk should be gone.
+    for _ in range(6):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["stats"]["chunk_count"] == 0
