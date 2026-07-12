@@ -69,6 +69,8 @@ creatures:
     exposure:
       threshold: 100
       damage_rate: 20
+    exposure_retreat_threshold: 70
+    exposure_retreat_weight: 3.0
 
 steering_weights:
   fish:
@@ -128,19 +130,19 @@ depth_bands:
   - id: bathypelagic
     top: 280
     bottom: 480
-    exposure_rate: 5
+    exposure_rate: 1
     fish_cold_rate: 8
     color: "#0ea5e9"
   - id: abyssopelagic
     top: 480
     bottom: 680
-    exposure_rate: 12
+    exposure_rate: 0
     fish_cold_rate: 18
     color: "#0369a1"
   - id: hadopelagic
     top: 680
     bottom: 800
-    exposure_rate: 25
+    exposure_rate: 0
     fish_cold_rate: 35
     color: "#0c4a6e"
 

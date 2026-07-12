@@ -260,6 +260,16 @@ function compute_shark_forces(s, st, hash)
         end
     end
 
+    -- exposure retreat — applies regardless of which branch fired above,
+    -- can partially or fully counteract active pursuit once exposure is critical
+    if s.exposure >= cfg.exposure_retreat_threshold then
+        local retreat_ratio = (s.exposure - cfg.exposure_retreat_threshold)
+            / (cfg.exposure.threshold - cfg.exposure_retreat_threshold)
+        retreat_ratio = math.min(retreat_ratio, 1.0)
+        local retreat_force = -cfg.exposure_retreat_weight * s.max_force * retreat_ratio
+        fy = fy + retreat_force
+    end
+
     return fx, fy
 end
 
