@@ -49,28 +49,51 @@ def run_one(seed: int) -> dict:
     }
 
 
-def analyze_run(run: dict) -> list[dict]:
+def analyze_run(run: dict) -> tuple[list[dict], dict]:
     diagnostics = run["diagnostics"]
     deaths = diagnostics.get("deaths", [])
     meals = diagnostics.get("meals", [])
     if not deaths:
-        return []
+        return [], {"fish": 0, "chunk": 0}
 
     # Bucket meals by shark_id
     meals_by_shark: dict[int, list[dict]] = defaultdict(list)
     for m in meals:
         meals_by_shark[m["shark_id"]].append(m)
 
+    type_counts: dict[str, int] = {"fish": 0, "chunk": 0}
+    for m in meals:
+        type_counts[m.get("meal_type", "unknown")] = type_counts.get(m.get("meal_type", "unknown"), 0) + 1
+
     results = []
     for d in deaths:
         shark_id = d["shark_id"]
         shark_meals = meals_by_shark.get(shark_id, [])
-        if shark_meals:
+        meal_count = len(shark_meals)
+        if meal_count:
             avg_ticks = statistics.mean(m["ticks_since_last_meal"] for m in shark_meals)
-            meal_count = len(shark_meals)
+            fish_count = sum(1 for m in shark_meals if m.get("meal_type") == "fish")
+            chunk_count = meal_count - fish_count
+            fish_fraction = fish_count / meal_count
+            hunger_values = [m["hunger_at_meal"] for m in shark_meals]
+            first_hunger = hunger_values[0]
+            last_hunger = hunger_values[-1]
+            hunger_trend = last_hunger - first_hunger
+            # split intervals by meal type for the throughput check
+            fish_intervals = [m["ticks_since_last_meal"] for m in shark_meals if m.get("meal_type") == "fish"]
+            chunk_intervals = [m["ticks_since_last_meal"] for m in shark_meals if m.get("meal_type") == "chunk"]
+            avg_fish_interval = statistics.mean(fish_intervals) * DT if fish_intervals else None
+            avg_chunk_interval = statistics.mean(chunk_intervals) * DT if chunk_intervals else None
         else:
             avg_ticks = None
-            meal_count = 0
+            fish_count = 0
+            chunk_count = 0
+            fish_fraction = None
+            first_hunger = None
+            last_hunger = None
+            hunger_trend = None
+            avg_fish_interval = None
+            avg_chunk_interval = None
 
         results.append(
             {
@@ -80,13 +103,21 @@ def analyze_run(run: dict) -> list[dict]:
                 "lifespan_ticks": d["ticks_since_spawn"],
                 "target_ratio": d["target_ratio"],
                 "meal_count": meal_count,
+                "fish_count": fish_count,
+                "chunk_count": chunk_count,
+                "fish_fraction": fish_fraction,
                 "avg_ticks_since_last_meal": avg_ticks,
+                "avg_fish_interval_s": avg_fish_interval,
+                "avg_chunk_interval_s": avg_chunk_interval,
+                "first_hunger": first_hunger,
+                "last_hunger": last_hunger,
+                "hunger_trend": hunger_trend,
                 "cause": d["cause"],
                 "hunger": d["hunger"],
                 "exposure": d["exposure"],
             }
         )
-    return results
+    return results, type_counts
 
 
 def main() -> None:
@@ -94,6 +125,7 @@ def main() -> None:
     surviving_sharks = 0
     total_runs = len(SEEDS)
 
+    type_counts: dict[str, int] = {"fish": 0, "chunk": 0}
     for seed in SEEDS:
         run = run_one(seed)
         summary = run["summary"]
@@ -104,7 +136,10 @@ def main() -> None:
         meals = run["diagnostics"].get("meals", [])
         print(f"  recorded deaths: {len(deaths)}, recorded meals: {len(meals)}")
 
-        all_results.extend(analyze_run(run))
+        run_results, run_type_counts = analyze_run(run)
+        all_results.extend(run_results)
+        for k, v in run_type_counts.items():
+            type_counts[k] = type_counts.get(k, 0) + v
         surviving_sharks += summary["shark_count"]
 
     print("\n" + "=" * 80)

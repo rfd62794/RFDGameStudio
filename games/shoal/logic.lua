@@ -327,6 +327,7 @@ function update_discrete_events(st, dt)
                 table.insert(st.diagnostics.meals, {
                     shark_id = s.id,
                     tick = st.tick_count,
+                    meal_type = "fish",
                     hunger_at_meal = s.hunger,
                     ticks_since_last_meal = st.tick_count - s.last_meal_tick,
                 })
@@ -341,6 +342,7 @@ function update_discrete_events(st, dt)
             table.insert(st.diagnostics.meals, {
                 shark_id = s.id,
                 tick = st.tick_count,
+                meal_type = "chunk",
                 hunger_at_meal = s.hunger,
                 ticks_since_last_meal = st.tick_count - s.last_meal_tick,
             })
