@@ -54,7 +54,7 @@ creatures:
     starve_limit: 20
     max_turn_rate: 6.0
     home_depth: 300
-    home_bias_weight: 0.8
+    home_bias_weight: 1.0
     fish_hunger_refund: 4
     exposure:
       threshold: 100
