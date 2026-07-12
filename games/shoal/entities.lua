@@ -111,6 +111,8 @@ function spawn_shark(st, x, depth)
     local data = st.data
     local lineage = random_choice(data.lineages.shark)
     local s = new_shark(x, depth, lineage.id, lineage.color)
+    s.spawn_tick = st.tick_count
+    s.last_meal_tick = st.tick_count
     st.sharks[#st.sharks + 1] = s
     st.stats.shark_count = st.stats.shark_count + 1
     return s
@@ -135,6 +137,19 @@ end
 
 function kill_creature(st, creature)
     if not creature.alive then return end
+    if creature.type == "shark" then
+        st.diagnostics = st.diagnostics or { meals = {}, deaths = {} }
+        local data = st.data
+        table.insert(st.diagnostics.deaths, {
+            shark_id = creature.id,
+            tick = st.tick_count,
+            ticks_since_spawn = st.tick_count - (creature.spawn_tick or 0),
+            target_ratio = creature.ticks_total > 0 and (creature.ticks_with_target / creature.ticks_total) or 0,
+            cause = creature.hunger >= data.creatures.shark.starve_limit and "starvation" or "exposure",
+            hunger = creature.hunger,
+            exposure = creature.exposure,
+        })
+    end
     creature.alive = false
     if creature.type == "fish" then
         st.stats.fish_count = st.stats.fish_count - 1

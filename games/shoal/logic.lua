@@ -453,3 +453,10 @@ function get_state_summary()
         tick_count = st.tick_count,
     }
 end
+
+function get_diagnostics()
+    if not GAME_STATE then return nil end
+    local st = GAME_STATE
+    st.diagnostics = st.diagnostics or { meals = {}, deaths = {} }
+    return st.diagnostics
+end
