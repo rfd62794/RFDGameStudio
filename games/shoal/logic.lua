@@ -133,6 +133,32 @@ local function limit_turn(old_vx, old_vy, new_vx, new_vy, max_turn_rate, max_spe
     return math.cos(clamped_angle) * speed, math.sin(clamped_angle) * speed
 end
 
+function get_shark_targets(s, st)
+    local data = st.data
+    local cfg = data.creatures.shark
+    local nearest_fish, fish_dist2 = nil, cfg.perception.fish * cfg.perception.fish
+    for _, f in ipairs(st.fish) do
+        if f.alive then
+            local d2 = dist2(s.x, s.depth, f.x, f.depth)
+            if d2 < fish_dist2 then
+                fish_dist2 = d2
+                nearest_fish = f
+            end
+        end
+    end
+
+    local nearest_chunk, chunk_dist2 = nil, cfg.perception.flesh * cfg.perception.flesh
+    for _, c in ipairs(st.chunks) do
+        local d2 = dist2(s.x, s.depth, c.x, c.depth)
+        if d2 < chunk_dist2 then
+            chunk_dist2 = d2
+            nearest_chunk = c
+        end
+    end
+
+    return nearest_fish, nearest_chunk
+end
+
 function move_creature(c, dt)
     local st = GAME_STATE
     local data = st.data
@@ -140,8 +166,8 @@ function move_creature(c, dt)
     if c.type == "fish" then
         fx, fy = compute_fish_forces(c, st, st.spatial_hash)
     else
-        local fx2, fy2, nearest_fish, nearest_chunk = compute_shark_forces(c, st, st.spatial_hash)
-        fx, fy = fx2, fy2
+        fx, fy = compute_shark_forces(c, st, st.spatial_hash)
+        local nearest_fish, nearest_chunk = get_shark_targets(c, st)
         c.ticks_total = c.ticks_total + 1
         if nearest_fish or nearest_chunk then
             c.ticks_with_target = c.ticks_with_target + 1
