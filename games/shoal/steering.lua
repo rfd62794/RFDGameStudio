@@ -260,7 +260,7 @@ function compute_shark_forces(s, st, hash)
         end
     end
 
-    return fx, fy
+    return fx, fy, nearest_fish, nearest_chunk
 end
 
 function compute_exposure_rate(depth, data)

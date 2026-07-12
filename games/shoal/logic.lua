@@ -2,6 +2,7 @@
 
 function init_game(data)
     GAME_STATE = new_game_state(data)
+    GAME_STATE.diagnostics = { meals = {}, deaths = {} }
     spawn_initial_entities(GAME_STATE, data)
     local st = GAME_STATE
     st.stats.fish_count = count_alive(st.fish)
@@ -139,7 +140,12 @@ function move_creature(c, dt)
     if c.type == "fish" then
         fx, fy = compute_fish_forces(c, st, st.spatial_hash)
     else
-        fx, fy = compute_shark_forces(c, st, st.spatial_hash)
+        local fx2, fy2, nearest_fish, nearest_chunk = compute_shark_forces(c, st, st.spatial_hash)
+        fx, fy = fx2, fy2
+        c.ticks_total = c.ticks_total + 1
+        if nearest_fish or nearest_chunk then
+            c.ticks_with_target = c.ticks_with_target + 1
+        end
     end
 
     local old_vx, old_vd = c.vx, c.vd
@@ -291,12 +297,28 @@ function update_discrete_events(st, dt)
                 end
             else
                 kill_creature(st, nearest_fish)
+                st.diagnostics = st.diagnostics or { meals = {}, deaths = {} }
+                table.insert(st.diagnostics.meals, {
+                    shark_id = s.id,
+                    tick = st.tick_count,
+                    hunger_at_meal = s.hunger,
+                    ticks_since_last_meal = st.tick_count - s.last_meal_tick,
+                })
+                s.last_meal_tick = st.tick_count
                 s.hunger = math.max(0, s.hunger - 4)
                 s.fed = (s.fed or 0) + 1
                 ate = true
             end
         elseif nearest_chunk then
             table.remove(st.chunks, chunk_index)
+            st.diagnostics = st.diagnostics or { meals = {}, deaths = {} }
+            table.insert(st.diagnostics.meals, {
+                shark_id = s.id,
+                tick = st.tick_count,
+                hunger_at_meal = s.hunger,
+                ticks_since_last_meal = st.tick_count - s.last_meal_tick,
+            })
+            s.last_meal_tick = st.tick_count
             s.hunger = math.max(0, s.hunger - 2)
             s.fed = (s.fed or 0) + 1
             ate = true
