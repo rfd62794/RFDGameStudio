@@ -46,6 +46,8 @@ def run_one(seed: int) -> dict:
         "seed": seed,
         "diagnostics": diagnostics,
         "summary": summary,
+        "fish_refund": data["creatures"]["shark"]["fish_hunger_refund"],
+        "chunk_refund": data["flesh_chunk"]["hunger_refund"],
     }
 
 
@@ -122,12 +124,13 @@ def analyze_run(run: dict) -> tuple[list[dict], dict]:
 
 def main() -> None:
     all_results: list[dict] = []
+    all_runs: list[dict] = []
     surviving_sharks = 0
-    total_runs = len(SEEDS)
 
     type_counts: dict[str, int] = {"fish": 0, "chunk": 0}
     for seed in SEEDS:
         run = run_one(seed)
+        all_runs.append(run)
         summary = run["summary"]
         print(f"\nseed {seed}: final fish={summary['fish_count']} sharks={summary['shark_count']} "
               f"chunks={summary['chunk_count']} ticks={summary['tick_count']}")
@@ -207,24 +210,26 @@ def main() -> None:
     median_interval_s = statistics.median(meal_intervals) * DT if meal_intervals else float("inf")
     mean_hunger_trend = statistics.mean(hunger_trends) if hunger_trends else 0
 
-    # Net hunger per meal cycle, assuming the dominant meal type.
-    # Fish refund: -4 per ~median interval seconds; chunk refund: -2.
-    fish_net = median_interval_s - 4
-    chunk_net = median_interval_s - 2
+    # Use the actual refund values configured for the current run.
+    # The first run is authoritative; all seeds share the same data.yaml.
+    fish_refund = all_runs[0]["fish_refund"]
+    chunk_refund = all_runs[0]["chunk_refund"]
+    fish_net = median_interval_s - fish_refund
+    chunk_net = median_interval_s - chunk_refund
 
     if mean_ratio >= 0.5 and median_interval_s <= 5:
         if total_meals and (type_counts["fish"] / total_meals) >= 0.5 and fish_net <= 0 and mean_hunger_trend > 0:
             verdict = "throughput problem (exposure dominates reward)"
             reason = (
                 "Dead sharks had active targets, ate mostly fish, and still saw hunger rise across meals. "
-                "That means the -4 fish reward is being eaten by exposure hunger accumulation, not by normal time. "
-                "This is a reward/throughput issue, not a density issue."
+                f"That means the -{fish_refund} fish reward is being eaten by exposure hunger accumulation, "
+                "not by normal time. This is a reward/throughput issue, not a density issue."
             )
         elif total_meals and (type_counts["chunk"] / total_meals) >= 0.5 and chunk_net > 0:
             verdict = "throughput problem (chunk reward too small)"
             reason = (
                 "Dead sharks had active targets and ate mostly chunks. With a median interval of "
-                f"{median_interval_s:.2f}s, each chunk refund (-2) leaves a net hunger gain of "
+                f"{median_interval_s:.2f}s, each chunk refund (-{chunk_refund}) leaves a net hunger gain of "
                 f"{chunk_net:.2f} per cycle. The chunk reward is structurally insufficient."
             )
         elif mean_hunger_trend > 0:
