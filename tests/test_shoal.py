@@ -257,7 +257,7 @@ def test_shark_sunlit_surface_hits_exposure_threshold() -> None:
     call(session, "init_game", data)
     call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 0, "clicked": True })
 
-    for _ in range(40):
+    for _ in range(60):
         state = call(session, "tick_game", 0.05, {})
     assert state["sharks"][0]["exposure"] < 100
 
@@ -1133,3 +1133,110 @@ def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
     _, fy_critical = call(session, "compute_shark_forces", s, st, None)
     assert fy_critical < 0
     assert fy_critical < fy_healthy
+
+
+def test_shark_exposure_decays_in_safe_water() -> None:
+    """Exposure recovers in a zero-rate band and damage stops once below threshold."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    shark = {
+        "id": "shark_decay",
+        "type": "shark",
+        "x": 300,
+        "depth": 700,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 0,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 100,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+    }
+
+    # In safe water, exposure should drop from 100 and hunger should not rise.
+    moved = call(session, "move_creature", shark, 0.1)
+    assert math.isclose(moved["exposure"], 99.0, abs_tol=0.01)
+    assert math.isclose(moved["hunger"], 0.0, abs_tol=0.001)
+
+    moved = call(session, "move_creature", moved, 10.0)
+    assert math.isclose(moved["exposure"], 0.0, abs_tol=0.01)
+    assert math.isclose(moved["hunger"], 0.0, abs_tol=0.001)
+
+
+def test_fish_cold_exposure_decays_in_safe_water() -> None:
+    """Fish cold exposure recovers in shallow water and damage stops once below threshold."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["separate"] = 0
+    data["steering_weights"]["fish"]["align"] = 0
+    data["steering_weights"]["fish"]["cohere"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+
+    fish = {
+        "id": "fish_decay",
+        "type": "fish",
+        "x": 300,
+        "depth": 20,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 0,
+        "max_force": 50,
+        "radius": 4,
+        "cold_exposure": 100,
+        "cold_damage": 0,
+        "alive": True,
+    }
+
+    moved = call(session, "move_creature", fish, 0.1)
+    assert math.isclose(moved["cold_exposure"], 99.0, abs_tol=0.01)
+    assert math.isclose(moved["cold_damage"], 0.0, abs_tol=0.001)
+    assert moved["alive"]
+
+    moved = call(session, "move_creature", moved, 10.0)
+    assert math.isclose(moved["cold_exposure"], 0.0, abs_tol=0.01)
+    assert math.isclose(moved["cold_damage"], 0.0, abs_tol=0.001)
+    assert moved["alive"]
+
+
+def test_exposure_decay_invisible_to_healthy_creature() -> None:
+    """A shark already at zero exposure in safe water stays at zero."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    shark = {
+        "id": "shark_healthy",
+        "type": "shark",
+        "x": 300,
+        "depth": 700,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 0,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 0,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+    }
+
+    moved = call(session, "move_creature", shark, 1.0)
+    assert math.isclose(moved["exposure"], 0.0, abs_tol=0.01)
+    assert math.isclose(moved["hunger"], 0.0, abs_tol=0.001)

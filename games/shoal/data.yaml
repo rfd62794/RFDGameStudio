@@ -52,6 +52,7 @@ creatures:
       threshold: 100
       damage_rate: 15
       damage_limit: 30
+      decay_rate: 10
   shark:
     max_speed: 150
     max_force: 90
@@ -69,6 +70,7 @@ creatures:
     exposure:
       threshold: 100
       damage_rate: 20
+      decay_rate: 10
     exposure_retreat_threshold: 70
     exposure_retreat_weight: 3.0
 

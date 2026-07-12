@@ -191,14 +191,16 @@ function move_creature(c, dt)
 
     if c.type == "shark" then
         local rate = compute_exposure_rate(c.depth, data)
-        c.exposure = c.exposure + rate * dt
+        local decay = data.creatures.shark.exposure.decay_rate
+        c.exposure = math.max(0, c.exposure + (rate - decay) * dt)
         if c.exposure >= data.creatures.shark.exposure.threshold then
             c.exposure = data.creatures.shark.exposure.threshold
             c.hunger = c.hunger + data.creatures.shark.exposure.damage_rate * dt
         end
     elseif c.type == "fish" then
         local rate = compute_fish_cold_rate(c.depth, data)
-        c.cold_exposure = c.cold_exposure + rate * dt
+        local decay = data.creatures.fish.cold.decay_rate
+        c.cold_exposure = math.max(0, c.cold_exposure + (rate - decay) * dt)
         if c.cold_exposure >= data.creatures.fish.cold.threshold then
             c.cold_exposure = data.creatures.fish.cold.threshold
             c.cold_damage = c.cold_damage + data.creatures.fish.cold.damage_rate * dt
@@ -207,6 +209,8 @@ function move_creature(c, dt)
             end
         end
     end
+
+    return c
 end
 
 function compute_fish_cold_rate(depth, data)
