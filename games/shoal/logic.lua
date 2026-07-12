@@ -146,10 +146,11 @@ function update_algae(st, dt)
 end
 
 function update_chunks(st, dt)
+    local sink_rate = st.data.flesh_chunk.sink_rate
     for i = #st.chunks, 1, -1 do
         local c = st.chunks[i]
         c.x = wrap_x(c.x + c.vx * dt, st.world)
-        c.depth = clamp_depth(c.depth + c.vd * dt, st.world)
+        c.depth = clamp_depth(c.depth + c.vd * dt + sink_rate * dt, st.world)
         c.vx = c.vx * 0.95
         c.vd = c.vd * 0.95
         c.life = c.life - dt

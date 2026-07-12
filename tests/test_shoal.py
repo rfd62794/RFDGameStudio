@@ -239,3 +239,68 @@ def test_breed_thresholds_read_from_data() -> None:
     for _ in range(5):
         state = call(session, "tick_game", 0.05, {})
     assert state["stats"]["shark_count"] > 1
+
+
+def test_shark_sunlit_surface_hits_exposure_threshold() -> None:
+    """A shark parked at the true surface reaches exposure threshold in ~2.5s."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 0, "clicked": True })
+
+    for _ in range(40):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["sharks"][0]["exposure"] < 100
+
+    for _ in range(10):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["sharks"][0]["exposure"] >= 100
+    assert state["sharks"][0]["depth"] < 40
+
+
+def test_flesh_chunk_sinks_after_burst_decay() -> None:
+    """A chunk keeps sinking from its own sink rate even after burst velocity decays."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    # Kill the fish and spawn the chunk.
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["chunk_count"] == 1
+
+    # Remove the shark so it cannot eat the chunk.
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+
+    # Let the initial burst velocity decay to near zero.
+    for _ in range(20):
+        state = call(session, "tick_game", 0.05, {})
+
+    depth_before = state["chunks"][0]["depth"]
+    for _ in range(10):
+        state = call(session, "tick_game", 0.05, {})
+    depth_after = state["chunks"][0]["depth"]
+
+    assert depth_after - depth_before > 4

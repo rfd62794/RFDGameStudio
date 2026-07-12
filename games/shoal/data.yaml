@@ -92,12 +92,18 @@ flesh_chunk:
   decay_time: 8
   min_spawn: 1
   max_spawn: 3
+  sink_rate: 10
 
 depth_bands:
-  - id: epipelagic
+  - id: sunlit_surface
     top: 0
+    bottom: 40
+    exposure_rate: 40
+    color: "#e0f7ff"
+  - id: epipelagic
+    top: 40
     bottom: 120
-    exposure_rate: 0
+    exposure_rate: 8
     color: "#7dd3fc"
   - id: mesopelagic
     top: 120
