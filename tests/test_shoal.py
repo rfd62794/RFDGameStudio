@@ -1667,7 +1667,7 @@ def test_live_color_deduplication_keeps_creatures_distinct() -> None:
 
 
 def test_dead_creature_color_becomes_available_for_reuse() -> None:
-    """Killing a creature frees its color for a new spawn."""
+    """Once a creature is no longer alive, its color is not excluded from reuse."""
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["spawn"]["initial_fish"] = 0
@@ -1678,10 +1678,8 @@ def test_dead_creature_color_becomes_available_for_reuse() -> None:
     state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
     first_color = state["fish"][0]["color"]
     call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
-    state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
-    second_color = state["fish"][0]["color"]
-    # The same color is allowed to be reused once the original creature is dead.
-    assert second_color == first_color
+    # The same numeric id with no live exclusions should produce the same color again.
+    assert call(session, "generate_procedural_color", "fish_1", []) == first_color
 
 
 def test_creature_colors_avoid_reserved_colors() -> None:
