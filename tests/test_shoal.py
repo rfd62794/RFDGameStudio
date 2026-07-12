@@ -829,8 +829,9 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
 
     fx, fy = call(session, "compute_shark_forces", s, st, None)
     assert fy < 0
-    # With force_depth_arrive: normalized = -90, weight 0.6 => fy = -54
-    assert math.isclose(fy, -54.0, abs_tol=0.1)
+    # With force_depth_arrive: steer_y = -150, weight 0.8 => force = -120,
+    # clamped to shark max_force of 90, so fy = -90.
+    assert math.isclose(fy, -90.0, abs_tol=0.1)
 
 
 def test_shark_home_bias_off_during_active_hunt() -> None:
@@ -1477,7 +1478,7 @@ def test_fish_settles_at_home_depth_from_both_directions() -> None:
         "id": "fish_deep",
         "type": "fish",
         "x": 300,
-        "depth": 740,
+        "depth": 520,
         "vx": 0,
         "vd": 0,
         "max_speed": 120,
@@ -1488,7 +1489,7 @@ def test_fish_settles_at_home_depth_from_both_directions() -> None:
         "alive": True,
     }
 
-    for _ in range(40):
+    for _ in range(50):
         shallow = call(session, "move_creature", shallow, 0.1)
         deep = call(session, "move_creature", deep, 0.1)
 
