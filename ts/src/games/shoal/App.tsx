@@ -6,6 +6,35 @@ import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
 import './styles.css';
 
+let backgroundCache: HTMLCanvasElement | null = null;
+
+function getBackgroundCache(world: { width: number; height: number }): HTMLCanvasElement {
+  if (backgroundCache) return backgroundCache;
+  const bg = document.createElement('canvas');
+  bg.width = world.width;
+  bg.height = world.height;
+  const bgCtx = bg.getContext('2d')!;
+
+  const grad = bgCtx.createLinearGradient(0, 0, 0, world.height);
+  grad.addColorStop(0, '#7dd3fc');
+  grad.addColorStop(0.15, '#38bdf8');
+  grad.addColorStop(0.35, '#0ea5e9');
+  grad.addColorStop(0.6, '#0369a1');
+  grad.addColorStop(1, '#0c4a6e');
+  bgCtx.fillStyle = grad;
+  bgCtx.fillRect(0, 0, world.width, world.height);
+
+  bgCtx.strokeStyle = 'rgba(255,255,255,0.6)';
+  bgCtx.lineWidth = 2;
+  bgCtx.beginPath();
+  bgCtx.moveTo(0, 0);
+  bgCtx.lineTo(world.width, 0);
+  bgCtx.stroke();
+
+  backgroundCache = bg;
+  return backgroundCache;
+}
+
 const TOOLS: ToolMode[] = ['fish', 'shark', 'algae', 'cull'];
 
 const TOOL_LABELS: Record<ToolMode, string> = {
@@ -213,23 +242,8 @@ function drawGame(
   // Scale to fit world into canvas
   ctx.scale(dims.w / world.width, dims.h / world.height);
 
-  // Depth gradient background
-  const grad = ctx.createLinearGradient(0, 0, 0, world.height);
-  grad.addColorStop(0, '#7dd3fc');
-  grad.addColorStop(0.15, '#38bdf8');
-  grad.addColorStop(0.35, '#0ea5e9');
-  grad.addColorStop(0.6, '#0369a1');
-  grad.addColorStop(1, '#0c4a6e');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, world.width, world.height);
-
-  // Surface line
-  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(world.width, 0);
-  ctx.stroke();
+  // Depth gradient background + surface line (cached offscreen)
+  ctx.drawImage(getBackgroundCache(world), 0, 0);
 
   // Draw algae cores
   ctx.fillStyle = renderCfg?.algae_core_color ?? '#eab308';

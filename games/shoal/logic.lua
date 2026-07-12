@@ -78,11 +78,11 @@ function rebuild_spatial_hash(st)
     st.spatial_hash = hash
 end
 
-function get_nearby(hash, key, type)
+function get_nearby(hash, bx, by, type)
     local list = {}
     for dx = -1, 1 do
         for dy = -1, 1 do
-            local k = key
+            local k = (bx + dx) .. "," .. (by + dy)
             if hash[type][k] then
                 for _, ent in ipairs(hash[type][k]) do
                     table.insert(list, ent)
@@ -137,9 +137,9 @@ function move_creature(c, dt)
     local data = st.data
     local fx, fy = 0, 0
     if c.type == "fish" then
-        fx, fy = compute_fish_forces(c, st, nil)
+        fx, fy = compute_fish_forces(c, st, st.spatial_hash)
     else
-        fx, fy = compute_shark_forces(c, st, nil)
+        fx, fy = compute_shark_forces(c, st, st.spatial_hash)
     end
 
     local old_vx, old_vd = c.vx, c.vd

@@ -174,7 +174,16 @@ function compute_fish_forces(f, st, hash)
     end
 
     -- boids forces: separate, align, cohere share the same neighbor source and school radius
-    local others = hash and hash[f.lineage_id] or st.fish
+    local others
+    if hash then
+        local bw = data.spatial_hash.bucket_width
+        local bd = data.spatial_hash.bucket_depth
+        local bx = math.floor(f.x / bw) % math.ceil(st.world.width / bw)
+        local by = math.floor(f.depth / bd) % math.ceil(st.world.height / bd)
+        others = get_nearby(hash, bx, by, "fish")
+    else
+        others = st.fish
+    end
     local school_radius_sq = cfg.perception.school * cfg.perception.school
     local sep_x, sep_y = force_separate(f.x, f.depth, others, school_radius_sq, weights.separate, f.max_force)
     fx, fy = fx + sep_x, fy + sep_y
