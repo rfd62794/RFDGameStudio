@@ -99,6 +99,7 @@ flesh_chunk:
   min_spawn: 1
   max_spawn: 3
   sink_rate: 10
+  shark_eat_range: 20
 
 depth_bands:
   - id: sunlit_surface

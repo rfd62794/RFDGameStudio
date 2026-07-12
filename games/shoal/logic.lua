@@ -263,10 +263,10 @@ function update_discrete_events(st, dt)
 
         -- find nearest overlapping chunk
         local nearest_chunk, nearest_chunk_d2, chunk_index = nil, nil, nil
+        local chunk_eat_range = data.flesh_chunk.shark_eat_range
         for i, c in ipairs(st.chunks) do
             local d2 = dist2(s.x, s.depth, c.x, c.depth)
-            local touch_radius = s.radius + c.radius
-            if d2 <= touch_radius * touch_radius then
+            if d2 <= chunk_eat_range * chunk_eat_range then
                 if not nearest_chunk_d2 or d2 < nearest_chunk_d2 then
                     nearest_chunk, nearest_chunk_d2, chunk_index = c, d2, i
                 end

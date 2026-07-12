@@ -668,3 +668,41 @@ def test_discrete_eating_prefers_nearest_chunk() -> None:
     state = call(session, "tick_game", 0.001, {})
     assert state["stats"]["fish_count"] == 1
     assert state["stats"]["chunk_count"] == 0
+
+
+def test_chunk_approach_min_speed_is_higher() -> None:
+    """The 0.3x max_speed chunk floor produces a stronger closing force than 0.1x."""
+    session = load_game("shoal", seed=42)
+    max_speed = 150
+    max_force = 90
+    slowing_radius = 162.5
+    # Target 1 unit below the shark; with no current velocity, desired_vy = desired_speed.
+    # 0.3x floor gives desired_speed ~ 45.6, 0.1x floor gives ~ 15.8.
+    _, sy_03 = call(session, "force_arrive", 0, 0, 0, 0, 0, 1, 1, max_speed, max_force, slowing_radius, max_speed * 0.3)
+    _, sy_01 = call(session, "force_arrive", 0, 0, 0, 0, 0, 1, 1, max_speed, max_force, slowing_radius, max_speed * 0.1)
+    assert sy_03 > sy_01
+
+
+def test_chunk_eat_range_is_larger_than_body_collision() -> None:
+    """A shark 15 units from a chunk (between old 12 and new 20 range) now eats it."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["world"]["discrete_tick"] = 0.001
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+    state = call(session, "tick_game", 0, {})
+    chunk = state["chunks"][0]
+    # Shark 15 units to the right: inside the 20-unit shark_eat_range, outside the old 12-unit radius sum.
+    call(session, "tick_game", 0, { "tool": "shark", "x": chunk["x"] + 15, "y": chunk["depth"], "clicked": True })
+
+    state = call(session, "tick_game", 0.001, {})
+    assert state["stats"]["chunk_count"] == 0

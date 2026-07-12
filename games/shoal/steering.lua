@@ -235,8 +235,8 @@ function compute_shark_forces(s, st, hash)
         local sr = stopping_radius(s.max_speed, s.max_force, 1.3)
         sr = math.min(sr, cfg.perception.flesh)
         local min_speed = data.flesh_chunk.sink_rate
-        if s.max_speed * 0.1 > min_speed then
-            min_speed = s.max_speed * 0.1
+        if s.max_speed * 0.3 > min_speed then
+            min_speed = s.max_speed * 0.3
         end
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_speed, s.max_force, sr, min_speed)
         fx, fy = fx + sx, fy + sy
