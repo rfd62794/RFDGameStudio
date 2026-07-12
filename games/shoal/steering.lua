@@ -48,7 +48,8 @@ function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowin
 end
 
 function force_depth_arrive(depth, vd, target_depth, weight, max_speed, max_force, slowing_radius)
-    local sr = stopping_radius(max_speed, max_force, 1.3)
+    local effective_max_force = math.min(max_force, weight * max_speed)
+    local sr = stopping_radius(max_speed, effective_max_force, 1.3)
     local dy = target_depth - depth
     local dist = math.abs(dy)
     if dist < 2 then return 0 end
@@ -61,11 +62,10 @@ function force_depth_arrive(depth, vd, target_depth, weight, max_speed, max_forc
     local desired_vd = (dy > 0 and 1 or -1) * desired_speed
     local steer_y = desired_vd - vd
 
-    -- Clamp, not rescale: preserve full max_force authority across the whole
-    -- range where the velocity error exceeds max_force, only tapering once
-    -- genuinely close to converged. This matches stopping_radius's derivation.
-    local clamped = math.max(-max_force, math.min(max_force, steer_y))
-    return clamped * weight
+    -- Clamp the weighted force, not the raw steer error, so the controller can
+    -- still request full max_force authority when the velocity error is large.
+    local force = steer_y * weight
+    return math.max(-max_force, math.min(max_force, force))
 end
 
 function force_flee(x, y, tx, ty, weight, max_force, radius_sq)
