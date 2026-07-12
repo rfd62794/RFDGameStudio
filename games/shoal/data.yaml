@@ -65,6 +65,7 @@ creatures:
     max_turn_rate: 6.0
     home_depth: 300
     home_bias_weight: 0.2
+    fish_hunger_refund: 4
     exposure:
       threshold: 100
       damage_rate: 20
@@ -102,6 +103,8 @@ flesh_chunk:
   max_spawn: 3
   sink_rate: 10
   shark_eat_range: 20
+  hunger_refund: 3
+  floor_grace_time: 2.5
 
 depth_bands:
   - id: sunlit_surface

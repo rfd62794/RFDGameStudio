@@ -232,8 +232,10 @@ function update_algae(st, dt)
 end
 
 function update_chunks(st, dt)
-    local sink_rate = st.data.flesh_chunk.sink_rate
+    local data = st.data
+    local sink_rate = data.flesh_chunk.sink_rate
     local floor_depth = st.world.floor_depth
+    local grace = data.flesh_chunk.floor_grace_time
     for i = #st.chunks, 1, -1 do
         local c = st.chunks[i]
         c.x = wrap_x(c.x + c.vx * dt, st.world)
@@ -241,7 +243,10 @@ function update_chunks(st, dt)
         c.vx = c.vx * 0.95
         c.vd = c.vd * 0.95
         if c.depth >= floor_depth - 0.5 then
-            table.remove(st.chunks, i)
+            c.floor_timer = (c.floor_timer or 0) + dt
+            if c.floor_timer >= grace then
+                table.remove(st.chunks, i)
+            end
         end
     end
 end
@@ -332,7 +337,7 @@ function update_discrete_events(st, dt)
                     ticks_since_last_meal = st.tick_count - s.last_meal_tick,
                 })
                 s.last_meal_tick = st.tick_count
-                s.hunger = math.max(0, s.hunger - 4)
+                s.hunger = math.max(0, s.hunger - data.creatures.shark.fish_hunger_refund)
                 s.fed = (s.fed or 0) + 1
                 ate = true
             end
@@ -347,7 +352,7 @@ function update_discrete_events(st, dt)
                 ticks_since_last_meal = st.tick_count - s.last_meal_tick,
             })
             s.last_meal_tick = st.tick_count
-            s.hunger = math.max(0, s.hunger - 2)
+            s.hunger = math.max(0, s.hunger - data.flesh_chunk.hunger_refund)
             s.fed = (s.fed or 0) + 1
             ate = true
         end
