@@ -195,3 +195,6 @@ screenshots/arcade-verify/
 
 # Saves
 saves/
+
+# Stress Output
+/scripts/stress_output*
