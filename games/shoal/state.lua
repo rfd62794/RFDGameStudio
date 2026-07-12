@@ -24,10 +24,11 @@ end
 
 function spawn_initial_entities(st, data)
     local world = data.world
-    for i = 1, data.spawn.initial_algae_hubs do
-        local x = random_float(50, world.width - 50)
-        local depth = random_float(world.surface_depth + 50, world.floor_depth - 50)
-        spawn_algae_core(st, x, depth)
+    local hub_count = data.spawn.initial_algae_hubs
+    local spacing = world.width / (hub_count + 1)
+    for i = 1, hub_count do
+        local x = spacing * i
+        spawn_algae_core(st, x, data.spawn.algae_spawn_depth)
     end
 
     for i = 1, data.spawn.initial_fish do

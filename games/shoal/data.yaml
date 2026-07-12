@@ -14,7 +14,8 @@ world:
 spawn:
   initial_fish: 60
   initial_sharks: 8
-  initial_algae_hubs: 3
+  initial_algae_hubs: 6
+  algae_spawn_depth: 180
 
 lineages:
   fish:

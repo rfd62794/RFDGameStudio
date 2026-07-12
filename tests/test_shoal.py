@@ -1401,3 +1401,55 @@ def test_exposure_retreat_exits_below_resume_threshold() -> None:
     shark["in_retreat"] = True
     moved = call(session, "move_creature", shark, 0.0)
     assert moved["in_retreat"] is True
+
+
+def test_algae_hubs_spawn_evenly_at_fixed_depth() -> None:
+    """Initial algae hubs are evenly spaced horizontally and all at the same depth."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 6
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, {})
+
+    algae = state["algae"]
+    assert len(algae) == 6
+
+    expected_depth = data["spawn"]["algae_spawn_depth"]
+    world_width = data["world"]["width"]
+    hub_count = data["spawn"]["initial_algae_hubs"]
+    spacing = world_width / (hub_count + 1)
+
+    xs = []
+    for core in algae:
+        assert math.isclose(core["depth"], expected_depth, abs_tol=0.001)
+        xs.append(core["x"])
+
+    xs.sort()
+    for i, x in enumerate(xs, start=1):
+        assert math.isclose(x, spacing * i, abs_tol=0.001)
+
+    for i in range(1, len(xs)):
+        assert math.isclose(xs[i] - xs[i - 1], spacing, abs_tol=0.001)
+
+
+def test_algae_core_has_eight_spoke_nodules_and_no_center_overlap() -> None:
+    """spawn_algae_core creates exactly 8 nodules and none overlap the core."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 180, "clicked": True })
+    state = call(session, "tick_game", 0, {})
+
+    assert len(state["algae"]) == 1
+    core = state["algae"][0]
+    assert len(core["nodules"]) == 8
+
+    for nodule in core["nodules"]:
+        assert not (math.isclose(nodule["x"], core["x"]) and math.isclose(nodule["depth"], core["depth"]))

@@ -72,15 +72,6 @@ end
 function spawn_algae_core(st, x, depth)
     local data = st.data
     local nodules = {}
-    -- center hub
-    nodules[1] = {
-        id = uid("nodule"),
-        x = x,
-        depth = depth,
-        live = true,
-        cooldown = 0,
-        offset = { x = 0, y = 0 },
-    }
     local distances = data.algae.spoke_distances
     for dir = 0, 3 do
         for _, dist in ipairs(distances) do
