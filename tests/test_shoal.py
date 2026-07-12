@@ -829,8 +829,8 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
 
     fx, fy = call(session, "compute_shark_forces", s, st, None)
     assert fy < 0
-    # With force_depth_arrive: desired_vd = -150, weight 1.0 => fy = -150
-    assert math.isclose(fy, -150.0, abs_tol=0.1)
+    # With force_depth_arrive: desired_vd = -150, weight 4.0 => fy = -600
+    assert math.isclose(fy, -600.0, abs_tol=0.1)
 
 
 def test_shark_home_bias_off_during_active_hunt() -> None:

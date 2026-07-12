@@ -210,7 +210,7 @@ function compute_fish_forces(f, st, hash)
     fx, fy = fx + cohere_x, fy + cohere_y
 
     -- depth arrival: return to and settle at the fish's home depth
-    local home_bias = force_depth_arrive(f.depth, f.vd, cfg.home_depth, weights.depth_bias, f.max_speed, f.max_force, 150)
+    local home_bias = force_depth_arrive(f.depth, f.vd, cfg.home_depth, weights.depth_bias, f.max_speed, f.max_force, 300)
     fy = fy + home_bias
 
     -- wander
@@ -284,7 +284,7 @@ function compute_shark_forces(s, st, hash)
         local wx, wy = force_wander(s.id, s.x, s.depth, s.vx, s.vd, weights.wander, s.max_force, data.wander)
         fx, fy = fx + wx, fy + wy
 
-        local home_bias = force_depth_arrive(s.depth, s.vd, cfg.home_depth, cfg.home_bias_weight, s.max_speed, s.max_force, 150)
+        local home_bias = force_depth_arrive(s.depth, s.vd, cfg.home_depth, cfg.home_bias_weight, s.max_speed, s.max_force, 300)
         fy = fy + home_bias
     end
 
