@@ -61,7 +61,7 @@ creatures:
       flesh: 220
     breed_age: 18
     breed_fed_threshold: 3
-    starve_limit: 12
+    starve_limit: 20
     max_turn_rate: 3.0
     exposure:
       threshold: 100
