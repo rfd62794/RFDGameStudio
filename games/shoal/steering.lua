@@ -20,8 +20,10 @@ function force_seek(x, y, tx, ty, weight, max_force)
     return (dx / dist) * weight * max_force, (dy / dist) * weight * max_force
 end
 
-local function stopping_radius(max_speed, max_force, margin)
-    return (max_speed * max_speed) / (2 * max_force) * margin
+local function stopping_radius(max_speed, max_force, weight, margin)
+    local base = (max_speed * max_speed) / (2 * max_force)
+    local weight_factor = 1 + max_force / (max_speed * weight)
+    return base * weight_factor * margin
 end
 
 function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowing_radius)
@@ -39,12 +41,6 @@ function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowin
 
     local steer_x = desired_vx - vx
     local steer_y = desired_vy - vy
-
-    local steer_len = math.sqrt(steer_x * steer_x + steer_y * steer_y)
-    if steer_len > max_force then
-        steer_x = (steer_x / steer_len) * max_force
-        steer_y = (steer_y / steer_len) * max_force
-    end
 
     return steer_x * weight, steer_y * weight
 end
@@ -153,7 +149,8 @@ function compute_fish_forces(f, st, hash)
         end
     end
     if nearest_nodule then
-        local sr = stopping_radius(f.max_speed, f.max_force, 2.0)
+        local sr = stopping_radius(f.max_speed, f.max_force, weights.seek_algae, 1.3)
+        sr = math.min(sr, cfg.perception.algae)
         local sx, sy = force_arrive(f.x, f.depth, f.vx, f.vd, nearest_nodule.x, nearest_nodule.depth, weights.seek_algae, f.max_speed, f.max_force, sr)
         fx, fy = fx + sx, fy + sy
     end
@@ -227,11 +224,13 @@ function compute_shark_forces(s, st, hash)
     end
 
     if nearest_fish and (not nearest_chunk or fish_dist2 < chunk_dist2) then
-        local sr = stopping_radius(s.max_speed, s.max_force, 2.0)
+        local sr = stopping_radius(s.max_speed, s.max_force, weights.seek_fish, 1.3)
+        sr = math.min(sr, cfg.perception.fish)
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_speed, s.max_force, sr)
         fx, fy = fx + sx, fy + sy
     elseif nearest_chunk then
-        local sr = stopping_radius(s.max_speed, s.max_force, 2.0)
+        local sr = stopping_radius(s.max_speed, s.max_force, weights.seek_flesh, 1.3)
+        sr = math.min(sr, cfg.perception.flesh)
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_speed, s.max_force, sr)
         fx, fy = fx + sx, fy + sy
     else
