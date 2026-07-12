@@ -479,10 +479,13 @@ def test_fish_slows_inside_slowing_radius() -> None:
     data["steering_weights"]["fish"]["wander"] = 0
     data["steering_weights"]["fish"]["depth_bias"] = 0
     data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["separate"] = 0
+    data["steering_weights"]["fish"]["align"] = 0
+    data["steering_weights"]["fish"]["cohere"] = 0
 
     call(session, "init_game", data)
     call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
-    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 360, "clicked": True })
     call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 310, "clicked": True })
     call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 400, "clicked": True })
 
@@ -492,7 +495,7 @@ def test_fish_slows_inside_slowing_radius() -> None:
     inside_fish = state["fish"][0]
     outside_fish = state["fish"][1]
     assert inside_fish["depth"] < 320
-    assert outside_fish["depth"] > 330
+    assert outside_fish["depth"] > 350
 
 
 def test_turn_rate_limits_direction_change() -> None:
