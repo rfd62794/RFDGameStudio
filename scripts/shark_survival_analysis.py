@@ -48,6 +48,8 @@ def run_one(seed: int) -> dict:
         "summary": summary,
         "fish_refund": data["creatures"]["shark"]["fish_hunger_refund"],
         "chunk_refund": data["flesh_chunk"]["hunger_refund"],
+        "exposure_threshold": data["creatures"]["shark"]["exposure"]["threshold"],
+        "exposure_damage_rate": data["creatures"]["shark"]["exposure"]["damage_rate"],
     }
 
 
