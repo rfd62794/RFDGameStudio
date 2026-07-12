@@ -244,6 +244,83 @@ def test_breed_thresholds_read_from_data() -> None:
     assert state["stats"]["shark_count"] > 1
 
 
+def test_fish_breeds_reliably_below_carrying_capacity() -> None:
+    """A fish well below carrying capacity breeds almost certainly on the first graze."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["breed_age"] = 0
+    data["creatures"]["fish"]["breed_fed_threshold"] = 1
+    data["creatures"]["fish"]["carrying_capacity"] = 1000
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 324, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+
+    assert state["stats"]["fish_count"] > 1
+
+
+def test_fish_does_not_breed_at_or_above_carrying_capacity() -> None:
+    """A fish at carrying capacity has a zero breed probability and cannot spawn."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["breed_age"] = 0
+    data["creatures"]["fish"]["breed_fed_threshold"] = 1
+    data["creatures"]["fish"]["carrying_capacity"] = 1
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 324, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+
+    assert state["stats"]["fish_count"] == 1
+
+
+def test_failed_breed_roll_does_not_reset_fed_or_age() -> None:
+    """A failed logistic breed roll leaves fed and age unchanged; the fish stays ready."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["breed_age"] = 0
+    data["creatures"]["fish"]["breed_fed_threshold"] = 1
+    data["creatures"]["fish"]["carrying_capacity"] = 1
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 324, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["fish_count"] == 1
+
+    game_state = session.executor.get_global("GAME_STATE")
+    fish = game_state["fish"]
+    assert len(fish) == 1
+    assert fish[0]["fed"] >= 1
+    assert fish[0]["age"] > 0
+
+
 def test_shark_sunlit_surface_hits_exposure_threshold() -> None:
     """A shark parked at the true surface reaches exposure threshold in ~2.5s."""
     session = load_game("shoal", seed=42)
