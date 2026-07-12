@@ -166,6 +166,7 @@ def main() -> None:
     ratios = []
     meal_intervals = []
     hunger_trends = []
+    exposures = []
     for r in all_results:
         ratio = r["target_ratio"]
         ratios.append(ratio)
@@ -175,6 +176,7 @@ def main() -> None:
         trend = r["hunger_trend"]
         if trend is not None:
             hunger_trends.append(trend)
+        exposures.append(r["exposure"])
         fish_frac = r["fish_fraction"]
         print(
             f"{r['seed']:>6} {r['shark_id']:>9} {r['tick']:>6} {r['lifespan_ticks']:>6} "
