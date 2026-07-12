@@ -304,3 +304,60 @@ def test_flesh_chunk_sinks_after_burst_decay() -> None:
     depth_after = state["chunks"][0]["depth"]
 
     assert depth_after - depth_before > 4
+
+
+def test_fish_cold_accumulates_and_dies_in_deep_water() -> None:
+    """A fish held in the hadopelagic reaches cold threshold, then dies from cold damage."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 800, "clicked": True })
+    fish = state["fish"][0]
+    assert fish["cold_exposure"] == 0
+    assert fish["cold_damage"] == 0
+
+    for _ in range(25):
+        state = call(session, "tick_game", 0.1, {})
+    fish = state["fish"][0]
+    assert fish["cold_exposure"] < 100
+    assert state["stats"]["fish_count"] == 1
+
+    for _ in range(35):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["stats"]["fish_count"] == 0
+
+
+def test_depth_bias_scales_with_cold_danger() -> None:
+    """Deep fish feel a stronger upward pull than shallow fish."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 50, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 740, "clicked": True })
+
+    state = call(session, "tick_game", 0, {})
+    shallow_before = state["fish"][0]["depth"]
+    deep_before = state["fish"][1]["depth"]
+
+    for _ in range(20):
+        state = call(session, "tick_game", 0.1, {})
+
+    shallow_after = state["fish"][0]["depth"]
+    deep_after = state["fish"][1]["depth"]
+
+    shallow_change = shallow_before - shallow_after
+    deep_change = deep_before - deep_after
+    assert deep_change > shallow_change

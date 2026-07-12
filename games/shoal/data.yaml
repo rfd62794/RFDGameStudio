@@ -46,6 +46,10 @@ creatures:
     breed_fed_threshold: 2
     hunger_rate: 0.05
     graze_radius: 8
+    cold:
+      threshold: 100
+      damage_rate: 15
+      damage_limit: 30
   shark:
     max_speed: 150
     max_force: 90
@@ -53,9 +57,9 @@ creatures:
     perception:
       fish: 220
       flesh: 200
-    breed_age: 20
+    breed_age: 18
     breed_fed_threshold: 3
-    starve_limit: 10
+    starve_limit: 12
     exposure:
       threshold: 100
       damage_rate: 20
@@ -99,31 +103,37 @@ depth_bands:
     top: 0
     bottom: 40
     exposure_rate: 40
+    fish_cold_rate: 0
     color: "#e0f7ff"
   - id: epipelagic
     top: 40
     bottom: 120
     exposure_rate: 8
+    fish_cold_rate: 0
     color: "#7dd3fc"
   - id: mesopelagic
     top: 120
     bottom: 280
     exposure_rate: 2
+    fish_cold_rate: 3
     color: "#38bdf8"
   - id: bathypelagic
     top: 280
     bottom: 480
     exposure_rate: 5
+    fish_cold_rate: 8
     color: "#0ea5e9"
   - id: abyssopelagic
     top: 480
     bottom: 680
     exposure_rate: 12
+    fish_cold_rate: 18
     color: "#0369a1"
   - id: hadopelagic
     top: 680
     bottom: 800
     exposure_rate: 25
+    fish_cold_rate: 35
     color: "#0c4a6e"
 
 spatial_hash:

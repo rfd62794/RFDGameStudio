@@ -152,8 +152,11 @@ function compute_fish_forces(f, st, hash)
     local cohere_x, cohere_y = force_cohere(f.x, f.depth, others, school_radius_sq, weights.cohere, f.max_force)
     fx, fy = fx + cohere_x, fy + cohere_y
 
-    -- depth bias (mild upward pull)
-    local bias = -weights.depth_bias * f.max_force
+    -- depth bias (mild upward pull, stronger when cold danger is higher)
+    local cold_rate = compute_fish_cold_rate(f.depth, data)
+    local max_cold_rate = 35
+    local danger_ratio = cold_rate / max_cold_rate
+    local bias = -weights.depth_bias * f.max_force * (0.3 + 0.7 * danger_ratio)
     fy = fy + bias
 
     -- wander

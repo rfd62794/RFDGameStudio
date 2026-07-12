@@ -12,6 +12,8 @@ function new_fish(x, depth, lineage_id, lineage_color)
         vd = random_float(-0.5, 0.5),
         age = 0,
         fed = 0,
+        cold_exposure = 0,
+        cold_damage = 0,
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,

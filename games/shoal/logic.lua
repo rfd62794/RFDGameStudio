@@ -136,7 +136,33 @@ function move_creature(c, dt)
             c.exposure = data.creatures.shark.exposure.threshold
             c.hunger = c.hunger + data.creatures.shark.exposure.damage_rate * dt
         end
+    elseif c.type == "fish" then
+        local rate = compute_fish_cold_rate(c.depth, data)
+        c.cold_exposure = c.cold_exposure + rate * dt
+        if c.cold_exposure >= data.creatures.fish.cold.threshold then
+            c.cold_exposure = data.creatures.fish.cold.threshold
+            c.cold_damage = c.cold_damage + data.creatures.fish.cold.damage_rate * dt
+            if c.cold_damage >= data.creatures.fish.cold.damage_limit then
+                kill_creature(st, c)
+            end
+        end
     end
+end
+
+function compute_fish_cold_rate(depth, data)
+    local bands = data.depth_bands
+    for i = 1, #bands do
+        if depth <= bands[i].bottom then
+            if i == 1 then
+                return bands[i].fish_cold_rate
+            else
+                local prev = bands[i - 1]
+                local t = (depth - prev.bottom) / (bands[i].bottom - prev.bottom)
+                return lerp(prev.fish_cold_rate, bands[i].fish_cold_rate, t)
+            end
+        end
+    end
+    return bands[#bands].fish_cold_rate
 end
 
 function update_algae(st, dt)
@@ -301,6 +327,8 @@ function build_render_state(st)
                 color = f.lineage_color,
                 angle = math.atan(f.vd, f.vx),
                 mature = f.mature,
+                cold_exposure = f.cold_exposure,
+                cold_damage = f.cold_damage,
             })
         end
     end
