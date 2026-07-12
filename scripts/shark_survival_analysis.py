@@ -153,71 +153,111 @@ def main() -> None:
     # Header
     print(
         f"{'seed':>6} {'shark_id':>9} {'tick':>6} {'life':>6} {'target_ratio':>13} "
-        f"{'meals':>6} {'avg_ticks_meal':>15} {'cause':>11} {'hunger':>8} {'exposure':>10}"
+        f"{'meals':>6} {'fish%':>7} {'fish_int_s':>11} {'chunk_int_s':>12} "
+        f"{'trend':>7} {'cause':>11} {'hunger':>8} {'exposure':>10}"
     )
-    print("-" * 100)
+    print("-" * 120)
 
     ratios = []
     meal_intervals = []
+    hunger_trends = []
     for r in all_results:
         ratio = r["target_ratio"]
         ratios.append(ratio)
         avg = r["avg_ticks_since_last_meal"]
         if avg is not None:
             meal_intervals.append(avg)
+        trend = r["hunger_trend"]
+        if trend is not None:
+            hunger_trends.append(trend)
+        fish_frac = r["fish_fraction"]
         print(
             f"{r['seed']:>6} {r['shark_id']:>9} {r['tick']:>6} {r['lifespan_ticks']:>6} "
             f"{ratio:>13.3f} {r['meal_count']:>6} "
-            f"{f'{avg:>15.1f}' if avg is not None else f'{"N/A":>15}'} "
+            f"{f'{fish_frac * 100:>6.0f}' if fish_frac is not None else f'{'N/A':>7}'} "
+            f"{f'{r['avg_fish_interval_s']:>10.2f}' if r['avg_fish_interval_s'] is not None else f'{'N/A':>11}'} "
+            f"{f'{r['avg_chunk_interval_s']:>10.2f}' if r['avg_chunk_interval_s'] is not None else f'{'N/A':>12}'} "
+            f"{f'{trend:>6.2f}' if trend is not None else f'{'N/A':>7}'} "
             f"{r['cause']:>11} {r['hunger']:>8.2f} {r['exposure']:>10.2f}"
         )
 
-    print("-" * 100)
+    print("-" * 120)
+    total_meals = sum(type_counts.values())
     print(f"Total deaths analyzed: {len(all_results)}")
     print(f"Surviving sharks across all seeds: {surviving_sharks}")
     print(f"Mean target_ratio for dead sharks: {statistics.mean(ratios):.3f}")
     print(f"Median target_ratio for dead sharks: {statistics.median(ratios):.3f}")
+    if total_meals:
+        print(f"Meal mix: {type_counts['fish']} fish ({type_counts['fish'] / total_meals * 100:.1f}%), "
+              f"{type_counts['chunk']} chunk ({type_counts['chunk'] / total_meals * 100:.1f}%)")
     if meal_intervals:
-        print(f"Mean avg_ticks_since_last_meal: {statistics.mean(meal_intervals):.1f}")
-        print(f"Median avg_ticks_since_last_meal: {statistics.median(meal_intervals):.1f}")
-    else:
-        print("No recorded meals for dead sharks.")
+        print(f"Mean avg_ticks_since_last_meal: {statistics.mean(meal_intervals):.1f} "
+              f"({statistics.mean(meal_intervals) * DT:.2f}s)")
+        print(f"Median avg_ticks_since_last_meal: {statistics.median(meal_intervals):.1f} "
+              f"({statistics.median(meal_intervals) * DT:.2f}s)")
+    if hunger_trends:
+        print(f"Mean hunger trend (last - first hunger_at_meal): {statistics.mean(hunger_trends):.2f}")
+        print(f"Median hunger trend: {statistics.median(hunger_trends):.2f}")
 
     print("\n" + "=" * 80)
     print("VERDICT")
     print("=" * 80)
 
-    # Heuristic thresholds for the two hypotheses.
-    # A shark that has a target > 50% of the time and eats roughly every
-    # 50 ticks or less is well-fed, so dying means kill/eat throughput is
-    # insufficient.  A shark with target_ratio < 30% and large meal gaps
-    # is clearly not finding food.  Values in between are ambiguous.
     mean_ratio = statistics.mean(ratios)
-    median_interval = statistics.median(meal_intervals) if meal_intervals else float("inf")
+    median_interval_s = statistics.median(meal_intervals) * DT if meal_intervals else float("inf")
+    mean_hunger_trend = statistics.mean(hunger_trends) if hunger_trends else 0
 
-    if mean_ratio >= 0.5 and (meal_intervals and median_interval <= 50):
-        verdict = "throughput problem"
-        reason = (
-            "Dead sharks spent a majority of their lives with an active target and "
-            "ate at a relatively regular pace, yet still starved. This suggests the "
-            "kill/eat reward is not enough to offset the hunger clock, not that they "
-            "couldn't find food."
-        )
-    elif mean_ratio < 0.3 and (not meal_intervals or median_interval > 100):
+    # Net hunger per meal cycle, assuming the dominant meal type.
+    # Fish refund: -4 per ~median interval seconds; chunk refund: -2.
+    fish_net = median_interval_s - 4
+    chunk_net = median_interval_s - 2
+
+    if mean_ratio >= 0.5 and median_interval_s <= 5:
+        if total_meals and (type_counts["fish"] / total_meals) >= 0.5 and fish_net <= 0 and mean_hunger_trend > 0:
+            verdict = "throughput problem (exposure dominates reward)"
+            reason = (
+                "Dead sharks had active targets, ate mostly fish, and still saw hunger rise across meals. "
+                "That means the -4 fish reward is being eaten by exposure hunger accumulation, not by normal time. "
+                "This is a reward/throughput issue, not a density issue."
+            )
+        elif total_meals and (type_counts["chunk"] / total_meals) >= 0.5 and chunk_net > 0:
+            verdict = "throughput problem (chunk reward too small)"
+            reason = (
+                "Dead sharks had active targets and ate mostly chunks. With a median interval of "
+                f"{median_interval_s:.2f}s, each chunk refund (-2) leaves a net hunger gain of "
+                f"{chunk_net:.2f} per cycle. The chunk reward is structurally insufficient."
+            )
+        elif mean_hunger_trend > 0:
+            verdict = "throughput problem"
+            reason = (
+                "Dead sharks spent most of their lives with a target and hunger rose across their meal history. "
+                "They found food regularly, but the reward did not outpace their hunger accumulation."
+            )
+        else:
+            verdict = "genuinely ambiguous"
+            reason = (
+                "Dead sharks had active targets and ate at a high rate, but their hunger trend is flat or falling. "
+                "The final death may have been a single unlucky long gap; the data does not clearly support a "
+                "systemic throughput failure."
+            )
+    elif mean_ratio < 0.3 and (not meal_intervals or median_interval_s > 10):
         verdict = "density/perception problem"
         reason = (
             "Dead sharks rarely had a target and went long stretches without a meal. "
-            "This suggests there simply aren't enough reachable fish/chunks, or the "
-            "sharks cannot perceive them, rather than a reward/throughput math issue."
+            "This suggests there simply aren't enough reachable fish/chunks, or the sharks cannot perceive them, "
+            "rather than a reward/throughput math issue."
         )
     else:
         verdict = "genuinely ambiguous"
         reason = (
-            "The data does not cleanly favor either hypothesis. Some dead sharks had "
-            "targets and ate, others did not; a mixed or middle pattern. The next step "
-            "should be more targeted runs or a finer breakdown (e.g., by death tick)."
+            "The data does not cleanly favor either hypothesis. Some dead sharks had targets and ate, "
+            "others did not; a mixed or middle pattern. A more targeted run (e.g., fixed fish/chunk ratio) "
+            "would be needed for a clear verdict."
         )
 
+    print(f"Median meal interval: {median_interval_s:.2f}s")
+    print(f"Net hunger per fish cycle: {fish_net:.2f} (negative = healthy)")
+    print(f"Net hunger per chunk cycle: {chunk_net:.2f} (negative = healthy)")
     print(f"Verdict: {verdict}")
     print(f"Reasoning: {reason}")
 
