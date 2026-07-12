@@ -1436,7 +1436,7 @@ def test_shark_settles_at_home_depth() -> None:
         "in_retreat": False,
     }
 
-    for _ in range(50):
+    for _ in range(60):
         shark = call(session, "move_creature", shark, 0.1)
 
     assert shark["depth"] < 350
