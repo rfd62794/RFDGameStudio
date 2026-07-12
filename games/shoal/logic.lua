@@ -150,7 +150,7 @@ function move_creature(c, dt)
     local vx, vd = limit_vector(c.vx, c.vd, c.max_speed)
     c.vx, c.vd = limit_turn(old_vx, old_vd, vx, vd, data.creatures[c.type].max_turn_rate, c.max_speed, dt)
 
-    local drag = 0.995
+    local drag = 0.99 ^ (dt / 0.1)
     c.vx = c.vx * drag
     c.vd = c.vd * drag
 

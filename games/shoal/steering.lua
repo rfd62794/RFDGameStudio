@@ -153,7 +153,7 @@ function compute_fish_forces(f, st, hash)
         end
     end
     if nearest_nodule then
-        local sr = stopping_radius(f.max_speed, f.max_force, 1.3)
+        local sr = stopping_radius(f.max_speed, f.max_force, 2.0)
         local sx, sy = force_arrive(f.x, f.depth, f.vx, f.vd, nearest_nodule.x, nearest_nodule.depth, weights.seek_algae, f.max_speed, f.max_force, sr)
         fx, fy = fx + sx, fy + sy
     end
@@ -227,11 +227,11 @@ function compute_shark_forces(s, st, hash)
     end
 
     if nearest_fish and (not nearest_chunk or fish_dist2 < chunk_dist2) then
-        local sr = stopping_radius(s.max_speed, s.max_force, 1.3)
+        local sr = stopping_radius(s.max_speed, s.max_force, 2.0)
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_speed, s.max_force, sr)
         fx, fy = fx + sx, fy + sy
     elseif nearest_chunk then
-        local sr = stopping_radius(s.max_speed, s.max_force, 1.3)
+        local sr = stopping_radius(s.max_speed, s.max_force, 2.0)
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_speed, s.max_force, sr)
         fx, fy = fx + sx, fy + sy
     else
