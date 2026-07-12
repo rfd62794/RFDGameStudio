@@ -264,7 +264,7 @@ def test_shark_sunlit_surface_hits_exposure_threshold() -> None:
     for _ in range(10):
         state = call(session, "tick_game", 0.05, {})
     assert state["sharks"][0]["exposure"] >= 100
-    assert state["sharks"][0]["depth"] < 40
+    assert state["sharks"][0]["depth"] > 0
 
 
 def test_flesh_chunk_sinks_after_burst_decay() -> None:
@@ -1037,16 +1037,16 @@ def test_exposure_retreat_is_graded() -> None:
 
     s["exposure"] = 85
     _, fy_85 = call(session, "compute_shark_forces", s, st, None)
-    # ratio = (85 - 70) / (100 - 70) = 0.5; force = -3.0 * 90 * 0.5 = -135
-    assert math.isclose(fy_85, -135.0, abs_tol=0.01)
+    # ratio = (85 - 70) / (100 - 70) = 0.5; force = 3.0 * 90 * 0.5 = 135
+    assert math.isclose(fy_85, 135.0, abs_tol=0.01)
 
     s["exposure"] = 100
     _, fy_100 = call(session, "compute_shark_forces", s, st, None)
-    assert math.isclose(fy_100, -270.0, abs_tol=0.01)
+    assert math.isclose(fy_100, 270.0, abs_tol=0.01)
 
 
 def test_exposure_retreat_interrupts_active_hunt() -> None:
-    """A high-exposure shark chasing prey still gets an upward retreat force."""
+    """A high-exposure shark chasing prey gets a retreat force toward deeper water."""
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["steering_weights"]["shark"]["wander"] = 0
@@ -1063,12 +1063,13 @@ def test_exposure_retreat_interrupts_active_hunt() -> None:
         "max_speed": 150,
         "max_force": 90,
     }
+    # Prey is above the shark; retreat should still push downward and dominate.
     prey = {
         "id": "fish_prey",
         "type": "fish",
         "alive": True,
         "x": 300,
-        "depth": 400,
+        "depth": 100,
         "vx": 0,
         "vd": 0,
         "max_speed": 100,
@@ -1082,20 +1083,20 @@ def test_exposure_retreat_interrupts_active_hunt() -> None:
         "chunks": [],
     }
 
-    # Healthy shark: active pursuit pulls downward (positive fy).
+    # Healthy shark: active pursuit pulls upward toward the prey.
     s["exposure"] = 0
     _, fy_healthy = call(session, "compute_shark_forces", s, st, None)
-    assert fy_healthy > 0
+    assert fy_healthy < 0
 
-    # Critical exposure: retreat override pulls upward against the hunt.
+    # Critical exposure: retreat override pulls downward, away from the surface.
     s["exposure"] = 90
     _, fy_critical = call(session, "compute_shark_forces", s, st, None)
-    assert fy_critical < 0
-    assert fy_critical < fy_healthy
+    assert fy_critical > 0
+    assert fy_critical > fy_healthy
 
 
 def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
-    """A high-exposure shark chasing a chunk also gets an upward retreat force."""
+    """A high-exposure shark chasing a chunk still gets a retreat force toward deep water."""
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["steering_weights"]["shark"]["wander"] = 0
@@ -1112,9 +1113,10 @@ def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
         "max_speed": 150,
         "max_force": 90,
     }
+    # Chunk is above the shark; retreat should push downward and dominate.
     chunk = {
         "x": 300,
-        "depth": 400,
+        "depth": 100,
         "vx": 0,
         "vd": 0,
     }
@@ -1127,12 +1129,12 @@ def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
 
     s["exposure"] = 0
     _, fy_healthy = call(session, "compute_shark_forces", s, st, None)
-    assert fy_healthy > 0
+    assert fy_healthy < 0
 
     s["exposure"] = 90
     _, fy_critical = call(session, "compute_shark_forces", s, st, None)
-    assert fy_critical < 0
-    assert fy_critical < fy_healthy
+    assert fy_critical > 0
+    assert fy_critical > fy_healthy
 
 
 def test_shark_exposure_decays_in_safe_water() -> None:
@@ -1240,3 +1242,38 @@ def test_exposure_decay_invisible_to_healthy_creature() -> None:
     moved = call(session, "move_creature", shark, 1.0)
     assert math.isclose(moved["exposure"], 0.0, abs_tol=0.01)
     assert math.isclose(moved["hunger"], 0.0, abs_tol=0.001)
+
+
+def test_exposure_retreat_moves_shark_deeper() -> None:
+    """A critical shark's depth genuinely increases over subsequent ticks."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    shark = {
+        "id": "shark_retreat_depth",
+        "type": "shark",
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 90,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+    }
+
+    for _ in range(20):
+        shark = call(session, "move_creature", shark, 0.1)
+
+    assert shark["depth"] > 300
+    assert shark["depth"] > 330
+    assert shark["exposure"] < 90
+    assert shark["exposure"] >= 0

@@ -267,7 +267,7 @@ function compute_shark_forces(s, st, hash)
         local retreat_ratio = (exposure - cfg.exposure_retreat_threshold)
             / (cfg.exposure.threshold - cfg.exposure_retreat_threshold)
         retreat_ratio = math.min(retreat_ratio, 1.0)
-        local retreat_force = -cfg.exposure_retreat_weight * s.max_force * retreat_ratio
+        local retreat_force = cfg.exposure_retreat_weight * s.max_force * retreat_ratio
         fy = fy + retreat_force
     end
 
