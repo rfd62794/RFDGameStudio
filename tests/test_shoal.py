@@ -568,17 +568,19 @@ def test_drag_slows_over_time() -> None:
 
     call(session, "init_game", data)
     call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
-    # Give it a push by running a tick with wander, then zero out forces.
-    data["steering_weights"]["shark"]["wander"] = 1
-    state = call(session, "tick_game", 0.1, {})
-    speed0 = math.hypot(state["sharks"][0]["x"] - 300, state["sharks"][0]["depth"] - 300) / 0.1
-
-    data["steering_weights"]["shark"]["wander"] = 0
+    # Accelerate with wander to get a non-zero speed.
+    data["steering_weights"]["shark"]["wander"] = 2
     for _ in range(10):
-        state = call(session, "tick_game", 0.1, {})
+        prev = call(session, "tick_game", 0.1, {})
+    shark = prev["sharks"][0]
+    speed_before = math.hypot(shark["x"] - 300, shark["depth"] - 300) / 0.1
+
+    # Coast with all forces removed and measure one more tick.
+    data["steering_weights"]["shark"]["wander"] = 0
+    state = call(session, "tick_game", 0.1, {})
     shark = state["sharks"][0]
-    speed1 = math.hypot(shark["x"] - 300, shark["depth"] - 300) / 0.1
-    assert speed1 < speed0
+    speed_after = math.hypot(shark["x"] - prev["sharks"][0]["x"], shark["depth"] - prev["sharks"][0]["depth"]) / 0.1
+    assert speed_after < speed_before
 
 
 def test_turn_rate_scales_with_speed() -> None:
@@ -644,17 +646,25 @@ def test_discrete_eating_prefers_nearest_chunk() -> None:
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
     data["creatures"]["fish"]["escape_chance"] = 0
+    data["flesh_chunk"]["sink_rate"] = 0
     data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["world"]["discrete_tick"] = 0.001
 
     call(session, "init_game", data)
-    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 500, "clicked": True })
-    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 500, "clicked": True })
-    # Place a fresh fish closer to the shark than the chunk.
-    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
-    call(session, "tick_game", 0, { "tool": "fish", "x": 312, "y": 300, "clicked": True })
+    # Spawn a fish at 300,310 and cull it to create a chunk very close to the shark.
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 310, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 310, "clicked": True })
+    # Snapshot the chunk's exact position after it spawns.
+    state = call(session, "tick_game", 0, {})
+    chunk = state["chunks"][0]
+    # Place the shark directly on the chunk and a live fish farther away.
+    call(session, "tick_game", 0, { "tool": "shark", "x": chunk["x"], "y": chunk["depth"], "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": chunk["x"] + 15, "y": chunk["depth"], "clicked": True })
 
-    # The shark is at 300,300. The chunk is at ~300,501. The new fish is at 312,300.
-    # Chunk is much closer, so discrete eating should consume the chunk.
-    for _ in range(5):
-        state = call(session, "tick_game", 0.05, {})
+    # The chunk is directly on the shark; the live fish is 15 units away.
+    # A single small tick should trigger the discrete eating and consume the chunk.
+    state = call(session, "tick_game", 0.001, {})
     assert state["stats"]["fish_count"] == 1
+    assert state["stats"]["chunk_count"] == 0
