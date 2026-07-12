@@ -630,6 +630,8 @@ def test_shark_catches_sinking_chunk() -> None:
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
     data["steering_weights"]["shark"]["wander"] = 0
 
     call(session, "init_game", data)
