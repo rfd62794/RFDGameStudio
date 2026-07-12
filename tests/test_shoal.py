@@ -306,6 +306,72 @@ def test_flesh_chunk_sinks_after_burst_decay() -> None:
     assert depth_after - depth_before > 4
 
 
+def test_chunk_despawns_when_it_reaches_floor() -> None:
+    """A chunk sinks to the floor and is removed."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["flesh_chunk"]["sink_rate"] = 500
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["chunk_count"] == 1
+
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(20):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["stats"]["chunk_count"] == 0
+
+
+def test_chunk_does_not_despawn_before_reaching_floor() -> None:
+    """A shallow chunk does not despawn within the old decay window."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["chunk_count"] == 1
+
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(100):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["stats"]["chunk_count"] == 1
+
+
 def test_fish_cold_accumulates_and_dies_in_deep_water() -> None:
     """A fish held in the hadopelagic reaches cold threshold, then dies from cold damage."""
     session = load_game("shoal", seed=42)

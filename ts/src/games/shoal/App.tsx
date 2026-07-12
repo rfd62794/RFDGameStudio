@@ -93,7 +93,7 @@ function ShoalCanvas({
       if (ctx) ctx.scale(dpr, dpr);
       stateRef.current.dims = { w: rect.width, h: rect.height };
       const rs = renderStateRef.current;
-      if (rs) drawGame(canvasRef.current, rs, stateRef.current.dims);
+      if (rs) drawGame(canvasRef.current, rs, stateRef.current.dims, session.files.data);
     };
 
     window.addEventListener('resize', handleResize);
@@ -104,7 +104,7 @@ function ShoalCanvas({
     stateRef.current.initialized = true;
     onStats(renderStateRef.current.stats);
     if (canvasRef.current) {
-      drawGame(canvasRef.current, renderStateRef.current, stateRef.current.dims);
+      drawGame(canvasRef.current, renderStateRef.current, stateRef.current.dims, session.files.data);
     }
 
     return () => {
@@ -153,7 +153,7 @@ function ShoalCanvas({
     const rs = call(session, 'tick_game', dt, input) as RenderState;
     renderStateRef.current = rs;
     onStats(rs.stats);
-    drawGame(canvasRef.current, rs, s.dims);
+    drawGame(canvasRef.current, rs, s.dims, session.files.data);
   }, {});
 
   return (
@@ -163,11 +163,46 @@ function ShoalCanvas({
   );
 }
 
+function drawFish(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  angle: number,
+  color: string
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.fillStyle = color;
+
+  // Diamond body
+  ctx.beginPath();
+  ctx.moveTo(radius * 1.2, 0);
+  ctx.lineTo(0, radius * 0.7);
+  ctx.lineTo(-radius * 0.5, 0);
+  ctx.lineTo(0, -radius * 0.7);
+  ctx.closePath();
+  ctx.fill();
+
+  // Tail triangle, attached at the diamond's back point
+  ctx.beginPath();
+  ctx.moveTo(-radius * 0.5, 0);
+  ctx.lineTo(-radius * 1.6, radius * 0.6);
+  ctx.lineTo(-radius * 1.6, -radius * 0.6);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
 function drawGame(
   canvas: HTMLCanvasElement,
   rs: RenderState,
-  dims: { w: number; h: number }
+  dims: { w: number; h: number },
+  data: Record<string, unknown>
 ) {
+  const renderCfg = (data as { render?: Record<string, string> }).render;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -196,8 +231,16 @@ function drawGame(
   ctx.lineTo(world.width, 0);
   ctx.stroke();
 
+  // Draw algae cores
+  ctx.fillStyle = renderCfg?.algae_core_color ?? '#eab308';
+  for (const core of rs.algae) {
+    ctx.beginPath();
+    ctx.arc(core.x, core.depth, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   // Draw algae nodules
-  ctx.fillStyle = '#10b981';
+  ctx.fillStyle = renderCfg?.algae_color ?? '#10b981';
   for (const core of rs.algae) {
     for (const n of core.nodules) {
       ctx.beginPath();
@@ -207,7 +250,7 @@ function drawGame(
   }
 
   // Draw flesh chunks
-  ctx.fillStyle = '#f43f5e';
+  ctx.fillStyle = renderCfg?.chunk_color ?? '#f43f5e';
   for (const c of rs.chunks) {
     ctx.beginPath();
     ctx.arc(c.x, c.depth, c.radius, 0, Math.PI * 2);
@@ -216,19 +259,7 @@ function drawGame(
 
   // Draw fish
   for (const f of rs.fish) {
-    ctx.fillStyle = f.color;
-    ctx.beginPath();
-    ctx.arc(f.x, f.depth, f.radius, 0, Math.PI * 2);
-    ctx.fill();
-    // tiny direction tail
-    const tx = f.x - Math.cos(f.angle) * f.radius * 2;
-    const ty = f.depth - Math.sin(f.angle) * f.radius * 2;
-    ctx.beginPath();
-    ctx.moveTo(f.x, f.depth);
-    ctx.lineTo(tx, ty);
-    ctx.strokeStyle = f.color;
-    ctx.lineWidth = f.radius;
-    ctx.stroke();
+    drawFish(ctx, f.x, f.depth, f.radius, f.angle, f.color);
   }
 
   // Draw sharks

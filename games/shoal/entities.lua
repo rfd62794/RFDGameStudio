@@ -125,7 +125,6 @@ function spawn_flesh_chunks(st, x, depth, count)
             vx = math.cos(angle) * speed,
             vd = math.sin(angle) * speed,
             radius = data.flesh_chunk.radius,
-            life = data.flesh_chunk.decay_time,
         }
     end
     st.stats.chunk_count = #st.chunks

@@ -93,7 +93,6 @@ algae:
 
 flesh_chunk:
   radius: 5
-  decay_time: 8
   min_spawn: 1
   max_spawn: 3
   sink_rate: 10
@@ -147,4 +146,5 @@ render:
   chunk_radius: 5
   algae_color: "#10b981"
   algae_dim_color: "#064e3b"
+  algae_core_color: "#eab308"
   chunk_color: "#f43f5e"
