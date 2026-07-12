@@ -63,6 +63,8 @@ creatures:
     breed_fed_threshold: 3
     starve_limit: 20
     max_turn_rate: 6.0
+    home_depth: 300
+    home_bias_weight: 0.4
     exposure:
       threshold: 100
       damage_rate: 20

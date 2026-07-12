@@ -197,13 +197,11 @@ function drawFish(
   x: number,
   y: number,
   radius: number,
-  angle: number,
-  color: string
+  angle: number
 ) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
-  ctx.fillStyle = color;
 
   // Diamond body
   ctx.beginPath();
@@ -223,6 +221,52 @@ function drawFish(
   ctx.fill();
 
   ctx.restore();
+}
+
+function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish']) {
+  const byColor = new Map<string, typeof fish>();
+  for (const f of fish) {
+    const group = byColor.get(f.color);
+    if (group) {
+      group.push(f);
+    } else {
+      byColor.set(f.color, [f]);
+    }
+  }
+  for (const [color, group] of byColor) {
+    ctx.fillStyle = color;
+    for (const f of group) {
+      drawFish(ctx, f.x, f.depth, f.radius, f.angle);
+    }
+  }
+}
+
+function drawSharksBatched(ctx: CanvasRenderingContext2D, sharks: RenderState['sharks']) {
+  const byColor = new Map<string, typeof sharks>();
+  for (const s of sharks) {
+    const group = byColor.get(s.color);
+    if (group) {
+      group.push(s);
+    } else {
+      byColor.set(s.color, [s]);
+    }
+  }
+  for (const [color, group] of byColor) {
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    for (const s of group) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.depth, s.radius, 0, Math.PI * 2);
+      ctx.fill();
+      const tx = s.x - Math.cos(s.angle) * s.radius * 2.5;
+      const ty = s.depth - Math.sin(s.angle) * s.radius * 2.5;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.depth);
+      ctx.lineTo(tx, ty);
+      ctx.lineWidth = s.radius;
+      ctx.stroke();
+    }
+  }
 }
 
 function drawGame(
@@ -271,26 +315,11 @@ function drawGame(
     ctx.fill();
   }
 
-  // Draw fish
-  for (const f of rs.fish) {
-    drawFish(ctx, f.x, f.depth, f.radius, f.angle, f.color);
-  }
+  // Draw fish batched by color
+  drawFishBatched(ctx, rs.fish);
 
-  // Draw sharks
-  for (const s of rs.sharks) {
-    ctx.fillStyle = s.color;
-    ctx.beginPath();
-    ctx.arc(s.x, s.depth, s.radius, 0, Math.PI * 2);
-    ctx.fill();
-    const tx = s.x - Math.cos(s.angle) * s.radius * 2.5;
-    const ty = s.depth - Math.sin(s.angle) * s.radius * 2.5;
-    ctx.beginPath();
-    ctx.moveTo(s.x, s.depth);
-    ctx.lineTo(tx, ty);
-    ctx.strokeStyle = s.color;
-    ctx.lineWidth = s.radius;
-    ctx.stroke();
-  }
+  // Draw sharks batched by color
+  drawSharksBatched(ctx, rs.sharks);
 
   ctx.restore();
 }

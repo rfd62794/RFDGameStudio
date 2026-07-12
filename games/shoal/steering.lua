@@ -252,6 +252,12 @@ function compute_shark_forces(s, st, hash)
     else
         local wx, wy = force_wander(s.id, s.x, s.depth, s.vx, s.vd, weights.wander, s.max_force, data.wander)
         fx, fy = fx + wx, fy + wy
+
+        if s.depth > cfg.home_depth then
+            local depth_excess = (s.depth - cfg.home_depth) / (st.world.height - cfg.home_depth)
+            local bias = -cfg.home_bias_weight * s.max_force * math.min(depth_excess, 1.0)
+            fy = fy + bias
+        end
     end
 
     return fx, fy
