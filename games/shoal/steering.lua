@@ -48,13 +48,14 @@ function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowin
 end
 
 function force_depth_arrive(depth, vd, target_depth, weight, max_speed, max_force, slowing_radius)
+    local sr = stopping_radius(max_speed, max_force, 1.3)
     local dy = target_depth - depth
     local dist = math.abs(dy)
     if dist < 2 then return 0 end
 
     local desired_speed = max_speed
-    if dist < slowing_radius then
-        desired_speed = max_speed * (dist / slowing_radius)
+    if dist < sr then
+        desired_speed = max_speed * (dist / sr)
     end
 
     local desired_vd = (dy > 0 and 1 or -1) * desired_speed
