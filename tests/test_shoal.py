@@ -706,3 +706,87 @@ def test_chunk_eat_range_is_larger_than_body_collision() -> None:
 
     state = call(session, "tick_game", 0.001, {})
     assert state["stats"]["chunk_count"] == 0
+
+
+def test_get_nearby_checks_all_surrounding_buckets() -> None:
+    """get_nearby queries the 3x3 neighborhood around (bx, by), not one repeated key."""
+    session = load_game("shoal", seed=42)
+    hash = {
+        "fish": {
+            "1,2": [{ "id": "a" }],
+            "2,2": [{ "id": "b" }],
+            "3,2": [{ "id": "c" }],
+            "1,3": [{ "id": "d" }],
+            "2,3": [{ "id": "e" }],
+            "3,3": [{ "id": "f" }],
+            "1,4": [{ "id": "g" }],
+            "2,4": [{ "id": "h" }],
+            "3,4": [{ "id": "i" }],
+        },
+    }
+    neighbors = call(session, "get_nearby", hash, 2, 3, "fish")
+    assert len(neighbors) == 9
+    ids = [n["id"] for n in neighbors]
+    assert sorted(ids) == ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
+
+
+def test_get_nearby_uses_bucket_coordinates_not_passed_key() -> None:
+    """The old bug would read the same single bucket 9 times; fix uses real bx, by."""
+    session = load_game("shoal", seed=42)
+    hash = { "fish": { "2,3": [{ "id": "target" }] } }
+    neighbors = call(session, "get_nearby", hash, 2, 3, "fish")
+    assert len(neighbors) == 1
+    assert neighbors[0]["id"] == "target"
+
+
+def test_compute_fish_forces_hash_equals_full_fish_fallback() -> None:
+    """With all fish in one bucket, the spatial hash returns the same boids force as st.fish."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["steering_weights"]["fish"]["separate"] = 1.0
+    data["steering_weights"]["fish"]["align"] = 1.0
+    data["steering_weights"]["fish"]["cohere"] = 1.0
+    data["wander"]["change_interval"] = 0
+
+    f = {
+        "id": "fish_test",
+        "type": "fish",
+        "alive": True,
+        "x": 300,
+        "depth": 300,
+        "vx": 10,
+        "vd": 5,
+        "max_speed": 100,
+        "max_force": 50,
+        "lineage_id": "a",
+        "radius": 4,
+    }
+    n1 = { "id": "fish_a", "type": "fish", "alive": True, "x": 320, "depth": 300, "vx": 8, "vd": 4, "radius": 4 }
+    n2 = { "id": "fish_b", "type": "fish", "alive": True, "x": 300, "depth": 330, "vx": 12, "vd": 2, "radius": 4 }
+    all_fish = [f, n1, n2]
+
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": all_fish,
+        "sharks": [],
+        "algae": [],
+    }
+
+    # Build a spatial hash where all three fish land in the same bucket.
+    bw = data["spatial_hash"]["bucket_width"]
+    bd = data["spatial_hash"]["bucket_depth"]
+    bx = math.floor(f["x"] / bw)
+    by = math.floor(f["depth"] / bd)
+    key = f"{bx},{by}"
+    hash = { "fish": { key: all_fish }, "shark": {} }
+
+    fx_hash, fy_hash = call(session, "compute_fish_forces", f, st, hash)
+    fx_full, fy_full = call(session, "compute_fish_forces", f, st, None)
+
+    assert math.isclose(fx_hash, fx_full, abs_tol=0.0001)
+    assert math.isclose(fy_hash, fy_full, abs_tol=0.0001)
