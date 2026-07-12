@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""
+Shark survival diagnostic — ad hoc analysis script.
+
+Runs several long Shoal simulations and uses the persistent diagnostics
+log to distinguish two failure modes:
+
+1. Throughput problem: dead sharks had a target most of their lives and
+   ate regularly, but still starved (kill rate < hunger rate).
+2. Density/perception problem: dead sharks spent most of their lives
+   with no target and rarely found food.
+
+The script prints raw numbers per death and an overall verdict.
+"""
+
+from __future__ import annotations
+
+import statistics
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+# Make studio.runtime importable when running from repo root
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from studio.runtime import load_game, call  # type: ignore
+
+
+SEEDS = [42, 123, 999, 2026, 1]
+TICKS = 300
+DT = 0.1
+
+
+def run_one(seed: int) -> dict:
+    session = load_game("shoal", seed=seed)
+    data = session.files.data
+    call(session, "init_game", data)
+
+    for _ in range(TICKS):
+        call(session, "tick_game", DT, {})
+
+    diagnostics = call(session, "get_diagnostics")
+    summary = call(session, "get_state_summary")
+    return {
+        "seed": seed,
+        "diagnostics": diagnostics,
+        "summary": summary,
+    }
+
+
+def analyze_run(run: dict) -> list[dict]:
+    diagnostics = run["diagnostics"]
+    deaths = diagnostics.get("deaths", [])
+    meals = diagnostics.get("meals", [])
+    if not deaths:
+        return []
+
+    # Bucket meals by shark_id
+    meals_by_shark: dict[int, list[dict]] = defaultdict(list)
+    for m in meals:
+        meals_by_shark[m["shark_id"]].append(m)
+
+    results = []
+    for d in deaths:
+        shark_id = d["shark_id"]
+        shark_meals = meals_by_shark.get(shark_id, [])
+        if shark_meals:
+            avg_ticks = statistics.mean(m["ticks_since_last_meal"] for m in shark_meals)
+            meal_count = len(shark_meals)
+        else:
+            avg_ticks = None
+            meal_count = 0
+
+        results.append(
+            {
+                "seed": run["seed"],
+                "shark_id": shark_id,
+                "tick": d["tick"],
+                "lifespan_ticks": d["ticks_since_spawn"],
+                "target_ratio": d["target_ratio"],
+                "meal_count": meal_count,
+                "avg_ticks_since_last_meal": avg_ticks,
+                "cause": d["cause"],
+                "hunger": d["hunger"],
+                "exposure": d["exposure"],
+            }
+        )
+    return results
+
+
+def main() -> None:
+    all_results: list[dict] = []
+    surviving_sharks = 0
+    total_runs = len(SEEDS)
+
+    for seed in SEEDS:
+        run = run_one(seed)
+        summary = run["summary"]
+        print(f"\nseed {seed}: final fish={summary['fish_count']} sharks={summary['shark_count']} "
+              f"chunks={summary['chunk_count']} ticks={summary['tick_count']}")
+
+        deaths = run["diagnostics"].get("deaths", [])
+        meals = run["diagnostics"].get("meals", [])
+        print(f"  recorded deaths: {len(deaths)}, recorded meals: {len(meals)}")
+
+        all_results.extend(analyze_run(run))
+        surviving_sharks += summary["shark_count"]
+
+    print("\n" + "=" * 80)
+    print("SHARK SURVIVAL DIAGNOSTIC REPORT")
+    print("=" * 80)
+
+    if not all_results:
+        print("No shark deaths recorded across any seed — sharks survived in every run.")
+        return
+
+    # Header
+    print(
+        f"{'seed':>6} {'shark_id':>9} {'tick':>6} {'life':>6} {'target_ratio':>13} "
+        f"{'meals':>6} {'avg_ticks_meal':>15} {'cause':>11} {'hunger':>8} {'exposure':>10}"
+    )
+    print("-" * 100)
+
+    ratios = []
+    meal_intervals = []
+    for r in all_results:
+        ratio = r["target_ratio"]
+        ratios.append(ratio)
+        avg = r["avg_ticks_since_last_meal"]
+        if avg is not None:
+            meal_intervals.append(avg)
+        print(
+            f"{r['seed']:>6} {r['shark_id']:>9} {r['tick']:>6} {r['lifespan_ticks']:>6} "
+            f"{ratio:>13.3f} {r['meal_count']:>6} {avg if avg is not None else 'N/A':>15} "
+            f"{r['cause']:>11} {r['hunger']:>8.2f} {r['exposure']:>10.2f}"
+        )
+
+    print("-" * 100)
+    print(f"Total deaths analyzed: {len(all_results)}")
+    print(f"Surviving sharks across all seeds: {surviving_sharks}")
+    print(f"Mean target_ratio for dead sharks: {statistics.mean(ratios):.3f}")
+    print(f"Median target_ratio for dead sharks: {statistics.median(ratios):.3f}")
+    if meal_intervals:
+        print(f"Mean avg_ticks_since_last_meal: {statistics.mean(meal_intervals):.1f}")
+        print(f"Median avg_ticks_since_last_meal: {statistics.median(meal_intervals):.1f}")
+    else:
+        print("No recorded meals for dead sharks.")
+
+    print("\n" + "=" * 80)
+    print("VERDICT")
+    print("=" * 80)
+
+    # Heuristic thresholds for the two hypotheses.
+    # A shark that has a target > 50% of the time and eats roughly every
+    # 50 ticks or less is well-fed, so dying means kill/eat throughput is
+    # insufficient.  A shark with target_ratio < 30% and large meal gaps
+    # is clearly not finding food.  Values in between are ambiguous.
+    mean_ratio = statistics.mean(ratios)
+    median_interval = statistics.median(meal_intervals) if meal_intervals else float("inf")
+
+    if mean_ratio >= 0.5 and (meal_intervals and median_interval <= 50):
+        verdict = "throughput problem"
+        reason = (
+            "Dead sharks spent a majority of their lives with an active target and "
+            "ate at a relatively regular pace, yet still starved. This suggests the "
+            "kill/eat reward is not enough to offset the hunger clock, not that they "
+            "couldn't find food."
+        )
+    elif mean_ratio < 0.3 and (not meal_intervals or median_interval > 100):
+        verdict = "density/perception problem"
+        reason = (
+            "Dead sharks rarely had a target and went long stretches without a meal. "
+            "This suggests there simply aren't enough reachable fish/chunks, or the "
+            "sharks cannot perceive them, rather than a reward/throughput math issue."
+        )
+    else:
+        verdict = "genuinely ambiguous"
+        reason = (
+            "The data does not cleanly favor either hypothesis. Some dead sharks had "
+            "targets and ate, others did not; a mixed or middle pattern. The next step "
+            "should be more targeted runs or a finer breakdown (e.g., by death tick)."
+        )
+
+    print(f"Verdict: {verdict}")
+    print(f"Reasoning: {reason}")
+
+
+if __name__ == "__main__":
+    main()
