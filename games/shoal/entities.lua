@@ -1,10 +1,11 @@
 -- shoal/entities.lua — spawning, killing, lineage, and algae nodule helpers
 
-function new_fish(x, depth, lineage_id, lineage_color)
+function new_fish(x, depth)
     local data = GAME_STATE.data
     local cfg = data.creatures.fish
+    local id = uid("fish")
     return {
-        id = uid("fish"),
+        id = id,
         type = "fish",
         x = x,
         depth = depth,
@@ -17,18 +18,18 @@ function new_fish(x, depth, lineage_id, lineage_color)
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,
-        lineage_id = lineage_id,
-        lineage_color = lineage_color,
+        lineage_color = generate_procedural_color(id, 215, 335),
         mature = false,
         alive = true,
     }
 end
 
-function new_shark(x, depth, lineage_id, lineage_color)
+function new_shark(x, depth)
     local data = GAME_STATE.data
     local cfg = data.creatures.shark
+    local id = uid("shark")
     return {
-        id = uid("shark"),
+        id = id,
         type = "shark",
         x = x,
         depth = depth,
@@ -44,8 +45,7 @@ function new_shark(x, depth, lineage_id, lineage_color)
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,
-        lineage_id = lineage_id,
-        lineage_color = lineage_color,
+        lineage_color = generate_procedural_color(id, 215, 335),
         mature = false,
         alive = true,
         in_retreat = false,
@@ -91,18 +91,14 @@ function spawn_algae_core(st, x, depth)
 end
 
 function spawn_fish(st, x, depth)
-    local data = st.data
-    local lineage = random_choice(data.lineages.fish)
-    local f = new_fish(x, depth, lineage.id, lineage.color)
+    local f = new_fish(x, depth)
     st.fish[#st.fish + 1] = f
     st.stats.fish_count = st.stats.fish_count + 1
     return f
 end
 
 function spawn_shark(st, x, depth)
-    local data = st.data
-    local lineage = random_choice(data.lineages.shark)
-    local s = new_shark(x, depth, lineage.id, lineage.color)
+    local s = new_shark(x, depth)
     s.spawn_tick = st.tick_count
     s.last_meal_tick = st.tick_count
     st.sharks[#st.sharks + 1] = s
