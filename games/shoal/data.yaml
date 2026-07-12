@@ -72,6 +72,7 @@ creatures:
       damage_rate: 20
       decay_rate: 10
     exposure_retreat_threshold: 70
+    exposure_retreat_resume_threshold: 40
     exposure_retreat_weight: 3.0
 
 steering_weights:

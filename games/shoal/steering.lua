@@ -212,6 +212,25 @@ function compute_shark_forces(s, st, hash)
     local data = st.data
     local weights = data.steering_weights.shark
     local cfg = data.creatures.shark
+
+    -- Hysteresis: enter retreat at exposure_retreat_threshold, only exit
+    -- once exposure drops below exposure_retreat_resume_threshold. Between
+    -- the two, the previous state persists (sticky).
+    if s.exposure >= cfg.exposure_retreat_threshold then
+        s.in_retreat = true
+    elseif s.exposure < cfg.exposure_retreat_resume_threshold then
+        s.in_retreat = false
+    end
+
+    if s.in_retreat then
+        -- PRIORITY OVERRIDE: full commitment to retreat, no pursuit.
+        local retreat_ratio = (s.exposure - cfg.exposure_retreat_resume_threshold)
+            / (cfg.exposure.threshold - cfg.exposure_retreat_resume_threshold)
+        retreat_ratio = math.max(math.min(retreat_ratio, 1.0), 0.3)
+        local retreat_force = cfg.exposure_retreat_weight * s.max_force * retreat_ratio
+        return 0, retreat_force
+    end
+
     local fx, fy = 0, 0
 
     local nearest_fish, fish_dist2 = nil, cfg.perception.fish * cfg.perception.fish
@@ -258,17 +277,6 @@ function compute_shark_forces(s, st, hash)
             local bias = -cfg.home_bias_weight * s.max_force * math.min(depth_excess, 1.0)
             fy = fy + bias
         end
-    end
-
-    -- exposure retreat — applies regardless of which branch fired above,
-    -- can partially or fully counteract active pursuit once exposure is critical
-    local exposure = s.exposure or 0
-    if exposure >= cfg.exposure_retreat_threshold then
-        local retreat_ratio = (exposure - cfg.exposure_retreat_threshold)
-            / (cfg.exposure.threshold - cfg.exposure_retreat_threshold)
-        retreat_ratio = math.min(retreat_ratio, 1.0)
-        local retreat_force = cfg.exposure_retreat_weight * s.max_force * retreat_ratio
-        fy = fy + retreat_force
     end
 
     return fx, fy

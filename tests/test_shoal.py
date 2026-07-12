@@ -813,6 +813,8 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
         "max_speed": 150,
         "max_force": 90,
         "radius": 7,
+        "exposure": 0,
+        "in_retreat": False,
     }
     call(session, "set_wander_target", s["id"], 0, 0)
     st = {
@@ -849,6 +851,8 @@ def test_shark_home_bias_off_during_active_hunt() -> None:
         "max_speed": 150,
         "max_force": 90,
         "radius": 7,
+        "exposure": 0,
+        "in_retreat": False,
     }
     call(session, "set_wander_target", s["id"], 0, 0)
     # A fish at the same depth, within perception, keeps the shark in the hunt branch.
@@ -999,7 +1003,7 @@ def test_hadopelagic_exposure_rate_is_zero() -> None:
 
 
 def test_exposure_retreat_is_graded() -> None:
-    """Exposure retreat scales from zero at the threshold to max force at the cap."""
+    """Retreat force uses hysteresis and has a minimum 0.3 ratio immediately at entry."""
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["steering_weights"]["shark"]["wander"] = 0
@@ -1015,6 +1019,7 @@ def test_exposure_retreat_is_graded() -> None:
         "vd": 0,
         "max_speed": 150,
         "max_force": 90,
+        "in_retreat": False,
     }
     st = {
         "data": data,
@@ -1023,6 +1028,7 @@ def test_exposure_retreat_is_graded() -> None:
         "chunks": [],
     }
 
+    # Below the enter threshold: normal, no retreat.
     s["exposure"] = 0
     _, fy_0 = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_0, 0.0, abs_tol=0.0001)
@@ -1031,16 +1037,26 @@ def test_exposure_retreat_is_graded() -> None:
     _, fy_69 = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_69, 0.0, abs_tol=0.0001)
 
+    # At the 70 enter threshold, ratio = (70 - 40) / (100 - 40) = 0.5; force = 135.
     s["exposure"] = 70
+    s["in_retreat"] = False
     _, fy_70 = call(session, "compute_shark_forces", s, st, None)
-    assert math.isclose(fy_70, 0.0, abs_tol=0.0001)
+    assert math.isclose(fy_70, 135.0, abs_tol=0.01)
 
+    # At 55 while in retreat, ratio = (55 - 40) / (100 - 40) = 0.25, clamped to 0.3.
+    s["exposure"] = 55
+    s["in_retreat"] = True
+    _, fy_55 = call(session, "compute_shark_forces", s, st, None)
+    assert math.isclose(fy_55, 81.0, abs_tol=0.01)
+
+    # At 85: ratio = (85 - 40) / (100 - 40) = 0.75; force = 3.0 * 90 * 0.75 = 202.5
     s["exposure"] = 85
+    s["in_retreat"] = True
     _, fy_85 = call(session, "compute_shark_forces", s, st, None)
-    # ratio = (85 - 70) / (100 - 70) = 0.5; force = 3.0 * 90 * 0.5 = 135
-    assert math.isclose(fy_85, 135.0, abs_tol=0.01)
+    assert math.isclose(fy_85, 202.5, abs_tol=0.01)
 
     s["exposure"] = 100
+    s["in_retreat"] = True
     _, fy_100 = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_100, 270.0, abs_tol=0.01)
 
@@ -1085,14 +1101,20 @@ def test_exposure_retreat_interrupts_active_hunt() -> None:
 
     # Healthy shark: active pursuit pulls upward toward the prey.
     s["exposure"] = 0
-    _, fy_healthy = call(session, "compute_shark_forces", s, st, None)
+    s["in_retreat"] = False
+    fx_healthy, fy_healthy = call(session, "compute_shark_forces", s, st, None)
     assert fy_healthy < 0
+    assert fx_healthy == 0
 
-    # Critical exposure: retreat override pulls downward, away from the surface.
+    # Critical exposure: retreat overrides completely; no seek component, only retreat.
     s["exposure"] = 90
-    _, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    s["in_retreat"] = False
+    fx_critical, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    assert fx_critical == 0
     assert fy_critical > 0
     assert fy_critical > fy_healthy
+    # Expected: ratio = (90 - 40) / (100 - 40) = 0.833; force = 3 * 90 * 0.833 = 225
+    assert math.isclose(fy_critical, 225.0, abs_tol=0.1)
 
 
 def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
@@ -1128,13 +1150,18 @@ def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
     }
 
     s["exposure"] = 0
-    _, fy_healthy = call(session, "compute_shark_forces", s, st, None)
+    s["in_retreat"] = False
+    fx_healthy, fy_healthy = call(session, "compute_shark_forces", s, st, None)
     assert fy_healthy < 0
+    assert fx_healthy == 0
 
     s["exposure"] = 90
-    _, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    s["in_retreat"] = False
+    fx_critical, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    assert fx_critical == 0
     assert fy_critical > 0
     assert fy_critical > fy_healthy
+    assert math.isclose(fy_critical, 225.0, abs_tol=0.1)
 
 
 def test_shark_exposure_decays_in_safe_water() -> None:
@@ -1277,3 +1304,100 @@ def test_exposure_retreat_moves_shark_deeper() -> None:
     assert shark["depth"] > 330
     assert shark["exposure"] < 90
     assert shark["exposure"] >= 0
+
+
+def test_exposure_retreat_hysteresis() -> None:
+    """A shark in the hysteresis band (40-70) stays in its previous state."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    shark = {
+        "id": "shark_hysteresis",
+        "type": "shark",
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 0,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 55,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+    }
+
+    # If already in retreat, stays in retreat; force is downward (positive).
+    shark["in_retreat"] = True
+    moved = call(session, "move_creature", shark, 0.0)
+    assert moved["in_retreat"] is True
+    shark = moved
+    _, fy = call(session, "compute_shark_forces", shark, {
+        "data": data,
+        "world": {"width": 1200, "height": 800},
+        "fish": [],
+        "chunks": [],
+    }, None)
+    assert fy > 0
+
+    # If not in retreat, stays out of retreat; with no targets, force is zero.
+    shark["in_retreat"] = False
+    moved = call(session, "move_creature", shark, 0.0)
+    assert moved["in_retreat"] is False
+    shark = moved
+    _, fy = call(session, "compute_shark_forces", shark, {
+        "data": data,
+        "world": {"width": 1200, "height": 800},
+        "fish": [],
+        "chunks": [],
+    }, None)
+    assert math.isclose(fy, 0.0, abs_tol=0.0001)
+
+
+def test_exposure_retreat_exits_below_resume_threshold() -> None:
+    """A shark only leaves retreat once exposure drops below the resume threshold."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    shark = {
+        "id": "shark_exit",
+        "type": "shark",
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 0,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 39,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+        "in_retreat": True,
+    }
+
+    # At 39 (< 40) retreat should turn off.
+    moved = call(session, "move_creature", shark, 0.0)
+    assert moved["in_retreat"] is False
+
+    # At 60 (between 40 and 70) but already out, it should stay out.
+    shark["exposure"] = 60
+    shark["in_retreat"] = False
+    moved = call(session, "move_creature", shark, 0.0)
+    assert moved["in_retreat"] is False
+
+    # At 60 (between 40 and 70) but already in, it should stay in.
+    shark["exposure"] = 60
+    shark["in_retreat"] = True
+    moved = call(session, "move_creature", shark, 0.0)
+    assert moved["in_retreat"] is True

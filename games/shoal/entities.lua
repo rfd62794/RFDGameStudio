@@ -48,6 +48,7 @@ function new_shark(x, depth, lineage_id, lineage_color)
         lineage_color = lineage_color,
         mature = false,
         alive = true,
+        in_retreat = false,
     }
 end
 
