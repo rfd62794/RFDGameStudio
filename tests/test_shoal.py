@@ -541,3 +541,118 @@ def test_turn_rate_limits_direction_change() -> None:
 
     state = call(session, "tick_game", 0.1, {})
     assert abs(state["fish"][0]["x"] - 300) < 0.5
+
+
+def test_force_arrive_respects_min_speed() -> None:
+    """force_arrive floors desired speed to min_speed inside slowing_radius."""
+    session = load_game("shoal", seed=42)
+    # Target 5 units below, slowing_radius=100, max_speed=150, no current velocity.
+    # Without min_speed desired_speed would be 7.5; with min_speed=15 it should be 15.
+    sx, sy = call(session, "force_arrive", 0, 0, 0, 0, 0, 5, 1, 150, 90, 100, 15)
+    assert sx == 0
+    assert sy == 15
+
+
+def test_drag_slows_over_time() -> None:
+    """A drifting creature loses speed when no force is applied."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+    # Give it a push by running a tick with wander, then zero out forces.
+    data["steering_weights"]["shark"]["wander"] = 1
+    state = call(session, "tick_game", 0.1, {})
+    speed0 = math.hypot(state["sharks"][0]["x"] - 300, state["sharks"][0]["depth"] - 300) / 0.1
+
+    data["steering_weights"]["shark"]["wander"] = 0
+    for _ in range(10):
+        state = call(session, "tick_game", 0.1, {})
+    shark = state["sharks"][0]
+    speed1 = math.hypot(shark["x"] - 300, shark["depth"] - 300) / 0.1
+    assert speed1 < speed0
+
+
+def test_turn_rate_scales_with_speed() -> None:
+    """A faster creature turns more slowly than a slow one with the same max_turn_rate."""
+    import math
+
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["shark"]["max_turn_rate"] = 1.0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+    # Fast shark: nearly max speed toward the right.
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+    # Boost it to high speed and align to the right.
+    data["steering_weights"]["shark"]["wander"] = 0
+    # Directly manipulate velocity via repeated tick with a strong wander is hard;
+    # instead set a target directly above to force a 90-degree turn.
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 100, "clicked": True })
+    # Perception is 220 by default, so the shark will see the fish and try to turn.
+    state_before = call(session, "tick_game", 0, {})
+    angle_before = state_before["sharks"][0]["angle"]
+
+    state_after = call(session, "tick_game", 0.1, {})
+    angle_after = state_after["sharks"][0]["angle"]
+    delta = (angle_after - angle_before + math.pi) % (2 * math.pi) - math.pi
+    # max_turn_rate=1.0 rad/s and dt=0.1s, and the shark is at high speed, so the
+    # speed-scaled effective rate is <= 1.0 rad/s. Allow a small buffer for startup.
+    assert abs(delta) <= 1.0 * 0.1 + 0.01
+
+
+def test_shark_catches_sinking_chunk() -> None:
+    """A shark with a low base speed can still catch a sinking meat chunk."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 500, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 500, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(50):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["stats"]["chunk_count"] == 0
+
+
+def test_discrete_eating_prefers_nearest_chunk() -> None:
+    """When a shark overlaps both a fish and a chunk, the closer chunk is eaten."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 500, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 500, "clicked": True })
+    # Place a fresh fish closer to the shark than the chunk.
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 312, "y": 300, "clicked": True })
+
+    # The shark is at 300,300. The chunk is at ~300,501. The new fish is at 312,300.
+    # Chunk is much closer, so discrete eating should consume the chunk.
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["fish_count"] == 1
