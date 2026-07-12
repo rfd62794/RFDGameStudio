@@ -460,6 +460,29 @@ def test_shark_prefers_nearby_chunk_over_farther_fish() -> None:
     assert state["sharks"][0]["depth"] > 100
 
 
+def test_shark_targets_chunk_at_same_range_as_fish() -> None:
+    """A chunk inside the (now equal) flesh perception is targeted even when a fish is farther away."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    # Create a chunk at ~500 depth. Its max distance from the shark is ~215, within flesh perception (220).
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 500, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 500, "clicked": True })
+    # Shark at 300,300. Fish at 300,50 is 250 units away (outside the 220 perception).
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 50, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.1, {})
+    assert state["sharks"][0]["depth"] > 300
+
+
 def test_force_arrive_brakes_when_close_and_fast() -> None:
     """force_arrive produces a steering force opposing current velocity when close."""
     session = load_game("shoal", seed=42)

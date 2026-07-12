@@ -59,7 +59,7 @@ creatures:
     radius: 7
     perception:
       fish: 220
-      flesh: 200
+      flesh: 220
     breed_age: 18
     breed_fed_threshold: 3
     starve_limit: 12
@@ -80,7 +80,7 @@ steering_weights:
     depth_bias: 0.2
   shark:
     seek_fish: 1.5
-    seek_flesh: 1.0
+    seek_flesh: 1.5
     wander: 0.3
 
 wander:

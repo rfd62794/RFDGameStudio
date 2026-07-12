@@ -221,7 +221,7 @@ function compute_shark_forces(s, st, hash)
         end
     end
 
-    if nearest_fish and (not nearest_chunk or fish_dist2 <= chunk_dist2) then
+    if nearest_fish and (not nearest_chunk or fish_dist2 < chunk_dist2) then
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_speed, s.max_force, cfg.slowing_radius)
         fx, fy = fx + sx, fy + sy
     elseif nearest_chunk then
