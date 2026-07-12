@@ -163,13 +163,13 @@ def main() -> None:
             "Fish populations collapsed while algae nodules stayed abundant. "
             "Food is not the limiting factor; predation is outpacing fish replacement."
         )
-    elif mean_final_fish < 30 and mean_avail < 0.3:
+    elif mean_final_fish < 30 and mean_avail < 0.4:
         verdict = "food-supply bottleneck likely"
         reason = (
             "Fish populations collapsed and algae nodules are mostly eaten. "
             "Algae supply is the limiting factor."
         )
-    elif mean_avail < 0.3:
+    elif mean_avail < 0.4:
         verdict = "food supply constrained"
         reason = (
             "Algae nodules are mostly eaten, suggesting food is the main constraint."
