@@ -790,3 +790,85 @@ def test_compute_fish_forces_hash_equals_full_fish_fallback() -> None:
 
     assert math.isclose(fx_hash, fx_full, abs_tol=0.0001)
     assert math.isclose(fy_hash, fy_full, abs_tol=0.0001)
+
+
+def test_shark_home_bias_pulls_up_when_no_target() -> None:
+    """A deep shark with no food target gets a net upward force from the wander branch."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["wander"]["change_interval"] = 0
+
+    s = {
+        "id": "shark_test",
+        "type": "shark",
+        "alive": True,
+        "x": 300,
+        "depth": 700,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+        "radius": 7,
+    }
+    call(session, "set_wander_target", s["id"], 0, 0)
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": [],
+        "chunks": [],
+    }
+
+    fx, fy = call(session, "compute_shark_forces", s, st, None)
+    assert fy < 0
+    # expected: -home_bias_weight * max_force * min(((700-300)/(800-300)), 1.0)
+    # = -0.4 * 90 * 0.8 = -28.8
+    assert math.isclose(fy, -28.8, abs_tol=0.0001)
+
+
+def test_shark_home_bias_off_during_active_hunt() -> None:
+    """The home bias is not added when a shark has an active fish target."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+    data["wander"]["change_interval"] = 0
+
+    s = {
+        "id": "shark_test",
+        "type": "shark",
+        "alive": True,
+        "x": 300,
+        "depth": 700,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+        "radius": 7,
+    }
+    call(session, "set_wander_target", s["id"], 0, 0)
+    # A fish at the same depth, within perception, keeps the shark in the hunt branch.
+    prey = {
+        "id": "fish_prey",
+        "type": "fish",
+        "alive": True,
+        "x": 400,
+        "depth": 700,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 100,
+        "max_force": 50,
+        "radius": 4,
+    }
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": [prey],
+        "chunks": [],
+    }
+
+    fx, fy = call(session, "compute_shark_forces", s, st, None)
+    assert math.isclose(fy, 0.0, abs_tol=0.0001)
