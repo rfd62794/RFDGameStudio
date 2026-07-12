@@ -827,9 +827,8 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
 
     fx, fy = call(session, "compute_shark_forces", s, st, None)
     assert fy < 0
-    # expected: -home_bias_weight * max_force * min(((700-300)/(800-300)), 1.0)
-    # = -0.2 * 90 * 0.8 = -14.4
-    assert math.isclose(fy, -14.4, abs_tol=0.0001)
+    # With force_depth_arrive: desired_vd = -150, weight 0.2 => fy = -30
+    assert math.isclose(fy, -30.0, abs_tol=0.1)
 
 
 def test_shark_home_bias_off_during_active_hunt() -> None:
@@ -1402,6 +1401,99 @@ def test_exposure_retreat_exits_below_resume_threshold() -> None:
     shark["in_retreat"] = True
     moved = call(session, "move_creature", shark, 0.0)
     assert moved["in_retreat"] is True
+
+
+def test_shark_settles_at_home_depth() -> None:
+    """A deep shark with no target climbs back and settles near home_depth."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    shark = {
+        "id": "shark_settle",
+        "type": "shark",
+        "x": 300,
+        "depth": 700,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 0,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+        "in_retreat": False,
+    }
+
+    for _ in range(50):
+        shark = call(session, "move_creature", shark, 0.1)
+
+    assert shark["depth"] < 350
+    assert shark["depth"] > 250
+    assert abs(shark["vd"]) < 20
+
+
+def test_fish_settles_at_home_depth_from_both_directions() -> None:
+    """A fish too shallow moves down; a fish too deep moves up and both settle."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["separate"] = 0
+    data["steering_weights"]["fish"]["align"] = 0
+    data["steering_weights"]["fish"]["cohere"] = 0
+
+    call(session, "init_game", data)
+
+    shallow = {
+        "id": "fish_shallow",
+        "type": "fish",
+        "x": 300,
+        "depth": 50,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 120,
+        "max_force": 80,
+        "radius": 4,
+        "cold_exposure": 0,
+        "cold_damage": 0,
+        "alive": True,
+    }
+    deep = {
+        "id": "fish_deep",
+        "type": "fish",
+        "x": 300,
+        "depth": 740,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 120,
+        "max_force": 80,
+        "radius": 4,
+        "cold_exposure": 0,
+        "cold_damage": 0,
+        "alive": True,
+    }
+
+    for _ in range(40):
+        shallow = call(session, "move_creature", shallow, 0.1)
+        deep = call(session, "move_creature", deep, 0.1)
+
+    assert shallow["depth"] > 150
+    assert shallow["depth"] < 210
+    assert deep["depth"] > 150
+    assert deep["depth"] < 210
 
 
 def test_algae_hubs_spawn_evenly_at_fixed_depth() -> None:

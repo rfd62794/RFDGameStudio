@@ -47,6 +47,21 @@ function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowin
     return steer_x * weight, steer_y * weight
 end
 
+function force_depth_arrive(depth, vd, target_depth, weight, max_speed, max_force, slowing_radius)
+    local dy = target_depth - depth
+    local dist = math.abs(dy)
+    if dist < 2 then return 0 end
+
+    local desired_speed = max_speed
+    if dist < slowing_radius then
+        desired_speed = max_speed * (dist / slowing_radius)
+    end
+
+    local desired_vd = (dy > 0 and 1 or -1) * desired_speed
+    local steer_y = desired_vd - vd
+    return steer_y * weight
+end
+
 function force_flee(x, y, tx, ty, weight, max_force, radius_sq)
     local dx, dy = x - tx, y - ty
     local dist2 = dx * dx + dy * dy
@@ -194,12 +209,9 @@ function compute_fish_forces(f, st, hash)
     local cohere_x, cohere_y = force_cohere(f.x, f.depth, others, school_radius_sq, weights.cohere, f.max_force)
     fx, fy = fx + cohere_x, fy + cohere_y
 
-    -- depth bias (mild upward pull, stronger when cold danger is higher)
-    local cold_rate = compute_fish_cold_rate(f.depth, data)
-    local max_cold_rate = 35
-    local danger_ratio = cold_rate / max_cold_rate
-    local bias = -weights.depth_bias * f.max_force * (0.3 + 0.7 * danger_ratio)
-    fy = fy + bias
+    -- depth arrival: return to and settle at the fish's home depth
+    local home_bias = force_depth_arrive(f.depth, f.vd, cfg.home_depth, weights.depth_bias, f.max_speed, f.max_force, 150)
+    fy = fy + home_bias
 
     -- wander
     local wx, wy = force_wander(f.id, f.x, f.depth, f.vx, f.vd, weights.wander, f.max_force, data.wander)
@@ -272,11 +284,8 @@ function compute_shark_forces(s, st, hash)
         local wx, wy = force_wander(s.id, s.x, s.depth, s.vx, s.vd, weights.wander, s.max_force, data.wander)
         fx, fy = fx + wx, fy + wy
 
-        if s.depth > cfg.home_depth then
-            local depth_excess = (s.depth - cfg.home_depth) / (st.world.height - cfg.home_depth)
-            local bias = -cfg.home_bias_weight * s.max_force * math.min(depth_excess, 1.0)
-            fy = fy + bias
-        end
+        local home_bias = force_depth_arrive(s.depth, s.vd, cfg.home_depth, cfg.home_bias_weight, s.max_speed, s.max_force, 150)
+        fy = fy + home_bias
     end
 
     return fx, fy

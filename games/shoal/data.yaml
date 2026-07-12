@@ -49,6 +49,7 @@ creatures:
     graze_radius: 8
     max_safe_cold_rate: 8
     max_turn_rate: 4.0
+    home_depth: 180
     cold:
       threshold: 100
       damage_rate: 15
