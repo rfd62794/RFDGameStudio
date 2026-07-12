@@ -62,6 +62,44 @@ function force_separate(x, y, neighbors, radius_sq, weight, max_force)
     return nx * weight * max_force, ny * weight * max_force
 end
 
+function force_align(x, y, neighbors, radius_sq, weight, max_force)
+    local avx, avy, count = 0, 0, 0
+    for _, n in ipairs(neighbors) do
+        if n.alive then
+            local dx, dy = x - n.x, y - n.depth
+            local dist2 = dx * dx + dy * dy
+            if dist2 > 0 and dist2 < radius_sq then
+                avx = avx + n.vx
+                avy = avy + n.vd
+                count = count + 1
+            end
+        end
+    end
+    if count == 0 then return 0, 0 end
+    avx = avx / count
+    avy = avy / count
+    local nx, ny = normalize(avx, avy)
+    return nx * weight * max_force, ny * weight * max_force
+end
+
+function force_cohere(x, y, neighbors, radius_sq, weight, max_force)
+    local sx, sy, count = 0, 0, 0
+    for _, n in ipairs(neighbors) do
+        if n.alive then
+            local dx, dy = x - n.x, y - n.depth
+            local dist2 = dx * dx + dy * dy
+            if dist2 > 0 and dist2 < radius_sq then
+                sx = sx + n.x
+                sy = sy + n.depth
+                count = count + 1
+            end
+        end
+    end
+    if count == 0 then return 0, 0 end
+    local centroid_x, centroid_y = sx / count, sy / count
+    return force_seek(x, y, centroid_x, centroid_y, weight, max_force)
+end
+
 function compute_fish_forces(f, st, hash)
     local data = st.data
     local weights = data.steering_weights.fish
@@ -102,10 +140,17 @@ function compute_fish_forces(f, st, hash)
         fx, fy = fx + flx, fy + fly
     end
 
-    -- separate from other fish
+    -- boids forces: separate, align, cohere share the same neighbor source and school radius
     local others = hash and hash[f.lineage_id] or st.fish
-    local sep_x, sep_y = force_separate(f.x, f.depth, others, cfg.perception.separate * cfg.perception.separate, weights.separate, f.max_force)
+    local school_radius_sq = cfg.perception.school * cfg.perception.school
+    local sep_x, sep_y = force_separate(f.x, f.depth, others, school_radius_sq, weights.separate, f.max_force)
     fx, fy = fx + sep_x, fy + sep_y
+
+    local align_x, align_y = force_align(f.x, f.depth, others, school_radius_sq, weights.align, f.max_force)
+    fx, fy = fx + align_x, fy + align_y
+
+    local cohere_x, cohere_y = force_cohere(f.x, f.depth, others, school_radius_sq, weights.cohere, f.max_force)
+    fx, fy = fx + cohere_x, fy + cohere_y
 
     -- depth bias (mild upward pull)
     local bias = -weights.depth_bias * f.max_force

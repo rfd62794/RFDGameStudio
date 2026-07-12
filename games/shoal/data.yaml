@@ -36,8 +36,9 @@ creatures:
     radius: 4
     perception:
       algae: 250
-      shark: 140
+      shark: 190
       separate: 24
+      school: 70
     breed_age: 5
     hunger_rate: 0.05
     graze_radius: 8
@@ -59,6 +60,8 @@ steering_weights:
     seek_algae: 1.0
     flee_shark: 2.5
     separate: 1.0
+    align: 0.6
+    cohere: 0.35
     wander: 0.4
     depth_bias: 0.2
   shark:
