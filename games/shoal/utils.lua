@@ -122,6 +122,8 @@ function generate_procedural_color(id)
     for i = 1, #id do
         hash = (hash * 31 + string.byte(id, i)) % 1000000
     end
+    -- Mix the linear string hash so sequential IDs don't land in tight hue clusters.
+    hash = (hash * 1664525 + 1013904223) % 1000000
 
     local hue = (hash % 3600) / 10
     local jitter_hash = math.floor(hash / 3600) % 1000
