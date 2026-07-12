@@ -149,35 +149,35 @@ def main() -> None:
     print(f"Sharks: final mean={mean('final_sharks'):.1f} [min={minmax('final_sharks')[0]}, max={minmax('final_sharks')[1]}]")
     print(f"Min fish reached (any seed): {min(s['min_fish'] for s in all_summaries)}")
     print(f"Mean live nodules: {mean('mean_live_nodules'):.1f} / {mean('total_nodules'):.0f}")
-    print(f"Mean nodule utilization: {mean('mean_nodule_utilization'):.2%}")
-    print(f"Nodule utilization range: {min(s['min_nodule_utilization'] for s in all_summaries):.2%} - "
-          f"{max(s['max_nodule_utilization'] for s in all_summaries):.2%}")
+    print(f"Mean nodule availability: {mean('mean_available_ratio'):.2%}")
+    print(f"Nodule availability range: {min(s['min_available_ratio'] for s in all_summaries):.2%} - "
+          f"{max(s['max_available_ratio'] for s in all_summaries):.2%}")
 
     # Bottleneck inference.
+    # available_ratio = live_nodules / total_capacity. High means food is abundant.
     mean_final_fish = mean("final_fish")
-    mean_util = mean("mean_nodule_utilization")
-    if mean_final_fish < 10 and mean_util < 0.3:
-        verdict = "reproduction bottleneck likely"
+    mean_avail = mean("mean_available_ratio")
+    if mean_final_fish < 30 and mean_avail > 0.6:
+        verdict = "predation/reproduction bottleneck likely"
         reason = (
-            "Fish populations collapsed while nodule utilization stayed low. "
-            "There is enough algae; fish are not replacing themselves fast enough."
+            "Fish populations collapsed while algae nodules stayed abundant. "
+            "Food is not the limiting factor; predation is outpacing fish replacement."
         )
-    elif mean_final_fish < 10 and mean_util > 0.7:
+    elif mean_final_fish < 30 and mean_avail < 0.3:
         verdict = "food-supply bottleneck likely"
         reason = (
-            "Fish populations collapsed and nodule utilization is high. "
+            "Fish populations collapsed and algae nodules are mostly eaten. "
             "Algae supply is the limiting factor."
         )
-    elif mean_util > 0.7:
+    elif mean_avail < 0.3:
         verdict = "food supply constrained"
         reason = (
-            "Nodule utilization is high, suggesting algae is the main constraint, "
-            "even if fish populations have not yet collapsed."
+            "Algae nodules are mostly eaten, suggesting food is the main constraint."
         )
     else:
         verdict = "stable or slow dynamics"
         reason = (
-            "Fish and nodule utilization are moderate. No single bottleneck dominates."
+            "Fish and nodule availability are moderate. No single bottleneck dominates."
         )
 
     print(f"\nVerdict: {verdict}")
