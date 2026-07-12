@@ -108,6 +108,28 @@ function update_creatures(st, dt)
     end
 end
 
+local function limit_turn(old_vx, old_vy, new_vx, new_vy, max_turn_rate, dt)
+    local old_speed = math.sqrt(old_vx * old_vx + old_vy * old_vy)
+    if old_speed < 0.01 then
+        return new_vx, new_vy
+    end
+
+    local old_angle = math.atan(old_vy, old_vx)
+    local new_angle = math.atan(new_vy, new_vx)
+    local speed = math.sqrt(new_vx * new_vx + new_vy * new_vy)
+
+    local diff = new_angle - old_angle
+    while diff > math.pi do diff = diff - 2 * math.pi end
+    while diff < -math.pi do diff = diff + 2 * math.pi end
+
+    local max_delta = max_turn_rate * dt
+    if diff > max_delta then diff = max_delta
+    elseif diff < -max_delta then diff = -max_delta end
+
+    local clamped_angle = old_angle + diff
+    return math.cos(clamped_angle) * speed, math.sin(clamped_angle) * speed
+end
+
 function move_creature(c, dt)
     local st = GAME_STATE
     local data = st.data
@@ -118,13 +140,13 @@ function move_creature(c, dt)
         fx, fy = compute_shark_forces(c, st, nil)
     end
 
+    local old_vx, old_vd = c.vx, c.vd
     fx, fy = limit_vector(fx, fy, c.max_force)
     c.vx = c.vx + fx * dt
     c.vd = c.vd + fy * dt
 
     local vx, vd = limit_vector(c.vx, c.vd, c.max_speed)
-    c.vx = vx
-    c.vd = vd
+    c.vx, c.vd = limit_turn(old_vx, old_vd, vx, vd, data.creatures[c.type].max_turn_rate, dt)
 
     c.x = wrap_x(c.x + c.vx * dt, st.world)
     c.depth = clamp_depth(c.depth + c.vd * dt, st.world)

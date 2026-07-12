@@ -20,6 +20,31 @@ function force_seek(x, y, tx, ty, weight, max_force)
     return (dx / dist) * weight * max_force, (dy / dist) * weight * max_force
 end
 
+function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowing_radius)
+    local dx, dy = tx - x, ty - y
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist == 0 then return 0, 0 end
+
+    local desired_speed = max_speed
+    if dist < slowing_radius then
+        desired_speed = max_speed * (dist / slowing_radius)
+    end
+
+    local desired_vx = (dx / dist) * desired_speed
+    local desired_vy = (dy / dist) * desired_speed
+
+    local steer_x = desired_vx - vx
+    local steer_y = desired_vy - vy
+
+    local steer_len = math.sqrt(steer_x * steer_x + steer_y * steer_y)
+    if steer_len > max_force then
+        steer_x = (steer_x / steer_len) * max_force
+        steer_y = (steer_y / steer_len) * max_force
+    end
+
+    return steer_x * weight, steer_y * weight
+end
+
 function force_flee(x, y, tx, ty, weight, max_force, radius_sq)
     local dx, dy = x - tx, y - ty
     local dist2 = dx * dx + dy * dy
@@ -124,7 +149,7 @@ function compute_fish_forces(f, st, hash)
         end
     end
     if nearest_nodule then
-        local sx, sy = force_seek(f.x, f.depth, nearest_nodule.x, nearest_nodule.depth, weights.seek_algae, f.max_force)
+        local sx, sy = force_arrive(f.x, f.depth, f.vx, f.vd, nearest_nodule.x, nearest_nodule.depth, weights.seek_algae, f.max_speed, f.max_force, cfg.slowing_radius)
         fx, fy = fx + sx, fy + sy
     end
 
@@ -197,10 +222,10 @@ function compute_shark_forces(s, st, hash)
     end
 
     if nearest_fish and (not nearest_chunk or fish_dist2 <= chunk_dist2) then
-        local sx, sy = force_seek(s.x, s.depth, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_force)
+        local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_speed, s.max_force, cfg.slowing_radius)
         fx, fy = fx + sx, fy + sy
     elseif nearest_chunk then
-        local sx, sy = force_seek(s.x, s.depth, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_force)
+        local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_chunk.x, nearest_chunk.depth, weights.seek_flesh, s.max_speed, s.max_force, cfg.slowing_radius)
         fx, fy = fx + sx, fy + sy
     else
         local wx, wy = force_wander(s.id, s.x, s.depth, s.vx, s.vd, weights.wander, s.max_force, data.wander)
