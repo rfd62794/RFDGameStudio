@@ -101,7 +101,6 @@ def test_fish_school_align_headings() -> None:
 
     call(session, "init_game", data)
 
-    # Spawn a tight cluster of fish.
     positions = [
         (300, 300),
         (310, 305),
@@ -121,7 +120,6 @@ def test_fish_school_align_headings() -> None:
         n = len(fish_list)
         mean_cos = sum(math.cos(f["angle"]) for f in fish_list) / n
         mean_sin = sum(math.sin(f["angle"]) for f in fish_list) / n
-        # Result 1 = perfectly random, 0 = perfectly aligned.
         return 1 - math.sqrt(mean_cos * mean_cos + mean_sin * mean_sin)
 
     initial_var = circular_variance(state["fish"])
@@ -132,3 +130,112 @@ def test_fish_school_align_headings() -> None:
     final_var = circular_variance(state["fish"])
 
     assert final_var < initial_var
+
+
+def _run_contact_trial(session, data, fish_speed_steps: int = 0) -> bool:
+    """Run one shark-fish contact and return True if the fish survives."""
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["shark"]["perception"]["fish"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+
+    if fish_speed_steps > 0:
+        # A static threat to the left makes the fish accelerate to the right.
+        call(session, "tick_game", 0, { "tool": "shark", "x": 250, "y": 300, "clicked": True })
+        for _ in range(fish_speed_steps):
+            call(session, "tick_game", 0.05, {})
+        state = call(session, "tick_game", 0, {})
+        fx = state["fish"][0]["x"]
+        fy = state["fish"][0]["depth"]
+        # Place the shark ahead of the fleeing fish so contact still happens.
+        call(session, "tick_game", 0, { "tool": "shark", "x": fx + 25, "y": fy, "clicked": True })
+    else:
+        # Slow case: shark slightly ahead, fish starts from rest.
+        call(session, "tick_game", 0, { "tool": "shark", "x": 305, "y": 300, "clicked": True })
+
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    return state["stats"]["fish_count"] == 1
+
+
+def test_fish_escape_chance_scales_with_speed() -> None:
+    """A fast fish should survive contact more often than a stationary one."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    trials = 60
+
+    slow_survives = sum(1 for _ in range(trials) if _run_contact_trial(session, data, 0))
+    fast_survives = sum(1 for _ in range(trials) if _run_contact_trial(session, data, 40))
+
+    assert fast_survives > slow_survives
+
+
+def test_escaped_fish_is_knocked_back() -> None:
+    """An escaped fish is pushed away from the shark during the contact tick."""
+    import math
+
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["escape_chance"] = 1.0
+    data["creatures"]["shark"]["perception"]["fish"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 305, "y": 300, "clicked": True })
+
+    state_before = call(session, "tick_game", 0, {})
+    for _ in range(5):
+        state_after = call(session, "tick_game", 0.05, {})
+
+    fb = state_before["fish"][0]
+    fa = state_after["fish"][0]
+    d = math.hypot(fa["x"] - fb["x"], fa["depth"] - fb["depth"])
+    assert d > 10
+
+
+def test_breed_thresholds_read_from_data() -> None:
+    """Fish and shark breeding thresholds are driven by data, not hardcoded values."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["breed_age"] = 0
+    data["creatures"]["fish"]["breed_fed_threshold"] = 1
+    data["creatures"]["shark"]["breed_age"] = 0
+    data["creatures"]["shark"]["breed_fed_threshold"] = 1
+    data["creatures"]["fish"]["escape_chance"] = 0
+    data["creatures"]["shark"]["perception"]["fish"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["fish_count"] > 1
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+    for _ in range(5):
+        state = call(session, "tick_game", 0.05, {})
+    assert state["stats"]["shark_count"] > 1

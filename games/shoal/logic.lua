@@ -174,8 +174,7 @@ function update_discrete_events(st, dt)
                 if n.live and distance(f.x, f.depth, n.x, n.depth) <= f.radius + data.algae.nodule_radius then
                     if graze_nodule(st, n, core) then
                         f.fed = f.fed + 1
-                        f.age = f.age + 1
-                        if f.fed >= 3 and f.age >= data.creatures.fish.breed_age then
+                        if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
                             spawn_fish(st, f.x, f.depth)
                             f.fed = 0
                             f.age = 0
@@ -194,11 +193,28 @@ function update_discrete_events(st, dt)
         local ate = false
         for _, f in ipairs(st.fish) do
             if f.alive and distance(s.x, s.depth, f.x, f.depth) <= s.radius + f.radius then
-                kill_creature(st, f)
-                s.hunger = math.max(0, s.hunger - 4)
-                s.fed = (s.fed or 0) + 1
-                ate = true
-                break
+                local speed = math.sqrt(f.vx * f.vx + f.vd * f.vd)
+                local speed_ratio = speed / f.max_speed
+                local escape_chance = data.creatures.fish.escape_chance
+                if speed_ratio > 0.8 then
+                    escape_chance = escape_chance + data.creatures.fish.escape_speed_bonus
+                end
+                if math.random() < escape_chance then
+                    -- escaped: knock the fish away so it isn't re-caught next tick
+                    local dx, dy = f.x - s.x, f.depth - s.depth
+                    local dist = math.sqrt(dx * dx + dy * dy)
+                    if dist > 0 then
+                        local kb = data.creatures.fish.escape_knockback
+                        f.x = wrap_x(f.x + (dx / dist) * kb, st.world)
+                        f.depth = clamp_depth(f.depth + (dy / dist) * kb, st.world)
+                    end
+                else
+                    kill_creature(st, f)
+                    s.hunger = math.max(0, s.hunger - 4)
+                    s.fed = (s.fed or 0) + 1
+                    ate = true
+                    break
+                end
             end
         end
         if not ate then
@@ -216,7 +232,7 @@ function update_discrete_events(st, dt)
         if s.hunger >= data.creatures.shark.starve_limit then
             kill_creature(st, s)
         end
-        if s.age >= data.creatures.shark.breed_age and (s.fed or 0) >= 2 then
+        if s.age >= data.creatures.shark.breed_age and (s.fed or 0) >= data.creatures.shark.breed_fed_threshold then
             spawn_shark(st, s.x, s.depth)
             s.fed = 0
             s.age = 0

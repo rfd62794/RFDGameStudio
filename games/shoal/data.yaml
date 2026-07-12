@@ -39,7 +39,11 @@ creatures:
       shark: 190
       separate: 24
       school: 70
-    breed_age: 5
+    escape_chance: 0.28
+    escape_speed_bonus: 0.15
+    escape_knockback: 20
+    breed_age: 4
+    breed_fed_threshold: 2
     hunger_rate: 0.05
     graze_radius: 8
   shark:
@@ -49,7 +53,8 @@ creatures:
     perception:
       fish: 220
       flesh: 200
-    breed_age: 15
+    breed_age: 20
+    breed_fed_threshold: 3
     starve_limit: 10
     exposure:
       threshold: 100
