@@ -18,7 +18,7 @@ function new_fish(x, depth)
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,
-        lineage_color = generate_procedural_color(id, 215, 335),
+        lineage_color = generate_procedural_color(id),
         mature = false,
         alive = true,
     }
@@ -45,7 +45,7 @@ function new_shark(x, depth)
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,
-        lineage_color = generate_procedural_color(id, 215, 335),
+        lineage_color = generate_procedural_color(id),
         mature = false,
         alive = true,
         in_retreat = false,

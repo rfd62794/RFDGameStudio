@@ -68,7 +68,33 @@ local function hue_to_rgb(p, q, t)
     return p
 end
 
-function hsl_to_hex(h, s, l)
+local RESERVED_COLORS = {
+    {234, 179, 8},    -- core yellow #eab308
+    {16, 185, 129},   -- nodule green #10b981
+    {244, 63, 94},    -- chunk red #f43f5e
+    {125, 211, 252},  -- background stop #7dd3fc
+    {56, 189, 248},   -- background stop #38bdf8
+    {14, 165, 233},   -- background stop #0ea5e9
+    {3, 105, 161},    -- background stop #0369a1
+    {12, 74, 110},    -- background stop #0c4a6e
+}
+local MIN_COLOR_DISTANCE = 55
+
+local function color_distance(r1, g1, b1, r2, g2, b2)
+    local dr, dg, db = r1 - r2, g1 - g2, b1 - b2
+    return math.sqrt(dr * dr + dg * dg + db * db)
+end
+
+local function is_too_close(r, g, b)
+    for _, rc in ipairs(RESERVED_COLORS) do
+        if color_distance(r, g, b, rc[1], rc[2], rc[3]) < MIN_COLOR_DISTANCE then
+            return true
+        end
+    end
+    return false
+end
+
+function hsl_to_rgb(h, s, l)
     h = h / 360
     local r, g, b
     if s == 0 then
@@ -80,21 +106,37 @@ function hsl_to_hex(h, s, l)
         g = hue_to_rgb(p, q, h)
         b = hue_to_rgb(p, q, h - 1/3)
     end
-    return string.format("#%02x%02x%02x", math.floor(r * 255), math.floor(g * 255), math.floor(b * 255))
+    return math.floor(r * 255), math.floor(g * 255), math.floor(b * 255)
 end
 
-function generate_procedural_color(id, hue_start, hue_end)
+function rgb_to_hex(r, g, b)
+    return string.format("#%02x%02x%02x", r, g, b)
+end
+
+function hsl_to_hex(h, s, l)
+    return rgb_to_hex(hsl_to_rgb(h, s, l))
+end
+
+function generate_procedural_color(id)
     local hash = 0
     for i = 1, #id do
         hash = (hash * 31 + string.byte(id, i)) % 1000000
     end
-    local t = (hash % 1000) / 1000
-    local hue = hue_start + (hue_end - hue_start) * t
 
-    local jitter_hash = math.floor(hash / 1000) % 1000
+    local hue = (hash % 3600) / 10
+    local jitter_hash = math.floor(hash / 3600) % 1000
     local jitter_t = jitter_hash / 1000
-    local saturation = 0.45 + 0.25 * jitter_t
-    local lightness = 0.50 + 0.20 * (1 - jitter_t)
+    local saturation = 0.5 + 0.3 * jitter_t
+    local lightness = 0.45 + 0.25 * (1 - jitter_t)
 
-    return hsl_to_hex(hue, saturation, lightness)
+    for attempt = 0, 8 do
+        local try_hue = (hue + attempt * 40) % 360
+        local r, g, b = hsl_to_rgb(try_hue, saturation, lightness)
+        if not is_too_close(r, g, b) then
+            return rgb_to_hex(r, g, b)
+        end
+    end
+
+    local r, g, b = hsl_to_rgb(hue, saturation, lightness)
+    return rgb_to_hex(r, g, b)
 end

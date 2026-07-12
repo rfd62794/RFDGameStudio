@@ -1557,33 +1557,17 @@ def test_algae_core_has_eight_spoke_nodules_and_no_center_overlap() -> None:
         assert not (math.isclose(nodule["x"], core["x"]) and math.isclose(nodule["depth"], core["depth"]))
 
 
-def _hex_to_hsl(hex_color: str):
-    """Convert an #RRGGBB hex string to HSL (h in degrees, s/l 0-1)."""
+def _hex_to_rgb(hex_color: str):
+    """Convert an #RRGGBB hex string to integer RGB triple."""
     hex_color = hex_color.lstrip("#")
-    r = int(hex_color[0:2], 16) / 255
-    g = int(hex_color[2:4], 16) / 255
-    b = int(hex_color[4:6], 16) / 255
-    mx = max(r, g, b)
-    mn = min(r, g, b)
-    l = (mx + mn) / 2
-    if mx == mn:
-        return 0, 0, l
-    d = mx - mn
-    s = d / (2 - mx - mn) if l > 0.5 else d / (mx + mn)
-    if mx == r:
-        h = (g - b) / d + (6 if g < b else 0)
-    elif mx == g:
-        h = (b - r) / d + 2
-    else:
-        h = (r - g) / d + 4
-    h = (h * 60) % 360
-    return h, s, l
+    return int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
 
 
-def test_hsl_to_hex_returns_valid_hex() -> None:
-    """hsl_to_hex produces a valid #RRGGBB string."""
+def test_hsl_to_rgb_and_rgb_to_hex_produce_valid_hex() -> None:
+    """hsl_to_rgb + rgb_to_hex produce a valid #RRGGBB string."""
     session = load_game("shoal", seed=42)
-    color = call(session, "hsl_to_hex", 300, 0.6, 0.6)
+    r, g, b = call(session, "hsl_to_rgb", 300, 0.6, 0.6)
+    color = call(session, "rgb_to_hex", r, g, b)
     assert isinstance(color, str)
     assert color.startswith("#")
     assert len(color) == 7
@@ -1593,8 +1577,8 @@ def test_hsl_to_hex_returns_valid_hex() -> None:
 def test_generate_procedural_color_is_deterministic() -> None:
     """The same ID always produces the same color."""
     session = load_game("shoal", seed=42)
-    color1 = call(session, "generate_procedural_color", "fish_123", 215, 335)
-    color2 = call(session, "generate_procedural_color", "fish_123", 215, 335)
+    color1 = call(session, "generate_procedural_color", "fish_123")
+    color2 = call(session, "generate_procedural_color", "fish_123")
     assert color1 == color2
 
 
@@ -1602,23 +1586,59 @@ def test_generate_procedural_color_varies_by_id() -> None:
     """Different IDs produce different colors."""
     session = load_game("shoal", seed=42)
     ids = ["fish_alpha", "fish_beta", "shark_gamma", "fish_delta"]
-    colors = [
-        call(session, "generate_procedural_color", id, 215, 335)
-        for id in ids
-    ]
+    colors = [call(session, "generate_procedural_color", id) for id in ids]
     assert len(set(colors)) == len(colors)
 
 
-def test_creature_colors_stay_in_safe_hue_band() -> None:
-    """Spawned fish and sharks fall in the 215-335° safe hue band."""
+def test_generate_procedural_color_avoids_reserved_colors() -> None:
+    """Generated colors are never within MIN_COLOR_DISTANCE of reserved colors."""
+    session = load_game("shoal", seed=42)
+    reserved = [
+        (234, 179, 8),
+        (16, 185, 129),
+        (244, 63, 94),
+        (125, 211, 252),
+        (56, 189, 248),
+        (14, 165, 233),
+        (3, 105, 161),
+        (12, 74, 110),
+    ]
+    min_distance = 55
+    for i in range(100):
+        color = call(session, "generate_procedural_color", f"fish_{i}")
+        r, g, b = _hex_to_rgb(color)
+        for rc in reserved:
+            dr = r - rc[0]
+            dg = g - rc[1]
+            db = b - rc[2]
+            assert math.sqrt(dr * dr + dg * dg + db * db) >= min_distance
+
+
+def test_creature_colors_avoid_reserved_colors() -> None:
+    """Spawned fish and sharks avoid the reserved core/nodule/background colors."""
     session = load_game("shoal", seed=42)
     data = session.files.data
-    data["spawn"]["initial_fish"] = 30
-    data["spawn"]["initial_sharks"] = 10
+    data["spawn"]["initial_fish"] = 60
+    data["spawn"]["initial_sharks"] = 20
     data["spawn"]["initial_algae_hubs"] = 0
+
+    reserved = [
+        (234, 179, 8),
+        (16, 185, 129),
+        (244, 63, 94),
+        (125, 211, 252),
+        (56, 189, 248),
+        (14, 165, 233),
+        (3, 105, 161),
+        (12, 74, 110),
+    ]
+    min_distance = 55
 
     state = call(session, "init_game", data)
     for creature in state["fish"] + state["sharks"]:
-        h, _, _ = _hex_to_hsl(creature["color"])
-        assert h >= 215 - 0.5
-        assert h <= 335 + 0.5
+        r, g, b = _hex_to_rgb(creature["color"])
+        for rc in reserved:
+            dr = r - rc[0]
+            dg = g - rc[1]
+            db = b - rc[2]
+            assert math.sqrt(dr * dr + dg * dg + db * db) >= min_distance
