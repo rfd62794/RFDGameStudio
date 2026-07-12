@@ -250,6 +250,7 @@ function update_chunks(st, dt)
             c.floor_timer = (c.floor_timer or 0) + dt
             if c.floor_timer >= grace then
                 table.remove(st.chunks, i)
+                st.stats.chunk_count = #st.chunks
             end
         end
     end
@@ -347,6 +348,7 @@ function update_discrete_events(st, dt)
             end
         elseif nearest_chunk then
             table.remove(st.chunks, chunk_index)
+            st.stats.chunk_count = #st.chunks
             st.diagnostics = st.diagnostics or { meals = {}, deaths = {} }
             table.insert(st.diagnostics.meals, {
                 shark_id = s.id,
