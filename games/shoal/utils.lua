@@ -79,6 +79,7 @@ local RESERVED_COLORS = {
     {12, 74, 110},    -- background stop #0c4a6e
 }
 local MIN_COLOR_DISTANCE = 55
+local LIVE_MIN_DISTANCE = 30
 
 local function color_distance(r1, g1, b1, r2, g2, b2)
     local dr, dg, db = r1 - r2, g1 - g2, b1 - b2
@@ -88,6 +89,24 @@ end
 local function is_too_close(r, g, b)
     for _, rc in ipairs(RESERVED_COLORS) do
         if color_distance(r, g, b, rc[1], rc[2], rc[3]) < MIN_COLOR_DISTANCE then
+            return true
+        end
+    end
+    return false
+end
+
+function hex_to_rgb(hex)
+    local r = tonumber(hex:sub(2, 3), 16)
+    local g = tonumber(hex:sub(4, 5), 16)
+    local b = tonumber(hex:sub(6, 7), 16)
+    return r, g, b
+end
+
+local function is_too_close_to_live(r, g, b, live_colors)
+    if not live_colors then return false end
+    for _, hex in ipairs(live_colors) do
+        local lr, lg, lb = hex_to_rgb(hex)
+        if color_distance(r, g, b, lr, lg, lb) < LIVE_MIN_DISTANCE then
             return true
         end
     end
@@ -117,13 +136,20 @@ function hsl_to_hex(h, s, l)
     return rgb_to_hex(hsl_to_rgb(h, s, l))
 end
 
-function generate_procedural_color(id)
-    local hash = 0
-    for i = 1, #id do
-        hash = (hash * 31 + string.byte(id, i)) % 1000000
-    end
-    -- Mix the linear string hash so sequential IDs don't land in tight hue clusters.
-    hash = (hash * 1664525 + 1013904223) % 1000000
+local function extract_numeric_id(id)
+    local num = id:match("_(%d+)$")
+    return num and tonumber(num) or 0
+end
+
+local function hash_numeric(n)
+    -- Knuth multiplicative hash — scatters sequential integers hard,
+    -- unlike a rolling character hash on a shared-prefix string.
+    return (n * 2654435761) % 1000000007
+end
+
+function generate_procedural_color(id, live_colors)
+    local numeric_id = extract_numeric_id(id)
+    local hash = hash_numeric(numeric_id)
 
     local hue = (hash % 3600) / 10
     local jitter_hash = math.floor(hash / 3600) % 1000
@@ -134,7 +160,7 @@ function generate_procedural_color(id)
     for attempt = 0, 8 do
         local try_hue = (hue + attempt * 40) % 360
         local r, g, b = hsl_to_rgb(try_hue, saturation, lightness)
-        if not is_too_close(r, g, b) then
+        if not is_too_close(r, g, b) and not is_too_close_to_live(r, g, b, live_colors) then
             return rgb_to_hex(r, g, b)
         end
     end

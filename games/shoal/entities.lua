@@ -1,5 +1,17 @@
 -- shoal/entities.lua — spawning, killing, lineage, and algae nodule helpers
 
+local function collect_live_colors()
+    local live_colors = {}
+    local st = GAME_STATE
+    for _, f in ipairs(st.fish) do
+        if f.alive then live_colors[#live_colors + 1] = f.lineage_color end
+    end
+    for _, s in ipairs(st.sharks) do
+        if s.alive then live_colors[#live_colors + 1] = s.lineage_color end
+    end
+    return live_colors
+end
+
 function new_fish(x, depth)
     local data = GAME_STATE.data
     local cfg = data.creatures.fish
@@ -18,7 +30,7 @@ function new_fish(x, depth)
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,
-        lineage_color = generate_procedural_color(id),
+        lineage_color = generate_procedural_color(id, collect_live_colors()),
         mature = false,
         alive = true,
     }
@@ -45,7 +57,7 @@ function new_shark(x, depth)
         radius = cfg.radius,
         max_speed = cfg.max_speed,
         max_force = cfg.max_force,
-        lineage_color = generate_procedural_color(id),
+        lineage_color = generate_procedural_color(id, collect_live_colors()),
         mature = false,
         alive = true,
         in_retreat = false,

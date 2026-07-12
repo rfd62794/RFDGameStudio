@@ -1563,6 +1563,27 @@ def _hex_to_rgb(hex_color: str):
     return int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
 
 
+def _hex_to_hsl(hex_color: str):
+    """Convert an #RRGGBB hex string to HSL (h in degrees, s/l 0-1)."""
+    r, g, b = _hex_to_rgb(hex_color)
+    r, g, b = r / 255, g / 255, b / 255
+    mx = max(r, g, b)
+    mn = min(r, g, b)
+    l = (mx + mn) / 2
+    if mx == mn:
+        return 0, 0, l
+    d = mx - mn
+    s = d / (2 - mx - mn) if l > 0.5 else d / (mx + mn)
+    if mx == r:
+        h = (g - b) / d + (6 if g < b else 0)
+    elif mx == g:
+        h = (b - r) / d + 2
+    else:
+        h = (r - g) / d + 4
+    h = (h * 60) % 360
+    return h, s, l
+
+
 def test_hsl_to_rgb_and_rgb_to_hex_produce_valid_hex() -> None:
     """hsl_to_rgb + rgb_to_hex produce a valid #RRGGBB string."""
     session = load_game("shoal", seed=42)
@@ -1582,12 +1603,25 @@ def test_generate_procedural_color_is_deterministic() -> None:
     assert color1 == color2
 
 
-def test_generate_procedural_color_varies_by_id() -> None:
-    """Different IDs produce different colors."""
+def test_generate_procedural_color_varies_by_numeric_id() -> None:
+    """Sequential numeric IDs produce different colors."""
     session = load_game("shoal", seed=42)
-    ids = ["fish_alpha", "fish_beta", "shark_gamma", "fish_delta"]
+    ids = ["fish_1", "fish_2", "fish_3", "fish_4", "shark_5", "fish_6"]
     colors = [call(session, "generate_procedural_color", id) for id in ids]
     assert len(set(colors)) == len(colors)
+
+
+def test_sequential_ids_produce_broad_hue_spread() -> None:
+    """Consecutive numeric IDs scatter across the full hue wheel, not a cluster."""
+    session = load_game("shoal", seed=42)
+    hues = []
+    for i in range(1, 31):
+        color = call(session, "generate_procedural_color", f"fish_{i}")
+        h, _, _ = _hex_to_hsl(color)
+        hues.append(h)
+    # Require a broad spread: at least 90° between the min and max hue.
+    spread = max(hues) - min(hues)
+    assert spread >= 90
 
 
 def test_generate_procedural_color_avoids_reserved_colors() -> None:
@@ -1612,6 +1646,42 @@ def test_generate_procedural_color_avoids_reserved_colors() -> None:
             dg = g - rc[1]
             db = b - rc[2]
             assert math.sqrt(dr * dr + dg * dg + db * db) >= min_distance
+
+
+def test_live_color_deduplication_keeps_creatures_distinct() -> None:
+    """Two creatures spawned with the same live color set avoid each other."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    first = state["fish"][0]["color"]
+    state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    second = state["fish"][1]["color"]
+    r1, g1, b1 = _hex_to_rgb(first)
+    r2, g2, b2 = _hex_to_rgb(second)
+    assert math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2) >= 30
+
+
+def test_dead_creature_color_becomes_available_for_reuse() -> None:
+    """Killing a creature frees its color for a new spawn."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    first_color = state["fish"][0]["color"]
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+    state = call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    second_color = state["fish"][0]["color"]
+    # The same color is allowed to be reused once the original creature is dead.
+    assert second_color == first_color
 
 
 def test_creature_colors_avoid_reserved_colors() -> None:
