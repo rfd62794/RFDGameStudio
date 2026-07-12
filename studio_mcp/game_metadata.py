@@ -11,6 +11,12 @@ import json
 import subprocess
 from pathlib import Path
 
+_LOG = Path(r"C:\Github\RFDGameStudio\game_metadata_debug.log")
+
+def _log(message: str) -> None:
+    with _LOG.open("a", encoding="utf-8") as f:
+        f.write(f"{message}\n")
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # External repos whose git history is the source of truth for a game.
