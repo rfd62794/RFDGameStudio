@@ -31,9 +31,15 @@ function force_arrive(x, y, vx, vy, tx, ty, weight, max_speed, max_force, slowin
     local dist = math.sqrt(dx * dx + dy * dy)
     if dist == 0 then return 0, 0 end
 
+    local speed_sq = vx * vx + vy * vy
+    local speed = math.sqrt(speed_sq)
+    local stopping_dist = speed_sq / (2 * max_force)
+
     local desired_speed = max_speed
-    if dist < slowing_radius then
-        desired_speed = max_speed * (dist / slowing_radius)
+    if dist < stopping_dist then
+        desired_speed = 0
+    elseif dist < slowing_radius then
+        desired_speed = max_speed * (dist - stopping_dist) / (slowing_radius - stopping_dist)
     end
 
     local desired_vx = (dx / dist) * desired_speed
