@@ -408,6 +408,14 @@ function count_algae_nodules(st)
     return n
 end
 
+function count_algae_nodule_capacity(st)
+    local total = 0
+    for _, core in ipairs(st.algae) do
+        total = total + (core.max_nodules or #core.nodules)
+    end
+    return total
+end
+
 function build_render_state(st)
     local out = {
         world = {
@@ -484,11 +492,15 @@ end
 function get_state_summary()
     if not GAME_STATE then return nil end
     local st = GAME_STATE
+    local live = st.stats.algae_count
+    local total = count_algae_nodule_capacity(st)
     return {
         initialized = true,
         fish_count = st.stats.fish_count,
         shark_count = st.stats.shark_count,
-        algae_count = st.stats.algae_count,
+        algae_count = live,
+        algae_capacity = total,
+        algae_available = total - live,
         chunk_count = st.stats.chunk_count,
         tick_count = st.tick_count,
     }
