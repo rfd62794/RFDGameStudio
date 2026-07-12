@@ -458,3 +458,60 @@ def test_shark_prefers_nearby_chunk_over_farther_fish() -> None:
     for _ in range(5):
         state = call(session, "tick_game", 0.1, {})
     assert state["sharks"][0]["depth"] > 100
+
+
+def test_force_arrive_brakes_when_close_and_fast() -> None:
+    """force_arrive produces a steering force opposing current velocity when close."""
+    session = load_game("shoal", seed=42)
+    # Moving fast downward toward a target just below should produce upward steering.
+    sx, sy = call(session, "force_arrive", 0, 0, 0, 100, 0, 10, 1, 120, 80, 30)
+    assert sy < 0
+    assert sx == 0
+
+
+def test_fish_slows_inside_slowing_radius() -> None:
+    """Fish within slowing_radius approach algae at a lower speed than one outside."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 310, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 400, "clicked": True })
+
+    for _ in range(10):
+        state = call(session, "tick_game", 0.1, {})
+
+    inside_fish = state["fish"][0]
+    outside_fish = state["fish"][1]
+    assert inside_fish["depth"] < 320
+    assert outside_fish["depth"] > 330
+
+
+def test_turn_rate_limits_direction_change() -> None:
+    """A creature cannot turn instantly; a hard turn takes multiple ticks."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["fish"]["max_turn_rate"] = 0.1
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["steering_weights"]["fish"]["seek_algae"] = 0.5
+
+    call(session, "init_game", data)
+    # Fish starts at 300,300, with a shark below pushing it upward and an algae to the right.
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 450, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "algae", "x": 400, "y": 300, "clicked": True })
+
+    state = call(session, "tick_game", 0.1, {})
+    assert abs(state["fish"][0]["x"] - 300) < 0.5
