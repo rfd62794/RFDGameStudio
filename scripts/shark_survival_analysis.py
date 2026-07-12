@@ -205,6 +205,8 @@ def main() -> None:
     if hunger_trends:
         print(f"Mean hunger trend (last - first hunger_at_meal): {statistics.mean(hunger_trends):.2f}")
         print(f"Median hunger trend: {statistics.median(hunger_trends):.2f}")
+    if exposures:
+        print(f"Mean exposure at death: {statistics.mean(exposures):.2f}")
 
     print("\n" + "=" * 80)
     print("VERDICT")
@@ -213,11 +215,14 @@ def main() -> None:
     mean_ratio = statistics.mean(ratios)
     median_interval_s = statistics.median(meal_intervals) * DT if meal_intervals else float("inf")
     mean_hunger_trend = statistics.mean(hunger_trends) if hunger_trends else 0
+    mean_exposure = statistics.mean(exposures) if exposures else 0
 
     # Use the actual refund values configured for the current run.
     # The first run is authoritative; all seeds share the same data.yaml.
     fish_refund = all_runs[0]["fish_refund"]
     chunk_refund = all_runs[0]["chunk_refund"]
+    exposure_threshold = all_runs[0]["exposure_threshold"]
+    exposure_damage_rate = all_runs[0]["exposure_damage_rate"]
     fish_net = median_interval_s - fish_refund
     chunk_net = median_interval_s - chunk_refund
 
@@ -235,6 +240,13 @@ def main() -> None:
                 "Dead sharks had active targets and ate mostly chunks. With a median interval of "
                 f"{median_interval_s:.2f}s, each chunk refund (-{chunk_refund}) leaves a net hunger gain of "
                 f"{chunk_net:.2f} per cycle. The chunk reward is structurally insufficient."
+            )
+        elif mean_exposure >= exposure_threshold and mean_hunger_trend > 0:
+            verdict = "throughput problem (exposure damage dominates hunger)"
+            reason = (
+                "Dead sharks had active targets and found food, but their exposure reached the threshold and "
+                f"exposure damage ({exposure_damage_rate}/s) added to hunger faster than the chunk/fish refunds. "
+                "The reward math is healthy in isolation, so starvation is driven by exposure accumulation, not by reward size."
             )
         elif mean_hunger_trend > 0:
             verdict = "throughput problem"
