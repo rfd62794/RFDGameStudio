@@ -47,7 +47,6 @@ creatures:
     hunger_rate: 0.05
     graze_radius: 8
     max_safe_cold_rate: 8
-    slowing_radius: 30
     max_turn_rate: 4.0
     cold:
       threshold: 100
@@ -63,7 +62,6 @@ creatures:
     breed_age: 18
     breed_fed_threshold: 3
     starve_limit: 12
-    slowing_radius: 40
     max_turn_rate: 3.0
     exposure:
       threshold: 100

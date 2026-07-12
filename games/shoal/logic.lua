@@ -108,21 +108,23 @@ function update_creatures(st, dt)
     end
 end
 
-local function limit_turn(old_vx, old_vy, new_vx, new_vy, max_turn_rate, dt)
-    local old_speed = math.sqrt(old_vx * old_vx + old_vy * old_vy)
-    if old_speed < 0.01 then
-        return new_vx, new_vy
-    end
-
+local function limit_turn(old_vx, old_vy, new_vx, new_vy, max_turn_rate, max_speed, dt)
     local old_angle = math.atan(old_vy, old_vx)
     local new_angle = math.atan(new_vy, new_vx)
     local speed = math.sqrt(new_vx * new_vx + new_vy * new_vy)
+
+    if speed < 0.01 then
+        return new_vx, new_vy
+    end
+
+    local speed_ratio = math.min(speed / max_speed, 1.0)
+    local effective_turn_rate = max_turn_rate * (2.0 - speed_ratio)
 
     local diff = new_angle - old_angle
     while diff > math.pi do diff = diff - 2 * math.pi end
     while diff < -math.pi do diff = diff + 2 * math.pi end
 
-    local max_delta = max_turn_rate * dt
+    local max_delta = effective_turn_rate * dt
     if diff > max_delta then diff = max_delta
     elseif diff < -max_delta then diff = -max_delta end
 
@@ -146,7 +148,11 @@ function move_creature(c, dt)
     c.vd = c.vd + fy * dt
 
     local vx, vd = limit_vector(c.vx, c.vd, c.max_speed)
-    c.vx, c.vd = limit_turn(old_vx, old_vd, vx, vd, data.creatures[c.type].max_turn_rate, dt)
+    c.vx, c.vd = limit_turn(old_vx, old_vd, vx, vd, data.creatures[c.type].max_turn_rate, c.max_speed, dt)
+
+    local drag = 0.99
+    c.vx = c.vx * drag
+    c.vd = c.vd * drag
 
     c.x = wrap_x(c.x + c.vx * dt, st.world)
     c.depth = clamp_depth(c.depth + c.vd * dt, st.world)
@@ -240,43 +246,60 @@ function update_discrete_events(st, dt)
     for _, s in ipairs(st.sharks) do
         if not s.alive then goto next_shark end
         local ate = false
+
+        -- find nearest overlapping fish
+        local nearest_fish, nearest_fish_d2 = nil, nil
         for _, f in ipairs(st.fish) do
-            if f.alive and distance(s.x, s.depth, f.x, f.depth) <= s.radius + f.radius then
-                local speed = math.sqrt(f.vx * f.vx + f.vd * f.vd)
-                local speed_ratio = speed / f.max_speed
-                local escape_chance = data.creatures.fish.escape_chance
-                if speed_ratio > 0.8 then
-                    escape_chance = escape_chance + data.creatures.fish.escape_speed_bonus
-                end
-                if math.random() < escape_chance then
-                    -- escaped: knock the fish away so it isn't re-caught next tick
-                    local dx, dy = f.x - s.x, f.depth - s.depth
-                    local dist = math.sqrt(dx * dx + dy * dy)
-                    if dist > 0 then
-                        local kb = data.creatures.fish.escape_knockback
-                        f.x = wrap_x(f.x + (dx / dist) * kb, st.world)
-                        f.depth = clamp_depth(f.depth + (dy / dist) * kb, st.world)
+            if f.alive then
+                local d2 = dist2(s.x, s.depth, f.x, f.depth)
+                local touch_radius = s.radius + f.radius
+                if d2 <= touch_radius * touch_radius then
+                    if not nearest_fish_d2 or d2 < nearest_fish_d2 then
+                        nearest_fish, nearest_fish_d2 = f, d2
                     end
-                else
-                    kill_creature(st, f)
-                    s.hunger = math.max(0, s.hunger - 4)
-                    s.fed = (s.fed or 0) + 1
-                    ate = true
-                    break
                 end
             end
         end
-        if not ate then
-            for i = #st.chunks, 1, -1 do
-                local c = st.chunks[i]
-                if distance(s.x, s.depth, c.x, c.depth) <= s.radius + c.radius then
-                    table.remove(st.chunks, i)
-                    s.hunger = math.max(0, s.hunger - 2)
-                    s.fed = (s.fed or 0) + 1
-                    ate = true
-                    break
+
+        -- find nearest overlapping chunk
+        local nearest_chunk, nearest_chunk_d2, chunk_index = nil, nil, nil
+        for i, c in ipairs(st.chunks) do
+            local d2 = dist2(s.x, s.depth, c.x, c.depth)
+            local touch_radius = s.radius + c.radius
+            if d2 <= touch_radius * touch_radius then
+                if not nearest_chunk_d2 or d2 < nearest_chunk_d2 then
+                    nearest_chunk, nearest_chunk_d2, chunk_index = c, d2, i
                 end
             end
+        end
+
+        if nearest_fish and (not nearest_chunk or nearest_fish_d2 <= nearest_chunk_d2) then
+            local speed = math.sqrt(nearest_fish.vx * nearest_fish.vx + nearest_fish.vd * nearest_fish.vd)
+            local speed_ratio = speed / nearest_fish.max_speed
+            local escape_chance = data.creatures.fish.escape_chance
+            if speed_ratio > 0.8 then
+                escape_chance = escape_chance + data.creatures.fish.escape_speed_bonus
+            end
+            if math.random() < escape_chance then
+                -- escaped: knock the fish away so it isn't re-caught next tick
+                local dx, dy = nearest_fish.x - s.x, nearest_fish.depth - s.depth
+                local dist = math.sqrt(dx * dx + dy * dy)
+                if dist > 0 then
+                    local kb = data.creatures.fish.escape_knockback
+                    nearest_fish.x = wrap_x(nearest_fish.x + (dx / dist) * kb, st.world)
+                    nearest_fish.depth = clamp_depth(nearest_fish.depth + (dy / dist) * kb, st.world)
+                end
+            else
+                kill_creature(st, nearest_fish)
+                s.hunger = math.max(0, s.hunger - 4)
+                s.fed = (s.fed or 0) + 1
+                ate = true
+            end
+        elseif nearest_chunk then
+            table.remove(st.chunks, chunk_index)
+            s.hunger = math.max(0, s.hunger - 2)
+            s.fed = (s.fed or 0) + 1
+            ate = true
         end
         if s.hunger >= data.creatures.shark.starve_limit then
             kill_creature(st, s)
