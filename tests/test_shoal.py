@@ -346,26 +346,14 @@ def test_chunk_does_not_despawn_before_reaching_floor() -> None:
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
-    data["creatures"]["fish"]["escape_chance"] = 0
     data["flesh_chunk"]["min_spawn"] = 1
     data["flesh_chunk"]["max_spawn"] = 1
     data["flesh_chunk"]["sink_rate"] = 0
-    data["steering_weights"]["shark"]["seek_fish"] = 0
-    data["steering_weights"]["shark"]["seek_flesh"] = 0
-    data["steering_weights"]["shark"]["wander"] = 0
-    data["steering_weights"]["fish"]["wander"] = 0
-    data["steering_weights"]["fish"]["seek_algae"] = 0
-    data["steering_weights"]["fish"]["depth_bias"] = 0
 
     call(session, "init_game", data)
     call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
-    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
-
-    for _ in range(5):
-        state = call(session, "tick_game", 0.05, {})
+    state = call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
     assert state["stats"]["chunk_count"] == 1
-
-    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
 
     for _ in range(100):
         state = call(session, "tick_game", 0.1, {})
