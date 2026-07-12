@@ -704,7 +704,14 @@ def studio_deploy_arcade() -> dict:
 
         # Tier 1 + Tier 2 verification before pushing live. Verification does not
         # block deploy; it adds information to the same report Robert reviews.
-        verification = verify_arcade_deploy()
+        try:
+            verification = verify_arcade_deploy()
+        except Exception as exc:
+            verification = {
+                "ok": False,
+                "error": f"verification itself failed: {exc}",
+                "games": {},
+            }
 
         venv_python = _SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe"
         deploy_script = _SITE_REPO_PATH / "deploy_smart.py"

@@ -80,7 +80,12 @@ def get_embed_games(repo_root: Path = REPO_ROOT) -> list[dict[str, str]]:
     games: list[dict[str, str]] = []
     config_root = repo_root / "ts" / "src" / "games"
     for config_file in config_root.glob("*/config.ts"):
-        text = config_file.read_text(encoding="utf-8")
+        try:
+            text = config_file.read_text(encoding="utf-8")
+        except Exception as exc:
+            # A corrupted/unreadable config file should not take down the whole
+            # verification pass.
+            continue
         game_id_match = _GAME_CONFIG_RE.search(text)
         embed_url_match = _EMBED_URL_RE.search(text)
         if game_id_match and embed_url_match:
@@ -98,42 +103,53 @@ def check_http_reachable(base_url: str, deployed_path: Path | None) -> dict:
     For remote embedUrls (e.g. VoidRift's itch.io iframe), deployed_path is None
     and a simple HTTP HEAD/GET check is done instead.
     """
-    if deployed_path is None:
-        return _check_remote_reachable(base_url)
+    try:
+        if deployed_path is None:
+            return _check_remote_reachable(base_url)
 
-    index_path = deployed_path / "index.html"
-    if not index_path.exists():
+        index_path = deployed_path / "index.html"
+        if not index_path.exists():
+            return {
+                "ok": False,
+                "reason": "index.html not found in deployed output",
+                "index": False,
+                "assets": {},
+            }
+
+        html = index_path.read_text(encoding="utf-8")
+        asset_paths = _HREF_SRC_RE.findall(html)
+        site_root = _site_root_for(deployed_path, base_url)
+        if site_root is None:
+            raise TypeError(f"site_root is None for base_url {base_url!r}")
+
+        assets: dict[str, bool] = {}
+
+        for asset in asset_paths:
+            if asset.startswith("http://") or asset.startswith("https://"):
+                # External assets are not checked on disk; they are outside the
+                # deploy pipeline's scope. They are still reported as skipped.
+                assets[asset] = True
+                continue
+            if asset.startswith("/"):
+                asset_file = site_root / asset.lstrip("/")
+            else:
+                asset_file = deployed_path / asset
+            assets[asset] = asset_file.exists()
+
+        all_ok = all(assets.values())
+        return {
+            "ok": all_ok,
+            "index": True,
+            "assets": assets,
+            "missing_assets": [a for a, ok in assets.items() if not ok],
+        }
+    except Exception as exc:
         return {
             "ok": False,
-            "reason": "index.html not found in deployed output",
             "index": False,
+            "reason": f"check_http_reachable crashed for {base_url!r}: {exc}",
             "assets": {},
         }
-
-    html = index_path.read_text(encoding="utf-8")
-    asset_paths = _HREF_SRC_RE.findall(html)
-    site_root = _site_root_for(deployed_path, base_url)
-    assets: dict[str, bool] = {}
-
-    for asset in asset_paths:
-        if asset.startswith("http://") or asset.startswith("https://"):
-            # External assets are not checked on disk; they are outside the
-            # deploy pipeline's scope. They are still reported as skipped.
-            assets[asset] = True
-            continue
-        if asset.startswith("/"):
-            asset_file = site_root / asset.lstrip("/")
-        else:
-            asset_file = deployed_path / asset
-        assets[asset] = asset_file.exists()
-
-    all_ok = all(assets.values())
-    return {
-        "ok": all_ok,
-        "index": True,
-        "assets": assets,
-        "missing_assets": [a for a, ok in assets.items() if not ok],
-    }
 
 
 def _check_remote_reachable(url: str) -> dict:
@@ -179,11 +195,20 @@ def check_renders(local_preview_url: str, game_id: str, screenshot_dir: Path) ->
     screenshot_dir.mkdir(parents=True, exist_ok=True)
     screenshot_path = screenshot_dir / f"{game_id}.png"
     errors: list[str] = []
+    root_content = 0
 
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch()
-            page = browser.new_page()
+            try:
+                browser = p.chromium.launch()
+            except Exception as exc:
+                raise RuntimeError(f"browser launch failed for {game_id}: {exc}")
+
+            try:
+                page = browser.new_page()
+            except Exception as exc:
+                raise RuntimeError(f"new_page failed for {game_id}: {exc}")
+
             page.on("pageerror", lambda e: errors.append(str(e)))
             page.on(
                 "console",
@@ -197,15 +222,34 @@ def check_renders(local_preview_url: str, game_id: str, screenshot_dir: Path) ->
 
             # Prefer #root; fall back to body for remote embeds that don't use
             # the same root id. We still call it root_has_content for reporting.
-            root_content = page.evaluate(
-                "document.getElementById('root')?.innerHTML.length || "
-                "document.body?.innerHTML.length || 0"
-            )
-            page.screenshot(path=str(screenshot_path))
-            browser.close()
+            try:
+                raw_root_content = page.evaluate(
+                    "document.getElementById('root')?.innerHTML.length || "
+                    "document.body?.innerHTML.length || 0"
+                )
+            except Exception as exc:
+                raise RuntimeError(f"page.evaluate failed for {game_id}: {exc}")
+
+            if raw_root_content is None:
+                raise TypeError(f"page.evaluate returned None for {game_id}")
+            try:
+                root_content = int(raw_root_content)
+            except Exception as exc:
+                raise TypeError(
+                    f"page.evaluate returned non-int for {game_id}: {raw_root_content!r} ({exc})"
+                )
+
+            try:
+                page.screenshot(path=str(screenshot_path))
+            except Exception as exc:
+                raise RuntimeError(f"screenshot failed for {game_id}: {exc}")
+
+            try:
+                browser.close()
+            except Exception as exc:
+                raise RuntimeError(f"browser.close failed for {game_id}: {exc}")
     except Exception as exc:
         errors.append(str(exc))
-        root_content = 0
 
     return {
         "ok": root_content > 0 and len(errors) == 0,
@@ -229,37 +273,59 @@ def verify_arcade_deploy(public_dir: Path = PUBLIC_DIR) -> dict:
             "games": {},
         }
 
-    games = get_embed_games()
+    try:
+        games = get_embed_games()
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"get_embed_games failed: {exc}",
+            "games": {},
+        }
+
     verification: dict[str, dict] = {}
 
-    with _LocalServer(public_dir) as server:
-        for game in games:
-            game_id = game["game_id"]
-            embed_url = game["embed_url"]
+    try:
+        with _LocalServer(public_dir) as server:
+            for game in games:
+                game_id = game["game_id"]
+                embed_url = game["embed_url"]
 
-            if embed_url.startswith("http://") or embed_url.startswith("https://"):
-                # Remote embed (e.g. VoidRift itch iframe). Tier 1 does a simple
-                # HTTP reachability check; Tier 2 is not run because the page is
-                # not under our control and headless WebGL often fails without a GPU.
-                http_result = _check_remote_reachable(embed_url)
-                render_result: dict = {
-                    "ok": None,
-                    "reason": "remote embed; Tier 2 not run",
-                }
-            else:
-                deployed_path = public_dir / embed_url.lstrip("/")
-                preview_url = server.url + embed_url
-                http_result = check_http_reachable(embed_url, deployed_path)
-                render_result = check_renders(preview_url, game_id, SCREENSHOT_DIR)
+                try:
+                    if embed_url.startswith("http://") or embed_url.startswith("https://"):
+                        # Remote embed (e.g. VoidRift itch iframe). Tier 1 does a simple
+                        # HTTP reachability check; Tier 2 is not run because the page is
+                        # not under our control and headless WebGL often fails without a GPU.
+                        http_result = _check_remote_reachable(embed_url)
+                        render_result: dict = {
+                            "ok": None,
+                            "reason": "remote embed; Tier 2 not run",
+                        }
+                    else:
+                        deployed_path = public_dir / embed_url.lstrip("/")
+                        preview_url = server.url + embed_url
+                        http_result = check_http_reachable(embed_url, deployed_path)
+                        render_result = check_renders(preview_url, game_id, SCREENSHOT_DIR)
 
-            verification[game_id] = {
-                "embed_url": embed_url,
-                "http": http_result,
-                "render": render_result,
-            }
+                    verification[game_id] = {
+                        "embed_url": embed_url,
+                        "http": http_result,
+                        "render": render_result,
+                    }
+                except Exception as exc:
+                    verification[game_id] = {
+                        "embed_url": embed_url,
+                        "error": f"verify_arcade_deploy game loop crashed for {game_id}: {exc}",
+                    }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"verify_arcade_deploy crashed: {exc}",
+            "games": verification,
+        }
 
     overall_ok = all(
-        v["http"].get("ok") and (v["render"]["ok"] if v["render"]["ok"] is not None else True)
+        v.get("http", {}).get("ok")
+        and (v.get("render", {}).get("ok") if v.get("render", {}).get("ok") is not None else True)
         for v in verification.values()
     )
 

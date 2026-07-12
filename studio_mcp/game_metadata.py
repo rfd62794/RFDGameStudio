@@ -39,13 +39,22 @@ GAME_PATHS: dict[str, list[str]] = {
 
 
 def _run_git(cwd: Path, args: list[str]) -> str:
-    """Run a git command and return stripped stdout."""
+    """Run a git command and return stripped stdout.
+
+    The repo is trusted (it is this project or a known external repo), so the
+    safe.directory check is bypassed for the exact cwd. Git failures are no
+    longer silently ignored.
+    """
+    safe_dir = str(cwd.resolve())
     result = subprocess.run(
-        ["git", *args],
+        ["git", "-c", f"safe.directory={safe_dir}", *args],
         capture_output=True,
         text=True,
         cwd=str(cwd),
     )
+    if result.returncode != 0:
+        stderr = result.stderr.strip() if result.stderr else ""
+        raise RuntimeError(f"git failed in {cwd}: {stderr}")
     return result.stdout.strip()
 
 
