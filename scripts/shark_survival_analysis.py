@@ -132,7 +132,8 @@ def main() -> None:
             meal_intervals.append(avg)
         print(
             f"{r['seed']:>6} {r['shark_id']:>9} {r['tick']:>6} {r['lifespan_ticks']:>6} "
-            f"{ratio:>13.3f} {r['meal_count']:>6} {avg if avg is not None else 'N/A':>15} "
+            f"{ratio:>13.3f} {r['meal_count']:>6} "
+            f"{f'{avg:>15.1f}' if avg is not None else f'{"N/A":>15}'} "
             f"{r['cause']:>11} {r['hunger']:>8.2f} {r['exposure']:>10.2f}"
         )
 
