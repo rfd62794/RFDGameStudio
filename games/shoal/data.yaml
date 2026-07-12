@@ -24,17 +24,20 @@ lineages:
     - { id: f-orchid, color: "#a855f7", name: "Orchid Purple" }
     - { id: f-rose, color: "#ec4899", name: "Rose Petal" }
     - { id: f-azure, color: "#2563eb", name: "Royal Azure" }
+    - { id: f-fuchsia, color: "#d946ef", name: "Fuchsia Bloom" }
+    - { id: f-amber, color: "#f59e0b", name: "Golden Amber" }
   shark:
     - { id: s-obsidian, color: "#1e293b", name: "Slate Obsidian" }
     - { id: s-crimson, color: "#dc2626", name: "Deep Crimson" }
     - { id: s-emerald, color: "#059669", name: "Abyssal Emerald" }
     - { id: s-indigo, color: "#4f46e5", name: "Deep Indigo" }
-
+    - { id: s-violet, color: "#6d28d9", name: "Storm Violet" }
+    - { id: s-ash, color: "#78716c", name: "Ash Gray" }
 creatures:
   fish:
     max_speed: 120
     max_force: 80
-    radius: 4
+    radius: 5
     perception:
       algae: 250
       shark: 190
