@@ -70,7 +70,7 @@ creatures:
     starve_limit: 20
     max_turn_rate: 6.0
     home_depth: 300
-    home_bias_weight: 4.0
+    home_bias_weight: 0.6
     fish_hunger_refund: 4
     exposure:
       threshold: 100
@@ -88,7 +88,7 @@ steering_weights:
     align: 0.6
     cohere: 0.35
     wander: 0.4
-    depth_bias: 4.0
+    depth_bias: 0.6
   shark:
     seek_fish: 1.5
     seek_flesh: 1.5

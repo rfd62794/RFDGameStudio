@@ -60,7 +60,13 @@ function force_depth_arrive(depth, vd, target_depth, weight, max_speed, max_forc
 
     local desired_vd = (dy > 0 and 1 or -1) * desired_speed
     local steer_y = desired_vd - vd
-    return steer_y * weight
+
+    -- Normalize to max_force scale like every other force function.
+    local magnitude = math.min(math.abs(steer_y), max_speed)
+    local normalized = (magnitude / max_speed) * max_force
+    local sign = steer_y >= 0 and 1 or -1
+
+    return sign * normalized * weight
 end
 
 function force_flee(x, y, tx, ty, weight, max_force, radius_sq)
