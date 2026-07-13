@@ -11,6 +11,7 @@ import ledgerConfig from './ledger/config';
 import shoalConfig from './shoal/config';
 import trinitySiegeConfig from './trinity_siege/config';
 import slimebreederConfig from './slimebreeder/config';
+import corpworldConfig from './corpworld/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -29,6 +30,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   shoalConfig,
   trinitySiegeConfig,
   slimebreederConfig,
+  corpworldConfig,
 ];
 
 /**
@@ -37,4 +39,3 @@ export const GAME_REGISTRY: GameConfig[] = [
 export function findGame(gameId: string): GameConfig | undefined {
   return GAME_REGISTRY.find(g => g.gameId === gameId);
 }
-
