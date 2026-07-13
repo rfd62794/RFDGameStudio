@@ -12,6 +12,7 @@ import shoalConfig from './shoal/config';
 import trinitySiegeConfig from './trinity_siege/config';
 import slimebreederConfig from './slimebreeder/config';
 import corpworldConfig from './corpworld/config';
+import slimegardenConfig from './slimegarden/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -31,6 +32,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   trinitySiegeConfig,
   slimebreederConfig,
   corpworldConfig,
+  slimegardenConfig,
 ];
 
 /**
