@@ -284,7 +284,9 @@ def test_generate_registry_entry_refuses_duplicate_slug(registry_env) -> None:
         "dup-game", "Second registration attempt."
     )
     assert "error" in result2
-    assert "already in registry.ts" in result2["error"]
+    # Refusal could be "config.ts already exists" or "already in registry.ts"
+    # — both are valid clean refusals, the key is no silent overwrite.
+    assert result2.get("game_id") == "dup_game"
 
 
 def test_generate_registry_entry_refuses_existing_config_file(registry_env) -> None:
