@@ -17,6 +17,7 @@ Fifteen tools exposed to Claude:
   studio_deploy_arcade       — copy dist/ to site repo static, then hugo build + SFTP deploy
   studio_process_intake      — hash and version dropped AI-Studio zip files
   studio_promote_to_examples — extract, build, and deploy an intake concept to the arcade
+  studio_generate_registry_entry — create config.ts + registry entry for a new external-tier game
 
 All tools return dicts. Errors are returned as {"error": str, "tool": str}.
 No exceptions are raised to the MCP client.
@@ -885,7 +886,7 @@ def studio_promote_to_examples(
 
     1. Extracts intake/{concept_slug}/{concept_slug}_v{version}.zip into
        examples/{concept_slug}/ (clearing prior src/, dist/, and index.html).
-    2. Refuses to proceed if vite.config.ts is missing `base: '/arcade/{game_id}/'`.
+    2. Auto-injects or corrects `base: '/arcade/{game_id}/'` in vite.config.ts (idempotent).
     3. Reuses a sibling example's node_modules when package.json dependencies match.
     4. Builds with the direct vite binary (node .../vite/bin/vite.js build).
     5. Deploys the dist/ to local-arcade-preview/arcade/{game_id}/ via robocopy /PURGE.
@@ -941,7 +942,7 @@ def studio_promote_to_examples(
     except Exception as exc:
         return {"error": f"failed to extract zip: {exc}", "tool": "studio_promote_to_examples"}
 
-    # Verify base path.
+    # Auto-fix base path (after extraction, before build — every call, idempotent).
     vite_config = examples_dir / "vite.config.ts"
     if not vite_config.exists():
         return {
@@ -953,19 +954,25 @@ def studio_promote_to_examples(
     content = vite_config.read_text(encoding="utf-8")
     base_match = re.search(r'base\s*:\s*(["\'])(.*?)\1', content)
     if base_match is None:
-        return {
-            "error": "vite.config.ts is missing `base`; refusing to build",
-            "tool": "studio_promote_to_examples",
-            "base_expected": expected_base,
-        }
-    actual_base = base_match.group(2)
-    if actual_base != expected_base:
-        return {
-            "error": f"vite.config.ts has base={actual_base!r}, expected {expected_base!r}; refusing to build",
-            "tool": "studio_promote_to_examples",
-            "base_found": actual_base,
-            "base_expected": expected_base,
-        }
+        # No base key at all — inject one right after the opening `return {`
+        content = re.sub(
+            r'(return\s*\{)',
+            rf"\1\n    base: '{expected_base}',",
+            content,
+            count=1,
+        )
+        vite_config.write_text(content, encoding="utf-8")
+        base_action = "injected"
+        actual_base = expected_base
+    elif base_match.group(2) != expected_base:
+        # Wrong base — replace in place, preserving quote style
+        content = content[:base_match.start(2)] + expected_base + content[base_match.end(2):]
+        vite_config.write_text(content, encoding="utf-8")
+        base_action = "corrected"
+        actual_base = expected_base
+    else:
+        base_action = "already-correct"
+        actual_base = expected_base
 
     # Ensure node_modules (reuse sibling if needed).
     node_modules = _ensure_node_modules(examples_dir)
@@ -1006,6 +1013,7 @@ def studio_promote_to_examples(
             "version": used_version,
             "source_zip": str(zip_path),
             "base": actual_base,
+            "base_action": base_action,
             "build": build_result,
             "error": "Build failed",
             "tool": "studio_promote_to_examples",
@@ -1020,6 +1028,7 @@ def studio_promote_to_examples(
             "version": used_version,
             "source_zip": str(zip_path),
             "base": actual_base,
+            "base_action": base_action,
             "build": build_result,
             "error": "dist/ does not exist after build",
             "tool": "studio_promote_to_examples",
@@ -1042,6 +1051,7 @@ def studio_promote_to_examples(
             "version": used_version,
             "source_zip": str(zip_path),
             "base": actual_base,
+            "base_action": base_action,
             "build": build_result,
             "error": "Deploy timed out (120s)",
             "tool": "studio_promote_to_examples",
@@ -1053,6 +1063,7 @@ def studio_promote_to_examples(
             "version": used_version,
             "source_zip": str(zip_path),
             "base": actual_base,
+            "base_action": base_action,
             "build": build_result,
             "error": f"Deploy failed to start: {exc}",
             "tool": "studio_promote_to_examples",
@@ -1073,7 +1084,129 @@ def studio_promote_to_examples(
         "version": used_version,
         "source_zip": str(zip_path),
         "base": actual_base,
+        "base_action": base_action,
         "build": build_result,
         "deploy": deploy_result,
         "duration_ms": duration_ms,
+    }
+
+
+# ── GENERATE REGISTRY ENTRY ─────────────────────────────────────────────────
+
+
+def _camel_case_from_game_id(game_id: str) -> str:
+    """Convert underscore game_id to camelCase (e.g. trinity_siege → trinitySiege)."""
+    parts = game_id.split("_")
+    return parts[0] + "".join(p.capitalize() for p in parts[1:])
+
+
+def studio_generate_registry_entry(
+    slug: str,
+    description: str,
+    color: str = "#6c8ef7",
+) -> dict:
+    """Create ts/src/games/{game_id}/config.ts and add the corresponding
+    import + registry entry to ts/src/games/registry.ts, for a new
+    external-tier (embedUrl) game. Does not touch any existing entry.
+
+    slug: kebab-case folder slug (e.g. "trinity-siege")
+    description: human-readable game description for the arcade card
+    color: hex accent color for the arcade card (default "#6c8ef7")
+    Returns: {"slug": str, "game_id": str, "config_path": str,
+              "import_name": str, "registry_modified": bool}
+    """
+    game_id = _game_id_from_slug(slug)
+    import_name = f"{_camel_case_from_game_id(game_id)}Config"
+    label = " ".join(p.capitalize() for p in slug.split("-"))
+
+    repo_root = Path(__file__).parent.parent
+    games_src = repo_root / "ts" / "src" / "games"
+    config_dir = games_src / game_id
+    config_path = config_dir / "config.ts"
+    registry_path = games_src / "registry.ts"
+
+    # Refuse if config.ts already exists.
+    if config_path.exists():
+        return {
+            "error": f"config.ts already exists at {config_path}",
+            "tool": "studio_generate_registry_entry",
+            "slug": slug,
+            "game_id": game_id,
+        }
+
+    # Refuse if registry.ts doesn't exist (shouldn't happen, but guard).
+    if not registry_path.exists():
+        return {
+            "error": f"registry.ts not found at {registry_path}",
+            "tool": "studio_generate_registry_entry",
+            "slug": slug,
+            "game_id": game_id,
+        }
+
+    registry_content = registry_path.read_text(encoding="utf-8")
+
+    # Refuse if game_id is already referenced in the registry.
+    if f"./{game_id}/config" in registry_content:
+        return {
+            "error": f"slug {slug!r} (game_id {game_id!r}) is already in registry.ts",
+            "tool": "studio_generate_registry_entry",
+            "slug": slug,
+            "game_id": game_id,
+        }
+
+    # Create config.ts.
+    config_template = (
+        "import type { GameConfig } from '../../engine/types';\n"
+        "\n"
+        "const config: GameConfig = {{\n"
+        "  gameId: '{game_id}',\n"
+        "  label: '{label}',\n"
+        "  description: '{description}',\n"
+        "  color: '{color}',\n"
+        "  status: 'external',\n"
+        "  embedUrl: '/arcade/{game_id}/',\n"
+        "}};\n"
+        "\n"
+        "export default config;\n"
+    )
+    config_text = config_template.format(
+        game_id=game_id,
+        label=label,
+        description=description,
+        color=color,
+    )
+    config_dir.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(config_text, encoding="utf-8")
+
+    # Minimal insertion into registry.ts: one import line + one array entry.
+    import_line = f"import {import_name} from './{game_id}/config';\n"
+
+    # Insert import after the last existing import line.
+    lines = registry_content.splitlines(keepends=True)
+    last_import_idx = -1
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("import "):
+            last_import_idx = i
+    if last_import_idx < 0:
+        # Fallback: insert at the very top.
+        lines.insert(0, import_line)
+    else:
+        lines.insert(last_import_idx + 1, import_line)
+
+    # Insert array entry before the closing `];` of GAME_REGISTRY.
+    registry_text = "".join(lines)
+    array_entry = f"  {import_name},\n"
+    registry_text = registry_text.replace(
+        "];\n",
+        f"{array_entry}];\n",
+        1,
+    )
+    registry_path.write_text(registry_text, encoding="utf-8")
+
+    return {
+        "slug": slug,
+        "game_id": game_id,
+        "config_path": str(config_path),
+        "import_name": import_name,
+        "registry_modified": True,
     }
