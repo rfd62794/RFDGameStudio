@@ -115,7 +115,7 @@ def test_verify_arcade_deploy_runs_tier1_and_tier2(tmp_path, monkeypatch) -> Non
     )
     monkeypatch.setattr(verify_module, "SCREENSHOT_DIR", tmp_path / "screenshots")
 
-    result = verify_arcade_deploy(public)
+    result = verify_arcade_deploy(public, include_render=True)
 
     assert result["ok"] is True
     assert result["games"]["demo"]["http"]["ok"] is True
