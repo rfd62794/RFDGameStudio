@@ -701,6 +701,17 @@ def studio_deploy_arcade() -> dict:
             if demo_target.exists():
                 shutil.rmtree(demo_target)
             shutil.copytree(demo_dist, demo_target)
+
+            # Verify the copy actually landed before moving on
+            if not demo_target.exists() or not (demo_target / "index.html").exists():
+                return {
+                    "error": f"copytree reported no exception but {demo_target} "
+                             f"is missing or has no index.html after copying from "
+                             f"{demo_dist}. Deploy aborted before SFTP step.",
+                    "tool": "studio_deploy_arcade",
+                    "failed_demo": demo_slug,
+                }
+
             copied_files += sum(1 for _ in demo_target.rglob("*") if _.is_file())
 
         hugo_exe = _SITE_REPO_PATH / "hugo.exe"
