@@ -1,9 +1,14 @@
 # Corpworld — Intake History
 
-Current version: 0.1.0R4
+Current version: 0.1.0R5
 Status: prototyping
 
 ## Version History
+
+### 0.1.0R5 — 2026-07-12T22:55:04
+- Hash: a87e3cf1cf49d9a275c7c16548a0c5e42811005b8b78579502461cd8b7d15b57
+- Source file: corpworld_v0.1.0R5.zip
+- Note: Phase 4 (Multi-Action Orders & Civic Directive), verified against source before intake — strongest submission of the session, everything checked out. playerOrders correctly restructured to array-per-cell (types.ts:107). Save-time validation exceeds the directive's minimum bar: WeeklyOrdersPanel.tsx implements defense-in-depth — a hard-capped stepper UI that structurally cannot input more than unallocated units, PLUS an independent cumulative check with a real rejection message ('Cannot authorize deployment: combined troop allocation exceeds garrison units.') before the order is constructed. Civic Directive confirmed genuinely independent of unit orders (civic filtered separately in handleAddExpandOrder/handleRemoveOrderAt). Both focus effects verified numerically correct: defense = $10,000 cost + 1 Fortification (capped at 3, matching existing max); production = productionProgress += 2 instead of 1 when hasProductionCivic, correctly halving the production cycle as specified. Unrest focus confirmed genuinely inert: real disabled HTML attribute, greyed styling, cursor-not-allowed, clear tooltip - not clickable, does nothing. combat.ts and mapGenerator.ts confirmed byte-identical via diff, zero scope creep. One process gap: the agent's own completion summary included none of the pasted verification the directive required (no screenshots, no over-allocation trace, no diff confirmation) - everything happened to be true this time when independently checked, but the summary alone provided no way to know that without doing the verification pass ourselves.
 
 ### 0.1.0R4 — 2026-07-12T22:17:59
 - Hash: 347cf79ac20f706be41a9f1abfd75629a048dc7f14b8f6b93830e5626d4b35f5
