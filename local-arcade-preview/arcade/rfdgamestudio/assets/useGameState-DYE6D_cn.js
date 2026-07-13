@@ -1,1 +1,0 @@
-import{r as e}from"./index-DZv_fsHP.js";function c(r,s){const[a,n]=e.useState(null),[i,o]=e.useState(null);return e.useEffect(()=>{try{n(s(r))}catch(t){o(t instanceof Error?t.message:String(t))}},[r]),{state:a,setState:n,isInitialized:a!==null,initError:i}}export{c as u};
