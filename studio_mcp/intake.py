@@ -17,7 +17,7 @@ from __future__ import annotations
 import hashlib
 import re
 import zipfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -70,6 +70,7 @@ class VersionEntry:
     hash: str
     source_file: str
     note: str = ""
+    warnings: list[str] = field(default_factory=list)
 
 
 def _parse_version(version: str) -> tuple[int, int, int, int]:
@@ -165,6 +166,7 @@ def load_manifest(concept_dir: Path, slug: str) -> tuple[list[VersionEntry], str
         hash_match = re.search(r"^\s*-\s*Hash:\s*(\S+)", body, re.MULTILINE)
         source_match = re.search(r"^\s*-\s*Source file:\s*(.+?)$", body, re.MULTILINE)
         note_match = re.search(r"^\s*-\s*Note:\s*(.+?)$", body, re.MULTILINE)
+        warning_matches = re.findall(r"^\s*-\s*Warning:\s*(.+?)$", body, re.MULTILINE)
 
         entries.append(
             VersionEntry(
@@ -173,6 +175,7 @@ def load_manifest(concept_dir: Path, slug: str) -> tuple[list[VersionEntry], str
                 hash=hash_match.group(1) if hash_match else "",
                 source_file=source_match.group(1).strip() if source_match else "",
                 note=note_match.group(1).strip() if note_match else "",
+                warnings=[w.strip() for w in warning_matches],
             )
         )
 
@@ -200,6 +203,8 @@ def write_manifest(concept_dir: Path, slug: str, current_version: str, status: s
         lines.append(f"- Source file: {entry.source_file}")
         if entry.note:
             lines.append(f"- Note: {entry.note}")
+        for warning in entry.warnings:
+            lines.append(f"- Warning: {warning}")
         lines.append("")
 
     manifest_path.write_text("\n".join(lines), encoding="utf-8")
@@ -224,6 +229,55 @@ def _validate_slug(slug: str) -> None:
         raise ValueError("concept_slug must not be empty")
     if "/" in slug or "\\" in slug or ".." in slug:
         raise ValueError(f"Invalid concept_slug: {slug!r}")
+
+
+def _game_id_from_slug(slug: str) -> str:
+    """Map the intake/examples folder slug to the arcade URL game id.
+
+    Examples use kebab-case folder names (`trinity-siege`) but the deployed
+    arcade URL uses underscores (`trinity_siege`).
+    """
+    return slug.replace("-", "_")
+
+
+def _check_vite_base(zip_path: Path, slug: str) -> list[str]:
+    """Return warnings if the zip's vite.config.ts is missing a correct base path.
+
+    AI-Studio-exported React games must set `base: '/arcade/{game_id}/'` so
+    assets resolve when served from the arcade subpath.
+    """
+    warnings: list[str] = []
+    game_id = _game_id_from_slug(slug)
+    expected_base = f"/arcade/{game_id}/"
+
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            vite_name = None
+            for name in zf.namelist():
+                if name == "vite.config.ts" or name.endswith("/vite.config.ts"):
+                    vite_name = name
+                    break
+
+            if vite_name is None:
+                warnings.append("zip does not contain vite.config.ts; cannot verify base path")
+                return warnings
+
+            content = zf.read(vite_name).decode("utf-8", errors="replace")
+    except Exception as exc:
+        warnings.append(f"could not read vite.config.ts: {exc}")
+        return warnings
+
+    match = re.search(r'base\s*:\s*(["\'])(.*?)\1', content)
+    if match is None:
+        warnings.append(
+            f"vite.config.ts is missing `base`; assets will 404 when served from {expected_base!r}"
+        )
+    elif match.group(2) != expected_base:
+        warnings.append(
+            f"vite.config.ts has base={match.group(2)!r}, expected {expected_base!r}"
+        )
+
+    return warnings
 
 
 def process_intake(concept_slug: str, bump: str | None = None, note: str | None = None) -> dict:
@@ -255,6 +309,7 @@ def process_intake(concept_slug: str, bump: str | None = None, note: str | None 
     processed: list[dict] = []
     duplicates: list[dict] = []
     errors: list[str] = []
+    warnings: list[str] = []
     applied_bump = False
     applied_note = False
 
@@ -291,12 +346,15 @@ def process_intake(concept_slug: str, bump: str | None = None, note: str | None 
 
             zip_path.rename(target_path)
 
+            zip_warnings = _check_vite_base(target_path, concept_slug)
+
             entry = VersionEntry(
                 version=new_version,
                 timestamp=created,
                 hash=file_hash,
                 source_file=new_name,
                 note=use_note or "",
+                warnings=zip_warnings,
             )
             entries.insert(0, entry)
             current_version = new_version
@@ -311,8 +369,10 @@ def process_intake(concept_slug: str, bump: str | None = None, note: str | None 
                     "created": created,
                     "modified": modified,
                     "note": use_note,
+                    "warnings": zip_warnings,
                 }
             )
+            warnings.extend(zip_warnings)
 
             applied_bump = True
             if use_note:
@@ -329,6 +389,7 @@ def process_intake(concept_slug: str, bump: str | None = None, note: str | None 
         "processed": processed,
         "duplicates": duplicates,
         "errors": errors,
+        "warnings": warnings,
         "current_version": current_version,
         "manifest_path": str(_manifest_path(concept_dir)),
     }

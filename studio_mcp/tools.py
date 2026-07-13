@@ -1,6 +1,6 @@
 """tools.py — MCP tool definitions for RFDStudioMCP.
 
-Fourteen tools exposed to Claude:
+Fifteen tools exposed to Claude:
   studio_load_game           — load a game session, return session_id
   studio_call                — call a named Lua function on a session
   studio_get_schema          — return entity schema from data.yaml
@@ -15,6 +15,8 @@ Fourteen tools exposed to Claude:
   studio_write_arcade_index  — write the _index.md for the arcade bundle in the site repo
   studio_write_arcade_page   — write a child game page under the arcade bundle
   studio_deploy_arcade       — copy dist/ to site repo static, then hugo build + SFTP deploy
+  studio_process_intake      — hash and version dropped AI-Studio zip files
+  studio_promote_to_examples — extract, build, and deploy an intake concept to the arcade
 
 All tools return dicts. Errors are returned as {"error": str, "tool": str}.
 No exceptions are raised to the MCP client.
@@ -22,7 +24,13 @@ No exceptions are raised to the MCP client.
 
 from __future__ import annotations
 
+import json
 import os
+import re
+import shutil
+import subprocess
+import time
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +39,7 @@ import yaml
 from studio.executor import LuaError
 from studio.runtime import load_game
 from studio_mcp.game_metadata import write_game_metadata
-from studio_mcp.intake import process_intake
+from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
 from studio_mcp.session_store import create_session, get_session
 from studio_mcp.verify import verify_arcade_deploy
 
@@ -511,8 +519,9 @@ def studio_screenshot(
 def studio_build() -> dict:
     """Run vite build and return structured output.
 
-    On success, RFDArcadeServe (port 5174) automatically picks up
-    the new dist/ at next request — no service restart needed.
+    Builds `ts/dist/`.  `RFDArcadeServe` now reads from `local-arcade-preview/`,
+    so the build must also be copied there (e.g. `robocopy /PURGE` or
+    `studio_deploy_arcade`) before the service picks it up.
 
     Returns: {"success": bool, "output": str, "duration_ms": int}
     """
@@ -750,9 +759,310 @@ def studio_process_intake(concept_slug: str, bump: str | None = None, note: str 
     explicitly declaring a semantic change.
 
     Returns: {"concept_slug": str, "processed": list, "duplicates": list,
-              "errors": list, "current_version": str, "manifest_path": str}
+              "errors": list, "warnings": list, "current_version": str,
+              "manifest_path": str}
     """
     try:
         return process_intake(concept_slug, bump=bump, note=note)
     except Exception as exc:
         return {'error': str(exc), 'tool': 'studio_process_intake'}
+
+
+# ── PROMOTE TO EXAMPLES ─────────────────────────────────────────────────────
+
+
+def _package_deps_match(path_a: Path, path_b: Path) -> bool:
+    """Compare dependency sections of two package.json files."""
+    try:
+        a = json.loads(path_a.read_text(encoding="utf-8"))
+        b = json.loads(path_b.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    return (
+        a.get("dependencies") == b.get("dependencies")
+        and a.get("devDependencies") == b.get("devDependencies")
+    )
+
+
+def _vite_binary(node_modules: Path) -> Path | None:
+    """Return the path to the direct vite.js binary if it exists."""
+    candidate = node_modules / "vite" / "bin" / "vite.js"
+    return candidate if candidate.exists() else None
+
+
+def _ensure_node_modules(examples_dir: Path) -> Path | None:
+    """Return a usable node_modules path for the project.
+
+    If the project already has a usable node_modules, it is returned.
+    Otherwise, an existing sibling examples/{other}/node_modules with matching
+    package.json dependencies is linked as a directory junction.
+    """
+    project_node_modules = examples_dir / "node_modules"
+
+    if project_node_modules.exists():
+        if os.path.isjunction(str(project_node_modules)) or project_node_modules.is_symlink():
+            # If it is a link, use it as-is as long as it has vite.
+            return _vite_binary(project_node_modules) and project_node_modules
+        if _vite_binary(project_node_modules):
+            return project_node_modules
+        # Empty or incomplete directory: remove it and try to link.
+        shutil.rmtree(project_node_modules)
+
+    project_pkg = examples_dir / "package.json"
+    if not project_pkg.exists():
+        return None
+
+    repo_root = Path(__file__).parent.parent
+    examples_root = repo_root / "examples"
+    if not examples_root.exists():
+        return None
+
+    for sibling_dir in examples_root.iterdir():
+        if not sibling_dir.is_dir() or sibling_dir == examples_dir:
+            continue
+        sibling_pkg = sibling_dir / "package.json"
+        sibling_node_modules = sibling_dir / "node_modules"
+        if (
+            sibling_pkg.exists()
+            and sibling_node_modules.exists()
+            and _package_deps_match(project_pkg, sibling_pkg)
+            and _vite_binary(sibling_node_modules)
+        ):
+            try:
+                subprocess.run(
+                    ["cmd", "/c", "mklink", "/J", str(project_node_modules), str(sibling_node_modules)],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                return project_node_modules
+            except Exception:
+                # If the junction cannot be created, the caller can still try
+                # the sibling path directly as a last resort.
+                return sibling_node_modules
+
+    return None
+
+
+def _resolve_intake_zip(intake_dir: Path, concept_slug: str, version: str | None) -> Path | None:
+    """Find the requested (or latest) versioned zip in the intake directory."""
+    from studio_mcp.intake import load_manifest
+
+    if version:
+        candidate = intake_dir / f"{concept_slug}_v{version}.zip"
+        return candidate if candidate.exists() else None
+
+    _, current_version, _ = load_manifest(intake_dir, concept_slug)
+    if current_version:
+        candidate = intake_dir / f"{concept_slug}_v{current_version}.zip"
+        if candidate.exists():
+            return candidate
+
+    # Fallback: latest versioned zip by creation time.
+    versioned = sorted(
+        intake_dir.glob(f"{concept_slug}_v*.zip"),
+        key=lambda p: p.stat().st_ctime,
+        reverse=True,
+    )
+    return versioned[0] if versioned else None
+
+
+def studio_promote_to_examples(
+    concept_slug: str, version: str | None = None
+) -> dict:
+    """Promote an intake zip into examples/{concept_slug}, build, and deploy.
+
+    1. Extracts intake/{concept_slug}/{concept_slug}_v{version}.zip into
+       examples/{concept_slug}/ (clearing prior src/, dist/, and index.html).
+    2. Refuses to proceed if vite.config.ts is missing `base: '/arcade/{game_id}/'`.
+    3. Reuses a sibling example's node_modules when package.json dependencies match.
+    4. Builds with the direct vite binary (node .../vite/bin/vite.js build).
+    5. Deploys the dist/ to local-arcade-preview/arcade/{game_id}/ via robocopy /PURGE.
+
+    concept_slug: folder name used in intake/ and examples/ (kebab-case is fine)
+    version: optional version string (e.g. "0.1.0R3"); if omitted, the latest
+             MANIFEST.md current_version is used.
+    Returns: {"concept_slug": str, "game_id": str, "version": str,
+              "source_zip": str, "base": str, "build": dict, "deploy": dict,
+              "duration_ms": int}
+    """
+    start = time.time()
+
+    repo_root = Path(__file__).parent.parent
+    intake_dir = repo_root / "intake" / concept_slug
+    game_id = _game_id_from_slug(concept_slug)
+    examples_dir = repo_root / "examples" / concept_slug
+    preview_target = repo_root / "local-arcade-preview" / "arcade" / game_id
+    expected_base = f"/arcade/{game_id}/"
+
+    if not intake_dir.exists():
+        return {"error": f"intake/{concept_slug}/ does not exist", "tool": "studio_promote_to_examples"}
+
+    zip_path = _resolve_intake_zip(intake_dir, concept_slug, version)
+    if zip_path is None:
+        return {
+            "error": f"No versioned zip found for {concept_slug!r}",
+            "tool": "studio_promote_to_examples",
+            "version": version,
+        }
+
+    used_version = version or zip_path.stem.rsplit("_v", 1)[-1]
+
+    # Clear the parts we want refreshed from the zip.
+    for name in ("src", "dist"):
+        target = examples_dir / name
+        if target.exists():
+            shutil.rmtree(target)
+    index_html = examples_dir / "index.html"
+    if index_html.exists():
+        index_html.unlink()
+
+    examples_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            members = [
+                info
+                for info in zf.infolist()
+                if not info.filename.startswith("node_modules/")
+            ]
+            zf.extractall(path=str(examples_dir), members=members)
+    except Exception as exc:
+        return {"error": f"failed to extract zip: {exc}", "tool": "studio_promote_to_examples"}
+
+    # Verify base path.
+    vite_config = examples_dir / "vite.config.ts"
+    if not vite_config.exists():
+        return {
+            "error": f"vite.config.ts not found in examples/{concept_slug}/",
+            "tool": "studio_promote_to_examples",
+            "base_expected": expected_base,
+        }
+
+    content = vite_config.read_text(encoding="utf-8")
+    base_match = re.search(r'base\s*:\s*(["\'])(.*?)\1', content)
+    if base_match is None:
+        return {
+            "error": "vite.config.ts is missing `base`; refusing to build",
+            "tool": "studio_promote_to_examples",
+            "base_expected": expected_base,
+        }
+    actual_base = base_match.group(2)
+    if actual_base != expected_base:
+        return {
+            "error": f"vite.config.ts has base={actual_base!r}, expected {expected_base!r}; refusing to build",
+            "tool": "studio_promote_to_examples",
+            "base_found": actual_base,
+            "base_expected": expected_base,
+        }
+
+    # Ensure node_modules (reuse sibling if needed).
+    node_modules = _ensure_node_modules(examples_dir)
+    vite_bin = _vite_binary(node_modules) if node_modules else None
+    if vite_bin is None:
+        return {
+            "error": "No usable node_modules found for this project and no matching sibling example",
+            "tool": "studio_promote_to_examples",
+        }
+
+    # Build with the direct vite binary.
+    try:
+        build_proc = subprocess.run(
+            ["node", str(vite_bin), "build"],
+            cwd=str(examples_dir),
+            capture_output=True,
+            text=True,
+            timeout=120,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except subprocess.TimeoutExpired:
+        return {"error": "Build timed out (120s)", "tool": "studio_promote_to_examples"}
+    except Exception as exc:
+        return {"error": f"Build failed to start: {exc}", "tool": "studio_promote_to_examples"}
+
+    build_output = (build_proc.stdout or "") + (build_proc.stderr or "")
+    build_result = {
+        "success": build_proc.returncode == 0,
+        "return_code": build_proc.returncode,
+        "output": build_output[-2000:],
+    }
+
+    if build_proc.returncode != 0:
+        return {
+            "concept_slug": concept_slug,
+            "game_id": game_id,
+            "version": used_version,
+            "source_zip": str(zip_path),
+            "base": actual_base,
+            "build": build_result,
+            "error": "Build failed",
+            "tool": "studio_promote_to_examples",
+        }
+
+    # Deploy to local-arcade-preview with robocopy /PURGE.
+    dist_dir = examples_dir / "dist"
+    if not dist_dir.exists():
+        return {
+            "concept_slug": concept_slug,
+            "game_id": game_id,
+            "version": used_version,
+            "source_zip": str(zip_path),
+            "base": actual_base,
+            "build": build_result,
+            "error": "dist/ does not exist after build",
+            "tool": "studio_promote_to_examples",
+        }
+
+    preview_target.mkdir(parents=True, exist_ok=True)
+    try:
+        deploy_proc = subprocess.run(
+            ["robocopy", str(dist_dir), str(preview_target), "/E", "/PURGE"],
+            capture_output=True,
+            text=True,
+            timeout=120,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "concept_slug": concept_slug,
+            "game_id": game_id,
+            "version": used_version,
+            "source_zip": str(zip_path),
+            "base": actual_base,
+            "build": build_result,
+            "error": "Deploy timed out (120s)",
+            "tool": "studio_promote_to_examples",
+        }
+    except Exception as exc:
+        return {
+            "concept_slug": concept_slug,
+            "game_id": game_id,
+            "version": used_version,
+            "source_zip": str(zip_path),
+            "base": actual_base,
+            "build": build_result,
+            "error": f"Deploy failed to start: {exc}",
+            "tool": "studio_promote_to_examples",
+        }
+
+    deploy_output = (deploy_proc.stdout or "") + (deploy_proc.stderr or "")
+    deploy_result = {
+        "return_code": deploy_proc.returncode,
+        "success": deploy_proc.returncode <= 7,
+        "output": deploy_output[-2000:],
+    }
+
+    duration_ms = int((time.time() - start) * 1000)
+
+    return {
+        "concept_slug": concept_slug,
+        "game_id": game_id,
+        "version": used_version,
+        "source_zip": str(zip_path),
+        "base": actual_base,
+        "build": build_result,
+        "deploy": deploy_result,
+        "duration_ms": duration_ms,
+    }
