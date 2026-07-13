@@ -621,13 +621,14 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
-_EXAMPLE_DEMOS = ["brewfield", "ledger", "trinity-siege", "slimebreeder"]
+_EXAMPLE_DEMOS = ["brewfield", "ledger", "trinity-siege", "slimebreeder", "corpworld"]
 # folder name → deployed static subpath (gameId convention uses underscores)
 _DEMO_STATIC_NAME = {
     "brewfield": "brewfield",
     "ledger": "ledger",
     "trinity-siege": "trinity_siege",
     "slimebreeder": "slimebreeder",
+    "corpworld": "corpworld",
 }
 
 # demo slug → source directory (allows demos outside the examples/ tree)
@@ -636,6 +637,7 @@ _DEMO_SOURCE_PATHS: dict[str, Path] = {
     "ledger": Path(__file__).parent.parent / "examples" / "ledger",
     "trinity-siege": Path(__file__).parent.parent / "examples" / "trinity-siege",
     "slimebreeder": Path(r"C:\Github\SlimeBreeder"),
+    "corpworld": Path(__file__).parent.parent / "examples" / "corpworld",
 }
 
 

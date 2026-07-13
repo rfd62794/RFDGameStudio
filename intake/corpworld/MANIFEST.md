@@ -1,9 +1,14 @@
 # Corpworld — Intake History
 
-Current version: 0.1.0R2
+Current version: 0.1.0R3
 Status: prototyping
 
 ## Version History
+
+### 0.1.0R3 — 2026-07-12T21:27:00
+- Hash: d2f7c3c797bd042abe82946c7aceb47cb9bfc288e07c756e577865d2a6d38aa4
+- Source file: corpworld_v0.1.0R3.zip
+- Note: Phase 2b patch, verified against source before intake (not just agent summary). Combat damage now correctly scales with attacker's current round-adjusted strength (attackerCurrentStrength = finalUnits - roundDamage, floored at 0, feeds into attackerEffective before the damage ratio). Confirmed via direct diff: SHAPE_MATRIX, greedy best-counter target selection, and fortification absorption all unchanged. Fix 1 (instant neutral capture) and Fix 2 (save/reload crash) still intact from R2, no regression — all 4 event templates and 4 AI corps present. This resolves the last known issue from R2's note. Ready to promote to examples/ and the local arcade as the current canonical build.
 
 ### 0.1.0R2 — 2026-07-12T21:08:07
 - Hash: 0d3f48daedf54a9e670e33c0c8f6527b145b1efd8798aa9b3a8d2149779ea9c3
