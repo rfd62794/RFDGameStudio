@@ -1156,7 +1156,7 @@ def studio_generate_registry_entry(
 
     # Create config.ts.
     config_template = (
-        "import type { GameConfig } from '../../engine/types';\n"
+        "import type {{ GameConfig }} from '../../engine/types';\n"
         "\n"
         "const config: GameConfig = {{\n"
         "  gameId: '{game_id}',\n"
