@@ -1,9 +1,14 @@
 # Corpworld — Intake History
 
-Current version: 0.1.0R3
+Current version: 0.1.0R4
 Status: prototyping
 
 ## Version History
+
+### 0.1.0R4 — 2026-07-12T22:17:59
+- Hash: 347cf79ac20f706be41a9f1abfd75629a048dc7f14b8f6b93830e5626d4b35f5
+- Source file: corpworld_v0.1.0R4.zip
+- Note: Phase 3 UI redesign, verified against source before intake — the most accurate agent self-report of the whole session, no fabricated claims found. §2.0 log panel scroll bug: genuinely fixed (h-[580px] overflow-hidden on the section, no lg:h-auto override anywhere). §2.2 AlertQueue.tsx: real new component, correctly wired to live derived state (pendingOrdersCount = owned cells filtered by !playerOrders[c.id], gated on isPlanningPhase; hasPendingEvent and activeCombatsCount both read directly from gameState), correct red/amber/cyan traffic-light coding, correctly clears since props recompute from real state each render. §2.3 on-map indicators: real garrison/fortification rendering confirmed, plus a genuine functional toggle (alwaysShowGarrison state, defaults true/Always-On) — note: directive asked for a tested density recommendation, agent shipped a live player toggle instead, which is a reasonable substitution but not literally what was asked. §2.4 combat mode-shift: real AnimatePresence mode=\"wait\" transition, opposing scale/fade on entry and exit, genuine zoom-cut feel, not a bare panel swap. Read-only files (combat.ts, mapGenerator.ts, types.ts) confirmed byte-identical via diff — zero scope creep into logic.
 
 ### 0.1.0R3 — 2026-07-12T21:27:00
 - Hash: d2f7c3c797bd042abe82946c7aceb47cb9bfc288e07c756e577865d2a6d38aa4
