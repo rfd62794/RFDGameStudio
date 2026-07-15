@@ -71,6 +71,48 @@ function breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
   return { vertex_count = final_vertex, irregularity = final_irregularity }
 end
 
+function find_accent_type(accent_targets, diffusion_ratio)
+  for _, target in ipairs(accent_targets or {}) do
+    if target.id ~= "accent_metallic" and target.diffusion_min ~= nil and diffusion_ratio >= target.diffusion_min and diffusion_ratio <= target.diffusion_max then
+      return target
+    end
+  end
+  return nil
+end
+
+function find_accent_intensity(accent_targets, amplitude)
+  for _, target in ipairs(accent_targets or {}) do
+    if target.id ~= "accent_metallic" and target.amplitude_min ~= nil and amplitude >= target.amplitude_min and amplitude <= target.amplitude_max then
+      return target
+    end
+  end
+  return nil
+end
+
+function find_metallic_accent(accent_targets, diffusion_ratio, amplitude)
+  for _, target in ipairs(accent_targets or {}) do
+    if target.id == "accent_metallic" and diffusion_ratio >= target.diffusion_min and diffusion_ratio <= target.diffusion_max and amplitude >= target.amplitude_min and amplitude <= target.amplitude_max then
+      return target
+    end
+  end
+  return nil
+end
+
+function breed_accent(parent_a, parent_b, offspring_vertex_count, offspring_irregularity, offspring_hue)
+  local diffusion_a = parent_a.diffusion_ratio or 20
+  local diffusion_b = parent_b.diffusion_ratio or 20
+  local amplitude_a = parent_a.amplitude or 40
+  local amplitude_b = parent_b.amplitude or 40
+  local offspring_diffusion = (diffusion_a + diffusion_b) / 2
+  local offspring_amplitude = (amplitude_a + amplitude_b) / 2
+  local shape_complexity = ((offspring_vertex_count - 3) / 19) * 0.5 + (offspring_irregularity / 100) * 0.5
+  offspring_diffusion = clamp(offspring_diffusion + (shape_complexity * 100 - offspring_diffusion) * 0.3, 0, 100)
+  local diffusion_distance = math.abs(diffusion_a - diffusion_b) / 100
+  offspring_amplitude = clamp(offspring_amplitude - diffusion_distance * 0.4 * 100, 0, 100)
+  local accent_hue = (offspring_hue + 180 * (offspring_amplitude / 100)) % 360
+  return { diffusion_ratio = offspring_diffusion, amplitude = offspring_amplitude, accent_hue = accent_hue }
+end
+
 function breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
   local hue_a = parent_a.hue or 0
   local hue_b = parent_b.hue or 0
@@ -237,6 +279,10 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   local shape = breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
   child.vertex_count = shape.vertex_count
   child.irregularity = shape.irregularity
+  local accent = breed_accent(parent_a, parent_b, child.vertex_count, child.irregularity, child.hue)
+  child.diffusion_ratio = accent.diffusion_ratio
+  child.amplitude = accent.amplitude
+  child.accent_hue = accent.accent_hue
   table.insert(state.slimes, child)
   state.credits = math.max(0, (state.credits or 0) - 10)
   return child, nil

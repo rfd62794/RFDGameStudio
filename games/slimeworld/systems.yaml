@@ -17,6 +17,10 @@ systems:
       - find_color_target
       - find_shape_target
       - breed_shape
+      - find_accent_type
+      - find_accent_intensity
+      - find_metallic_accent
+      - breed_accent
       - breed_slimes
 
   - id: state_queries

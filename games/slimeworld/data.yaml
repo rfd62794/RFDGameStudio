@@ -47,6 +47,9 @@ slime:
     color_saturation: {min: 0, max: 100, optional: true, description: Legacy saturation field retained by the source state}
     hue: {min: 0, max: 360, optional: true, description: Continuous genetic hue angle}
     saturation: {min: 0, max: 100, optional: true, description: Genetic color purity}
+    diffusion_ratio: {min: 0, max: 100, optional: true, description: Continuous Accent type coordinate}
+    amplitude: {min: 0, max: 100, optional: true, description: Continuous Accent visibility coordinate}
+    accent_hue: {min: 0, max: 360, optional: true, description: Accent display hue derived from Color output and amplitude}
     vertex_count: {min: 3, max: 22, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
     irregularity: {min: 0, max: 100, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
     parent_a: {type: string, optional: true}
@@ -78,6 +81,32 @@ shape_genetics:
   vertex_count_max: 22
   distance_spike_coefficient: 0.5
   target_nudge_strength: 0.6
+
+# --- ACCENT GENETICS ---
+# Real grounding: Turing reaction-diffusion morphogenesis (1952).
+# Diffusion Ratio determines pattern TYPE (real ordered regime sequence).
+# Amplitude determines pattern INTENSITY (real, independent parameter).
+# Shape (vertex_count/irregularity) biases Diffusion Ratio — real
+# surface-geometry effect on pattern formation. Color determines the
+# rendered accent hue via true complementary-color contrast.
+accent_genetics:
+  diffusion_ratio_min: 0
+  diffusion_ratio_max: 100
+  amplitude_min: 0
+  amplitude_max: 100
+  shape_bias_strength: 0.3
+  distance_spike_coefficient: 0.4
+  target_nudge_strength: 0.6
+
+accent_targets:
+  - {id: accent_solid, name: Solid, diffusion_min: 0, diffusion_max: 10}
+  - {id: accent_polka, name: Polka, diffusion_min: 10, diffusion_max: 30}
+  - {id: accent_stripe, name: Stripe, diffusion_min: 45, diffusion_max: 65}
+  - {id: accent_nebula, name: Nebula, diffusion_min: 65, diffusion_max: 85}
+  - {id: accent_ringed, name: Ringed, diffusion_min: 85, diffusion_max: 100}
+  - {id: accent_glow, name: Glow, amplitude_min: 0, amplitude_max: 35}
+  - {id: accent_obsidian, name: Obsidian, amplitude_min: 70, amplitude_max: 100}
+  - {id: accent_metallic, name: Metallic, diffusion_min: 43, diffusion_max: 47, amplitude_min: 68, amplitude_max: 72}
 
 # --- SIX CULTURES ---
 cultures:
