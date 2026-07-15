@@ -114,18 +114,20 @@ def test_advance_cycle_respects_cap_of_4():
 
 
 def test_advance_cycle_contract_spawn_rate():
-    """Over many runs with 1 existing contract, verify spawn rate is roughly 65%."""
+    """Over many runs with 2 existing contracts, verify spawn rate is roughly 65%."""
     session = _load()
     spawn_count = 0
     runs = 100
     for _ in range(runs):
         state = _base_state(contracts=[
             {"id": "c1", "required_color": "Red", "required_pattern": "Solid",
-             "credits_reward": 100, "cycles_remaining": 10, "total_cycles": 10, "flavor_text": "test"}
+             "credits_reward": 100, "cycles_remaining": 10, "total_cycles": 10, "flavor_text": "test"},
+            {"id": "c2", "required_color": "Blue", "required_pattern": "Glow",
+             "credits_reward": 200, "cycles_remaining": 10, "total_cycles": 10, "flavor_text": "test"},
         ])
         result = session.executor.call("advance_cycle", state)
-        # After cycle: old contract still there (cycles_remaining=9), plus maybe new one
-        if len(result["contracts"]) > 1:
+        # After cycle: 2 old contracts still there (cycles_remaining=9), plus maybe new one
+        if len(result["contracts"]) > 2:
             spawn_count += 1
     # Should be roughly 65% — allow 45-85% for randomness
     rate = spawn_count / runs
