@@ -33,6 +33,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   slimebreederConfig,
   corpworldConfig,
   slimegardenConfig,
+  slimeworldConfig,
 ];
 
 /**
