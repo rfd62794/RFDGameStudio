@@ -12,14 +12,17 @@ game:
 lab:
   starting_cycle: 1
   starting_credits: 100
-  starting_roster_count: 2
+  starting_roster_count: 3
   starting_roster_cap: 10
   starting_breeding_success_rate_modifier: 0
   starter_slimes:
     - name: Specimen-Cinder-Alpha
       color: Red
       pattern: Solid
-    - name: Specimen-Abyssal-Beta
+    - name: Specimen-Sulphur-Beta
+      color: Yellow
+      pattern: Solid
+    - name: Specimen-Abyssal-Gamma
       color: Blue
       pattern: Solid
 
