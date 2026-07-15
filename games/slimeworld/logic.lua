@@ -43,6 +43,34 @@ function find_color_target(color_targets, target_id)
   return nil
 end
 
+function find_shape_target(shape_targets, target_id)
+  if shape_targets == nil or target_id == nil then return nil end
+  for _, target in ipairs(shape_targets) do
+    if target.id == target_id then return target end
+  end
+  return nil
+end
+
+function breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
+  local vertex_a = parent_a.vertex_count or 4
+  local vertex_b = parent_b.vertex_count or 4
+  local irregularity_a = parent_a.irregularity or 10
+  local irregularity_b = parent_b.irregularity or 10
+  local offspring_vertex = (vertex_a + vertex_b) / 2
+  local normalized_distance = math.abs(vertex_a - vertex_b) / 19
+  local average_irregularity = (irregularity_a + irregularity_b) / 2
+  local spiked_irregularity = clamp(average_irregularity + normalized_distance * 0.5 * 100, 0, 100)
+  local final_vertex = offspring_vertex
+  local final_irregularity = spiked_irregularity
+  local target = find_shape_target(shape_targets, active_shape_target)
+  if target ~= nil then
+    final_vertex = offspring_vertex + (target.vertex_count - offspring_vertex) * 0.6
+    local target_irregularity_midpoint = ((target.irregularity_min or 0) + target.irregularity_max) / 2
+    final_irregularity = clamp(spiked_irregularity + (target_irregularity_midpoint - spiked_irregularity) * 0.6, 0, 100)
+  end
+  return { vertex_count = final_vertex, irregularity = final_irregularity }
+end
+
 function breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
   local hue_a = parent_a.hue or 0
   local hue_b = parent_b.hue or 0
@@ -198,7 +226,7 @@ function resolve_convert_claim(node, party, relationship, is_discovered, roll)
   return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.6, pressure = pressure, discovered = true } }
 end
 
-function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent)
+function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target)
   if parent_a_id == parent_b_id then return nil, "Parents must differ" end
   if #(state.slimes or {}) >= state.roster_cap then return nil, "Roster capacity reached" end
   local parent_a = find_by_id(state.slimes, parent_a_id)
@@ -206,6 +234,9 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   if parent_a == nil or parent_b == nil then return nil, "Parent not found" end
   local generation = math.max(parent_a.generation or 0, parent_b.generation or 0) + 1
   local child = breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
+  local shape = breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
+  child.vertex_count = shape.vertex_count
+  child.irregularity = shape.irregularity
   table.insert(state.slimes, child)
   state.credits = math.max(0, (state.credits or 0) - 10)
   return child, nil
