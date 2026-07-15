@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import './styles.css';
 import { Coins } from 'lucide-react';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
