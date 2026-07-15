@@ -15,6 +15,14 @@ lab:
   starting_roster_count: 3
   starting_roster_cap: 10
   starting_breeding_success_rate_modifier: 0
+  culture_relationships:
+    Red: 50
+    Blue: 50
+    Yellow: 50
+    Purple: 50
+    Orange: 50
+    Green: 50
+    Gray: 50
   starter_slimes:
     - name: Specimen-Cinder-Alpha
       color: Red
@@ -25,6 +33,11 @@ lab:
     - name: Specimen-Abyssal-Gamma
       color: Blue
       pattern: Solid
+
+constants:
+  WORKER_BASE_INCOME: 5
+  RECYCLE_CREDIT_VALUE: 15
+  CAPITOL_HARDENED_BONUS: 15
 
 # --- SLIME SCHEMA ---
 slime:

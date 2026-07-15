@@ -253,11 +253,12 @@ function resolve_bribe_claim(node, credits_spent, is_discovered, roll)
   return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.5, pressure = pressure, discovered = true } }
 end
 
-function resolve_convert_claim(node, party, relationship, is_discovered, roll)
+function resolve_convert_claim(node, party, culture_relationship, is_discovered, roll)
   if #party == 0 then return { success = false, updated_node = node } end
+  culture_relationship = culture_relationship or 50
   local charm = 0
   for _, slime in ipairs(party) do charm = charm + slime.stats.chm end
-  local adjusted_charm = math.floor(charm * (1 + (relationship - 50) / 100) + 0.5)
+  local adjusted_charm = math.floor(charm * (1 + (culture_relationship - 50) / 100) + 0.5)
   local strength = is_discovered and node.strength or 0.8
   local chance = claim_success_chance(adjusted_charm, 40 + math.floor(strength * 80 + 0.5))
   roll = roll or math.random()
@@ -313,10 +314,27 @@ function bribe_claim_action(state, node_id, credits_spent, roll)
   return result, nil
 end
 
-function convert_claim_action(state, node_id, slime_ids, relationship, roll)
+function convert_target_color(node)
+  if node.owner_color ~= nil then return node.owner_color end
+  local target_color = "Gray"
+  local maximum_pressure = -1
+  for color, pressure in pairs(node.pressure or {}) do
+    if pressure > maximum_pressure then
+      target_color = color
+      maximum_pressure = pressure
+    end
+  end
+  return target_color
+end
+
+function convert_claim_action(state, node_id, slime_ids, culture_relationship, roll)
   local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
   if node == nil then return nil, "Node not found" end
-  local result = resolve_convert_claim(node, select_slimes(state.slimes, slime_ids), relationship, node.discovered, roll)
+  if culture_relationship == nil then
+    local relationships = state.culture_relationships or {}
+    culture_relationship = relationships[convert_target_color(node)] or 50
+  end
+  local result = resolve_convert_claim(node, select_slimes(state.slimes, slime_ids), culture_relationship, node.discovered, roll)
   if result.success then
     for index, current in ipairs(state.planet_region.nodes) do
       if current.id == node_id then state.planet_region.nodes[index] = result.updated_node end
@@ -412,6 +430,62 @@ function toggle_worker_role(state, slime_id)
   return true
 end
 
+function recycle_slime(state, slime_id)
+  if #(state.slimes or {}) <= 1 then return nil, "Cannot recycle final slime" end
+  for index, slime in ipairs(state.slimes or {}) do
+    if slime.id == slime_id then
+      table.remove(state.slimes, index)
+      state.credits = (state.credits or 0) + 15
+      return 15, nil
+    end
+  end
+  return nil, "Slime not found"
+end
+
+function rename_slime(state, slime_id, new_name)
+  if new_name == nil then return nil, "Name required" end
+  local trimmed_name = string.match(new_name, "^%s*(.-)%s*$")
+  if trimmed_name == "" then return nil, "Name required" end
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil then return nil, "Slime not found" end
+  slime.name = trimmed_name
+  return slime, nil
+end
+
+function is_slime_in_matching_culture_environment(slime, nodes)
+  for _, node in ipairs(nodes or {}) do
+    if node.owner_color == slime.color then return true end
+  end
+  return false
+end
+
+function calculate_worker_income(slime, has_auto_feeder, nodes)
+  local income = 5
+  if has_auto_feeder then income = income * 2 end
+  if is_slime_in_matching_culture_environment(slime, nodes) then income = income * 2 end
+  return income
+end
+
+function is_capitol_hardened(node, nodes)
+  if not node.is_capitol or node.owner_color == nil then return false end
+  for _, neighbor_id in ipairs(node.neighbors or {}) do
+    local neighbor = find_by_id(nodes, neighbor_id)
+    if neighbor == nil or neighbor.owner_color ~= node.owner_color then return false end
+  end
+  return true
+end
+
+function has_secure_capitol_garrison(state, node)
+  if not node.is_capitol or node.owner_color == nil or node.strength < 1 then return false end
+  for color, pressure in pairs(node.pressure or {}) do
+    if color ~= node.owner_color and pressure > 0 then return false end
+  end
+  for _, slime in ipairs(state.slimes or {}) do
+    if slime.locked_role == "garrison" and slime.garrisoned_at == node.id then return true end
+  end
+  return false
+end
+
 function advance_cycle(state)
   state.cycle = (state.cycle or 0) + 1
   for _, contract in ipairs(state.contracts or {}) do
@@ -419,6 +493,17 @@ function advance_cycle(state)
   end
   for index = #(state.contracts or {}), 1, -1 do
     if state.contracts[index].cycles_remaining <= 0 then table.remove(state.contracts, index) end
+  end
+  local nodes = state.planet_region and state.planet_region.nodes or {}
+  for _, slime in ipairs(state.slimes or {}) do
+    if slime.locked_role == "worker" then
+      state.credits = (state.credits or 0) + calculate_worker_income(slime, state.has_auto_feeder == true, nodes)
+    end
+  end
+  for _, node in ipairs(nodes) do
+    if has_secure_capitol_garrison(state, node) and is_capitol_hardened(node, nodes) then
+      state.credits = (state.credits or 0) + 15
+    end
   end
   return state.cycle
 end

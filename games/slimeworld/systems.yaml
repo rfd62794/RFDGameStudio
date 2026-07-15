@@ -41,6 +41,7 @@ systems:
       - resolve_force_claim
       - resolve_bribe_claim
       - resolve_convert_claim
+      - convert_target_color
       - force_claim_action
       - bribe_claim_action
       - convert_claim_action
@@ -83,6 +84,8 @@ systems:
     functions:
       - deliver_contract
       - sell_on_market
+      - recycle_slime
+      - rename_slime
 
   - id: upgrades
     description: "Facility upgrades and worker role specialization"
@@ -95,6 +98,10 @@ systems:
     description: "Manual cycle advancement and contract expiration"
     components: [cycle, contracts]
     functions:
+      - is_slime_in_matching_culture_environment
+      - calculate_worker_income
+      - is_capitol_hardened
+      - has_secure_capitol_garrison
       - advance_cycle
 
 entities:
