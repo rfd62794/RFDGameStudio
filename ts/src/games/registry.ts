@@ -13,6 +13,7 @@ import trinitySiegeConfig from './trinity_siege/config';
 import slimebreederConfig from './slimebreeder/config';
 import corpworldConfig from './corpworld/config';
 import slimegardenConfig from './slimegarden/config';
+import { slimeworldConfig } from './slimeworld/config';
 
 /**
  * Formal game registry. Add new games here.
