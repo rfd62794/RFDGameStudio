@@ -15,13 +15,20 @@ function circular_hue_midpoint(hue_a, hue_b)
 end
 
 function snap_to_faction(hue)
-  local anchors = { Red = 0, Orange = 60, Yellow = 120, Green = 180, Purple = 240, Blue = 300 }
-  local closest = "Red"
+  local anchors = {
+    { color = "Red", value = 0 },
+    { color = "Orange", value = 60 },
+    { color = "Yellow", value = 120 },
+    { color = "Green", value = 180 },
+    { color = "Purple", value = 240 },
+    { color = "Blue", value = 300 },
+  }
+  local closest = anchors[1].color
   local minimum_distance = 360
-  for color, anchor in pairs(anchors) do
-    local distance = circular_distance(hue, anchor)
+  for _, anchor in ipairs(anchors) do
+    local distance = circular_distance(hue, anchor.value)
     if distance < minimum_distance then
-      closest = color
+      closest = anchor.color
       minimum_distance = distance
     end
   end

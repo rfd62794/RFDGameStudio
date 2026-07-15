@@ -157,6 +157,15 @@ color_targets:
   - {id: skip_ember_gale_crystal, tier: skip_triad, name: "Skip: Ember-Gale-Crystal", center_hues: [0, 120, 240], tolerance: 10, saturation_min: 15, saturation_max: 20}
   - {id: skip_marsh_tundra_tide, tier: skip_triad, name: "Skip: Marsh-Tundra-Tide", center_hues: [60, 180, 300], tolerance: 10, saturation_min: 15, saturation_max: 20}
 
+# --- SHAPE TARGETS ---
+shape_targets:
+  - {id: shape_triangle, tier: 1, name: Triangle, vertex_count: 3, irregularity_max: 15}
+  - {id: shape_square, tier: 1, name: Square, vertex_count: 4, irregularity_max: 15}
+  - {id: shape_diamond, tier: 1, name: Diamond, vertex_count: 4, irregularity_min: 40, irregularity_max: 100}
+  - {id: shape_pentagon, tier: 2, name: Pentagon, vertex_count: 5, irregularity_max: 15}
+  - {id: shape_hexagon, tier: 1, name: Hexagon, vertex_count: 6, irregularity_max: 15}
+  - {id: shape_octagon, tier: 3, name: Octagon, vertex_count: 8, irregularity_max: 15}
+
 # --- PLANET NODE SCHEMA ---
 planet_node:
   fields:
