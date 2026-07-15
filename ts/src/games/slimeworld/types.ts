@@ -53,6 +53,14 @@ export interface CombatZone { id: string; name: string; requiredColor: SlimeColo
 export interface Mission { id: string; zoneId?: string; targetNodeId?: string; slimeIds: string[]; cyclesRemaining: number; status: 'active' | 'completed' | 'failed'; }
 export interface MarketSaleRecord { color: SlimeColor; cycle: number; }
 
+export interface LogEntry {
+  id: string;
+  cycle: number;
+  timestamp: string;
+  text: string;
+  type: 'system' | 'corporate' | 'breeding' | 'combat' | 'melancholy';
+}
+
 export interface LabState {
   cycle: number;
   credits: number;
@@ -60,12 +68,15 @@ export interface LabState {
   contracts: CorporateContract[];
   zones: CombatZone[];
   activeDispatch: Mission | null;
-  activeMediation?: Mission | null;
-  activeExploration?: Mission | null;
+  logs: LogEntry[];
   rosterCap: number;
   breedingSuccessRateModifier: number;
   recentMarketSales?: MarketSaleRecord[];
   planetRegion?: PlanetRegion | null;
+  wildsRegion?: PlanetRegion | null;
+  wildsUnlocked?: boolean;
+  activeMediation?: Mission | null;
+  activeExploration?: Mission | null;
   hasAutoFeeder?: boolean;
   cultureRelationships?: Record<SlimeColor, number>;
   colorCodex?: Record<SlimeColor, { discovered: boolean }>;

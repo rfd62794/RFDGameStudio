@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import './styles.css';
-import { Coins } from 'lucide-react';
+import {
+  Coins, Clock, Database, Dna, Target, Beaker, Terminal, RefreshCw, Moon,
+  Swords, Compass, Sliders, Briefcase, AlertTriangle, X
+} from 'lucide-react';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
-import { GameShell } from '../../components';
-import { TabBar } from '../../ui/components';
-import { buildBoundsMap, resolveViewport, type LayoutNode } from '../../engine/ui_resolver';
-import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
 import { LabTab } from './components/LabTab';
 import { PlanetTab } from './components/PlanetTab';
-import { luaNodeToTs, luaSlimeToTs, stateToLua, type CorporateContract, type LabState, type Slime, type SlimeColor, type SlimePattern } from './types';
+import { luaNodeToTs, luaSlimeToTs, stateToLua, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
 
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
 const HUES: Record<SlimeColor, number> = { Red: 0, Orange: 60, Yellow: 120, Green: 180, Purple: 240, Blue: 300, Gray: 0 };
@@ -23,7 +23,7 @@ function initialState(session: GameRendererProps['session']): LabState {
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
   const relationships = (lab['culture_relationships'] ?? {}) as Record<SlimeColor, number>;
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: [], zones: [], activeDispatch: null, activeMediation: null, activeExploration: null, planetRegion: null, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {} };
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: [], zones: [], activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: null, wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {} };
 }
 
 function luaResult(value: unknown): [Record<string, unknown> | null, string | null] {
