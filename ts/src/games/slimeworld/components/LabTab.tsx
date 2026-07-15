@@ -1089,6 +1089,7 @@ export function LabTab({
                           state.slimes.filter(s => s.role === 'idle').map(slime => {
                             const count = getRecentSalesCountForColor(slime.color);
                             const currentPrice = calculateMarketPrice(slime, count);
+                            const marketAvailable = Number.isFinite(currentPrice);
                             
                             return (
                               <SpecimenListItem
@@ -1097,10 +1098,11 @@ export function LabTab({
                                 showChevron={false}
                                 action={
                                   <button
-                                    onClick={() => setConfirmMarketSale({ slime, price: currentPrice, recentCount: count })}
-                                    className="px-2.5 py-1.5 rounded bg-cyan-950/30 border border-cyan-700/50 hover:bg-cyan-600 hover:text-white transition-all text-cyan-400 font-bold font-mono text-[9px] uppercase cursor-pointer"
+                                    disabled={!marketAvailable}
+                                    onClick={() => { if (marketAvailable) setConfirmMarketSale({ slime, price: currentPrice, recentCount: count }); }}
+                                    className="px-2.5 py-1.5 rounded bg-cyan-950/30 border border-cyan-700/50 hover:bg-cyan-600 hover:text-white transition-all text-cyan-400 font-bold font-mono text-[9px] uppercase cursor-pointer disabled:opacity-50"
                                   >
-                                    Sell: {currentPrice} Cr
+                                    {marketAvailable ? `Sell: ${currentPrice} Cr` : 'Market pricing unavailable'}
                                   </button>
                                 }
                               />
