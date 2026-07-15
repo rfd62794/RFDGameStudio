@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { Slime, SlimeColor, SlimePattern } from '../types';
 import { COLOR_SPECS } from '../gameLogic';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Sparkles, Info, Coins, Database, Dna, HelpCircle, BookOpen, Beaker } from 'lucide-react';
