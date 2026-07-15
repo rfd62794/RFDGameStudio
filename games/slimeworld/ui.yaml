@@ -37,12 +37,6 @@ layout:
     - id: planet
       label: Planet
       icon: globe
-    - id: economy
-      label: Economy
-      icon: currency
-    - id: codex
-      label: Codex
-      icon: book
 
 header:
   components:
@@ -57,173 +51,251 @@ header:
       field: game_state.credits
       format: currency
 
-# --- LAB TAB ---
 tabs:
   lab:
-    content:
-      - type: stat_display
-        label: "TREASURY"
-        field: game_state.credits
-        format: currency
-      - type: stat_display
-        label: "ROSTER"
-        field: game_state.slimes
-        format: "{value.length} / {game_state.roster_cap}"
-      - type: card_grid
-        data_source: game_state.slimes
-        card_template: slime_card
-        empty_state: "No slimes in roster."
-    slime_card:
-      components:
-        - type: label
-          field: slime.name
-          style: card_title
-        - type: badge
-          field: slime.color
-        - type: badge
-          field: slime.generation
-          format: "GEN {value}"
-        - type: stat_bar
-          label: "Hue"
-          field: slime.hue
-          max: 360
-        - type: stat_bar
-          label: "Saturation"
-          field: slime.saturation
-          max: 100
-        - type: stat_bar
-          label: "Vertex Count"
-          field: slime.vertex_count
-          max: 22
-        - type: stat_bar
-          label: "Irregularity"
-          field: slime.irregularity
-          max: 100
-        - type: stat_bar
-          label: "Diffusion Ratio"
-          field: slime.diffusion_ratio
-          max: 100
-        - type: stat_bar
-          label: "Amplitude"
-          field: slime.amplitude
-          max: 100
-        - type: action_button
-          label: "Sell"
-          event: sell_on_market
-          data: slime.id
-          style: danger
+    tabs: [collection, breeding, slimedex, upgrades, requisitions]
+    collection:
+      content:
+        - type: stat_display
+          label: "Roster"
+          field: game_state.slimes
+          format: "{game_state.slimes.length} / {game_state.roster_cap}"
+        - type: card_grid
+          data_source: game_state.slimes
+          card_template: slime_card
+          empty_state: "No slimes in roster."
+      slime_card:
+        components:
+          - type: label
+            field: slime.name
+            style: card_title
+          - type: badge
+            field: slime.color
+          - type: badge
+            format: "GEN {slime.generation}"
+          - type: label
+            format: "Lv. {slime.level}"
+          - type: stat_bar
+            label: HP
+            field: slime.stats.hp
+            max: 200
+          - type: stat_bar
+            label: ATK
+            field: slime.stats.atk
+            max: 50
+          - type: stat_bar
+            label: DEF
+            field: slime.stats.def
+            max: 50
+          - type: stat_bar
+            label: AGI
+            field: slime.stats.agi
+            max: 50
+          - type: stat_bar
+            label: INT
+            field: slime.stats.int
+            max: 50
+          - type: stat_bar
+            label: CHM
+            field: slime.stats.chm
+            max: 50
+          - type: stat_bar
+            label: Hue
+            field: slime.hue
+            max: 360
+          - type: stat_bar
+            label: Saturation
+            field: slime.saturation
+            max: 100
+          - type: stat_bar
+            label: "Vertex Count"
+            field: slime.vertex_count
+            max: 22
+          - type: stat_bar
+            label: Irregularity
+            field: slime.irregularity
+            max: 100
+          - type: stat_bar
+            label: "Diffusion Ratio"
+            field: slime.diffusion_ratio
+            max: 100
+          - type: stat_bar
+            label: Amplitude
+            field: slime.amplitude
+            max: 100
+          - type: action_button
+            label: "Recycle (+15 Biomass)"
+            event: recycle_slime
+            data: slime.id
+            style: danger
+          - type: action_button
+            label: "Toggle Worker Role"
+            event: toggle_worker_role
+            data: slime.id
     breeding:
-      - type: breed_selector
-        label: "Select Parent A"
-        data_source: game_state.slimes
-        selection_event: select_parent_a
-      - type: breed_selector
-        label: "Select Parent B"
-        data_source: game_state.slimes
-        selection_event: select_parent_b
-      - type: action_button
-        label: "Breed"
-        event: initiate_breeding
-        requires: [parent_a_selected, parent_b_selected, roster_not_full]
+      content:
+        - type: breed_selector
+          label: "Select Parent A"
+          data_source: game_state.slimes
+          selection_event: select_parent_a
+        - type: breed_selector
+          label: "Select Parent B"
+          data_source: game_state.slimes
+          selection_event: select_parent_b
+        - type: label
+          text: "Breeding command adapter required for genetics targets and Regent selection."
+          style: description
+    slimedex:
+      content:
+        - type: label
+          text: "SlimeDex wheel deferred to Phase 5."
+          style: section_title
+        - type: list
+          data_source: game_state.discovered_color_targets
+          item_template: codex_entry
+        - type: list
+          data_source: game_state.discovered_shape_targets
+          item_template: codex_entry
+        - type: list
+          data_source: game_state.discovered_accent_targets
+          item_template: codex_entry
+      codex_entry:
+        components:
+          - type: label
+            field: target.name
+          - type: label
+            field: target.tier
+    upgrades:
+      content:
+        - type: stat_display
+          label: Biomass
+          field: game_state.credits
+          format: currency
+        - type: action_button
+          label: "Grid Expansion (150)"
+          event: buy_upgrade
+          data: "capacity"
+        - type: action_button
+          label: "Stabilizer (200)"
+          event: buy_upgrade
+          data: "stabilizer"
+        - type: action_button
+          label: "Auto-Feeder (250)"
+          event: buy_upgrade
+          data: "autofeeder"
+          requires: [not_already_owned]
+        - type: label
+          text: "Seed specimen purchase requires a Lua action and is deferred."
+          style: description
+    requisitions:
+      tabs: [contracts, market]
+      contracts:
+        content:
+          - type: list
+            data_source: game_state.contracts
+            item_template: contract_item
+            empty_state: "No active contracts."
+        contract_item:
+          components:
+            - type: label
+              field: contract.name
+            - type: label
+              format: "Reward: {contract.credits_reward} Biomass"
+            - type: label
+              format: "{contract.cycles_remaining} cycles remaining"
+            - type: label
+              text: "Delivery requires a matching-specimen selector."
+              style: description
+      market:
+        content:
+          - type: list
+            data_source: game_state.slimes
+            filter: {role: idle}
+            item_template: market_item
+        market_item:
+          components:
+            - type: label
+              field: slime.name
+            - type: label
+              field: slime.color
+            - type: label
+              text: "Market price calculation and sale command adapter are deferred."
+              style: description
 
-  # --- PLANET TAB ---
   planet:
-    content:
-      - type: card_grid
-        data_source: game_state.planet_region.nodes
-        card_template: node_card
-        empty_state: "No planetary sectors discovered."
-    node_card:
-      components:
+    tabs: [regions, mediation, exploration, active, zones]
+    regions:
+      content:
+        - type: card_grid
+          component: PlanetMap
+          data_source: game_state.planet_region.nodes
+          empty_state: "No planetary sectors discovered."
+    mediation:
+      content:
+        - type: list
+          data_source: game_state.planet_region.nodes
+          item_template: mediation_node
         - type: label
-          field: node.name
-          style: card_title
-        - type: badge
-          field: node.owner_color
-          values: {null: "Unclaimed"}
-        - type: stat_bar
-          label: "Strength"
-          field: node.strength
-          max: 1
+          text: "Mediation requires a delegation selector."
+          style: description
+      mediation_node:
+        components:
+          - type: label
+            field: node.name
+          - type: badge
+            field: node.owner_color
+            values: {null: "Unclaimed"}
+    exploration:
+      content:
+        - type: list
+          data_source: game_state.planet_region.nodes
+          item_template: exploration_node
+        - type: label
+          text: "Exploration requires a scout-party selector."
+          style: description
+      exploration_node:
+        components:
+          - type: label
+            field: node.name
+          - type: badge
+            field: node.owner_color
+            values: {null: "Unclaimed"}
+    active:
+      content:
+        - type: list
+          data_source: game_state.active_dispatch
+          item_template: dispatch_item
+          empty_state: "No active dispatch."
         - type: action_button
-          label: "Force Claim"
-          event: force_claim_action
-          data: node.id
-        - type: action_button
-          label: "Bribe"
-          event: bribe_claim_action
-          data: node.id
-        - type: action_button
-          label: "Convert"
-          event: convert_claim_action
-          data: node.id
-        - type: action_button
-          label: "Assign Garrison"
-          event: assign_garrison
-          data: node.id
-          requires: [node_owned]
-
-  # --- ECONOMY TAB ---
-  economy:
-    content:
-      - type: list
-        label: "Active Contracts"
-        data_source: game_state.contracts
-        item_template: contract_item
-        empty_state: "No active contracts."
-      - type: action_button
-        label: "Upgrade Capacity (150g)"
-        event: buy_upgrade
-        data: "capacity"
-      - type: action_button
-        label: "Upgrade Stabilizer (200g)"
-        event: buy_upgrade
-        data: "stabilizer"
-      - type: action_button
-        label: "Install Autofeeder (250g)"
-        event: buy_upgrade
-        data: "autofeeder"
-        requires: [not_already_owned]
-    contract_item:
-      components:
+          label: "Retrieve Completed Dispatch"
+          event: retrieve_completed_dispatch
         - type: label
-          field: contract.name
+          text: "Mission launch and completion flow require renderer command adapters."
+          style: description
+      dispatch_item:
+        components:
+          - type: label
+            field: dispatch.id
+          - type: label
+            format: "Status: {dispatch.status}"
+          - type: label
+            format: "Cycles remaining: {dispatch.cycles_remaining}"
+    zones:
+      content:
+        - type: card_grid
+          data_source: game_state.zones
+          card_template: zone_card
+          empty_state: "No combat zones available."
         - type: label
-          format: "Reward: {contract.credits_reward}g"
-        - type: label
-          format: "Expires in {contract.cycles_remaining} cycles"
-        - type: action_button
-          label: "Deliver"
-          event: deliver_contract
-          data: contract.id
-
-  # --- CODEX TAB ---
-  codex:
-    content:
-      - type: label
-        text: "Discovered Color Targets"
-        style: section_title
-      - type: list
-        data_source: game_state.discovered_color_targets
-        item_template: codex_entry
-      - type: label
-        text: "Discovered Shape Targets"
-        style: section_title
-      - type: list
-        data_source: game_state.discovered_shape_targets
-        item_template: codex_entry
-      - type: label
-        text: "Discovered Accent Targets"
-        style: section_title
-      - type: list
-        data_source: game_state.discovered_accent_targets
-        item_template: codex_entry
-    codex_entry:
-      components:
-        - type: label
-          field: target.name
-        - type: label
-          field: target.tier
+          text: "Dispatch requires a zone and party selector."
+          style: description
+      zone_card:
+        components:
+          - type: label
+            field: zone.name
+            style: card_title
+          - type: label
+            field: zone.description
 
 footer:
   - type: label
