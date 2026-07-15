@@ -95,8 +95,8 @@ systems:
       - toggle_worker_role
 
   - id: cycles
-    description: "Manual cycle advancement, contract spawning, and dual logging"
-    components: [cycle, contracts, logs]
+    description: "Manual cycle advancement, contract spawning, dual logging, planet simulation, stray generation, and wilds unlock"
+    components: [cycle, contracts, logs, planet_region, slimes]
     functions:
       - is_slime_in_matching_culture_environment
       - calculate_worker_income
@@ -104,6 +104,10 @@ systems:
       - has_secure_capitol_garrison
       - generate_contract
       - get_random_melancholic_log
+      - generate_slime_name
+      - create_seed_slime
+      - update_planet_supply_and_pressure
+      - check_wilds_unlock_condition
       - advance_cycle
 
 entities:

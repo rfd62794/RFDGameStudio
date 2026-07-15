@@ -539,6 +539,187 @@ function get_random_melancholic_log(cycle)
   }
 end
 
+local SLIME_NAME_PREFIXES = {
+  "Specimen", "Subject", "Orbital", "Cinder", "Dusty", "Rusty", "Void",
+  "Gloop", "Solder", "Glitch", "Slick", "Vapor", "Anode", "Cathode",
+  "Zero", "Ion", "Debris", "Vector", "Echo", "Drift"
+}
+local SLIME_NAME_SUFFIXES = {
+  "A-01", "B-12", "X", "Beta", "Omega", "Prime", "Zero", "09", "402",
+  "77", "Core", "V", "Dampener", "Isotope", "Sol", "Flux", "Drifter", "Echo"
+}
+
+function generate_slime_name()
+  local p = SLIME_NAME_PREFIXES[math.random(#SLIME_NAME_PREFIXES)]
+  local s = SLIME_NAME_SUFFIXES[math.random(#SLIME_NAME_SUFFIXES)]
+  return p .. "-" .. s
+end
+
+local HUE_MAP = { Red = 0, Orange = 60, Yellow = 120, Green = 180, Purple = 240, Blue = 300, Gray = 0 }
+
+function create_seed_slime(color, pattern)
+  color = color or "Red"
+  pattern = pattern or "Solid"
+  local hue = HUE_MAP[color] or 0
+  local saturation = color == "Gray" and 0 or 100
+  return {
+    id = "slime_" .. os.time() .. "_" .. math.random(1000),
+    name = generate_slime_name(),
+    color = color,
+    pattern = pattern,
+    level = 1,
+    xp = 0,
+    stats = { hp = 100, atk = 10, def = 10, agi = 10, int = 10, chm = 10 },
+    role = "idle",
+    generation = 0,
+    hue = hue,
+    saturation = saturation,
+    color_saturation = saturation,
+    locked_role = nil,
+  }
+end
+
+local BASE_REVOLT_FACTOR = 0.002
+local GARRISON_RISK_REDUCTION_MULTIPLIER = 0.5
+
+function update_planet_supply_and_pressure(nodes)
+  if nodes == nil then return {}, {} end
+  local logs = {}
+
+  -- 1. Accumulate pressure
+  local pressure_changes = {}
+  for _, node in ipairs(nodes) do
+    if node.owner_color and node.is_supplied then
+      local pressure_amount = math.floor(5 + (node.strength or 0) * 10)
+      for _, neighbor_id in ipairs(node.neighbors or {}) do
+        local neighbor = find_by_id(nodes, neighbor_id)
+        if neighbor and neighbor.owner_color ~= node.owner_color then
+          if pressure_changes[neighbor_id] == nil then pressure_changes[neighbor_id] = {} end
+          local current = pressure_changes[neighbor_id][node.owner_color] or 0
+          pressure_changes[neighbor_id][node.owner_color] = current + pressure_amount
+        end
+      end
+    end
+  end
+
+  -- Apply pressure changes & decay
+  for _, node in ipairs(nodes) do
+    local deltas = pressure_changes[node.id]
+    if deltas then
+      for color, amount in pairs(deltas) do
+        node.pressure = node.pressure or {}
+        node.pressure[color] = (node.pressure[color] or 0) + amount
+      end
+    end
+    if node.pressure then
+      for color, val in pairs(node.pressure) do
+        if val > 0 then node.pressure[color] = math.max(0, val - 2) end
+      end
+    end
+  end
+
+  -- 2. Check for ownership flips and revolts
+  local threshold = 100
+  for _, node in ipairs(nodes) do
+    local highest_foreign_color = nil
+    local highest_foreign_pressure = 0
+    if node.pressure then
+      for color, val in pairs(node.pressure) do
+        if color ~= node.owner_color and val > highest_foreign_pressure then
+          highest_foreign_pressure = val
+          highest_foreign_color = color
+        end
+      end
+    end
+    local defense = node.owner_color and math.floor((node.strength or 0) * 100) or 0
+    if highest_foreign_pressure >= threshold and highest_foreign_pressure > defense then
+      local old_owner = node.owner_color or "Unclaimed"
+      table.insert(logs, "TERRITORY FLIP: Node [" .. (node.name or node.id) .. "] has collapsed under external pressure. Control transferred from " .. old_owner .. " to " .. (highest_foreign_color or "?") .. ".")
+      node.owner_color = highest_foreign_color
+      node.strength = 0.3
+      node.pressure = {}
+      node.is_capitol = false
+      node.garrison_slime_id = nil
+    else
+      -- Revolt risk
+      if node.owner_color then
+        local is_garrisoned = node.garrison_slime_id ~= nil
+        local total_foreign_pressure = 0
+        if node.pressure then
+          for color, val in pairs(node.pressure) do
+            if color ~= node.owner_color then total_foreign_pressure = total_foreign_pressure + val end
+          end
+        end
+        if total_foreign_pressure > 0 then
+          local base_revolt_prob = total_foreign_pressure * BASE_REVOLT_FACTOR
+          local final_revolt_prob = is_garrisoned and base_revolt_prob * GARRISON_RISK_REDUCTION_MULTIPLIER or base_revolt_prob
+          local capped_revolt_prob = math.min(0.9, final_revolt_prob)
+          if math.random() < capped_revolt_prob then
+            table.insert(logs, "REVOLT: Node [" .. (node.name or node.id) .. "] has revolted due to unmitigated cultural pressure! Control reverted to Unclaimed.")
+            node.owner_color = nil
+            node.strength = 0
+            node.pressure = {}
+            node.is_capitol = false
+            node.garrison_slime_id = nil
+          end
+        end
+      end
+      -- Steady stabilization or decay
+      if node.owner_color then
+        if node.is_supplied then
+          node.strength = math.min(1.0, (node.strength or 0) + 0.02)
+        else
+          node.strength = math.max(0.1, (node.strength or 0) - 0.08)
+        end
+        node.strength = math.floor(node.strength * 1000) / 1000
+      end
+    end
+  end
+
+  -- 3. BFS Supply Chain from Capitols
+  for _, n in ipairs(nodes) do n.is_supplied = false end
+  for _, capitol in ipairs(nodes) do
+    if capitol.is_capitol and capitol.owner_color then
+      capitol.is_supplied = true
+      local color = capitol.owner_color
+      local queue = { capitol }
+      local visited = { [capitol.id] = true }
+      while #queue > 0 do
+        local current = table.remove(queue, 1)
+        for _, neighbor_id in ipairs(current.neighbors or {}) do
+          local neighbor = find_by_id(nodes, neighbor_id)
+          if neighbor and neighbor.owner_color == color and not visited[neighbor.id] then
+            neighbor.is_supplied = true
+            visited[neighbor.id] = true
+            table.insert(queue, neighbor)
+          end
+        end
+      end
+    end
+  end
+
+  -- 4. Cascade collapse: unsupplied owned non-capitol nodes revert to Unclaimed
+  for _, node in ipairs(nodes) do
+    if node.owner_color and not node.is_supplied and not node.is_capitol then
+      table.insert(logs, "SUPPLY COLLAPSE: Node [" .. (node.name or node.id) .. "] lost same-color supply line connection to its Capitol. Node reverted to Unclaimed.")
+      node.owner_color = nil
+      node.strength = 0
+      node.pressure = {}
+    end
+  end
+
+  return nodes, logs
+end
+
+function check_wilds_unlock_condition(slimes)
+  for _, slime in ipairs(slimes or {}) do
+    if slime.color == "Purple" or slime.color == "Orange" or slime.color == "Green" then
+      return true
+    end
+  end
+  return false
+end
+
 function advance_cycle(state)
   state.cycle = (state.cycle or 0) + 1
 
@@ -583,6 +764,70 @@ function advance_cycle(state)
       state.credits = (state.credits or 0) + 15
     end
   end
+
+  -- Planet territory simulation: supply/pressure, flips, revolts, cascade collapse
+  local region = state.planet_region
+  if region and region.nodes and #region.nodes > 0 then
+    local sim_nodes, sim_logs = update_planet_supply_and_pressure(region.nodes)
+    region.nodes = sim_nodes
+    for _, sim_log in ipairs(sim_logs) do
+      table.insert(state.logs, {
+        id = "log_sim_" .. os.time() .. "_" .. math.random(1000),
+        cycle = state.cycle,
+        text = sim_log,
+        type = "system",
+      })
+    end
+
+    -- Stray generation on node flips (detect owner_color change)
+    -- We detect flips by checking if a node has strength 0.3 and no garrison (post-flip state)
+    -- and generate a stray matching the new owner color
+    local slimes = state.slimes or {}
+    for _, node in ipairs(region.nodes) do
+      -- Check for recently flipped nodes (strength == 0.3, owner_color set, pressure cleared)
+      -- This is a heuristic since we don't have prior state to compare
+      -- We use the sim_logs to detect flips instead
+    end
+    -- Parse sim_logs for TERRITORY FLIP entries to generate strays
+    for _, sim_log in ipairs(sim_logs) do
+      if string.find(sim_log, "TERRITORY FLIP:") then
+        -- Extract the new owner color from the log
+        local new_color = string.match(sim_log, "to (%a+)%.")
+        if new_color and #slimes < (state.roster_cap or 8) then
+          local stray = create_seed_slime(new_color, "Solid")
+          stray.id = "stray_flip_" .. os.time() .. "_" .. math.random(1000)
+          stray.locked_role = "dispatch"
+          stray.name = "Refugee " .. stray.name
+          table.insert(slimes, stray)
+          table.insert(state.logs, {
+            id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000),
+            cycle = state.cycle,
+            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to COMBAT/DISPATCH.",
+            type = "combat",
+          })
+        end
+      end
+    end
+    state.slimes = slimes
+  end
+
+  -- Wilds unlock check
+  if not state.wilds_unlocked and check_wilds_unlock_condition(state.slimes) then
+    state.wilds_unlocked = true
+    table.insert(state.logs, {
+      id = "log_wilds_unlock_" .. os.time(),
+      cycle = state.cycle,
+      text = "PLANETARY TELEMETRY: Secondary color genetic signature detected in containment cells. Ring-2 [The Wilds] region orbital connection established!",
+      type = "system",
+    })
+  end
+
+  -- Prune recent_market_sales to 5-cycle window
+  local kept_sales = {}
+  for _, record in ipairs(state.recent_market_sales or {}) do
+    if record.cycle >= state.cycle - 4 then table.insert(kept_sales, record) end
+  end
+  state.recent_market_sales = kept_sales
 
   return state
 end
