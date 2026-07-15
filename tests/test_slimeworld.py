@@ -202,3 +202,112 @@ def test_advance_cycle_capitol_hardening_bonus():
     result = session.executor.call("advance_cycle", state)
     # Should get +15 capitol hardening bonus
     assert result["credits"] >= 115
+
+
+def test_update_planet_supply_and_pressure_basic():
+    """Pressure accumulates from supplied owned nodes onto non-owned neighbors."""
+    session = _load()
+    nodes = [
+        {"id": "n1", "name": "Alpha", "owner_color": "Red", "is_supplied": True, "strength": 1.0,
+         "pressure": {}, "neighbors": ["n2"], "is_capitol": True, "garrison_slime_id": None},
+        {"id": "n2", "name": "Beta", "owner_color": None, "is_supplied": False, "strength": 0,
+         "pressure": {}, "neighbors": ["n1"], "is_capitol": False, "garrison_slime_id": None},
+    ]
+    updated, logs = session.executor.call("update_planet_supply_and_pressure", nodes)
+    # n1 exerts pressure on n2
+    assert updated[1]["pressure"].get("Red", 0) > 0
+
+
+def test_update_planet_supply_and_pressure_bfs_supply():
+    """BFS supply chain from capitols supplies same-color connected nodes."""
+    session = _load()
+    nodes = [
+        {"id": "n1", "name": "Cap", "owner_color": "Red", "is_supplied": True, "strength": 1.0,
+         "pressure": {}, "neighbors": ["n2"], "is_capitol": True, "garrison_slime_id": None},
+        {"id": "n2", "name": "Sat", "owner_color": "Red", "is_supplied": False, "strength": 0.5,
+         "pressure": {}, "neighbors": ["n1"], "is_capitol": False, "garrison_slime_id": None},
+    ]
+    updated, logs = session.executor.call("update_planet_supply_and_pressure", nodes)
+    # n2 should be supplied via BFS from capitol n1
+    assert updated[1]["is_supplied"] == True
+
+
+def test_update_planet_supply_and_pressure_cascade_collapse():
+    """Unsupplied owned non-capitol nodes revert to Unclaimed."""
+    session = _load()
+    nodes = [
+        {"id": "n1", "name": "Cap", "owner_color": "Red", "is_supplied": True, "strength": 1.0,
+         "pressure": {}, "neighbors": [], "is_capitol": True, "garrison_slime_id": None},
+        {"id": "n2", "name": "Iso", "owner_color": "Blue", "is_supplied": False, "strength": 0.5,
+         "pressure": {}, "neighbors": [], "is_capitol": False, "garrison_slime_id": None},
+    ]
+    updated, logs = session.executor.call("update_planet_supply_and_pressure", nodes)
+    # n2 is not connected to any Blue capitol, should collapse
+    assert updated[1].get("owner_color") is None
+    collapse_log = [l for l in logs if "SUPPLY COLLAPSE" in l]
+    assert len(collapse_log) == 1
+
+
+def test_check_wilds_unlock_condition_false():
+    """No secondary colors present returns False."""
+    session = _load()
+    slimes = [{"color": "Red"}, {"color": "Blue"}]
+    result = session.executor.call("check_wilds_unlock_condition", slimes)
+    assert result == False
+
+
+def test_check_wilds_unlock_condition_true():
+    """Secondary color present returns True."""
+    session = _load()
+    slimes = [{"color": "Red"}, {"color": "Purple"}]
+    result = session.executor.call("check_wilds_unlock_condition", slimes)
+    assert result == True
+
+
+def test_create_seed_slime():
+    """create_seed_slime returns a valid slime with correct properties."""
+    session = _load()
+    slime = session.executor.call("create_seed_slime", "Blue", "Solid")
+    assert slime["color"] == "Blue"
+    assert slime["pattern"] == "Solid"
+    assert slime["level"] == 1
+    assert slime["hue"] == 300
+    assert slime["saturation"] == 100
+    assert slime["name"] is not None
+
+
+def test_generate_slime_name():
+    """generate_slime_name returns a non-empty string with a hyphen."""
+    session = _load()
+    name = session.executor.call("generate_slime_name")
+    assert isinstance(name, str)
+    assert len(name) > 3
+    assert "-" in name
+
+
+def test_advance_cycle_wilds_unlock():
+    """advance_cycle sets wilds_unlocked when secondary color slime is present."""
+    session = _load()
+    state = _base_state(
+        slimes=[{"id": "s1", "color": "Purple", "locked_role": None, "level": 1, "stats": {}}],
+        wilds_unlocked=False,
+    )
+    result = session.executor.call("advance_cycle", state)
+    assert result["wilds_unlocked"] == True
+    unlock_logs = [l for l in result["logs"] if "Wilds" in l.get("text", "") or "WILDS" in l.get("text", "")]
+    assert len(unlock_logs) == 1
+
+
+def test_advance_cycle_market_sales_pruning():
+    """advance_cycle prunes recent_market_sales to 5-cycle window."""
+    session = _load()
+    state = _base_state(
+        recent_market_sales=[
+            {"color": "Red", "cycle": 1},
+            {"color": "Blue", "cycle": 2},
+        ],
+        cycle=10,
+    )
+    result = session.executor.call("advance_cycle", state)
+    # cycle is now 11, window is 7-11, so both old sales (cycle 1,2) should be pruned
+    assert len(result["recent_market_sales"]) == 0
