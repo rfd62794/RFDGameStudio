@@ -24,6 +24,9 @@ interface LabTabProps {
   setSelectedSlimeId: (id: string | null) => void;
   setRenameSlimeId: (id: string | null) => void;
   setNewNameInput: (name: string) => void;
+  handleRenameSlime?: (id: string, newName: string) => void;
+  renameSlimeId?: string | null;
+  newNameInput?: string;
   handleRecycleSlime: (id: string) => void;
   parentAId: string | null;
   parentBId: string | null;
@@ -59,6 +62,9 @@ export function LabTab({
   setSelectedSlimeId,
   setRenameSlimeId,
   setNewNameInput,
+  handleRenameSlime,
+  renameSlimeId,
+  newNameInput,
   handleRecycleSlime,
   parentAId,
   parentBId,
@@ -205,6 +211,21 @@ export function LabTab({
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
+                              {renameSlimeId === currentlySelectedSlime.id && handleRenameSlime && (
+                                <div className="flex items-center space-x-1 ml-1">
+                                  <input
+                                    type="text"
+                                    value={newNameInput ?? ''}
+                                    onChange={(e) => setNewNameInput(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' && newNameInput?.trim()) handleRenameSlime(currentlySelectedSlime.id, newNameInput); if (e.key === 'Escape') setRenameSlimeId(null); }}
+                                    className="w-32 px-2 py-0.5 text-xs font-mono bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-yellow-500"
+                                    placeholder="New name..."
+                                    autoFocus
+                                  />
+                                  <button onClick={() => { if (newNameInput?.trim()) handleRenameSlime(currentlySelectedSlime.id, newNameInput); }} className="p-0.5 rounded text-green-400 hover:bg-green-950/30 cursor-pointer" title="Confirm rename"><Check className="w-3.5 h-3.5" /></button>
+                                  <button onClick={() => setRenameSlimeId(null)} className="p-0.5 rounded text-slate-500 hover:text-red-400 cursor-pointer" title="Cancel"><X className="w-3.5 h-3.5" /></button>
+                                </div>
+                              )}
                               <button 
                                 onClick={() => handleRecycleSlime(currentlySelectedSlime.id)}
                                 className="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-red-950/20 transition-colors cursor-pointer"
