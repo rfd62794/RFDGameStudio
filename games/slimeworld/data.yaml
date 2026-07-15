@@ -1,0 +1,180 @@
+# RFDGameStudio — SlimeWorld
+# Data Layer — extracted from SlimeGarden's types.ts and gameLogic.ts
+# Renderer-agnostic. TypeScript, Python, Rust all read this.
+
+game:
+  id: slimeworld
+  name: SlimeWorld
+  version: "0.1"
+  studio: RFDGameStudio
+
+# --- LAB / ROSTER ---
+lab:
+  starting_cycle: 1
+  starting_credits: 100
+  starting_roster_count: 2
+  starting_roster_cap: 10
+  starting_breeding_success_rate_modifier: 0
+  starter_slimes:
+    - name: Specimen-Cinder-Alpha
+      color: Red
+      pattern: Solid
+    - name: Specimen-Abyssal-Beta
+      color: Blue
+      pattern: Solid
+
+# --- SLIME SCHEMA ---
+slime:
+  fields:
+    id: string
+    name: string
+    color: [Red, Blue, Yellow, Purple, Orange, Green, Gray]
+    pattern: [Solid, Stripe, Polka, Glow, Crown, Ringed, Nebula, Obsidian]
+    level: integer
+    xp: integer
+    stats:
+      hp: number
+      atk: number
+      def: number
+      agi: number
+      int: number
+      chm: number
+    role: [idle, dispatch, corporate]
+    generation: integer
+    color_saturation: {min: 0, max: 100, optional: true, description: Legacy saturation field retained by the source state}
+    hue: {min: 0, max: 360, optional: true, description: Continuous genetic hue angle}
+    saturation: {min: 0, max: 100, optional: true, description: Genetic color purity}
+    vertex_count: {min: 3, max: 22, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
+    irregularity: {min: 0, max: 100, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
+    parent_a: {type: string, optional: true}
+    parent_b: {type: string, optional: true}
+    created_at: timestamp
+    locked_role: {values: [dispatch, mediation, worker, exploration, garrison, null], optional: true}
+    garrisoned_at: {type: timestamp, optional: true}
+    stage: {values: [Hatchling, Juvenile, Young, Prime, Veteran, Elder], optional: true, description: Computed dynamically in the source}
+
+# --- COLOR GENETICS ---
+color_genetics:
+  wheel_order: [Red, Orange, Yellow, Green, Purple, Blue]
+  faction_anchors:
+    Red: 0
+    Orange: 60
+    Yellow: 120
+    Green: 180
+    Purple: 240
+    Blue: 300
+    Gray: 0
+  base_saturation_loss_coefficient: 0.12
+  repetition_penalty_floor: 0.15
+  repetition_penalty_per_streak: 0.12
+  gray_saturation_threshold: 15
+  target_nudge_strength: 0.6
+
+# --- SIX CULTURES ---
+cultures:
+  ember:
+    color: Red
+    hue: 0
+    specialty: High HP & ATK (Cinder Strain)
+    rgb: "rgb(239, 68, 68)"
+    base_stats: {hp: 120, atk: 18, def: 8, agi: 6, int: 5, chm: 6}
+    growth: {hp: 15, atk: 3, def: 1, agi: 0.8, int: 0.5, chm: 0.6}
+  marsh:
+    color: Orange
+    hue: 60
+    specialty: Extreme ATK & AGI (Solar Strain)
+    rgb: "rgb(249, 115, 22)"
+    base_stats: {hp: 110, atk: 22, def: 5, agi: 14, int: 6, chm: 8}
+    growth: {hp: 12, atk: 3.5, def: 0.5, agi: 1.8, int: 0.6, chm: 0.8}
+  gale:
+    color: Yellow
+    hue: 120
+    specialty: High AGI & ATK (Sulphur Strain)
+    rgb: "rgb(234, 179, 8)"
+    base_stats: {hp: 80, atk: 15, def: 6, agi: 18, int: 8, chm: 10}
+    growth: {hp: 9, atk: 2.2, def: 0.8, agi: 2.4, int: 1, chm: 1}
+  tundra:
+    color: Green
+    hue: 180
+    specialty: Extreme HP & DEF (Jungle Strain)
+    rgb: "rgb(34, 197, 94)"
+    base_stats: {hp: 160, atk: 8, def: 16, agi: 4, int: 7, chm: 14}
+    growth: {hp: 22, atk: 1, def: 2.5, agi: 0.5, int: 0.8, chm: 1.6}
+  crystal:
+    color: Purple
+    hue: 240
+    specialty: Ultra-High INT & Balanced (Nebula Strain)
+    rgb: "rgb(168, 85, 247)"
+    base_stats: {hp: 100, atk: 12, def: 10, agi: 10, int: 20, chm: 15}
+    growth: {hp: 11, atk: 1.5, def: 1.2, agi: 1.2, int: 3, chm: 2}
+  tide:
+    color: Blue
+    hue: 300
+    specialty: High DEF & INT (Abyssal Strain)
+    rgb: "rgb(59, 130, 246)"
+    base_stats: {hp: 90, atk: 10, def: 14, agi: 5, int: 15, chm: 12}
+    growth: {hp: 10, atk: 1.2, def: 2, agi: 0.6, int: 2.5, chm: 1.5}
+
+# Gray is a non-culture neutral trait used for saturation interpolation.
+neutral_traits:
+  gray:
+    hue: 0
+    specialty: Balanced Mysterious Trait (Void Strain)
+    rgb: "rgb(107, 114, 128)"
+    base_stats: {hp: 110, atk: 14, def: 11, agi: 11, int: 14, chm: 11}
+    growth: {hp: 13, atk: 2, def: 1.5, agi: 1.5, int: 2, chm: 1.2}
+
+# --- SEED SHAPE DEFAULTS ---
+seed_shape_defaults:
+  Red: {vertex_count: 3, irregularity: 10}
+  Orange: {vertex_count: 3, irregularity: 15}
+  Yellow: {vertex_count: 6, irregularity: 10}
+  Green: {vertex_count: 6, irregularity: 15}
+  Purple: {vertex_count: 4, irregularity: 15}
+  Blue: {vertex_count: 4, irregularity: 10}
+  Gray: {vertex_count: 4, irregularity: 20}
+
+# --- COLOR CODEX TARGETS ---
+color_targets:
+  - {id: guild_ember_marsh, tier: guild, name: Thornward, center_hues: [30], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_marsh_gale, tier: guild, name: "Guild: Amberglow", center_hues: [90], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_gale_tundra, tier: guild, name: Frostwind, center_hues: [150], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_tundra_crystal, tier: guild, name: "Guild: Mossy Crystal", center_hues: [210], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_crystal_tide, tier: guild, name: Tidereign, center_hues: [270], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_tide_ember, tier: guild, name: "Guild: Abyssal Ember", center_hues: [330], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: rival_ember_tundra, tier: rival, name: The Fault Line, center_hues: [90, 270], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: rival_marsh_crystal, tier: rival, name: "Rival: Eclipse Void", center_hues: [150, 330], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: rival_gale_tide, tier: rival, name: "Rival: Stormsurge", center_hues: [210, 30], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: arc_ember_marsh_gale, tier: arc_triad, name: "Arc: Ember-Marsh-Gale", center_hues: [60], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_marsh_gale_tundra, tier: arc_triad, name: "Arc: Marsh-Gale-Tundra", center_hues: [120], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_gale_tundra_crystal, tier: arc_triad, name: "Arc: Gale-Tundra-Crystal", center_hues: [180], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_tundra_crystal_tide, tier: arc_triad, name: "Arc: Tundra-Crystal-Tide", center_hues: [240], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_crystal_tide_ember, tier: arc_triad, name: "Arc: Crystal-Tide-Ember", center_hues: [300], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_tide_ember_marsh, tier: arc_triad, name: "Arc: Tide-Ember-Marsh", center_hues: [0], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: skip_ember_gale_crystal, tier: skip_triad, name: "Skip: Ember-Gale-Crystal", center_hues: [0, 120, 240], tolerance: 10, saturation_min: 15, saturation_max: 20}
+  - {id: skip_marsh_tundra_tide, tier: skip_triad, name: "Skip: Marsh-Tundra-Tide", center_hues: [60, 180, 300], tolerance: 10, saturation_min: 15, saturation_max: 20}
+
+# --- PLANET NODE SCHEMA ---
+planet_node:
+  fields:
+    id: string
+    name: string
+    cell_shape: string
+    label_x: number
+    label_y: number
+    neighbors: [string]
+    owner_color: [Red, Blue, Yellow, Purple, Orange, Green, Gray, null]
+    pressure: {type: map, keys: [Red, Blue, Yellow, Purple, Orange, Green, Gray], values: number}
+    strength: {min: 0, max: 1}
+    is_capitol: boolean
+    is_supplied: boolean
+    distance_from_center: number
+    discovered: boolean
+    garrison_slime_id: {type: string, optional: true}
+
+# --- PLANET REGION SCHEMA ---
+planet_region:
+  fields:
+    nodes: [planet_node]
+    generated_at: timestamp
+    geometry_version: {type: integer, optional: true}
