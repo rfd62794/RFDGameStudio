@@ -1,0 +1,106 @@
+# systems.yaml — slimeworld
+# ECS-style system manifest per ADR-006.
+# Every function in logic.lua appears in exactly one system's functions list.
+engine_version: "1.0"
+
+engine_systems: []
+
+systems:
+  - id: genetics
+    description: "Continuous color genetics and color-target steering"
+    components: [hue, saturation, color, generation, parents]
+    functions:
+      - clamp
+      - circular_distance
+      - circular_hue_midpoint
+      - snap_to_faction
+      - find_color_target
+      - breed_slimes
+
+  - id: state_queries
+    description: "Shared collection and party selection helpers"
+    components: [id, slimes, color]
+    functions:
+      - find_by_id
+      - select_slimes
+      - dominant_color
+
+  - id: claims
+    description: "Force, corporate, and conversion claims under Gray ownership"
+    components: [planet_node, pressure, strength, owner_color, credits]
+    functions:
+      - claim_success_chance
+      - claim_grudge_color
+      - copy_pressure
+      - resolve_force_claim
+      - resolve_bribe_claim
+      - resolve_convert_claim
+      - force_claim_action
+      - bribe_claim_action
+      - convert_claim_action
+
+  - id: breeding
+    description: "Roster capacity and offspring creation actions"
+    components: [slimes, roster_cap, credits, generation]
+    functions:
+      - initiate_breeding
+
+  - id: dispatch
+    description: "Combat-dispatch lifecycle actions"
+    components: [active_dispatch, zones, slimes]
+    functions:
+      - launch_dispatch
+      - retrieve_completed_dispatch
+
+  - id: exploration
+    description: "Exploration mission launch actions"
+    components: [active_exploration, planet_node, slimes]
+    functions:
+      - launch_exploration
+
+  - id: mediation
+    description: "Mediation mission launch actions"
+    components: [active_mediation, planet_node, slimes]
+    functions:
+      - launch_mediation
+
+  - id: garrison
+    description: "Planetary garrison assignment and recall"
+    components: [garrison_slime_id, locked_role, garrisoned_at]
+    functions:
+      - assign_garrison
+      - recall_garrison
+
+  - id: economy
+    description: "Contract delivery and market liquidation"
+    components: [credits, contracts, recent_market_sales, slimes]
+    functions:
+      - deliver_contract
+      - sell_on_market
+
+  - id: upgrades
+    description: "Facility upgrades and worker role specialization"
+    components: [credits, roster_cap, breeding_success_rate_modifier, has_auto_feeder, locked_role]
+    functions:
+      - buy_upgrade
+      - toggle_worker_role
+
+  - id: cycles
+    description: "Manual cycle advancement and contract expiration"
+    components: [cycle, contracts]
+    functions:
+      - advance_cycle
+
+entities:
+  slime:
+    description: "A continuously colored specimen with combat and assignment state"
+    systems: [genetics, state_queries, claims, breeding, dispatch, exploration, mediation, garrison, economy, upgrades]
+    schema_ref: data.yaml#slime
+  planet_node:
+    description: "A claimable planetary sector"
+    systems: [claims, exploration, mediation, garrison]
+    schema_ref: data.yaml#planet_node
+  lab:
+    description: "Roster, credits, contracts, and progression state"
+    systems: [breeding, dispatch, economy, upgrades, cycles]
+    schema_ref: data.yaml#lab
