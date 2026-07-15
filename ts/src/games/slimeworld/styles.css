@@ -54,3 +54,13 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.4);
 }
+
+/* Crown pattern clip utility for SlimeVisual */
+.clip-triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+/* Nebula pattern radial background utility */
+.bg-radial {
+  background-image: radial-gradient(var(--tw-gradient-stops));
+}
