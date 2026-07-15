@@ -95,13 +95,15 @@ systems:
       - toggle_worker_role
 
   - id: cycles
-    description: "Manual cycle advancement and contract expiration"
-    components: [cycle, contracts]
+    description: "Manual cycle advancement, contract spawning, and dual logging"
+    components: [cycle, contracts, logs]
     functions:
       - is_slime_in_matching_culture_environment
       - calculate_worker_income
       - is_capitol_hardened
       - has_secure_capitol_garrison
+      - generate_contract
+      - get_random_melancholic_log
       - advance_cycle
 
 entities:

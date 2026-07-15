@@ -486,24 +486,103 @@ function has_secure_capitol_garrison(state, node)
   return false
 end
 
+local CONTRACT_FLAVORS = {
+  "Requesting high-density organic insulation cores. Do not ask for details regarding the thermal payload.",
+  "Specimen requested to act as immediate chemical neutralizer in standard waste tanks.",
+  "Urgent laboratory trial requirement for sub-cellular membrane shearing. Specimen will be disassembled.",
+  "Corporate compliance requires bio-mass buffer reserves to meet annual asteroid operations quotas.",
+  "Requested specimen matches target criteria for experimental neuro-network mapping. Energy discharge expected.",
+  "A private investor demands a specimen of pristine coloration to decorate their terminal reservoir.",
+  "Sub-orbital testing requires low-gravity biological payloads. High probability of orbital separation.",
+}
+
+local ASTRONAUT_THOUGHTS = {
+  "LOG: Day 312. I watched the black hole devour a communication node today. The static lasted three minutes. Standard corporate response received immediately after: \"Keep breeding.\"",
+  "LOG: Day 445. The slimes are the only warm things on this rock. They hum when I rest my hand on the glass. I wonder if they know we are both just debris.",
+  "LOG: Day 519. The Corporation paid my monthly credits, but there is nothing to buy here except nutrient pellets and gene splicing regulators. They are literally paying me to feed their food.",
+  "LOG: Day 608. One of the slimes was looking at the star charts today. Or maybe it was just reacting to the screen flicker. I choose to believe it wanted to see Earth.",
+  "LOG: Day 722. It is quiet. So quiet that I can hear the refrigeration unit on the containment cells clicking. Cycle after cycle. We make slimes, we send them to the dark, and we repeat.",
+  "LOG: Day 803. I called the corporate hotline. The automated voice informed me that my soul was a valuable regional asset. Then it played elevator music for three hours.",
+}
+
+function generate_contract(cycle)
+  local colors = { "Red", "Blue", "Yellow", "Purple", "Orange", "Green" }
+  local patterns = { "Solid", "Stripe", "Polka", "Glow", "Crown", "Ringed" }
+  local color = colors[math.random(#colors)]
+  local pattern = patterns[math.random(#patterns)]
+  local reward_multiplier = 1
+  if color == "Purple" or color == "Orange" or color == "Green" then reward_multiplier = reward_multiplier + 0.5 end
+  if pattern ~= "Solid" then reward_multiplier = reward_multiplier + 0.5 end
+  if pattern == "Glow" or pattern == "Crown" or pattern == "Ringed" then reward_multiplier = reward_multiplier + 0.8 end
+  local base_credits = 100
+  local credits_reward = math.floor(base_credits * reward_multiplier + math.random() * 30)
+  local total_cycles = math.random(5, 8)
+  local title_code = "RQ-" .. math.random(1000, 8999)
+  return {
+    id = "contract_" .. os.time() .. "_" .. math.random(100),
+    title = "CONTRACT " .. title_code,
+    required_color = color,
+    required_pattern = pattern,
+    credits_reward = credits_reward,
+    cycles_remaining = total_cycles,
+    total_cycles = total_cycles,
+    flavor_text = CONTRACT_FLAVORS[math.random(#CONTRACT_FLAVORS)],
+  }
+end
+
+function get_random_melancholic_log(cycle)
+  return {
+    id = "log_mel_" .. os.time(),
+    cycle = cycle,
+    text = ASTRONAUT_THOUGHTS[math.random(#ASTRONAUT_THOUGHTS)],
+    type = "melancholy",
+  }
+end
+
 function advance_cycle(state)
   state.cycle = (state.cycle or 0) + 1
+
+  -- Expire contracts
   for _, contract in ipairs(state.contracts or {}) do
     contract.cycles_remaining = contract.cycles_remaining - 1
   end
   for index = #(state.contracts or {}), 1, -1 do
     if state.contracts[index].cycles_remaining <= 0 then table.remove(state.contracts, index) end
   end
+
+  -- Spawn new contracts (65% chance, cap 4, minimum 2)
+  local contracts = state.contracts or {}
+  if #contracts < 4 and (math.random() < 0.65 or #contracts < 2) then
+    table.insert(contracts, generate_contract(state.cycle))
+  end
+  state.contracts = contracts
+
+  -- Dual logging: deterministic cycle log + 45% chance flavor log
+  if state.logs == nil then state.logs = {} end
+  table.insert(state.logs, {
+    id = "log_cycle_" .. os.time(),
+    cycle = state.cycle,
+    text = "CYCLE ADVANCED: Lab cycle " .. state.cycle .. " initiated. All energy cells replenished.",
+    type = "system",
+  })
+  if math.random() < 0.45 then
+    table.insert(state.logs, get_random_melancholic_log(state.cycle))
+  end
+
+  -- Worker income
   local nodes = state.planet_region and state.planet_region.nodes or {}
   for _, slime in ipairs(state.slimes or {}) do
     if slime.locked_role == "worker" then
       state.credits = (state.credits or 0) + calculate_worker_income(slime, state.has_auto_feeder == true, nodes)
     end
   end
+
+  -- Capitol hardening bonus
   for _, node in ipairs(nodes) do
     if has_secure_capitol_garrison(state, node) and is_capitol_hardened(node, nodes) then
       state.credits = (state.credits or 0) + 15
     end
   end
+
   return state.cycle
 end
