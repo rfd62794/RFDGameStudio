@@ -158,13 +158,22 @@ color_targets:
   - {id: skip_marsh_tundra_tide, tier: skip_triad, name: "Skip: Marsh-Tundra-Tide", center_hues: [60, 180, 300], tolerance: 10, saturation_min: 15, saturation_max: 20}
 
 # --- SHAPE TARGETS ---
+# Real grounding (polygon constructibility complexity, not invented):
+#   Tier 1 (3,4,6)     — "Linear"    — Triangle, Square, Hexagon (Diamond = Square @ high irregularity)
+#   Tier 2 (5,8,10,12) — "Quadratic" — Pentagon, Octagon assigned. 10, 12 unassigned — no April-era name exists for them.
+#   Tier 3 (7,9,14,18) — "Cubic"     — Star, Crescent, Spiked, Crown, Prism, Teardrop, Arrow, Crystal
+#                                      belong somewhere in this tier's vertex/high-irregularity space.
+#                                      Which specific name maps to which of the 4 real vertex counts remains undecided.
+#   Tier 4 (15,16,20)  — "Quartic"   — no names assigned from any known session. Fully open.
+#   Tier 5 (11,22)     — "Quintic"   — Void-Form, Celestial, Prismatic belong here (3 names, 2 real
+#                                      vertex counts). Their mapping remains undecided.
 shape_targets:
   - {id: shape_triangle, tier: 1, name: Triangle, vertex_count: 3, irregularity_max: 15}
   - {id: shape_square, tier: 1, name: Square, vertex_count: 4, irregularity_max: 15}
   - {id: shape_diamond, tier: 1, name: Diamond, vertex_count: 4, irregularity_min: 40, irregularity_max: 100}
   - {id: shape_pentagon, tier: 2, name: Pentagon, vertex_count: 5, irregularity_max: 15}
   - {id: shape_hexagon, tier: 1, name: Hexagon, vertex_count: 6, irregularity_max: 15}
-  - {id: shape_octagon, tier: 3, name: Octagon, vertex_count: 8, irregularity_max: 15}
+  - {id: shape_octagon, tier: 2, name: Octagon, vertex_count: 8, irregularity_max: 15}
 
 # --- PLANET NODE SCHEMA ---
 planet_node:
