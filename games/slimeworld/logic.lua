@@ -584,5 +584,5 @@ function advance_cycle(state)
     end
   end
 
-  return state.cycle
+  return state
 end

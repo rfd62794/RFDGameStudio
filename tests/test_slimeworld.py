@@ -77,8 +77,7 @@ def test_advance_cycle_increments_cycle():
     session = _load()
     state = _base_state()
     result = session.executor.call("advance_cycle", state)
-    assert result == 2
-    assert state["cycle"] == 2
+    assert result["cycle"] == 2
 
 
 def test_advance_cycle_expires_contracts():
@@ -87,19 +86,19 @@ def test_advance_cycle_expires_contracts():
         {"id": "c1", "required_color": "Red", "required_pattern": "Solid",
          "credits_reward": 100, "cycles_remaining": 1, "total_cycles": 5, "flavor_text": "test"},
     ])
-    session.executor.call("advance_cycle", state)
-    assert len(state["contracts"]) <= 1  # expired one removed, maybe new one spawned
+    result = session.executor.call("advance_cycle", state)
+    assert len(result["contracts"]) <= 1  # expired one removed, maybe new one spawned
     # The old contract with cycles_remaining=1 should be gone
-    remaining_ids = [c["id"] for c in state["contracts"]]
+    remaining_ids = [c["id"] for c in result["contracts"]]
     assert "c1" not in remaining_ids
 
 
 def test_advance_cycle_spawns_contract_when_below_min():
     session = _load()
     state = _base_state(contracts=[])
-    session.executor.call("advance_cycle", state)
+    result = session.executor.call("advance_cycle", state)
     # With 0 contracts, min 2 logic should force a spawn
-    assert len(state["contracts"]) >= 1
+    assert len(result["contracts"]) >= 1
 
 
 def test_advance_cycle_respects_cap_of_4():
@@ -110,8 +109,8 @@ def test_advance_cycle_respects_cap_of_4():
         for i in range(4)
     ]
     state = _base_state(contracts=full_contracts)
-    session.executor.call("advance_cycle", state)
-    assert len(state["contracts"]) <= 4
+    result = session.executor.call("advance_cycle", state)
+    assert len(result["contracts"]) <= 4
 
 
 def test_advance_cycle_contract_spawn_rate():
@@ -124,9 +123,9 @@ def test_advance_cycle_contract_spawn_rate():
             {"id": "c1", "required_color": "Red", "required_pattern": "Solid",
              "credits_reward": 100, "cycles_remaining": 10, "total_cycles": 10, "flavor_text": "test"}
         ])
-        session.executor.call("advance_cycle", state)
+        result = session.executor.call("advance_cycle", state)
         # After cycle: old contract still there (cycles_remaining=9), plus maybe new one
-        if len(state["contracts"]) > 1:
+        if len(result["contracts"]) > 1:
             spawn_count += 1
     # Should be roughly 65% — allow 45-85% for randomness
     rate = spawn_count / runs
@@ -138,9 +137,9 @@ def test_advance_cycle_contract_spawn_rate():
 def test_advance_cycle_emits_system_log():
     session = _load()
     state = _base_state()
-    session.executor.call("advance_cycle", state)
-    assert len(state["logs"]) >= 1
-    cycle_log = state["logs"][0]
+    result = session.executor.call("advance_cycle", state)
+    assert len(result["logs"]) >= 1
+    cycle_log = result["logs"][0]
     assert cycle_log["type"] == "system"
     assert "CYCLE ADVANCED" in cycle_log["text"]
     assert cycle_log["cycle"] == 2
@@ -153,10 +152,10 @@ def test_advance_cycle_flavor_log_frequency():
     runs = 100
     for _ in range(runs):
         state = _base_state()
-        session.executor.call("advance_cycle", state)
+        result = session.executor.call("advance_cycle", state)
         # First log is always system, second (if present) is melancholy
-        if len(state["logs"]) > 1:
-            assert state["logs"][1]["type"] == "melancholy"
+        if len(result["logs"]) > 1:
+            assert result["logs"][1]["type"] == "melancholy"
             flavor_count += 1
     rate = flavor_count / runs
     # Allow 30-60% for randomness
@@ -172,9 +171,9 @@ def test_advance_cycle_worker_income():
                  "stats": {"hp": 120, "atk": 18, "def": 8, "agi": 6, "int": 5, "chm": 6}}],
         credits=100,
     )
-    session.executor.call("advance_cycle", state)
+    result = session.executor.call("advance_cycle", state)
     # Worker base income is 5, so credits should increase
-    assert state["credits"] > 100
+    assert result["credits"] > 100
 
 
 # --- advance_cycle: capitol hardening ---
@@ -198,6 +197,6 @@ def test_advance_cycle_capitol_hardening_bonus():
         planet_region={"nodes": [capitol_node]},
         credits=100,
     )
-    session.executor.call("advance_cycle", state)
+    result = session.executor.call("advance_cycle", state)
     # Should get +15 capitol hardening bonus
-    assert state["credits"] >= 115
+    assert result["credits"] >= 115
