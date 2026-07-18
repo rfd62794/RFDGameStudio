@@ -2,6 +2,74 @@
 
 *Last updated: July 2026*
 
+## SlimeWorld Shape Codex Target Detection — COMPLETED
+
+### What changed
+Added the real 17-vertex-count Shape taxonomy and detection system. Previously, `shape_targets` in `data.yaml` had only 11 entries (Tier 1/2 clean shapes + Tier 5/6 star polygons) — 6 real constructible-polygon names were missing entirely. Added all 6, added `vertex_tolerance` to all 23 entries (17 existing + 6 new), implemented `match_shape_target(vertex_count, irregularity, shape_targets)` in `logic.lua`, and wired it into `initiate_breeding` alongside the existing `match_color_target` call.
+
+### Tier 4 mislabeling corrected
+The existing design docs labelled "Tier 4: Quartic (15, 16, 20)" — this is mathematically wrong. All three have φ(n) = 8 (a power of 2), meaning they are genuinely constructible with compass and straightedge. They are now correctly classified as **Tier 3 — Elaborate** (constructible, but requiring two nested quadratic steps). The real Tier 4 is vertex count 17 (Heptadecagon, φ(17) = 16, degree 8 — the hardest constructible polygon, proven by Gauss in 1796).
+
+### Corrected 6-tier taxonomy (17 vertex counts)
+| Tier | Real basis | Vertex counts | Names |
+|---|---|---|---|
+| 1 — Trivial | degree 1 | 3, 4, 6 | Triangle, Square, Hexagon |
+| 2 — Simple | degree 2 | 5, 8, 10, 12 | Pentagon, Octagon, Decagon, Dodecagon |
+| 3 — Elaborate | degree 4, two nested quadratic steps | 15, 16, 20 | Pentadecagon, Hexadecagon, Icosagon |
+| 4 — Master | degree 8, hardest constructible (Gauss 1796) | 17 | Heptadecagon |
+| 5 — Cubic | non-constructible, needs angle trisection | 7, 9, 14, 18 | Heptagon, Nonagon, Tetradecagon, Octadecagon (star-polygon variants: Star, Spiked, Crescent, Crown, Prism, Arrow, Teardrop, Crystal) |
+| 6 — Quintic | non-constructible, unsolvable by radicals | 11, 22 | Hendecagon, Icosidigon (star-polygon variants: Void-Form, Celestial, Prismatic) |
+
+### 6 new shape_targets added
+- `shape_decagon` — Tier 2, vc=10, tol=0.5, irr 0-15
+- `shape_dodecagon` — Tier 2, vc=12, tol=0.5, irr 0-15
+- `shape_pentadecagon` — Tier 3, vc=15, tol=0.49, irr 0-15
+- `shape_hexadecagon` — Tier 3, vc=16, tol=0.49, irr 0-15
+- `shape_heptadecagon` — Tier 4, vc=17, tol=0.49, irr 0-15
+- `shape_icosagon` — Tier 3, vc=20, tol=0.5, irr 0-15
+
+### vertex_tolerance added to all existing entries
+All 17 existing entries lacked `vertex_tolerance`. Added `0.5` to each. The 3 new consecutive clean entries (15/16/17) use `0.49` instead of `0.5` to prevent overlap at midpoints 15.5 and 16.5 — all three share the same irregularity band (0-15), so 0.5 tolerance would create ambiguous matches. 0.49 eliminates the overlap with minimal tightening.
+
+### Adjacent-entry overlap check
+With 14/15/16/17/18 now all present and only 1 apart, a real check was required:
+
+| Boundary | Adjacent entries | Irregularity bands | Overlap? |
+|---|---|---|---|
+| 14.5 | Prism/Arrow (14, irr 40-100) vs Pentadecagon (15, irr 0-15) | Different | No |
+| 15.5 | Pentadecagon (15, irr 0-15) vs Hexadecagon (16, irr 0-15) | Same — **fixed with 0.49 tolerance** | No (was yes at 0.5) |
+| 16.5 | Hexadecagon (16, irr 0-15) vs Heptadecagon (17, irr 0-15) | Same — **fixed with 0.49 tolerance** | No (was yes at 0.5) |
+| 17.5 | Heptadecagon (17, irr 0-15) vs Teardrop/Crystal (18, irr 40-100) | Different | No |
+
+Pre-existing overlaps (not in scope to fix): Triangle(3)/Square(4) at 3.5, Square(4)/Pentagon(5) at 4.5, Pentagon(5)/Hexagon(6) at 5.5 — all share `irregularity_max: 15`, resolved by first-match-wins ordering.
+
+### Detection algorithm
+`match_shape_target` iterates targets in order. For each: if `|vertex_count - target.vertex_count| <= vertex_tolerance`, check if irregularity falls within `[irregularity_min or 0, irregularity_max or 100]`. First match wins. Returns `nil` if no match. Same shape as `match_color_target`.
+
+### Wiring into initiate_breeding
+Single line added after `match_color_target` call:
+```lua
+child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
+```
+Runs on every breed, not gated behind `active_shape_target`. `breed_shape`'s existing biasing logic unchanged.
+
+### Files touched
+- `games/slimeworld/data.yaml` — 6 new shape_targets, `vertex_tolerance` added to all 23 entries, header comment updated with corrected taxonomy
+- `games/slimeworld/logic.lua` — added `match_shape_target` (13 lines), wired into `initiate_breeding` (1 line)
+- `tests/test_slimeworld_shape_codex.py` — new, 8 test anchors
+
+### Verification
+```text
+.venv\Scripts\python.exe -m pytest -q --tb=no
+-> 388 passed, 8 warnings (was 380, +8 new tests)
+```
+
+### Deferred, real, separate follow-ups
+- **Shape Codex bookkeeping**: discovery/inventory tracking for shape targets — parallel to the Color Codex bookkeeping deferral
+- **UI display of Shape Codex progress**: Lua/data-layer only for now
+- **Vertex counts 13, 19, 21**: real and valid, but outside the confirmed 17-count taxonomy
+- **"Disturbed" variants of new Tier 3/4 shapes**: only clean forms added; high-irregularity variants deferred
+
 ## SlimeWorld Color Codex Target Detection — COMPLETED
 
 ### What changed
