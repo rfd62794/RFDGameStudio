@@ -2,6 +2,87 @@
 
 *Last updated: July 18 2026*
 
+## Wanderer Petition Wiring — COMPLETED
+
+### Motivation — Most Complete Instance of the Recurring Bug Class
+
+This is the most complete instance of today's "Lua computes it, TS drops it"
+bug class: **every layer was missing** — Lua never spawned petitions, TS had
+no state field, no handler called fulfillment, no UI showed them. Ground-up,
+not just a dropped field.
+
+**Root cause traced completely:**
+1. `create_wanderer_petition(cycle, active_petitions)` existed in Lua, real and
+   correct (tier-scaled reward, either-or requirement rolling) — but appeared
+   exactly once in the entire file: its own definition. Never called, not even
+   from `advance_cycle`.
+2. `advance_cycle` already expired petitions but never spawned new ones.
+   Petitions could only shrink toward zero.
+3. `fulfill_petition(state, petition_id, slime_id)` was real, correct — but
+   nothing in `App.tsx` ever called it.
+4. `LabState` had zero petition-related fields. `stateToLua` had no `petitions`
+   key at all.
+5. No UI anywhere displayed a petition.
+
+### Changes
+
+**Lua (`games/slimeworld/logic.lua`):**
+- Added petition-spawn block to `advance_cycle`, placed right after the
+  petition-expiration block. Deterministic spawn when under
+  `WANDERER_REQUEST_MAX` (3) — not probabilistic like Contract's 0.65 chance.
+  Rationale: petitions are premium encounters (3x payout multiplier, 5-8 cycle
+  expiration), not common arrivals. Always spawn when under cap; throttling can
+  be added later without changing the call site.
+- `create_wanderer_petition` and `fulfill_petition` logic unchanged — only
+  called now.
+
+**TypeScript (`ts/src/games/slimeworld/types.ts`):**
+- Added `Petition` interface (id, source, requestedColor, requestedShape,
+  payoutMultiplier, reward, expiresCycle).
+- Added `petitions: Petition[]` to `LabState`.
+- Added `luaPetitionToTs` converter (snake_case → camelCase).
+- Added `petitions` round-trip to `stateToLua`.
+
+**App.tsx:**
+- `initialState` seeds `petitions: []`.
+- `handleAdvanceCycle` parses `petitions` from Lua result via `luaPetitionToTs`.
+- New `handleFulfillPetition` handler: calls `fulfill_petition`, updates credits
+  and removes fulfilled petition from state.
+
+**EconomyTab.tsx:**
+- New "Wanderer Petitions" sub-tab alongside "Corp Contracts" and "Galactic
+  Market". Mirrors the Contracts card pattern: shows requested color/shape (or
+  "Any" if null), payout, cycles remaining, matching idle specimens, fulfill
+  action with confirmation modal.
+
+### Tests
+
+**Python (`tests/test_slimeworld_petition_spawning.py`):** 4 tests
+- `test_advance_cycle_spawns_petition_under_cap` — real cycle, petition appears
+- `test_advance_cycle_does_not_spawn_over_cap` — at cap (3), no new petition
+- `test_advance_cycle_still_expires_petitions` — expiration unregressed
+- `test_full_petition_lifecycle` — spawn → fulfill → state changes confirmed
+
+**TypeScript (`ts/tests/test_slimeworld_petition_wiring.tsx`):** 5 tests
+- `test_createInitialState_seeds_empty_petitions` — source check
+- `test_handleAdvanceCycle_parses_real_petitions` — real Lua-generated petition
+- `test_handleFulfillPetition_real_success` — matching slime, payout > 0
+- `test_handleFulfillPetition_real_failure` — nonexistent slime, null result
+- `test_economytab_renders_real_petitions` — UI source check
+
+### Final Floors
+- **Python: 402 passed** (was 398, +4 new tests)
+- **TypeScript: 127 passed / 18 files** (was 122/17, +5 new tests, +1 new file)
+
+### Note on TS Executor Limitation
+The TS Lua executor (`executor.ts`) uses `nresults=1` in `lua_pcall`, so
+multi-return Lua functions only return their first value. `fulfill_petition`
+returns `nil, "error"` on failure, but TS only receives `null`. The error
+string is lost. This is a pre-existing limitation, not introduced by this
+change. The failure test checks for `null` result instead of error string.
+
+---
+
 ## Shared Data Layer + Lua→TS Field Safety Alarm — COMPLETED
 
 ### Motivation — Five Recurring Bug Instances
