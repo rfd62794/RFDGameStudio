@@ -1,39 +1,92 @@
-import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
+import { test, expect } from 'vitest';
 
-const source = (file: string) => readFileSync(resolve(import.meta.dirname, `../src/games/slimeworld/${file}`), 'utf8');
+const components = resolve(__dirname, '../src/games/slimeworld/components');
 
-const app = source('App.tsx');
-const roster = source('components/RosterTab.tsx');
-const missions = source('components/MissionsTab.tsx');
-const economy = source('components/EconomyTab.tsx');
+function read(name: string) {
+  return readFileSync(resolve(components, name), 'utf8');
+}
 
+test('no facade imports in new tab components', () => {
+  const roster = read('RosterTab.tsx');
+  const missions = read('MissionsTab.tsx');
+  const economy = read('EconomyTab.tsx');
 
-describe('Slimeworld top-level section routing', () => {
-  it('test_roster_tab_renders_containment_cells', () => {
-    expect(roster).toContain("activeSubTab, setActiveSubTab] = useState<'collection' | 'breeding' | 'slimedex'>('collection')");
-    expect(roster).toContain("{ id: 'collection', label: 'COLLECTION' }");
-    expect(roster).toContain("{ id: 'breeding', label: 'SPLICING' }");
-  });
+  expect(roster).not.toContain("import { LabTab }");
+  expect(roster).not.toContain("import { PlanetTab }");
+  expect(missions).not.toContain("import { LabTab }");
+  expect(missions).not.toContain("import { PlanetTab }");
+  expect(economy).not.toContain("import { LabTab }");
+  expect(economy).not.toContain("import { PlanetTab }");
+});
 
-  it('test_missions_tab_dispatch_mediation_unchanged', () => {
-    expect(missions).toContain("{ id: 'active', label: 'ACTIVE' }");
-    expect(missions).toContain("{ id: 'zones', label: 'ZONES' }");
-    expect(missions).toContain("{ id: 'mediation', label: 'MEDIATION' }");
-  });
+test('PlanetTab.tsx is removed', () => {
+  expect(existsSync(resolve(components, 'PlanetTab.tsx'))).toBe(false);
+});
 
-  it('test_economy_tab_contracts_market_unchanged', () => {
-    expect(economy).toContain('activeSubTab="requisitions"');
-    expect(economy).toContain('type EconomyTabProps');
-    expect(economy).toContain('{...props}');
-  });
+test('LabTab.tsx is reduced and contains only Upgrades', () => {
+  const lab = read('LabTab.tsx');
+  const lineCount = lab.split('\n').length;
 
-  it('test_four_tab_navigation_works', () => {
-    expect(app).toContain("{ id: 'roster', label: 'ROSTER' }");
-    expect(app).toContain("{ id: 'missions', label: 'MISSIONS' }");
-    expect(app).toContain("{ id: 'economy', label: 'ECONOMY' }");
-    expect(app).toContain("{ id: 'lab', label: 'LAB' }");
-    expect(app).toContain('{primaryContent}');
-  });
+  // Should be significantly smaller than original ~1332 lines
+  expect(lineCount).toBeLessThan(500);
+
+  // Should contain upgrades content
+  expect(lab).toContain("activeSubTab === 'upgrades'");
+
+  // Should NOT contain other sub-tab markers
+  expect(lab).not.toContain("activeSubTab === 'collection'");
+  expect(lab).not.toContain("activeSubTab === 'breeding'");
+  expect(lab).not.toContain("activeSubTab === 'slimedex'");
+  expect(lab).not.toContain("activeSubTab === 'requisitions'");
+
+  // handlePurchaseSeedSlime should remain in LabTab
+  expect(lab).toContain('handlePurchaseSeedSlime');
+});
+
+test('RosterTab.tsx contains Collection, Splicing, and SlimeDex content', () => {
+  const roster = read('RosterTab.tsx');
+
+  expect(roster).toContain("activeSubTab === 'collection'");
+  expect(roster).toContain("activeSubTab === 'breeding'");
+  expect(roster).toContain("activeSubTab === 'slimedex'");
+  expect(roster).toContain('export function RosterTab');
+  expect(roster).toContain('TabBar');
+
+  // Should NOT contain handlePurchaseSeedSlime
+  expect(roster).not.toContain('handlePurchaseSeedSlime');
+});
+
+test('EconomyTab.tsx contains Contracts and Market content', () => {
+  const economy = read('EconomyTab.tsx');
+
+  expect(economy).toContain("activeSubTab === 'requisitions'");
+  expect(economy).toContain('export function EconomyTab');
+  expect(economy).toContain('handleDeliverContract');
+  expect(economy).toContain('handleSellOnMarket');
+});
+
+test('MissionsTab.tsx contains planet mission content', () => {
+  const missions = read('MissionsTab.tsx');
+
+  expect(missions).toContain('export function MissionsTab');
+  expect(missions).toContain("activeSubTab === 'regions'");
+  expect(missions).toContain('TabBar');
+  expect(missions).toContain('handleLaunchDispatch');
+  expect(missions).toContain('handleAssignGarrison');
+});
+
+test('App.tsx routes to four primary tabs', () => {
+  const app = readFileSync(resolve(__dirname, '../src/games/slimeworld/App.tsx'), 'utf8');
+
+  expect(app).toContain("import { RosterTab }");
+  expect(app).toContain("import { MissionsTab }");
+  expect(app).toContain("import { EconomyTab }");
+  expect(app).toContain("import { LabTab }");
+  expect(app).not.toContain("import { PlanetTab }");
+  expect(app).toContain("'roster'");
+  expect(app).toContain("'missions'");
+  expect(app).toContain("'economy'");
+  expect(app).toContain("'lab'");
 });
