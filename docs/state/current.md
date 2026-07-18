@@ -2,6 +2,79 @@
 
 *Last updated: July 18 2026*
 
+## Framework Generation Layer, Module 1: Pure-Data Extraction — COMPLETED
+
+### Motivation — Real Regression Prevention
+
+This morning's Color Codex regression: a directive scoped from a grep pattern
+(`guild_|rival_`) missed 6 real `arc_triad` and 2 real `skip_triad` entries
+sitting in the exact same `COLOR_TARGETS` array in the same source file. A
+human reading-comprehension failure, not a data problem. The array was never
+ambiguous; a person just didn't read all of it.
+
+**Module 1 prevents this mechanically:** an AST-based classifier walks every
+top-level `export const` in a `.ts` file, determines if the initializer is
+pure literal data (arrays/objects of only strings, numbers, booleans, nested
+literals — no function calls, no external references, no computed keys), and
+emits a YAML staging fragment with camelCase→snake_case field conversion
+matching the real `data.yaml` convention.
+
+### What was built
+
+**`ts/tools/framework_gen/classify.ts`** — AST-based classifier using the
+TypeScript compiler package (already a dependency). Walks top-level exported
+`VariableStatement` nodes, recursively checks each initializer for literal
+purity. When uncertain, classifies as not-pure-data (bias toward caution).
+
+**`ts/tools/framework_gen/emit_yaml.ts`** — Converts classified pure-data
+declarations to YAML. `camelToSnake` handles both camelCase fields
+(`centerHues` → `center_hues`) and all-caps constants (`COLOR_TARGETS` →
+`color_targets`). Field names verified against real `data.yaml` conventions.
+
+**`ts/tools/framework_gen/report.ts`** — Markdown report matching the studio's
+`MANIFEST.md` convention. Every "not converted" entry has a real, specific
+reason (function call name, external identifier, computed key) — never a
+generic "too complex."
+
+**`ts/tools/framework_gen/cli.ts`** — Entry point. Takes a `.ts` file path,
+produces YAML fragments + report in a staging output directory. Never writes
+to any existing `data.yaml` or `logic.lua`.
+
+### The Load-Bearing Test
+
+`test_extracts_all_17_entries_not_9` — feeds the real `COLOR_TARGETS` source
+array containing all 6 Guild + 3 Rival + 6 Arc Triad + 2 Skip Triad entries,
+confirms the output YAML has all 17, not the 9 a narrow grep would have found.
+**This is the actual regression, reproduced and proven fixed.**
+
+### Tests
+
+**TypeScript (`ts/tests/test_framework_gen_classify.ts`):** 7 tests
+- `test_classifies_color_targets_as_pure_data`
+- **`test_extracts_all_17_entries_not_9`** — the actual point of the module
+- `test_converts_camelCase_to_snake_case_correctly` — verified against real `data.yaml`
+- `test_flags_function_call_as_not_pure_data`
+- `test_flags_external_reference_as_not_pure_data`
+- `test_report_gives_specific_reason_not_generic`
+- `test_never_writes_to_real_data_yaml`
+
+### Final Floors
+- **Python: 402 passed** (unchanged)
+- **TypeScript: 134 passed / 19 files** (was 127/18, +7 new tests, +1 new file)
+
+### Module Roadmap — For Context
+
+| Module | Scope | Status |
+|---|---|---|
+| **1 — Pure-Data Extraction** | This module. AST-classify + auto-emit YAML for literal data. | **Complete** |
+| **2 — Ambiguous Review Report** | Deeper analysis of "not pure data" bucket — richer reasoning, partial-conversion suggestions for human review. | Not yet scoped |
+| **3 — Logic Stub Generation** | Function declarations get correctly-signatured Lua stubs with original TS source as translation reference. Hardest, riskiest — deliberately last. | Not yet scoped |
+
+Modules 2 and 3 are explicitly separate, real, not-yet-started future work.
+Each ships independently, verified on its own, before the next begins.
+
+---
+
 ## Wanderer Petition Wiring — COMPLETED
 
 ### Motivation — Most Complete Instance of the Recurring Bug Class
