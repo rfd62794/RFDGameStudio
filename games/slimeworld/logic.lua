@@ -1159,6 +1159,48 @@ function advance_cycle(state, color_specs)
     state.active_exploration = nil
   end
 
+  -- Resolve active mediation
+  if state.active_mediation and state.active_mediation.status == "active" then
+    local mediation = state.active_mediation
+    local node = find_by_id(state.planet_region and state.planet_region.nodes, mediation.target_node_id)
+    local party = select_slimes(state.slimes, mediation.slime_ids)
+
+    if #party == 0 then
+      -- empty party: abort with no stability change
+    elseif node ~= nil then
+      local total_chm = 0
+      for _, slime in ipairs(party) do
+        total_chm = total_chm + (slime.stats and slime.stats.chm or 0)
+      end
+      local strength = node.strength or 0
+      local target_power = 40 + (strength > 0 and math.floor((1 - strength) * 60 + 0.5) or 35)
+      local ratio = target_power > 0 and (total_chm / target_power) or 0
+      local chance
+      if ratio > 1 then chance = 0.85 + (ratio - 1) * 0.1
+      else chance = 0.2 + ratio * 0.6 end
+      chance = math.min(0.98, math.max(0.15, chance))
+
+      local success = math.random() <= chance
+      local stability_change
+      if success then
+        stability_change = math.floor(15 + total_chm / 6 + math.random() * 8)
+      else
+        stability_change = math.floor(5 + math.random() * 5)
+      end
+      node.strength = math.min(1, strength + stability_change / 100)
+
+      table.insert(state.logs, {
+        id = "log_med_res_" .. os.time(),
+        cycle = state.cycle,
+        text = "MEDIATION CONCLUDED: Diplomatic mission at [" .. (node.name or node.id) .. "] resolved. " .. (success and "Stability restored." or "Progress made, though tensions remain."),
+        type = "corporate",
+      })
+    end
+
+    for _, slime in ipairs(party) do slime.locked_role = nil end
+    state.active_mediation = nil
+  end
+
   -- Wilds unlock check
   if not state.wilds_unlocked and check_wilds_unlock_condition(state.slimes) then
     state.wilds_unlocked = true
