@@ -1,6 +1,65 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 18 2026 (late evening)*
+*Last updated: July 19 2026*
+
+## Color-Stat Data Deduplication — COMPLETED
+
+### Motivation — Triplication Found Immediately After Original Directive Shipped
+
+The "Real Color + Shape Stat Computation" directive (above) introduced
+color stat data in **three** places: `cultures`/`neutral_traits.gray`
+in `data.yaml` (pre-existing), a new `color_specs` key in `data.yaml`
+(dead — nothing read it), and a hardcoded `COLOR_STAT_SPECS` table in
+`logic.lua` (the only one actually used). The `color_specs` key was a
+straight duplicate of `cultures`/`neutral_traits.gray`; the Lua table
+was a triplicate. This refactor eliminates both redundant copies,
+making `cultures`/`neutral_traits.gray` the single source of truth,
+passed as an explicit `color_specs` parameter — the same pattern as
+`color_targets`/`shape_targets`.
+
+### What Changed
+
+- **Removed** `color_specs` key from `data.yaml` (dead, never read).
+- **Removed** `COLOR_STAT_SPECS` hardcoded table from `logic.lua`.
+- **`get_interpolated_specs(hue, saturation, color_specs)`** — now
+  takes `color_specs` as a parameter, reads `color_specs[a1.color]` /
+  `color_specs.Gray` instead of the removed local table.
+- **`calculate_stats(color, level, hue, saturation, vertex_count,
+  irregularity, color_specs)`** — threads `color_specs` through to
+  `get_interpolated_specs`.
+- **`create_seed_slime(color, pattern, color_specs)`** — gains
+  `color_specs` param; falls back to flat baseline if nil (for
+  `advance_cycle` callers that don't pass it).
+- **`initiate_breeding(..., color_specs)`** — gains `color_specs` as
+  9th parameter, threaded to `calculate_stats`.
+- **`advance_cycle(state, color_specs)`** — gains optional
+  `color_specs` param for stray detection's `create_seed_slime` call.
+- **TS `App.tsx`** — `buildColorSpecs()` helper constructs the dict
+  from `cultures` + `neutral_traits.gray` at call time; passed to
+  both `initiate_breeding` and `advance_cycle`.
+- **All Python tests** updated to build and pass `color_specs` from
+  real `cultures`/`neutral_traits.gray` data.
+
+### What Did NOT Change
+
+- Stat math (`get_shape_stat_modifiers`, `calculate_stats` formula) —
+  untouched, verified correct.
+- `color_targets`/`shape_targets` wiring — reference pattern only.
+- No UI changes — pure data-flow correction.
+
+### Test Anchors (3 new dedup verification tests)
+
+| Test | Target |
+|---|---|
+| `test_color_specs_removed_from_data_yaml` | Dead key confirmed gone |
+| `test_no_hardcoded_color_stat_specs_in_lua` | `COLOR_STAT_SPECS` confirmed removed |
+| `test_get_interpolated_specs_with_real_cultures_data` | Same values from real source |
+
+### Final Floor
+
+- **Python: 422 passed** (was 419, +3 dedup verification tests)
+
+---
 
 ## Real Color + Shape Stat Computation — COMPLETED
 
