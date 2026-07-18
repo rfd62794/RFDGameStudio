@@ -1,0 +1,6 @@
+import{c as i}from"./createLucideIcon-DUfkqRq8.js";import{j as b}from"./index-DKlU2Kpx.js";/**
+ * @license lucide-react v0.469.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const u=i("Coins",[["circle",{cx:"8",cy:"8",r:"6",key:"3yglwk"}],["path",{d:"M18.09 10.37A6 6 0 1 1 10.34 18",key:"t5s6rm"}],["path",{d:"M7 6h1v4",key:"1obek4"}],["path",{d:"m16.71 13.88.7.71-2.82 2.82",key:"1rbuyh"}]]);function y({label:a,icon:r,onClick:s,variant:n="primary",disabled:o,size:e="md",title:t,className:c}){const l=[n==="primary"?"btn-primary":"",n==="secondary"?"btn-secondary":"",n==="danger"?"btn-danger":"",n==="neutral"?"btn-neutral":"",e==="sm"?"btn-sm":"",e==="lg"?"btn-lg":"",c].filter(Boolean).join(" ");return b.jsxs("button",{className:l,onClick:s,disabled:o,title:t,children:[r,a]})}function p({tabs:a,active:r,onSelect:s,variant:n="default"}){const o=n==="mobile"?"mobile-tab-bar":"tab-bar",e=n==="mobile"?"mobile-tab-btn":"tab-btn";return b.jsx("nav",{className:o,children:a.map(t=>b.jsx("button",{className:`${e}${r===t.id?" active":""}`,onClick:()=>s(t.id),children:t.label},t.id))})}export{y as B,u as C,p as T};
