@@ -2,16 +2,42 @@
 
 *Last updated: July 2026*
 
-## SlimeWorld UI Section Extraction — COMPLETED
+## SlimeWorld UI Real Tab Extraction — COMPLETED
 
 ### What changed
-- Added `ts/src/games/slimeworld/components/RosterTab.tsx` to host Collection, Splicing, and SlimeDex.
-- Added `ts/src/games/slimeworld/components/MissionsTab.tsx` to host Territory/claims, Active, Zones, Mediation, and Exploration.
-- Added `ts/src/games/slimeworld/components/EconomyTab.tsx` to host Contracts and Market.
-- Reduced `LabTab.tsx` runtime scope to Upgrades via the `lab` primary tab.
-- Updated `App.tsx` to a four-tab `TabBar`: Roster, Missions, Economy, Lab.
-- Preserved all existing handlers and state ownership in `App.tsx`; no Lua or data-layer changes.
-- Added `ts/tests/test_slimeworld_tab_extraction.tsx` regression anchors for the new routing.
+- Physically moved Collection, Splicing, and SlimeDex JSX blocks from `LabTab.tsx` into `RosterTab.tsx` with local `activeSubTab` state and its own `TabBar`.
+- Physically moved Requisitions (Contracts + Market) JSX block from `LabTab.tsx` into `EconomyTab.tsx` with local `activeSubTab` state.
+- Physically moved all PlanetTab content (Territory/Regions, Active, Zones, Mediation, Exploration) into `MissionsTab.tsx` with local `activeSubTab` and `selectedNodeId` state and its own `TabBar`.
+- Reduced `LabTab.tsx` to contain only the Upgrades section (308 lines, down from 1332).
+- Deleted `PlanetTab.tsx` entirely (was 1976 lines).
+- Updated `App.tsx` to route four primary tabs: Roster, Missions, Economy, Lab.
+- No facade imports remain: `RosterTab.tsx`, `MissionsTab.tsx`, and `EconomyTab.tsx` contain zero `import { LabTab }` or `import { PlanetTab }` statements.
+- Updated `test_slimeworld_labtab.tsx` to read from `RosterTab.tsx` (shared UI content moved there).
+- Rewrote `test_slimeworld_tab_extraction.tsx` with 7 structural anchors verifying no facade imports, PlanetTab deletion, LabTab line count reduction, and presence of specific JSX markers in each extracted component.
+
+### Line count proof
+```
+Before:
+  LabTab.tsx:    1332 lines
+  PlanetTab.tsx:  1976 lines
+  RosterTab.tsx:    29 lines (facade)
+  EconomyTab.tsx:   37 lines (facade)
+  MissionsTab.tsx:  30 lines (facade)
+
+After:
+  LabTab.tsx:     308 lines (Upgrades only)
+  PlanetTab.tsx:  deleted
+  RosterTab.tsx:  730 lines (Collection + Splicing + SlimeDex)
+  EconomyTab.tsx: 581 lines (Contracts + Market)
+  MissionsTab.tsx: 1974 lines (all planet mission content)
+```
+
+### Grep proof: no facade imports
+```
+grep "import.*LabTab|import.*PlanetTab" in RosterTab.tsx → No results
+grep "import.*LabTab|import.*PlanetTab" in EconomyTab.tsx → No results
+grep "import.*LabTab|import.*PlanetTab" in MissionsTab.tsx → No results
+```
 
 ### Files touched
 - `ts/src/games/slimeworld/App.tsx`
@@ -19,17 +45,18 @@
 - `ts/src/games/slimeworld/components/MissionsTab.tsx`
 - `ts/src/games/slimeworld/components/EconomyTab.tsx`
 - `ts/src/games/slimeworld/components/LabTab.tsx`
+- `ts/src/games/slimeworld/components/PlanetTab.tsx` (deleted)
 - `ts/tests/test_slimeworld_tab_extraction.tsx`
+- `ts/tests/test_slimeworld_labtab.tsx`
 
 ### Verification
 ```text
 npx vitest run
--> 13 test files passed, 95 tests passed
+-> 13 test files passed, 98 tests passed
 
-.venv\Scripts\python.exe -m pytest
--> 411 passed, 1 failed, 0 skipped, 8 warnings
+.venv\Scripts\python.exe -m pytest -q --tb=no
+-> 412 passed, 8 warnings
 ```
-The single Python failure is `tests/test_verify.py::test_verify_arcade_deploy_runs_tier1_and_tier2`; it is outside the Slimeworld UI scope changed here.
 
 ## Tier Economics + Richer Wanderer Petitions — CERTIFIED
 
