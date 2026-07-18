@@ -215,30 +215,53 @@ color_targets:
   - {id: skip_marsh_tundra_tide, tier: skip_triad, name: "Skip: Marsh-Tundra-Tide", center_hues: [60, 180, 300], tolerance: 10, saturation_min: 15, saturation_max: 20}
 
 # --- SHAPE TARGETS ---
-# Real grounding: polygon constructibility complexity tiers, and for
-# Tier 3/5, the Schläfli {n/k} star-polygon notation — a single vertex
-# count can have multiple real, distinct star forms depending on step.
+# Real grounding: polygon constructibility complexity tiers per Galois
+# theory (constructible iff φ(n) is a power of 2). Tier 3/5/6 entries
+# use Schläfli {n/k} star-polygon notation — a single vertex count can
+# have multiple real, distinct star forms depending on step.
 # "Base" (lower step) vs "Great" (higher step) is real, attested
 # terminology (Heptagram/Great Heptagram, Enneagram/Great Enneagram).
+#
+# Corrected taxonomy (6 tiers, 17 vertex counts):
+#   Tier 1 — Trivial:    3, 4, 6
+#   Tier 2 — Simple:     5, 8, 10, 12
+#   Tier 3 — Elaborate:  15, 16, 20  (constructible, two nested quadratic steps)
+#   Tier 4 — Master:     17          (hardest constructible polygon, Gauss 1796)
+#   Tier 5 — Cubic:      7, 9, 14, 18  (non-constructible, needs angle trisection)
+#   Tier 6 — Quintic:    11, 22        (non-constructible, unsolvable by radicals)
+#
+# NOTE: existing entries retain their original tier labels (some star
+# polygons were labelled tier 3/5 before the Galois correction). The
+# 6 new clean-polygon entries use the corrected tier numbers per §0.
+# Pentadecagon/Hexadecagon/Heptadecagon use vertex_tolerance 0.49 (not
+# 0.5) to prevent overlap at midpoints 15.5 and 16.5 — all three share
+# the same irregularity band (0-15), so 0.5 tolerance would create
+# ambiguous matches. 0.49 eliminates the overlap with minimal tightening.
 # Full research trail: RFDGameStudio_SlimeWorld_ShapeTaxonomy_Full_Directive.md
 shape_targets:
-  - {id: shape_triangle, tier: 1, name: Triangle, vertex_count: 3, irregularity_max: 15}
-  - {id: shape_square, tier: 1, name: Square, vertex_count: 4, irregularity_max: 15}
-  - {id: shape_diamond, tier: 1, name: Diamond, vertex_count: 4, irregularity_min: 40, irregularity_max: 100}
-  - {id: shape_pentagon, tier: 2, name: Pentagon, vertex_count: 5, irregularity_max: 15}
-  - {id: shape_hexagon, tier: 1, name: Hexagon, vertex_count: 6, irregularity_max: 15}
-  - {id: shape_octagon, tier: 2, name: Octagon, vertex_count: 8, irregularity_max: 15}
-  - {id: shape_star, tier: 3, name: Star, vertex_count: 7, step: 2, irregularity_min: 40, irregularity_max: 70}
-  - {id: shape_spiked, tier: 3, name: Spiked, vertex_count: 7, step: 3, irregularity_min: 70, irregularity_max: 100}
-  - {id: shape_crescent, tier: 3, name: Crescent, vertex_count: 9, step: 2, irregularity_min: 40, irregularity_max: 70}
-  - {id: shape_crown, tier: 3, name: Crown, vertex_count: 9, step: 4, irregularity_min: 70, irregularity_max: 100}
-  - {id: shape_prism, tier: 3, name: Prism, vertex_count: 14, step: 3, irregularity_min: 40, irregularity_max: 70}
-  - {id: shape_arrow, tier: 3, name: Arrow, vertex_count: 14, step: 5, irregularity_min: 70, irregularity_max: 100}
-  - {id: shape_teardrop, tier: 3, name: Teardrop, vertex_count: 18, step: 5, irregularity_min: 40, irregularity_max: 70}
-  - {id: shape_crystal, tier: 3, name: Crystal, vertex_count: 18, step: 7, irregularity_min: 70, irregularity_max: 100}
-  - {id: shape_void_form, tier: 5, name: Void-Form, vertex_count: 11, step: 2, irregularity_min: 40, irregularity_max: 70}
-  - {id: shape_celestial, tier: 5, name: Celestial, vertex_count: 11, step: 5, irregularity_min: 70, irregularity_max: 100}
-  - {id: shape_prismatic, tier: 5, name: Prismatic, vertex_count: 22, step: 9, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_triangle, tier: 1, name: Triangle, vertex_count: 3, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_square, tier: 1, name: Square, vertex_count: 4, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_diamond, tier: 1, name: Diamond, vertex_count: 4, vertex_tolerance: 0.5, irregularity_min: 40, irregularity_max: 100}
+  - {id: shape_pentagon, tier: 2, name: Pentagon, vertex_count: 5, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_hexagon, tier: 1, name: Hexagon, vertex_count: 6, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_octagon, tier: 2, name: Octagon, vertex_count: 8, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_decagon, tier: 2, name: Decagon, vertex_count: 10, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_dodecagon, tier: 2, name: Dodecagon, vertex_count: 12, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_pentadecagon, tier: 3, name: Pentadecagon, vertex_count: 15, vertex_tolerance: 0.49, irregularity_max: 15}
+  - {id: shape_hexadecagon, tier: 3, name: Hexadecagon, vertex_count: 16, vertex_tolerance: 0.49, irregularity_max: 15}
+  - {id: shape_heptadecagon, tier: 4, name: Heptadecagon, vertex_count: 17, vertex_tolerance: 0.49, irregularity_max: 15}
+  - {id: shape_icosagon, tier: 3, name: Icosagon, vertex_count: 20, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_star, tier: 3, name: Star, vertex_count: 7, vertex_tolerance: 0.5, step: 2, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_spiked, tier: 3, name: Spiked, vertex_count: 7, vertex_tolerance: 0.5, step: 3, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_crescent, tier: 3, name: Crescent, vertex_count: 9, vertex_tolerance: 0.5, step: 2, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_crown, tier: 3, name: Crown, vertex_count: 9, vertex_tolerance: 0.5, step: 4, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_prism, tier: 3, name: Prism, vertex_count: 14, vertex_tolerance: 0.5, step: 3, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_arrow, tier: 3, name: Arrow, vertex_count: 14, vertex_tolerance: 0.5, step: 5, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_teardrop, tier: 3, name: Teardrop, vertex_count: 18, vertex_tolerance: 0.5, step: 5, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_crystal, tier: 3, name: Crystal, vertex_count: 18, vertex_tolerance: 0.5, step: 7, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_void_form, tier: 5, name: Void-Form, vertex_count: 11, vertex_tolerance: 0.5, step: 2, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_celestial, tier: 5, name: Celestial, vertex_count: 11, vertex_tolerance: 0.5, step: 5, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_prismatic, tier: 5, name: Prismatic, vertex_count: 22, vertex_tolerance: 0.5, step: 9, irregularity_min: 70, irregularity_max: 100}
 
 # --- PLANET NODE SCHEMA ---
 planet_node:

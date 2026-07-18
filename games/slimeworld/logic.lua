@@ -103,6 +103,21 @@ function match_color_target(hue, saturation, color_targets)
   return nil
 end
 
+function match_shape_target(vertex_count, irregularity, shape_targets)
+  if shape_targets == nil then return nil end
+  for _, target in ipairs(shape_targets) do
+    local tolerance = target.vertex_tolerance or 0.5
+    if math.abs(vertex_count - target.vertex_count) <= tolerance then
+      local irr_min = target.irregularity_min or 0
+      local irr_max = target.irregularity_max or 100
+      if irregularity >= irr_min and irregularity <= irr_max then
+        return target.id
+      end
+    end
+  end
+  return nil
+end
+
 function find_shape_target(shape_targets, target_id)
   if shape_targets == nil or target_id == nil then return nil end
   for _, target in ipairs(shape_targets) do
@@ -345,6 +360,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.amplitude = accent.amplitude
   child.accent_hue = accent.accent_hue
   child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
+  child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
   table.insert(state.slimes, child)
   for index, slime in ipairs(state.slimes) do
     if slime.id == parent_b_id then
