@@ -2,6 +2,91 @@
 
 *Last updated: July 18 2026*
 
+## Splicing Roster Bloat + SlimeDex Discovery — COMPLETED
+
+### Bug 1 — Splicing Roster Bloat
+
+`handleInitiateBreeding` in `App.tsx` appended the child slime to
+`previous.slimes` without removing the consumed parent. Lua's
+`initiate_breeding` correctly removes `parent_b` from `state.slimes` and
+sets `child.consumed_slime_id = parent_b_id`, but the TS state update
+ignored `consumedSlimeId` entirely — so the consumed parent persisted in
+the React roster forever. Each breeding event grew the roster by 1
+instead of being net-zero (remove one, add one).
+
+**Fix:** Filter `child.consumedSlimeId` from `previous.slimes` before
+constructing the new array:
+
+```tsx
+const filteredSlimes = child.consumedSlimeId
+  ? previous.slimes.filter(s => s.id !== child.consumedSlimeId)
+  : previous.slimes;
+// ...
+slimes: [...filteredSlimes, child],
+```
+
+### Bug 2 — SlimeDex Discovery Never Populated
+
+`colorCodex` and `patternCodex` were defined in `LabState` as optional
+fields (`Record<SlimeColor, { discovered: boolean }>`), and
+`SlimeDexTab.tsx` read them via `state.colorCodex?.[color]?.discovered`
+— but `initialState()` never initialized them, and
+`handleInitiateBreeding` never updated them. The SlimeDex was permanently
+empty: zero colors discovered, zero patterns discovered, no matter what
+the player bred.
+
+**Fix — initialization:** `initialState()` now derives `colorCodex` and
+`patternCodex` from the actual `starterSlimes` roster:
+
+```tsx
+for (const slime of starterSlimes) {
+  colorCodex[slime.color] = { discovered: true };
+  patternCodex[slime.pattern] = { discovered: true };
+}
+```
+
+**Fix — breeding update:** `handleInitiateBreeding` now updates both
+codexes when a new child is created:
+
+```tsx
+const newColorCodex = { ...(previous.colorCodex ?? {}),
+  [child.color]: { discovered: true } };
+const newPatternCodex = { ...(previous.patternCodex ?? {}),
+  [child.pattern]: { discovered: true } };
+```
+
+### What Was NOT Changed
+
+- `initiate_breeding` in `logic.lua` — untouched (Lua logic was correct)
+- `colorTargetCodex`/`shapeTargetCodex` handling — untouched
+- Breeding formulas — untouched
+- Visual rendering gap (`vertexCount`/`irregularity`/`accentHue` never
+  used by `SlimeVisual`) — explicitly deferred
+
+### Test Anchors — `ts/tests/test_splicing_and_dex.tsx` (7 tests)
+
+| Test | What it proves |
+|---|---|
+| `test_breeding_removes_consumed_parent_from_roster` | Real Lua breeding → consumed parent ID gone from roster |
+| `test_breeding_without_consumption_keeps_both_parents` | `consumedSlimeId: null` → both parents retained |
+| `test_roster_cap_enforced_correctly_after_fix` | 4 successive breeds at cap 5 → roster stays ≤ cap |
+| `test_initial_color_codex_reflects_starter_slimes` | `initialState()` → every starter color/pattern discovered |
+| `test_breeding_new_color_updates_color_codex` | Child with new color → `colorCodex[child.color].discovered === true` |
+| `test_breeding_repeat_color_does_not_duplicate_or_error` | Same color bred twice → no duplicate, no error |
+| `test_slimedex_ui_reads_the_correct_real_field` | SlimeDexTab source reads `state.colorCodex`/`state.patternCodex` with `?.discovered` |
+
+### Files Changed
+
+- `ts/src/games/slimeworld/App.tsx` — `initialState()` exported, codex initialization added, `handleInitiateBreeding` roster filter + codex update
+- `ts/tests/test_splicing_and_dex.tsx` — new, 7 test anchors
+
+### Test Floors
+
+- Python: 432 passed, 8 warnings
+- TypeScript: 181 passed, 25 files (+7 tests, +1 file from previous 174/24)
+
+---
+
 ## Lifecycle Completeness Detector — COMPLETED
 
 ### What it does

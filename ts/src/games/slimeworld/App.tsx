@@ -49,7 +49,7 @@ const INITIAL_CONTRACTS: CorporateContract[] = [
   { id: 'contract_init_2', title: 'CONTRACT RQ-8821', requiredColor: 'Red', requiredPattern: 'Stripe', creditsReward: 160, cyclesRemaining: 4, totalCycles: 4, flavorText: 'Physical shock loading test. Stripe pattern elastic membrane required for deceleration orbital sleds.' },
 ];
 
-function initialState(session: GameRendererProps['session']): LabState {
+export function initialState(session: GameRendererProps['session']): LabState {
   const data = session.files.data as Record<string, unknown>;
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
