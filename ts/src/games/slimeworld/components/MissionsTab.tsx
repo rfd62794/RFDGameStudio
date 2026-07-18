@@ -18,7 +18,7 @@ export function MissionsTab(props: MissionsTabProps) {
       <PlanetTab
         {...props}
         activeSubTab={activeSubTab}
-        setActiveSubTab={setActiveSubTab}
+        setActiveSubTab={id => setActiveSubTab(id as MissionSubTab)}
         selectedNodeId={null}
         setSelectedNodeId={() => {}}
         setActiveTab={() => {}}
