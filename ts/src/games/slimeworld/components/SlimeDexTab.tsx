@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Sparkles, Info, Coins, Database, Dna, HelpCircle, BookOpen, Beaker } from 'lucide-react';
 import { LabState, SlimeColor, SlimePattern, Slime } from '../types';
-import { COLOR_SPECS, PATTERN_DESCRIPTIONS, getColorRegentCost, COLOR_TARGETS, getTargetRegentCost } from '../gameLogic';
+import { COLOR_SPECS, PATTERN_DESCRIPTIONS, getColorRegentCost, COLOR_TARGETS, getTargetRegentCost, SHAPE_TARGETS } from '../gameLogic';
 import { SlimeVisual } from './SlimeVisual';
 
 interface SlimeDexTabProps {
@@ -16,7 +16,8 @@ interface SlimeDexTabProps {
 type SelectedGene = 
   | { type: 'color'; id: SlimeColor }
   | { type: 'pattern'; id: SlimePattern }
-  | { type: 'target'; id: string };
+  | { type: 'target'; id: string }
+  | { type: 'shapeTarget'; id: string };
 
 export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetRegent }: SlimeDexTabProps) {
   const currentSlimes = state.slimes;
@@ -312,6 +313,57 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                     <div className="mt-2 flex items-center justify-between w-full text-[8px] font-mono uppercase text-slate-500">
                       <span>{target.tier.replace('_', ' ')}</span>
                       {isDiscovered ? <span className="text-cyan-500">Decoded</span> : <span>Locked</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Morphological Shape Targets (Shape Codex) */}
+          <div className="space-y-3 pt-4 border-t border-slate-850/40">
+            <div className="flex items-center justify-between border-b border-slate-850 pb-1.5">
+              <h3 className="text-xs font-bold font-mono tracking-widest text-slate-400 uppercase flex items-center">
+                <Dna className="w-3.5 h-3.5 mr-2 text-purple-500" />
+                Morphological Shape Targets
+              </h3>
+              <span className="text-[10px] font-mono text-slate-500">
+                {SHAPE_TARGETS.filter(t => !!state.shapeTargetCodex?.[t.id]).length} / {SHAPE_TARGETS.length} Decoded
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+              {SHAPE_TARGETS.map((target) => {
+                const isDiscovered = !!state.shapeTargetCodex?.[target.id];
+                const isSelected = selectedGene.type === 'shapeTarget' && selectedGene.id === target.id;
+
+                return (
+                  <button
+                    key={`shape_btn_${target.id}`}
+                    onClick={() => setSelectedGene({ type: 'shapeTarget', id: target.id })}
+                    className={`p-2.5 rounded-lg border text-left flex flex-col justify-between transition-all group relative ${
+                      isSelected
+                        ? 'border-purple-500 bg-purple-950/15 ring-1 ring-purple-500/20'
+                        : isDiscovered
+                          ? 'border-slate-800 bg-slate-900/20 hover:border-slate-700 hover:bg-slate-900/40'
+                          : 'border-slate-900/40 bg-slate-950/10 opacity-50 hover:opacity-75'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className={`font-mono text-[10px] font-bold uppercase truncate ${
+                        isSelected ? 'text-purple-400' : isDiscovered ? 'text-white' : 'text-slate-500'
+                      }`}>
+                        {isDiscovered ? target.name : `???`}
+                      </span>
+                      {isDiscovered ? (
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                      ) : (
+                        <Lock className="w-2.5 h-2.5 text-slate-700" />
+                      )}
+                    </div>
+                    <div className="mt-2 flex items-center justify-between w-full text-[8px] font-mono uppercase text-slate-500">
+                      <span>T{target.tier}</span>
+                      {isDiscovered ? <span className="text-purple-500">Decoded</span> : <span>Locked</span>}
                     </div>
                   </button>
                 );
@@ -644,6 +696,124 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                           </button>
                         </div>
                       )}
+                    </motion.div>
+                  );
+                })()
+              ) : selectedGene.type === 'shapeTarget' ? (
+                (() => {
+                  const targetId = selectedGene.id;
+                  const target = SHAPE_TARGETS.find(t => t.id === targetId)!;
+                  const isDiscovered = !!state.shapeTargetCodex?.[targetId];
+
+                  const shapeDummySlime = {
+                    id: `dummy_shape_${targetId}`,
+                    name: isDiscovered ? target.name : 'Unknown Shape',
+                    color: 'Gray' as SlimeColor,
+                    pattern: 'Solid' as SlimePattern,
+                    level: 1,
+                    xp: 0,
+                    stats: { hp: 100, atk: 10, def: 10, agi: 10, int: 10, chm: 10 },
+                    role: 'idle' as const,
+                    generation: 1,
+                    colorSaturation: 0,
+                    hue: 0,
+                    saturation: 0,
+                    vertexCount: target.vertexCount,
+                    irregularity: target.irregularityMin ? (target.irregularityMin + target.irregularityMax) / 2 : 5,
+                    createdAt: Date.now()
+                  };
+
+                  const tierLabels: Record<number, string> = {
+                    1: 'Base Polygon',
+                    2: 'Advanced Polygon',
+                    3: 'Complex Morphology',
+                    4: 'Rare Morphology',
+                    5: 'Legendary Morphology'
+                  };
+
+                  return (
+                    <motion.div
+                      key={`details_shape_${targetId}`}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex-1 flex flex-col justify-between space-y-5"
+                    >
+                      {/* Top Header */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-850 pb-3">
+                          <div>
+                            <span className="text-[9px] font-mono text-purple-500 uppercase tracking-wider block font-bold">GENE SCAN : SHAPE_T{target.tier}</span>
+                            <h3 className="text-sm font-bold font-mono text-white uppercase">{isDiscovered ? target.name : '??? Locked Shape ???'}</h3>
+                          </div>
+                          {isDiscovered ? (
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded border border-emerald-500/30 bg-emerald-950/20 text-emerald-400">
+                              DECODED
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded border border-slate-850 bg-slate-900 text-slate-500">
+                              LOCKED
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Holographic Slime Preview */}
+                        <div className="bg-slate-950/60 border border-slate-900 rounded-xl p-6 flex flex-col items-center justify-center relative group min-h-[160px] shadow-inner">
+                          {isDiscovered ? (
+                            <>
+                              <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                                <div className="w-24 h-24 rounded-full border border-dashed border-purple-500 animate-spin" style={{ animationDuration: '20s' }} />
+                              </div>
+                              <div className="relative transform hover:scale-110 transition-transform duration-300">
+                                <SlimeVisual slime={shapeDummySlime} size="md" />
+                              </div>
+                              <span className="text-[9px] font-mono text-slate-500 mt-4 uppercase tracking-widest">Morphological Bio-resonance</span>
+                            </>
+                          ) : (
+                            <div className="text-center py-6">
+                              <Lock className="w-10 h-10 text-slate-800 mx-auto mb-2" />
+                              <span className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">Morphology Unidentified</span>
+                              <p className="text-[9px] text-slate-600 mt-1 max-w-xs mx-auto">Breed specimens with specific vertex counts and irregularity to discover this shape.</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Analysis / Specialty / Clues */}
+                        <div className="space-y-3">
+                          <div className="p-3 bg-slate-950/30 border border-slate-900 rounded-lg space-y-2">
+                            <span className="text-[9px] font-mono font-bold text-purple-400 block mb-1 uppercase tracking-wider">Classification</span>
+                            <p className="text-xs font-mono text-slate-300 leading-relaxed capitalize font-bold">{tierLabels[target.tier] || `Tier ${target.tier}`}</p>
+                          </div>
+
+                          <div className="p-3 bg-slate-950/10 border border-slate-900 rounded-lg space-y-2.5">
+                            <span className="text-[9px] font-mono font-bold text-slate-500 block mb-1 uppercase tracking-wider">Morphological Signatures</span>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="p-2 bg-slate-950/40 rounded border border-slate-900 text-center font-mono">
+                                <div className="text-[8px] text-slate-500">VERTEX COUNT</div>
+                                <div className="text-xs font-bold text-slate-300 mt-0.5">
+                                  {isDiscovered ? target.vertexCount : '???'}
+                                </div>
+                              </div>
+                              <div className="p-2 bg-slate-950/40 rounded border border-slate-900 text-center font-mono">
+                                <div className="text-[8px] text-slate-500">IRREGULARITY</div>
+                                <div className="text-xs font-bold text-slate-300 mt-0.5">
+                                  {isDiscovered ? `${target.irregularityMin ?? 0}-${target.irregularityMax}` : '???'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {!isDiscovered && (
+                              <div className="mt-2 pt-2 border-t border-slate-850/40 text-[10px] text-yellow-500/80 leading-normal">
+                                <span className="font-bold">Target Clue:</span> Requires a specimen with{' '}
+                                <span className="font-bold text-slate-200">{target.vertexCount} vertices</span>
+                                {' '}and irregularity between{' '}
+                                <span className="font-bold text-slate-200">{target.irregularityMin ?? 0}-{target.irregularityMax}</span>.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </motion.div>
                   );
                 })()

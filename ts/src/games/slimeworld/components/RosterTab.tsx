@@ -42,6 +42,7 @@ interface RosterTabProps {
   setActiveTargetRegent: (targetId: string | null) => void;
   onBuyTargetRegent: (targetId: string) => void;
   handleToggleWorkerRole?: (slimeId: string) => void;
+  lastConsumedSlimeId?: string | null;
 }
 
 export function RosterTab({
@@ -69,7 +70,8 @@ export function RosterTab({
   activeTargetRegent,
   setActiveTargetRegent,
   onBuyTargetRegent,
-  handleToggleWorkerRole
+  handleToggleWorkerRole,
+  lastConsumedSlimeId
 }: RosterTabProps) {
   const currentlySelectedSlime = state.slimes.find(s => s.id === selectedSlimeId);
   const idleSlimes = state.slimes.filter(s => s.role === 'idle');
@@ -710,6 +712,14 @@ export function RosterTab({
                     </button>
                   )}
                 </div>
+
+                {lastConsumedSlimeId && !isBreedingHatching && (
+                  <div className="mt-3 px-3 py-2 bg-amber-950/40 border border-amber-800/50 rounded-lg">
+                    <div className="text-[10px] font-mono text-amber-400 tracking-wider uppercase">
+                      Specimen Consumed: {lastConsumedSlimeId}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
