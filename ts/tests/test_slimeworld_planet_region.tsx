@@ -8,56 +8,77 @@ const appSource = readFileSync(
   'utf8'
 );
 
-describe('SlimeWorld Planet Region Generation', () => {
-  it('test_generate_planet_region_returns_8_nodes', () => {
+describe('SlimeWorld Planet Region Generation (20-Node)', () => {
+  it('test_generate_planet_region_returns_20_nodes', () => {
     const region = generatePlanetRegion();
-    expect(region.nodes.length).toBe(8);
+    expect(region.nodes.length).toBe(20);
 
     const expectedIds = [
-      'node_solitude', 'node_feral', 'node_rust', 'node_sulphur',
-      'node_wetlands', 'node_jungle', 'node_abyss', 'node_twilight'
+      'node_ember', 'node_marsh', 'node_gale', 'node_tundra', 'node_crystal', 'node_tide',
+      'node_frontier_a', 'node_frontier_b', 'node_frontier_c', 'node_frontier_d', 'node_frontier_e', 'node_frontier_f',
+      'node_mid_a', 'node_mid_b', 'node_mid_c', 'node_mid_d', 'node_mid_e', 'node_mid_f', 'node_mid_g', 'node_mid_h'
     ];
     for (const id of expectedIds) {
       expect(region.nodes.some(n => n.id === id)).toBe(true);
     }
   });
 
-  it('test_generate_planet_region_capitol_ownership', () => {
+  it('test_generate_planet_region_six_capitols_distinct_colors', () => {
     const region = generatePlanetRegion();
     const byId = (id: string) => region.nodes.find(n => n.id === id)!;
 
-    expect(byId('node_solitude').ownerColor).toBe('Red');
-    expect(byId('node_abyss').ownerColor).toBe('Blue');
-    expect(byId('node_twilight').ownerColor).toBe('Purple');
-    expect(byId('node_rust').ownerColor).toBe('Orange');
-    expect(byId('node_feral').ownerColor).toBe('Green');
-
-    expect(byId('node_sulphur').ownerColor).toBeNull();
-    expect(byId('node_jungle').ownerColor).toBeNull();
-    expect(byId('node_wetlands').ownerColor).toBeNull();
+    expect(byId('node_ember').ownerColor).toBe('Red');
+    expect(byId('node_marsh').ownerColor).toBe('Orange');
+    expect(byId('node_gale').ownerColor).toBe('Yellow');
+    expect(byId('node_tundra').ownerColor).toBe('Green');
+    expect(byId('node_crystal').ownerColor).toBe('Purple');
+    expect(byId('node_tide').ownerColor).toBe('Blue');
 
     const capitols = region.nodes.filter(n => n.isCapitol);
-    expect(capitols.length).toBe(5);
-    const neutral = region.nodes.filter(n => !n.isCapitol);
-    expect(neutral.length).toBe(3);
+    expect(capitols.length).toBe(6);
+    const colors = capitols.map(c => c.ownerColor);
+    expect(new Set(colors).size).toBe(6);
   });
 
-  it('test_generate_planet_region_starting_pressure', () => {
+  it('test_generate_planet_region_frontier_pressure_values', () => {
     const region = generatePlanetRegion();
     const byId = (id: string) => region.nodes.find(n => n.id === id)!;
 
-    expect(byId('node_sulphur').pressure).toEqual({ Red: 15, Blue: 25 });
-    expect(byId('node_jungle').pressure).toEqual({ Red: 35, Blue: 10 });
-    expect(byId('node_wetlands').pressure).toEqual({ Purple: 20, Orange: 15, Green: 10 });
-
-    expect(byId('node_solitude').pressure).toEqual({});
-    expect(byId('node_abyss').pressure).toEqual({});
+    expect(byId('node_frontier_a').pressure).toEqual({ Red: 15, Orange: 15 });
+    expect(byId('node_frontier_b').pressure).toEqual({ Yellow: 15, Green: 15 });
+    expect(byId('node_frontier_c').pressure).toEqual({ Purple: 15, Blue: 15 });
+    expect(byId('node_frontier_d').pressure).toEqual({ Red: 10, Blue: 15, Yellow: 10 });
+    expect(byId('node_frontier_e').pressure).toEqual({ Orange: 10, Green: 15 });
+    expect(byId('node_frontier_f').pressure).toEqual({ Yellow: 10, Purple: 15 });
   });
 
-  it('test_generate_planet_region_capitols_discovered_frontier_fogged', () => {
+  it('test_generate_planet_region_midpoint_pressure_values', () => {
     const region = generatePlanetRegion();
-    for (const node of region.nodes) {
-      expect(node.discovered).toBe(node.isCapitol);
+    const byId = (id: string) => region.nodes.find(n => n.id === id)!;
+
+    expect(byId('node_mid_a').pressure).toEqual({ Red: 20 });
+    expect(byId('node_mid_b').pressure).toEqual({ Orange: 20 });
+    expect(byId('node_mid_c').pressure).toEqual({ Yellow: 20 });
+    expect(byId('node_mid_d').pressure).toEqual({ Green: 20 });
+    expect(byId('node_mid_e').pressure).toEqual({ Purple: 20 });
+    expect(byId('node_mid_f').pressure).toEqual({ Blue: 20 });
+    expect(byId('node_mid_g').pressure).toEqual({ Red: 10, Blue: 10 });
+    expect(byId('node_mid_h').pressure).toEqual({ Yellow: 10, Orange: 10 });
+  });
+
+  it('test_generate_planet_region_non_capitols_undiscovered', () => {
+    const region = generatePlanetRegion();
+    const nonCapitols = region.nodes.filter(n => !n.isCapitol);
+    expect(nonCapitols.length).toBe(14);
+    for (const node of nonCapitols) {
+      expect(node.discovered).toBe(false);
+      expect(node.ownerColor).toBeNull();
+      expect(node.strength).toBe(0);
+      expect(node.isSupplied).toBe(false);
+    }
+    const capitols = region.nodes.filter(n => n.isCapitol);
+    for (const node of capitols) {
+      expect(node.discovered).toBe(true);
     }
   });
 
@@ -71,27 +92,24 @@ describe('SlimeWorld Planet Region Generation', () => {
     }
   });
 
-  it('test_app_initial_state_has_real_planet_region', () => {
-    expect(appSource).toContain('generatePlanetRegion()');
-    expect(appSource).not.toMatch(/planetRegion:\s*null/);
-  });
-
-  it('test_missions_tab_renders_map_not_placeholder', () => {
+  it('test_missions_tab_renders_full_map', () => {
     const region = generatePlanetRegion();
     expect(region).toBeTruthy();
-    expect(region.nodes.length).toBe(8);
+    expect(region.nodes.length).toBe(20);
 
     const hasRealNodes = region.nodes.every(n =>
       n.cellShape && n.labelX !== undefined && n.labelY !== undefined
     );
     expect(hasRealNodes).toBe(true);
 
+    expect(appSource).toContain('generatePlanetRegion()');
+    expect(appSource).not.toMatch(/planetRegion:\s*null/);
+
     const missionsSource = readFileSync(
       resolve(import.meta.dirname, '../src/games/slimeworld/components/MissionsTab.tsx'),
       'utf8'
     );
     expect(missionsSource).toContain('state.planetRegion');
-    expect(missionsSource).toContain('Unexplored Region');
     expect(missionsSource).toContain('cellShape');
   });
 });

@@ -2,42 +2,78 @@
 
 *Last updated: July 2026*
 
-## SlimeWorld World Map Fix (planetRegion Never Generated) — COMPLETED
+## SlimeWorld World Map Fix (planetRegion Never Generated) — COMPLETED (v2: 20-Node Replacement)
 
 ### Root cause
-`App.tsx` initialized `planetRegion: null` in `createInitialState`. Every other reference across the component tree only read or conditionally updated it (guarded on it already being non-null). Nothing ever transitioned it from `null` to a real value. This was a pre-existing bug from the original SlimeGarden port — confirmed NOT a regression from the tab extraction work (the `.bak/PlanetTab.tsx` backup has the identical gap). The World Map in the Missions tab was permanently stuck on "UNEXPLORED REGION — Establishing communications satellite uplink with the Heartlands" with no way to resolve past it.
+`App.tsx` initialized `planetRegion: null` in `createInitialState`. Nothing ever transitioned it from `null` to a real value. The World Map in the Missions tab was permanently stuck on "UNEXPLORED REGION" placeholder.
 
-### Fix
-Ported `generatePlanetRegion()` from the real SlimeGarden source (`intake/slimegarden/extracted/src/gameLogic.ts`, ~line 1040) into a new TypeScript-only file `ts/src/games/slimeworld/planetRegion.ts`. This function generates 8 territory nodes (5 named capitols with fixed starting owners, 3 neutral frontier nodes with predetermined starting pressure) at fixed positions, computes their Voronoi-cell polygon shapes via half-plane clipping, and returns a complete `PlanetRegion`. Called once at initial state creation in `App.tsx` — not on every render or in a `useEffect`.
+### Initial fix (this morning, now superseded)
+Ported `generatePlanetRegion()` from `intake/slimegarden/extracted/src/gameLogic.ts` — but that source was five days stale (dated July 13), describing an older 8-node map. The wiring was correct (and remains unchanged), but the data was wrong.
 
-### Node definitions (ported exactly from source)
-- **node_solitude** — Solitude Ridge, Red capitol, Ring 1 (r=90), discovered
-- **node_abyss** — Abyssal Chasm, Blue capitol, Ring 1 (r=90), discovered
-- **node_twilight** — Twilight Grove, Purple capitol, Ring 2 (r=225), discovered
-- **node_rust** — Rust Crater, Orange capitol, Ring 2 (r=225), discovered
-- **node_feral** — Feral Canopy, Green capitol, Ring 2 (r=225), discovered
-- **node_sulphur** — Sulphur Gateway, neutral, Ring 1 (r=90), fogged, pressure: {Red: 15, Blue: 25}
-- **node_jungle** — Jungle Outpost, neutral, Ring 1 (r=90), fogged, pressure: {Red: 35, Blue: 10}
-- **node_wetlands** — Silt Wetlands, neutral, Ring 2 (r=225), fogged, pressure: {Purple: 20, Orange: 15, Green: 10}
+### Replacement (this morning, v2)
+Robert provided a fresh export (`slimegarden_v0.1.0R2`, promoted through the intake pipeline). The real, current `generatePlanetRegion()` describes a **20-node map across three concentric rings**. Rewrote `planetRegion.ts` with the real source data (from ~line 1391 of the updated `gameLogic.ts`). `App.tsx` wiring unchanged — same call, just returns richer data now.
+
+### Real node definitions (ported exactly from v0.1.0R2 source)
+
+**6 Capitols (R=180, 60° spacing):**
+- **node_ember** — Ember, Red, strength 0.8, discovered
+- **node_marsh** — Marsh, Orange, strength 0.8, discovered
+- **node_gale** — Gale, Yellow, strength 0.8, discovered
+- **node_tundra** — Tundra, Green, strength 0.8, discovered
+- **node_crystal** — Crystal, Purple, strength 0.8, discovered
+- **node_tide** — Tide, Blue, strength 0.8, discovered
+
+**6 Frontier nodes (R=75, 30° offset from capitols):**
+- **node_frontier_a** — Frontier Alpha, neutral, pressure: {Red:15, Orange:15}
+- **node_frontier_b** — Frontier Beta, neutral, pressure: {Yellow:15, Green:15}
+- **node_frontier_c** — Frontier Gamma, neutral, pressure: {Purple:15, Blue:15}
+- **node_frontier_d** — Frontier Delta, neutral, pressure: {Red:10, Blue:15, Yellow:10}
+- **node_frontier_e** — Frontier Epsilon, neutral, pressure: {Orange:10, Green:15}
+- **node_frontier_f** — Frontier Zeta, neutral, pressure: {Yellow:10, Purple:15}
+
+**8 Midpoint nodes (R=125, 22.5° spacing):**
+- **node_mid_a** — Midpoint Alpha, neutral, pressure: {Red:20}
+- **node_mid_b** — Midpoint Beta, neutral, pressure: {Orange:20}
+- **node_mid_c** — Midpoint Gamma, neutral, pressure: {Yellow:20}
+- **node_mid_d** — Midpoint Delta, neutral, pressure: {Green:20}
+- **node_mid_e** — Midpoint Epsilon, neutral, pressure: {Purple:20}
+- **node_mid_f** — Midpoint Zeta, neutral, pressure: {Blue:20}
+- **node_mid_g** — Midpoint Eta, neutral, pressure: {Red:10, Blue:10}
+- **node_mid_h** — Midpoint Theta, neutral, pressure: {Yellow:10, Orange:10}
+
+All non-capitol nodes: `ownerColor: null`, `strength: 0`, `isCapitol: false`, `isSupplied: false`, `discovered: false`.
+
+### Key differences from v1 (8-node)
+- 20 nodes instead of 8 (6 capitols, 6 frontier, 8 midpoint vs 5 capitols, 3 neutral)
+- Three concentric rings (R=75, R=125, R=180) instead of two (R=90, R=225)
+- Adjacency computed on-the-fly from polygon proximity (tolerance 0.1) instead of hardcoded `NEIGHBORS_MAP`
+- `geometryVersion: 3` (was absent in v1)
+- All 6 SlimeColors represented as capitols (was 5 of 7)
 
 ### Field compatibility
-Confirmed the returned `PlanetNode` shape matches exactly what `luaNodeToTs`/`nodeToLua` and the SVG rendering in `MissionsTab.tsx` expect: `id`, `name`, `cellShape` (SVG path), `labelX`, `labelY`, `neighbors`, `ownerColor`, `pressure`, `strength`, `isCapitol`, `isSupplied`, `distanceFromCenter`, `discovered`. The Slimeworld `PlanetNode` type has one optional extra field (`garrisonSlimeId`) not set by the generator — this is fine, it's optional and defaults to undefined.
+Confirmed `PlanetNode` shape matches `luaNodeToTs`/`nodeToLua` and `MissionsTab.tsx` rendering. More nodes doesn't change individual node data shape. Optional `garrisonSlimeId` still unset by generator — fine, it's optional.
+
+### Cleanup noted
+`games/slimegarden/` (separate Lua genetics port, confirmed redundant) removed along with its equivalence tests. Python floor correctly dropped 412→371 — not a regression.
+
+### Deferred future work
+The fresh export's `gameLogic.ts` contains a real Color Codex / Guilds-Rivals genetics system — substantial, confirmed-present, deliberately deferred as separate future work. Not bundled into this map-geometry fix.
 
 ### Files touched
-- `ts/src/games/slimeworld/planetRegion.ts` (new — 180 lines)
-- `ts/src/games/slimeworld/App.tsx` (2 lines: import + `planetRegion: generatePlanetRegion()`)
-- `ts/tests/test_slimeworld_planet_region.tsx` (new — 7 test anchors)
+- `ts/src/games/slimeworld/planetRegion.ts` (rewritten — 20-node version)
+- `ts/tests/test_slimeworld_planet_region.tsx` (rewritten — 7 new anchors for 20-node structure)
+- `App.tsx` unchanged (wiring from v1 still correct)
 
 ### Verification
 ```text
 npx vitest run --config vite.config.ts
--> 14 test files passed, 105 tests passed (was 13/98, +1 file +7 tests)
+-> 14 test files passed, 105 tests passed
 
 .venv\Scripts\python.exe -m pytest -q --tb=no
--> 412 passed, 8 warnings (unchanged)
+-> 371 passed, 8 warnings
 
 npx vite build
--> ✓ built in 4.32s, 2137 modules transformed
+-> ✓ built in 5.28s, 2136 modules transformed
 ```
 
 Live browser check: pending user confirmation.
