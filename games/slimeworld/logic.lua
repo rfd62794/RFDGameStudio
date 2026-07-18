@@ -899,13 +899,13 @@ function advance_cycle(state)
         if new_color and #slimes < (state.roster_cap or 8) then
           local stray = create_seed_slime(new_color, "Solid")
           stray.id = "stray_flip_" .. os.time() .. "_" .. math.random(1000)
-          stray.locked_role = "dispatch"
+          stray.locked_role = "worker"
           stray.name = "Refugee " .. stray.name
           table.insert(slimes, stray)
           table.insert(state.logs, {
             id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000),
             cycle = state.cycle,
-            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to COMBAT/DISPATCH.",
+            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to WORKER.",
             type = "combat",
           })
         end
