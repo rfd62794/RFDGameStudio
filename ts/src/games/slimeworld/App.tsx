@@ -5,8 +5,10 @@ import {
   Coins, Clock, Database, Dna, Target, Beaker, Terminal, RefreshCw, Moon,
   Swords, Compass, Sliders, Briefcase, AlertTriangle, X
 } from 'lucide-react';
+import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
+import { TabBar } from '../../ui/components/TabBar';
 import { LabTab } from './components/LabTab';
 import { PlanetTab } from './components/PlanetTab';
 import { luaNodeToTs, luaSlimeToTs, stateToLua, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
@@ -163,5 +165,18 @@ export default function App({ session }: GameRendererProps) {
   // Layout system removed — rendering full custom UI directly
   const activeContent = activeTab === 'lab' ? <LabTab state={state} handleBuyUpgrade={handleBuyUpgrade} handlePurchaseSeedSlime={handlePurchaseSeedSlime} selectedSlimeId={selectedSlimeId} setSelectedSlimeId={setSelectedSlimeId} setRenameSlimeId={setRenameSlimeId} setNewNameInput={setNewNameInput} handleRecycleSlime={handleRecycleSlime} parentAId={parentAId} parentBId={parentBId} setParentAId={setParentAId} setParentBId={setParentBId} isBreedingHatching={isBreedingHatching} handleInitiateBreeding={handleInitiateBreeding} activeRegentPattern={activeRegentPattern} setActiveRegentPattern={setActiveRegentPattern} onBuyRegent={handleBuyRegent} activeRegentColor={activeRegentColor} setActiveRegentColor={setActiveRegentColor} onBuyColorRegent={handleBuyColorRegent} activeTargetRegent={activeTargetRegent} setActiveTargetRegent={setActiveTargetRegent} onBuyTargetRegent={handleBuyTargetRegent} handleToggleWorkerRole={handleToggleWorkerRole} activeSubTab={labSubTab} setActiveSubTab={setLabSubTab} handleDeliverContract={handleDeliverContract} handleSellOnMarket={handleSellOnMarket} handleRenameSlime={handleRenameSlime} renameSlimeId={renameSlimeId} newNameInput={newNameInput} /> : <PlanetTab state={state} handleLaunchMediation={handleLaunchMediation} mediationDraftIds={mediationDraftIds} setMediationDraftIds={setMediationDraftIds} selectedMediationNodeId={selectedMediationNodeId} setSelectedMediationNodeId={setSelectedMediationNodeId} activeMediationReport={activeMediationReport} setActiveMediationReport={setActiveMediationReport} handleLaunchExploration={handleLaunchExploration} explorationDraftIds={explorationDraftIds} setExplorationDraftIds={setExplorationDraftIds} selectedExplorationNodeId={selectedExplorationNodeId} setSelectedExplorationNodeId={setSelectedExplorationNodeId} activeExplorationReport={activeExplorationReport} setActiveExplorationReport={setActiveExplorationReport} handleAdvanceCycle={handleAdvanceCycle} activeSubTab={planetSubTab} setActiveSubTab={setPlanetSubTab} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} setSelectedZoneId={setSelectedZoneId} setActiveTab={setActiveTab} selectedZoneId={selectedZoneId} dispatchDraftIds={dispatchDraftIds} setDispatchDraftIds={setDispatchDraftIds} realtimeRemainingMs={0} activeDispatchReport={activeDispatchReport} setActiveDispatchReport={setActiveDispatchReport} handleLaunchDispatch={handleLaunchDispatch} handleRetrieveCompletedPod={handleRetrieveCompletedPod} handleAssignGarrison={handleAssignGarrison} handleRecallGarrison={handleRecallGarrison} handleForceClaim={handleForceClaim} handleBribeClaim={handleBribeClaim} handleConvertClaim={handleConvertClaim} />;
 
-  return <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<div className="header-bank"><Coins size={14} /> {state.credits} Biomass</div>}><div style={{ position: 'relative', width: '100%', height: '100%' }}>{rendered.elements}{warning && <div role="alert">{warning}</div>}<TabBar tabs={tabs.map(tab => ({ id: String(tab['id']), label: String(tab['label']) }))} active={activeTab} onSelect={id => setActiveTab(id as 'lab' | 'planet')} variant="default" />{content && <div style={{ position: 'absolute', left: content.bounds.x, top: content.bounds.y, width: content.bounds.w, height: content.bounds.h }}>{activeContent}</div>}</div></GameShell>;
+  return (
+    <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<div className="header-bank"><Coins size={14} /> {state.credits} Biomass</div>}>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {warning && <div role="alert">{warning}</div>}
+        <TabBar
+          tabs={[{ id: 'lab', label: 'LAB' }, { id: 'planet', label: 'PLANET' }]}
+          active={activeTab}
+          onSelect={id => setActiveTab(id as 'lab' | 'planet')}
+          variant="default"
+        />
+        {activeContent}
+      </div>
+    </GameShell>
+  );
 }
