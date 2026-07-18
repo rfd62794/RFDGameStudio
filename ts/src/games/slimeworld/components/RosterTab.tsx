@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { TabBar } from '../../../ui/components/TabBar';
 import { LabTab } from './LabTab';
 
