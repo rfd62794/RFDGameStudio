@@ -2,6 +2,69 @@
 
 *Last updated: July 18 2026*
 
+## Lifecycle Completeness Detector — COMPLETED
+
+### What it does
+
+A structural scan of `logic.lua` that finds every `state.active_X = { ...,
+status = "..." }` launch pattern and checks whether anything elsewhere in
+the file ever clears or transitions that status. If neither a clearing
+write (`state.active_X = nil`) nor a status-transition write
+(`.status = "different_value"`) is found, the field is flagged as
+`POTENTIALLY_UNRESOLVED_LIFECYCLE`.
+
+The report cross-references each flagged field against the existing
+Recovery Manifest to point straight at the real source formula — closing
+the loop from "structural gap found" to "here's the exact source function
+to port." This is the same manual search done three separate times
+tonight (Exploration, Mediation, Dispatch), done once, mechanically.
+
+**Explicit non-goal**: this tool detects and points. It never
+auto-generates or auto-applies resolution logic — the real formulas
+differed in distinct ways across all three instances (Dispatch's clamp
+was `[0.1, 0.98]`, not `[0.15, 0.98]`), and a mechanical tool guessing at
+these would be actively dangerous.
+
+### Two-pattern design
+
+- **Pattern A (full clear)**: `state.active_X = nil` — used by
+  Exploration and Mediation
+- **Pattern B (status transition)**: `.status = "completed"` — used by
+  Dispatch's intended contract (mark completed, let a separate retrieve
+  function clear it)
+
+A detector checking only one pattern would have missed real cases. Both
+must be checked.
+
+### Files
+
+- `ts/tools/framework_gen/lifecycle_detector.ts` — structural scan engine
+- `ts/tools/framework_gen/lifecycle_report.ts` — cross-reference against
+  Recovery Manifest, human-readable report generation
+- `ts/tools/framework_gen/generate_lifecycle_report.ts` — CLI entry point
+- `ts/tests/test_lifecycle_detector.ts` — 7 test anchors
+- `docs/slimeworld_lifecycle_report.md` — generated report (current state:
+  0 flagged, 3 resolved)
+
+### Test anchors
+
+| Test | What it proves |
+|---|---|
+| `test_detects_real_known_pattern_retroactively` | Synthetic pre-fix Lua with all three bugs → all 3 flagged |
+| `test_pattern_a_full_clear_recognized_as_resolved` | Clear-to-nil pattern correctly NOT flagged |
+| `test_pattern_b_status_transition_recognized_as_resolved` | Status-transition pattern correctly NOT flagged |
+| `test_genuinely_unresolved_field_is_flagged` | Deliberately broken synthetic case correctly flagged |
+| `test_cross_reference_finds_real_manifest_entry` | `active_dispatch` → `resolveDispatch` matched in real manifest |
+| `test_no_matching_entry_reported_honestly` | Unknown field → `NO_MATCHING_MANIFEST_ENTRY`, no guessed near-miss |
+| `test_report_includes_real_line_numbers` | Every flagged case has verifiable line references |
+
+### Test floors
+
+- Python: 432 passed, 8 warnings
+- TypeScript: 174 passed, 24 files (+7 tests, +1 file from previous 167/23)
+
+---
+
 ## Mission Serialization Fix + End-to-End Test Coverage — COMPLETED
 
 ### Bug
