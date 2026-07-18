@@ -2,6 +2,54 @@
 
 *Last updated: July 2026*
 
+## SlimeWorld Color Codex Target Detection — COMPLETED
+
+### What changed
+Added the real 9-target Color Codex detection system from the v0.1.0R2 source (`gameLogic.ts` ~line 314, `matchColorTarget` ~line 341). Previously, `initiate_breeding` already biased child hue toward `active_target_regent` via `breed_slimes`, but nothing checked whether the resulting child actually landed inside a real target zone. Now `match_color_target(hue, saturation, color_targets)` runs on every breed and sets `child.matched_target_id`.
+
+### 9 targets in data.yaml (scoped to Guild + Rival tiers only)
+**6 Guilds** (adjacent capitol pairs, tight tolerance, high saturation):
+- `guild_ember_marsh` → Thornward (center 30, tol 15, sat 65–100)
+- `guild_marsh_gale` → Amberglow (center 90, tol 15, sat 65–100)
+- `guild_gale_tundra` → Frostwind (center 150, tol 15, sat 65–100)
+- `guild_tundra_crystal` → Mossy Crystal (center 210, tol 15, sat 65–100)
+- `guild_crystal_tide` → Tidereign (center 270, tol 15, sat 65–100)
+- `guild_tide_ember` → Abyssal Ember (center 330, tol 15, sat 65–100)
+
+**3 Rivals** (opposite capitol pairs, wider tolerance, lower saturation):
+- `rival_ember_tundra` → The Fault Line (centers [90, 270], tol 10, sat 35–65)
+- `rival_marsh_crystal` → Eclipse Void (centers [150, 330], tol 10, sat 35–65)
+- `rival_gale_tide` → Stormsurge (centers [210, 30], tol 10, sat 35–65)
+
+Arc Triad and Skip Triad targets from the source were removed — those are real but out of scope for this directive.
+
+### Detection algorithm
+`match_color_target` iterates targets in order. For each: if saturation falls within `[saturation_min, saturation_max)`, check each `center_hue` — if `circular_distance(hue, center) <= tolerance`, return the target's `id`. First match wins. Returns `nil` if no match. Reuses existing `circular_distance` function — no hue math reimplemented.
+
+### Wiring into initiate_breeding
+Single line added after accent computation, before `table.insert`:
+```lua
+child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
+```
+Runs on every breed regardless of whether `active_target_regent` is set — a player breeding without an active target can still accidentally land in a real zone. Does NOT change `breed_slimes`'s existing hue-biasing behavior.
+
+### Files touched
+- `games/slimeworld/data.yaml` — trimmed color_targets from 17 to 9 (removed arc_triad/skip_triad)
+- `games/slimeworld/logic.lua` — added `match_color_target` (12 lines), wired into `initiate_breeding` (1 line)
+- `tests/test_slimeworld_color_codex.py` — new, 9 test anchors
+
+### Verification
+```text
+.venv\Scripts\python.exe -m pytest -q --tb=no
+-> 380 passed, 8 warnings (was 371, +9 new tests)
+```
+
+### Deferred, real, separate follow-ups
+- **`syncCodexWithRoster` bookkeeping**: full discovery/inventory tracking (`colorCodex`, `patternCodex`, `colorTargetCodex`, Regent inventory counts) — real, related, genuinely separate future work
+- **Shape Codex detection**: `shape_targets`/`active_shape_target` already exist as parameters in `initiate_breeding`, following the same unwired pattern — parallel gap, deliberately not bundled
+- **UI display of Codex progress**: Lua/data-layer only for now
+- **Regent purchase costs**: `getColorRegentCost`/`getTargetRegentCost` are real and understood, wiring is separate from detection
+
 ## SlimeWorld World Map Fix (planetRegion Never Generated) — COMPLETED (v2: 20-Node Replacement)
 
 ### Root cause
