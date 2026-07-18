@@ -26,6 +26,32 @@ export const COLOR_TARGETS: ColorTarget[] = [
   { id: 'skip_ember_gale_crystal', tier: 'skip_triad', name: 'Skip: Ember-Gale-Crystal', centerHues: [0, 120, 240], tolerance: 10, saturationMin: 15, saturationMax: 20 },
   { id: 'skip_marsh_tundra_tide', tier: 'skip_triad', name: 'Skip: Marsh-Tundra-Tide', centerHues: [60, 180, 300], tolerance: 10, saturationMin: 15, saturationMax: 20 },
 ];
+export interface ShapeTarget { id: string; name: string; tier: number; vertexCount: number; vertexTolerance: number; irregularityMin?: number; irregularityMax: number; step?: number; }
+export const SHAPE_TARGETS: ShapeTarget[] = [
+  { id: 'shape_triangle', tier: 1, name: 'Triangle', vertexCount: 3, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_square', tier: 1, name: 'Square', vertexCount: 4, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_diamond', tier: 1, name: 'Diamond', vertexCount: 4, vertexTolerance: 0.5, irregularityMin: 40, irregularityMax: 100 },
+  { id: 'shape_pentagon', tier: 2, name: 'Pentagon', vertexCount: 5, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_hexagon', tier: 1, name: 'Hexagon', vertexCount: 6, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_octagon', tier: 2, name: 'Octagon', vertexCount: 8, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_decagon', tier: 2, name: 'Decagon', vertexCount: 10, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_dodecagon', tier: 2, name: 'Dodecagon', vertexCount: 12, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_pentadecagon', tier: 3, name: 'Pentadecagon', vertexCount: 15, vertexTolerance: 0.49, irregularityMax: 15 },
+  { id: 'shape_hexadecagon', tier: 3, name: 'Hexadecagon', vertexCount: 16, vertexTolerance: 0.49, irregularityMax: 15 },
+  { id: 'shape_heptadecagon', tier: 4, name: 'Heptadecagon', vertexCount: 17, vertexTolerance: 0.49, irregularityMax: 15 },
+  { id: 'shape_icosagon', tier: 3, name: 'Icosagon', vertexCount: 20, vertexTolerance: 0.5, irregularityMax: 15 },
+  { id: 'shape_star', tier: 3, name: 'Star', vertexCount: 7, vertexTolerance: 0.5, step: 2, irregularityMin: 40, irregularityMax: 70 },
+  { id: 'shape_spiked', tier: 3, name: 'Spiked', vertexCount: 7, vertexTolerance: 0.5, step: 3, irregularityMin: 70, irregularityMax: 100 },
+  { id: 'shape_crescent', tier: 3, name: 'Crescent', vertexCount: 9, vertexTolerance: 0.5, step: 2, irregularityMin: 40, irregularityMax: 70 },
+  { id: 'shape_crown', tier: 3, name: 'Crown', vertexCount: 9, vertexTolerance: 0.5, step: 4, irregularityMin: 70, irregularityMax: 100 },
+  { id: 'shape_prism', tier: 3, name: 'Prism', vertexCount: 14, vertexTolerance: 0.5, step: 3, irregularityMin: 40, irregularityMax: 70 },
+  { id: 'shape_arrow', tier: 3, name: 'Arrow', vertexCount: 14, vertexTolerance: 0.5, step: 5, irregularityMin: 70, irregularityMax: 100 },
+  { id: 'shape_teardrop', tier: 3, name: 'Teardrop', vertexCount: 18, vertexTolerance: 0.5, step: 5, irregularityMin: 40, irregularityMax: 70 },
+  { id: 'shape_crystal', tier: 3, name: 'Crystal', vertexCount: 18, vertexTolerance: 0.5, step: 7, irregularityMin: 70, irregularityMax: 100 },
+  { id: 'shape_void_form', tier: 5, name: 'Void-Form', vertexCount: 11, vertexTolerance: 0.5, step: 2, irregularityMin: 40, irregularityMax: 70 },
+  { id: 'shape_celestial', tier: 5, name: 'Celestial', vertexCount: 11, vertexTolerance: 0.5, step: 5, irregularityMin: 70, irregularityMax: 100 },
+  { id: 'shape_prismatic', tier: 5, name: 'Prismatic', vertexCount: 22, vertexTolerance: 0.5, step: 9, irregularityMin: 70, irregularityMax: 100 },
+];
 export function stageFromLevel(level: number): string { return level < 3 ? 'Hatchling' : level < 6 ? 'Juvenile' : level < 10 ? 'Young' : level < 15 ? 'Prime' : level < 20 ? 'Veteran' : 'Elder'; }
 export function calculateMarketPrice(slime: Slime, recentSalesForColor: number): number { const baseValue = 40 + (slime.level - 1) * 5; const floodMultiplier = Math.max(0.3, 1 - recentSalesForColor * 0.12); return Math.floor(baseValue * floodMultiplier); }
 export function getHueDeviation(hue: number): { baseColor: SlimeColor; deviation: number } { const baseColor = (Object.entries({ Red: 0, Orange: 60, Yellow: 120, Green: 180, Purple: 240, Blue: 300 }) as Array<[SlimeColor, number]>).sort((a, b) => Math.abs(a[1] - hue) - Math.abs(b[1] - hue))[0]; return { baseColor: baseColor[0], deviation: Math.abs(baseColor[1] - hue) }; }

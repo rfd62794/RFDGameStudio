@@ -65,6 +65,7 @@ export default function App({ session }: GameRendererProps) {
   const [activeDispatchReport, setActiveDispatchReport] = useState<{ logs: string[]; success: boolean; xp: number; credits: number } | null>(null);
   const [activeMediationReport, setActiveMediationReport] = useState<{ logs: string[]; success: boolean; stabilityChange: number } | null>(null);
   const [activeExplorationReport, setActiveExplorationReport] = useState<{ logs: string[]; success: boolean } | null>(null);
+  const [lastConsumedSlimeId, setLastConsumedSlimeId] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
 
   useEffect(() => { if (!selectedSlimeId && state.slimes[0]) setSelectedSlimeId(state.slimes[0].id); }, [selectedSlimeId, state.slimes]);
@@ -77,7 +78,20 @@ export default function App({ session }: GameRendererProps) {
     const [raw, error] = luaResult(value);
     if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
-    setState(previous => ({ ...previous, credits: Math.max(0, previous.credits - 10), slimes: [...previous.slimes, child] }));
+    setLastConsumedSlimeId(child.consumedSlimeId ?? null);
+    setState(previous => {
+      const newColorTargetCodex = { ...(previous.colorTargetCodex ?? {}) };
+      if (child.matchedTargetId) newColorTargetCodex[child.matchedTargetId] = true;
+      const newShapeTargetCodex = { ...(previous.shapeTargetCodex ?? {}) };
+      if (child.matchedShapeTargetId) newShapeTargetCodex[child.matchedShapeTargetId] = true;
+      return {
+        ...previous,
+        credits: Math.max(0, previous.credits - 10),
+        slimes: [...previous.slimes, child],
+        colorTargetCodex: newColorTargetCodex,
+        shapeTargetCodex: newShapeTargetCodex,
+      };
+    });
     setParentAId(null); setParentBId(null); setIsBreedingHatching(false);
   }, [activeTargetRegent, parentAId, parentBId, session, state]);
 
