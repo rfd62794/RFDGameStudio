@@ -1,6 +1,90 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 18 2026*
+*Last updated: July 18 2026 (evening)*
+
+## Multi-Return Truncation Fix — Phase 1 COMPLETED
+
+### Motivation — Studio-Wide Bug
+
+`LuaExecutor.call()` in `ts/src/engine/executor.ts` hardcoded `nresults=1` in
+`lua_pcall`, truncating all but the first return value from Lua functions. This
+silently lost error strings from the common `return value, error` idiom across
+**31 multi-return statements in 6 of 9 games**.
+
+### What was fixed
+
+**`ts/src/engine/executor.ts`** — `call()` now uses `LUA_MULTRET` instead of
+`nresults=1`, computes `resultCount = newTop - baseTop` via stack arithmetic,
+and returns `unknown[]` with all return values.
+
+**`ts/src/engine/runtime.ts`** — `call()` return type updated to `unknown[]`.
+
+**`ts/src/engine/types.ts`** — `LuaExecutor` interface `call` return type
+updated to `unknown[]`.
+
+**`ts/src/games/slimeworld/App.tsx`** — All 16 call sites migrated to
+destructure `unknown[]` returns. `luaResult()` helper updated to accept
+`unknown[]` directly.
+
+**`ts/src/hooks/useLuaCall.ts`** — Backward-compat fix: extracts `results[0]`
+from the `unknown[]` so all hook-based games (chimera_wilds, brewfield,
+mutant_battle_ball, slime_coin, horse_racing) get the first return value
+without needing App.tsx changes.
+
+**`ts/src/games/scrapcrawl/App.tsx`** — Two direct `executor.call()` sites
+given `[0]` extraction (compatibility fix, not full migration).
+
+**Test files updated:** `test_executor.ts`, `test_runtime.ts`, `test_arcade.ts`,
+`test_slimeworld_petition_wiring.tsx`, `test_lua_slime_field_safety.tsx` — all
+mocks and expectations updated for `unknown[]` return type.
+
+### Stack Arithmetic Proof
+
+`ts/tests/test_multi_return_proof.ts` (5 tests) — throwaway proof using real
+fengari executor with synthetic Lua functions:
+- `return 1, 2, 3` → `[1, 2, 3]`
+- `return nil, "error"` → `[null, "error"]`
+- `return 42` → `[42]`
+- `return` → `[]`
+- `return a+b, a*b, a-b` → `[8, 15, -2]`
+
+### Permanent Detector
+
+**`tools/detect_multi_return/scan_lua.py`** — Scans `games/*/logic.lua` for
+multi-value `return` statements. Found 31 multi-return statements across 6
+games (slimeworld, horse_racing, mutant_battle_ball, chimera_wilds, brewfield,
+shoal).
+
+**`ts/tests/test_multi_return_bridge.ts`** (7 tests) — Permanent regression
+test. Calls real Lua functions via fengari executor with error-triggering
+arguments, asserts both return values are captured (not truncated):
+- `fulfill_petition` error path → `[null, "error string"]`
+- `recycle_slime` error path → `[null, "error string"]`
+- `can_unlock_slot` insufficient funds → `[false, "Insufficient..."]`
+- `can_unlock_slot` max capacity → `[false, "...maximum capacity"]`
+- `generate_chimera` error path → `[null, "Missing slot..."]`
+- `assemble_mutant` error path → `[null, "Missing part..."]`
+- `initiate_breeding` same-parent error → `[null, "Parents must differ"]`
+
+**`tests/test_multi_return_detector.py`** (7 tests) — Python tests for the
+scanner: runs without error, finds slimeworld/horse_racing multi-returns, JSON
+output valid, detects 6+ games, return value count >= 2, handles nonexistent
+game.
+
+### Final Floors
+- **Python: 409 passed** (was 402, +7 new detector tests)
+- **TypeScript: 146 passed / 21 files** (was 134/19, +12 new tests, +2 new files)
+
+### Phase 2 — DEFERRED (real, not implied)
+
+The remaining 8 non-SlimeWorld games have 20 call sites that still use the
+old single-value pattern via `useLuaCall` (which now extracts `[0]` for
+backward compat). A full migration of those 20 sites to destructure `unknown[]`
+and access error strings is real future work, explicitly deferred. The games
+function correctly today because `useLuaCall` returns `results[0]`, but they
+cannot access multi-return error strings until migrated.
+
+---
 
 ## Framework Generation Layer, Module 1: Pure-Data Extraction — COMPLETED
 
@@ -147,12 +231,11 @@ not just a dropped field.
 - **Python: 402 passed** (was 398, +4 new tests)
 - **TypeScript: 127 passed / 18 files** (was 122/17, +5 new tests, +1 new file)
 
-### Note on TS Executor Limitation
-The TS Lua executor (`executor.ts`) uses `nresults=1` in `lua_pcall`, so
-multi-return Lua functions only return their first value. `fulfill_petition`
-returns `nil, "error"` on failure, but TS only receives `null`. The error
-string is lost. This is a pre-existing limitation, not introduced by this
-change. The failure test checks for `null` result instead of error string.
+### Note on TS Executor Limitation — RESOLVED
+The TS Lua executor (`executor.ts`) previously used `nresults=1` in `lua_pcall`,
+truncating multi-return Lua functions to their first value. This was fixed in
+the Multi-Return Truncation Fix (Phase 1) — see above. `fulfill_petition` now
+correctly returns `[null, "error string"]` on failure.
 
 ---
 

@@ -14,7 +14,7 @@ import { LuaExecutor } from '../src/engine/executor';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const GAMES_DIR = join(__dirname, '..', '..', '..', 'games');
+const GAMES_DIR = join(__dirname, '..', '..', 'games');
 
 function loadExecutor(gameId: string): LuaExecutor {
   const luaPath = join(GAMES_DIR, gameId, 'logic.lua');
@@ -66,33 +66,36 @@ describe('Multi-Return Bridge Verification', () => {
 
   it('test_mutant_battle_ball_assemble_mutant_error_path', () => {
     const ex = loadExecutor('mutant_battle_ball');
-    // Pass empty parts — should trigger missing part error
-    const result = ex.call('assemble_mutant', {});
+    // Pass empty part_ids — should trigger missing part for slot error
+    const result = ex.call('assemble_mutant', 'test', 'red', {}, []);
     expect(result).toHaveLength(2);
     expect(result[0]).toBeNull();
     expect(result[1]).toBeTruthy();
     expect(typeof result[1]).toBe('string');
+    expect(result[1]).toContain('Missing part');
   });
 
-  it('test_mutant_battle_ball_call_timeout_error_path', () => {
-    const ex = loadExecutor('mutant_battle_ball');
-    // Pass 0 timeouts remaining — should return false, error
-    const result = ex.call('call_timeout', { timeouts_remaining: 0 });
+  it('test_horse_racing_can_unlock_slot_max_capacity', () => {
+    const ex = loadExecutor('horse_racing');
+    // Call with current=12, max=12 — should return false, "already at maximum capacity"
+    const result = ex.call('can_unlock_slot', 12, 12, 10, 500);
     expect(result).toHaveLength(2);
     expect(result[0]).toBe(false);
     expect(result[1]).toBeTruthy();
     expect(typeof result[1]).toBe('string');
-    expect(result[1]).toContain('No timeouts');
+    expect(result[1]).toContain('maximum capacity');
   });
 
-  it('test_slimeworld_initiate_breeding_success_returns_two_values', () => {
+  it('test_slimeworld_initiate_breeding_error_returns_two_values', () => {
     const ex = loadExecutor('slimeworld');
-    // Even on success, initiate_breeding returns child, nil
-    // We just verify it returns 2 values (not truncated to 1)
+    // Same parent IDs — should return nil, "Parents must differ"
     const result = ex.call('initiate_breeding',
-      { slimes: {}, cycle: 1, credits: 1000, breeding_success_rate_modifier: 0 },
-      'a', 'b', 0, {}, null, {}, null);
-    // Should have at least 2 return values (child, nil)
-    expect(result.length).toBeGreaterThanOrEqual(2);
+      { slimes: {}, cycle: 1, credits: 1000, breeding_success_rate_modifier: 0, roster_cap: 10 },
+      'same_id', 'same_id', 0, {}, null, {}, null);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toBeNull();
+    expect(result[1]).toBeTruthy();
+    expect(typeof result[1]).toBe('string');
+    expect(result[1]).toContain('Parents must differ');
   });
 });
