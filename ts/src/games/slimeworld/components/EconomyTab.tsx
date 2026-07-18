@@ -6,7 +6,7 @@ import {
   FlaskConical, Layers, Sparkles, Briefcase, TrendingUp, AlertTriangle, Ship, Check, ArrowRight, X
 } from 'lucide-react';
 import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract } from '../types';
-import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, COLOR_TARGETS } from '../gameLogic';
+import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation } from '../gameLogic';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
 import { SlimeDexTab } from './SlimeDexTab';

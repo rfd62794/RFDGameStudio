@@ -6,7 +6,9 @@ import {
   FlaskConical, Layers, Sparkles, Briefcase, TrendingUp, AlertTriangle, Ship, Check, ArrowRight, X
 } from 'lucide-react';
 import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract } from '../types';
-import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, COLOR_TARGETS } from '../gameLogic';
+import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, RawColorTarget } from '../gameLogic';
+import { getStaticList } from '../../engine/runtime';
+import type { GameSession } from '../../engine/types';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
 import { SlimeDexTab } from './SlimeDexTab';
@@ -43,6 +45,7 @@ interface RosterTabProps {
   onBuyTargetRegent: (targetId: string) => void;
   handleToggleWorkerRole?: (slimeId: string) => void;
   lastConsumedSlimeId?: string | null;
+  session: GameSession;
 }
 
 export function RosterTab({
@@ -71,10 +74,12 @@ export function RosterTab({
   setActiveTargetRegent,
   onBuyTargetRegent,
   handleToggleWorkerRole,
-  lastConsumedSlimeId
+  lastConsumedSlimeId,
+  session
 }: RosterTabProps) {
   const currentlySelectedSlime = state.slimes.find(s => s.id === selectedSlimeId);
   const idleSlimes = state.slimes.filter(s => s.role === 'idle');
+  const colorTargets = getStaticList(session, 'color_targets') as RawColorTarget[];
 
   // Breeding prediction info helper
   const getBreedingPrediction = () => {
@@ -655,7 +660,7 @@ export function RosterTab({
                               {Object.entries(state.targetRegentInventory || {})
                                 .filter(([_, count]) => (count || 0) > 0)
                                 .map(([targetId, count]) => {
-                                  const tName = COLOR_TARGETS.find(t => t.id === targetId)?.name || targetId;
+                                  const tName = colorTargets.find(t => t.id === targetId)?.name || targetId;
                                   return (
                                     <option key={targetId} value={targetId}>
                                       {tName} Target Regent ({count} available)
@@ -664,10 +669,10 @@ export function RosterTab({
                                 })}
                             </select>
                             {activeTargetRegent && (() => {
-                              const tName = COLOR_TARGETS.find(t => t.id === activeTargetRegent)?.name || 'Target';
+                              const tName2 = colorTargets.find(t => t.id === activeTargetRegent)?.name || 'Target';
                               return (
                                 <div className="text-[10px] text-yellow-400 font-mono bg-yellow-950/15 border border-yellow-900/20 rounded p-1.5 leading-normal">
-                                  ⚠️ <span className="font-bold">Target Regent Active:</span> Born offspring's Hue and Saturation will be nudged 60% towards the <span className="font-bold text-white">{tName}</span> target range. 1 Regent will be consumed.
+                                  ⚠️ <span className="font-bold">Target Regent Active:</span> Born offspring's Hue and Saturation will be nudged 60% towards the <span className="font-bold text-white">{tName2}</span> target range. 1 Regent will be consumed.
                                 </div>
                               );
                             })()}
@@ -732,7 +737,7 @@ export function RosterTab({
             animate={{ opacity: 1, y: 0 }}
             className="flex-1 flex flex-col"
           >
-            <SlimeDexTab state={state} onBuyRegent={onBuyRegent} onBuyColorRegent={onBuyColorRegent} onBuyTargetRegent={onBuyTargetRegent} />
+            <SlimeDexTab state={state} session={session} onBuyRegent={onBuyRegent} onBuyColorRegent={onBuyColorRegent} onBuyTargetRegent={onBuyTargetRegent} />
           </motion.div>
         )}
     </div>

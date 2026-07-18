@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Sparkles, Info, Coins, Database, Dna, HelpCircle, BookOpen, Beaker } from 'lucide-react';
 import { LabState, SlimeColor, SlimePattern, Slime } from '../types';
-import { COLOR_SPECS, PATTERN_DESCRIPTIONS, getColorRegentCost, COLOR_TARGETS, getTargetRegentCost, SHAPE_TARGETS } from '../gameLogic';
+import { COLOR_SPECS, PATTERN_DESCRIPTIONS, getColorRegentCost, getTargetRegentCost, RawColorTarget, RawShapeTarget } from '../gameLogic';
+import { getStaticList } from '../../engine/runtime';
+import type { GameSession } from '../../engine/types';
 import { SlimeVisual } from './SlimeVisual';
 
 interface SlimeDexTabProps {
   state: LabState;
+  session: GameSession;
   onBuyRegent: (pattern: SlimePattern) => void;
   onBuyColorRegent: (color: SlimeColor) => void;
   onBuyTargetRegent?: (targetId: string) => void;
@@ -19,8 +22,10 @@ type SelectedGene =
   | { type: 'target'; id: string }
   | { type: 'shapeTarget'; id: string };
 
-export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetRegent }: SlimeDexTabProps) {
+export function SlimeDexTab({ state, session, onBuyRegent, onBuyColorRegent, onBuyTargetRegent }: SlimeDexTabProps) {
   const currentSlimes = state.slimes;
+  const colorTargets = getStaticList(session, 'color_targets') as RawColorTarget[];
+  const shapeTargets = getStaticList(session, 'shape_targets') as RawShapeTarget[];
 
   // Selection state
   const [selectedGene, setSelectedGene] = useState<SelectedGene>({ type: 'color', id: 'Red' });
@@ -277,12 +282,12 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                 Spectral Color Targets
               </h3>
               <span className="text-[10px] font-mono text-slate-500">
-                {COLOR_TARGETS.filter(t => !!state.colorTargetCodex?.[t.id]).length} / {COLOR_TARGETS.length} Decoded
+                {colorTargets.filter(t => !!state.colorTargetCodex?.[t.id]).length} / {colorTargets.length} Decoded
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
-              {COLOR_TARGETS.map((target) => {
+              {colorTargets.map((target) => {
                 const isDiscovered = !!state.colorTargetCodex?.[target.id];
                 const isSelected = selectedGene.type === 'target' && selectedGene.id === target.id;
 
@@ -328,12 +333,12 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                 Morphological Shape Targets
               </h3>
               <span className="text-[10px] font-mono text-slate-500">
-                {SHAPE_TARGETS.filter(t => !!state.shapeTargetCodex?.[t.id]).length} / {SHAPE_TARGETS.length} Decoded
+                {shapeTargets.filter(t => !!state.shapeTargetCodex?.[t.id]).length} / {shapeTargets.length} Decoded
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
-              {SHAPE_TARGETS.map((target) => {
+              {shapeTargets.map((target) => {
                 const isDiscovered = !!state.shapeTargetCodex?.[target.id];
                 const isSelected = selectedGene.type === 'shapeTarget' && selectedGene.id === target.id;
 
@@ -513,16 +518,16 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
               ) : selectedGene.type === 'target' ? (
                 (() => {
                   const targetId = selectedGene.id;
-                  const target = COLOR_TARGETS.find(t => t.id === targetId)!;
+                  const target = colorTargets.find(t => t.id === targetId)!;
                   const isDiscovered = !!state.colorTargetCodex?.[targetId];
                   const regentCount = state.targetRegentInventory?.[targetId] || 0;
                   const regentCost = getTargetRegentCost(targetId, isDiscovered);
 
                   // Create a dummy slime representing the target hue range
                   // Let's pick target's first center Hue as a demo!
-                  const targetHue = target.centerHues[0];
+                  const targetHue = target.center_hues[0];
                   // Let's pick average of target saturation
-                  const targetSat = (target.saturationMin + target.saturationMax) / 2;
+                  const targetSat = (target.saturation_min + target.saturation_max) / 2;
 
                   const targetDummySlime = {
                     id: `dummy_target_${targetId}`,
@@ -627,7 +632,7 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                                 <div className="text-[8px] text-slate-500">HUE TARGET</div>
                                 <div className="text-xs font-bold text-slate-300 mt-0.5">
                                   {isDiscovered 
-                                    ? target.centerHues.map(h => `${h}°`).join(' / ') 
+                                    ? target.center_hues.map(h => `${h}°`).join(' / ') 
                                     : '???'}
                                 </div>
                               </div>
@@ -635,7 +640,7 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                                 <div className="text-[8px] text-slate-500">SATURATION BAND</div>
                                 <div className="text-xs font-bold text-slate-300 mt-0.5">
                                   {isDiscovered 
-                                    ? `${target.saturationMin}-${target.saturationMax}%` 
+                                    ? `${target.saturation_min}-${target.saturation_max}%` 
                                     : '???'}
                                 </div>
                               </div>
@@ -646,14 +651,14 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                               <div className="mt-2 pt-2 border-t border-slate-850/40 text-[10px] text-yellow-500/80 leading-normal">
                                 💡 <span className="font-bold">Target Clue:</span> Requires a specimen with{' '}
                                 <span className="font-bold text-slate-200">
-                                  {target.saturationMin === 65 ? 'Hyper-high Saturation (65-100%)' :
-                                   target.saturationMin === 35 ? 'Moderate Saturation (35-65%)' :
-                                   target.saturationMin === 20 ? 'Pastel Low Saturation (20-35%)' :
+                                  {target.saturation_min === 65 ? 'Hyper-high Saturation (65-100%)' :
+                                   target.saturation_min === 35 ? 'Moderate Saturation (35-65%)' :
+                                   target.saturation_min === 20 ? 'Pastel Low Saturation (20-35%)' :
                                    'Unsaturated Near-Gray (15-20%)'}
                                 </span>{' '}
                                 and a Hue centered near{' '}
                                 <span className="font-bold text-slate-200">
-                                  {target.centerHues.map(h => {
+                                  {target.center_hues.map(h => {
                                     if (h === 0 || h === 360) return 'Red (0°)';
                                     if (h === 30) return 'Red-Orange (30°)';
                                     if (h === 60) return 'Orange (60°)';
@@ -702,7 +707,7 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
               ) : selectedGene.type === 'shapeTarget' ? (
                 (() => {
                   const targetId = selectedGene.id;
-                  const target = SHAPE_TARGETS.find(t => t.id === targetId)!;
+                  const target = shapeTargets.find(t => t.id === targetId)!;
                   const isDiscovered = !!state.shapeTargetCodex?.[targetId];
 
                   const shapeDummySlime = {
@@ -718,8 +723,8 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                     colorSaturation: 0,
                     hue: 0,
                     saturation: 0,
-                    vertexCount: target.vertexCount,
-                    irregularity: target.irregularityMin ? (target.irregularityMin + target.irregularityMax) / 2 : 5,
+                    vertexCount: target.vertex_count,
+                    irregularity: target.irregularity_min ? (target.irregularity_min + target.irregularity_max) / 2 : 5,
                     createdAt: Date.now()
                   };
 
@@ -792,13 +797,13 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                               <div className="p-2 bg-slate-950/40 rounded border border-slate-900 text-center font-mono">
                                 <div className="text-[8px] text-slate-500">VERTEX COUNT</div>
                                 <div className="text-xs font-bold text-slate-300 mt-0.5">
-                                  {isDiscovered ? target.vertexCount : '???'}
+                                  {isDiscovered ? target.vertex_count : '???'}
                                 </div>
                               </div>
                               <div className="p-2 bg-slate-950/40 rounded border border-slate-900 text-center font-mono">
                                 <div className="text-[8px] text-slate-500">IRREGULARITY</div>
                                 <div className="text-xs font-bold text-slate-300 mt-0.5">
-                                  {isDiscovered ? `${target.irregularityMin ?? 0}-${target.irregularityMax}` : '???'}
+                                  {isDiscovered ? `${target.irregularity_min ?? 0}-${target.irregularity_max}` : '???'}
                                 </div>
                               </div>
                             </div>
@@ -806,9 +811,9 @@ export function SlimeDexTab({ state, onBuyRegent, onBuyColorRegent, onBuyTargetR
                             {!isDiscovered && (
                               <div className="mt-2 pt-2 border-t border-slate-850/40 text-[10px] text-yellow-500/80 leading-normal">
                                 <span className="font-bold">Target Clue:</span> Requires a specimen with{' '}
-                                <span className="font-bold text-slate-200">{target.vertexCount} vertices</span>
+                                <span className="font-bold text-slate-200">{target.vertex_count} vertices</span>
                                 {' '}and irregularity between{' '}
-                                <span className="font-bold text-slate-200">{target.irregularityMin ?? 0}-{target.irregularityMax}</span>.
+                                <span className="font-bold text-slate-200">{target.irregularity_min ?? 0}-{target.irregularity_max}</span>.
                               </div>
                             )}
                           </div>

@@ -18,3 +18,9 @@ export function getSchema(session: GameSession, entity: string): Record<string, 
   const fields = top['fields'] as Record<string, unknown> | undefined;
   return fields ?? top;
 }
+
+export function getStaticList(session: GameSession, key: string): unknown[] {
+  const raw = session.files.data[key];
+  if (!Array.isArray(raw)) throw new RuntimeError(`Static list not found or not an array: ${key}`);
+  return raw;
+}

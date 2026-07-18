@@ -97,6 +97,14 @@ const number = (raw: Raw, key: string, fallback = 0): number => typeof raw[key] 
 const string = (raw: Raw, key: string, fallback = ''): string => typeof raw[key] === 'string' ? raw[key] : fallback;
 const array = (value: unknown): unknown[] => Array.isArray(value) ? value : Object.values((value ?? {}) as Raw);
 
+export const SLIME_EXPLICIT_LUA_FIELDS = new Set([
+  'id', 'name', 'color', 'pattern', 'level', 'xp', 'stats', 'role',
+  'generation', 'color_saturation', 'hue', 'saturation', 'diffusion_ratio',
+  'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'parent_a',
+  'parent_b', 'created_at', 'matched_target_id', 'matched_shape_target_id',
+  'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage',
+]);
+
 export function luaSlimeToTs(raw: Raw): Slime {
   const stats = (raw['stats'] ?? {}) as Raw;
   return {
