@@ -43,7 +43,6 @@ export default function App({ session }: GameRendererProps) {
   const [activeTargetRegent, setActiveTargetRegent] = useState<string | null>(null);
   const [renameSlimeId, setRenameSlimeId] = useState<string | null>(null);
   const [newNameInput, setNewNameInput] = useState('');
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [dispatchDraftIds, setDispatchDraftIds] = useState<string[]>([]);
   const [mediationDraftIds, setMediationDraftIds] = useState<string[]>([]);
@@ -157,7 +156,7 @@ export default function App({ session }: GameRendererProps) {
   const primaryContent = primaryTab === 'roster' ? (
     <RosterTab {...({ state, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole } as any)} />
   ) : primaryTab === 'missions' ? (
-    <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod } as any)} />
+    <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim } as any)} />
   ) : primaryTab === 'economy' ? (
     <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole } as any)} />
   ) : (

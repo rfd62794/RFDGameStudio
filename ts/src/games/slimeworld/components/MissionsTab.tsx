@@ -3,10 +3,11 @@ import { TabBar } from '../../../ui/components/TabBar';
 import { PlanetTab } from './PlanetTab';
 
 type MissionSubTab = 'regions' | 'mediation' | 'exploration' | 'active' | 'zones';
-type MissionsTabProps = Omit<React.ComponentProps<typeof PlanetTab>, 'activeSubTab' | 'setActiveSubTab' | 'selectedNodeId' | 'setSelectedNodeId' | 'setActiveTab' | 'handleAssignGarrison' | 'handleRecallGarrison' | 'handleForceClaim' | 'handleBribeClaim' | 'handleConvertClaim'>;
+type MissionsTabProps = Omit<React.ComponentProps<typeof PlanetTab>, 'activeSubTab' | 'setActiveSubTab' | 'selectedNodeId' | 'setSelectedNodeId' | 'setActiveTab'>;
 
 export function MissionsTab(props: MissionsTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<MissionSubTab>('regions');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   return (
     <div className="flex flex-col flex-1">
@@ -19,14 +20,9 @@ export function MissionsTab(props: MissionsTabProps) {
         {...props}
         activeSubTab={activeSubTab}
         setActiveSubTab={id => setActiveSubTab(id as MissionSubTab)}
-        selectedNodeId={null}
-        setSelectedNodeId={() => {}}
+        selectedNodeId={selectedNodeId}
+        setSelectedNodeId={setSelectedNodeId}
         setActiveTab={() => {}}
-        handleAssignGarrison={() => {}}
-        handleRecallGarrison={() => {}}
-        handleForceClaim={() => ({ success: false, log: [] })}
-        handleBribeClaim={() => ({ success: false, log: [] })}
-        handleConvertClaim={() => ({ success: false, log: [] })}
       />
     </div>
   );
