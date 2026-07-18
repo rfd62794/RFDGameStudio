@@ -16,6 +16,23 @@ def _color_targets():
     return session.files.data["color_targets"]
 
 
+def _color_specs():
+    session = _load()
+    data = session.files.data
+    specs = {}
+    for key, culture in data["cultures"].items():
+        specs[culture["color"]] = {
+            "base_stats": culture["base_stats"],
+            "growth": culture["growth"],
+        }
+    gray = data["neutral_traits"]["gray"]
+    specs["Gray"] = {
+        "base_stats": gray["base_stats"],
+        "growth": gray["growth"],
+    }
+    return specs
+
+
 def _slime(slime_id, color, hue, saturation):
     return {
         "id": slime_id, "color": color, "pattern": "Solid", "hue": hue,
@@ -92,7 +109,7 @@ def test_initiate_breeding_sets_matched_target_id():
     # With guild_ember_marsh target (center=30, sat 65-100), should match
     state = _state([_slime("a", "Red", 0, 100), _slime("b", "Orange", 60, 100)])
     child, error = session.executor.call(
-        "initiate_breeding", state, "a", "b", 0, targets, "guild_ember_marsh", [], None
+        "initiate_breeding", state, "a", "b", 0, targets, "guild_ember_marsh", [], None, _color_specs()
     )
     assert error is None
     assert child is not None
@@ -107,7 +124,7 @@ def test_initiate_breeding_no_active_target_still_detects():
     # No active target, but child still lands in guild_ember_marsh zone
     state = _state([_slime("a", "Red", 0, 100), _slime("b", "Orange", 60, 100)])
     child, error = session.executor.call(
-        "initiate_breeding", state, "a", "b", 0, targets, None, [], None
+        "initiate_breeding", state, "a", "b", 0, targets, None, [], None, _color_specs()
     )
     assert error is None
     assert child is not None
@@ -126,7 +143,7 @@ def test_initiate_breeding_no_match_sets_nil():
     # No guild match. Rivals need sat 35-65, we have 100. No match.
     state = _state([_slime("a", "Red", 0, 100), _slime("b", "Red", 10, 100)])
     child, error = session.executor.call(
-        "initiate_breeding", state, "a", "b", 0, targets, None, [], None
+        "initiate_breeding", state, "a", "b", 0, targets, None, [], None, _color_specs()
     )
     assert error is None
     assert child is not None

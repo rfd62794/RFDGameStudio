@@ -16,6 +16,23 @@ def _shape_targets():
     return session.files.data["shape_targets"]
 
 
+def _color_specs():
+    session = _load()
+    data = session.files.data
+    specs = {}
+    for key, culture in data["cultures"].items():
+        specs[culture["color"]] = {
+            "base_stats": culture["base_stats"],
+            "growth": culture["growth"],
+        }
+    gray = data["neutral_traits"]["gray"]
+    specs["Gray"] = {
+        "base_stats": gray["base_stats"],
+        "growth": gray["growth"],
+    }
+    return specs
+
+
 def _slime(slime_id, color, hue, saturation, vertex_count, irregularity):
     return {
         "id": slime_id, "color": color, "pattern": "Solid", "hue": hue,
@@ -137,7 +154,7 @@ def test_initiate_breeding_sets_matched_shape_target_id():
         _slime("b", "Blue", 240, 100, 10, 10),
     ])
     child, error = session.executor.call(
-        "initiate_breeding", state, "a", "b", 0, [], None, targets, None
+        "initiate_breeding", state, "a", "b", 0, [], None, targets, None, _color_specs()
     )
     assert error is None
     assert child is not None
@@ -155,7 +172,7 @@ def test_initiate_breeding_no_shape_match_sets_nil():
         _slime("b", "Blue", 240, 100, 14, 10),
     ])
     child, error = session.executor.call(
-        "initiate_breeding", state, "a", "b", 0, [], None, targets, None
+        "initiate_breeding", state, "a", "b", 0, [], None, targets, None, _color_specs()
     )
     assert error is None
     assert child is not None
