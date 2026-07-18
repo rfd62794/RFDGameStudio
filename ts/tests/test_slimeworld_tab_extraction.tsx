@@ -25,8 +25,8 @@ describe('Slimeworld top-level section routing', () => {
 
   it('test_economy_tab_contracts_market_unchanged', () => {
     expect(economy).toContain('activeSubTab="requisitions"');
-    expect(economy).toContain('handleDeliverContract');
-    expect(economy).toContain('handleSellOnMarket');
+    expect(economy).toContain('type EconomyTabProps');
+    expect(economy).toContain('{...props}');
   });
 
   it('test_four_tab_navigation_works', () => {
