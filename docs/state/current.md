@@ -4,7 +4,29 @@
 
 ## Current Phase
 
-**Shared UI, First Real Migration (Slimeworld) — CERTIFIED**
+**SlimeGarden Genetics Core, First Lua Port Slice — CERTIFIED**
+
+## SlimeGarden Genetics Core, First Lua Port Slice — CERTIFIED
+
+### What changed
+- Added `games/slimegarden/data.yaml` and `games/slimegarden/logic.lua` for the eight self-contained genetics functions: naming, color/pattern breeding, life stages, stat calculation, offspring creation, and seed creation.
+- Confirmed exact schema alignment with Slimeworld for colors, patterns, life stages, `hp`/`atk`/`def`/`agi`/`int`/`chm` stats, parent lineage, role vocabulary, and timestamps.
+- Added a real-source equivalence suite that transpiles and executes the extracted SlimeGarden `gameLogic.ts`, controls its `Math.random()` stream, and compares it to Lua with the same stream. Runtime-specific IDs and timestamps are normalized because the TypeScript source uses `Date.now()` while Lua uses `os.time()`.
+
+### RNG finding
+
+The studio executor provides seeded Lua RNG via `math.randomseed(seed)`. `engine/primitives/resolution.lua` does not provide a seeded-RNG abstraction and no game directly seeds Lua RNG. The original TypeScript source also exposes no seed API and calls native `Math.random()`. Tests therefore use matching controlled random streams; this proves branch-for-branch equivalence without falsely claiming that JavaScript and Lua share a PRNG sequence.
+
+### Verification
+
+```text
+python -m pytest -q --tb=no
+→ Pre-flight: 329 passed, 8 warnings
+→ Genetics equivalence anchors: 41 passed
+→ Post-change: 370 passed, 8 warnings
+```
+
+This is slice 1 of SlimeGarden's port. Corporate, dispatch, mediation, economy, planet/territory, and full studio runtime/Arcade wiring remain future work. SVG polygon-clipping geometry remains in TypeScript permanently. SlimeBreeder receives its own port directive later.
 
 ## Shared UI, First Real Migration (Slimeworld) — CERTIFIED
 
