@@ -2,6 +2,73 @@
 
 *Last updated: July 18 2026*
 
+## Mission Serialization Fix + End-to-End Test Coverage — COMPLETED
+
+### Bug
+
+`stateToLua` in `ts/src/games/slimeworld/types.ts` passed `active_exploration`,
+`active_mediation`, and `active_dispatch` as raw TS `Mission` objects with
+camelCase fields (`targetNodeId`, `slimeIds`, `cyclesRemaining`). Lua's
+`advance_cycle` reads `target_node_id`, `slime_ids` — which are `nil` because
+the keys are actually camelCase. All three mission types silently no-oped:
+exploration awarded no XP and didn't find the target node, mediation didn't
+change node strength, dispatch fields were unreadable. Slimes stayed
+soft-locked in `dispatch` role forever.
+
+### Fix
+
+Added `missionToLua()` helper in `types.ts` that converts `Mission` fields to
+snake_case (`zone_id`, `target_node_id`, `slime_ids`, `cycles_remaining`,
+`status`). All three mission fields in `stateToLua` now use it.
+
+### Test Coverage — `ts/tests/test_mission_serialization.tsx` (7 anchors)
+
+Two tiers of proof:
+
+**Tier 1 — unit-level** (3 tests):
+- `test_missionToLua_converts_all_fields_to_snake_case` — field-by-field
+  confirmation, verifies no camelCase keys leak through
+- `test_missionToLua_preserves_real_values` — values aren't just renamed
+  but genuinely correct
+- `test_stateToLua_uses_missionToLua_for_all_three_mission_types` — all
+  three mission fields route through the helper
+
+**Tier 2 — end-to-end through real executor bridge** (3 tests):
+- `test_real_exploration_resolves_through_full_stateToLua_path` — real
+  `Mission` → real `stateToLua` → real `advance_cycle` call, confirms XP
+  awarded, log contains real node name (not "unknown"), mission cleared
+- `test_real_mediation_resolves_through_full_stateToLua_path` — same,
+  confirms node strength changed, mediation log present
+- `test_real_dispatch_resolves_through_full_stateToLua_path` — confirms
+  `zone_id` and `slime_ids` readable by Lua after `stateToLua` round-trip
+  (dispatch resolution in `advance_cycle` is a separate known gap)
+
+**Sanity check** (1 test):
+- `test_missing_missionToLua_would_have_failed_this_test` — deliberately
+  bypasses `missionToLua` (passes raw camelCase), confirms XP stays 0,
+  log says "unknown" — proves the Tier 2 tests are load-bearing, not
+  just passing regardless
+
+### Lesson
+
+A correct Lua formula, individually unit-tested, is not proof the live
+game works. The bug lived in the seam between two correct halves — the
+TS `Mission` object and the Lua `advance_cycle` logic — and neither
+half's tests could catch it. The test has to live in that seam too:
+real `stateToLua` → real Lua executor → real outcome verification.
+
+### Files Changed
+
+- `ts/src/games/slimeworld/types.ts` — added `missionToLua()`, wired into `stateToLua`
+- `ts/tests/test_mission_serialization.tsx` — new, 7 test anchors
+
+### Test Floors
+
+- Python: 432 passed, 8 warnings
+- TypeScript: 167 passed, 23 files (+7 tests, +1 file from previous 160/22)
+
+---
+
 ## Recovery Manifest Tool — Const-Usage Detection Fix — COMPLETED
 
 ### Bug
