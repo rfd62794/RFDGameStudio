@@ -24,7 +24,8 @@ export function useLuaCall(session: GameSession): UseLuaCallReturn {
 
   const call = useCallback((fnName: string, ...args: unknown[]): unknown => {
     try {
-      return runtimeCall(session, fnName, ...args);
+      const results = runtimeCall(session, fnName, ...args);
+      return results[0] ?? null;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);

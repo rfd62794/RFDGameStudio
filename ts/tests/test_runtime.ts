@@ -122,10 +122,10 @@ describe('runtime', () => {
     (lua.lua_tonumber as ReturnType<typeof vi.fn>).mockReturnValue(5);
 
     const session = await loadGame('horse_racing', 42);
-    const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue(5);
+    const callSpy = vi.spyOn(session.executor, 'call').mockReturnValue([5]);
     const result = call(session, 'clamp', 5, 0, 10);
     expect(callSpy).toHaveBeenCalledWith('clamp', 5, 0, 10);
-    expect(result).toBe(5);
+    expect(result).toEqual([5]);
   });
 
   it('test_runtime_get_schema_returns_fields', async () => {

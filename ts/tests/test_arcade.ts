@@ -216,10 +216,10 @@ describe('Arcade Registry', () => {
   it('test_scrapcrawl_craft_reduces_scrap_in_ts_runtime', () => {
     const session = loadGame('scrapcrawl', 42);
     const data = session.files.data;
-    const player = session.executor.call('init_player') as Record<string, unknown>;
+    const player = session.executor.call('init_player')[0] as Record<string, unknown>;
     player.scrap = 10;
-    const home = session.executor.call('get_room', data, 'home_base') as Record<string, unknown>;
-    const next = session.executor.call('craft', data, player, home, 'beatStick', 1) as Record<string, unknown>;
+    const home = session.executor.call('get_room', data, 'home_base')[0] as Record<string, unknown>;
+    const next = session.executor.call('craft', data, player, home, 'beatStick', 1)[0] as Record<string, unknown>;
     expect(next.scrap).toBe(0);
     expect((next.equipped as Record<string, unknown>).weapon).toBeDefined();
   });

@@ -6,7 +6,7 @@ vi.mock('fengari-web', () => {
   const mod = {
     lua: {
       LUA_OK: 0, LUA_TNIL: 0, LUA_TBOOLEAN: 1, LUA_TNUMBER: 3,
-      LUA_TSTRING: 4, LUA_TTABLE: 5, LUA_TFUNCTION: 6,
+      LUA_TSTRING: 4, LUA_TTABLE: 5, LUA_TFUNCTION: 6, LUA_MULTRET: -1,
       lua_type: vi.fn(),
       lua_gettop: vi.fn(() => 1),
       lua_pop: vi.fn(),
@@ -42,6 +42,7 @@ describe('executor', () => {
     (lua.lua_type as ReturnType<typeof vi.fn>).mockReturnValue(lua.LUA_TFUNCTION);
     (lua.lua_pcall as ReturnType<typeof vi.fn>).mockReturnValue(lua.LUA_OK);
     (lua.lua_tonumber as ReturnType<typeof vi.fn>).mockReturnValue(5);
+    (lua.lua_gettop as ReturnType<typeof vi.fn>).mockReturnValue(1);
   });
 
   it('test_executor_call_returns_value', () => {
@@ -49,10 +50,11 @@ describe('executor', () => {
       .mockReturnValueOnce(lua.LUA_TFUNCTION)
       .mockReturnValueOnce(lua.LUA_TNUMBER);
     (lua.lua_tonumber as ReturnType<typeof vi.fn>).mockReturnValue(5);
+    (lua.lua_gettop as ReturnType<typeof vi.fn>).mockReturnValueOnce(4).mockReturnValue(1);
 
     const executor = new LuaExecutor('-- lua', 42);
     const result = executor.call('clamp', 5, 0, 10);
-    expect(result).toBe(5);
+    expect(result).toEqual([5]);
   });
 
   it('test_executor_missing_function_throws', () => {
@@ -81,7 +83,7 @@ describe('executor', () => {
 
     const executor = new LuaExecutor('-- lua', 42);
     const result = executor.call('return_false');
-    expect(result).toBe(false);
+    expect(result).toEqual([false]);
   });
 
   it('test_executor_pulls_table_with_booleans', () => {
@@ -106,6 +108,6 @@ describe('executor', () => {
 
     const executor = new LuaExecutor('-- lua', 42);
     const result = executor.call('return_table');
-    expect(result).toEqual({ z: false });
+    expect(result).toEqual([{ z: false }]);
   });
 });

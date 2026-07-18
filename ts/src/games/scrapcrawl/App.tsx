@@ -32,7 +32,7 @@ const CATALOG_ORDER = [
 function buildInitialState(session: GameSession): ScrapCrawlGameState {
   const data = session.files.data as Record<string, unknown>;
   const rooms = (data.rooms ?? {}) as Record<string, Room>;
-  const player = session.executor.call('init_player') as PlayerState;
+  const player = session.executor.call('init_player')[0] as PlayerState;
   return {
     player,
     currentRoom: rooms[player.currentRoomId] ?? rooms.home_base,
@@ -62,7 +62,7 @@ function getTierCost(entry: { tierCost: Record<string | number, number> } | unde
 
 function getGrowthFactor(session: GameSession, data: Record<string, unknown>, xp: number): number {
   try {
-    return (session.executor.call('growth_factor', data, xp) as number) ?? 0.8;
+    return (session.executor.call('growth_factor', data, xp)[0] as number) ?? 0.8;
   } catch {
     return 0.8;
   }
