@@ -1,8 +1,10 @@
-import ts from 'typescript';
 import { extractValue, type ClassifiedDeclaration } from './classify';
 
 export function camelToSnake(key: string): string {
-  return key.replace(/([A-Z])/g, '_$1').toLowerCase();
+  if (key === key.toUpperCase() && key.includes('_')) {
+    return key.toLowerCase();
+  }
+  return key.replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2').replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase();
 }
 
 export function convertKeysToSnake(obj: unknown): unknown {
