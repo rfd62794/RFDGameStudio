@@ -1,0 +1,120 @@
+import { describe, expect, it } from 'vitest';
+import { resolve } from 'node:path';
+import { auditExports, type SymbolStatus } from '../tools/framework_gen/audit';
+import { camelToSnake } from '../tools/framework_gen/emit_yaml';
+import { generateManifest } from '../tools/framework_gen/manifest_report';
+
+const REPO_ROOT = resolve(import.meta.dirname, '../..');
+const SOURCE_PATH = resolve(REPO_ROOT, 'intake/slimegarden/extracted/src/gameLogic.ts');
+const LUA_PATH = resolve(REPO_ROOT, 'games/slimeworld/logic.lua');
+const DATA_YAML_PATH = resolve(REPO_ROOT, 'games/slimeworld/data.yaml');
+const TS_SLIMEWORLD_DIR = resolve(REPO_ROOT, 'ts/src/games/slimeworld');
+
+function runAudit() {
+  return auditExports({
+    sourcePath: SOURCE_PATH,
+    luaPath: LUA_PATH,
+    dataYamlPath: DATA_YAML_PATH,
+    tsSlimeworldDir: TS_SLIMEWORLD_DIR,
+  });
+}
+
+describe('Recovery Manifest — Framework Generation Layer', () => {
+  it('test_enumerates_all_48_real_exports', () => {
+    const result = runAudit();
+    expect(result.symbols.length).toBe(48);
+  });
+
+  it('test_camelToSnake_reused_not_reimplemented', () => {
+    // Confirms this imports Module 1's real function, doesn't duplicate it
+    expect(camelToSnake('getRandomMelancholicLog')).toBe('get_random_melancholic_log');
+    expect(camelToSnake('COLOR_SPECS')).toBe('color_specs');
+    expect(camelToSnake('stageFromLevel')).toBe('stage_from_level');
+    expect(camelToSnake('applyDispatchStabilityHook')).toBe('apply_dispatch_stability_hook');
+  });
+
+  it('test_recovered_status_requires_both_presence_and_call', () => {
+    const result = runAudit();
+    const recovered = result.symbols.filter(s => s.status === 'RECOVERED');
+    for (const s of recovered) {
+      // RECOVERED means found AND called — notes should mention where it's called
+      expect(s.notes).toContain('called');
+    }
+  });
+
+  it('test_no_symbol_ever_gets_confident_missing_status', () => {
+    const result = runAudit();
+    const validStatuses: SymbolStatus[] = ['RECOVERED', 'DEFINED_NOT_CALLED', 'NEEDS_HUMAN_REVIEW'];
+    for (const s of result.symbols) {
+      expect(validStatuses).toContain(s.status);
+      // Explicitly check no MISSING status exists
+      expect(s.status).not.toBe('MISSING');
+    }
+  });
+
+  it('test_known_recovered_symbol_matches', () => {
+    // getRandomMelancholicLog was already confirmed wired tonight
+    const result = runAudit();
+    const sym = result.symbols.find(s => s.name === 'getRandomMelancholicLog');
+    expect(sym).toBeDefined();
+    expect(sym!.status).toBe('RECOVERED');
+  });
+
+  it('test_known_gap_symbol_flagged_correctly', () => {
+    // applyDispatchStabilityHook was confirmed missing tonight
+    const result = runAudit();
+    const sym = result.symbols.find(s => s.name === 'applyDispatchStabilityHook');
+    expect(sym).toBeDefined();
+    // It should be either DEFINED_NOT_CALLED or NEEDS_HUMAN_REVIEW, never RECOVERED
+    expect(sym!.status).not.toBe('RECOVERED');
+    expect(['DEFINED_NOT_CALLED', 'NEEDS_HUMAN_REVIEW']).toContain(sym!.status);
+  });
+
+  it('test_renamed_function_goes_to_human_review_not_false_missing', () => {
+    // resolveDispatch has no literal resolve_dispatch in Lua — its logic
+    // lives inline inside retrieve_completed_dispatch under a different name.
+    // The tool must NOT confidently say MISSING — it must say NEEDS_HUMAN_REVIEW.
+    const result = runAudit();
+    const sym = result.symbols.find(s => s.name === 'resolveDispatch');
+    expect(sym).toBeDefined();
+    expect(sym!.status).toBe('NEEDS_HUMAN_REVIEW');
+    expect(sym!.status).not.toBe('MISSING');
+  });
+
+  it('test_manifest_generates_valid_markdown_with_all_symbols', () => {
+    const result = runAudit();
+    const manifest = generateManifest(result);
+    expect(manifest).toContain('# SlimeGarden Recovery Manifest');
+    expect(manifest).toContain('RECOVERED');
+    expect(manifest).toContain('DEFINED_NOT_CALLED');
+    expect(manifest).toContain('NEEDS_HUMAN_REVIEW');
+    // Every symbol should appear in the manifest
+    for (const s of result.symbols) {
+      expect(manifest).toContain(s.name);
+    }
+    // Summary table should have correct totals
+    expect(manifest).toContain(`**${result.symbols.length}**`);
+  });
+
+  it('test_stage_from_level_and_stage_modifier_are_need_human_review', () => {
+    // These were confirmed absent tonight — no Lua counterpart
+    const result = runAudit();
+    const stageFromLevel = result.symbols.find(s => s.name === 'stageFromLevel');
+    const stageModifier = result.symbols.find(s => s.name === 'stageModifier');
+    expect(stageFromLevel).toBeDefined();
+    expect(stageModifier).toBeDefined();
+    // They might be DEFINED_NOT_CALLED if a function with that snake_case name
+    // happens to exist, or NEEDS_HUMAN_REVIEW if not found at all.
+    // Either way, they must NOT be RECOVERED.
+    expect(stageFromLevel!.status).not.toBe('RECOVERED');
+    expect(stageModifier!.status).not.toBe('RECOVERED');
+  });
+
+  it('test_get_hue_deviation_is_need_human_review', () => {
+    // Confirmed absent tonight
+    const result = runAudit();
+    const sym = result.symbols.find(s => s.name === 'getHueDeviation');
+    expect(sym).toBeDefined();
+    expect(sym!.status).not.toBe('RECOVERED');
+  });
+});

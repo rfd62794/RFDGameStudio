@@ -64,7 +64,20 @@ describe('Lua→TS Field Safety — Alarm System', () => {
   it('test_alarm_fires_on_real_breeding_result', () => {
     const state = makeMinimalState();
     const data = session.files.data as Record<string, unknown>;
-    const value = call(session, 'initiate_breeding', stateToLua(state), 'parent_a', 'parent_b', 0, data['color_targets'], null, data['shape_targets'], null);
+    const cultures = data['cultures'] as Record<string, Record<string, unknown>>;
+    const colorSpecs: Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> = {};
+    for (const culture of Object.values(cultures)) {
+      colorSpecs[culture['color'] as string] = {
+        base_stats: culture['base_stats'] as Record<string, number>,
+        growth: culture['growth'] as Record<string, number>,
+      };
+    }
+    const gray = (data['neutral_traits'] as Record<string, Record<string, unknown>>)['gray'];
+    colorSpecs['Gray'] = {
+      base_stats: gray['base_stats'] as Record<string, number>,
+      growth: gray['growth'] as Record<string, number>,
+    };
+    const value = call(session, 'initiate_breeding', stateToLua(state), 'parent_a', 'parent_b', 0, data['color_targets'], null, data['shape_targets'], null, colorSpecs);
     const [child, error] = luaResult(value);
 
     expect(error).toBeNull();
