@@ -205,6 +205,14 @@ color_targets:
   - {id: rival_ember_tundra, tier: rival, name: The Fault Line, center_hues: [90, 270], tolerance: 10, saturation_min: 35, saturation_max: 65}
   - {id: rival_marsh_crystal, tier: rival, name: "Rival: Eclipse Void", center_hues: [150, 330], tolerance: 10, saturation_min: 35, saturation_max: 65}
   - {id: rival_gale_tide, tier: rival, name: "Rival: Stormsurge", center_hues: [210, 30], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: arc_ember_marsh_gale, tier: arc_triad, name: "Arc: Ember-Marsh-Gale", center_hues: [60], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_marsh_gale_tundra, tier: arc_triad, name: "Arc: Marsh-Gale-Tundra", center_hues: [120], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_gale_tundra_crystal, tier: arc_triad, name: "Arc: Gale-Tundra-Crystal", center_hues: [180], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_tundra_crystal_tide, tier: arc_triad, name: "Arc: Tundra-Crystal-Tide", center_hues: [240], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_crystal_tide_ember, tier: arc_triad, name: "Arc: Crystal-Tide-Ember", center_hues: [300], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_tide_ember_marsh, tier: arc_triad, name: "Arc: Tide-Ember-Marsh", center_hues: [0], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: skip_ember_gale_crystal, tier: skip_triad, name: "Skip: Ember-Gale-Crystal", center_hues: [0, 120, 240], tolerance: 10, saturation_min: 15, saturation_max: 20}
+  - {id: skip_marsh_tundra_tide, tier: skip_triad, name: "Skip: Marsh-Tundra-Tide", center_hues: [60, 180, 300], tolerance: 10, saturation_min: 15, saturation_max: 20}
 
 # --- SHAPE TARGETS ---
 # Real grounding: polygon constructibility complexity tiers, and for

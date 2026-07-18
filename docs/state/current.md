@@ -5,9 +5,9 @@
 ## SlimeWorld Color Codex Target Detection — COMPLETED
 
 ### What changed
-Added the real 9-target Color Codex detection system from the v0.1.0R2 source (`gameLogic.ts` ~line 314, `matchColorTarget` ~line 341). Previously, `initiate_breeding` already biased child hue toward `active_target_regent` via `breed_slimes`, but nothing checked whether the resulting child actually landed inside a real target zone. Now `match_color_target(hue, saturation, color_targets)` runs on every breed and sets `child.matched_target_id`.
+Added the real 17-target Color Codex detection system from the v0.1.0R2 source (`gameLogic.ts` lines 314-339 for `COLOR_TARGETS`, line 341 for `matchColorTarget`). Previously, `initiate_breeding` already biased child hue toward `active_target_regent` via `breed_slimes`, but nothing checked whether the resulting child actually landed inside a real target zone. Now `match_color_target(hue, saturation, color_targets)` runs on every breed and sets `child.matched_target_id`.
 
-### 9 targets in data.yaml (scoped to Guild + Rival tiers only)
+### 17 targets in data.yaml (4 tiers, matching fresh TS source exactly)
 **6 Guilds** (adjacent capitol pairs, tight tolerance, high saturation):
 - `guild_ember_marsh` → Thornward (center 30, tol 15, sat 65–100)
 - `guild_marsh_gale` → Amberglow (center 90, tol 15, sat 65–100)
@@ -21,7 +21,19 @@ Added the real 9-target Color Codex detection system from the v0.1.0R2 source (`
 - `rival_marsh_crystal` → Eclipse Void (centers [150, 330], tol 10, sat 35–65)
 - `rival_gale_tide` → Stormsurge (centers [210, 30], tol 10, sat 35–65)
 
-Arc Triad and Skip Triad targets from the source were removed — those are real but out of scope for this directive.
+**6 Arc Triads** (3 consecutive capitols, low saturation):
+- `arc_ember_marsh_gale` → Arc: Ember-Marsh-Gale (center 60, tol 15, sat 20–35)
+- `arc_marsh_gale_tundra` → Arc: Marsh-Gale-Tundra (center 120, tol 15, sat 20–35)
+- `arc_gale_tundra_crystal` → Arc: Gale-Tundra-Crystal (center 180, tol 15, sat 20–35)
+- `arc_tundra_crystal_tide` → Arc: Tundra-Crystal-Tide (center 240, tol 15, sat 20–35)
+- `arc_crystal_tide_ember` → Arc: Crystal-Tide-Ember (center 300, tol 15, sat 20–35)
+- `arc_tide_ember_marsh` → Arc: Tide-Ember-Marsh (center 0, tol 15, sat 20–35)
+
+**2 Skip Triads** (3 alternating capitols, very low saturation):
+- `skip_ember_gale_crystal` → Skip: Ember-Gale-Crystal (centers [0, 120, 240], tol 10, sat 15–20)
+- `skip_marsh_tundra_tide` → Skip: Marsh-Tundra-Tide (centers [60, 180, 300], tol 10, sat 15–20)
+
+All 17 targets match the fresh TS source `COLOR_TARGETS` array (line 314-339) and the locked Rev3 design memory exactly.
 
 ### Detection algorithm
 `match_color_target` iterates targets in order. For each: if saturation falls within `[saturation_min, saturation_max)`, check each `center_hue` — if `circular_distance(hue, center) <= tolerance`, return the target's `id`. First match wins. Returns `nil` if no match. Reuses existing `circular_distance` function — no hue math reimplemented.
@@ -34,7 +46,7 @@ child.matched_target_id = match_color_target(child.hue, child.saturation, color_
 Runs on every breed regardless of whether `active_target_regent` is set — a player breeding without an active target can still accidentally land in a real zone. Does NOT change `breed_slimes`'s existing hue-biasing behavior.
 
 ### Files touched
-- `games/slimeworld/data.yaml` — trimmed color_targets from 17 to 9 (removed arc_triad/skip_triad)
+- `games/slimeworld/data.yaml` — all 17 color_targets confirmed present (6 Guilds, 3 Rivals, 6 Arc Triads, 2 Skip Triads), matching fresh TS source exactly
 - `games/slimeworld/logic.lua` — added `match_color_target` (12 lines), wired into `initiate_breeding` (1 line)
 - `tests/test_slimeworld_color_codex.py` — new, 9 test anchors
 
