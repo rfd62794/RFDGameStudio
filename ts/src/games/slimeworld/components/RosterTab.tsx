@@ -17,10 +17,6 @@ interface RosterTabProps {
   key?: any;
   state: LabState;
   
-  // From LabTab (Upgrades)
-  handleBuyUpgrade: (type: 'capacity' | 'stabilizer' | 'autofeeder') => void;
-  handlePurchaseSeedSlime: (color: SlimeColor) => void;
-  
   // From RosterTab
   selectedSlimeId: string | null;
   setSelectedSlimeId: (id: string | null) => void;
@@ -46,18 +42,10 @@ interface RosterTabProps {
   setActiveTargetRegent: (targetId: string | null) => void;
   onBuyTargetRegent: (targetId: string) => void;
   handleToggleWorkerRole?: (slimeId: string) => void;
-  
-  // Combined activeSubTab and setActiveSubTab
-
-  // From EconomyTab
-  handleDeliverContract: (contract: CorporateContract, targetSlime: Slime) => void;
-  handleSellOnMarket: (slime: Slime, price: number) => void;
 }
 
 export function RosterTab({
   state,
-  handleBuyUpgrade,
-  handlePurchaseSeedSlime,
   selectedSlimeId,
   setSelectedSlimeId,
   setRenameSlimeId,
@@ -81,30 +69,8 @@ export function RosterTab({
   activeTargetRegent,
   setActiveTargetRegent,
   onBuyTargetRegent,
-  handleToggleWorkerRole,
-  handleDeliverContract,
-  handleSellOnMarket
-}: LabTabProps) {
-  // Local Economy states (moved from EconomyTab/App state)
-  const [economySubTab, setEconomySubTab] = useState<'contracts' | 'market'>('contracts');
-  const [confirmDelivery, setConfirmDelivery] = useState<{
-    contract: CorporateContract;
-    slime: Slime;
-  } | null>(null);
-
-  const [confirmMarketSale, setConfirmMarketSale] = useState<{
-    slime: Slime;
-    price: number;
-    recentCount: number;
-  } | null>(null);
-
-  const getRecentSalesCountForColor = (color: SlimeColor): number => {
-    if (!state.recentMarketSales) return 0;
-    const minCycle = state.cycle - 4;
-    return state.recentMarketSales.filter(
-      record => record.color === color && record.cycle >= minCycle
-    ).length;
-  };
+  handleToggleWorkerRole
+}: RosterTabProps) {
   const currentlySelectedSlime = state.slimes.find(s => s.id === selectedSlimeId);
   const idleSlimes = state.slimes.filter(s => s.role === 'idle');
 

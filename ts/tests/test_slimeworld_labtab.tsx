@@ -3,11 +3,11 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const source = readFileSync(
-  resolve(import.meta.dirname, '../src/games/slimeworld/components/LabTab.tsx'),
+  resolve(import.meta.dirname, '../src/games/slimeworld/components/RosterTab.tsx'),
   'utf8'
 );
 
-describe('Slimeworld LabTab shared UI migration', () => {
+describe('Slimeworld RosterTab shared UI migration', () => {
   it('test_slimeworld_role_toggle_uses_shared_button', () => {
     expect(source).toContain("import { Button, StatBar } from '../../../ui/components';");
     expect(source).toContain('label="Assign as Lab Worker"');
