@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Sparkles, Info, Coins, Database, Dna, HelpCircle, BookOpen, Beaker } from 'lucide-react';
 import { LabState, SlimeColor, SlimePattern, Slime } from '../types';
 import { COLOR_SPECS, PATTERN_DESCRIPTIONS, getColorRegentCost, getTargetRegentCost, RawColorTarget, RawShapeTarget } from '../gameLogic';
-import { getStaticList } from '../../engine/runtime';
-import type { GameSession } from '../../engine/types';
+import { getStaticList } from '../../../engine/runtime';
+import type { GameSession } from '../../../engine/types';
 import { SlimeVisual } from './SlimeVisual';
 
 interface SlimeDexTabProps {

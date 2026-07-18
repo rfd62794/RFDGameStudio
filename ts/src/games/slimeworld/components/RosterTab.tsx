@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract } from '../types';
 import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, RawColorTarget } from '../gameLogic';
-import { getStaticList } from '../../engine/runtime';
-import type { GameSession } from '../../engine/types';
+import { getStaticList } from '../../../engine/runtime';
+import type { GameSession } from '../../../engine/types';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
 import { SlimeDexTab } from './SlimeDexTab';
