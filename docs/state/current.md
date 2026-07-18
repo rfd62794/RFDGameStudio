@@ -2,6 +2,35 @@
 
 *Last updated: July 2026*
 
+## SlimeWorld UI Section Extraction — COMPLETED
+
+### What changed
+- Added `ts/src/games/slimeworld/components/RosterTab.tsx` to host Collection, Splicing, and SlimeDex.
+- Added `ts/src/games/slimeworld/components/MissionsTab.tsx` to host Territory/claims, Active, Zones, Mediation, and Exploration.
+- Added `ts/src/games/slimeworld/components/EconomyTab.tsx` to host Contracts and Market.
+- Reduced `LabTab.tsx` runtime scope to Upgrades via the `lab` primary tab.
+- Updated `App.tsx` to a four-tab `TabBar`: Roster, Missions, Economy, Lab.
+- Preserved all existing handlers and state ownership in `App.tsx`; no Lua or data-layer changes.
+- Added `ts/tests/test_slimeworld_tab_extraction.tsx` regression anchors for the new routing.
+
+### Files touched
+- `ts/src/games/slimeworld/App.tsx`
+- `ts/src/games/slimeworld/components/RosterTab.tsx`
+- `ts/src/games/slimeworld/components/MissionsTab.tsx`
+- `ts/src/games/slimeworld/components/EconomyTab.tsx`
+- `ts/src/games/slimeworld/components/LabTab.tsx`
+- `ts/tests/test_slimeworld_tab_extraction.tsx`
+
+### Verification
+```text
+npx vitest run
+-> 13 test files passed, 95 tests passed
+
+.venv\Scripts\python.exe -m pytest
+-> 411 passed, 1 failed, 0 skipped, 8 warnings
+```
+The single Python failure is `tests/test_verify.py::test_verify_arcade_deploy_runs_tier1_and_tier2`; it is outside the Slimeworld UI scope changed here.
+
 ## Current Phase
 
 **Worker Income + Garden Refugee Default — CERTIFIED**
