@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { luaSlimeToTs, slimeToLua, Slime, LabState } from '../src/games/slimeworld/types';
-import { SHAPE_TARGETS, COLOR_TARGETS } from '../src/games/slimeworld/gameLogic';
-
-const typesSource = readFileSync(
-  resolve(import.meta.dirname, '../src/games/slimeworld/types.ts'),
-  'utf8'
-);
+import { luaSlimeToTs, slimeToLua, Slime } from '../src/games/slimeworld/types';
+import { SHAPE_TARGETS } from '../src/games/slimeworld/gameLogic';
 
 const appSource = readFileSync(
   resolve(import.meta.dirname, '../src/games/slimeworld/App.tsx'),

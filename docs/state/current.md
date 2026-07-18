@@ -2,6 +2,53 @@
 
 *Last updated: July 2026*
 
+## SlimeWorld Exploration Tests + Codex Wiring Fix — COMPLETED
+
+### What changed
+Two parallel efforts completed:
+
+**Part A — Exploration Resolution Tests (Python):**
+Created `tests/test_slimeworld_exploration_resolution.py` with 10 test anchors covering the exploration resolution block in `advance_cycle`:
+- Scout power = sum of int + agi across party members
+- Success chance formula with ratio > 1 and ratio < 1 paths
+- Chance clamped to [0.15, 0.98] for extreme ratios
+- Node discovery on success (seeded RNG iteration)
+- XP awards: 45 on success, 20 on failure (both outcomes verified)
+- Scouts return to idle role regardless of outcome
+- `active_exploration` cleared to nil after resolution
+- Edge case: missing target node — no crash, fail-path XP
+- Edge case: empty party — no crash, no XP awarded, log still created
+
+**Part B — Codex Wiring Fix (TypeScript):**
+Fixed the recurring "Lua computes it, TS drops it" bug class. Lua's `initiate_breeding` sets `matched_target_id`, `matched_shape_target_id`, and `consumed_slime_id` on the child slime, but `luaSlimeToTs` was silently dropping all three fields. Changes:
+- `types.ts`: Added `matchedTargetId`, `matchedShapeTargetId`, `consumedSlimeId` to `Slime` interface; added `colorTargetCodex`, `shapeCodex`, `shapeTargetCodex` to `LabState`; updated `luaSlimeToTs` and `slimeToLua` to roundtrip all three fields.
+- `gameLogic.ts`: Added `SHAPE_TARGETS` constant (23 entries matching `data.yaml` `shape_targets`).
+- `App.tsx`: Breeding handler now updates `colorTargetCodex` and `shapeTargetCodex` when a child matches a target; tracks `lastConsumedSlimeId` for UI display.
+- `SlimeDexTab.tsx`: Added "Morphological Shape Targets" grid section mirroring the Color Targets grid, with a full detail panel showing vertex count, irregularity, tier, and clues for locked shapes.
+- `RosterTab.tsx`: Surfaces `consumedSlimeId` in the breeding result UI as a highlighted "Specimen Consumed" banner.
+
+### The "Lua computes it, TS drops it" bug class
+This is a recurring pattern: Lua logic correctly computes and attaches fields to game objects, but the TypeScript conversion layer (`luaSlimeToTs`) silently drops fields it doesn't explicitly map. The Color Codex target detection was wired in Lua but never surfaced to the TS frontend. The Shape Codex detection had the same gap. The `consumed_slime_id` field was set by Lua's breeding logic but never displayed in the UI. The fix is always the same: add the field to the TS interface, parse it in `luaSlimeToTs`, and wire it into the React state and UI components.
+
+### Files touched
+- `tests/test_slimeworld_exploration_resolution.py` — new, 10 test anchors
+- `ts/src/games/slimeworld/types.ts` — 3 new Slime fields, 3 new LabState fields, luaSlimeToTs/slimeToLua updated
+- `ts/src/games/slimeworld/gameLogic.ts` — SHAPE_TARGETS constant (23 entries) + ShapeTarget interface
+- `ts/src/games/slimeworld/App.tsx` — breeding handler codex updates + lastConsumedSlimeId state
+- `ts/src/games/slimeworld/components/SlimeDexTab.tsx` — Shape Codex grid + detail panel
+- `ts/src/games/slimeworld/components/RosterTab.tsx` — consumedSlimeId UI display
+- `ts/tests/test_slimeworld_codex_wiring.tsx` — new, 8 test anchors
+
+### Verification
+```text
+.venv\Scripts\python.exe -m pytest tests/test_slimeworld_exploration_resolution.py -v --tb=short
+-> 10 passed in 0.69s
+
+cd ts && npx vitest run tests/test_slimeworld_codex_wiring.tsx --reporter=verbose
+-> Test Files  1 passed (1)
+-> Tests  8 passed (8)
+```
+
 ## SlimeWorld Shape Codex Target Detection — COMPLETED
 
 ### What changed
