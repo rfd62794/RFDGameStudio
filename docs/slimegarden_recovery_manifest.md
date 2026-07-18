@@ -16,8 +16,8 @@ SlimeWorld's Lua (`logic.lua`), data (`data.yaml`), and TypeScript
 
 | Status | Count |
 |---|---|
-| RECOVERED | 21 |
-| DEFINED_NOT_CALLED | 1 |
+| RECOVERED | 22 |
+| DEFINED_NOT_CALLED | 0 |
 | NEEDS_HUMAN_REVIEW | 26 |
 | **Total** | **48** |
 
@@ -41,7 +41,7 @@ SlimeWorld's Lua (`logic.lua`), data (`data.yaml`), and TypeScript
 | COLOR_TARGETS | const | RECOVERED | color_targets, called in TS | 2026-07-18 |
 | matchColorTarget | function | RECOVERED | match_color_target, called in logic.lua | 2026-07-18 |
 | getInterpolatedSpecs | function | RECOVERED | get_interpolated_specs, called in logic.lua | 2026-07-18 |
-| SEED_SHAPE_DEFAULTS | const | DEFINED_NOT_CALLED | seed_shape_defaults found but never called — confirm whether wiring is missing or deliberately omitted | 2026-07-18 |
+| SEED_SHAPE_DEFAULTS | const | RECOVERED | seed_shape_defaults, called in logic.lua | 2026-07-18 |
 | getShapeStatModifiers | function | RECOVERED | get_shape_stat_modifiers, called in logic.lua | 2026-07-18 |
 | calculateStats | function | RECOVERED | calculate_stats, called in logic.lua | 2026-07-18 |
 | breedSlimes | function | RECOVERED | breed_slimes, called in logic.lua | 2026-07-18 |

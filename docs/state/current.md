@@ -1,6 +1,62 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 19 2026*
+*Last updated: July 18 2026*
+
+## Recovery Manifest Tool — Const-Usage Detection Fix — COMPLETED
+
+### Bug
+
+The recovery manifest tool (`ts/tools/framework_gen/audit.ts`) checked
+for symbol usage in Lua using a paren-based call pattern
+(`snakeName\s*\(`). This correctly detected function calls but
+structurally could not match const/table usage, which appears as
+bracket-indexing (`SEED_SHAPE_DEFAULTS[color]`) or dot-access — never
+with parentheses. As a result, `SEED_SHAPE_DEFAULTS` was reported as
+`DEFINED_NOT_CALLED` despite being genuinely used at `logic.lua` line
+832.
+
+### Fix
+
+Added a separate const-usage check for `kind === 'const'` symbols that
+matches bracket/dot access patterns (`\bname\s*[\[\.]`), distinct from
+the existing function-call check. Also checks the original name (not
+just snake_case) since SCREAMING_SNAKE_CASE consts like
+`SEED_SHAPE_DEFAULTS` keep their original casing in Lua. Lua
+`local` definition lines are stripped to avoid false positives.
+
+### Manifest Status Breakdown (after fix)
+
+| Status | Before | After |
+|---|---|---|
+| RECOVERED | 21 | 22 |
+| DEFINED_NOT_CALLED | 1 | 0 |
+| NEEDS_HUMAN_REVIEW | 26 | 26 |
+
+Only `SEED_SHAPE_DEFAULTS` shifted: `DEFINED_NOT_CALLED` → `RECOVERED`.
+No other consts changed status — the 26 `NEEDS_HUMAN_REVIEW` items
+weren't found by name at all, so the usage-pattern fix doesn't affect
+them.
+
+### Separate, Still-Open Follow-Up (NOT fixed here)
+
+`seed_shape_defaults` is duplicated between `data.yaml` (line 188) and
+a hardcoded `local SEED_SHAPE_DEFAULTS` table in `logic.lua` (line
+192) — the same triplication pattern found and fixed this morning for
+`color_specs`. This is a real data issue, not a tool bug. Flagged for
+separate follow-up work.
+
+### Files Changed
+
+- `ts/tools/framework_gen/audit.ts` — added const-usage detection branch
+- `ts/tests/test_recovery_manifest.ts` — 4 new test anchors (14 total)
+- `docs/slimegarden_recovery_manifest.md` — regenerated with fix applied
+
+### Test Floors
+
+- Python: 432 passed, 8 warnings
+- TypeScript: 160 passed, 22 files
+
+---
 
 ## Mediation Resolution Fix — COMPLETED
 

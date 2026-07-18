@@ -104,14 +104,33 @@ function auditSymbol(
     };
   }
 
-  // 2. Check if it's called (not just defined)
-  // Search in Lua for calls: snakeName(  but not on the definition line
+  // 2. Check if it's called/used (not just defined)
+  // For functions: look for snakeName( — a function call
+  // For consts: also look for snakeName[ or snakeName. — bracket/dot access
+  // These are separate patterns by kind to avoid false positives
+  // (e.g. a function name in a comment followed by a period at end of sentence)
   const luaCallPattern = new RegExp(`[^a-zA-Z_]${escapeRegex(snakeName)}\\s*\\(`);
   // Remove the definition line to avoid false positive
   const luaWithoutDef = luaText.replace(luaFuncPattern, '');
   const luaCalled = luaCallPattern.test(luaWithoutDef);
 
-  // Search in TS files for calls: name( or name. or name[
+  // Separate const-usage check: bracket or dot access (e.g. SEED_SHAPE_DEFAULTS[color])
+  // Check both snake_case and original name — SCREAMING_SNAKE_CASE consts may keep
+  // their original casing in Lua (e.g. local SEED_SHAPE_DEFAULTS = {...})
+  let luaConstUsed = false;
+  if (kind === 'const') {
+    const snakeUsagePattern = new RegExp(`\\b${escapeRegex(snakeName)}\\s*[\\[\\.]`);
+    const originalUsagePattern = new RegExp(`\\b${escapeRegex(name)}\\s*[\\[\\.]`);
+    // Also remove any Lua local/const definition lines to avoid false positives
+    const luaWithoutConstDef = luaWithoutDef
+      .replace(new RegExp(`local\\s+${escapeRegex(name)}\\s*=`), '')
+      .replace(new RegExp(`local\\s+${escapeRegex(snakeName)}\\s*=`), '');
+    luaConstUsed = snakeUsagePattern.test(luaWithoutConstDef) || originalUsagePattern.test(luaWithoutConstDef);
+  }
+
+  const luaUsed = luaCalled || luaConstUsed;
+
+  // Search in TS files for any reference to the name
   let tsCalled = false;
   for (const [, content] of Object.entries(tsFileContents)) {
     const tsCallPattern = new RegExp(`\\b${escapeRegex(name)}\\b`);
@@ -121,9 +140,9 @@ function auditSymbol(
     }
   }
 
-  if (luaCalled || tsCalled) {
+  if (luaUsed || tsCalled) {
     const where: string[] = [];
-    if (luaCalled) where.push('logic.lua');
+    if (luaUsed) where.push('logic.lua');
     if (tsCalled) where.push('TS');
     return {
       name,
