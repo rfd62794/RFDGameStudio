@@ -17,7 +17,7 @@ export function RosterTab(props: RosterTabProps) {
       <LabTab
         {...props}
         activeSubTab={activeSubTab}
-        setActiveSubTab={setActiveSubTab}
+        setActiveSubTab={id => setActiveSubTab(id as 'collection' | 'breeding' | 'slimedex')}
         handleBuyUpgrade={() => {}}
         handlePurchaseSeedSlime={() => {}}
         handleDeliverContract={() => {}}
