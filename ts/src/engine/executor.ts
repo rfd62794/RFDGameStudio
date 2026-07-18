@@ -37,7 +37,7 @@ export class LuaExecutor {
     }
   }
 
-  call(fnName: string, ...args: unknown[]): unknown {
+  call(fnName: string, ...args: unknown[]): unknown[] {
     lua.lua_getglobal(this.L, to_luastring(fnName) as string);
     if (lua.lua_type(this.L, -1) !== lua.LUA_TFUNCTION) {
       lua.lua_pop(this.L, 1);
@@ -46,15 +46,21 @@ export class LuaExecutor {
     for (const arg of args) {
       this.pushValue(arg);
     }
-    const status = lua.lua_pcall(this.L, args.length, 1, 0);
+    const baseTop = lua.lua_gettop(this.L) - args.length - 1;
+    const status = lua.lua_pcall(this.L, args.length, (lua as unknown as { LUA_MULTRET: number }).LUA_MULTRET, 0);
     if (status !== lua.LUA_OK) {
       const err = errFromStack(this.L);
       lua.lua_pop(this.L, 1);
       throw new LuaError(`Lua error in ${fnName}: ${err}`);
     }
-    const result = this.pullValue(-1);
-    lua.lua_pop(this.L, 1);
-    return result;
+    const newTop = lua.lua_gettop(this.L);
+    const resultCount = newTop - baseTop;
+    const results: unknown[] = [];
+    for (let i = 0; i < resultCount; i++) {
+      results.push(this.pullValue(baseTop + 1 + i));
+    }
+    lua.lua_pop(this.L, resultCount);
+    return results;
   }
 
   private seedRandom(seed: number): void {

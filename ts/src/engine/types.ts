@@ -95,7 +95,7 @@ export interface RaceHistoryEntry {
 }
 
 export interface LuaExecutor {
-  call(fnName: string, ...args: unknown[]): unknown;
+  call(fnName: string, ...args: unknown[]): unknown[];
 }
 
 export interface GameSession {

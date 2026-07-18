@@ -8,7 +8,7 @@ export function loadGame(gameId: string, seed: number = 42): GameSession {
   return { gameId, files, executor };
 }
 
-export function call(session: GameSession, fnName: string, ...args: unknown[]): unknown {
+export function call(session: GameSession, fnName: string, ...args: unknown[]): unknown[] {
   return session.executor.call(fnName, ...args);
 }
 
