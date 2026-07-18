@@ -54,7 +54,14 @@ function initialState(session: GameRendererProps['session']): LabState {
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
   const relationships = (lab['culture_relationships'] ?? {}) as Record<SlimeColor, number>;
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [] };
+  const starterSlimes = starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index));
+  const colorCodex: Record<SlimeColor, { discovered: boolean }> = {} as Record<SlimeColor, { discovered: boolean }>;
+  const patternCodex: Record<SlimePattern, { discovered: boolean }> = {} as Record<SlimePattern, { discovered: boolean }>;
+  for (const slime of starterSlimes) {
+    colorCodex[slime.color] = { discovered: true };
+    patternCodex[slime.pattern] = { discovered: true };
+  }
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [], colorCodex, patternCodex };
 }
 
 function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
@@ -98,16 +105,23 @@ export default function App({ session }: GameRendererProps) {
     const child = luaSlimeToTs(raw);
     setLastConsumedSlimeId(child.consumedSlimeId ?? null);
     setState(previous => {
+      const filteredSlimes = child.consumedSlimeId
+        ? previous.slimes.filter(s => s.id !== child.consumedSlimeId)
+        : previous.slimes;
       const newColorTargetCodex = { ...(previous.colorTargetCodex ?? {}) };
       if (child.matchedTargetId) newColorTargetCodex[child.matchedTargetId] = true;
       const newShapeTargetCodex = { ...(previous.shapeTargetCodex ?? {}) };
       if (child.matchedShapeTargetId) newShapeTargetCodex[child.matchedShapeTargetId] = true;
+      const newColorCodex = { ...(previous.colorCodex ?? {}), [child.color]: { discovered: true } } as Record<SlimeColor, { discovered: boolean }>;
+      const newPatternCodex = { ...(previous.patternCodex ?? {}), [child.pattern]: { discovered: true } } as Record<SlimePattern, { discovered: boolean }>;
       return {
         ...previous,
         credits: Math.max(0, previous.credits - 10),
-        slimes: [...previous.slimes, child],
+        slimes: [...filteredSlimes, child],
         colorTargetCodex: newColorTargetCodex,
         shapeTargetCodex: newShapeTargetCodex,
+        colorCodex: newColorCodex,
+        patternCodex: newPatternCodex,
       };
     });
     setParentAId(null); setParentBId(null); setIsBreedingHatching(false);
