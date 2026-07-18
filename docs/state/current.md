@@ -1,6 +1,89 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 2026*
+*Last updated: July 18 2026*
+
+## Shared Data Layer + Lua→TS Field Safety Alarm — COMPLETED
+
+### Motivation — Five Recurring Bug Instances
+
+Today, five separate bugs shared the same root shape: **Lua computes and returns
+something real and correct, and a hand-maintained TS conversion function's fixed
+field list silently drops it.** The confirmed instances:
+
+1. **Worker income** — `advance_cycle` computed worker income in Lua, TS conversion dropped it
+2. **Breeding consumption (`consumed_slime_id`)** — `initiate_breeding` set `consumed_slime_id` on the child, `luaSlimeToTs` didn't handle it
+3. **Color Codex detection (`matched_target_id`)** — `initiate_breeding` set `matched_target_id`, `luaSlimeToTs` didn't handle it
+4. **Shape Codex detection (`matched_shape_target_id`)** — `initiate_breeding` set `matched_shape_target_id`, `luaSlimeToTs` didn't handle it
+5. **Exploration resolution** — `advance_cycle` exploration results had fields TS didn't parse
+
+Three of the five were confirmed in `luaSlimeToTs` specifically. The fix is not
+another patch — it's a structural change that prevents the sixth instance.
+
+### Part A — Shared Data Layer (`getStaticList`)
+
+**Problem:** `gameLogic.ts` hand-copied `COLOR_TARGETS` (17 entries) and
+`SHAPE_TARGETS` (23 entries) from `data.yaml` into TypeScript constants. This
+duplicates data and creates drift risk — if `data.yaml` changes, the constants
+go stale silently.
+
+**Fix:** Added `getStaticList(session, key)` to `ts/src/engine/runtime.ts` —
+reads flat arrays directly from `session.files.data[key]` (the parsed
+`data.yaml` loaded once at game start). This is a sibling to the existing
+`getSchema(session, entity)`, which unwraps `.fields` for entity schemas;
+`getStaticList` skips that unwrapping for flat arrays like `color_targets` and
+`shape_targets`.
+
+**Changes:**
+- `ts/src/engine/runtime.ts` — added `getStaticList(session, key)` function
+- `ts/src/games/slimeworld/gameLogic.ts` — removed `COLOR_TARGETS` and `SHAPE_TARGETS` constants and their camelCase interfaces; added `RawColorTarget`/`RawShapeTarget` interfaces matching `data.yaml`'s snake_case field names
+- `ts/src/games/slimeworld/components/SlimeDexTab.tsx` — migrated to `getStaticList(session, 'color_targets')` / `getStaticList(session, 'shape_targets')`; all field accesses updated from camelCase to snake_case (`center_hues`, `saturation_min`, `saturation_max`, `vertex_count`, `irregularity_min`, `irregularity_max`)
+- `ts/src/games/slimeworld/components/RosterTab.tsx` — migrated `COLOR_TARGETS.find()` calls to `getStaticList` lookup; added `session` prop
+- `ts/src/games/slimeworld/App.tsx` — passes `session` to `RosterTab`
+- `ts/src/games/slimeworld/components/EconomyTab.tsx` — removed unused `COLOR_TARGETS` import
+- `ts/src/games/slimeworld/components/LabTab.tsx` — removed unused `COLOR_TARGETS` import
+
+### Part B — Field-Drift Alarm System
+
+**Problem:** `luaSlimeToTs` in `types.ts` has a fixed field list. When Lua
+returns a new field, it's silently dropped — no error, no warning, no signal.
+
+**Fix:** Exported `SLIME_EXPLICIT_LUA_FIELDS` — the real, already-existing set
+of field names that `luaSlimeToTs` explicitly handles — as a named constant.
+This is not a duplicate list; it's the same set the function actually uses,
+exported so a test can reference it. Then created an alarm test that calls the
+**real executor bridge** (not a mock) to run `initiate_breeding` and checks
+that every field in the real child object is accounted for in the explicit set.
+
+**This is an alarm, not an automatic fix.** When the test fails in the future,
+the correct response is a human decision: either add genuine handling in
+`luaSlimeToTs` (with proper type coercion), or add to the allowlist with a
+comment explaining why it's intentionally unhandled. Never reflexively add to
+the allowlist to silence the alarm.
+
+**`luaSlimeToTs` conversion logic is completely unchanged.** This directive
+only exports the field list and adds a test — it does not modify how the
+function converts fields.
+
+**`luaNodeToTs` was checked and found already correct** — its field list is
+complete and matches what Lua returns for planet nodes. It was not touched.
+
+**Other Lua functions audited:**
+- `launch_exploration` — returns simple 5-field object, no custom converter, inline field access. No alarm needed.
+- `launch_dispatch` — same pattern. No alarm needed.
+- `launch_mediation` — same pattern. No alarm needed.
+- `advance_cycle` — returns full state. Slimes within it are parsed via `luaSlimeToTs` (already covered by this alarm). Other fields parsed inline with explicit field access. `luaNodeToTs` checked and complete. No additional alarm needed.
+
+### Test Results
+
+- **Python:** 398 passed
+- **TypeScript:** 122 passed / 17 files (was 113/15 pre-flight; +9 new tests across 2 new files)
+
+### New Test Files
+
+- `ts/tests/test_shared_data_layer.tsx` (4 tests): `getStaticList` returns real 17-entry color targets, real 23-entry shape targets, throws on missing key, SlimeDexTab renders from live data
+- `ts/tests/test_lua_slime_field_safety.tsx` (5 tests): explicit fields export matches conversion logic, alarm fires on real breeding result (passes today = current state clean), alarm would fail on synthetic new field (proves mechanism works), other Lua functions audited with findings, `luaSlimeToTs` logic unchanged
+
+---
 
 ## SlimeWorld Exploration Tests + Codex Wiring Fix — COMPLETED
 
