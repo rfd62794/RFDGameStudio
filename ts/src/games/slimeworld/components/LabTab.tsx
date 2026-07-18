@@ -10,6 +10,7 @@ import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
 import { SlimeDexTab } from './SlimeDexTab';
+import { Button, StatBar } from '../../../ui/components';
 
 interface LabTabProps {
   key?: any;
@@ -222,8 +223,20 @@ export function LabTab({
                                     placeholder="New name..."
                                     autoFocus
                                   />
-                                  <button onClick={() => { if (newNameInput?.trim()) handleRenameSlime(currentlySelectedSlime.id, newNameInput); }} className="p-0.5 rounded text-green-400 hover:bg-green-950/30 cursor-pointer" title="Confirm rename"><Check className="w-3.5 h-3.5" /></button>
-                                  <button onClick={() => setRenameSlimeId(null)} className="p-0.5 rounded text-slate-500 hover:text-red-400 cursor-pointer" title="Cancel"><X className="w-3.5 h-3.5" /></button>
+                                  <Button
+                                    icon={<Check className="w-3.5 h-3.5" />}
+                                    onClick={() => { if (newNameInput?.trim()) handleRenameSlime(currentlySelectedSlime.id, newNameInput); }}
+                                    variant="neutral"
+                                    title="Confirm rename"
+                                    className="!border-0 !bg-transparent !p-0.5 rounded !text-green-400 hover:!bg-green-950/30 cursor-pointer"
+                                  />
+                                  <Button
+                                    icon={<X className="w-3.5 h-3.5" />}
+                                    onClick={() => setRenameSlimeId(null)}
+                                    variant="neutral"
+                                    title="Cancel"
+                                    className="!border-0 !bg-transparent !p-0.5 rounded !text-slate-500 hover:!text-red-400 cursor-pointer"
+                                  />
                                 </div>
                               )}
                               <button 
@@ -252,12 +265,14 @@ export function LabTab({
 
                       {/* Stats and characteristics */}
                       <div className="mt-4 grid grid-cols-5 gap-2 text-center">
+                        <div className="bg-slate-950/40 p-2 rounded border border-slate-900">
+                          <StatBar label="HP" value={Math.round(currentlySelectedSlime.stats.hp)} max={200} color="#cbd5e1" />
+                        </div>
                         {[
-                          { label: 'HP', val: currentlySelectedSlime.stats.hp, max: 200 },
-                          { label: 'ATK', val: currentlySelectedSlime.stats.atk, max: 50 },
-                          { label: 'DEF', val: currentlySelectedSlime.stats.def, max: 50 },
-                          { label: 'AGI', val: currentlySelectedSlime.stats.agi, max: 50 },
-                          { label: 'INT', val: currentlySelectedSlime.stats.int, max: 50 },
+                          { label: 'ATK', val: currentlySelectedSlime.stats.atk },
+                          { label: 'DEF', val: currentlySelectedSlime.stats.def },
+                          { label: 'AGI', val: currentlySelectedSlime.stats.agi },
+                          { label: 'INT', val: currentlySelectedSlime.stats.int },
                         ].map((s) => (
                           <div key={s.label} className="bg-slate-950/40 p-2 rounded border border-slate-900">
                             <div className="text-[8px] font-mono text-slate-500 font-bold">{s.label}</div>
@@ -370,24 +385,24 @@ export function LabTab({
                                       );
                                     })()}
                                     
-                                    <button
+                                    <Button
+                                      label="Decommission from Worker Duties"
                                       onClick={() => handleToggleWorkerRole(currentlySelectedSlime.id)}
-                                      className="w-full py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider rounded bg-red-950/20 border border-red-900/30 hover:bg-red-900/20 hover:text-white text-red-400 transition-colors cursor-pointer"
-                                    >
-                                      Decommission from Worker Duties
-                                    </button>
+                                      variant="neutral"
+                                      className="w-full !border-red-900/30 !bg-red-950/20 !px-0 !py-1.5 !text-[10px] !font-mono !font-bold uppercase tracking-wider rounded hover:!bg-red-900/20 hover:!text-white text-red-400 transition-colors cursor-pointer"
+                                    />
                                   </div>
                                 ) : (
                                   <div className="space-y-2">
                                     <p className="text-[10px] text-slate-400 leading-normal font-mono">
                                       Assigning this specimen to Worker Duties will lock its role as a Lab Worker. It will generate a steady stream of Credits each cycle, boosted by Auto-Feeders and owned territory matching its color.
                                     </p>
-                                    <button
+                                    <Button
+                                      label="Assign as Lab Worker"
                                       onClick={() => handleToggleWorkerRole(currentlySelectedSlime.id)}
-                                      className="w-full py-2 text-[10px] font-mono font-bold uppercase tracking-wider rounded bg-cyan-950/20 border border-cyan-800/40 hover:bg-cyan-600 hover:text-white text-cyan-400 transition-all cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.1)]"
-                                    >
-                                      Assign as Lab Worker
-                                    </button>
+                                      variant="neutral"
+                                      className="w-full !border-cyan-800/40 !bg-cyan-950/20 !px-0 !py-2 !text-[10px] !font-mono !font-bold uppercase tracking-wider rounded hover:!bg-cyan-600 hover:!text-white text-cyan-400 transition-all cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.1)]"
+                                    />
                                   </div>
                                 )}
                               </div>

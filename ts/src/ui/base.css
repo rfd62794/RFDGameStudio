@@ -578,7 +578,7 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
 
 /* ── Card / Panel ───────────────────────────────────────── */
 
-.horse-card,
+.card-base,
 .bet-panel {
   background: var(--surface);
   border: 1px solid var(--border);

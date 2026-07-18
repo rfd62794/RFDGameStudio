@@ -4,7 +4,32 @@
 
 ## Current Phase
 
-**ADR-009 Shared Lua Utilities — CERTIFIED**
+**Shared UI, First Real Migration (Slimeworld) — CERTIFIED**
+
+## Shared UI, First Real Migration (Slimeworld) — CERTIFIED
+
+### What changed
+- Extended the shared `Button` with optional `icon`, `title`, and additive `className` support while retaining label-only callers; development builds warn for a button with neither label nor icon.
+- Migrated Slimeworld's rename confirm and cancel controls to icon-only shared `Button` instances.
+- Migrated both state-specific full-width worker-role controls to shared `Button` instances. The narrow `className` escape hatch preserves their existing Slimeworld-specific colors, hover effects, sizing, and glow.
+- Migrated the Slimeworld HP display to `StatBar` with its existing value and a `200` maximum.
+- Investigated `Card`: its shared base styling was generic, but its hardcoded `horse-card` class caused every Card to inherit Horse Racing-specific descendant selectors such as `.horse-card .stat-row`. Renamed the shared base class to `card-base`; Horse Racing retains its explicit `className="horse-card"` behavior.
+- Added Button icon/compatibility/className regression anchors and Slimeworld migration anchors.
+
+### Verification
+
+```text
+python -m pytest -q --tb=no
+→ Pre-flight: 329 passed, 8 warnings
+→ Post-change: 329 passed, 8 warnings
+
+cd ts && npx vitest run
+→ Pre-flight: 84 passed, 0 failed
+→ Focused shared UI anchors: 7 passed
+→ Post-change: 91 passed, 0 failed
+```
+
+This is the first slice of an ongoing UI-sharing effort. Full Slimeworld migration and migrations for other games remain future work; this phase does not imply either is complete.
 
 ## ADR-009 Shared Lua Utilities — CERTIFIED
 

@@ -7,7 +7,7 @@ interface CardProps {
 }
 
 export function Card({ children, className, onClick }: CardProps) {
-  const cls = ['horse-card', className].filter(Boolean).join(' ');
+  const cls = ['card-base', className].filter(Boolean).join(' ');
   return (
     <div className={cls} onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
       {children}
