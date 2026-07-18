@@ -1,1 +1,0 @@
-import{r as l,c as m}from"./index-DKlU2Kpx.js";function f(t){const[c,a]=l.useState(null),e=l.useCallback((s,...o)=>{try{return m(t,s,...o)}catch(r){const u=r instanceof Error?r.message:String(r);return a(u),null}},[t]),n=l.useCallback(()=>a(null),[]);return{call:e,error:c,clearError:n}}export{f as u};
