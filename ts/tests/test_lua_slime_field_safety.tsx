@@ -28,9 +28,8 @@ function makeMinimalState(): LabState {
   };
 }
 
-function luaResult(value: unknown): [Record<string, unknown> | null, string | null] {
-  if (Array.isArray(value)) return [(value[0] ?? null) as Record<string, unknown> | null, (value[1] ?? null) as string | null];
-  return [value as Record<string, unknown> | null, null];
+function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
+  return [(value[0] ?? null) as Record<string, unknown> | null, (value[1] as string | undefined) ?? null];
 }
 
 describe('Lua→TS Field Safety — Alarm System', () => {

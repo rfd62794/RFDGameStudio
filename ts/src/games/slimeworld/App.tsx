@@ -39,9 +39,8 @@ function initialState(session: GameRendererProps['session']): LabState {
   return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [] };
 }
 
-function luaResult(value: unknown): [Record<string, unknown> | null, string | null] {
-  if (Array.isArray(value)) return [(value[0] ?? null) as Record<string, unknown> | null, (value[1] ?? null) as string | null];
-  return [value as Record<string, unknown> | null, null];
+function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
+  return [(value[0] ?? null) as Record<string, unknown> | null, (value[1] as string | undefined) ?? null];
 }
 
 export default function App({ session }: GameRendererProps) {
@@ -96,26 +95,25 @@ export default function App({ session }: GameRendererProps) {
   }, [activeTargetRegent, parentAId, parentBId, session, state]);
 
   const handleRecycleSlime = useCallback((id: string) => {
-    const value = call(session, 'recycle_slime', stateToLua(state), id);
-    const [credits, error] = Array.isArray(value) ? [value[0] as number | null, value[1] as string | null] : [null, 'Recycle failed.'];
+    const [credits, error] = call(session, 'recycle_slime', stateToLua(state), id) as [number | null, string | null];
     if (error || credits === null) { setWarning(error ?? 'Recycle failed.'); return; }
     setState(previous => ({ ...previous, credits: previous.credits + credits, slimes: previous.slimes.filter(slime => slime.id !== id) }));
   }, [session, state]);
 
   const handleBuyUpgrade = useCallback((type: 'capacity' | 'stabilizer' | 'autofeeder') => {
-    const value = call(session, 'buy_upgrade', stateToLua(state), type);
-    if (value !== true) { setWarning('Upgrade could not be purchased.'); return; }
+    const [ok] = call(session, 'buy_upgrade', stateToLua(state), type);
+    if (ok !== true) { setWarning('Upgrade could not be purchased.'); return; }
     const costs = { capacity: 150, stabilizer: 200, autofeeder: 250 };
     setState(previous => ({ ...previous, credits: previous.credits - costs[type], rosterCap: type === 'capacity' ? previous.rosterCap + 5 : previous.rosterCap, breedingSuccessRateModifier: type === 'stabilizer' ? previous.breedingSuccessRateModifier + 0.1 : previous.breedingSuccessRateModifier, hasAutoFeeder: type === 'autofeeder' ? true : previous.hasAutoFeeder }));
   }, [session, state]);
 
   const handleToggleWorkerRole = useCallback((id: string) => {
-    if (call(session, 'toggle_worker_role', stateToLua(state), id) !== true) return;
+    if (call(session, 'toggle_worker_role', stateToLua(state), id)[0] !== true) return;
     setState(previous => ({ ...previous, slimes: previous.slimes.map(slime => slime.id === id ? { ...slime, lockedRole: slime.lockedRole === 'worker' ? null : 'worker' } : slime) }));
   }, [session, state]);
 
   const handleAdvanceCycle = useCallback(() => {
-    const raw = call(session, 'advance_cycle', stateToLua(state));
+    const [raw] = call(session, 'advance_cycle', stateToLua(state));
     if (!raw || typeof raw !== 'object') { setWarning('Cycle advance failed.'); return; }
     const result = raw as Record<string, unknown>;
     const luaLogs = Array.isArray(result['logs']) ? (result['logs'] as Array<Record<string, unknown>>).map(l => ({
@@ -146,8 +144,7 @@ export default function App({ session }: GameRendererProps) {
   const handleBuyColorRegent = useCallback((_color: SlimeColor) => setWarning('Color Regent purchase has no Lua action.'), []);
   const handleBuyTargetRegent = useCallback((_id: string) => setWarning('Target Regent purchase has no Lua action.'), []);
   const handleSellOnMarket = useCallback((slime: Slime, price: number) => {
-    const value = call(session, 'sell_on_market', stateToLua(state), slime.id, price);
-    const [credits, error] = Array.isArray(value) ? [value[0] as number | null, value[1] as string | null] : [null, 'Market sale failed.'];
+    const [credits, error] = call(session, 'sell_on_market', stateToLua(state), slime.id, price) as [number | null, string | null];
     if (error || credits === null) { setWarning(error ?? 'Market sale failed.'); return; }
     setState(previous => ({ ...previous, credits: previous.credits + credits, slimes: previous.slimes.filter(s => s.id !== slime.id), recentMarketSales: [...(previous.recentMarketSales ?? []), { color: slime.color, cycle: previous.cycle }] }));
   }, [session, state]);
@@ -162,22 +159,22 @@ export default function App({ session }: GameRendererProps) {
   }, [session, state]);
 
   const handleDeliverContract = useCallback((contract: CorporateContract, slime: Slime) => {
-    const value = call(session, 'deliver_contract', stateToLua(state), contract.id, slime.id);
-    const [credits, error] = Array.isArray(value) ? [value[0] as number | null, value[1] as string | null] : [null, 'Contract delivery failed.'];
+    const [credits, error] = call(session, 'deliver_contract', stateToLua(state), contract.id, slime.id) as [number | null, string | null];
     if (error || credits === null) { setWarning(error ?? 'Contract delivery failed.'); return; }
     setState(previous => ({ ...previous, credits: previous.credits + credits, contracts: previous.contracts.filter(c => c.id !== contract.id), slimes: previous.slimes.filter(s => s.id !== slime.id) }));
   }, [session, state]);
 
-  const handleLaunchDispatch = useCallback(() => { if (!selectedZoneId) return; const raw = call(session, 'launch_dispatch', stateToLua(state), selectedZoneId, dispatchDraftIds) as Record<string, unknown> | null; if (!raw) return; setState(previous => ({ ...previous, activeDispatch: { id: String(raw['id']), zoneId: String(raw['zone_id']), slimeIds: (raw['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(raw['cycles_remaining']), status: String(raw['status']) as 'active' } })); }, [dispatchDraftIds, selectedZoneId, session, state]);
+  const handleLaunchDispatch = useCallback(() => { if (!selectedZoneId) return; const [raw] = call(session, 'launch_dispatch', stateToLua(state), selectedZoneId, dispatchDraftIds); if (!raw) return; const r = raw as Record<string, unknown>; setState(previous => ({ ...previous, activeDispatch: { id: String(r['id']), zoneId: String(r['zone_id']), slimeIds: (r['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(r['cycles_remaining']), status: String(r['status']) as 'active' } })); }, [dispatchDraftIds, selectedZoneId, session, state]);
   const handleRetrieveCompletedPod = useCallback(() => { const value = call(session, 'retrieve_completed_dispatch', stateToLua(state)); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'No completed dispatch.'); return; } setState(previous => ({ ...previous, activeDispatch: null })); }, [session, state]);
   const handleLaunchMediation = useCallback(() => { if (!selectedMediationNodeId) return; call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds); }, [mediationDraftIds, selectedMediationNodeId, session, state]);
   const handleLaunchExploration = useCallback(() => {
     if (!selectedExplorationNodeId || explorationDraftIds.length === 0) return;
-    const raw = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds) as Record<string, unknown> | null;
+    const [raw] = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds);
     if (!raw) return;
+    const r = raw as Record<string, unknown>;
     setState(previous => ({
       ...previous,
-      activeExploration: { id: String(raw['id']), targetNodeId: String(raw['target_node_id']), slimeIds: (raw['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(raw['cycles_remaining']), status: String(raw['status']) as 'active' },
+      activeExploration: { id: String(r['id']), targetNodeId: String(r['target_node_id']), slimeIds: (r['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(r['cycles_remaining']), status: String(r['status']) as 'active' },
       slimes: previous.slimes.map(s => explorationDraftIds.includes(s.id) ? { ...s, role: 'dispatch' as const } : s),
     }));
     setExplorationDraftIds([]);

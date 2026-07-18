@@ -34,9 +34,8 @@ function makeMinimalState(): LabState {
   };
 }
 
-function luaResult(value: unknown): [Record<string, unknown> | null, string | null] {
-  if (Array.isArray(value)) return [(value[0] ?? null) as Record<string, unknown> | null, (value[1] ?? null) as string | null];
-  return [value as Record<string, unknown> | null, null];
+function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
+  return [(value[0] ?? null) as Record<string, unknown> | null, (value[1] as string | undefined) ?? null];
 }
 
 const SHAPE_ANCHORS: Record<string, { vertex: number; irregularity: number }> = {
@@ -61,7 +60,7 @@ describe('SlimeWorld Petition Wiring', () => {
 
   it('test_handleAdvanceCycle_parses_real_petitions', () => {
     const state = makeMinimalState();
-    const raw = call(session, 'advance_cycle', stateToLua(state));
+    const [raw] = call(session, 'advance_cycle', stateToLua(state));
     expect(raw).toBeTruthy();
     const result = raw as Record<string, unknown>;
     const petitions = result['petitions'];
@@ -78,8 +77,9 @@ describe('SlimeWorld Petition Wiring', () => {
 
   it('test_handleFulfillPetition_real_success', () => {
     const state = makeMinimalState();
-    const advanceResult = call(session, 'advance_cycle', stateToLua(state)) as Record<string, unknown>;
-    const petitions = advanceResult['petitions'] as Array<Record<string, unknown>>;
+    const [advanceResult] = call(session, 'advance_cycle', stateToLua(state));
+    const adv = advanceResult as Record<string, unknown>;
+    const petitions = adv['petitions'] as Array<Record<string, unknown>>;
     expect(petitions.length).toBeGreaterThanOrEqual(1);
 
     const petition = luaPetitionToTs(petitions[0]);
@@ -98,8 +98,8 @@ describe('SlimeWorld Petition Wiring', () => {
 
     const updatedState: LabState = {
       ...state,
-      cycle: Number(advanceResult['cycle'] ?? state.cycle + 1),
-      credits: Number(advanceResult['credits'] ?? state.credits),
+      cycle: Number(adv['cycle'] ?? state.cycle + 1),
+      credits: Number(adv['credits'] ?? state.credits),
       petitions: petitions.map(luaPetitionToTs),
       slimes: [matchingSlime],
     };
@@ -114,20 +114,21 @@ describe('SlimeWorld Petition Wiring', () => {
 
   it('test_handleFulfillPetition_real_failure', () => {
     const state = makeMinimalState();
-    const advanceResult = call(session, 'advance_cycle', stateToLua(state)) as Record<string, unknown>;
-    const petitions = advanceResult['petitions'] as Array<Record<string, unknown>>;
+    const [advanceResult] = call(session, 'advance_cycle', stateToLua(state));
+    const adv = advanceResult as Record<string, unknown>;
+    const petitions = adv['petitions'] as Array<Record<string, unknown>>;
     expect(petitions.length).toBeGreaterThanOrEqual(1);
 
     const updatedState: LabState = {
       ...state,
-      cycle: Number(advanceResult['cycle'] ?? state.cycle + 1),
-      credits: Number(advanceResult['credits'] ?? state.credits),
+      cycle: Number(adv['cycle'] ?? state.cycle + 1),
+      credits: Number(adv['credits'] ?? state.credits),
       petitions: petitions.map(luaPetitionToTs),
     };
 
     const petition = updatedState.petitions![0];
     const fulfillRaw = call(session, 'fulfill_petition', stateToLua(updatedState), petition.id, 'nonexistent_slime');
-    expect(fulfillRaw).toBeNull();
+    expect(fulfillRaw[0]).toBeNull();
   });
 
   it('test_economytab_renders_real_petitions', () => {
