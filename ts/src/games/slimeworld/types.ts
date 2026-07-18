@@ -56,6 +56,16 @@ export interface CombatZone { id: string; name: string; requiredColor: SlimeColo
 export interface Mission { id: string; zoneId?: string; targetNodeId?: string; slimeIds: string[]; cyclesRemaining: number; status: 'active' | 'completed' | 'failed'; }
 export interface MarketSaleRecord { color: SlimeColor; cycle: number; }
 
+export interface Petition {
+  id: string;
+  source: 'wanderer';
+  requestedColor: SlimeColor | null;
+  requestedShape: string | null;
+  payoutMultiplier: number;
+  reward?: number;
+  expiresCycle: number;
+}
+
 export interface LogEntry {
   id: string;
   cycle: number;
@@ -90,6 +100,7 @@ export interface LabState {
   regentInventory?: Partial<Record<SlimePattern, number>>;
   colorRegentInventory?: Partial<Record<SlimeColor, number>>;
   targetRegentInventory?: Record<string, number>;
+  petitions?: Petition[];
 }
 
 type Raw = Record<string, unknown>;
@@ -124,6 +135,17 @@ export function luaSlimeToTs(raw: Raw): Slime {
   };
 }
 
+export function luaPetitionToTs(raw: Raw): Petition {
+  return {
+    id: string(raw, 'id'), source: 'wanderer',
+    requestedColor: (raw['requested_color'] ?? null) as SlimeColor | null,
+    requestedShape: (raw['requested_shape'] ?? null) as string | null,
+    payoutMultiplier: number(raw, 'payout_multiplier'),
+    reward: raw['reward'] !== undefined ? number(raw, 'reward') : undefined,
+    expiresCycle: number(raw, 'expires_cycle'),
+  };
+}
+
 export function luaNodeToTs(raw: Raw): PlanetNode {
   return {
     id: string(raw, 'id'), name: string(raw, 'name'), cellShape: string(raw, 'cell_shape'), labelX: number(raw, 'label_x'), labelY: number(raw, 'label_y'),
@@ -143,5 +165,5 @@ export function nodeToLua(node: PlanetNode): Raw {
 }
 
 export function stateToLua(state: LabState): Raw {
-  return { cycle: state.cycle, credits: state.credits, slimes: state.slimes.map(slimeToLua), contracts: state.contracts.map(contract => ({ id: contract.id, credits_reward: contract.creditsReward, cycles_remaining: contract.cyclesRemaining })), zones: state.zones, roster_cap: state.rosterCap, breeding_success_rate_modifier: state.breedingSuccessRateModifier, recent_market_sales: state.recentMarketSales, planet_region: state.planetRegion ? { nodes: state.planetRegion.nodes.map(nodeToLua), generated_at: state.planetRegion.generatedAt, geometry_version: state.planetRegion.geometryVersion } : null, active_dispatch: state.activeDispatch, active_mediation: state.activeMediation, active_exploration: state.activeExploration, has_auto_feeder: state.hasAutoFeeder, culture_relationships: state.cultureRelationships };
+  return { cycle: state.cycle, credits: state.credits, slimes: state.slimes.map(slimeToLua), contracts: state.contracts.map(contract => ({ id: contract.id, credits_reward: contract.creditsReward, cycles_remaining: contract.cyclesRemaining })), zones: state.zones, roster_cap: state.rosterCap, breeding_success_rate_modifier: state.breedingSuccessRateModifier, recent_market_sales: state.recentMarketSales, planet_region: state.planetRegion ? { nodes: state.planetRegion.nodes.map(nodeToLua), generated_at: state.planetRegion.generatedAt, geometry_version: state.planetRegion.geometryVersion } : null, active_dispatch: state.activeDispatch, active_mediation: state.activeMediation, active_exploration: state.activeExploration, has_auto_feeder: state.hasAutoFeeder, culture_relationships: state.cultureRelationships, petitions: (state.petitions ?? []).map(p => ({ id: p.id, source: p.source, requested_color: p.requestedColor, requested_shape: p.requestedShape, payout_multiplier: p.payoutMultiplier, reward: p.reward, expires_cycle: p.expiresCycle })) };
 }

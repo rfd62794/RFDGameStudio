@@ -872,6 +872,15 @@ function advance_cycle(state)
     if state.petitions[index].expires_cycle < state.cycle then table.remove(state.petitions, index) end
   end
 
+  -- Spawn new wanderer petitions (deterministic, up to WANDERER_REQUEST_MAX)
+  if #(state.petitions or {}) < WANDERER_REQUEST_MAX then
+    local new_petition = create_wanderer_petition(state.cycle, state.petitions or {})
+    if new_petition ~= nil then
+      state.petitions = state.petitions or {}
+      table.insert(state.petitions, new_petition)
+    end
+  end
+
   -- Dual logging: deterministic cycle log + 45% chance flavor log
   if state.logs == nil then state.logs = {} end
   table.insert(state.logs, {

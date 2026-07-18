@@ -5,7 +5,7 @@ import {
   Database, Dna, Info, Edit2, Trash2, Sliders, Beaker, Plus, RotateCcw, ChevronRight, BookOpen,
   FlaskConical, Layers, Sparkles, Briefcase, TrendingUp, AlertTriangle, Ship, Check, ArrowRight, X
 } from 'lucide-react';
-import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract } from '../types';
+import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract, Petition } from '../types';
 import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation } from '../gameLogic';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
@@ -51,6 +51,7 @@ interface EconomyTabProps {
   // From EconomyTab
   handleDeliverContract: (contract: CorporateContract, targetSlime: Slime) => void;
   handleSellOnMarket: (slime: Slime, price: number) => void;
+  handleFulfillPetition?: (petitionId: string, slimeId: string) => void;
 }
 
 export function EconomyTab({
@@ -82,10 +83,10 @@ export function EconomyTab({
   onBuyTargetRegent,
   handleToggleWorkerRole,
   handleDeliverContract,
-  handleSellOnMarket
+  handleSellOnMarket,
+  handleFulfillPetition
 }: LabTabProps) {
-  // Local Economy states (moved from EconomyTab/App state)
-  const [economySubTab, setEconomySubTab] = useState<'contracts' | 'market'>('contracts');
+  const [economySubTab, setEconomySubTab] = useState<'contracts' | 'market' | 'petitions'>('contracts');
   const [confirmDelivery, setConfirmDelivery] = useState<{
     contract: CorporateContract;
     slime: Slime;
@@ -95,6 +96,11 @@ export function EconomyTab({
     slime: Slime;
     price: number;
     recentCount: number;
+  } | null>(null);
+
+  const [confirmPetitionFulfill, setConfirmPetitionFulfill] = useState<{
+    petition: Petition;
+    slime: Slime;
   } | null>(null);
 
   const getRecentSalesCountForColor = (color: SlimeColor): number => {
@@ -191,6 +197,20 @@ export function EconomyTab({
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>Galactic Market</span>
                   <span className="ml-auto text-[8px] px-1 bg-slate-900 text-slate-500 rounded font-normal uppercase font-mono tracking-widest border border-slate-800">STUB</span>
+                </button>
+                <button
+                  onClick={() => setEconomySubTab('petitions')}
+                  className={`flex items-center space-x-2 px-3 py-2.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider text-left transition-all cursor-pointer relative ${
+                    economySubTab === 'petitions'
+                      ? 'bg-slate-800/80 text-white border border-slate-700/40'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Wanderer Petitions</span>
+                  {(state.petitions?.length ?? 0) > 0 && (
+                    <span className="absolute top-2.5 right-2 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                  )}
                 </button>
               </div>
 
@@ -310,6 +330,98 @@ export function EconomyTab({
                           <Briefcase className="w-10 h-10 text-slate-850 animate-pulse" />
                           <h3 className="text-xs font-mono font-bold text-slate-400 mt-2">COMMUNICATIONS TERMINAL STANDBY</h3>
                           <p className="text-[11px] text-slate-500 max-w-xs mt-1">Wait for next lab cycle shift to synchronize corporate directories.</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : economySubTab === 'petitions' ? (
+                  <motion.div
+                    key="sub_petitions"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex-1 flex flex-col"
+                  >
+                    <div className="mb-4">
+                      <h2 className="text-base font-bold font-display text-white">Wanderer Petitions</h2>
+                      <p className="text-xs text-slate-400">Nomadic collectors seek specific specimens. Premium payouts for matching deliveries.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[480px] pr-1">
+                      {(state.petitions ?? []).length > 0 ? (
+                        (state.petitions ?? []).map((petition) => {
+                          const matchingSlimes = state.slimes.filter(s => {
+                            if (s.role !== 'idle') return false;
+                            if (petition.requestedColor && s.color !== petition.requestedColor) return false;
+                            return true;
+                          });
+
+                          return (
+                            <div
+                              key={petition.id}
+                              className="border border-cyan-900/40 bg-slate-900/10 rounded-xl p-4 flex flex-col justify-between space-y-3.5 relative hover:border-cyan-700/60 transition-all duration-200"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-mono text-xs font-bold text-cyan-300 tracking-widest uppercase">WANDERER REQUEST</h3>
+                                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">⌛ EXPIRES IN {Math.max(0, petition.expiresCycle - state.cycle)} CYCLES</p>
+                                </div>
+                                <div className="text-right font-mono text-xs text-cyan-400 font-bold bg-cyan-950/25 border border-cyan-500/20 px-2.5 py-0.5 rounded">
+                                  +{petition.reward ?? Math.floor(100 * petition.payoutMultiplier)} Cr
+                                </div>
+                              </div>
+
+                              <div className="flex justify-between items-center text-[10px] font-mono border-t border-slate-900 pt-2.5">
+                                <span className="text-slate-500 uppercase">REQUESTED SPEC:</span>
+                                <div className="flex items-center space-x-1.5">
+                                  <span className="px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800 font-bold text-slate-300">
+                                    {petition.requestedColor ?? 'Any'}
+                                  </span>
+                                  <span className="text-slate-400 border border-slate-700 bg-slate-800 px-1.5 py-0.5 rounded font-bold">
+                                    {petition.requestedShape ?? 'Any'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="pt-1.5 border-t border-slate-900">
+                                {matchingSlimes.length > 0 ? (
+                                  <div className="space-y-2">
+                                    <span className="text-[9px] text-slate-500 uppercase font-mono tracking-wider block">Matching idle specimens:</span>
+                                    <div className="space-y-1.5 max-h-[90px] overflow-y-auto pr-1">
+                                      {matchingSlimes.map((slime) => (
+                                        <div
+                                          key={slime.id}
+                                          className="flex items-center justify-between p-1.5 rounded bg-cyan-950/10 border border-cyan-900/20 text-[10px] font-mono text-cyan-300"
+                                        >
+                                          <div className="flex items-center space-x-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                            <span className="font-bold text-white">{slime.name}</span>
+                                            <span className="text-[8px] text-slate-500">Lv.{slime.level}</span>
+                                          </div>
+                                          <button
+                                            onClick={() => setConfirmPetitionFulfill({ petition, slime })}
+                                            className="px-2 py-0.5 rounded bg-cyan-900/20 border border-cyan-600/30 hover:bg-cyan-600 hover:text-white transition-all text-cyan-400 font-bold font-mono text-[9px] uppercase cursor-pointer"
+                                          >
+                                            Fulfill
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center space-x-1.5 p-2 bg-slate-950/20 border border-slate-900 rounded text-[9px] font-mono text-slate-500 italic">
+                                    <Info className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                                    <span>No idle specimen matches this petition. Breed a {petition.requestedColor ?? 'matching'} specimen to fulfill.</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="col-span-2 flex flex-col items-center justify-center text-center py-12 border border-slate-850 rounded-xl bg-slate-950/5 min-h-[320px]">
+                          <Sparkles className="w-10 h-10 text-slate-850 animate-pulse" />
+                          <h3 className="text-xs font-mono font-bold text-slate-400 mt-2">NO ACTIVE WANDERER PETITIONS</h3>
+                          <p className="text-[11px] text-slate-500 max-w-xs mt-1">Advance cycles to attract new wanderer requests.</p>
                         </div>
                       )}
                     </div>
@@ -568,6 +680,80 @@ export function EconomyTab({
                       >
                         <Ship className="w-3.5 h-3.5" />
                         <span>Execute Liquidation</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+
+            {/* PETITION FULFILLMENT CONFIRMATION MODAL */}
+            <AnimatePresence>
+              {confirmPetitionFulfill && (
+                <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    className="border border-cyan-500/30 bg-[#0c1220] rounded-xl p-5 max-w-md w-full space-y-4 shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-cyan-500" />
+
+                    <div className="flex items-center space-x-2 pb-2 border-b border-slate-850">
+                      <Sparkles className="w-5 h-5 text-cyan-500" />
+                      <h3 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase">Confirm Wanderer Fulfillment</h3>
+                      <button
+                        onClick={() => setConfirmPetitionFulfill(null)}
+                        className="ml-auto text-slate-500 hover:text-white cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-normal font-mono">
+                      You are delivering a specimen to satisfy a wanderer petition:
+                    </p>
+
+                    <div className="p-3.5 bg-slate-950/60 border border-slate-850 rounded-lg flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <SlimeVisual slime={confirmPetitionFulfill.slime} size="sm" />
+                        <div>
+                          <div className="font-mono text-xs font-bold text-white">{confirmPetitionFulfill.slime.name}</div>
+                          <div className="text-[10px] text-slate-400 font-mono mt-0.5 font-bold">Lv. {confirmPetitionFulfill.slime.level} {confirmPetitionFulfill.slime.color}</div>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-slate-600 animate-pulse" />
+                      <div className="text-right">
+                        <div className="font-mono text-xs font-bold text-cyan-400">WANDERER</div>
+                        <div className="text-[10px] text-emerald-400 font-bold font-mono mt-0.5">+{confirmPetitionFulfill.petition.reward ?? Math.floor(100 * confirmPetitionFulfill.petition.payoutMultiplier)} Cr</div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-red-950/10 border border-red-900/20 rounded-lg flex items-start space-x-2 text-[10px] font-mono text-red-300 leading-normal">
+                      <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold">IRREVERSIBLE:</span> The specimen will be permanently transferred to the wanderer. This action cannot be undone.
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-3 pt-2">
+                      <button
+                        onClick={() => setConfirmPetitionFulfill(null)}
+                        className="flex-1 py-2 rounded bg-slate-900 border border-slate-800 hover:bg-slate-850 text-slate-400 font-mono text-xs uppercase cursor-pointer transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (handleFulfillPetition) {
+                            handleFulfillPetition(confirmPetitionFulfill.petition.id, confirmPetitionFulfill.slime.id);
+                          }
+                          setConfirmPetitionFulfill(null);
+                        }}
+                        className="flex-1 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-bold uppercase tracking-wider cursor-pointer transition-all shadow-[0_0_15px_rgba(6,182,212,0.25)] flex items-center justify-center space-x-1.5"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Confirm Delivery</span>
                       </button>
                     </div>
                   </motion.div>

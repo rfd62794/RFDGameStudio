@@ -9,7 +9,7 @@ import { LabTab } from './components/LabTab';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
-import { luaNodeToTs, luaSlimeToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
+import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
 import { generatePlanetRegion } from './planetRegion';
 
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
@@ -36,7 +36,7 @@ function initialState(session: GameRendererProps['session']): LabState {
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
   const relationships = (lab['culture_relationships'] ?? {}) as Record<SlimeColor, number>;
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {} };
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [] };
 }
 
 function luaResult(value: unknown): [Record<string, unknown> | null, string | null] {
@@ -137,6 +137,7 @@ export default function App({ session }: GameRendererProps) {
       activeExploration: luaActiveExploration ? { id: String(luaActiveExploration['id']), targetNodeId: String(luaActiveExploration['target_node_id']), slimeIds: (luaActiveExploration['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(luaActiveExploration['cycles_remaining']), status: String(luaActiveExploration['status']) as 'active' } : null,
       planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
       slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
+      petitions: Array.isArray(result['petitions']) ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs) : previous.petitions,
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
   }, [session, state]);
@@ -196,12 +197,23 @@ export default function App({ session }: GameRendererProps) {
   const handleBribeClaim = useCallback((nodeId: string, amount: number) => claim('bribe_claim_action', nodeId, [amount]), [claim]);
   const handleConvertClaim = useCallback((nodeId: string, ids: string[]) => claim('convert_claim_action', nodeId, [ids]), [claim]);
 
+  const handleFulfillPetition = useCallback((petitionId: string, slimeId: string) => {
+    const raw = call(session, 'fulfill_petition', stateToLua(state), petitionId, slimeId);
+    const [result, error] = luaResult(raw);
+    if (!result || error) { setWarning(error ?? 'Petition fulfillment failed.'); return; }
+    setState(previous => ({
+      ...previous,
+      credits: previous.credits + Number(result['payout'] ?? 0),
+      petitions: previous.petitions?.filter(p => p.id !== petitionId) ?? [],
+    }));
+  }, [session, state]);
+
   const primaryContent = primaryTab === 'roster' ? (
     <RosterTab {...({ state, session, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole, lastConsumedSlimeId } as any)} />
   ) : primaryTab === 'missions' ? (
     <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim } as any)} />
   ) : primaryTab === 'economy' ? (
-    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole } as any)} />
+    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition } as any)} />
   ) : (
     <LabTab {...({ state, handleBuyUpgrade, handlePurchaseSeedSlime, activeSubTab: 'upgrades', setActiveSubTab: () => {}, selectedSlimeId: null, setSelectedSlimeId: () => {}, setRenameSlimeId: () => {}, setNewNameInput: () => {}, handleRecycleSlime: () => {}, parentAId: null, parentBId: null, setParentAId: () => {}, setParentBId: () => {}, isBreedingHatching: false, handleInitiateBreeding: () => {}, activeRegentPattern: null, setActiveRegentPattern: () => {}, onBuyRegent: () => {}, activeRegentColor: null, setActiveRegentColor: () => {}, onBuyColorRegent: () => {}, activeTargetRegent: null, setActiveTargetRegent: () => {}, onBuyTargetRegent: () => {}, handleToggleWorkerRole, handleDeliverContract: () => {}, handleSellOnMarket: () => {} } as any)} />
   );
