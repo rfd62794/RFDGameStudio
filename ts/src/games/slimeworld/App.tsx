@@ -56,6 +56,10 @@ export default function App({ session }: GameRendererProps) {
   const [activeMediationReport, setActiveMediationReport] = useState<{ logs: string[]; success: boolean; stabilityChange: number } | null>(null);
   const [activeExplorationReport, setActiveExplorationReport] = useState<{ logs: string[]; success: boolean } | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
+  const [terminalVisible, setTerminalVisible] = useState(false);
+  const [logFilter, setLogFilter] = useState<'all' | 'system' | 'breeding' | 'combat' | 'melancholy'>('all');
+  const [realtimeRemainingMs, setRealtimeRemainingMs] = useState(0);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
   useEffect(() => { if (!selectedSlimeId && state.slimes[0]) setSelectedSlimeId(state.slimes[0].id); }, [selectedSlimeId, state.slimes]);
 
@@ -94,15 +98,21 @@ export default function App({ session }: GameRendererProps) {
     const raw = call(session, 'advance_cycle', stateToLua(state));
     if (!raw || typeof raw !== 'object') { setWarning('Cycle advance failed.'); return; }
     const result = raw as Record<string, unknown>;
+    const luaLogs = Array.isArray(result['logs']) ? (result['logs'] as Array<Record<string, unknown>>).map(l => ({
+      id: String(l['id'] ?? ''), cycle: Number(l['cycle'] ?? 0), timestamp: String(l['timestamp'] ?? ''),
+      text: String(l['text'] ?? ''), type: (l['type'] ?? 'system') as LogEntry['type'],
+    })) : [];
     setState(previous => ({
       ...previous,
       cycle: Number(result['cycle'] ?? previous.cycle + 1),
       credits: Number(result['credits'] ?? previous.credits),
+      wildsUnlocked: Boolean(result['wilds_unlocked'] ?? previous.wildsUnlocked ?? false),
       contracts: Array.isArray(result['contracts']) ? (result['contracts'] as Array<Record<string, unknown>>).map(c => ({
         id: String(c['id'] ?? ''), title: String(c['title'] ?? 'CONTRACT'), requiredColor: String(c['required_color'] ?? 'Red') as SlimeColor,
         requiredPattern: String(c['required_pattern'] ?? 'Solid') as SlimePattern, creditsReward: Number(c['credits_reward'] ?? 0),
         cyclesRemaining: Number(c['cycles_remaining'] ?? 0), totalCycles: Number(c['total_cycles'] ?? 0), flavorText: String(c['flavor_text'] ?? ''),
       })) : previous.contracts,
+      logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
   }, [session, state]);
   const handlePurchaseSeedSlime = useCallback((_color: SlimeColor) => setWarning('Seed purchase is visible but unavailable: no Lua function exists.'), []);
@@ -150,12 +160,7 @@ export default function App({ session }: GameRendererProps) {
   const handleBribeClaim = useCallback((nodeId: string, amount: number) => claim('bribe_claim_action', nodeId, [amount]), [claim]);
   const handleConvertClaim = useCallback((nodeId: string, ids: string[]) => claim('convert_claim_action', nodeId, [ids]), [claim]);
 
-  const ui = session.files.ui as Record<string, unknown>;
-  const layout = ui['layout'] as Record<string, unknown>;
-  const tabs = (layout['tabs'] ?? []) as Array<Record<string, unknown>>;
-  const bounds = buildBoundsMap(resolveViewport(ui['layout_tree'] as LayoutNode, window.innerWidth, window.innerHeight));
-  const rendered = interpretLayout(bounds, ui['regions'] as RegionsMap, state, { activeTab, tabs: tabs.map(tab => ({ id: String(tab['id']), label: String(tab['label']) })), onSelectTab: setActiveTab });
-  const content = rendered.slots['content'];
+  // Layout system removed — rendering full custom UI directly
   const activeContent = activeTab === 'lab' ? <LabTab state={state} handleBuyUpgrade={handleBuyUpgrade} handlePurchaseSeedSlime={handlePurchaseSeedSlime} selectedSlimeId={selectedSlimeId} setSelectedSlimeId={setSelectedSlimeId} setRenameSlimeId={setRenameSlimeId} setNewNameInput={setNewNameInput} handleRecycleSlime={handleRecycleSlime} parentAId={parentAId} parentBId={parentBId} setParentAId={setParentAId} setParentBId={setParentBId} isBreedingHatching={isBreedingHatching} handleInitiateBreeding={handleInitiateBreeding} activeRegentPattern={activeRegentPattern} setActiveRegentPattern={setActiveRegentPattern} onBuyRegent={handleBuyRegent} activeRegentColor={activeRegentColor} setActiveRegentColor={setActiveRegentColor} onBuyColorRegent={handleBuyColorRegent} activeTargetRegent={activeTargetRegent} setActiveTargetRegent={setActiveTargetRegent} onBuyTargetRegent={handleBuyTargetRegent} handleToggleWorkerRole={handleToggleWorkerRole} activeSubTab={labSubTab} setActiveSubTab={setLabSubTab} handleDeliverContract={handleDeliverContract} handleSellOnMarket={handleSellOnMarket} handleRenameSlime={handleRenameSlime} renameSlimeId={renameSlimeId} newNameInput={newNameInput} /> : <PlanetTab state={state} handleLaunchMediation={handleLaunchMediation} mediationDraftIds={mediationDraftIds} setMediationDraftIds={setMediationDraftIds} selectedMediationNodeId={selectedMediationNodeId} setSelectedMediationNodeId={setSelectedMediationNodeId} activeMediationReport={activeMediationReport} setActiveMediationReport={setActiveMediationReport} handleLaunchExploration={handleLaunchExploration} explorationDraftIds={explorationDraftIds} setExplorationDraftIds={setExplorationDraftIds} selectedExplorationNodeId={selectedExplorationNodeId} setSelectedExplorationNodeId={setSelectedExplorationNodeId} activeExplorationReport={activeExplorationReport} setActiveExplorationReport={setActiveExplorationReport} handleAdvanceCycle={handleAdvanceCycle} activeSubTab={planetSubTab} setActiveSubTab={setPlanetSubTab} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} setSelectedZoneId={setSelectedZoneId} setActiveTab={setActiveTab} selectedZoneId={selectedZoneId} dispatchDraftIds={dispatchDraftIds} setDispatchDraftIds={setDispatchDraftIds} realtimeRemainingMs={0} activeDispatchReport={activeDispatchReport} setActiveDispatchReport={setActiveDispatchReport} handleLaunchDispatch={handleLaunchDispatch} handleRetrieveCompletedPod={handleRetrieveCompletedPod} handleAssignGarrison={handleAssignGarrison} handleRecallGarrison={handleRecallGarrison} handleForceClaim={handleForceClaim} handleBribeClaim={handleBribeClaim} handleConvertClaim={handleConvertClaim} />;
 
   return <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<div className="header-bank"><Coins size={14} /> {state.credits} Biomass</div>}><div style={{ position: 'relative', width: '100%', height: '100%' }}>{rendered.elements}{warning && <div role="alert">{warning}</div>}<TabBar tabs={tabs.map(tab => ({ id: String(tab['id']), label: String(tab['label']) }))} active={activeTab} onSelect={id => setActiveTab(id as 'lab' | 'planet')} variant="default" />{content && <div style={{ position: 'absolute', left: content.bounds.x, top: content.bounds.y, width: content.bounds.w, height: content.bounds.h }}>{activeContent}</div>}</div></GameShell>;
