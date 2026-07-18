@@ -4,7 +4,24 @@
 
 ## Current Phase
 
-**Tier Economics + Richer Wanderer Petitions — CERTIFIED**
+**Worker Income + Garden Refugee Default — CERTIFIED**
+
+## Worker Income + Garden Refugee Default — CERTIFIED
+
+### What changed
+- Confirmed `advance_cycle` invokes the existing `calculate_worker_income` for each worker-role slime using the real `has_auto_feeder` upgrade flag and matching-culture planet nodes. Added regression anchors for base income, non-worker exclusion, and both multipliers.
+- Changed territory-flip refugees to enter the Garden as workers rather than dispatch/combat assets. The generated stray log now reports the same Worker assignment, preserving tonight's Garden-as-hostel GDD decision.
+
+### Verification
+
+```text
+.venv\Scripts\python.exe -m pytest -q --tb=no
+→ Pre-flight: 407 passed, 8 warnings
+→ Focused anchors: 5 passed
+→ Post-change: 412 passed, 8 warnings
+```
+
+Per-role roster caps, Legacy Slimes, squad-swap cooldowns, and the permanent-ownership/contestable-upgrade question remain deferred.
 
 ## Tier Economics + Richer Wanderer Petitions — CERTIFIED
 

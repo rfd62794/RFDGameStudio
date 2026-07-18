@@ -40,7 +40,7 @@ def test_advance_cycle_applies_auto_feeder_and_culture_bonus():
     state = _state(
         has_auto_feeder=True,
         slimes=[_slime("worker", "worker", "Red")],
-        planet_region={"nodes": [{"owner_color": "Red"}]},
+        planet_region={"nodes": [{"id": "red-capitol", "owner_color": "Red", "is_capitol": True, "strength": 1, "pressure": {}, "neighbors": []}]},
     )
     result = _load().executor.call("advance_cycle", state)
     assert result["credits"] == 120
