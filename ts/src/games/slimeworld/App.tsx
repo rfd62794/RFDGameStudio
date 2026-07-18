@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import './styles.css';
-import {
-  Coins, Clock, Database, Dna, Target, Beaker, Terminal, RefreshCw, Moon,
-  Swords, Compass, Sliders, Briefcase, AlertTriangle, X
-} from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
@@ -58,10 +54,6 @@ export default function App({ session }: GameRendererProps) {
   const [activeMediationReport, setActiveMediationReport] = useState<{ logs: string[]; success: boolean; stabilityChange: number } | null>(null);
   const [activeExplorationReport, setActiveExplorationReport] = useState<{ logs: string[]; success: boolean } | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
-  const [terminalVisible, setTerminalVisible] = useState(false);
-  const [logFilter, setLogFilter] = useState<'all' | 'system' | 'breeding' | 'combat' | 'melancholy'>('all');
-  const [realtimeRemainingMs, setRealtimeRemainingMs] = useState(0);
-  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
   useEffect(() => { if (!selectedSlimeId && state.slimes[0]) setSelectedSlimeId(state.slimes[0].id); }, [selectedSlimeId, state.slimes]);
 
