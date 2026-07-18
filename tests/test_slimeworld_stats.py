@@ -3,8 +3,9 @@
 Tests get_interpolated_specs, get_shape_stat_modifiers, calculate_stats,
 and their wiring into create_seed_slime and initiate_breeding.
 
-Values ported exactly from intake/slimegarden/extracted/src/gameLogic.ts
-COLOR_SPECS, getInterpolatedSpecs, getShapeStatModifiers, calculateStats.
+Color stat data is built from the real single source: cultures +
+neutral_traits.gray in data.yaml, passed as an explicit parameter
+matching the color_targets/shape_targets pattern.
 """
 
 from studio.runtime import load_game
@@ -12,6 +13,24 @@ from studio.runtime import load_game
 
 def _load():
     return load_game("slimeworld", seed=42)
+
+
+def _color_specs():
+    """Build color_specs from the real single source: cultures + neutral_traits.gray."""
+    session = _load()
+    data = session.files.data
+    specs = {}
+    for key, culture in data["cultures"].items():
+        specs[culture["color"]] = {
+            "base_stats": culture["base_stats"],
+            "growth": culture["growth"],
+        }
+    gray = data["neutral_traits"]["gray"]
+    specs["Gray"] = {
+        "base_stats": gray["base_stats"],
+        "growth": gray["growth"],
+    }
+    return specs
 
 
 def _slime(slime_id, color, hue, saturation, vertex_count=4, irregularity=10):
@@ -32,7 +51,8 @@ def _state(slimes, roster_cap=10):
 def test_get_interpolated_specs_pure_color_matches_color_specs():
     """hue=0 (pure Red), saturation=100 -> matches Red's real base_stats exactly."""
     session = _load()
-    spec = session.executor.call("get_interpolated_specs", 0, 100)
+    cs = _color_specs()
+    spec = session.executor.call("get_interpolated_specs", 0, 100, cs)
     bs = spec["base_stats"]
     assert bs["hp"] == 120
     assert bs["atk"] == 18
@@ -45,7 +65,8 @@ def test_get_interpolated_specs_pure_color_matches_color_specs():
 def test_get_interpolated_specs_midpoint_blend():
     """hue=30 (halfway Red/Orange) -> real midpoint of both colors' stats."""
     session = _load()
-    spec = session.executor.call("get_interpolated_specs", 30, 100)
+    cs = _color_specs()
+    spec = session.executor.call("get_interpolated_specs", 30, 100, cs)
     # Red hp=120, Orange hp=110, midpoint=115
     assert spec["base_stats"]["hp"] == 115
     # Red atk=18, Orange atk=22, midpoint=20
@@ -55,7 +76,8 @@ def test_get_interpolated_specs_midpoint_blend():
 def test_get_interpolated_specs_zero_saturation_is_gray():
     """saturation=0, any hue -> matches Gray's real base_stats regardless of hue."""
     session = _load()
-    spec = session.executor.call("get_interpolated_specs", 42, 0)
+    cs = _color_specs()
+    spec = session.executor.call("get_interpolated_specs", 42, 0, cs)
     bs = spec["base_stats"]
     assert bs["hp"] == 110
     assert bs["atk"] == 14
@@ -97,8 +119,9 @@ def test_get_shape_stat_modifiers_jagged_boosts_atk_agi():
 def test_calculate_stats_level_scaling():
     """Same color/shape, level 1 vs level 5 -> real growth-rate-driven difference."""
     session = _load()
-    stats1 = session.executor.call("calculate_stats", "Red", 1, 0, 100, 3, 10)
-    stats5 = session.executor.call("calculate_stats", "Red", 5, 0, 100, 3, 10)
+    cs = _color_specs()
+    stats1 = session.executor.call("calculate_stats", "Red", 1, 0, 100, 3, 10, cs)
+    stats5 = session.executor.call("calculate_stats", "Red", 5, 0, 100, 3, 10, cs)
     # Level 1: base_stats only (l=0). Level 5: base + growth*4
     # Red base hp=120, growth hp=15 -> level 5 hp = floor(120 + 15*4) = 180
     # But shape modifier applies: simple_stable_weight = 1 * 25/35, hp_bonus = ~0.0714
@@ -111,11 +134,12 @@ def test_calculate_stats_level_scaling():
 
 # --- create_seed_slime integration ---
 
-def test_create_seed_slime_stats_vary_by_color():
+def test_create_seed_slime_still_produces_real_varying_stats():
     """Two different-color seed slimes -> real, different stats (regression check)."""
     session = _load()
-    red = session.executor.call("create_seed_slime", "Red", "Solid")
-    blue = session.executor.call("create_seed_slime", "Blue", "Solid")
+    cs = _color_specs()
+    red = session.executor.call("create_seed_slime", "Red", "Solid", cs)
+    blue = session.executor.call("create_seed_slime", "Blue", "Solid", cs)
     assert red["stats"]["hp"] != blue["stats"]["hp"]
     # Red base hp=120, Blue base hp=90 — both at level 1 with different shape defaults
     assert red["stats"]["hp"] > blue["stats"]["hp"]
@@ -123,11 +147,12 @@ def test_create_seed_slime_stats_vary_by_color():
 
 # --- initiate_breeding integration ---
 
-def test_breed_slimes_produces_real_stats_field():
-    """A real breed call — child has a genuine, non-empty stats field for the first time."""
+def test_initiate_breeding_still_produces_real_stats_field():
+    """A real breed call — child has a genuine, non-empty stats field."""
     session = _load()
+    cs = _color_specs()
     state = _state([_slime("a", "Red", 0, 100), _slime("b", "Blue", 300, 100)])
-    child, error = session.executor.call("initiate_breeding", state, "a", "b", 0, [], None, [], None)
+    child, error = session.executor.call("initiate_breeding", state, "a", "b", 0, [], None, [], None, cs)
     assert error is None
     assert child is not None
     assert "stats" in child
@@ -136,15 +161,16 @@ def test_breed_slimes_produces_real_stats_field():
     assert child["stats"]["atk"] > 0
 
 
-def test_shape_genetics_actually_affects_bred_stats():
+def test_shape_genetics_still_affects_bred_stats():
     """Two breeds producing different real shape genetics -> measurably different final stats."""
     session = _load()
+    cs = _color_specs()
     # Breed 1: both parents have low vertex_count (3), low irregularity (10) -> simple/stable
     state1 = _state([
         _slime("a1", "Red", 0, 100, vertex_count=3, irregularity=10),
         _slime("b1", "Red", 10, 100, vertex_count=3, irregularity=10),
     ])
-    child1, error1 = session.executor.call("initiate_breeding", state1, "a1", "b1", 0, [], None, [], None)
+    child1, error1 = session.executor.call("initiate_breeding", state1, "a1", "b1", 0, [], None, [], None, cs)
     assert error1 is None
 
     # Breed 2: both parents have high vertex_count (12), high irregularity (50) -> jagged
@@ -152,7 +178,7 @@ def test_shape_genetics_actually_affects_bred_stats():
         _slime("a2", "Red", 0, 100, vertex_count=12, irregularity=50),
         _slime("b2", "Red", 10, 100, vertex_count=12, irregularity=50),
     ])
-    child2, error2 = session.executor.call("initiate_breeding", state2, "a2", "b2", 0, [], None, [], None)
+    child2, error2 = session.executor.call("initiate_breeding", state2, "a2", "b2", 0, [], None, [], None, cs)
     assert error2 is None
 
     # Both children should be Red (same hue), but different shape genetics
@@ -172,11 +198,45 @@ def test_pattern_switch_not_ported():
     from pathlib import Path
     logic_path = Path(__file__).parent.parent / "games" / "slimeworld" / "logic.lua"
     source = logic_path.read_text()
-    # Check that the retired pattern names are not referenced in any stat-bonus context
-    # (they may appear in pattern-related breed functions, but not in calculate_stats)
-    # Find the calculate_stats function body
     match = re.search(r'function calculate_stats\(.*?\nend', source, re.DOTALL)
     assert match is not None, "calculate_stats function not found"
     calc_body = match.group(0)
     for pattern_name in ["Stripe", "Polka", "Glow", "Crown", "Ringed", "Nebula", "Obsidian"]:
         assert pattern_name not in calc_body, f"Pattern '{pattern_name}' found in calculate_stats — should not be ported"
+
+
+# --- Data deduplication verification ---
+
+def test_color_specs_removed_from_data_yaml():
+    """Real, direct confirmation the dead color_specs key is gone from data.yaml."""
+    from pathlib import Path
+    import yaml
+    data_path = Path(__file__).parent.parent / "games" / "slimeworld" / "data.yaml"
+    data = yaml.safe_load(data_path.read_text())
+    assert "color_specs" not in data, "color_specs key should be removed from data.yaml — cultures/neutral_traits is the single source"
+
+
+def test_no_hardcoded_color_stat_specs_in_lua():
+    """Real grep proof — COLOR_STAT_SPECS no longer exists as a hardcoded table in logic.lua."""
+    from pathlib import Path
+    logic_path = Path(__file__).parent.parent / "games" / "slimeworld" / "logic.lua"
+    source = logic_path.read_text()
+    assert "COLOR_STAT_SPECS" not in source, "COLOR_STAT_SPECS hardcoded table should be removed from logic.lua"
+
+
+def test_get_interpolated_specs_with_real_cultures_data():
+    """Real cultures/neutral_traits-derived color_specs produces same values as the removed hardcoded version."""
+    session = _load()
+    cs = _color_specs()
+    # Verify all 7 colors are present
+    assert set(cs.keys()) == {"Red", "Orange", "Yellow", "Green", "Purple", "Blue", "Gray"}
+    # Verify Red's base_stats match the real source exactly
+    assert cs["Red"]["base_stats"]["hp"] == 120
+    assert cs["Red"]["base_stats"]["atk"] == 18
+    # Verify Gray's base_stats match the real source exactly
+    assert cs["Gray"]["base_stats"]["hp"] == 110
+    assert cs["Gray"]["base_stats"]["int"] == 14
+    # Verify interpolation produces the same result as before the refactor
+    spec = session.executor.call("get_interpolated_specs", 0, 100, cs)
+    assert spec["base_stats"]["hp"] == 120
+    assert spec["base_stats"]["atk"] == 18

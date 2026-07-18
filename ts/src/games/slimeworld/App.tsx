@@ -15,6 +15,24 @@ import { generatePlanetRegion } from './planetRegion';
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
 const HUES: Record<SlimeColor, number> = { Red: 0, Orange: 60, Yellow: 120, Green: 180, Purple: 240, Blue: 300, Gray: 0 };
 
+function buildColorSpecs(data: Record<string, unknown>): Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> {
+  const specs: Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> = {};
+  const cultures = data['cultures'] as Record<string, Record<string, unknown>>;
+  if (cultures) {
+    for (const key of Object.keys(cultures)) {
+      const c = cultures[key];
+      const color = c['color'] as string;
+      specs[color] = { base_stats: c['base_stats'] as Record<string, number>, growth: c['growth'] as Record<string, number> };
+    }
+  }
+  const neutralTraits = data['neutral_traits'] as Record<string, Record<string, unknown>>;
+  if (neutralTraits) {
+    const gray = neutralTraits['gray'];
+    if (gray) specs['Gray'] = { base_stats: gray['base_stats'] as Record<string, number>, growth: gray['growth'] as Record<string, number> };
+  }
+  return specs;
+}
+
 function seedSlime(name: string, color: SlimeColor, index: number): Slime {
   return { id: `starter_${index}`, name, color, pattern: 'Solid', level: 1, xp: 0, stats: { hp: 100, atk: 10, def: 10, agi: 10, int: 10, chm: 10 }, role: 'idle', generation: 0, colorSaturation: color === 'Gray' ? 0 : 100, hue: HUES[color], saturation: color === 'Gray' ? 0 : 100, diffusionRatio: 20, amplitude: 40, accentHue: HUES[color], vertexCount: 4, irregularity: 10, createdAt: Date.now(), lockedRole: null, garrisonedAt: null, stage: 'Hatchling' };
 }
@@ -73,7 +91,8 @@ export default function App({ session }: GameRendererProps) {
     if (!parentAId || !parentBId) return;
     setIsBreedingHatching(true);
     const data = session.files.data as Record<string, unknown>;
-    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null);
+    const colorSpecs = buildColorSpecs(data);
+    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs);
     const [raw, error] = luaResult(value);
     if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
@@ -113,7 +132,9 @@ export default function App({ session }: GameRendererProps) {
   }, [session, state]);
 
   const handleAdvanceCycle = useCallback(() => {
-    const [raw] = call(session, 'advance_cycle', stateToLua(state));
+    const data = session.files.data as Record<string, unknown>;
+    const colorSpecs = buildColorSpecs(data);
+    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs);
     if (!raw || typeof raw !== 'object') { setWarning('Cycle advance failed.'); return; }
     const result = raw as Record<string, unknown>;
     const luaLogs = Array.isArray(result['logs']) ? (result['logs'] as Array<Record<string, unknown>>).map(l => ({
