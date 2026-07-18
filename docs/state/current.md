@@ -4,7 +4,35 @@
 
 ## Current Phase
 
-**External Game Entries (VoidDrift) — CERTIFIED**
+**ADR-009 Shared Lua Utilities — CERTIFIED**
+
+## ADR-009 Shared Lua Utilities — CERTIFIED
+
+### What changed
+- Added ADR-009, explicitly superseding ADR-005 only for generic, non-game-specific Lua utilities.
+- `collect` is supplied by `engine/primitives/action.lua`; horse racing uses the preloaded engine global.
+- Slime Coin uses the existing engine `copy_entity` shallow-copy primitive and has no local `copy_table`.
+- `atan2` is supplied by `engine/primitives/movement.lua`; Slither Rogue uses the preloaded engine global.
+- Added Python regression anchors for utility equivalence, removal of the former locals, deterministic race creation, and the Slime Coin flow.
+
+### Loading finding
+
+No Lua `require()`, `loadfile()`, or `package.path` precedent exists in the repository. The established runtime bridge is `studio.loader.load_engine_source()`, which concatenates all primitives in deterministic order before game Lua is executed. This ADR uses that existing loading mechanism; it does not introduce module-path loading.
+
+### Verification
+
+```text
+python -m pytest -q --tb=no
+→ Pre-flight: 321 passed, 8 warnings
+→ Post-change: 329 passed, 8 warnings
+
+cd ts && npx vitest run
+→ Pre-flight: 41 passed, 8 failed (49 total)
+→ Post-change: 82 passed, 2 failed (84 total)
+→ Failures are existing `tests/test_arcade_routing.ts` registry-order assertions: rendered first card is `shoal` while the test expects the first `GAME_REGISTRY` entry to be `horse_racing`. No TypeScript files were changed for ADR-009.
+```
+
+Further shared-logic consolidation beyond `collect`, `copy_table`→`copy_entity`, and `atan2` is a future decision; ADR-009 does not imply permission to share game-specific logic.
 
 ## External Game Entries (VoidDrift) — CERTIFIED
 
