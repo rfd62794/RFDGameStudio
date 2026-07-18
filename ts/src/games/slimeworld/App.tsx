@@ -7,6 +7,9 @@ import type { GameRendererProps } from '../../engine/types';
 import { TabBar } from '../../ui/components/TabBar';
 import { LabTab } from './components/LabTab';
 import { PlanetTab } from './components/PlanetTab';
+import { RosterTab } from './components/RosterTab';
+import { MissionsTab } from './components/MissionsTab';
+import { EconomyTab } from './components/EconomyTab';
 import { luaNodeToTs, luaSlimeToTs, stateToLua, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
 
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
@@ -32,6 +35,7 @@ function luaResult(value: unknown): [Record<string, unknown> | null, string | nu
 export default function App({ session }: GameRendererProps) {
   const [state, setState] = useState<LabState>(() => initialState(session));
   const [activeTab, setActiveTab] = useState<'lab' | 'planet'>('lab');
+  const [primaryTab, setPrimaryTab] = useState<'roster' | 'missions' | 'economy' | 'lab'>('roster');
   const [labSubTab, setLabSubTab] = useState<'collection' | 'breeding' | 'slimedex' | 'upgrades' | 'requisitions'>('collection');
   const [planetSubTab, setPlanetSubTab] = useState<'regions' | 'mediation' | 'exploration' | 'active' | 'zones'>('regions');
   const [selectedSlimeId, setSelectedSlimeId] = useState<string | null>(null);
@@ -154,6 +158,16 @@ export default function App({ session }: GameRendererProps) {
   const handleBribeClaim = useCallback((nodeId: string, amount: number) => claim('bribe_claim_action', nodeId, [amount]), [claim]);
   const handleConvertClaim = useCallback((nodeId: string, ids: string[]) => claim('convert_claim_action', nodeId, [ids]), [claim]);
 
+  const primaryContent = primaryTab === 'roster' ? (
+    <RosterTab {...({ state, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole } as any)} />
+  ) : primaryTab === 'missions' ? (
+    <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod } as any)} />
+  ) : primaryTab === 'economy' ? (
+    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole } as any)} />
+  ) : (
+    <LabTab {...({ state, handleBuyUpgrade, handlePurchaseSeedSlime, activeSubTab: 'upgrades', setActiveSubTab: () => {}, selectedSlimeId: null, setSelectedSlimeId: () => {}, setRenameSlimeId: () => {}, setNewNameInput: () => {}, handleRecycleSlime: () => {}, parentAId: null, parentBId: null, setParentAId: () => {}, setParentBId: () => {}, isBreedingHatching: false, handleInitiateBreeding: () => {}, activeRegentPattern: null, setActiveRegentPattern: () => {}, onBuyRegent: () => {}, activeRegentColor: null, setActiveRegentColor: () => {}, onBuyColorRegent: () => {}, activeTargetRegent: null, setActiveTargetRegent: () => {}, onBuyTargetRegent: () => {}, handleToggleWorkerRole, handleDeliverContract: () => {}, handleSellOnMarket: () => {} } as any)} />
+  );
+
   // Layout system removed — rendering full custom UI directly
   const activeContent = activeTab === 'lab' ? <LabTab state={state} handleBuyUpgrade={handleBuyUpgrade} handlePurchaseSeedSlime={handlePurchaseSeedSlime} selectedSlimeId={selectedSlimeId} setSelectedSlimeId={setSelectedSlimeId} setRenameSlimeId={setRenameSlimeId} setNewNameInput={setNewNameInput} handleRecycleSlime={handleRecycleSlime} parentAId={parentAId} parentBId={parentBId} setParentAId={setParentAId} setParentBId={setParentBId} isBreedingHatching={isBreedingHatching} handleInitiateBreeding={handleInitiateBreeding} activeRegentPattern={activeRegentPattern} setActiveRegentPattern={setActiveRegentPattern} onBuyRegent={handleBuyRegent} activeRegentColor={activeRegentColor} setActiveRegentColor={setActiveRegentColor} onBuyColorRegent={handleBuyColorRegent} activeTargetRegent={activeTargetRegent} setActiveTargetRegent={setActiveTargetRegent} onBuyTargetRegent={handleBuyTargetRegent} handleToggleWorkerRole={handleToggleWorkerRole} activeSubTab={labSubTab} setActiveSubTab={setLabSubTab} handleDeliverContract={handleDeliverContract} handleSellOnMarket={handleSellOnMarket} handleRenameSlime={handleRenameSlime} renameSlimeId={renameSlimeId} newNameInput={newNameInput} /> : <PlanetTab state={state} handleLaunchMediation={handleLaunchMediation} mediationDraftIds={mediationDraftIds} setMediationDraftIds={setMediationDraftIds} selectedMediationNodeId={selectedMediationNodeId} setSelectedMediationNodeId={setSelectedMediationNodeId} activeMediationReport={activeMediationReport} setActiveMediationReport={setActiveMediationReport} handleLaunchExploration={handleLaunchExploration} explorationDraftIds={explorationDraftIds} setExplorationDraftIds={setExplorationDraftIds} selectedExplorationNodeId={selectedExplorationNodeId} setSelectedExplorationNodeId={setSelectedExplorationNodeId} activeExplorationReport={activeExplorationReport} setActiveExplorationReport={setActiveExplorationReport} handleAdvanceCycle={handleAdvanceCycle} activeSubTab={planetSubTab} setActiveSubTab={setPlanetSubTab} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} setSelectedZoneId={setSelectedZoneId} setActiveTab={setActiveTab} selectedZoneId={selectedZoneId} dispatchDraftIds={dispatchDraftIds} setDispatchDraftIds={setDispatchDraftIds} realtimeRemainingMs={0} activeDispatchReport={activeDispatchReport} setActiveDispatchReport={setActiveDispatchReport} handleLaunchDispatch={handleLaunchDispatch} handleRetrieveCompletedPod={handleRetrieveCompletedPod} handleAssignGarrison={handleAssignGarrison} handleRecallGarrison={handleRecallGarrison} handleForceClaim={handleForceClaim} handleBribeClaim={handleBribeClaim} handleConvertClaim={handleConvertClaim} />;
 
@@ -162,12 +176,12 @@ export default function App({ session }: GameRendererProps) {
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         {warning && <div role="alert">{warning}</div>}
         <TabBar
-          tabs={[{ id: 'lab', label: 'LAB' }, { id: 'planet', label: 'PLANET' }]}
-          active={activeTab}
-          onSelect={id => setActiveTab(id as 'lab' | 'planet')}
+          tabs={[{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]}
+          active={primaryTab}
+          onSelect={id => setPrimaryTab(id as 'roster' | 'missions' | 'economy' | 'lab')}
           variant="default"
         />
-        {activeContent}
+        {primaryContent}
       </div>
     </GameShell>
   );
