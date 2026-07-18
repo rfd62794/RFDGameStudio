@@ -1,0 +1,21 @@
+slime:
+  fields:
+    id: string
+    name: string
+    color: [Red, Blue, Yellow, Purple, Orange, Green, Gray]
+    pattern: [Solid, Stripe, Polka, Glow, Crown, Ringed, Nebula, Obsidian]
+    level: integer
+    xp: integer
+    stats:
+      hp: number
+      atk: number
+      def: number
+      agi: number
+      int: number
+      chm: number
+    role: [idle, dispatch, corporate]
+    generation: integer
+    parent_a: {type: string, optional: true}
+    parent_b: {type: string, optional: true}
+    created_at: timestamp
+    stage: {values: [Hatchling, Juvenile, Young, Prime, Veteran, Elder], optional: true}
