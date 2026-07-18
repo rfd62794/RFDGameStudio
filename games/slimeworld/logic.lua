@@ -89,6 +89,20 @@ function find_color_target(color_targets, target_id)
   return nil
 end
 
+function match_color_target(hue, saturation, color_targets)
+  if color_targets == nil then return nil end
+  for _, target in ipairs(color_targets) do
+    if saturation >= target.saturation_min and saturation < target.saturation_max then
+      for _, center in ipairs(target.center_hues) do
+        if circular_distance(hue, center) <= target.tolerance then
+          return target.id
+        end
+      end
+    end
+  end
+  return nil
+end
+
 function find_shape_target(shape_targets, target_id)
   if shape_targets == nil or target_id == nil then return nil end
   for _, target in ipairs(shape_targets) do
@@ -330,6 +344,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.diffusion_ratio = accent.diffusion_ratio
   child.amplitude = accent.amplitude
   child.accent_hue = accent.accent_hue
+  child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
   table.insert(state.slimes, child)
   for index, slime in ipairs(state.slimes) do
     if slime.id == parent_b_id then
