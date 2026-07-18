@@ -4,7 +4,31 @@
 
 ## Current Phase
 
-**Shape Naming, Breeding Cost, Wanderer Petitions — CERTIFIED**
+**Tier Economics + Richer Wanderer Petitions — CERTIFIED**
+
+## Tier Economics + Richer Wanderer Petitions — CERTIFIED
+
+### What changed
+- Added SlimeWorld color/shape tier lookup and `calculate_tier_value(color, shape, variance)`. The existing manual `sell_on_market(state, slime_id, price)` signature remains unchanged.
+- Wanderer Petitions now independently roll color and shape requirements at the source's 70% rate, guarantee at least one request, use the real `1.5` default tier for a missing requirement, and persist the tier-scaled reward.
+- Petition fulfillment already guarded optional requirements with nil checks; it now pays the stored tier-scaled reward.
+
+### Economics notes
+
+- Hand-verified `calculate_tier_value`: Red/Triangle = 10, Orange/Star = 44, Purple/Crown = 322; Orange/Crown with 25% variance = 403.
+- SlimeWorld's current colors can reach tiers 1–2 only. Tier 3–4 color names remain deferred, so the asymmetry with the shape tier range (1–4) is expected, not a bug.
+- Gray is assigned Tier 1 as a SlimeWorld-specific low-saturation assumption; it is not confirmed by SlimeBreeder source.
+
+### Verification
+
+```text
+.venv\Scripts\python.exe -m pytest -q --tb=no
+→ Pre-flight: 380 passed, 8 warnings
+→ Focused anchors: 31 passed
+→ Post-change: 407 passed, 8 warnings
+```
+
+The Regent-system question and the full Culture-sourced Requisitions/Petitions board remain open and are not implied resolved here.
 
 ## Shape Naming, Breeding Cost, Wanderer Petitions — CERTIFIED
 

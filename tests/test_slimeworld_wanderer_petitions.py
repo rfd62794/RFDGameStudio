@@ -21,8 +21,10 @@ def test_create_wanderer_petition_real_values():
     assert petition["source"] == "wanderer"
     assert petition["payout_multiplier"] == 3.0
     assert 15 <= petition["expires_cycle"] <= 18
-    assert petition["requested_color"] in ["Red", "Blue", "Yellow", "Purple", "Orange", "Green", "Gray"]
-    assert petition["requested_shape"] in ["Triangle", "Square", "Circle", "Star", "Diamond", "Teardrop", "Pentagon", "Crescent", "Hexa", "Crown"]
+    assert petition.get("requested_color") is not None or petition.get("requested_shape") is not None
+    color_tier = session.executor.call("get_color_tier", petition["requested_color"]) if petition.get("requested_color") else 1.5
+    shape_tier = session.executor.call("get_shape_tier", petition["requested_shape"]) if petition.get("requested_shape") else 1.5
+    assert petition["reward"] == int(color_tier * shape_tier * 30)
 
     petition, error = session.executor.call("create_wanderer_petition", 10, [{}, {}, {}])
     assert petition is None
@@ -37,10 +39,10 @@ def _fulfill_with_lua_state(state):
 
 
 def test_fulfill_petition_matches_and_pays_out():
-    result, error, state = _fulfill_with_lua_state(_state(petitions=[{"id": "petition-1", "requested_color": "Red", "requested_shape": "Triangle", "payout_multiplier": 3.0, "expires_cycle": 12}], slimes=[_matching_slime()]))
+    result, error, state = _fulfill_with_lua_state(_state(petitions=[{"id": "petition-1", "requested_color": "Red", "requested_shape": "Triangle", "payout_multiplier": 3.0, "reward": 30, "expires_cycle": 12}], slimes=[_matching_slime()]))
     assert error is None
-    assert result == {"payout": 300, "fulfilled_slime_id": "slime-1"}
-    assert state["credits"] == 400
+    assert result == {"payout": 30, "fulfilled_slime_id": "slime-1"}
+    assert state["credits"] == 130
     assert state["petitions"] in ([], {})
 
 
@@ -58,3 +60,51 @@ def test_petition_expires_after_cycle_limit():
     result, error = _load().executor.call("fulfill_petition", state, "petition-1", "slime-1")
     assert result is None
     assert error == "Petition expired"
+
+
+def test_wanderer_petition_can_require_color_only():
+    session = _load()
+    petitions = [session.executor.call("create_wanderer_petition", 10, [])[0] for _ in range(200)]
+    assert any(petition.get("requested_color") is not None and petition.get("requested_shape") is None for petition in petitions)
+
+
+def test_wanderer_petition_can_require_shape_only():
+    session = _load()
+    petitions = [session.executor.call("create_wanderer_petition", 10, [])[0] for _ in range(200)]
+    assert any(petition.get("requested_color") is None and petition.get("requested_shape") is not None for petition in petitions)
+
+
+def test_wanderer_petition_never_requires_neither():
+    session = _load()
+    petitions = [session.executor.call("create_wanderer_petition", 10, [])[0] for _ in range(200)]
+    assert all(petition.get("requested_color") is not None or petition.get("requested_shape") is not None for petition in petitions)
+
+
+def test_wanderer_petition_reward_is_tier_scaled():
+    session = _load()
+    petitions = [session.executor.call("create_wanderer_petition", 10, [])[0] for _ in range(200)]
+    rewards = {petition["reward"] for petition in petitions}
+    assert len(rewards) > 1
+    for petition in petitions:
+        color_tier = session.executor.call("get_color_tier", petition["requested_color"]) if petition.get("requested_color") else 1.5
+        shape_tier = session.executor.call("get_shape_tier", petition["requested_shape"]) if petition.get("requested_shape") else 1.5
+        assert petition["reward"] == int(color_tier * shape_tier * 30)
+
+
+def test_fulfill_petition_matches_partial_requirement():
+    color_only = _state(petitions=[{"id": "petition-1", "requested_color": "Red", "requested_shape": None, "reward": 30, "expires_cycle": 12}], slimes=[_matching_slime()])
+    result, error = _load().executor.call("fulfill_petition", color_only, "petition-1", "slime-1")
+    assert error is None
+    assert result["payout"] == 30
+
+    shape_only = _state(petitions=[{"id": "petition-1", "requested_color": None, "requested_shape": "Triangle", "reward": 30, "expires_cycle": 12}], slimes=[_matching_slime()])
+    result, error = _load().executor.call("fulfill_petition", shape_only, "petition-1", "slime-1")
+    assert error is None
+    assert result["payout"] == 30
+
+
+def test_fulfill_petition_rejects_wrong_partial_match():
+    state = _state(petitions=[{"id": "petition-1", "requested_color": "Blue", "requested_shape": None, "reward": 30, "expires_cycle": 12}], slimes=[_matching_slime()])
+    result, error = _load().executor.call("fulfill_petition", state, "petition-1", "slime-1")
+    assert result is None
+    assert error == "Slime does not match petition color"

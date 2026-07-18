@@ -62,6 +62,25 @@ function snap_to_shape_name(vertex_count, irregularity)
   return closest
 end
 
+local COLOR_TIERS = { Red = 1, Yellow = 1, Blue = 1, Orange = 2, Green = 2, Purple = 2, Gray = 1 }
+local SHAPE_TIERS = { Triangle = 1, Square = 1, Circle = 1, Star = 2, Diamond = 2, Teardrop = 2, Pentagon = 3, Crescent = 3, Hexa = 3, Crown = 4 }
+local TIER_VALUE = { [1] = 5, [2] = 22, [3] = 95, [4] = 300 }
+
+function get_color_tier(color_name)
+  return COLOR_TIERS[color_name] or 1
+end
+
+function get_shape_tier(shape_name)
+  return SHAPE_TIERS[shape_name] or 1
+end
+
+function calculate_tier_value(color_name, shape_name, variance)
+  variance = variance or 0
+  local color_value = TIER_VALUE[get_color_tier(color_name)] or 5
+  local shape_value = TIER_VALUE[get_shape_tier(shape_name)] or 5
+  return math.max(1, math.floor((color_value + shape_value) * (1 + variance) + 0.5))
+end
+
 function find_color_target(color_targets, target_id)
   if color_targets == nil or target_id == nil then return nil end
   for _, target in ipairs(color_targets) do
@@ -571,13 +590,23 @@ function create_wanderer_petition(cycle, active_petitions)
   if #(active_petitions or {}) >= WANDERER_REQUEST_MAX then return nil, "Wanderer petition capacity reached" end
   local colors = { "Red", "Blue", "Yellow", "Purple", "Orange", "Green", "Gray" }
   local shapes = { "Triangle", "Square", "Circle", "Star", "Diamond", "Teardrop", "Pentagon", "Crescent", "Hexa", "Crown" }
+  local require_color = math.random() > 0.3
+  local require_shape = math.random() > 0.3
+  local has_color = require_color or not require_shape
+  local has_shape = require_shape or not require_color
+  local target_color = has_color and colors[math.random(#colors)] or nil
+  local target_shape = has_shape and shapes[math.random(#shapes)] or nil
+  local color_tier = target_color and get_color_tier(target_color) or 1.5
+  local shape_tier = target_shape and get_shape_tier(target_shape) or 1.5
+  local reward = math.floor(color_tier * shape_tier * 10 * WANDERER_PREMIUM_MULTI)
   local total_cycles = math.random(5, 8)
   return {
     id = "petition_wanderer_" .. os.time() .. "_" .. math.random(1000),
     source = "wanderer",
-    requested_color = colors[math.random(#colors)],
-    requested_shape = shapes[math.random(#shapes)],
+    requested_color = target_color,
+    requested_shape = target_shape,
     payout_multiplier = WANDERER_PREMIUM_MULTI,
+    reward = reward,
     expires_cycle = cycle + total_cycles,
   }, nil
 end
@@ -589,7 +618,7 @@ function fulfill_petition(state, petition_id, slime_id)
   if (state.cycle or 0) > petition.expires_cycle then return nil, "Petition expired" end
   if petition.requested_color ~= nil and slime.color ~= petition.requested_color then return nil, "Slime does not match petition color" end
   if petition.requested_shape ~= nil and snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10) ~= petition.requested_shape then return nil, "Slime does not match petition shape" end
-  local payout = math.floor(100 * petition.payout_multiplier)
+  local payout = petition.reward or math.floor(100 * petition.payout_multiplier)
   state.credits = (state.credits or 0) + payout
   for index, current in ipairs(state.petitions) do
     if current.id == petition_id then
