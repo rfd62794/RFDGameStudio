@@ -1,6 +1,96 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 18 2026 (evening)*
+*Last updated: July 18 2026 (late evening)*
+
+## Real Color + Shape Stat Computation — COMPLETED
+
+### Motivation — Stats Were Flat or Absent
+
+`stats` existed in exactly one place in `logic.lua` — `create_seed_slime`,
+as a flat, identical baseline (`hp=100, atk=10, def=10, agi=10, int=10,
+chm=10`) for every color. `breed_slimes`'s returned child had **no
+`stats` field at all**. No genetics-based stat variation existed anywhere.
+
+### What Was Built
+
+Ported exactly from the real source
+(`intake/slimegarden/extracted/src/gameLogic.ts`):
+
+- **`color_specs`** added to `data.yaml` — 7 color entries (Red, Orange,
+  Yellow, Green, Purple, Blue, Gray), each with `base_stats` and `growth`
+  (6 stats per entry), matching `COLOR_SPECS` exactly.
+- **`COLOR_STAT_SPECS`** + **`SEED_SHAPE_DEFAULTS`** lookup tables in
+  `logic.lua` (self-contained, no caller signature changes needed).
+- **`get_interpolated_specs(hue, saturation)`** — finds the two adjacent
+  color anchors the hue falls between, linearly interpolates `base_stats`
+  and `growth` by sector position, then blends toward Gray by
+  `saturation/100`. Mirrors Color's existing hue/saturation breeding math.
+- **`get_shape_stat_modifiers(vertex_count, irregularity)`** — weighted
+  linear ramps (not step functions), each capped at 10% multiplicative
+  bonus. Simple/stable shapes → +HP/+DEF, clean/complex → +INT/+CHM,
+  jagged → +ATK/+AGI.
+- **`calculate_stats(color, level, hue, saturation, vertex_count,
+  irregularity)`** — combines interpolated color specs + level growth +
+  shape modifiers. Pattern switch deliberately NOT ported (retired
+  discrete Pattern system; SlimeWorld uses Accent now).
+
+### Critical Sequencing Finding
+
+`calculate_stats` is called in **`initiate_breeding`**, not
+`breed_slimes`. The real pipeline order is:
+
+1. `breed_slimes` → returns child with hue/saturation/color but **no
+   vertex_count/irregularity**
+2. `breed_shape` → returns shape, then `child.vertex_count`/
+   `child.irregularity` are set
+3. `breed_accent` → uses child's shape genetics
+4. **`calculate_stats`** → called after all breed steps, using child's
+   final hue/saturation/vertex_count/irregularity
+
+If `calculate_stats` had been placed in `breed_slimes`, shape genetics
+would silently never affect stats — the code would look correct, color
+tests would pass, but shape would be invisible. Verified against the real
+call order at `logic.lua:495-522`.
+
+### Wiring
+
+- **`create_seed_slime`** — replaced flat baseline with
+  `calculate_stats(color, 1, hue, saturation, seed_shape.vertex_count,
+  seed_shape.irregularity)` using `SEED_SHAPE_DEFAULTS[color]`.
+- **`initiate_breeding`** — added `child.stats = calculate_stats(...)`
+  after `breed_shape` sets `child.vertex_count`/`child.irregularity` and
+  before `table.insert`.
+
+### Test Anchors (10 new, all passing)
+
+| Test | Target |
+|---|---|
+| `test_get_interpolated_specs_pure_color_matches_color_specs` | hue=0, sat=100 → Red's exact base_stats |
+| `test_get_interpolated_specs_midpoint_blend` | hue=30 → midpoint of Red/Orange |
+| `test_get_interpolated_specs_zero_saturation_is_gray` | sat=0 → Gray's base_stats |
+| `test_get_shape_stat_modifiers_simple_stable_boosts_hp_def` | Low vertex/irr → +HP/+DEF |
+| `test_get_shape_stat_modifiers_jagged_boosts_atk_agi` | High irr → +ATK/+AGI |
+| `test_calculate_stats_level_scaling` | Level 1 vs 5 → growth-driven difference |
+| `test_create_seed_slime_stats_vary_by_color` | Red vs Blue seed → different stats |
+| `test_breed_slimes_produces_real_stats_field` | Bred child has non-empty stats |
+| `test_shape_genetics_actually_affects_bred_stats` | Different shapes → different stats |
+| `test_pattern_switch_not_ported` | No Pattern names in calculate_stats |
+
+### Final Floor
+
+- **Python: 419 passed** (was 409, +10 new tests)
+- **TypeScript: 146 passed / 21 files** (unchanged — Lua/data-layer only)
+
+### Deliberately Deferred
+
+- **Accent-based stat contribution** — real, separate, undecided future
+  design work. Whether Accent (`diffusion_ratio`/`amplitude`) should get
+  its own stat contribution is not decided here.
+- **Stat tuning** — ported exact values; playtesting may warrant
+  rebalancing base_stats, growth rates, or the 10% shape-bonus cap.
+- **UI display of stat breakdown** — Lua/data-layer only; no UI changes.
+
+---
 
 ## Multi-Return Truncation Fix — Phase 1 COMPLETED
 

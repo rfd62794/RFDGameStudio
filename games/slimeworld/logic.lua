@@ -188,6 +188,154 @@ function breed_accent(parent_a, parent_b, offspring_vertex_count, offspring_irre
   return { diffusion_ratio = offspring_diffusion, amplitude = offspring_amplitude, accent_hue = accent_hue }
 end
 
+-- Color stat specs lookup (ported exactly from COLOR_SPECS in gameLogic.ts)
+-- Keyed by color name, each entry has base_stats and growth (6 stats each).
+local COLOR_STAT_SPECS = {
+  Red    = { base_stats = { hp = 120, atk = 18, def = 8,  agi = 6,  int = 5,  chm = 6  }, growth = { hp = 15, atk = 3,   def = 1,   agi = 0.8, int = 0.5, chm = 0.6 }, hue = 0   },
+  Orange = { base_stats = { hp = 110, atk = 22, def = 5,  agi = 14, int = 6,  chm = 8  }, growth = { hp = 12, atk = 3.5, def = 0.5, agi = 1.8, int = 0.6, chm = 0.8 }, hue = 60  },
+  Yellow = { base_stats = { hp = 80,  atk = 15, def = 6,  agi = 18, int = 8,  chm = 10 }, growth = { hp = 9,  atk = 2.2, def = 0.8, agi = 2.4, int = 1,   chm = 1   }, hue = 120 },
+  Green  = { base_stats = { hp = 160, atk = 8,  def = 16, agi = 4,  int = 7,  chm = 14 }, growth = { hp = 22, atk = 1,   def = 2.5, agi = 0.5, int = 0.8, chm = 1.6 }, hue = 180 },
+  Purple = { base_stats = { hp = 100, atk = 12, def = 10, agi = 10, int = 20, chm = 15 }, growth = { hp = 11, atk = 1.5, def = 1.2, agi = 1.2, int = 3,   chm = 2   }, hue = 240 },
+  Blue   = { base_stats = { hp = 90,  atk = 10, def = 14, agi = 5,  int = 15, chm = 12 }, growth = { hp = 10, atk = 1.2, def = 2,   agi = 0.6, int = 2.5, chm = 1.5 }, hue = 300 },
+  Gray   = { base_stats = { hp = 110, atk = 14, def = 11, agi = 11, int = 14, chm = 11 }, growth = { hp = 13, atk = 2,   def = 1.5, agi = 1.5, int = 2,   chm = 1.2 }, hue = 0   },
+}
+
+-- Seed shape defaults (ported from SEED_SHAPE_DEFAULTS in gameLogic.ts)
+local SEED_SHAPE_DEFAULTS = {
+  Red    = { vertex_count = 3, irregularity = 10 },
+  Orange = { vertex_count = 3, irregularity = 15 },
+  Yellow = { vertex_count = 6, irregularity = 10 },
+  Green  = { vertex_count = 6, irregularity = 15 },
+  Purple = { vertex_count = 4, irregularity = 15 },
+  Blue   = { vertex_count = 4, irregularity = 10 },
+  Gray   = { vertex_count = 4, irregularity = 20 },
+}
+
+-- Ported exactly from getInterpolatedSpecs in gameLogic.ts.
+-- Finds the two adjacent color anchors the hue falls between, linearly
+-- interpolates base_stats and growth by sector position, then blends
+-- toward Gray by saturation/100.
+function get_interpolated_specs(hue, saturation)
+  local norm_hue = ((hue % 360) + 360) % 360
+
+  local anchors = {
+    { color = "Red",    hue = 0   },
+    { color = "Orange", hue = 60  },
+    { color = "Yellow", hue = 120 },
+    { color = "Green",  hue = 180 },
+    { color = "Purple", hue = 240 },
+    { color = "Blue",   hue = 300 },
+    { color = "Red",    hue = 360 },
+  }
+
+  local i = 0
+  for j = 1, #anchors - 1 do
+    if norm_hue >= anchors[j].hue and norm_hue <= anchors[j + 1].hue then
+      i = j
+      break
+    end
+  end
+
+  local a1 = anchors[i]
+  local a2 = anchors[i + 1]
+  local sector_range = a2.hue - a1.hue
+  local t = 0
+  if sector_range ~= 0 then t = (norm_hue - a1.hue) / sector_range end
+
+  local spec1 = COLOR_STAT_SPECS[a1.color]
+  local spec2 = COLOR_STAT_SPECS[a2.color]
+
+  local function lerp(v1, v2, f) return v1 * (1 - f) + v2 * f end
+
+  local base_hp  = lerp(spec1.base_stats.hp,  spec2.base_stats.hp,  t)
+  local base_atk = lerp(spec1.base_stats.atk, spec2.base_stats.atk, t)
+  local base_def = lerp(spec1.base_stats.def, spec2.base_stats.def, t)
+  local base_agi = lerp(spec1.base_stats.agi, spec2.base_stats.agi, t)
+  local base_int = lerp(spec1.base_stats.int, spec2.base_stats.int, t)
+  local base_chm = lerp(spec1.base_stats.chm, spec2.base_stats.chm, t)
+
+  local grow_hp  = lerp(spec1.growth.hp,  spec2.growth.hp,  t)
+  local grow_atk = lerp(spec1.growth.atk, spec2.growth.atk, t)
+  local grow_def = lerp(spec1.growth.def, spec2.growth.def, t)
+  local grow_agi = lerp(spec1.growth.agi, spec2.growth.agi, t)
+  local grow_int = lerp(spec1.growth.int, spec2.growth.int, t)
+  local grow_chm = lerp(spec1.growth.chm, spec2.growth.chm, t)
+
+  local sat_factor = saturation / 100
+  local gray = COLOR_STAT_SPECS.Gray
+
+  local final_base = {
+    hp  = gray.base_stats.hp  * (1 - sat_factor) + base_hp  * sat_factor,
+    atk = gray.base_stats.atk * (1 - sat_factor) + base_atk * sat_factor,
+    def = gray.base_stats.def * (1 - sat_factor) + base_def * sat_factor,
+    agi = gray.base_stats.agi * (1 - sat_factor) + base_agi * sat_factor,
+    int = gray.base_stats.int * (1 - sat_factor) + base_int * sat_factor,
+    chm = gray.base_stats.chm * (1 - sat_factor) + base_chm * sat_factor,
+  }
+
+  local final_growth = {
+    hp  = gray.growth.hp  * (1 - sat_factor) + grow_hp  * sat_factor,
+    atk = gray.growth.atk * (1 - sat_factor) + grow_atk * sat_factor,
+    def = gray.growth.def * (1 - sat_factor) + grow_def * sat_factor,
+    agi = gray.growth.agi * (1 - sat_factor) + grow_agi * sat_factor,
+    int = gray.growth.int * (1 - sat_factor) + grow_int * sat_factor,
+    chm = gray.growth.chm * (1 - sat_factor) + grow_chm * sat_factor,
+  }
+
+  return { base_stats = final_base, growth = final_growth }
+end
+
+-- Ported exactly from getShapeStatModifiers in gameLogic.ts.
+-- Weighted linear ramps (not step functions), each capped at 10% bonus.
+function get_shape_stat_modifiers(vertex_count, irregularity)
+  local low_vertex_weight = math.max(0, math.min(1, (6 - vertex_count) / 3))
+  local low_irr_weight = math.max(0, math.min(1, (35 - irregularity) / 35))
+  local simple_stable_weight = low_vertex_weight * low_irr_weight
+
+  local high_vertex_weight = math.max(0, math.min(1, (vertex_count - 6) / 8))
+  local clean_complex_weight = high_vertex_weight * low_irr_weight
+
+  local jagged_weight = math.max(0, math.min(1, (irregularity - 15) / 35))
+
+  return {
+    hp_bonus  = simple_stable_weight * 0.10,
+    def_bonus = simple_stable_weight * 0.10,
+    int_bonus = clean_complex_weight * 0.10,
+    chm_bonus = clean_complex_weight * 0.10,
+    atk_bonus = jagged_weight * 0.10,
+    agi_bonus = jagged_weight * 0.10,
+  }
+end
+
+-- Ported from calculateStats in gameLogic.ts, minus the retired Pattern switch.
+-- Computes base stats from interpolated color specs + level growth, then
+-- applies shape modifiers as multiplicative bonuses.
+-- NOTE: 'int' is used as a table key matching the existing convention in
+-- create_seed_slime's stats table. It is a valid Lua identifier.
+function calculate_stats(color, level, hue, saturation, vertex_count, irregularity)
+  local spec = get_interpolated_specs(hue, saturation)
+  local l = level - 1
+
+  local stats = {
+    hp  = math.floor(spec.base_stats.hp  + spec.growth.hp  * l),
+    atk = math.floor(spec.base_stats.atk + spec.growth.atk * l),
+    def = math.floor(spec.base_stats.def + spec.growth.def * l),
+    agi = math.floor(spec.base_stats.agi + spec.growth.agi * l),
+    int = math.floor(spec.base_stats.int + spec.growth.int * l),
+    chm = math.floor(spec.base_stats.chm + spec.growth.chm * l),
+  }
+
+  local mod = get_shape_stat_modifiers(vertex_count, irregularity)
+  stats.hp  = math.floor(stats.hp  * (1 + mod.hp_bonus))
+  stats.atk = math.floor(stats.atk * (1 + mod.atk_bonus))
+  stats.def = math.floor(stats.def * (1 + mod.def_bonus))
+  stats.agi = math.floor(stats.agi * (1 + mod.agi_bonus))
+  stats.int = math.floor(stats.int * (1 + mod.int_bonus))
+  stats.chm = math.floor(stats.chm * (1 + mod.chm_bonus))
+
+  return stats
+end
+
 function breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
   local hue_a = parent_a.hue or 0
   local hue_b = parent_b.hue or 0
@@ -361,6 +509,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.accent_hue = accent.accent_hue
   child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
   child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
+  child.stats = calculate_stats(child.color, child.level or 1, child.hue, child.saturation, child.vertex_count, child.irregularity)
   table.insert(state.slimes, child)
   for index, slime in ipairs(state.slimes) do
     if slime.id == parent_b_id then
@@ -692,6 +841,8 @@ function create_seed_slime(color, pattern)
   pattern = pattern or "Solid"
   local hue = HUE_MAP[color] or 0
   local saturation = color == "Gray" and 0 or 100
+  local seed_shape = SEED_SHAPE_DEFAULTS[color] or { vertex_count = 4, irregularity = 10 }
+  local stats = calculate_stats(color, 1, hue, saturation, seed_shape.vertex_count, seed_shape.irregularity)
   return {
     id = "slime_" .. os.time() .. "_" .. math.random(1000),
     name = generate_slime_name(),
@@ -699,7 +850,7 @@ function create_seed_slime(color, pattern)
     pattern = pattern,
     level = 1,
     xp = 0,
-    stats = { hp = 100, atk = 10, def = 10, agi = 10, int = 10, chm = 10 },
+    stats = stats,
     role = "idle",
     generation = 0,
     hue = hue,

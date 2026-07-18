@@ -184,6 +184,18 @@ neutral_traits:
     base_stats: {hp: 110, atk: 14, def: 11, agi: 11, int: 14, chm: 11}
     growth: {hp: 13, atk: 2, def: 1.5, agi: 1.5, int: 2, chm: 1.2}
 
+# --- COLOR STAT SPECS ---
+# Used by get_interpolated_specs and calculate_stats for genetics-based stat computation.
+# Values ported exactly from intake/slimegarden/extracted/src/gameLogic.ts COLOR_SPECS.
+color_specs:
+  Red: {base_stats: {hp: 120, atk: 18, def: 8, agi: 6, int: 5, chm: 6}, growth: {hp: 15, atk: 3, def: 1, agi: 0.8, int: 0.5, chm: 0.6}, hue: 0}
+  Orange: {base_stats: {hp: 110, atk: 22, def: 5, agi: 14, int: 6, chm: 8}, growth: {hp: 12, atk: 3.5, def: 0.5, agi: 1.8, int: 0.6, chm: 0.8}, hue: 60}
+  Yellow: {base_stats: {hp: 80, atk: 15, def: 6, agi: 18, int: 8, chm: 10}, growth: {hp: 9, atk: 2.2, def: 0.8, agi: 2.4, int: 1, chm: 1}, hue: 120}
+  Green: {base_stats: {hp: 160, atk: 8, def: 16, agi: 4, int: 7, chm: 14}, growth: {hp: 22, atk: 1, def: 2.5, agi: 0.5, int: 0.8, chm: 1.6}, hue: 180}
+  Purple: {base_stats: {hp: 100, atk: 12, def: 10, agi: 10, int: 20, chm: 15}, growth: {hp: 11, atk: 1.5, def: 1.2, agi: 1.2, int: 3, chm: 2}, hue: 240}
+  Blue: {base_stats: {hp: 90, atk: 10, def: 14, agi: 5, int: 15, chm: 12}, growth: {hp: 10, atk: 1.2, def: 2, agi: 0.6, int: 2.5, chm: 1.5}, hue: 300}
+  Gray: {base_stats: {hp: 110, atk: 14, def: 11, agi: 11, int: 14, chm: 11}, growth: {hp: 13, atk: 2, def: 1.5, agi: 1.5, int: 2, chm: 1.2}, hue: 0}
+
 # --- SEED SHAPE DEFAULTS ---
 seed_shape_defaults:
   Red: {vertex_count: 3, irregularity: 10}
