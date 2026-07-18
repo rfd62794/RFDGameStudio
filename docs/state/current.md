@@ -2,6 +2,46 @@
 
 *Last updated: July 2026*
 
+## SlimeWorld World Map Fix (planetRegion Never Generated) — COMPLETED
+
+### Root cause
+`App.tsx` initialized `planetRegion: null` in `createInitialState`. Every other reference across the component tree only read or conditionally updated it (guarded on it already being non-null). Nothing ever transitioned it from `null` to a real value. This was a pre-existing bug from the original SlimeGarden port — confirmed NOT a regression from the tab extraction work (the `.bak/PlanetTab.tsx` backup has the identical gap). The World Map in the Missions tab was permanently stuck on "UNEXPLORED REGION — Establishing communications satellite uplink with the Heartlands" with no way to resolve past it.
+
+### Fix
+Ported `generatePlanetRegion()` from the real SlimeGarden source (`intake/slimegarden/extracted/src/gameLogic.ts`, ~line 1040) into a new TypeScript-only file `ts/src/games/slimeworld/planetRegion.ts`. This function generates 8 territory nodes (5 named capitols with fixed starting owners, 3 neutral frontier nodes with predetermined starting pressure) at fixed positions, computes their Voronoi-cell polygon shapes via half-plane clipping, and returns a complete `PlanetRegion`. Called once at initial state creation in `App.tsx` — not on every render or in a `useEffect`.
+
+### Node definitions (ported exactly from source)
+- **node_solitude** — Solitude Ridge, Red capitol, Ring 1 (r=90), discovered
+- **node_abyss** — Abyssal Chasm, Blue capitol, Ring 1 (r=90), discovered
+- **node_twilight** — Twilight Grove, Purple capitol, Ring 2 (r=225), discovered
+- **node_rust** — Rust Crater, Orange capitol, Ring 2 (r=225), discovered
+- **node_feral** — Feral Canopy, Green capitol, Ring 2 (r=225), discovered
+- **node_sulphur** — Sulphur Gateway, neutral, Ring 1 (r=90), fogged, pressure: {Red: 15, Blue: 25}
+- **node_jungle** — Jungle Outpost, neutral, Ring 1 (r=90), fogged, pressure: {Red: 35, Blue: 10}
+- **node_wetlands** — Silt Wetlands, neutral, Ring 2 (r=225), fogged, pressure: {Purple: 20, Orange: 15, Green: 10}
+
+### Field compatibility
+Confirmed the returned `PlanetNode` shape matches exactly what `luaNodeToTs`/`nodeToLua` and the SVG rendering in `MissionsTab.tsx` expect: `id`, `name`, `cellShape` (SVG path), `labelX`, `labelY`, `neighbors`, `ownerColor`, `pressure`, `strength`, `isCapitol`, `isSupplied`, `distanceFromCenter`, `discovered`. The Slimeworld `PlanetNode` type has one optional extra field (`garrisonSlimeId`) not set by the generator — this is fine, it's optional and defaults to undefined.
+
+### Files touched
+- `ts/src/games/slimeworld/planetRegion.ts` (new — 180 lines)
+- `ts/src/games/slimeworld/App.tsx` (2 lines: import + `planetRegion: generatePlanetRegion()`)
+- `ts/tests/test_slimeworld_planet_region.tsx` (new — 7 test anchors)
+
+### Verification
+```text
+npx vitest run --config vite.config.ts
+-> 14 test files passed, 105 tests passed (was 13/98, +1 file +7 tests)
+
+.venv\Scripts\python.exe -m pytest -q --tb=no
+-> 412 passed, 8 warnings (unchanged)
+
+npx vite build
+-> ✓ built in 4.32s, 2137 modules transformed
+```
+
+Live browser check: pending user confirmation.
+
 ## SlimeWorld UI Real Tab Extraction — COMPLETED
 
 ### What changed
