@@ -31,6 +31,37 @@ npx vitest run
 ```
 The single Python failure is `tests/test_verify.py::test_verify_arcade_deploy_runs_tier1_and_tier2`; it is outside the Slimeworld UI scope changed here.
 
+## Tier Economics + Richer Wanderer Petitions — CERTIFIED
+
+### What changed
+- Added `get_color_tier`, `get_shape_tier`, and `calculate_tier_value` to `games/slimeworld/logic.lua`. The tier-value curve `TIER_VALUE = {1:5, 2:22, 3:95, 4:300}` is now available for callers while `sell_on_market`'s signature remains unchanged.
+- `create_wanderer_petition` now rolls color and shape requirements independently (~70% each) and guarantees at least one is set, allowing color-only, shape-only, and mixed petitions.
+- Petition rewards are computed as `color_tier × shape_tier × 10 × WANDERER_PREMIUM_MULTI` (default 1.5 for a missing requirement).
+- `fulfill_petition` checks `nil` requirements correctly: a color-only petition accepts any matching color, a shape-only petition accepts any matching shape, and mixed petitions require both.
+
+### Flagged assumptions
+- `Gray` is assigned Tier 1; this is a SlimeWorld-specific low-saturation default, not derived from SlimeBreeder source.
+- SlimeWorld's current color set reaches only Tiers 1–2, so the Tier 3–4 color values (95/300) are not reachable until Tier 3–4 color names are added in the separate deferred directive.
+- Shape tiers already cover the full 1–4 range via `snap_to_shape_name`.
+
+### Verification
+
+```text
+.venv\Scripts\python.exe -m pytest -q --tb=no
+→ 412 passed, 8 warnings
+```
+
+Focused anchors (`test_slimeworld_tier_economics.py` + `test_slimeworld_wanderer_petitions.py`) all passed:
+- Color/shape tier lookups
+- `calculate_tier_value` hand-verified for Red/Triangle=10, Orange/Star=44, Purple/Crown=322, Orange/Crown +25% variance=403
+- Partial petition fulfillment (color-only / shape-only) and rejections
+- Reward scales with tier product, not a flat multiplier
+
+### Still deferred
+- Tier 3–4 color names
+- Regent system design
+- Full Culture-sourced Requisitions board
+
 ## Current Phase
 
 **Worker Income + Garden Refugee Default — CERTIFIED**
