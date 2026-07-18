@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { luaSlimeToTs, slimeToLua, Slime } from '../src/games/slimeworld/types';
-import { SHAPE_TARGETS } from '../src/games/slimeworld/gameLogic';
+import { loadGame, getStaticList } from '../src/engine/runtime';
 
 const appSource = readFileSync(
   resolve(import.meta.dirname, '../src/games/slimeworld/App.tsx'),
@@ -69,9 +69,11 @@ describe('SlimeWorld Codex Wiring', () => {
   });
 
   it('test_SHAPE_TARGETS_has_23_entries', () => {
-    expect(SHAPE_TARGETS.length).toBe(23);
-    expect(SHAPE_TARGETS[0].id).toBe('shape_triangle');
-    expect(SHAPE_TARGETS[22].id).toBe('shape_prismatic');
+    const session = loadGame('slimeworld');
+    const shapeTargets = getStaticList(session, 'shape_targets') as Array<Record<string, unknown>>;
+    expect(shapeTargets.length).toBe(23);
+    expect(shapeTargets[0]['id']).toBe('shape_triangle');
+    expect(shapeTargets[22]['id']).toBe('shape_prismatic');
   });
 
   it('test_app_breeding_handler_updates_codex_on_match', () => {
@@ -84,7 +86,7 @@ describe('SlimeWorld Codex Wiring', () => {
   });
 
   it('test_slimedex_renders_shape_codex_section', () => {
-    expect(slimedexSource).toContain('SHAPE_TARGETS');
+    expect(slimedexSource).toContain('shapeTargets');
     expect(slimedexSource).toContain('shapeTargetCodex');
     expect(slimedexSource).toContain('Morphological Shape Targets');
     expect(slimedexSource).toContain('shapeTarget');
