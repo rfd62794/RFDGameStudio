@@ -33,7 +33,7 @@ def _color_specs():
     return specs
 
 
-def _slime(slime_id, chm=10, locked_role=None):
+def _slime(slime_id, chm=10, locked_role="mediator"):
     return {
         "id": slime_id, "color": "Red", "pattern": "Solid", "hue": 0,
         "saturation": 100, "generation": 0, "level": 1, "xp": 0,
@@ -44,9 +44,11 @@ def _slime(slime_id, chm=10, locked_role=None):
 
 
 def _node(node_id="node-1", strength=0.5, name="Test Node"):
+    # Unowned node — territory sim skips nodes without owner_color,
+    # so strength stays at whatever we set for mediation tests.
     return {
         "id": node_id, "strength": strength, "name": name,
-        "owner_color": "Red", "is_supplied": True, "is_capitol": False,
+        "owner_color": None, "is_supplied": False, "is_capitol": False,
         "pressure": {}, "neighbors": [], "discovered": True,
     }
 
@@ -81,7 +83,7 @@ def test_mediation_party_power_sums_chm():
     med = _mediation(slime_ids=["s1", "s2", "s3"])
     state = _state(slimes=slimes, active_mediation=med)
     state = session.executor.call("advance_cycle", state, cs)
-    assert state["active_mediation"] is None
+    assert state.get("active_mediation") is None
     node = state["planet_region"]["nodes"][0]
     assert node["strength"] > 0.5
 
@@ -206,7 +208,7 @@ def test_mediation_empty_party_aborts_no_change():
     result = session.executor.call("advance_cycle", state, cs)
     node = result["planet_region"]["nodes"][0]
     assert node["strength"] == 0.5  # unchanged
-    assert result["active_mediation"] is None  # still cleared
+    assert result.get("active_mediation") is None  # still cleared
 
 
 # --- Slime release ---
@@ -222,14 +224,14 @@ def test_mediation_slimes_always_released():
     state = _state(slimes=slimes, node=_node(strength=0.3), active_mediation=med)
     result = session.executor.call("advance_cycle", state, cs)
     released = [s for s in result["slimes"] if s["id"] == "s1"][0]
-    assert released["locked_role"] is None, "Slime should be released after mediation resolution"
+    assert released.get("locked_role") is None, "Slime should be released after mediation resolution"
 
     # Case 2: Empty party — no slimes to release, but no crash
     med2 = _mediation(slime_ids=[])
     state2 = _state(slimes=[], node=_node(strength=0.3), active_mediation=med2)
     result2 = session.executor.call("advance_cycle", state2, cs)
     # no crash, active_mediation cleared
-    assert result2["active_mediation"] is None
+    assert result2.get("active_mediation") is None
 
     # Case 3: Party with multiple slimes — all released
     slimes3 = [_slime("s1", chm=20, locked_role="mediator"), _slime("s2", chm=30, locked_role="mediator")]
@@ -237,7 +239,7 @@ def test_mediation_slimes_always_released():
     state3 = _state(slimes=slimes3, node=_node(strength=0.3), active_mediation=med3)
     result3 = session.executor.call("advance_cycle", state3, cs)
     for s in result3["slimes"]:
-        assert s["locked_role"] is None, f"Slime {s['id']} should be released"
+        assert s.get("locked_role") is None, f"Slime {s['id']} should be released"
 
 
 # --- State cleanup ---
@@ -250,7 +252,7 @@ def test_mediation_state_cleared_after_resolution():
     med = _mediation(slime_ids=["s1"])
     state = _state(slimes=slimes, node=_node(strength=0.4), active_mediation=med)
     result = session.executor.call("advance_cycle", state, cs)
-    assert result["active_mediation"] is None
+    assert result.get("active_mediation") is None
 
 
 # --- Full lifecycle ---
@@ -259,25 +261,27 @@ def test_full_mediation_lifecycle():
     """Launch → resolve → confirm real, end-to-end state change."""
     session = _load()
     cs = _color_specs()
-    # Step 1: Launch mediation
+    # Step 1: Launch mediation (returns mediation object, state is a Lua copy)
     slimes = [_slime("s1", chm=40, locked_role="mediator")]
     node = _node(strength=0.2)
     state = _state(slimes=slimes, node=node)
-    state = session.executor.call("launch_mediation", state, "node-1", ["s1"])
-    assert state["active_mediation"] is not None
-    assert state["active_mediation"]["status"] == "active"
-    assert state["active_mediation"]["target_node_id"] == "node-1"
-    assert state["active_mediation"]["slime_ids"] == ["s1"]
+    med_result = session.executor.call("launch_mediation", state, "node-1", ["s1"])
+    assert med_result is not None
+    assert med_result["status"] == "active"
+    assert med_result["target_node_id"] == "node-1"
+    assert med_result["slime_ids"] == ["s1"]
+    # executor.call converts to a Lua copy — manually set on Python state
+    state["active_mediation"] = med_result
 
     # Step 2: Advance cycle — resolves mediation
     result = session.executor.call("advance_cycle", state, cs)
 
     # Step 3: Confirm real state change
-    assert result["active_mediation"] is None
+    assert result.get("active_mediation") is None
     result_node = result["planet_region"]["nodes"][0]
     assert result_node["strength"] > 0.2, "Node strength should increase after mediation"
     released = [s for s in result["slimes"] if s["id"] == "s1"][0]
-    assert released["locked_role"] is None, "Slime should be released after mediation"
+    assert released.get("locked_role") is None, "Slime should be released after mediation"
 
     # Step 4: Confirm log entry exists
     med_logs = [log for log in result["logs"] if "MEDIATION CONCLUDED" in log.get("text", "")]

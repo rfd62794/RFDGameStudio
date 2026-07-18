@@ -2,6 +2,65 @@
 
 *Last updated: July 19 2026*
 
+## Mediation Resolution Fix — COMPLETED
+
+### Motivation — Same Bug Class as Exploration (Never Resolved)
+
+`launch_mediation` set `state.active_mediation = {..., cycles_remaining=1,
+status="active"}` and returned. Confirmed via grep — `active_mediation`
+appeared exactly once in the entire file, only in the launch function.
+No resolution, no cleanup, no role release. Slimes assigned to mediation
+were soft-locked indefinitely with no path back. This is the same bug
+class as the Exploration resolution fix: a launch function with no
+corresponding resolution in `advance_cycle`.
+
+### What Was Built
+
+Ported exactly from `resolveMediation` in the real source
+(`intake/slimegarden/extracted/src/gameLogic.ts` ~line 898):
+
+- **Mediation resolution block** added to `advance_cycle`, placed
+  alongside the existing Exploration resolution block.
+- **Party power** = sum of `chm` across all party members.
+- **Target power** = `40 + (strength > 0 ? round((1-strength)*60) : 35)`
+  — distinct from Exploration's `40 + round(strength*60)`.
+- **Success chance**: same shape as Exploration — `ratio > 1 →
+  0.85 + (ratio-1)*0.1`, else `0.2 + ratio*0.6`, clamped `[0.15, 0.98]`.
+- **On success**: `stabilityChange = floor(15 + totalChm/6 + random()*8)`.
+- **On failure — key difference from Exploration**:
+  `stabilityChange = floor(5 + random()*5)` — still a real, positive
+  increase. Mediation never produces zero progress, unlike Exploration's
+  clean binary success/fail.
+- **Empty-party guard**: distinct third outcome — aborts immediately
+  with no stability change at all.
+- **Node strength** unit: confirmed 0-1 scale throughout the codebase
+  (`math.min(1.0, strength + 0.02)`, `strength * 100`, etc.).
+  `stabilityChange` is in percentage points (5-42), so `/100` conversion
+  is correct.
+- **Party release**: all three outcomes (success, failure, empty-party
+  abort) set `locked_role = nil` and clear `state.active_mediation`.
+
+### Test Anchors (10 new, all passing)
+
+| Test | Target |
+|---|---|
+| `test_mediation_party_power_sums_chm` | Real party, hand-computed sum |
+| `test_mediation_success_chance_above_ratio_one` | ratio > 1 formula match |
+| `test_mediation_success_chance_below_ratio_one` | ratio < 1 formula match |
+| `test_mediation_chance_clamped_to_bounds` | Extreme ratios within [0.15, 0.98] |
+| `test_mediation_success_increases_node_strength` | Seeded-RNG forced-success case |
+| `test_mediation_failure_still_increases_strength` | **Key distinction** — failure still positive |
+| `test_mediation_empty_party_aborts_no_change` | Distinct third outcome, no change |
+| `test_mediation_slimes_always_released` | All three outcomes release party |
+| `test_mediation_state_cleared_after_resolution` | `active_mediation` is nil after |
+| `test_full_mediation_lifecycle` | Launch → resolve → end-to-end state change |
+
+### Final Floor
+
+- **Python: 432 passed** (was 422, +10 new mediation tests)
+
+---
+
 ## Color-Stat Data Deduplication — COMPLETED
 
 ### Motivation — Triplication Found Immediately After Original Directive Shipped
