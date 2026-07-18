@@ -35,6 +35,33 @@ function snap_to_faction(hue)
   return closest
 end
 
+function snap_to_shape_name(vertex_count, irregularity)
+  local anchors = {
+    { shape = "Triangle", vertex = 3, irregularity = 5 },
+    { shape = "Square", vertex = 4, irregularity = 5 },
+    { shape = "Circle", vertex = 12, irregularity = 0 },
+    { shape = "Star", vertex = 5, irregularity = 60 },
+    { shape = "Diamond", vertex = 4, irregularity = 40 },
+    { shape = "Teardrop", vertex = 6, irregularity = 50 },
+    { shape = "Pentagon", vertex = 5, irregularity = 10 },
+    { shape = "Crescent", vertex = 7, irregularity = 70 },
+    { shape = "Hexa", vertex = 6, irregularity = 15 },
+    { shape = "Crown", vertex = 8, irregularity = 85 },
+  }
+  local closest = anchors[1].shape
+  local minimum_distance = math.huge
+  for _, anchor in ipairs(anchors) do
+    local vertex_distance = vertex_count - anchor.vertex
+    local irregularity_distance = irregularity - anchor.irregularity
+    local distance = vertex_distance * vertex_distance + irregularity_distance * irregularity_distance
+    if distance < minimum_distance then
+      closest = anchor.shape
+      minimum_distance = distance
+    end
+  end
+  return closest
+end
+
 function find_color_target(color_targets, target_id)
   if color_targets == nil or target_id == nil then return nil end
   for _, target in ipairs(color_targets) do
@@ -285,6 +312,13 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.amplitude = accent.amplitude
   child.accent_hue = accent.accent_hue
   table.insert(state.slimes, child)
+  for index, slime in ipairs(state.slimes) do
+    if slime.id == parent_b_id then
+      table.remove(state.slimes, index)
+      break
+    end
+  end
+  child.consumed_slime_id = parent_b_id
   state.credits = math.max(0, (state.credits or 0) - 10)
   return child, nil
 end
@@ -530,6 +564,42 @@ function generate_contract(cycle)
   }
 end
 
+local WANDERER_REQUEST_MAX = 3
+local WANDERER_PREMIUM_MULTI = 3.0
+
+function create_wanderer_petition(cycle, active_petitions)
+  if #(active_petitions or {}) >= WANDERER_REQUEST_MAX then return nil, "Wanderer petition capacity reached" end
+  local colors = { "Red", "Blue", "Yellow", "Purple", "Orange", "Green", "Gray" }
+  local shapes = { "Triangle", "Square", "Circle", "Star", "Diamond", "Teardrop", "Pentagon", "Crescent", "Hexa", "Crown" }
+  local total_cycles = math.random(5, 8)
+  return {
+    id = "petition_wanderer_" .. os.time() .. "_" .. math.random(1000),
+    source = "wanderer",
+    requested_color = colors[math.random(#colors)],
+    requested_shape = shapes[math.random(#shapes)],
+    payout_multiplier = WANDERER_PREMIUM_MULTI,
+    expires_cycle = cycle + total_cycles,
+  }, nil
+end
+
+function fulfill_petition(state, petition_id, slime_id)
+  local petition = find_by_id(state.petitions, petition_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if petition == nil or slime == nil then return nil, "Petition or slime not found" end
+  if (state.cycle or 0) > petition.expires_cycle then return nil, "Petition expired" end
+  if petition.requested_color ~= nil and slime.color ~= petition.requested_color then return nil, "Slime does not match petition color" end
+  if petition.requested_shape ~= nil and snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10) ~= petition.requested_shape then return nil, "Slime does not match petition shape" end
+  local payout = math.floor(100 * petition.payout_multiplier)
+  state.credits = (state.credits or 0) + payout
+  for index, current in ipairs(state.petitions) do
+    if current.id == petition_id then
+      table.remove(state.petitions, index)
+      break
+    end
+  end
+  return { payout = payout, fulfilled_slime_id = slime_id }, nil
+end
+
 function get_random_melancholic_log(cycle)
   return {
     id = "log_mel_" .. os.time(),
@@ -737,6 +807,10 @@ function advance_cycle(state)
     table.insert(contracts, generate_contract(state.cycle))
   end
   state.contracts = contracts
+
+  for index = #(state.petitions or {}), 1, -1 do
+    if state.petitions[index].expires_cycle < state.cycle then table.remove(state.petitions, index) end
+  end
 
   -- Dual logging: deterministic cycle log + 45% chance flavor log
   if state.logs == nil then state.logs = {} end

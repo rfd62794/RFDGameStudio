@@ -72,6 +72,15 @@ slime:
     garrisoned_at: {type: timestamp, optional: true}
     stage: {values: [Hatchling, Juvenile, Young, Prime, Veteran, Elder], optional: true, description: Computed dynamically in the source}
 
+petition:
+  fields:
+    id: string
+    source: [wanderer]
+    requested_color: {type: string, optional: true}
+    requested_shape: {type: string, optional: true}
+    payout_multiplier: number
+    expires_cycle: integer
+
 # --- COLOR GENETICS ---
 color_genetics:
   wheel_order: [Red, Orange, Yellow, Green, Purple, Blue]

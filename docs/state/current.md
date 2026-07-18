@@ -4,7 +4,25 @@
 
 ## Current Phase
 
-**SlimeGarden Genetics Core, First Lua Port Slice — CERTIFIED**
+**Shape Naming, Breeding Cost, Wanderer Petitions — CERTIFIED**
+
+## Shape Naming, Breeding Cost, Wanderer Petitions — CERTIFIED
+
+### What changed
+- Added `snap_to_shape_name(vertex_count, irregularity)`, a nearest-anchor display label for the ten real SlimeBreeder shape names. The anchors retain the decided coordinates because `breed_shape` produces vertices across `3–22` and clamps irregularity to `0–100`; it remains completely independent of continuous shape breeding math.
+- Changed SlimeWorld breeding to consume only the donor (`parent_b`) after a child is fully created and inserted. Existing continuous 50/50 midpoint inheritance remains intact and takes precedence over SlimeBreeder's distinct 60/40 discrete host/donor tuning. Failed same-parent, capacity, and missing-parent exits all occur before mutation. Successful results include `consumed_slime_id` for future UI confirmation.
+- Added Wanderer-only Petition creation and fulfillment: three active petitions maximum, `3.0x` premium multiplier, color-and-shape matching, payout, removal on fulfillment, and expiration handling. The schema is present in `data.yaml`.
+
+### Verification
+
+```text
+.venv\Scripts\python.exe -m pytest -q --tb=no
+→ Pre-flight: 370 passed, 8 warnings
+→ Focused anchors: 10 passed
+→ Post-change: 380 passed, 8 warnings
+```
+
+The complete Requisitions/Petitions system for Culture-sourced requests remains future work. The SlimeBreeder Regent system remains a separate, unresolved design question. Tier 3/4 color snap names and redundant `games/slimegarden/` cleanup are also still deferred.
 
 ## SlimeGarden Genetics Core, First Lua Port Slice — CERTIFIED
 
