@@ -9,7 +9,7 @@ import { LabTab } from './components/LabTab';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
-import { luaNodeToTs, luaSlimeToTs, stateToLua, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
+import { luaNodeToTs, luaSlimeToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
 import { generatePlanetRegion } from './planetRegion';
 
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
@@ -19,12 +19,24 @@ function seedSlime(name: string, color: SlimeColor, index: number): Slime {
   return { id: `starter_${index}`, name, color, pattern: 'Solid', level: 1, xp: 0, stats: { hp: 100, atk: 10, def: 10, agi: 10, int: 10, chm: 10 }, role: 'idle', generation: 0, colorSaturation: color === 'Gray' ? 0 : 100, hue: HUES[color], saturation: color === 'Gray' ? 0 : 100, diffusionRatio: 20, amplitude: 40, accentHue: HUES[color], vertexCount: 4, irregularity: 10, createdAt: Date.now(), lockedRole: null, garrisonedAt: null, stage: 'Hatchling' };
 }
 
+const INITIAL_ZONES: CombatZone[] = [
+  { id: 'zone_cinder', name: 'Rusty Cinder Craters', requiredColor: 'Red', recommendedLevel: 1, difficulty: 1, creditsReward: 50, xpReward: 60, isUnlocked: true, isFirstClearCompleted: false, flavorText: 'An iron-rich expanse of heat chimneys and jagged slag-heaps. Ideal for Red Slimes to solidify their core.' },
+  { id: 'zone_sulphur', name: 'Yellow Sulphur Fissures', requiredColor: 'Yellow', recommendedLevel: 2, difficulty: 1, creditsReward: 75, xpReward: 80, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'Acrid volcanic streams containing raw energetic sulfur dust. Yellow Slimes thrive in the high-speed thermal winds.' },
+  { id: 'zone_abyssal', name: 'Abyssal Frost Caves', requiredColor: 'Blue', recommendedLevel: 4, difficulty: 2, creditsReward: 120, xpReward: 150, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'Sub-surface ice tunnels with deep lithium reservoirs. Extremely dense. Blue Slimes absorb freezing pressure with ease.' },
+  { id: 'zone_jungle', name: 'Overgrown Biome Reactor', requiredColor: 'Green', recommendedLevel: 6, difficulty: 3, creditsReward: 200, xpReward: 250, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'A derelict agriculture vessel overgrown with synthetic bioluminescent flora. Green Slimes can assimilate the dense foliage.' },
+];
+
+const INITIAL_CONTRACTS: CorporateContract[] = [
+  { id: 'contract_init_1', title: 'CONTRACT RQ-3109', requiredColor: 'Purple', requiredPattern: 'Solid', creditsReward: 120, cyclesRemaining: 6, totalCycles: 6, flavorText: 'Corporation chemical trial requested. Purple membrane needed to buffer thermal fuel waste tanks on Reactor C-4.' },
+  { id: 'contract_init_2', title: 'CONTRACT RQ-8821', requiredColor: 'Red', requiredPattern: 'Stripe', creditsReward: 160, cyclesRemaining: 4, totalCycles: 4, flavorText: 'Physical shock loading test. Stripe pattern elastic membrane required for deceleration orbital sleds.' },
+];
+
 function initialState(session: GameRendererProps['session']): LabState {
   const data = session.files.data as Record<string, unknown>;
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
   const relationships = (lab['culture_relationships'] ?? {}) as Record<SlimeColor, number>;
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: [], zones: [], activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {} };
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index)), contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {} };
 }
 
 function luaResult(value: unknown): [Record<string, unknown> | null, string | null] {
@@ -96,6 +108,8 @@ export default function App({ session }: GameRendererProps) {
       id: String(l['id'] ?? ''), cycle: Number(l['cycle'] ?? 0), timestamp: String(l['timestamp'] ?? ''),
       text: String(l['text'] ?? ''), type: (l['type'] ?? 'system') as LogEntry['type'],
     })) : [];
+    const luaActiveExploration = result['active_exploration'] as Record<string, unknown> | null;
+    const luaRegion = result['planet_region'] as Record<string, unknown> | null;
     setState(previous => ({
       ...previous,
       cycle: Number(result['cycle'] ?? previous.cycle + 1),
@@ -106,6 +120,9 @@ export default function App({ session }: GameRendererProps) {
         requiredPattern: String(c['required_pattern'] ?? 'Solid') as SlimePattern, creditsReward: Number(c['credits_reward'] ?? 0),
         cyclesRemaining: Number(c['cycles_remaining'] ?? 0), totalCycles: Number(c['total_cycles'] ?? 0), flavorText: String(c['flavor_text'] ?? ''),
       })) : previous.contracts,
+      activeExploration: luaActiveExploration ? { id: String(luaActiveExploration['id']), targetNodeId: String(luaActiveExploration['target_node_id']), slimeIds: (luaActiveExploration['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(luaActiveExploration['cycles_remaining']), status: String(luaActiveExploration['status']) as 'active' } : null,
+      planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
+      slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
   }, [session, state]);
@@ -139,7 +156,18 @@ export default function App({ session }: GameRendererProps) {
   const handleLaunchDispatch = useCallback(() => { if (!selectedZoneId) return; const raw = call(session, 'launch_dispatch', stateToLua(state), selectedZoneId, dispatchDraftIds) as Record<string, unknown> | null; if (!raw) return; setState(previous => ({ ...previous, activeDispatch: { id: String(raw['id']), zoneId: String(raw['zone_id']), slimeIds: (raw['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(raw['cycles_remaining']), status: String(raw['status']) as 'active' } })); }, [dispatchDraftIds, selectedZoneId, session, state]);
   const handleRetrieveCompletedPod = useCallback(() => { const value = call(session, 'retrieve_completed_dispatch', stateToLua(state)); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'No completed dispatch.'); return; } setState(previous => ({ ...previous, activeDispatch: null })); }, [session, state]);
   const handleLaunchMediation = useCallback(() => { if (!selectedMediationNodeId) return; call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds); }, [mediationDraftIds, selectedMediationNodeId, session, state]);
-  const handleLaunchExploration = useCallback(() => { if (!selectedExplorationNodeId) return; call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds); }, [explorationDraftIds, selectedExplorationNodeId, session, state]);
+  const handleLaunchExploration = useCallback(() => {
+    if (!selectedExplorationNodeId || explorationDraftIds.length === 0) return;
+    const raw = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds) as Record<string, unknown> | null;
+    if (!raw) return;
+    setState(previous => ({
+      ...previous,
+      activeExploration: { id: String(raw['id']), targetNodeId: String(raw['target_node_id']), slimeIds: (raw['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(raw['cycles_remaining']), status: String(raw['status']) as 'active' },
+      slimes: previous.slimes.map(s => explorationDraftIds.includes(s.id) ? { ...s, role: 'dispatch' as const } : s),
+    }));
+    setExplorationDraftIds([]);
+    setSelectedExplorationNodeId(null);
+  }, [explorationDraftIds, selectedExplorationNodeId, session, state]);
   const handleAssignGarrison = useCallback((nodeId: string, slimeId: string) => { const value = call(session, 'assign_garrison', stateToLua(state), nodeId, slimeId); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'Garrison unavailable.'); return; } const node = luaNodeToTs(raw); setState(previous => ({ ...previous, planetRegion: previous.planetRegion ? { ...previous.planetRegion, nodes: previous.planetRegion.nodes.map(current => current.id === node.id ? node : current) } : previous.planetRegion, slimes: previous.slimes.map(slime => slime.id === slimeId ? { ...slime, lockedRole: 'garrison', garrisonedAt: nodeId } : slime) })); }, [session, state]);
   const handleRecallGarrison = useCallback((slimeId: string) => { const value = call(session, 'recall_garrison', stateToLua(state), slimeId); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'Recall unavailable.'); return; } setState(previous => ({ ...previous, slimes: previous.slimes.map(slime => slime.id === slimeId ? { ...slime, lockedRole: null, garrisonedAt: null } : slime) })); }, [session, state]);
 

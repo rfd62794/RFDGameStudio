@@ -945,6 +945,67 @@ function advance_cycle(state)
     state.slimes = slimes
   end
 
+  -- Resolve active exploration
+  if state.active_exploration and state.active_exploration.status == "active" then
+    local exploration = state.active_exploration
+    local region = state.planet_region
+    local target_node = nil
+    if region and region.nodes then
+      for _, node in ipairs(region.nodes) do
+        if node.id == exploration.target_node_id then target_node = node break end
+      end
+    end
+
+    local scout_power = 0
+    local party = {}
+    for _, id in ipairs(exploration.slime_ids or {}) do
+      for _, slime in ipairs(state.slimes or {}) do
+        if slime.id == id then
+          table.insert(party, slime)
+          scout_power = scout_power + (slime.stats.int or 0) + (slime.stats.agi or 0)
+          break
+        end
+      end
+    end
+
+    local success = false
+    if target_node and #party > 0 then
+      local target_power = 40 + math.floor((target_node.strength or 0) * 60 + 0.5)
+      if target_power < 1 then target_power = 60 end
+      local ratio = scout_power / target_power
+      local chance
+      if ratio > 1 then chance = 0.85 + (ratio - 1) * 0.1 else chance = 0.2 + ratio * 0.6 end
+      chance = math.min(0.98, math.max(0.15, chance))
+      success = math.random() <= chance
+
+      if success and region and region.nodes then
+        for _, node in ipairs(region.nodes) do
+          if node.id == exploration.target_node_id then node.discovered = true break end
+        end
+      end
+    end
+
+    -- Award XP and return scouts to idle
+    for _, slime in ipairs(state.slimes or {}) do
+      for _, id in ipairs(exploration.slime_ids or {}) do
+        if slime.id == id then
+          slime.xp = (slime.xp or 0) + (success and 45 or 20)
+          slime.role = "idle"
+          break
+        end
+      end
+    end
+
+    table.insert(state.logs, {
+      id = "log_exp_res_" .. os.time(),
+      cycle = state.cycle,
+      text = "EXPLORATION CONCLUDED: Scouting expedition at [" .. (target_node and target_node.name or "unknown") .. "] resolved. " .. (success and "Sector revealed." or "Mission failed."),
+      type = "corporate",
+    })
+
+    state.active_exploration = nil
+  end
+
   -- Wilds unlock check
   if not state.wilds_unlocked and check_wilds_unlock_condition(state.slimes) then
     state.wilds_unlocked = true
