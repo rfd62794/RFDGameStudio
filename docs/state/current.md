@@ -28,8 +28,8 @@ python -m pytest -q --tb=no
 
 cd ts && npx vitest run
 → Pre-flight: 41 passed, 8 failed (49 total)
-→ Post-change: 82 passed, 2 failed (84 total)
-→ Failures are existing `tests/test_arcade_routing.ts` registry-order assertions: rendered first card is `shoal` while the test expects the first `GAME_REGISTRY` entry to be `horse_racing`. No TypeScript files were changed for ADR-009.
+→ Post-change: 84 passed, 0 failed (84 total)
+→ `GameSelector` renders the authoritative `GAME_REGISTRY` order; routing assertions pass.
 ```
 
 Further shared-logic consolidation beyond `collect`, `copy_table`→`copy_entity`, and `atan2` is a future decision; ADR-009 does not imply permission to share game-specific logic.

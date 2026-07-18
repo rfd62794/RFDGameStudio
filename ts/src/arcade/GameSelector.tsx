@@ -1,26 +1,9 @@
 import { useMemo } from 'react';
 import { GAME_REGISTRY } from '../games/registry';
-import gameMetadataRaw from '../games/game-metadata.json';
 import { loadGameFiles } from '../engine/loader';
 import { navigateTo } from './routing';
 
-interface GameMetadataEntry {
-  created: string;
-  last_updated: string;
-  version: string;
-  tracked: boolean;
-}
-
-const gameMetadata = gameMetadataRaw as Record<string, GameMetadataEntry>;
-
 const PYGAME_GAMES = new Set(['horse_racing', 'slither_rogue']);
-
-const STATUS_ORDER: Record<string, number> = {
-  stable: 0,
-  beta: 1,
-  dev: 2,
-  external: 3,
-};
 
 function countArray(data: Record<string, unknown>, key: string): number {
   const value = data[key];
@@ -60,22 +43,6 @@ function getRuntimeDetail(gameId: string, data: Record<string, unknown>): string
 }
 
 export default function GameSelector() {
-  const sortedGames = useMemo(() => {
-    return [...GAME_REGISTRY].sort((a, b) => {
-      const statusA = a.status ?? 'dev';
-      const statusB = b.status ?? 'dev';
-      const statusDiff = (STATUS_ORDER[statusA] ?? 99) - (STATUS_ORDER[statusB] ?? 99);
-      if (statusDiff !== 0) return statusDiff;
-
-      const aUpdated = gameMetadata[a.gameId]?.last_updated ?? '';
-      const bUpdated = gameMetadata[b.gameId]?.last_updated ?? '';
-      if (aUpdated === '' && bUpdated === '') return 0;
-      if (aUpdated === '') return 1;   // a has no date → after b
-      if (bUpdated === '') return -1;  // b has no date → a before b
-      return bUpdated.localeCompare(aUpdated); // most recent first
-    });
-  }, []);
-
   const details = useMemo(() => {
     const map: Record<string, string> = {};
     for (const config of GAME_REGISTRY) {
@@ -116,7 +83,7 @@ export default function GameSelector() {
       <main className="arcade-main">
         <h2 className="arcade-section-title">SELECT A GAME</h2>
         <div className="arcade-grid">
-          {sortedGames.map(config => (
+          {GAME_REGISTRY.map(config => (
             <button
               key={config.gameId}
               className="arcade-card"
