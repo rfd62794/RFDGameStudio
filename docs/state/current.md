@@ -2,6 +2,88 @@
 
 *Last updated: July 18 2026*
 
+## Real Slime Shape Rendering (Phase 1: Geometry) — COMPLETED
+
+### What was built
+
+`SlimeVisual.tsx` previously rendered every slime as the same CSS
+teardrop/circle, completely ignoring `vertexCount` (3–22) and
+`irregularity` (0–100) — data that was already mechanically meaningful
+(stat modifiers, Shape Codex target matching) but never visually
+expressed. A Red slime (3 vertices) and a Yellow slime (6 vertices)
+looked identical.
+
+This phase replaces the flat CSS body with a real SVG polygon generated
+from the slime's actual `vertexCount` and `irregularity` values. The
+polygon silhouette is deterministic per-slime (seeded by a hash of the
+slime's `id`), so a slime's shape stays visually stable across
+re-renders.
+
+### Implementation
+
+- **`mulberry32(seed)`** — standard seeded PRNG with good distribution.
+  Deterministic: same seed → same sequence, every time.
+- **`hashStringToSeed(str)`** — derives a stable integer seed from the
+  slime's `id` string (simple polynomial hash).
+- **`generateSlimePolygonPoints(vertexCount, irregularity, seed, radius,
+  center)`** — generates SVG polygon points. At `irregularity=0`,
+  produces a perfect regular polygon (all vertices equidistant from
+  center, evenly spaced angularly — zero jitter). At higher
+  irregularity, applies deterministic angle and radius jitter scaled by
+  the irregularity factor.
+- **SVG `<polygon>` rendering** — replaces the CSS `borderRadius` body.
+  The base color fill, radial gradient overlay, pattern fill (Stripe,
+  Polka, Glow, Nebula, Obsidian), and inner shadow are all applied as
+  stacked SVG polygons using the same generated points.
+- **Pattern overlays preserved** — existing CSS-based patterns (Crown,
+  Ringed) remain as external overlays. SVG `<pattern>` definitions
+  handle the body-interior patterns (Stripe, Polka, Glow, Nebula,
+  Obsidian) as fills applied to the polygon shape.
+- **Face/nucleus overlays** — the core nucleus and adorable face (eyes,
+  mouth, expressions) remain as HTML overlays on top of the SVG, now
+  with `pointer-events-none` to avoid interfering with the SVG.
+
+### What was NOT changed
+
+- `get_shape_stat_modifiers`, `match_shape_target` — untouched (this is
+  pure rendering, not data/formula changes)
+- Breeding formulas — untouched
+- `logic.lua` — untouched
+
+### Explicitly deferred (real, separate future work)
+
+- **Accent color-overlay layer** (`diffusionRatio`/`amplitude`/
+  `accentHue`) — real, separate, needs its own design pass for how
+  accent visual properties should be expressed as a secondary visual
+  layer on top of the polygon silhouette
+- **CRT scanline / per-color glow / distinctive font system** — found in
+  the fresh intake export, real, separate, still unbuilt, not bundled
+  here
+- **Animation/transition polish** — real, separate, cosmetic-only once
+  the base geometry exists
+
+### Test Anchors — `ts/tests/test_slime_visual_geometry.tsx` (6 tests)
+
+| Test | What it proves |
+|---|---|
+| `test_zero_irregularity_produces_regular_polygon` | Exact geometric check — all vertices equidistant from center, evenly spaced angularly, at irregularity=0 |
+| `test_higher_irregularity_produces_more_vertex_deviation` | Average deviation from regular polygon increases monotonically with irregularity (0 < 25 < 50 < 100) |
+| `test_same_slime_id_produces_identical_polygon_across_calls` | Same seed → same output, every time — deterministic stability |
+| `test_different_vertex_counts_produce_different_point_counts` | 3-vertex slime has 3 points, 12-vertex has 12, 22-vertex has 22 |
+| `test_red_and_yellow_starter_slimes_render_visually_distinct_shapes` | Real SEED_SHAPE_DEFAULTS (Red=3, Yellow=6) → genuinely different point counts and point strings |
+| `test_pattern_overlay_still_applies_to_new_polygon_shape` | Source-level regression check — SVG patterns, pattern fills, face/nucleus overlays all still present |
+
+### Files Changed
+
+- `ts/src/games/slimeworld/components/SlimeVisual.tsx` — added mulberry32, hashStringToSeed, generateSlimePolygonPoints; replaced CSS body with SVG polygon; preserved pattern overlays
+- `ts/tests/test_slime_visual_geometry.tsx` — new, 6 test anchors
+
+### Test Floors
+
+- TypeScript: 187 passed, 26 files (+6 tests, +1 file from previous 181/25)
+
+---
+
 ## Splicing Roster Bloat + SlimeDex Discovery — COMPLETED
 
 ### Bug 1 — Splicing Roster Bloat
