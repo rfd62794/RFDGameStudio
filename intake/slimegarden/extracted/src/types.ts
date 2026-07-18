@@ -23,10 +23,16 @@ export interface Slime {
   stats: SlimeStats;
   role: 'idle' | 'dispatch' | 'corporate';
   generation: number;
+  colorSaturation?: number;
+  hue?: number;
+  saturation?: number;
+  vertexCount?: number;   // 3.0 - 22.0+
+  irregularity?: number;  // 0-100%
   parentA?: string;
   parentB?: string;
   createdAt: number;
-  lockedRole?: 'dispatch' | 'mediation' | 'worker' | 'exploration' | null;
+  lockedRole?: 'dispatch' | 'mediation' | 'worker' | 'exploration' | 'garrison' | null;
+  garrisonedAt?: string | null;
   stage?: LifeStage; // Computed live/dynamically across the system to prevent synchronization issues
 }
 
@@ -91,11 +97,13 @@ export interface PlanetNode {
   isSupplied: boolean;
   distanceFromCenter: number; // real value, determines ring band
   discovered: boolean; // capitols are always true; fog only applies to future territory
+  garrisonSlimeId?: string | null;
 }
 
 export interface PlanetRegion {
   nodes: PlanetNode[];
   generatedAt: number;
+  geometryVersion?: number;
 }
 
 export interface MediationMission {
@@ -145,4 +153,10 @@ export interface LabState {
   regentInventory?: Partial<Record<SlimePattern, number>>; // count of unspent Regents, per pattern
   colorRegentInventory?: Partial<Record<SlimeColor, number>>; // count of unspent Regents, per color
   hasAutoFeeder?: boolean;
+  cultureRelationships?: Record<SlimeColor, number>;
+  lastBredHues?: { hue1: number; hue2: number; streak: number };
+  colorTargetCodex?: Record<string, boolean>;
+  targetRegentInventory?: Record<string, number>;
+  shapeTargetCodex?: Record<string, boolean>;
+  shapeTargetRegentInventory?: Record<string, number>;
 }

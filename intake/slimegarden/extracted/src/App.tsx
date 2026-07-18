@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Dna, Sparkles, ShieldAlert, Swords, Briefcase, Clock, Database, 
   ChevronRight, RefreshCw, Sliders, Plus, Trash2, Edit2, Terminal, 
   AlertTriangle, CheckCircle2, Moon, Info, Lock, Unlock, Coins, X,
-  RotateCcw, Target, Beaker
+  RotateCcw, Target, Beaker, BookOpen, Compass
 } from 'lucide-react';
 
 import { 
@@ -20,15 +20,22 @@ import {
   resolveExploration,
   syncCodexWithRoster, applyDispatchStabilityHook,
   checkWildsUnlockCondition, stageFromLevel, stageModifier, getColorRegentCost,
-  calculateWorkerIncome, isSlimeInMatchingCultureEnvironment
+  calculateWorkerIncome, isSlimeInMatchingCultureEnvironment,
+  CURRENT_GEOMETRY_VERSION, isCapitolHardened
 } from './gameLogic';
 
 import { SlimeVisual } from './components/SlimeVisual';
-import { RosterTab } from './components/RosterTab';
-import { MissionsTab } from './components/MissionsTab';
-import { EconomyTab } from './components/EconomyTab';
 import { LabTab } from './components/LabTab';
 import { PlanetTab } from './components/PlanetTab';
+import { useBreedingActions } from './hooks/useBreedingActions';
+import { useDispatchActions } from './hooks/useDispatchActions';
+import { useMediationActions } from './hooks/useMediationActions';
+import { useExplorationActions } from './hooks/useExplorationActions';
+import { useEconomyActions } from './hooks/useEconomyActions';
+import { useUpgradeActions } from './hooks/useUpgradeActions';
+import { useCycleActions } from './hooks/useCycleActions';
+import { useGarrisonActions } from './hooks/useGarrisonActions';
+import { useClaimActions } from './hooks/useClaimActions';
 
 const LOCAL_STORAGE_KEY = 'slime_garden_mvp_state';
 
@@ -44,13 +51,12 @@ export default function App() {
         }
         if (parsed.planetRegion === undefined) {
           parsed.planetRegion = null;
-        } else if (parsed.planetRegion?.nodes?.length) {
-          const firstShape = parsed.planetRegion.nodes[0]?.cellShape;
-          if (typeof firstShape !== 'string') {
-            parsed.planetRegion = null;
-          }
+        } else if (parsed.planetRegion && parsed.planetRegion.geometryVersion !== CURRENT_GEOMETRY_VERSION) {
+          parsed.planetRegion = null;
         }
         if (parsed.wildsRegion === undefined) {
+          parsed.wildsRegion = null;
+        } else if (parsed.wildsRegion && parsed.wildsRegion.geometryVersion !== CURRENT_GEOMETRY_VERSION) {
           parsed.wildsRegion = null;
         }
         if (parsed.wildsUnlocked === undefined) {
@@ -62,6 +68,35 @@ export default function App() {
         if (parsed.activeExploration === undefined) {
           parsed.activeExploration = null;
         }
+        if (!parsed.cultureRelationships) {
+          parsed.cultureRelationships = {
+            Red: 50,
+            Blue: 50,
+            Yellow: 50,
+            Purple: 50,
+            Orange: 50,
+            Green: 50,
+            Gray: 50
+          };
+        }
+        
+        // Backward-populate hue and saturation for loaded slimes
+        const HUE_MAP: Record<SlimeColor, number> = {
+          Red: 0, Orange: 60, Yellow: 120, Green: 180, Purple: 240, Blue: 300, Gray: 0
+        };
+        if (parsed.slimes) {
+          parsed.slimes = parsed.slimes.map(slime => {
+            const h = slime.hue !== undefined ? slime.hue : (HUE_MAP[slime.color] || 0);
+            const s = slime.saturation !== undefined ? slime.saturation : (slime.color === 'Gray' ? 0 : 100);
+            return {
+              ...slime,
+              hue: h,
+              saturation: s,
+              colorSaturation: s
+            };
+          });
+        }
+
         return syncCodexWithRoster(parsed);
       }
     } catch (e) {
@@ -137,21 +172,29 @@ export default function App() {
       wildsUnlocked: false,
       activeMediation: null,
       activeExploration: null,
-      hasAutoFeeder: false
+      hasAutoFeeder: false,
+      colorTargetCodex: {},
+      targetRegentInventory: {},
+      cultureRelationships: {
+        Red: 50,
+        Blue: 50,
+        Yellow: 50,
+        Purple: 50,
+        Orange: 50,
+        Green: 50,
+        Gray: 50
+      }
     };
 
     return syncCodexWithRoster(freshState);
   });
 
   // Top level active main tab
-  const [activeTab, setActiveTab] = useState<'roster' | 'missions' | 'economy' | 'lab' | 'planet'>('roster');
+  const [activeTab, setActiveTab] = useState<'lab' | 'planet'>('lab');
   
   // Persisted sub-tab selections for each main tab
-  const [rosterSubTab, setRosterSubTab] = useState<'collection' | 'breeding'>('collection');
-  const [missionsSubTab, setMissionsSubTab] = useState<'active' | 'zones'>('zones'); // default to zones to draft first
-  const [economySubTab, setEconomySubTab] = useState<'contracts' | 'market'>('contracts');
-  const [labSubTab, setLabSubTab] = useState<'upgrades'>('upgrades');
-  const [planetSubTab, setPlanetSubTab] = useState<'regions' | 'mediation' | 'exploration'>('regions');
+  const [labSubTab, setLabSubTab] = useState<'collection' | 'breeding' | 'slimedex' | 'upgrades' | 'requisitions'>('collection');
+  const [planetSubTab, setPlanetSubTab] = useState<'regions' | 'mediation' | 'exploration' | 'active' | 'zones'>('regions');
 
   // Selection states
   const [selectedSlimeId, setSelectedSlimeId] = useState<string | null>(() => {
@@ -165,6 +208,7 @@ export default function App() {
   const [newOffspring, setNewOffspring] = useState<Slime | null>(null);
   const [activeRegentPattern, setActiveRegentPattern] = useState<SlimePattern | null>(null);
   const [activeRegentColor, setActiveRegentColor] = useState<SlimeColor | null>(null);
+  const [activeTargetRegent, setActiveTargetRegent] = useState<string | null>(null);
 
   // Dispatch selection
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
@@ -181,6 +225,9 @@ export default function App() {
   const [selectedExplorationNodeId, setSelectedExplorationNodeId] = useState<string | null>(null);
   const [explorationDraftIds, setExplorationDraftIds] = useState<string[]>([]);
   const [activeExplorationReport, setActiveExplorationReport] = useState<{ logs: string[]; success: boolean } | null>(null);
+
+  // Selected Node state (Planet Map Click-to-Select)
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   // Rename modal state
   const [renameSlimeId, setRenameSlimeId] = useState<string | null>(null);
@@ -199,6 +246,144 @@ export default function App() {
   // Terminal visibility state (defaults to false)
   const [terminalVisible, setTerminalVisible] = useState(false);
 
+  // New Game/Reset confirmation state
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
+  // Helper to add system logs (declared early for use in hooks)
+  const addSystemLog = (text: string, type: LogEntry['type'] = 'system') => {
+    setState(prev => {
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return {
+        ...prev,
+        logs: [
+          ...prev.logs,
+          {
+            id: `log_custom_${Date.now()}`,
+            cycle: prev.cycle,
+            timestamp: timeStr,
+            text,
+            type
+          }
+        ]
+      };
+    });
+  };
+
+  // Hooks for domain actions
+  const {
+    handleAdvanceCycle
+  } = useCycleActions({
+    state,
+    setState,
+    setActiveDispatchReport,
+    setActiveMediationReport,
+    setActiveExplorationReport
+  });
+
+  const {
+    handleInitiateBreeding,
+    handleBuyRegent,
+    handleBuyColorRegent,
+    handleBuyTargetRegent
+  } = useBreedingActions({
+    state,
+    setState,
+    parentAId,
+    parentBId,
+    setParentAId,
+    setParentBId,
+    activeRegentPattern,
+    setActiveRegentPattern,
+    activeRegentColor,
+    setActiveRegentColor,
+    activeTargetRegent,
+    setActiveTargetRegent,
+    setIsBreedingHatching,
+    setNewOffspring,
+    addSystemLog,
+    setActiveTab,
+    setLabSubTab
+  });
+
+  const {
+    handleLaunchDispatch,
+    handleRetrieveCompletedPod,
+    executeLaunchDispatchWithLocks
+  } = useDispatchActions({
+    state,
+    setState,
+    selectedZoneId,
+    setSelectedZoneId,
+    dispatchDraftIds,
+    setDispatchDraftIds,
+    setRealtimeRemainingMs,
+    setPlanetSubTab,
+    setRoleLockConfirm,
+    handleAdvanceCycle: () => handleAdvanceCycle()
+  });
+
+  const {
+    executeLaunchMediationWithLocks,
+    handleLaunchMediation
+  } = useMediationActions({
+    state,
+    setState,
+    selectedMediationNodeId,
+    setSelectedMediationNodeId,
+    mediationDraftIds,
+    setMediationDraftIds,
+    setPlanetSubTab,
+    setRoleLockConfirm
+  });
+
+  const {
+    executeLaunchExplorationWithLocks,
+    handleLaunchExploration
+  } = useExplorationActions({
+    state,
+    setState,
+    selectedExplorationNodeId,
+    setSelectedExplorationNodeId,
+    explorationDraftIds,
+    setExplorationDraftIds,
+    setPlanetSubTab,
+    setRoleLockConfirm
+  });
+
+  const {
+    handleDeliverContract,
+    handleSellOnMarket
+  } = useEconomyActions({
+    state,
+    setState,
+    addSystemLog
+  });
+
+  const {
+    handleBuyUpgrade,
+    handleToggleWorkerRole
+  } = useUpgradeActions({
+    state,
+    setState
+  });
+
+  const {
+    handleAssignGarrison,
+    handleRecallGarrison
+  } = useGarrisonActions({
+    state,
+    setState
+  });
+
+  const {
+    handleForceClaim,
+    handleBribeClaim,
+    handleConvertClaim
+  } = useClaimActions({
+    state,
+    setState
+  });
+
   // Keep Codex synced with the roster whenever slimes or state changes
   useEffect(() => {
     if (state.slimes && state.slimes.length > 0) {
@@ -214,6 +399,95 @@ export default function App() {
       }
     }
   }, [state.slimes]);
+
+  // Synchronize garrisons: if a node is no longer owned, or its ownerColor doesn't match, or the node's garrisonSlimeId doesn't match, or the node is unclaimed, release the slime.
+  useEffect(() => {
+    if (!state.planetRegion) return;
+    let slimesModified = false;
+    const updatedSlimes = state.slimes.map(s => {
+      if (s.lockedRole === 'garrison' && s.garrisonedAt) {
+        const node = state.planetRegion?.nodes.find(n => n.id === s.garrisonedAt);
+        // If node doesn't exist, is unclaimed, or its ownerColor doesn't match the slime's color, or the node's garrisonSlimeId doesn't match the slime's ID, release it!
+        if (!node || !node.ownerColor || node.ownerColor !== s.color || node.garrisonSlimeId !== s.id) {
+          slimesModified = true;
+          return { ...s, lockedRole: null, garrisonedAt: null };
+        }
+      }
+      return s;
+    });
+
+    // Also verify nodes have correct garrisonSlimeId
+    let nodesModified = false;
+    const updatedNodes = state.planetRegion.nodes.map(n => {
+      if (n.garrisonSlimeId) {
+        const hasGarrisonSlime = state.slimes.some(s => s.id === n.garrisonSlimeId && s.lockedRole === 'garrison' && s.garrisonedAt === n.id);
+        if (!hasGarrisonSlime) {
+          nodesModified = true;
+          return { ...n, garrisonSlimeId: null };
+        }
+      }
+      return n;
+    });
+
+    if (slimesModified || nodesModified) {
+      setState(prev => ({
+        ...prev,
+        slimes: slimesModified ? updatedSlimes : prev.slimes,
+        planetRegion: prev.planetRegion ? {
+          ...prev.planetRegion,
+          nodes: updatedNodes
+        } : null
+      }));
+    }
+  }, [state.planetRegion?.nodes, state.slimes]);
+
+  // Track the last processed cycle to apply the hardening bonus exactly once per cycle advancement
+  const lastProcessedHardeningCycle = useRef<number>(state.cycle);
+
+  useEffect(() => {
+    if (state.cycle > lastProcessedHardeningCycle.current) {
+      lastProcessedHardeningCycle.current = state.cycle;
+      
+      if (state.planetRegion) {
+        const hardenedCapitols: string[] = [];
+        state.planetRegion.nodes.forEach(node => {
+          if (node.isCapitol && node.ownerColor) {
+            const allNeighborsOwnedBySameColor = node.neighbors.every(neighborId => {
+              const neighbor = state.planetRegion?.nodes.find(n => n.id === neighborId);
+              return neighbor && neighbor.ownerColor === node.ownerColor;
+            });
+            if (allNeighborsOwnedBySameColor) {
+              hardenedCapitols.push(node.name);
+            }
+          }
+        });
+
+        if (hardenedCapitols.length > 0) {
+          const totalBonus = hardenedCapitols.length * 15; // 15 Credits per hardened capitol
+          setState(prev => {
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            return {
+              ...prev,
+              credits: prev.credits + totalBonus,
+              logs: [
+                ...prev.logs,
+                {
+                  id: `log_hardening_bonus_${Date.now()}`,
+                  cycle: prev.cycle,
+                  timestamp: timeStr,
+                  text: `HARDENING BONUS: Capitol clusters hardened: [${hardenedCapitols.join(', ')}]. Earned extra +${totalBonus} Credits.`,
+                  type: 'corporate'
+                }
+              ]
+            };
+          });
+        }
+      }
+    } else if (state.cycle < lastProcessedHardeningCycle.current) {
+      // Handle manual reset/new game
+      lastProcessedHardeningCycle.current = state.cycle;
+    }
+  }, [state.cycle]);
 
   // Save game state to localStorage
   useEffect(() => {
@@ -272,616 +546,6 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [state.activeDispatch]);
-
-  // Advance manual Lab Cycle (Sleeping / Passing time)
-  const handleAdvanceCycle = () => {
-    setState(prev => {
-      const nextCycle = prev.cycle + 1;
-      
-      // Update corporate contracts
-      const updatedContracts = prev.contracts
-        .map(c => ({ ...c, cyclesRemaining: c.cyclesRemaining - 1 }))
-        .filter(c => c.cyclesRemaining > 0); // Remove expired ones
-
-      // Maybe spawn a new corporate contract (cap of 4)
-      const shouldSpawnContract = updatedContracts.length < 4 && (Math.random() < 0.65 || updatedContracts.length < 2);
-      if (shouldSpawnContract) {
-        updatedContracts.push(generateContract(nextCycle));
-      }
-
-      // Add a standard log about cycle progression
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const logs: LogEntry[] = [
-        ...prev.logs,
-        {
-          id: `log_cycle_${Date.now()}`,
-          cycle: nextCycle,
-          timestamp: timeStr,
-          text: `CYCLE ADVANCED: Lab cycle ${nextCycle} initiated. All energy cells replenished.`,
-          type: 'system'
-        }
-      ];
-
-      // Occasional random astronaut diary log (45% chance per cycle shift)
-      if (Math.random() < 0.45) {
-        logs.push(getRandomMelancholicLog(nextCycle));
-      }
-
-      // If there is an active dispatch, resolve it or tick down its cycle limit
-      let nextDispatch = prev.activeDispatch;
-      let newCredits = prev.credits;
-      let newSlimes = [...prev.slimes];
-      let newZones = [...prev.zones];
-      let nextRegion = prev.planetRegion ? { ...prev.planetRegion, nodes: prev.planetRegion.nodes.map(n => ({ ...n, pressure: { ...n.pressure } })) } : null;
- 
-      if (nextDispatch && (nextDispatch.status === 'active' || nextDispatch.status === 'completed')) {
-        const zone = prev.zones.find(z => z.id === nextDispatch!.zoneId)!;
-        const partySlimes = prev.slimes.filter(s => nextDispatch!.slimeIds.includes(s.id));
-        
-        const result = resolveDispatch(zone, partySlimes);
-        
-        // Distribute XP and handle level up
-        newSlimes = prev.slimes.map(s => {
-          if (nextDispatch!.slimeIds.includes(s.id)) {
-            let nextXp = s.xp + result.xpGained;
-            let nextLevel = s.level;
-            let currentStats = { ...s.stats };
- 
-            const xpNeeded = s.level * 100;
-            if (nextXp >= xpNeeded) {
-              nextXp -= xpNeeded;
-              nextLevel += 1;
-              currentStats = calculateStats(s.color, s.pattern, nextLevel);
-            }
- 
-            return {
-              ...s,
-              xp: nextXp,
-              level: nextLevel,
-              stats: currentStats,
-              role: 'idle' as const, // return to idle
-            };
-          }
-          return s;
-        });
- 
-        // Award Credits
-        newCredits += result.creditsGained;
- 
-        // Unlock next zones if clear successful
-        if (result.success) {
-          newZones = prev.zones.map(z => {
-            if (z.id === zone.id) {
-              return { ...z, isFirstClearCompleted: true };
-            }
-            if (z.id === result.firstClearUnlockedZoneId) {
-              return { ...z, isUnlocked: true };
-            }
-            return z;
-          });
- 
-          // Dispatch -> Planet stability hook
-          let hookLogText = "";
-          if (nextRegion) {
-            const hookRes = applyDispatchStabilityHook(nextRegion.nodes, zone.requiredColor);
-            nextRegion.nodes = hookRes.updatedNodes;
-            if (hookRes.appliedNodeName) {
-              hookLogText = ` Stability hook triggered: [${hookRes.appliedNodeName}] strength increased (+0.05).`;
-            }
-          }
- 
-          logs.push({
-            id: `log_comb_res_${Date.now()}`,
-            cycle: nextCycle,
-            timestamp: timeStr,
-            text: `DISPATCH SUCCESS: Team cleared [${zone.name}]. Credits received (+${result.creditsGained}).${hookLogText}`,
-            type: 'combat'
-          });
-        } else {
-          logs.push({
-            id: `log_comb_res_fail_${Date.now()}`,
-            cycle: nextCycle,
-            timestamp: timeStr,
-            text: `DISPATCH ALERT: Team retreated from [${zone.name}]. Structural depletion sustained.`,
-            type: 'combat'
-          });
-        }
- 
-        // Setup details to display in UI immediately
-        setActiveDispatchReport({
-          logs: result.victoryLog,
-          success: result.success,
-          xp: result.xpGained,
-          credits: result.creditsGained
-        });
- 
-        nextDispatch = null; // cleared
-      }
- 
-      // --- Planet Mediation Mission Resolution ---
-      let nextMediation = prev.activeMediation;
-
-      if (nextMediation) {
-        const targetNode = nextRegion ? nextRegion.nodes.find(n => n.id === nextMediation!.targetNodeId) : null;
-        if (targetNode) {
-          const partySlimes = prev.slimes.filter(s => nextMediation!.slimeIds.includes(s.id));
-          const result = resolveMediation(targetNode, partySlimes);
-
-          // Dominant color determination (fallback to Red if empty)
-          let dominantColor: SlimeColor = 'Red';
-          if (partySlimes.length > 0) {
-            const colorCounts: Record<SlimeColor, number> = {} as any;
-            partySlimes.forEach(s => { colorCounts[s.color] = (colorCounts[s.color] || 0) + 1; });
-            let maxCount = 0;
-            (Object.keys(colorCounts) as SlimeColor[]).forEach(c => {
-              if (colorCounts[c]! > maxCount) {
-                maxCount = colorCounts[c]!;
-                dominantColor = c;
-              }
-            });
-          }
-
-          // Award XP and return delegates to idle
-          newSlimes = newSlimes.map(s => {
-            if (nextMediation!.slimeIds.includes(s.id)) {
-              let nextXp = s.xp + (result.success ? 45 : 20);
-              let nextLevel = s.level;
-              let currentStats = { ...s.stats };
-
-              const xpNeeded = s.level * 100;
-              if (nextXp >= xpNeeded) {
-                nextXp -= xpNeeded;
-                nextLevel += 1;
-                currentStats = calculateStats(s.color, s.pattern, nextLevel);
-              }
-
-              return {
-                ...s,
-                xp: nextXp,
-                level: nextLevel,
-                stats: currentStats,
-                role: 'idle' as const,
-              };
-            }
-            return s;
-          });
-
-          // Update target node owner and strength in region
-          nextRegion.nodes = nextRegion.nodes.map(node => {
-            if (node.id === targetNode.id) {
-              let newOwner = node.ownerColor;
-              let newStrength = node.strength;
-              let newPressure = { ...node.pressure };
-
-              if (result.success) {
-                if (newOwner === null) {
-                  newOwner = dominantColor;
-                  newStrength = Math.min(1.0, result.stabilityChange / 100);
-                  newPressure = {}; // reset
-                } else {
-                  newStrength = Math.min(1.0, node.strength + result.stabilityChange / 100);
-                  // clear other pressures
-                  Object.keys(newPressure).forEach(k => {
-                    if (k !== newOwner) {
-                      newPressure[k as SlimeColor] = 0;
-                    }
-                  });
-                }
-              } else {
-                newStrength = Math.min(1.0, node.strength + result.stabilityChange / 100);
-              }
-
-              return {
-                ...node,
-                ownerColor: newOwner,
-                strength: parseFloat(newStrength.toFixed(3)),
-                pressure: newPressure,
-              };
-            }
-            return node;
-          });
-
-          logs.push({
-            id: `log_med_res_${Date.now()}`,
-            cycle: nextCycle,
-            timestamp: timeStr,
-            text: `MEDIATION CONCLUDED: Delegation at [${targetNode.name}] resolved. Alignment stability adjusted.`,
-            type: 'corporate'
-          });
-
-          setActiveMediationReport({
-            logs: result.log,
-            success: result.success,
-            stabilityChange: result.stabilityChange,
-          });
-
-          // Trigger Stray arrival for mediation (always mediation-locked)
-          // Always free, color matches dominant color involved
-          if (newSlimes.length < prev.rosterCap) {
-            const stray = createSeedSlime(dominantColor, 'Solid');
-            stray.id = `stray_med_${Date.now()}`;
-            stray.lockedRole = 'mediation';
-            stray.name = `Refugee ${stray.name}`;
-            newSlimes.push(stray);
-            logs.push({
-              id: `log_stray_med_${Date.now()}`,
-              cycle: nextCycle,
-              timestamp: timeStr,
-              text: `STRAY DETECTION: A stray ${dominantColor} specimen fleeing mediation conflict has arrived at containment. lockedRole assigned to MEDIATION.`,
-              type: 'corporate'
-            });
-          } else {
-            logs.push({
-              id: `log_stray_med_fail_${Date.now()}`,
-              cycle: nextCycle,
-              timestamp: timeStr,
-              text: `STRAY WARNING: A stray ${dominantColor} specimen from mediation conflict tried to seek refuge but containment cells were full.`,
-              type: 'system'
-            });
-          }
-        }
-        nextMediation = null; // cleared
-      }
-
-      // --- Planet Exploration Mission Resolution ---
-      let nextExploration = prev.activeExploration;
-
-      if (nextExploration) {
-        const targetNode = nextRegion ? nextRegion.nodes.find(n => n.id === nextExploration!.targetNodeId) : null;
-        if (targetNode) {
-          const partySlimes = prev.slimes.filter(s => nextExploration!.slimeIds.includes(s.id));
-          const result = resolveExploration(targetNode, partySlimes);
-
-          // Award XP and return scouts to idle
-          newSlimes = newSlimes.map(s => {
-            if (nextExploration!.slimeIds.includes(s.id)) {
-              let nextXp = s.xp + (result.success ? 45 : 20);
-              let nextLevel = s.level;
-              let currentStats = { ...s.stats };
-
-              const xpNeeded = s.level * 100;
-              if (nextXp >= xpNeeded) {
-                nextXp -= xpNeeded;
-                nextLevel += 1;
-                currentStats = calculateStats(s.color, s.pattern, nextLevel);
-              }
-
-              return {
-                ...s,
-                xp: nextXp,
-                level: nextLevel,
-                stats: currentStats,
-                role: 'idle' as const,
-              };
-            }
-            return s;
-          });
-
-          // Update target node discovered status in region if successful
-          if (result.success) {
-            nextRegion.nodes = nextRegion.nodes.map(node => {
-              if (node.id === targetNode.id) {
-                return {
-                  ...node,
-                  discovered: true
-                };
-              }
-              return node;
-            });
-          }
-
-          logs.push({
-            id: `log_exp_res_${Date.now()}`,
-            cycle: nextCycle,
-            timestamp: timeStr,
-            text: `EXPLORATION CONCLUDED: Scouting expedition at [${targetNode.name}] resolved. ${result.success ? 'Sector revealed.' : 'Mission failed.'}`,
-            type: 'corporate'
-          });
-
-          setActiveExplorationReport({
-            logs: result.log,
-            success: result.success,
-          });
-        }
-        nextExploration = null; // cleared
-      }
-
-      // --- Planet Territory Simulation Ticks ---
-      if (nextRegion) {
-        const prevNodes = nextRegion.nodes.map(n => ({ ...n }));
-        const simResult = updatePlanetSupplyAndPressure(nextRegion.nodes);
-        nextRegion.nodes = simResult.updatedNodes;
-
-        simResult.logs.forEach((simLog, idx) => {
-          logs.push({
-            id: `log_sim_${Date.now()}_${idx}`,
-            cycle: nextCycle,
-            timestamp: timeStr,
-            text: simLog,
-            type: 'system'
-          });
-        });
-
-        // Detect node flips
-        nextRegion.nodes.forEach(node => {
-          const prevNode = prevNodes.find(n => n.id === node.id);
-          if (prevNode && prevNode.ownerColor !== node.ownerColor && node.ownerColor !== null) {
-            const flipColor = node.ownerColor;
-            // Generate a stray locked to combat (dispatch)
-            if (newSlimes.length < prev.rosterCap) {
-              const stray = createSeedSlime(flipColor, 'Solid');
-              stray.id = `stray_flip_${Date.now()}_${node.id}`;
-              stray.lockedRole = 'dispatch';
-              stray.name = `Refugee ${stray.name}`;
-              newSlimes.push(stray);
-              logs.push({
-                id: `log_stray_flip_${Date.now()}_${node.id}`,
-                cycle: nextCycle,
-                timestamp: timeStr,
-                text: `STRAY DETECTION: Node [${node.name}] flipped ownership to ${flipColor}. A stray ${flipColor} refugee fled the conflict zone and arrived at containment. lockedRole assigned to COMBAT/DISPATCH.`,
-                type: 'combat'
-              });
-            } else {
-              logs.push({
-                id: `log_stray_flip_fail_${Date.now()}_${node.id}`,
-                cycle: nextCycle,
-                timestamp: timeStr,
-                text: `STRAY WARNING: Node [${node.name}] flipped ownership to ${flipColor}. A stray tried to seek refuge but containment cells were full.`,
-                type: 'system'
-              });
-            }
-          }
-        });
-      }
-
-      // --- Worker Income Calculation ---
-      let workerIncomeTotal = 0;
-      const workerDetails: string[] = [];
-      const hasAutoFeeder = !!prev.hasAutoFeeder;
-      const currentNodes = nextRegion ? nextRegion.nodes : [];
-
-      newSlimes.forEach(slime => {
-        if (slime.lockedRole === 'worker') {
-          const income = calculateWorkerIncome(slime, hasAutoFeeder, currentNodes);
-          workerIncomeTotal += income;
-          const isMatched = isSlimeInMatchingCultureEnvironment(slime, currentNodes);
-          workerDetails.push(`${slime.name} (+${income} Cr${isMatched ? ' - Culture Match!' : ''})`);
-        }
-      });
-
-      if (workerIncomeTotal > 0) {
-        newCredits += workerIncomeTotal;
-        logs.push({
-          id: `log_worker_income_${Date.now()}`,
-          cycle: nextCycle,
-          timestamp: timeStr,
-          text: `WORKER INCOME: Lab workers generated +${workerIncomeTotal} Requisition Credits. Details: ${workerDetails.join(', ')}`,
-          type: 'corporate'
-        });
-      }
-
-      // --- Ring 2 (The Wilds) Unlock Check ---
-      let isWildsUnlocked = !!prev.wildsUnlocked;
-
-      if (!isWildsUnlocked && checkWildsUnlockCondition(newSlimes)) {
-        isWildsUnlocked = true;
-        logs.push({
-          id: `log_wilds_unlock_${Date.now()}`,
-          cycle: nextCycle,
-          timestamp: timeStr,
-          text: `PLANETARY TELEMETRY: Secondary color genetic signature detected in containment cells. Ring-2 [The Wilds] region orbital connection established!`,
-          type: 'system'
-        });
-      }
-
-      // Bounded to 5 cycles rolling window (keep records within last 5 cycles, meaning cycle >= nextCycle - 4)
-      const keptRecentSales = (prev.recentMarketSales || []).filter(
-        record => record.cycle >= nextCycle - 4
-      );
-
-      return {
-        ...prev,
-        cycle: nextCycle,
-        credits: newCredits,
-        contracts: updatedContracts,
-        slimes: newSlimes,
-        zones: newZones,
-        activeDispatch: nextDispatch,
-        activeMediation: nextMediation,
-        activeExploration: nextExploration,
-        planetRegion: nextRegion,
-        wildsRegion: null,
-        wildsUnlocked: isWildsUnlocked,
-        logs: logs,
-        recentMarketSales: keptRecentSales
-      };
-    });
-  };
-
-  // Breeding execute
-  const handleInitiateBreeding = () => {
-    if (!parentAId || !parentBId || parentAId === parentBId) return;
-    
-    const parentA = state.slimes.find(s => s.id === parentAId);
-    const parentB = state.slimes.find(s => s.id === parentBId);
-    if (!parentA || !parentB) return;
-
-    if (stageFromLevel(parentA.level) === 'Elder' || stageFromLevel(parentB.level) === 'Elder') {
-      addSystemLog('SPLICING DENIED: Elder specimens have exhausted genetic viability.', 'system');
-      return;
-    }
-
-    if (state.slimes.length >= state.rosterCap) {
-      addSystemLog('BREEDING HALTED: Specimen Roster capacity limit reached. Expand facility slots first.', 'system');
-      return;
-    }
-
-    const breedingFee = 10;
-    if (state.credits < breedingFee) {
-      addSystemLog('BREEDING WARNING: Insufficient credits. Emergency biological grant authorized (-0 Credits).', 'system');
-    }
-
-    setIsBreedingHatching(true);
-    
-    // Cache the active pattern regent to ensure it remains constant over the setTimeout
-    const regentSpent = activeRegentPattern;
-    const colorRegentSpent = activeRegentColor;
-
-    setTimeout(() => {
-      const offspring = breedSlimes(parentA, parentB, Math.max(parentA.generation, parentB.generation) + 1);
-      
-      if (colorRegentSpent) {
-        offspring.color = colorRegentSpent;
-      }
-      if (regentSpent) {
-        offspring.pattern = regentSpent;
-      }
-      if (colorRegentSpent || regentSpent) {
-        offspring.stats = calculateStats(offspring.color, offspring.pattern, offspring.level);
-      }
-      
-      setState(prev => {
-        const finalFee = prev.credits >= breedingFee ? breedingFee : 0;
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-        const updatedRegentInventory = { ...prev.regentInventory };
-        if (regentSpent && (updatedRegentInventory[regentSpent] || 0) > 0) {
-          updatedRegentInventory[regentSpent] = (updatedRegentInventory[regentSpent] || 0) - 1;
-        }
-
-        const updatedColorRegentInventory = { ...prev.colorRegentInventory };
-        if (colorRegentSpent && (updatedColorRegentInventory[colorRegentSpent] || 0) > 0) {
-          updatedColorRegentInventory[colorRegentSpent] = (updatedColorRegentInventory[colorRegentSpent] || 0) - 1;
-        }
-
-        let logText = `BREEDING: Spliced ${parentA.name} + ${parentB.name}`;
-        if (colorRegentSpent && regentSpent) {
-          logText += ` using ${colorRegentSpent} Color Regent and ${regentSpent} Pattern Regent. Born: ${offspring.name} (guaranteed ${offspring.color}, guaranteed ${offspring.pattern} pattern).`;
-        } else if (colorRegentSpent) {
-          logText += ` using ${colorRegentSpent} Color Regent. Born: ${offspring.name} (guaranteed ${offspring.color}, ${offspring.pattern} pattern).`;
-        } else if (regentSpent) {
-          logText += ` using ${regentSpent} Regent. Born: ${offspring.name} (${offspring.color}, guaranteed ${offspring.pattern} pattern).`;
-        } else {
-          logText += `. Born: ${offspring.name} (${offspring.color}, ${offspring.pattern} pattern).`;
-        }
-
-        const nextState = {
-          ...prev,
-          credits: Math.max(0, prev.credits - finalFee),
-          slimes: [...prev.slimes, offspring],
-          regentInventory: updatedRegentInventory,
-          colorRegentInventory: updatedColorRegentInventory,
-          logs: [
-            ...prev.logs,
-            {
-              id: `log_breed_${Date.now()}`,
-              cycle: prev.cycle,
-              timestamp: timeStr,
-              text: logText,
-              type: 'breeding'
-            }
-          ]
-        };
-
-        return syncCodexWithRoster(nextState);
-      });
-
-      setNewOffspring(offspring);
-      setIsBreedingHatching(false);
-      setParentAId(null);
-      setParentBId(null);
-      setActiveRegentPattern(null);
-      setActiveRegentColor(null);
-    }, 2000);
-  };
-
-  // Commerce: Purchase a Pattern Regent from SlimeDex
-  const handleBuyRegent = (pattern: SlimePattern) => {
-    const patternTiers: Record<SlimePattern, number> = {
-      Solid: 0,
-      Stripe: 1,
-      Polka: 2,
-      Glow: 3,
-      Crown: 4,
-      Ringed: 5,
-      Nebula: 6,
-      Obsidian: 7
-    };
-    const tier = patternTiers[pattern] || 0;
-    const baseCost = 50 + tier * 25;
-    const isDiscovered = state.patternCodex?.[pattern]?.discovered;
-    const cost = isDiscovered ? baseCost : Math.round(baseCost * 2);
-
-    if (state.credits < cost) {
-      addSystemLog(`TRANSACTION ERROR: Insufficient credits to procure ${pattern} Regent (${cost} Credits required).`, 'system');
-      return;
-    }
-
-    setState(prev => {
-      const updatedCredits = prev.credits - cost;
-      const updatedRegentInventory = { ...prev.regentInventory };
-      updatedRegentInventory[pattern] = (updatedRegentInventory[pattern] || 0) + 1;
-
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const newLog: LogEntry = {
-        id: `log_buy_regent_${Date.now()}`,
-        cycle: prev.cycle,
-        timestamp: timeStr,
-        text: `COMMERCE: Procured ${pattern} Membrane Regent for ${cost} Credits. Transferring to splicing lab.`,
-        type: 'system'
-      };
-
-      return {
-        ...prev,
-        credits: updatedCredits,
-        regentInventory: updatedRegentInventory,
-        logs: [newLog, ...prev.logs]
-      };
-    });
-
-    // Auto navigate to Roster - Splicing Lab sub-tab
-    setActiveTab('roster');
-    setRosterSubTab('breeding');
-    setActiveRegentPattern(pattern);
-  };
-
-  // Commerce: Purchase a Color Regent from SlimeDex
-  const handleBuyColorRegent = (color: SlimeColor) => {
-    const isDiscovered = state.colorCodex?.[color]?.discovered || false;
-    const cost = getColorRegentCost(color, isDiscovered);
-
-    if (state.credits < cost) {
-      addSystemLog(`TRANSACTION ERROR: Insufficient credits to procure ${color} Regent (${cost} Credits required).`, 'system');
-      return;
-    }
-
-    setState(prev => {
-      const updatedCredits = prev.credits - cost;
-      const updatedColorRegentInventory = { ...prev.colorRegentInventory };
-      updatedColorRegentInventory[color] = (updatedColorRegentInventory[color] || 0) + 1;
-
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const newLog: LogEntry = {
-        id: `log_buy_color_regent_${Date.now()}`,
-        cycle: prev.cycle,
-        timestamp: timeStr,
-        text: `COMMERCE: Procured ${color} Strain Regent for ${cost} Credits. Transferring to splicing lab.`,
-        type: 'system'
-      };
-
-      return {
-        ...prev,
-        credits: updatedCredits,
-        colorRegentInventory: updatedColorRegentInventory,
-        logs: [newLog, ...prev.logs]
-      };
-    });
-
-    // Auto navigate to Roster - Splicing Lab sub-tab
-    setActiveTab('roster');
-    setRosterSubTab('breeding');
-    setActiveRegentColor(color);
-  };
 
   // Recruit basic seed slime
   const handlePurchaseSeedSlime = (color: SlimeColor) => {
@@ -949,378 +613,15 @@ export default function App() {
     addSystemLog(`${slime.name} recycled. Bio-mass salvaged.`, 'system');
   };
 
-  // Deliver Corporate Contract with explicit selected slime
-  const handleDeliverContract = (contract: CorporateContract, targetSlime: Slime) => {
-    setState(prev => {
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      return {
-        ...prev,
-        credits: prev.credits + contract.creditsReward,
-        contracts: prev.contracts.filter(c => c.id !== contract.id),
-        slimes: prev.slimes.filter(s => s.id !== targetSlime.id),
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_contract_f_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: timeStr,
-            text: `CORPORATE EXPORT: Specimen ${targetSlime.name} delivered through the black hole to satisfy ${contract.title}. Transferred +${contract.creditsReward} Requisition Credits.`,
-            type: 'corporate'
-          }
-        ]
-      };
-    });
 
-    addSystemLog(`Contract completed. Transferred ${targetSlime.name} to Headquarters for ${contract.creditsReward} Credits.`, 'corporate');
-  };
 
-  // Sell Slime on the Galactic Market
-  const handleSellOnMarket = (targetSlime: Slime, price: number) => {
-    setState(prev => {
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const newRecord = { color: targetSlime.color, cycle: prev.cycle };
-      const updatedSales = [...(prev.recentMarketSales || []), newRecord];
 
-      return {
-        ...prev,
-        credits: prev.credits + price,
-        slimes: prev.slimes.filter(s => s.id !== targetSlime.id),
-        recentMarketSales: updatedSales,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_market_s_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: timeStr,
-            text: `GALACTIC MARKET SALE: Specimen ${targetSlime.name} sold for ${price} Requisition Credits. Market supply for ${targetSlime.color} increased.`,
-            type: 'corporate'
-          }
-        ]
-      };
-    });
 
-    addSystemLog(`Market Liquidation completed. Sold ${targetSlime.name} to the Galactic Market for ${price} Credits.`, 'corporate');
-  };
 
-  // Launch Combat Dispatch with locks
-  const executeLaunchDispatchWithLocks = (idsToLock: string[]) => {
-    if (!selectedZoneId) return;
-    const zone = state.zones.find(z => z.id === selectedZoneId);
-    if (!zone || dispatchDraftIds.length === 0) return;
 
-    const dispatch: ActiveDispatch = {
-      id: `dispatch_${Date.now()}`,
-      zoneId: selectedZoneId,
-      slimeIds: [...dispatchDraftIds],
-      cyclesRemaining: 1, // Resolves upon cycle skip or real-time timer
-      totalDurationMs: 15000, // 15 seconds real-time
-      startedAt: Date.now(),
-      status: 'active'
-    };
 
-    setRealtimeRemainingMs(15000);
 
-    setState(prev => {
-      // Set roles of drafted slimes to dispatch and lock unspecialized ones
-      const updatedSlimes = prev.slimes.map(s => {
-        let updated = { ...s };
-        if (dispatchDraftIds.includes(s.id)) {
-          updated.role = 'dispatch' as const;
-        }
-        if (idsToLock.includes(s.id)) {
-          updated.lockedRole = 'dispatch';
-        }
-        return updated;
-      });
 
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      return {
-        ...prev,
-        activeDispatch: dispatch,
-        slimes: updatedSlimes,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_launch_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: timeStr,
-            text: `EXTRACTOR CAP: Launched landing pod with ${dispatchDraftIds.length} specimens into orbit of [${zone.name}].`,
-            type: 'combat'
-          }
-        ]
-      };
-    });
-
-    // Reset draft fields
-    setDispatchDraftIds([]);
-    setSelectedZoneId(null);
-    setMissionsSubTab('active'); // auto focus to active sub tab to monitor
-    setRoleLockConfirm(null);
-  };
-
-  const handleLaunchDispatch = () => {
-    if (!selectedZoneId) return;
-    const zone = state.zones.find(z => z.id === selectedZoneId);
-    if (!zone || dispatchDraftIds.length === 0) return;
-
-    const draftedSlimes = state.slimes.filter(s => dispatchDraftIds.includes(s.id));
-    const unlockedSlimes = draftedSlimes.filter(s => !s.lockedRole);
-
-    if (unlockedSlimes.length > 0) {
-      setRoleLockConfirm({
-        type: 'dispatch',
-        unlockedSlimes,
-        onConfirm: () => {
-          executeLaunchDispatchWithLocks(unlockedSlimes.map(s => s.id));
-        }
-      });
-      return;
-    }
-
-    executeLaunchDispatchWithLocks([]);
-  };
-
-  // Launch Mediation Mission with locks
-  const executeLaunchMediationWithLocks = (idsToLock: string[]) => {
-    if (!selectedMediationNodeId || !state.planetRegion) return;
-    const node = state.planetRegion.nodes.find(n => n.id === selectedMediationNodeId);
-    if (!node || mediationDraftIds.length === 0) return;
-
-    const mediation: MediationMission = {
-      id: `mediation_${Date.now()}`,
-      targetNodeId: selectedMediationNodeId,
-      slimeIds: [...mediationDraftIds],
-      cyclesRemaining: 1,
-      totalDurationMs: 15000,
-      startedAt: Date.now(),
-      status: 'active'
-    };
-
-    setState(prev => {
-      // Set roles of drafted slimes to dispatch and lock unspecialized ones
-      const updatedSlimes = prev.slimes.map(s => {
-        let updated = { ...s };
-        if (mediationDraftIds.includes(s.id)) {
-          updated.role = 'dispatch' as const;
-        }
-        if (idsToLock.includes(s.id)) {
-          updated.lockedRole = 'mediation';
-        }
-        return updated;
-      });
-
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      return {
-        ...prev,
-        activeMediation: mediation,
-        slimes: updatedSlimes,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_launch_med_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: timeStr,
-            text: `MEDIATION LAUNCH: Diplomatic pod dispatched to Node [${node.name}] with ${mediationDraftIds.length} representatives.`,
-            type: 'corporate'
-          }
-        ]
-      };
-    });
-
-    // Reset draft fields
-    setMediationDraftIds([]);
-    setSelectedMediationNodeId(null);
-    setPlanetSubTab('mediation'); // switch subtab to mediation
-    setRoleLockConfirm(null);
-  };
-
-  const handleLaunchMediation = () => {
-    if (!selectedMediationNodeId || !state.planetRegion) return;
-    const node = state.planetRegion.nodes.find(n => n.id === selectedMediationNodeId);
-    if (!node || mediationDraftIds.length === 0) return;
-
-    const draftedSlimes = state.slimes.filter(s => mediationDraftIds.includes(s.id));
-    const unlockedSlimes = draftedSlimes.filter(s => !s.lockedRole);
-
-    if (unlockedSlimes.length > 0) {
-      setRoleLockConfirm({
-        type: 'mediation',
-        unlockedSlimes,
-        onConfirm: () => {
-          executeLaunchMediationWithLocks(unlockedSlimes.map(s => s.id));
-        }
-      });
-      return;
-    }
-
-    executeLaunchMediationWithLocks([]);
-  };
-
-  // Launch Exploration Mission with locks
-  const executeLaunchExplorationWithLocks = (idsToLock: string[]) => {
-    if (!selectedExplorationNodeId || !state.planetRegion) return;
-    const node = state.planetRegion.nodes.find(n => n.id === selectedExplorationNodeId);
-    if (!node || explorationDraftIds.length === 0) return;
-
-    const exploration: ExplorationMission = {
-      id: `exploration_${Date.now()}`,
-      targetNodeId: selectedExplorationNodeId,
-      slimeIds: [...explorationDraftIds],
-      cyclesRemaining: 1,
-      totalDurationMs: 15000,
-      startedAt: Date.now(),
-      status: 'active'
-    };
-
-    setState(prev => {
-      // Set roles of drafted slimes to dispatch and lock unspecialized ones
-      const updatedSlimes = prev.slimes.map(s => {
-        let updated = { ...s };
-        if (explorationDraftIds.includes(s.id)) {
-          updated.role = 'dispatch' as const;
-        }
-        if (idsToLock.includes(s.id)) {
-          updated.lockedRole = 'exploration';
-        }
-        return updated;
-      });
-
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      return {
-        ...prev,
-        activeExploration: exploration,
-        slimes: updatedSlimes,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_launch_exp_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: timeStr,
-            text: `EXPLORATION LAUNCH: Scouting pod dispatched to Node [${node.name}] with ${explorationDraftIds.length} representatives.`,
-            type: 'corporate'
-          }
-        ]
-      };
-    });
-
-    // Reset draft fields
-    setExplorationDraftIds([]);
-    setSelectedExplorationNodeId(null);
-    setPlanetSubTab('exploration'); // switch subtab to exploration
-    setRoleLockConfirm(null);
-  };
-
-  const handleLaunchExploration = () => {
-    if (!selectedExplorationNodeId || !state.planetRegion) return;
-    const node = state.planetRegion.nodes.find(n => n.id === selectedExplorationNodeId);
-    if (!node || explorationDraftIds.length === 0) return;
-
-    const draftedSlimes = state.slimes.filter(s => explorationDraftIds.includes(s.id));
-    const unlockedSlimes = draftedSlimes.filter(s => !s.lockedRole);
-
-    if (unlockedSlimes.length > 0) {
-      setRoleLockConfirm({
-        type: 'exploration',
-        unlockedSlimes,
-        onConfirm: () => {
-          executeLaunchExplorationWithLocks(unlockedSlimes.map(s => s.id));
-        }
-      });
-      return;
-    }
-
-    executeLaunchExplorationWithLocks([]);
-  };
-
-  // Retrieve Completed pod (if real-time timer expired without cycle skip)
-  const handleRetrieveCompletedPod = () => {
-    if (!state.activeDispatch || state.activeDispatch.status !== 'completed') return;
-    
-    // Resolve right away
-    handleAdvanceCycle();
-  };
-
-  // Buy Upgrades
-  const handleBuyUpgrade = (type: 'capacity' | 'stabilizer' | 'autofeeder') => {
-    if (type === 'capacity') {
-      const cost = 150;
-      if (state.credits < cost) return;
-      setState(prev => ({
-        ...prev,
-        credits: prev.credits - cost,
-        rosterCap: prev.rosterCap + 5,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_upg_cap_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            text: `LAB UPGRADE: Roster containment cells expanded (+5 Capacity). Max is now ${prev.rosterCap + 5}.`,
-            type: 'system'
-          }
-        ]
-      }));
-    } else if (type === 'stabilizer') {
-      const cost = 200;
-      if (state.credits < cost) return;
-      setState(prev => ({
-        ...prev,
-        credits: prev.credits - cost,
-        breedingSuccessRateModifier: prev.breedingSuccessRateModifier + 0.1,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_upg_stb_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            text: `LAB UPGRADE: Splicer Stabilizer magnetic focus upgraded (+10% mutation stability).`,
-            type: 'system'
-          }
-        ]
-      }));
-    } else if (type === 'autofeeder') {
-      const cost = 250;
-      if (state.credits < cost || state.hasAutoFeeder) return;
-      setState(prev => ({
-        ...prev,
-        credits: prev.credits - cost,
-        hasAutoFeeder: true,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_upg_feed_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            text: `LAB UPGRADE: Global Auto-Feeder module activated. Baseline credit generation for all Lab Workers doubled.`,
-            type: 'system'
-          }
-        ]
-      }));
-    }
-  };
-
-  // Helper to add system logs
-  const addSystemLog = (text: string, type: LogEntry['type'] = 'system') => {
-    setState(prev => {
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      return {
-        ...prev,
-        logs: [
-          ...prev.logs,
-          {
-            id: `log_custom_${Date.now()}`,
-            cycle: prev.cycle,
-            timestamp: timeStr,
-            text,
-            type
-          }
-        ]
-      };
-    });
-  };
 
   // Clear state for fresh restart
   const handleHardReset = () => {
@@ -1341,28 +642,7 @@ export default function App() {
     setNewNameInput('');
   };
 
-  // Toggle Specimen Worker role lock
-  const handleToggleWorkerRole = (slimeId: string) => {
-    setState(prev => {
-      const updatedSlimes = prev.slimes.map(s => {
-        if (s.id === slimeId) {
-          // If already worker, remove the role lock
-          if (s.lockedRole === 'worker') {
-            return { ...s, lockedRole: null };
-          }
-          // If not locked, lock as worker
-          if (!s.lockedRole) {
-            return { ...s, lockedRole: 'worker' as const };
-          }
-        }
-        return s;
-      });
-      return {
-        ...prev,
-        slimes: updatedSlimes
-      };
-    });
-  };
+
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-slate-700 selection:text-white relative font-sans">
@@ -1424,6 +704,15 @@ export default function App() {
           </button>
 
           <button 
+            onClick={() => setResetConfirmOpen(true)}
+            className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-slate-400 hover:text-red-400 hover:bg-red-950/10 cursor-pointer text-xs font-mono uppercase tracking-wider transition-all duration-200"
+            title="Reset Game (Wipe Save)"
+          >
+            <RefreshCw className="w-4 h-4 text-red-400" />
+            <span>Reset</span>
+          </button>
+
+          <button 
             onClick={handleAdvanceCycle}
             className="group flex items-center space-x-2.5 px-4.5 py-1.5 rounded-lg border border-red-900/40 bg-red-950/20 hover:bg-red-950/40 text-red-300 font-bold text-xs font-mono uppercase tracking-wider cursor-pointer transition-all duration-200 shadow-md"
           >
@@ -1439,54 +728,18 @@ export default function App() {
         {/* Full-width Main Tab Rail */}
         <div className="flex border border-slate-800 bg-[#080d16] p-1 rounded-xl w-full">
           <button
-            onClick={() => setActiveTab('roster')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3.5 text-xs font-bold font-mono uppercase tracking-wider rounded-lg cursor-pointer transition-all ${
-              activeTab === 'roster' 
-                ? 'bg-slate-800 text-white shadow' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
-            }`}
-          >
-            <Database className="w-4 h-4" />
-            <span>Specimens & Splicing</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('missions')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3.5 text-xs font-bold font-mono uppercase tracking-wider rounded-lg cursor-pointer transition-all relative ${
-              activeTab === 'missions' 
-                ? 'bg-slate-800 text-white shadow' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
-            }`}
-          >
-            <Swords className="w-4 h-4" />
-            <span>Orbit Missions</span>
-            {state.activeDispatch && (
-              <span className="absolute top-2.5 right-2 w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('economy')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3.5 text-xs font-bold font-mono uppercase tracking-wider rounded-lg cursor-pointer transition-all relative ${
-              activeTab === 'economy' 
-                ? 'bg-slate-800 text-white shadow' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>Economy Terminal</span>
-            {state.contracts.length > 0 && (
-              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-            )}
-          </button>
-          <button
             onClick={() => setActiveTab('lab')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3.5 text-xs font-bold font-mono uppercase tracking-wider rounded-lg cursor-pointer transition-all ${
+            className={`flex-1 flex items-center justify-center space-x-2 py-3.5 text-xs font-bold font-mono uppercase tracking-wider rounded-lg cursor-pointer transition-all relative ${
               activeTab === 'lab' 
                 ? 'bg-slate-800 text-white shadow' 
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
             }`}
           >
-            <Sliders className="w-4 h-4" />
-            <span>Facility Upgrades</span>
+            <Dna className="w-4 h-4" />
+            <span>Lab</span>
+            {state.contracts.length > 0 && (
+              <span className="absolute top-2.5 right-2 w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+            )}
           </button>
           <button
             onClick={() => setActiveTab('planet')}
@@ -1499,18 +752,153 @@ export default function App() {
             <Target className="w-4 h-4" />
             <span>Planetary Conflict</span>
             {state.activeMediation && (
-              <span className="absolute top-2.5 right-2 w-1.5 h-1.5 rounded-full bg-yellow-500 animate-ping" />
+              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-yellow-500 animate-ping" />
+            )}
+            {state.activeDispatch && (
+              <span className="absolute top-2.5 right-6 w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
             )}
           </button>
+        </div>
+
+        {/* Horizontal Sub-tab Rail */}
+        <div className="flex flex-wrap items-center gap-1.5 border border-slate-800/80 bg-[#080d16]/60 p-1 rounded-xl w-full">
+          {activeTab === 'lab' ? (
+            <>
+              <button
+                onClick={() => setLabSubTab('collection')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  labSubTab === 'collection'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Database className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Collection</span>
+              </button>
+              <button
+                onClick={() => setLabSubTab('breeding')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  labSubTab === 'breeding'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Dna className="w-3.5 h-3.5 text-purple-400" />
+                <span>Splicing Lab</span>
+              </button>
+              <button
+                onClick={() => setLabSubTab('slimedex')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  labSubTab === 'slimedex'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                <span>SlimeDex</span>
+              </button>
+              <button
+                onClick={() => setLabSubTab('upgrades')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  labSubTab === 'upgrades'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5 text-yellow-400" />
+                <span>Upgrades</span>
+              </button>
+              <button
+                onClick={() => setLabSubTab('requisitions')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  labSubTab === 'requisitions'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Requisitions</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setPlanetSubTab('regions')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  planetSubTab === 'regions'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Database className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Planetary Map</span>
+              </button>
+              <button
+                onClick={() => setPlanetSubTab('mediation')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer relative ${
+                  planetSubTab === 'mediation'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5 text-yellow-400" />
+                <span>Mediation Portal</span>
+                {state.activeMediation && (
+                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                )}
+              </button>
+              <button
+                onClick={() => setPlanetSubTab('exploration')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer relative ${
+                  planetSubTab === 'exploration'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Target className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Exploration Portal</span>
+                {state.activeExploration && (
+                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                )}
+              </button>
+              <button
+                onClick={() => setPlanetSubTab('active')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer relative ${
+                  planetSubTab === 'active'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5 text-red-400" />
+                <span>Active Deployment</span>
+                {state.activeDispatch && (
+                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                )}
+              </button>
+              <button
+                onClick={() => setPlanetSubTab('zones')}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  planetSubTab === 'zones'
+                    ? 'bg-slate-800 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
+                }`}
+              >
+                <Swords className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Zones Board</span>
+              </button>
+            </>
+          )}
         </div>
 
         {/* Active Tab Screen Component Panel */}
         <div className="border border-slate-800/80 rounded-xl bg-[#0c1220]/75 backdrop-blur-md p-6 flex-1 flex flex-col min-h-[480px]">
           <AnimatePresence mode="wait">
-            {activeTab === 'roster' && (
-              <RosterTab
-                key="tab_roster_comp"
+            {activeTab === 'lab' && (
+              <LabTab
+                key="tab_lab_comp"
                 state={state}
+                handleBuyUpgrade={handleBuyUpgrade}
+                handlePurchaseSeedSlime={handlePurchaseSeedSlime}
                 selectedSlimeId={selectedSlimeId}
                 setSelectedSlimeId={setSelectedSlimeId}
                 setRenameSlimeId={setRenameSlimeId}
@@ -1522,56 +910,20 @@ export default function App() {
                 setParentBId={setParentBId}
                 isBreedingHatching={isBreedingHatching}
                 handleInitiateBreeding={handleInitiateBreeding}
-                activeSubTab={rosterSubTab}
-                setActiveSubTab={setRosterSubTab}
+                activeSubTab={labSubTab}
+                setActiveSubTab={setLabSubTab}
                 activeRegentPattern={activeRegentPattern}
                 setActiveRegentPattern={setActiveRegentPattern}
                 onBuyRegent={handleBuyRegent}
                 activeRegentColor={activeRegentColor}
                 setActiveRegentColor={setActiveRegentColor}
                 onBuyColorRegent={handleBuyColorRegent}
+                activeTargetRegent={activeTargetRegent}
+                setActiveTargetRegent={setActiveTargetRegent}
+                onBuyTargetRegent={handleBuyTargetRegent}
                 handleToggleWorkerRole={handleToggleWorkerRole}
-              />
-            )}
-
-            {activeTab === 'missions' && (
-              <MissionsTab
-                key="tab_missions_comp"
-                state={state}
-                selectedZoneId={selectedZoneId}
-                setSelectedZoneId={setSelectedZoneId}
-                dispatchDraftIds={dispatchDraftIds}
-                setDispatchDraftIds={setDispatchDraftIds}
-                realtimeRemainingMs={realtimeRemainingMs}
-                activeDispatchReport={activeDispatchReport}
-                setActiveDispatchReport={setActiveDispatchReport}
-                handleLaunchDispatch={handleLaunchDispatch}
-                handleRetrieveCompletedPod={handleRetrieveCompletedPod}
-                handleAdvanceCycle={handleAdvanceCycle}
-                activeSubTab={missionsSubTab}
-                setActiveSubTab={setMissionsSubTab}
-              />
-            )}
-
-            {activeTab === 'economy' && (
-              <EconomyTab
-                key="tab_economy_comp"
-                state={state}
                 handleDeliverContract={handleDeliverContract}
                 handleSellOnMarket={handleSellOnMarket}
-                activeSubTab={economySubTab}
-                setActiveSubTab={setEconomySubTab}
-              />
-            )}
-
-            {activeTab === 'lab' && (
-              <LabTab
-                key="tab_lab_comp"
-                state={state}
-                handleBuyUpgrade={handleBuyUpgrade}
-                handlePurchaseSeedSlime={handlePurchaseSeedSlime}
-                activeSubTab={labSubTab}
-                setActiveSubTab={setLabSubTab}
               />
             )}
 
@@ -1596,6 +948,23 @@ export default function App() {
                 handleAdvanceCycle={handleAdvanceCycle}
                 activeSubTab={planetSubTab}
                 setActiveSubTab={setPlanetSubTab}
+                selectedNodeId={selectedNodeId}
+                setSelectedNodeId={setSelectedNodeId}
+                setSelectedZoneId={setSelectedZoneId}
+                setActiveTab={setActiveTab}
+                selectedZoneId={selectedZoneId}
+                dispatchDraftIds={dispatchDraftIds}
+                setDispatchDraftIds={setDispatchDraftIds}
+                realtimeRemainingMs={realtimeRemainingMs}
+                activeDispatchReport={activeDispatchReport}
+                setActiveDispatchReport={setActiveDispatchReport}
+                handleLaunchDispatch={handleLaunchDispatch}
+                handleRetrieveCompletedPod={handleRetrieveCompletedPod}
+                handleAssignGarrison={handleAssignGarrison}
+                handleRecallGarrison={handleRecallGarrison}
+                handleForceClaim={handleForceClaim}
+                handleBribeClaim={handleBribeClaim}
+                handleConvertClaim={handleConvertClaim}
               />
             )}
           </AnimatePresence>
@@ -1868,6 +1237,58 @@ export default function App() {
                 }`}
               >
                 Acknowledge report & release pod
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RESET GAME CONFIRMATION MODAL */}
+      {resetConfirmOpen && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div 
+            className="border border-red-500/30 bg-[#0c1220] rounded-xl p-6 max-w-md w-full space-y-4 shadow-[0_0_50px_rgba(239,68,68,0.15)] relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-red-500" />
+            
+            <div className="flex items-center space-x-2 pb-2 border-b border-slate-850">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+              <h3 className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase">Wipe Laboratory Records</h3>
+              <button 
+                onClick={() => setResetConfirmOpen(false)}
+                className="ml-auto text-slate-500 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-normal font-mono">
+              This action initiates a full system purge of the computer terminal. <span className="text-red-400 font-bold">ALL current progress, unlocked slimes, planetary sectors, and laboratory upgrades will be permanently deleted.</span>
+            </p>
+
+            <div className="p-3 bg-red-950/20 border border-red-900/40 rounded-lg flex items-start space-x-2 text-[10px] font-mono text-red-300 leading-normal">
+              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold">DESTRUCTIVE TERMINAL RESET:</span> This procedure cannot be undone. The laboratory will restart with a fresh pair of starter specimens and default corporate grants.
+              </div>
+            </div>
+
+            <div className="flex space-x-3 pt-2">
+              <button 
+                onClick={() => setResetConfirmOpen(false)}
+                className="flex-1 py-2 rounded bg-slate-900 border border-slate-800 hover:bg-slate-850 text-slate-400 font-mono text-xs uppercase cursor-pointer transition-colors"
+              >
+                Cancel Purge
+              </button>
+              <button 
+                onClick={() => {
+                  localStorage.removeItem(LOCAL_STORAGE_KEY);
+                  window.location.reload();
+                }}
+                className="flex-1 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold uppercase tracking-wider cursor-pointer transition-all shadow-[0_0_15px_rgba(239,68,68,0.25)] flex items-center justify-center space-x-1.5"
+              >
+                <span>Authorize Purge</span>
               </button>
             </div>
           </div>
