@@ -20,7 +20,7 @@ export function classifySourceFile(sourceText: string, fileName: string = 'input
 
   for (const stmt of sourceFile.statements) {
     if (!ts.isVariableStatement(stmt)) continue;
-    const hasExport = stmt.modifiers?.some((m: ts.Modifier) => m.kind === ts.SyntaxKind.ExportKeyword) ?? false;
+    const hasExport = stmt.modifiers?.some(m => m.kind === ts.SyntaxKind.ExportKeyword) ?? false;
     if (!hasExport) continue;
 
     for (const decl of stmt.declarationList.declarations) {
@@ -127,7 +127,7 @@ function checkObjectProperty(prop: ts.ObjectLiteralElementLike, sourceFile: ts.S
   if (ts.isSpreadAssignment(prop)) {
     return { isPure: false, reason: 'Spread assignment — cannot prove purity' };
   }
-  if (prop.kind === ts.SyntaxKind.ComputedProperty) {
+  if (ts.isComputedPropertyName(prop)) {
     return { isPure: false, reason: 'Computed property name — cannot prove purity' };
   }
   if (ts.isShorthandPropertyAssignment(prop)) {
