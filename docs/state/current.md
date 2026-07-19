@@ -2,6 +2,41 @@
 
 *Last updated: July 19 2026*
 
+## Fix handleAdvanceCycle — Missing Mediation/Dispatch/Zone Read-Back — COMPLETED
+
+### Bug
+
+`handleAdvanceCycle` in `App.tsx` read back `active_exploration` from
+the Lua `advance_cycle` result but did NOT read back `active_mediation`,
+`active_dispatch`, or `zones`. This meant:
+
+- **Mediation**: Lua set `active_mediation = nil` after resolution, but
+  TS never updated `state.activeMediation` → mediation missions appeared
+  stuck forever in the UI even though Lua had resolved them
+- **Dispatch**: Lua set `active_dispatch.status = "completed"`, but TS
+  never updated `state.activeDispatch` → `handleRetrieveCompletedPod`
+  couldn't work because the TS-side status never changed
+- **Zones**: Lua updated `isUnlocked` and `isFirstClearCompleted` on
+  first-clear dispatch success, but TS never reflected these changes
+
+### Fix
+
+Added `active_mediation`, `active_dispatch`, and `zones` read-back to
+the `setState` call in `handleAdvanceCycle`. Extracted a shared
+`missionFromLua` helper for consistent Mission mapping. Zones are mapped
+from camelCase Lua fields (zones pass through `stateToLua` without
+snake_case conversion).
+
+### Files Modified
+
+- `ts/src/games/slimeworld/App.tsx` — added `missionFromLua` helper,
+  `activeMediation`/`activeDispatch`/`zones` read-back, `Mission` import
+
+### Test Floor
+
+- Python: **447 passed**, 8 warnings (unchanged)
+- TypeScript: **195 passed** (unchanged)
+
 ## Fix Dispatch Resolution in advance_cycle — Third Instance of Mission Lifecycle Bug — COMPLETED
 
 ### Bug

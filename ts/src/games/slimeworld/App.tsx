@@ -9,7 +9,7 @@ import { LabTab } from './components/LabTab';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
-import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Slime, type SlimeColor, type SlimePattern } from './types';
+import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Mission, type Slime, type SlimeColor, type SlimePattern } from './types';
 import { generatePlanetRegion } from './planetRegion';
 
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
@@ -187,7 +187,15 @@ export default function App({ session }: GameRendererProps) {
       text: String(l['text'] ?? ''), type: (l['type'] ?? 'system') as LogEntry['type'],
     })) : [];
     const luaActiveExploration = result['active_exploration'] as Record<string, unknown> | null;
+    const luaActiveMediation = result['active_mediation'] as Record<string, unknown> | null;
+    const luaActiveDispatch = result['active_dispatch'] as Record<string, unknown> | null;
+    const luaZones = Array.isArray(result['zones']) ? (result['zones'] as Array<Record<string, unknown>>) : null;
     const luaRegion = result['planet_region'] as Record<string, unknown> | null;
+    const missionFromLua = (m: Record<string, unknown>) => ({
+      id: String(m['id'] ?? ''), zoneId: m['zone_id'] as string | undefined, targetNodeId: m['target_node_id'] as string | undefined,
+      slimeIds: (m['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(m['cycles_remaining'] ?? 0),
+      status: String(m['status'] ?? 'active') as Mission['status'],
+    });
     setState(previous => ({
       ...previous,
       cycle: Number(result['cycle'] ?? previous.cycle + 1),
@@ -198,7 +206,16 @@ export default function App({ session }: GameRendererProps) {
         requiredPattern: String(c['required_pattern'] ?? 'Solid') as SlimePattern, creditsReward: Number(c['credits_reward'] ?? 0),
         cyclesRemaining: Number(c['cycles_remaining'] ?? 0), totalCycles: Number(c['total_cycles'] ?? 0), flavorText: String(c['flavor_text'] ?? ''),
       })) : previous.contracts,
-      activeExploration: luaActiveExploration ? { id: String(luaActiveExploration['id']), targetNodeId: String(luaActiveExploration['target_node_id']), slimeIds: (luaActiveExploration['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(luaActiveExploration['cycles_remaining']), status: String(luaActiveExploration['status']) as 'active' } : null,
+      activeExploration: luaActiveExploration ? missionFromLua(luaActiveExploration) : null,
+      activeMediation: luaActiveMediation ? missionFromLua(luaActiveMediation) : null,
+      activeDispatch: luaActiveDispatch ? missionFromLua(luaActiveDispatch) : null,
+      zones: luaZones ? luaZones.map(z => ({
+        id: String(z['id'] ?? ''), name: String(z['name'] ?? ''), requiredColor: String(z['requiredColor'] ?? 'Red') as SlimeColor,
+        recommendedLevel: Number(z['recommendedLevel'] ?? 1), difficulty: Number(z['difficulty'] ?? 1),
+        creditsReward: Number(z['creditsReward'] ?? 0), xpReward: Number(z['xpReward'] ?? 0),
+        isUnlocked: Boolean(z['isUnlocked'] ?? false), isFirstClearCompleted: Boolean(z['isFirstClearCompleted'] ?? false),
+        flavorText: String(z['flavorText'] ?? ''),
+      })) : previous.zones,
       planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
       slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
       petitions: Array.isArray(result['petitions']) ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs) : previous.petitions,
