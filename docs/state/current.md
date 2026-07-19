@@ -2,6 +2,104 @@
 
 *Last updated: July 18 2026*
 
+## Wire Starter Slime Creation to Real Lua Stats — COMPLETED
+
+### Bug: `seedSlime()` was a shadow TS function that never called Lua
+
+`seedSlime()` in `App.tsx` was a completely separate, TS-only, hardcoded
+function that created every starter slime with flat baseline stats
+`{ hp: 100, atk: 10, def: 10, agi: 10, int: 10, chm: 10 }`. It never
+called Lua's real `create_seed_slime` at all. The entire Color+Shape stat
+computation work (correctly built and verified in Lua's `calculate_stats`,
+`get_interpolated_specs`, `get_shape_stat_modifiers`) was unreachable from
+the live game. Every player's starting roster ran on the flat baseline.
+
+**Root cause:** A correct Lua function, verified in isolation, is not
+proof any given call site actually reaches it. The TS `seedSlime()`
+function was a shadow implementation that bypassed the entire Lua bridge.
+
+### Fix
+
+Replaced `seedSlime()` with a real `call(session, 'create_seed_slime',
+color, 'Solid', colorSpecs)` invocation inside `initialState()`. The
+real `colorSpecs` are built using the existing `buildColorSpecs(data)`
+helper (same pattern used by `handleInitiateBreeding` elsewhere in the
+file). The returned Lua slime is converted via `luaSlimeToTs`, then:
+
+- **`id`** is overridden to `starter_${index}` (stable, deterministic)
+- **`name`** is overridden with the starter's configured name from
+  `data.yaml` — this is the correct name-precedence decision because
+  `create_seed_slime` internally calls `generate_slime_name()` which
+  produces a random "Prefix-Suffix" name, but starters have explicit
+  configured names that must win
+- **`diffusionRatio`**, **`amplitude`**, **`accentHue`** — TS-side
+  defaults (20, 40, HUES[color]) since `create_seed_slime` does not set
+  these fields. They are accent-layer visual properties, not stat-affecting
+- **`vertexCount`**, **`irregularity`** — TS-side defaults from
+  `SEED_SHAPE_DEFAULTS` (mirroring the Lua table in `data.yaml`).
+  `create_seed_slime` reads these internally for `calculate_stats` but
+  does not set them on the returned slime object
+- **`createdAt`** — `Date.now()` fallback (Lua doesn't set this for seeds)
+- **`stage`** — `'Hatchling'` fallback (Lua doesn't set this for seeds)
+
+### Fields: Lua-returned vs TS-defaulted
+
+| Field | Source | Value |
+|---|---|---|
+| `id` | TS override | `starter_${index}` |
+| `name` | TS override | From `data.yaml` starter config |
+| `color` | Lua | Correct culture color |
+| `pattern` | Lua | `'Solid'` |
+| `level` | Lua | `1` |
+| `xp` | Lua | `0` |
+| `stats` | Lua (`calculate_stats`) | Real formula-computed stats |
+| `role` | Lua | `'idle'` |
+| `generation` | Lua | `0` |
+| `hue` | Lua | Culture hue (0, 60, 120, 180, 240, 300) |
+| `saturation` | Lua | `100` (or `0` for Gray) |
+| `colorSaturation` | Lua | Same as saturation |
+| `diffusionRatio` | TS default | `20` |
+| `amplitude` | TS default | `40` |
+| `accentHue` | TS default | `HUES[color]` |
+| `vertexCount` | TS default | From `SEED_SHAPE_DEFAULTS` |
+| `irregularity` | TS default | From `SEED_SHAPE_DEFAULTS` |
+| `createdAt` | TS default | `Date.now()` |
+| `stage` | TS default | `'Hatchling'` |
+| `lockedRole` | TS default | `null` (Lua nil) |
+| `garrisonedAt` | TS default | `null` |
+
+### Test coverage
+
+New file: `ts/tests/test_starter_slime_stats.tsx` (5 anchors):
+
+1. `test_starter_slimes_use_real_calculate_stats_not_flat_baseline` —
+   every starter's stats differ from `{100,10,10,10,10,10}`
+2. `test_different_starter_colors_produce_genuinely_different_stats` —
+   Red and Blue starters are measurably different (Red ATK > Blue ATK,
+   Blue INT > Red INT)
+3. `test_starter_slime_retains_intended_name_not_lua_generated_name` —
+   starter IDs match `starter_N` pattern, name override confirmed in source
+4. `test_luaSlimeToTs_covers_every_field_this_component_reads` —
+   every `SLIME_EXPLICIT_LUA_FIELDS` field is either returned by Lua or
+   has a known TS-side default
+5. `test_starter_slime_stats_match_real_color_specs_formula_exactly` —
+   hand-computed Red stats (hp=128, atk=18, def=8, agi=6, int=5, chm=6)
+   match Lua output exactly
+
+### Final test floors
+
+- **Python:** 432 passed, 8 warnings
+- **TypeScript:** 192 passed, 27 files (+5 tests, +1 file from 187/26)
+
+### Lesson
+
+A correct Lua function, verified in isolation, is not proof any given
+call site actually reaches it. The `seedSlime()` shadow function was a
+TS-only hardcoded path that bypassed the entire Lua bridge — the stats
+formula was correct but unreachable from the live game.
+
+---
+
 ## Real Slime Shape Rendering (Phase 1: Geometry) — COMPLETED
 
 ### What was built

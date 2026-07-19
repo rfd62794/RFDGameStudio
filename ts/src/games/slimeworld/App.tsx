@@ -33,9 +33,17 @@ function buildColorSpecs(data: Record<string, unknown>): Record<string, { base_s
   return specs;
 }
 
-function seedSlime(name: string, color: SlimeColor, index: number): Slime {
-  return { id: `starter_${index}`, name, color, pattern: 'Solid', level: 1, xp: 0, stats: { hp: 100, atk: 10, def: 10, agi: 10, int: 10, chm: 10 }, role: 'idle', generation: 0, colorSaturation: color === 'Gray' ? 0 : 100, hue: HUES[color], saturation: color === 'Gray' ? 0 : 100, diffusionRatio: 20, amplitude: 40, accentHue: HUES[color], vertexCount: 4, irregularity: 10, createdAt: Date.now(), lockedRole: null, garrisonedAt: null, stage: 'Hatchling' };
-}
+// SEED_SHAPE_DEFAULTS — mirrors the Lua table for TS-side field defaults
+// that create_seed_slime does not set on its return object.
+const SEED_SHAPE_DEFAULTS: Record<string, { vertexCount: number; irregularity: number }> = {
+  Red: { vertexCount: 3, irregularity: 10 },
+  Orange: { vertexCount: 3, irregularity: 15 },
+  Yellow: { vertexCount: 6, irregularity: 10 },
+  Green: { vertexCount: 6, irregularity: 15 },
+  Purple: { vertexCount: 4, irregularity: 15 },
+  Blue: { vertexCount: 4, irregularity: 10 },
+  Gray: { vertexCount: 4, irregularity: 20 },
+};
 
 const INITIAL_ZONES: CombatZone[] = [
   { id: 'zone_cinder', name: 'Rusty Cinder Craters', requiredColor: 'Red', recommendedLevel: 1, difficulty: 1, creditsReward: 50, xpReward: 60, isUnlocked: true, isFirstClearCompleted: false, flavorText: 'An iron-rich expanse of heat chimneys and jagged slag-heaps. Ideal for Red Slimes to solidify their core.' },
@@ -54,7 +62,30 @@ export function initialState(session: GameRendererProps['session']): LabState {
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
   const relationships = (lab['culture_relationships'] ?? {}) as Record<SlimeColor, number>;
-  const starterSlimes = starters.map((starter, index) => seedSlime(String(starter['name'] ?? `Specimen-${index + 1}`), (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor, index));
+  const colorSpecs = buildColorSpecs(data);
+  const starterSlimes = starters.map((starter, index) => {
+    const color = (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor;
+    const [raw] = call(session, 'create_seed_slime', color, 'Solid', colorSpecs) as [Record<string, unknown> | null, string | null];
+    if (!raw) throw new Error(`create_seed_slime returned null for starter ${index}`);
+    const lua = luaSlimeToTs(raw);
+    const shapeDefaults = SEED_SHAPE_DEFAULTS[color] ?? { vertexCount: 4, irregularity: 10 };
+    // Override id and name with the real, intended starter values.
+    // create_seed_slime internally calls generate_slime_name() which produces
+    // a random name; the starter's configured name from data.yaml must win.
+    return {
+      ...lua,
+      id: `starter_${index}`,
+      name: String(starter['name'] ?? `Specimen-${index + 1}`),
+      // Fields create_seed_slime does not set — real TS-side defaults
+      diffusionRatio: lua.diffusionRatio || 20,
+      amplitude: lua.amplitude || 40,
+      accentHue: lua.accentHue || HUES[color],
+      vertexCount: lua.vertexCount || shapeDefaults.vertexCount,
+      irregularity: lua.irregularity || shapeDefaults.irregularity,
+      createdAt: lua.createdAt || Date.now(),
+      stage: lua.stage ?? 'Hatchling',
+    } as Slime;
+  });
   const colorCodex: Record<SlimeColor, { discovered: boolean }> = {} as Record<SlimeColor, { discovered: boolean }>;
   const patternCodex: Record<SlimePattern, { discovered: boolean }> = {} as Record<SlimePattern, { discovered: boolean }>;
   for (const slime of starterSlimes) {
