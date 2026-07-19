@@ -1,6 +1,102 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 18 2026*
+*Last updated: July 19 2026*
+
+## Split SlimeWorld's logic.lua into Multi-File Modules — COMPLETED
+
+### What was done
+
+SlimeWorld's `logic.lua` was 1,223 lines — the largest single Lua file in
+the studio. It has been split into 6 files using the existing `lua_files`
+mechanism in `systems.yaml` (same pattern as Shoal and Slither Rogue).
+
+The split is **byte-identical**: concatenating the 6 new files in
+`lua_files` order with `"\n\n".join(parts)` (the exact logic
+`studio/loader.py` uses) produces output identical to the original
+`logic.lua`. Zero behavior change.
+
+### New file structure
+
+| File | Lines | Contents |
+|---|---|---|
+| `breeding.lua` | 377 | Genetics, stats, state queries, `calculate_stats`, `create_seed_slime`, `initiate_breeding` |
+| `territory.lua` | 187 | Claims, `launch_dispatch`, `launch_exploration`, `launch_mediation`, garrison |
+| `missions.lua` | 41 | `launch_dispatch` dispatch actions, exploration, mediation, garrison |
+| `economy.lua` | 66 | `deliver_contract`, economy functions |
+| `codex.lua` | 320 | `is_slime_in_matching_culture_environment`, worker income, contracts, petitions, names, seed slime, planet sim, wilds |
+| `logic.lua` | 227 | `advance_cycle` (main entry point) — reduced to orchestration only |
+
+**Dependency order:** `breeding → territory → missions → economy → codex → logic`
+(`logic.lua` last, matching Shoal's precedent for global scope behavior).
+
+### systems.yaml update
+
+```yaml
+lua_files:
+  - breeding.lua
+  - territory.lua
+  - missions.lua
+  - economy.lua
+  - codex.lua
+  - logic.lua
+```
+
+### Tooling updates
+
+- **`tools/detect_multi_return/scan_lua.py`** — Updated to respect
+  `lua_files` from `systems.yaml` when scanning games. Games without
+  `lua_files` still fall back to `logic.lua`.
+- **`ts/tests/test_multi_return_bridge.ts`** — `loadExecutor()` now reads
+  `systems.yaml` and concatenates all `lua_files` when present.
+- **`ts/tests/test_lifecycle_detector.ts`** — Reads all `lua_files` from
+  `systems.yaml` instead of just `logic.lua`.
+- **`ts/tests/test_recovery_manifest.ts`** — Passes concatenated Lua
+  content to `auditExports` via new `luaText` override.
+- **`ts/tools/framework_gen/audit.ts`** — `AuditOptions` gains optional
+  `luaText` field for callers that need to pass pre-concatenated content.
+- **`tests/test_slimeworld_stats.py`** —
+  `test_pattern_switch_not_ported` now reads all `lua_files` from
+  `systems.yaml` instead of just `logic.lua`.
+
+### Test coverage — `tests/test_slimeworld_file_split.py` (5 anchors)
+
+1. `test_real_line_count_reduction_confirmed` — `logic.lua` is now ~227
+   lines, down from ~1,223
+2. `test_no_lingering_single_file_reference` — `systems.yaml` declares
+   `lua_files` with all 6 files, `logic.lua` last, backup file not
+   referenced
+3. `test_concatenated_output_byte_identical_to_original` — Concatenating
+   the 6 files with `"\n\n".join(parts)` is byte-identical to the saved
+   original
+4. `test_studio_validate_game_still_passes` — `studio_validate_game`
+   reports valid=True with no issues
+5. `test_all_432_existing_python_tests_still_pass_unmodified` — Full
+   Python suite passes at >= 432 with zero failures
+
+### Files changed
+
+- `games/slimeworld/breeding.lua` — new (split from logic.lua)
+- `games/slimeworld/territory.lua` — new (split from logic.lua)
+- `games/slimeworld/missions.lua` — new (split from logic.lua)
+- `games/slimeworld/economy.lua` — new (split from logic.lua)
+- `games/slimeworld/codex.lua` — new (split from logic.lua)
+- `games/slimeworld/logic.lua` — reduced to `advance_cycle` only
+- `games/slimeworld/logic_original.lua` — backup of pre-split original
+- `games/slimeworld/systems.yaml` — added `lua_files` list
+- `tools/detect_multi_return/scan_lua.py` — respects `lua_files`
+- `ts/tools/framework_gen/audit.ts` — optional `luaText` override
+- `ts/tests/test_multi_return_bridge.ts` — reads `lua_files`
+- `ts/tests/test_lifecycle_detector.ts` — reads `lua_files`
+- `ts/tests/test_recovery_manifest.ts` — reads `lua_files`
+- `tests/test_slimeworld_stats.py` — reads `lua_files`
+- `tests/test_slimeworld_file_split.py` — new, 5 test anchors
+
+### Final test floors
+
+- **Python:** 437 passed (432 original + 5 new file-split tests)
+- **TypeScript:** 192 passed (unchanged — zero behavior change)
+
+---
 
 ## Wire Starter Slime Creation to Real Lua Stats — COMPLETED
 

@@ -1,19 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { resolve } from 'node:path';
+import { resolve, join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import yaml from 'js-yaml';
 import { auditExports, type SymbolStatus } from '../tools/framework_gen/audit';
 import { camelToSnake } from '../tools/framework_gen/emit_yaml';
 import { generateManifest } from '../tools/framework_gen/manifest_report';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..');
 const SOURCE_PATH = resolve(REPO_ROOT, 'intake/slimegarden/extracted/src/gameLogic.ts');
-const LUA_PATH = resolve(REPO_ROOT, 'games/slimeworld/logic.lua');
-const DATA_YAML_PATH = resolve(REPO_ROOT, 'games/slimeworld/data.yaml');
+const GAME_DIR = resolve(REPO_ROOT, 'games/slimeworld');
+const LUA_PATH = resolve(GAME_DIR, 'logic.lua');
+const DATA_YAML_PATH = resolve(GAME_DIR, 'data.yaml');
 const TS_SLIMEWORLD_DIR = resolve(REPO_ROOT, 'ts/src/games/slimeworld');
+
+// Read all lua_files from systems.yaml, concatenated with \n\n (same as loader)
+const _systems = yaml.load(readFileSync(join(GAME_DIR, 'systems.yaml'), 'utf-8')) as Record<string, unknown>;
+const _luaFiles = (_systems['lua_files'] as string[]) ?? ['logic.lua'];
+const _luaText = _luaFiles.map(f => readFileSync(join(GAME_DIR, f), 'utf-8')).join('\n\n');
 
 function runAudit() {
   return auditExports({
     sourcePath: SOURCE_PATH,
     luaPath: LUA_PATH,
+    luaText: _luaText,
     dataYamlPath: DATA_YAML_PATH,
     tsSlimeworldDir: TS_SLIMEWORLD_DIR,
   });

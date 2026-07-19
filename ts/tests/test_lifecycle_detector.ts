@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { resolve } from 'node:path';
+import { resolve, join } from 'node:path';
 import { readFileSync } from 'node:fs';
+import yaml from 'js-yaml';
 import { detectLifecycles } from '../tools/framework_gen/lifecycle_detector';
-import { crossReferenceManifest, generateLifecycleReport } from '../tools/framework_gen/lifecycle_report';
+import { crossReferenceManifest } from '../tools/framework_gen/lifecycle_report';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..');
-const LUA_PATH = resolve(REPO_ROOT, 'games/slimeworld/logic.lua');
+const GAME_DIR = resolve(REPO_ROOT, 'games/slimeworld');
 const MANIFEST_PATH = resolve(REPO_ROOT, 'docs/slimegarden_recovery_manifest.md');
 const SOURCE_PATH = resolve(REPO_ROOT, 'intake/slimegarden/extracted/src/gameLogic.ts');
 
-const luaText = readFileSync(LUA_PATH, 'utf8');
+// Read all lua_files declared in systems.yaml, concatenated with \n\n (same as loader)
+const systemsPath = join(GAME_DIR, 'systems.yaml');
+const systems = yaml.load(readFileSync(systemsPath, 'utf-8')) as Record<string, unknown>;
+const luaFiles = (systems['lua_files'] as string[]) ?? ['logic.lua'];
+const LUA_PATH = join(GAME_DIR, luaFiles[0]);
+const luaText = luaFiles.map(f => readFileSync(join(GAME_DIR, f), 'utf-8')).join('\n\n');
 const manifestText = readFileSync(MANIFEST_PATH, 'utf8');
 const sourceText = readFileSync(SOURCE_PATH, 'utf8');
 

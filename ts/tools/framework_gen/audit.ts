@@ -24,6 +24,7 @@ export interface AuditResult {
 export interface AuditOptions {
   sourcePath: string;
   luaPath: string;
+  luaText?: string;
   dataYamlPath: string;
   tsSlimeworldDir: string;
 }
@@ -32,7 +33,7 @@ export function auditExports(opts: AuditOptions): AuditResult {
   const sourceText = readFileSync(resolve(opts.sourcePath), 'utf8');
   const sourceFile = ts.createSourceFile('gameLogic.ts', sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 
-  const luaText = readFileSync(resolve(opts.luaPath), 'utf8');
+  const luaText = opts.luaText ?? readFileSync(resolve(opts.luaPath), 'utf8');
   const yamlText = readFileSync(resolve(opts.dataYamlPath), 'utf8');
   const tsFiles = collectTsFiles(opts.tsSlimeworldDir);
   const tsFileContents: Record<string, string> = {};

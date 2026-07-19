@@ -11,14 +11,26 @@
 
 import { describe, it, expect } from 'vitest';
 import { LuaExecutor } from '../src/engine/executor';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import yaml from 'js-yaml';
 
 const GAMES_DIR = join(__dirname, '..', '..', 'games');
 
 function loadExecutor(gameId: string): LuaExecutor {
-  const luaPath = join(GAMES_DIR, gameId, 'logic.lua');
-  const luaSource = readFileSync(luaPath, 'utf-8');
+  const systemsPath = join(GAMES_DIR, gameId, 'systems.yaml');
+  let luaSource: string;
+  if (existsSync(systemsPath)) {
+    const systems = yaml.load(readFileSync(systemsPath, 'utf-8')) as Record<string, unknown>;
+    const luaFiles = systems['lua_files'] as string[] | undefined;
+    if (luaFiles && luaFiles.length > 0) {
+      luaSource = luaFiles.map(f => readFileSync(join(GAMES_DIR, gameId, f), 'utf-8')).join('\n\n');
+    } else {
+      luaSource = readFileSync(join(GAMES_DIR, gameId, 'logic.lua'), 'utf-8');
+    }
+  } else {
+    luaSource = readFileSync(join(GAMES_DIR, gameId, 'logic.lua'), 'utf-8');
+  }
   return new LuaExecutor(luaSource, 42);
 }
 
