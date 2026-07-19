@@ -21,6 +21,8 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
+import yaml
+
 GAMES_DIR = Path(__file__).resolve().parent.parent.parent / "games"
 
 # Matches: return expr1, expr2 [, expr3 ...]
@@ -95,12 +97,35 @@ def scan_file(path: Path, game_id: str) -> List[Dict[str, Any]]:
     return results
 
 
+def _get_lua_files(game_dir: Path) -> List[Path]:
+    """Get the list of Lua files to scan for a game.
+
+    Respects lua_files in systems.yaml if declared; otherwise falls back to logic.lua.
+    """
+    systems_path = game_dir / "systems.yaml"
+    if systems_path.exists():
+        systems = yaml.safe_load(systems_path.read_text(encoding="utf-8")) or {}
+        lua_files = systems.get("lua_files")
+        if lua_files:
+            return [game_dir / f for f in lua_files if (game_dir / f).exists()]
+    logic_path = game_dir / "logic.lua"
+    return [logic_path] if logic_path.exists() else []
+
+
+def scan_game(game_dir: Path, game_id: str) -> List[Dict[str, Any]]:
+    """Scan all Lua files for a single game."""
+    results: List[Dict[str, Any]] = []
+    for lua_path in _get_lua_files(game_dir):
+        results.extend(scan_file(lua_path, game_id))
+    return results
+
+
 def scan_all(games_dir: Path = GAMES_DIR) -> List[Dict[str, Any]]:
-    """Scan all games/*/logic.lua files."""
+    """Scan all games for multi-value returns."""
     all_results: List[Dict[str, Any]] = []
-    for lua_path in sorted(games_dir.glob("*/logic.lua")):
-        game_id = lua_path.parent.name
-        all_results.extend(scan_file(lua_path, game_id))
+    for game_dir in sorted(games_dir.iterdir()):
+        if game_dir.is_dir() and (game_dir / "data.yaml").exists():
+            all_results.extend(scan_game(game_dir, game_dir.name))
     return all_results
 
 
@@ -111,11 +136,11 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.game:
-        lua_path = GAMES_DIR / args.game / "logic.lua"
-        if not lua_path.exists():
-            print(f"Error: {lua_path} not found", file=sys.stderr)
+        game_dir = GAMES_DIR / args.game
+        if not game_dir.exists():
+            print(f"Error: {game_dir} not found", file=sys.stderr)
             sys.exit(1)
-        results = scan_file(lua_path, args.game)
+        results = scan_game(game_dir, args.game)
     else:
         results = scan_all()
 

@@ -5,6 +5,14 @@ engine_version: "1.0"
 
 engine_systems: []
 
+lua_files:
+  - breeding.lua
+  - territory.lua
+  - missions.lua
+  - economy.lua
+  - codex.lua
+  - logic.lua
+
 systems:
   - id: genetics
     description: "Continuous color genetics and color-target steering"

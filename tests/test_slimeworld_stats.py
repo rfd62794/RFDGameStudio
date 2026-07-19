@@ -196,8 +196,13 @@ def test_pattern_switch_not_ported():
     """Confirm no Pattern-name-based bonus logic exists anywhere in the new code."""
     import re
     from pathlib import Path
-    logic_path = Path(__file__).parent.parent / "games" / "slimeworld" / "logic.lua"
-    source = logic_path.read_text()
+    import yaml
+    game_dir = Path(__file__).parent.parent / "games" / "slimeworld"
+    systems = yaml.safe_load((game_dir / "systems.yaml").read_text(encoding="utf-8"))
+    lua_files = systems.get("lua_files", ["logic.lua"])
+    source = "\n\n".join(
+        (game_dir / f).read_text(encoding="utf-8") for f in lua_files
+    )
     match = re.search(r'function calculate_stats\(.*?\nend', source, re.DOTALL)
     assert match is not None, "calculate_stats function not found"
     calc_body = match.group(0)
