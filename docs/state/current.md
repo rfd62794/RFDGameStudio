@@ -2,6 +2,35 @@
 
 *Last updated: July 19 2026*
 
+## Fix Hardcoded Offspring ID — Breeding Produced Duplicate IDs — COMPLETED
+
+### Bug
+
+`breed_slimes` in `breeding.lua` returned a child with a hardcoded
+`id = "slime_offspring"`. Every breeding result shared the same id.
+In the Roster UI, clicking one bred slime highlighted all of them
+because selection logic matches by slime id. This also caused the
+"double slot consumption" appearance — two slimes with the same id
+were treated as linked entries.
+
+### Fix
+
+Changed `id = "slime_offspring"` to
+`id = "slime_" .. os.time() .. "_" .. math.random(1000)`, matching
+the unique id pattern used by `create_seed_slime` in `codex.lua`.
+
+### Files Modified
+
+- `games/slimeworld/breeding.lua` — fixed `breed_slimes` return id
+- `games/slimeworld/logic_original.lua` — synced for byte-identical test
+- `tests/test_slimeworld_breeding_cost.py` — updated assertion to use
+  `child["id"]` instead of hardcoded `"slime_offspring"`
+
+### Test Floor
+
+- Python: **447 passed**, 8 warnings (unchanged)
+- TypeScript: **195 passed** (unchanged)
+
 ## Implement Seed Purchase — Lua + TS Wiring — COMPLETED
 
 ### Bug

@@ -49,7 +49,7 @@ def test_breeding_consumes_donor_parent():
     child, error, state = _initiate_with_lua_state(_state([_slime("host", "Red", 3), _slime("donor", "Blue", 5)]), "host", "donor")
     assert error is None
     assert child["consumed_slime_id"] == "donor"
-    assert [slime["id"] for slime in state["slimes"]] == ["host", "slime_offspring"]
+    assert [slime["id"] for slime in state["slimes"]] == ["host", child["id"]]
 
 
 def test_breeding_consumption_atomic_with_failure():
