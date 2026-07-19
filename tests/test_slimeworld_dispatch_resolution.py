@@ -462,7 +462,10 @@ def test_full_dispatch_lifecycle():
 
     # Verify dispatch is now cleared (Lua nil doesn't serialize as a key)
     assert state_after_retrieve.get("active_dispatch") is None
-    # The retrieved dispatch should have the result
+    # The retrieved dispatch — retrieve_completed_dispatch returns (dispatch, error)
+    # so _to_python gives a tuple; index 0 is the dispatch object
     assert retrieve_py is not None
-    assert retrieve_py["status"] == "completed"
-    assert retrieve_py["result"] is not None
+    retrieve_dispatch = retrieve_py[0] if isinstance(retrieve_py, tuple) else retrieve_py
+    assert retrieve_dispatch is not None
+    assert retrieve_dispatch["status"] == "completed"
+    assert retrieve_dispatch["result"] is not None
