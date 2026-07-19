@@ -232,7 +232,18 @@ export default function App({ session }: GameRendererProps) {
 
   const handleLaunchDispatch = useCallback(() => { if (!selectedZoneId) return; const [raw] = call(session, 'launch_dispatch', stateToLua(state), selectedZoneId, dispatchDraftIds); if (!raw) return; const r = raw as Record<string, unknown>; setState(previous => ({ ...previous, activeDispatch: { id: String(r['id']), zoneId: String(r['zone_id']), slimeIds: (r['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(r['cycles_remaining']), status: String(r['status']) as 'active' } })); }, [dispatchDraftIds, selectedZoneId, session, state]);
   const handleRetrieveCompletedPod = useCallback(() => { const value = call(session, 'retrieve_completed_dispatch', stateToLua(state)); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'No completed dispatch.'); return; } setState(previous => ({ ...previous, activeDispatch: null })); }, [session, state]);
-  const handleLaunchMediation = useCallback(() => { if (!selectedMediationNodeId) return; call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds); }, [mediationDraftIds, selectedMediationNodeId, session, state]);
+  const handleLaunchMediation = useCallback(() => {
+    if (!selectedMediationNodeId) return;
+    const [raw] = call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds);
+    if (!raw) return;
+    const r = raw as Record<string, unknown>;
+    setState(previous => ({
+      ...previous,
+      activeMediation: { id: String(r['id']), targetNodeId: String(r['target_node_id']), slimeIds: (r['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(r['cycles_remaining']), status: String(r['status']) as 'active' },
+    }));
+    setMediationDraftIds([]);
+    setSelectedMediationNodeId(null);
+  }, [mediationDraftIds, selectedMediationNodeId, session, state]);
   const handleLaunchExploration = useCallback(() => {
     if (!selectedExplorationNodeId || explorationDraftIds.length === 0) return;
     const [raw] = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds);

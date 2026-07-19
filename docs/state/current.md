@@ -2,6 +2,62 @@
 
 *Last updated: July 19 2026*
 
+## Fix Mediation Launch — Discarded Lua Result — COMPLETED
+
+### Bug
+
+`handleLaunchMediation` in `App.tsx` called
+`call(session, 'launch_mediation', ...)` and **discarded the result
+entirely** — no `setState`, nothing. The correctly-verified real
+resolution logic in Lua never got a chance to run from the player's
+perspective because `state.activeMediation` was never populated.
+
+Both sibling handlers (`handleLaunchDispatch`, `handleLaunchExploration`)
+correctly destructure the Lua return value and call `setState`.
+`handleLaunchMediation` alone was broken.
+
+### Fix
+
+Replaced the discarded call with the same pattern used by
+`handleLaunchExploration`:
+
+- Destructure `const [raw] = call(...)` to capture the Lua return
+- Guard `if (!raw) return` for null safety
+- Map Lua snake_case fields to TS `Mission` shape: `target_node_id` →
+  `targetNodeId`, `slime_ids` → `slimeIds`, `cycles_remaining` →
+  `cyclesRemaining`, `status` → `status`
+- Call `setState` to populate `activeMediation`
+- Clear draft selections (`setMediationDraftIds([])`,
+  `setSelectedMediationNodeId(null)`) — matching exploration's UX pattern
+
+### What was NOT changed
+
+- `handleLaunchDispatch` — already correct, reference pattern only
+- `handleLaunchExploration` — already correct, reference pattern only
+- Lua `launch_mediation` / mediation resolution logic in `advance_cycle`
+  — already correct, untouched
+
+### Test Anchors — `ts/tests/test_mediation_launch.tsx` (3 tests)
+
+| Test | What it proves |
+|---|---|
+| `test_launch_mediation_applies_real_state_update` | Lua returns real mission object with all fields; handler captures and applies it to `state.activeMediation` (not discards) |
+| `test_launch_mediation_without_selected_node_is_safe_noop` | Guard `if (!selectedMediationNodeId) return` is present and runs before the Lua call |
+| `test_mediation_selection_state_clears_correctly_after_launch` | Handler clears `mediationDraftIds` and `selectedMediationNodeId` post-launch, matching exploration's pattern |
+
+### Files Changed
+
+- `ts/src/games/slimeworld/App.tsx` — `handleLaunchMediation` captures
+  result, applies `setState`, clears selections
+- `ts/tests/test_mediation_launch.tsx` — new, 3 test anchors
+
+### Final test floors
+
+- **Python:** 437 passed, 8 warnings
+- **TypeScript:** 195 passed, 28 files (+3 tests, +1 file from 192/27)
+
+---
+
 ## Split SlimeWorld's logic.lua into Multi-File Modules — COMPLETED
 
 ### What was done
