@@ -2,6 +2,47 @@
 
 *Last updated: July 19 2026*
 
+## Implement Seed Purchase — Lua + TS Wiring — COMPLETED
+
+### Bug
+
+The Lab tab showed "Order [50 Cr]" buttons for Red, Yellow, and Blue
+seed slimes, but clicking produced only the warning: "Seed purchase is
+visible but unavailable: no Lua function exists." The handler was a stub.
+
+### Fix
+
+**Lua side** (`games/slimeworld/economy.lua`): Added
+`purchase_seed_slime(state, color, color_specs)` function that:
+- Charges 50 credits
+- Checks roster cap (`state.roster_cap`)
+- Calls `create_seed_slime(color, "Solid", color_specs)` from `codex.lua`
+- Inserts the new slime into `state.slimes`
+- Returns the new slime object
+
+Also added to `systems.yaml` economy system functions list and synced
+to `logic_original.lua` for byte-identical test.
+
+**TS side** (`ts/src/games/slimeworld/App.tsx`): Replaced the stub
+`handlePurchaseSeedSlime` with a real implementation that:
+- Calls `purchase_seed_slime` via the Lua bridge with `colorSpecs`
+- Converts the returned slime via `luaSlimeToTs`
+- Fills in TS-side defaults (`diffusionRatio`, `amplitude`, `accentHue`,
+  `vertexCount`, `irregularity`) matching the `initialState` pattern
+- Updates `credits`, `slimes`, and `logs` in state
+
+### Files Modified
+
+- `games/slimeworld/economy.lua` — added `purchase_seed_slime` function
+- `games/slimeworld/logic_original.lua` — synced for byte-identical test
+- `games/slimeworld/systems.yaml` — added `purchase_seed_slime` to economy functions
+- `ts/src/games/slimeworld/App.tsx` — wired up `handlePurchaseSeedSlime`
+
+### Test Floor
+
+- Python: **447 passed**, 8 warnings (unchanged)
+- TypeScript: **195 passed** (unchanged)
+
 ## Fix handleAdvanceCycle — Missing Mediation/Dispatch/Zone Read-Back — COMPLETED
 
 ### Bug
