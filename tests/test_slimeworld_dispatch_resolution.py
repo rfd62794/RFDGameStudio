@@ -176,19 +176,23 @@ def test_dispatch_success_chance_formula():
     # With very high ratio, should succeed most of the time
     assert successes >= 45, f"Strong party only succeeded {successes}/50 times"
 
-    # Weak party: level 1, non-matching color, high-level zone → very low ratio
-    weak_slimes = [_slime("s1", color="Blue", level=1, hp=50, atk=5, def_val=5)]
+    # Weak party: level 1, non-matching color, minimal stats, high-level zone
+    # combat_rating = (1*10 + 1/15 + 0 + 0) * 1.0 ≈ 10.07
+    # power_target = 6*30 + 3*25 = 255
+    # ratio = 10.07/255 ≈ 0.039 → chance = 0.2 + 0.039*0.6 ≈ 0.224, clamped to 0.224
+    # That's still ~22% success. Use even weaker: hp=1, atk=0, def=0
+    weak_slimes = [_slime("s1", color="Blue", level=1, hp=1, atk=0, def_val=0)]
     weak_zone = _zone(required_color="Red", recommended_level=6, difficulty=3)
     weak_state = _state(slimes=weak_slimes, zones=[weak_zone],
                         dispatch=_dispatch(slime_ids=["s1"]))
 
     failures = 0
-    for seed in range(1, 51):
+    for seed in range(1, 101):
         result = _advance(weak_state, seed=seed)
         if not result["active_dispatch"]["result"]["success"]:
             failures += 1
-    # With very low ratio, should fail most of the time
-    assert failures >= 40, f"Weak party only failed {failures}/50 times"
+    # With ratio ≈ 0.04, chance ≈ 0.224 → expect ~78% failures
+    assert failures >= 70, f"Weak party only failed {failures}/100 times"
 
 
 # --- 3. Chance clamped to correct bounds [0.1, 0.98] ---
@@ -196,29 +200,37 @@ def test_dispatch_success_chance_formula():
 def test_dispatch_chance_clamped_to_correct_bounds():
     """[0.1, 0.98], NOT [0.15, 0.98] — the real, distinct detail.
 
-    With an extremely weak party (ratio near 0), the chance should be
-    clamped to 0.1, not 0.15. We verify by running many seeds with a
-    party that has near-zero combat rating. If the floor were 0.15,
-    we'd see ~15% success rate; at 0.1, we'd see ~10%.
+    The formula's else branch gives 0.2 + ratio*0.6, which at ratio=0
+    yields 0.2 — above both 0.1 and 0.15 floors. So the floor constant
+    only matters if the formula could produce a value below it, which
+    can't happen here. We verify the constant directly from the Lua source.
     """
-    # Near-zero combat: level 1, hp=1, atk=0, def=0, non-matching color
-    weak_slime = _slime("s1", color="Blue", level=1, hp=1, atk=0, def_val=0)
-    # High power target: recommended_level=6, difficulty=3 → 6*30+3*25 = 255
-    hard_zone = _zone(required_color="Red", recommended_level=6, difficulty=3)
-    state = _state(slimes=[weak_slime], zones=[hard_zone],
-                   dispatch=_dispatch(slime_ids=["s1"]))
+    from pathlib import Path
 
-    successes = 0
-    runs = 200
-    for seed in range(1, runs + 1):
-        result = _advance(state, seed=seed)
-        if result["active_dispatch"]["result"]["success"]:
-            successes += 1
+    logic_path = Path(__file__).parent.parent / "games" / "slimeworld" / "logic.lua"
+    source = logic_path.read_text(encoding="utf-8")
 
-    rate = successes / runs
-    # At 0.1 floor: ~10% success. At 0.15 floor: ~15% success.
-    # Allow tolerance for RNG variance.
-    assert rate < 0.18, f"Success rate {rate:.2%} suggests floor is 0.15, not 0.1"
+    # Find the dispatch resolution block and verify it uses 0.1, not 0.15
+    dispatch_block_start = source.find("Resolve active dispatch")
+    assert dispatch_block_start > 0, "Dispatch resolution block not found in logic.lua"
+
+    # Find the clamp line within the dispatch block
+    wilds_start = source.find("Wilds unlock check", dispatch_block_start)
+    dispatch_block = source[dispatch_block_start:wilds_start]
+
+    # Must contain math.max(0.1, ...) — the real, distinct clamp bound
+    assert "math.max(0.1," in dispatch_block or "math.max(0.1, " in dispatch_block, (
+        "Dispatch resolution must use 0.1 as clamp floor, not 0.15"
+    )
+    # Must NOT contain 0.15 as the clamp floor
+    assert "math.max(0.15" not in dispatch_block, (
+        "Dispatch resolution must NOT use 0.15 as clamp floor (that's exploration/mediation)"
+    )
+
+    # Also verify the upper bound is 0.98
+    assert "math.min(0.98" in dispatch_block, (
+        "Dispatch resolution must use 0.98 as clamp ceiling"
+    )
 
 
 # --- 4. Success awards zone rewards ---
@@ -337,7 +349,9 @@ def test_dispatch_repeat_clear_does_not_reunlock():
         dr = result["active_dispatch"]["result"]
         if dr["success"]:
             # Should NOT unlock anything since first clear already done
-            assert dr["unlocked_zone_id"] is None
+            # Note: Lua nil values don't serialize as dict keys, so the key
+            # may be absent rather than present with None value.
+            assert dr.get("unlocked_zone_id") is None or "unlocked_zone_id" not in dr
             # zone_sulphur should still be locked
             sulphur = [z for z in result["zones"] if z["id"] == "zone_sulphur"][0]
             assert sulphur["isUnlocked"] is False
@@ -423,9 +437,13 @@ def test_full_dispatch_lifecycle():
     assert state_after_launch["active_dispatch"]["zone_id"] == "zone_cinder"
 
     # Step 2: Advance cycle — resolves the dispatch
+    # Re-convert state to Lua (launch_dispatch modified the lua_state in place,
+    # but we need to pass it fresh to advance_cycle with color_specs)
+    state_for_advance = _to_python(lua_state)
+    lua_state_2 = session.executor._to_lua(state_for_advance)
     cs_lua = session.executor._to_lua(cs)
-    session.executor._lua.globals()["advance_cycle"](lua_state, cs_lua)
-    state_after_advance = _to_python(lua_state)
+    session.executor._lua.globals()["advance_cycle"](lua_state_2, cs_lua)
+    state_after_advance = _to_python(lua_state_2)
 
     # Verify dispatch is completed but NOT cleared
     assert state_after_advance["active_dispatch"] is not None
@@ -437,9 +455,10 @@ def test_full_dispatch_lifecycle():
     assert "credits_gained" in dr
 
     # Step 3: Retrieve completed dispatch — clears it
-    retrieve_result = session.executor._lua.globals()["retrieve_completed_dispatch"](lua_state)
+    # Pass the same lua_state_2 that advance_cycle modified
+    retrieve_result = session.executor._lua.globals()["retrieve_completed_dispatch"](lua_state_2)
     retrieve_py = _to_python(retrieve_result)
-    state_after_retrieve = _to_python(lua_state)
+    state_after_retrieve = _to_python(lua_state_2)
 
     # Verify dispatch is now cleared
     assert state_after_retrieve["active_dispatch"] is None
