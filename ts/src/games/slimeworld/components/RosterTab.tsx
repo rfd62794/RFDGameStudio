@@ -475,6 +475,7 @@ export function RosterTab({
                     <span className="absolute top-2 left-2 text-[9px] font-mono tracking-wider bg-slate-900 border border-slate-800 text-slate-500 px-2 py-0.5 rounded uppercase">Parent Beta</span>
                     {parentBId ? (
                       <div className="text-center flex flex-col items-center">
+                        <span className="absolute top-2 right-10 text-[8px] font-mono font-bold tracking-wider bg-red-950/80 border border-red-800 text-red-400 px-1.5 py-0.5 rounded uppercase animate-pulse">Consumed</span>
                         <button 
                           onClick={() => setParentBId(null)}
                           className="absolute top-2 right-2 p-1 rounded hover:bg-red-950/20 text-slate-500 hover:text-red-400 cursor-pointer"
@@ -687,6 +688,10 @@ export function RosterTab({
                       <div className="bg-slate-900/60 p-2 rounded border border-slate-800/60 flex items-center justify-between">
                         <span className="text-[10px] text-slate-400">Breeding Tax:</span>
                         <span className="text-xs font-bold text-yellow-400 font-mono">10 Credits</span>
+                      </div>
+
+                      <div className="bg-red-950/30 border border-red-900/40 rounded p-2 flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-red-400 font-bold uppercase tracking-wider">⚠ Parent Beta will be consumed</span>
                       </div>
                     </div>
                   ) : (

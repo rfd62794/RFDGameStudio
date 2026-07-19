@@ -2,6 +2,47 @@
 
 *Last updated: July 19 2026*
 
+## Fix Missing Level-Up Logic & Advance Cycle Button — COMPLETED
+
+### Bug
+
+1. **Slimes never leveled up**: XP was awarded during exploration and dispatch
+   resolution in `advance_cycle`, but no code checked if XP exceeded the
+   100-XP-per-level threshold. The original TS implementation had this logic
+   (`useCycleActions.ts` / `useClaimActions.ts`) but it was never ported to Lua.
+   Since `stageFromLevel` derives the slime's life stage from level, slimes
+   also never appeared to age.
+
+2. **No always-visible Advance Cycle button**: The only "advance cycle" buttons
+   were contextual — they appeared only when a mediation, exploration, or
+   dispatch was active. With no active mission, there was no way to push
+   forward a cycle.
+
+### Fix
+
+1. Added `check_level_up(slime, color_specs)` helper to `logic.lua` (and
+   synced `logic_original.lua`). Called after each XP award in `advance_cycle`
+   (exploration and dispatch resolution). Uses a `while` loop to handle
+   multi-level jumps. Recalculates stats via `calculate_stats` on level up.
+
+2. Added an always-visible "Advance Cycle" button to the `statusArea` in the
+   GameShell header in `App.tsx`. Shows the current cycle number and a
+   `FastForward` icon button. Visible across all tabs (Roster, Missions,
+   Economy, Lab).
+
+### Files Modified
+
+- `games/slimeworld/logic.lua` — added `check_level_up` function, called after
+  exploration XP and dispatch XP awards
+- `games/slimeworld/logic_original.lua` — synced with same changes
+- `ts/src/games/slimeworld/App.tsx` — added `FastForward` import, cycle counter
+  and advance cycle button to header `statusArea`
+
+### Test Floor
+
+- Python: **447 passed**, 8 warnings
+- TypeScript: **195 passed**
+
 ## Fix Hardcoded Offspring ID — Breeding Produced Duplicate IDs — COMPLETED
 
 ### Bug

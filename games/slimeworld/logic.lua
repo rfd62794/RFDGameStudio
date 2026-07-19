@@ -1,3 +1,11 @@
+function check_level_up(slime, color_specs)
+  while (slime.xp or 0) >= 100 do
+    slime.xp = (slime.xp or 0) - 100
+    slime.level = (slime.level or 1) + 1
+    slime.stats = calculate_stats(slime.color, slime.level, slime.hue, slime.saturation, slime.vertex_count, slime.irregularity, color_specs)
+  end
+end
+
 function advance_cycle(state, color_specs)
   state.cycle = (state.cycle or 0) + 1
 
@@ -147,6 +155,7 @@ function advance_cycle(state, color_specs)
       for _, id in ipairs(exploration.slime_ids or {}) do
         if slime.id == id then
           slime.xp = (slime.xp or 0) + (success and 45 or 20)
+          check_level_up(slime, color_specs)
           slime.role = "idle"
           break
         end
@@ -246,6 +255,7 @@ function advance_cycle(state, color_specs)
         for _, id in ipairs(dispatch.slime_ids or {}) do
           if slime.id == id then
             slime.xp = (slime.xp or 0) + xp
+            check_level_up(slime, color_specs)
             slime.role = "idle"
             break
           end
