@@ -64,3 +64,13 @@ function rename_slime(state, slime_id, new_name)
   slime.name = trimmed_name
   return slime, nil
 end
+
+function purchase_seed_slime(state, color, color_specs)
+  local cost = 50
+  if (state.credits or 0) < cost then return nil, "Insufficient credits" end
+  if #(state.slimes or {}) >= (state.roster_cap or 8) then return nil, "Roster capacity reached" end
+  local seed = create_seed_slime(color, "Solid", color_specs)
+  table.insert(state.slimes, seed)
+  state.credits = (state.credits or 0) - cost
+  return seed, nil
+end

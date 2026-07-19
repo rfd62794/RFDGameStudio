@@ -94,6 +94,7 @@ systems:
       - sell_on_market
       - recycle_slime
       - rename_slime
+      - purchase_seed_slime
 
   - id: upgrades
     description: "Facility upgrades and worker role specialization"
