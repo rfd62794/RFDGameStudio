@@ -460,8 +460,8 @@ def test_full_dispatch_lifecycle():
     retrieve_py = _to_python(retrieve_result)
     state_after_retrieve = _to_python(lua_state_2)
 
-    # Verify dispatch is now cleared
-    assert state_after_retrieve["active_dispatch"] is None
+    # Verify dispatch is now cleared (Lua nil doesn't serialize as a key)
+    assert state_after_retrieve.get("active_dispatch") is None
     # The retrieved dispatch should have the result
     assert retrieve_py is not None
     assert retrieve_py["status"] == "completed"
