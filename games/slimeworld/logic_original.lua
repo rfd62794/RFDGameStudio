@@ -361,7 +361,7 @@ function breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_ta
 
   local color = final_saturation < 15 and "Gray" or snap_to_faction(final_hue)
   return {
-    id = "slime_offspring",
+    id = "slime_" .. os.time() .. "_" .. math.random(1000),
     color = color,
     hue = final_hue,
     saturation = final_saturation,
