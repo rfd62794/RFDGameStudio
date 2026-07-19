@@ -222,7 +222,31 @@ export default function App({ session }: GameRendererProps) {
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
   }, [session, state]);
-  const handlePurchaseSeedSlime = useCallback((_color: SlimeColor) => setWarning('Seed purchase is visible but unavailable: no Lua function exists.'), []);
+  const handlePurchaseSeedSlime = useCallback((color: SlimeColor) => {
+    const data = session.files.data as Record<string, unknown>;
+    const colorSpecs = buildColorSpecs(data);
+    const [raw, err] = call(session, 'purchase_seed_slime', stateToLua(state), color, colorSpecs) as [Record<string, unknown> | null, string | null];
+    if (err) { setWarning(err); return; }
+    if (!raw || typeof raw !== 'object') { setWarning('Seed purchase failed.'); return; }
+    const newSlime = luaSlimeToTs(raw as Record<string, unknown>);
+    const shapeDefaults = SEED_SHAPE_DEFAULTS[color] ?? { vertexCount: 4, irregularity: 10 };
+    setState(prev => ({
+      ...prev,
+      credits: prev.credits - 50,
+      slimes: [...prev.slimes, {
+        ...newSlime,
+        diffusionRatio: newSlime.diffusionRatio || 20,
+        amplitude: newSlime.amplitude || 40,
+        accentHue: newSlime.accentHue || HUES[color],
+        vertexCount: newSlime.vertexCount || shapeDefaults.vertexCount,
+        irregularity: newSlime.irregularity || shapeDefaults.irregularity,
+      }],
+      logs: [...prev.logs, {
+        id: `log_seed_${Date.now()}`, cycle: prev.cycle, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        text: `RECRUITMENT: Dispensed starter specimen ${newSlime.name} (${color} Core).`, type: 'system' as LogEntry['type'],
+      }].slice(-50),
+    }));
+  }, [session, state]);
   const handleBuyRegent = useCallback((_pattern: SlimePattern) => setWarning('Regent purchase has no Lua action.'), []);
   const handleBuyColorRegent = useCallback((_color: SlimeColor) => setWarning('Color Regent purchase has no Lua action.'), []);
   const handleBuyTargetRegent = useCallback((_id: string) => setWarning('Target Regent purchase has no Lua action.'), []);
