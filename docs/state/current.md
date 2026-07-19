@@ -2,6 +2,100 @@
 
 *Last updated: July 19 2026*
 
+## Fix Dispatch Resolution in advance_cycle — Third Instance of Mission Lifecycle Bug — COMPLETED
+
+### Bug
+
+`advance_cycle` in `logic.lua` had no dispatch resolution block. When a
+dispatch mission's `cycles_remaining` reached 0, the mission stayed
+`status = "active"` forever — slimes assigned to dispatch were
+soft-locked indefinitely. This is the **third confirmed instance** of
+the same bug class:
+
+1. **Exploration** — fixed by adding resolution block in `advance_cycle`
+2. **Mediation** — fixed by adding resolution block in `advance_cycle`
+3. **Dispatch** — fixed now (this change)
+
+### Root Cause
+
+The `resolveDispatch` function from the original TypeScript source
+(`gameLogic.ts` ~line 768) was never ported into `advance_cycle`. The
+launch function (`launch_dispatch` in `missions.lua`) correctly set
+`status = "active"`, and the retrieval function
+(`retrieve_completed_dispatch`) correctly checked for
+`status == "completed"` before clearing — but nothing in between ever
+set the status to `"completed"`.
+
+### Fix
+
+Added a dispatch resolution block to `advance_cycle` in `logic.lua`,
+between the mediation resolution and the wilds unlock check. The block:
+
+- Guards with `status == "active"` to prevent re-resolution
+- Looks up the zone via `find_by_id(state.zones, dispatch.zone_id)`
+- Selects the party via `select_slimes(state.slimes, dispatch.slime_ids)`
+- Handles empty party / missing zone as a distinct third outcome:
+  `success = false, 0 XP, 0 credits`
+- Computes combat rating per the real formula:
+  `(level * 10 + hp/15 + atk + def) * matchBonus` where
+  `matchBonus = 2.0` if `slime.color == zone.requiredColor`, else `1.0`
+- Computes power target: `recommendedLevel * 30 + difficulty * 25`
+- Success chance: ratio > 1 → `0.85 + (ratio-1)*0.1`,
+  else `0.2 + ratio*0.6`, clamped to **`[0.1, 0.98]`**
+  (distinct from exploration/mediation which use `[0.15, 0.98]`)
+- On success: awards `zone.xpReward` XP and `zone.creditsReward` credits
+- On failure: awards 15 XP flat consolation, 0 credits
+- On first clear: marks `zone.isFirstClearCompleted = true` and unlocks
+  the next zone in the chain:
+  `zone_cinder → zone_sulphur → zone_abyssal → zone_jungle`
+- Sets `dispatch.status = "completed"` with a `result` sub-table
+- Does **NOT** clear `active_dispatch` — that is
+  `retrieve_completed_dispatch`'s job (distinct integration contract)
+- Returns slimes to `role = "idle"` after awarding XP
+
+### Zone Field Names
+
+Zones are passed from TS via `stateToLua` as a direct pass-through (no
+snake_case conversion), so the Lua code uses the original camelCase
+field names: `requiredColor`, `recommendedLevel`, `xpReward`,
+`creditsReward`, `isFirstClearCompleted`, `isUnlocked`.
+
+### Files Modified
+
+- `games/slimeworld/logic.lua` — added dispatch resolution block (60 lines)
+- `games/slimeworld/logic_original.lua` — synced to match (byte-identical test)
+- `tests/test_slimeworld_dispatch_resolution.py` — new test file, 10 anchors
+
+### Test Anchors
+
+1. `test_dispatch_combat_rating_sums_party_with_color_bonus` — verifies
+   color match bonus (2x) is applied correctly
+2. `test_dispatch_success_chance_formula` — verifies both ratio branches
+   (strong party succeeds, weak party fails)
+3. `test_dispatch_chance_clamped_to_correct_bounds` — source-code
+   inspection verifying `[0.1, 0.98]` clamp, NOT `[0.15, 0.98]`
+4. `test_dispatch_success_awards_zone_rewards` — verifies XP and credits
+   match zone data exactly
+5. `test_dispatch_failure_awards_consolation_xp` — verifies 15 XP flat,
+   0 credits on failure
+6. `test_dispatch_first_clear_unlocks_next_zone` — verifies unlock chain:
+   `zone_cinder → zone_sulphur`
+7. `test_dispatch_repeat_clear_does_not_reunlock` — verifies second clear
+   of already-cleared zone produces no unlock
+8. `test_dispatch_empty_party_completes_as_failure` — verifies distinct
+   third outcome: `success = false, 0 XP, 0 credits`
+9. `test_dispatch_status_completed_not_cleared_by_advance_cycle` —
+   verifies integration contract: `active_dispatch` present with
+   `status = "completed"` (not nil)
+10. `test_full_dispatch_lifecycle` — end-to-end:
+    `launch_dispatch → advance_cycle → retrieve_completed_dispatch`
+
+### Test Floor
+
+- Pre-flight: **437 passed**, 8 warnings
+- Post-fix: **447 passed**, 8 warnings (+10 new dispatch resolution tests)
+- 0 regressions
+
 ## Fix Mediation Launch — Discarded Lua Result — COMPLETED
 
 ### Bug

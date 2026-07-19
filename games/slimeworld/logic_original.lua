@@ -1201,6 +1201,66 @@ function advance_cycle(state, color_specs)
     state.active_mediation = nil
   end
 
+  -- Resolve active dispatch
+  if state.active_dispatch and state.active_dispatch.status == "active" then
+    local dispatch = state.active_dispatch
+    local zone = find_by_id(state.zones, dispatch.zone_id)
+    local party = select_slimes(state.slimes, dispatch.slime_ids)
+
+    if #party == 0 or zone == nil then
+      dispatch.status = "completed"
+      dispatch.result = { success = false, xp_gained = 0, credits_gained = 0 }
+    else
+      local combat_rating = 0
+      for _, slime in ipairs(party) do
+        local match_bonus = (slime.color == zone.requiredColor) and 2.0 or 1.0
+        combat_rating = combat_rating + (slime.level * 10 + (slime.stats.hp or 0) / 15 + (slime.stats.atk or 0) + (slime.stats.def or 0)) * match_bonus
+      end
+      local power_target = zone.recommendedLevel * 30 + zone.difficulty * 25
+      local ratio = power_target > 0 and (combat_rating / power_target) or 0
+      local chance
+      if ratio > 1 then chance = 0.85 + (ratio - 1) * 0.1
+      else chance = 0.2 + ratio * 0.6 end
+      chance = math.min(0.98, math.max(0.1, chance))
+
+      local success = math.random() <= chance
+      local xp, credits, unlocked = 0, 0, nil
+      if success then
+        xp = zone.xpReward
+        credits = zone.creditsReward
+        if not zone.isFirstClearCompleted then
+          zone.isFirstClearCompleted = true
+          if zone.id == "zone_cinder" then unlocked = "zone_sulphur"
+          elseif zone.id == "zone_sulphur" then unlocked = "zone_abyssal"
+          elseif zone.id == "zone_abyssal" then unlocked = "zone_jungle" end
+        end
+      else
+        xp = 15
+      end
+
+      for _, slime in ipairs(state.slimes or {}) do
+        for _, id in ipairs(dispatch.slime_ids or {}) do
+          if slime.id == id then
+            slime.xp = (slime.xp or 0) + xp
+            slime.role = "idle"
+            break
+          end
+        end
+      end
+
+      state.credits = (state.credits or 0) + credits
+
+      if unlocked then
+        for _, z in ipairs(state.zones or {}) do
+          if z.id == unlocked then z.isUnlocked = true break end
+        end
+      end
+
+      dispatch.status = "completed"
+      dispatch.result = { success = success, xp_gained = xp, credits_gained = credits, unlocked_zone_id = unlocked }
+    end
+  end
+
   -- Wilds unlock check
   if not state.wilds_unlocked and check_wilds_unlock_condition(state.slimes) then
     state.wilds_unlocked = true
