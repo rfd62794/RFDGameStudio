@@ -1,0 +1,1160 @@
+# RFDGameStudio — Dissonance Depths
+# Data Layer — extracted from verified TypeScript prototype source.
+
+game:
+  id: dissonance
+  name: Dissonance Depths
+  version: '1.0'
+  studio: RFDGameStudio
+  phase: PHASE A.1
+run:
+  player_max_hp: 25
+  starting_essence: 0
+  deck_size: 8
+  hand_size: 5
+  reshuffle_threshold: 5
+elements:
+- ember
+- ash
+- spark
+- cinder
+components:
+- sever
+- mend
+- guard
+- unmake
+modifiers:
+  ember:
+    sever: 2
+    mend: -1
+    guard: -1
+    unmake: 1
+  ash:
+    sever: 0
+    mend: 1
+    guard: 1
+    unmake: 2
+  spark:
+    sever: 3
+    mend: -2
+    guard: -1
+    unmake: 0
+  cinder:
+    sever: 1
+    mend: 0
+    guard: 2
+    unmake: 1
+card_costs:
+  single: 75
+  same: 125
+  adjacent: 100
+  opposed: 150
+card_name_map:
+  ember_none_sever: Ember Strike
+  ash_none_sever: Ashen Lash
+  spark_none_sever: Spark Lance
+  cinder_none_sever: Cinder Blade
+  ember_ember_sever: Blazing Twinstrike
+  ash_ash_sever: Ashfall Reaper
+  spark_spark_sever: Overcharged Spark
+  cinder_cinder_sever: Cinderstorm Cleave
+  ember_ash_sever: Smoldering Edge
+  ash_spark_sever: Kindling Arc
+  spark_cinder_sever: Ember-Forged Spike
+  ember_cinder_sever: Coalfire Slash
+  ember_spark_sever: Volatile Ignition
+  ash_cinder_sever: Smother's Gambit
+  ember_none_mend: Ember's Mend
+  ash_none_mend: Ashen Balm
+  spark_none_mend: Quickspark Recovery
+  cinder_none_mend: Cinder's Comfort
+  ember_ember_mend: Ember's Full Warmth
+  ash_ash_mend: Deep Ash Rest
+  spark_spark_mend: Surge Restoration
+  cinder_cinder_mend: Cinderbed Recovery
+  ember_ash_mend: Smoke-Cured Wound
+  ash_spark_mend: Rekindled Vigor
+  spark_cinder_mend: Glowing Renewal
+  ember_cinder_mend: Hearthfire Mend
+  ember_spark_mend: Unstable Regeneration
+  ash_cinder_mend: Buried Ember's Gift
+  ember_none_guard: Ember Ward
+  ash_none_guard: Ashen Bulwark
+  spark_none_guard: Static Barrier
+  cinder_none_guard: Cinder Plating
+  ember_ember_guard: Blazing Bastion
+  ash_ash_guard: Ashen Fortress
+  spark_spark_guard: Overcharged Barrier
+  cinder_cinder_guard: Iron Cinder Wall
+  ember_ash_guard: Smoke Veil
+  ash_spark_guard: Charged Cinderscreen
+  spark_cinder_guard: Insulated Plating
+  ember_cinder_guard: Hearthguard
+  ember_spark_guard: Volatile Aegis
+  ash_cinder_guard: Smothered Bastion
+  ember_none_unmake: Slow Burn
+  ash_none_unmake: Choking Ash
+  spark_none_unmake: Arcing Decay
+  cinder_none_unmake: Smoldering Rot
+  ember_ember_unmake: Twin Cinder Unmaking
+  ash_ash_unmake: Ashfall Blight
+  spark_spark_unmake: Overload Decay
+  cinder_cinder_unmake: Deep Cinder Rot
+  ember_ash_unmake: Smoldering Curse
+  ash_spark_unmake: Static Ashburn
+  spark_cinder_unmake: Emberous Decay
+  ember_cinder_unmake: Hearthrot
+  ember_spark_unmake: Volatile Unmaking
+  ash_cinder_unmake: Silent Consumption
+named_cards:
+- id: ember_none
+  name: Ignis Spark
+  el1: ember
+  el2: null
+  relationType: single
+  description: Channel pure fire. Applies single Ember alignment.
+  cost: 75
+  culture: ember
+- id: ash_none
+  name: Ashen Drift
+  el1: ash
+  el2: null
+  relationType: single
+  description: Channel drifting ash. Applies single Ash alignment.
+  cost: 75
+  culture: ember
+- id: spark_none
+  name: Flickering Flare
+  el1: spark
+  el2: null
+  relationType: single
+  description: Channel crackling electricity. Applies single Spark alignment.
+  cost: 75
+  culture: ember
+- id: cinder_none
+  name: Glowing Smolder
+  el1: cinder
+  el2: null
+  relationType: single
+  description: Channel residual heat. Applies single Cinder alignment.
+  cost: 75
+  culture: ember
+- id: ember_ember
+  name: Consuming Inferno
+  el1: ember
+  el2: ember
+  relationType: same
+  description: Perfect resonance of dual flame. 1.5x power multiplier.
+  cost: 125
+  culture: ember
+- id: ash_ash
+  name: Volcanic Ashstorm
+  el1: ash
+  el2: ash
+  relationType: same
+  description: Perfect resonance of dual ash. 1.5x power multiplier.
+  cost: 125
+  culture: ember
+- id: spark_spark
+  name: Static Discharge
+  el1: spark
+  el2: spark
+  relationType: same
+  description: Perfect resonance of dual spark. 1.5x power multiplier.
+  cost: 125
+  culture: ember
+- id: cinder_cinder
+  name: Cinder Monolith
+  el1: cinder
+  el2: cinder
+  relationType: same
+  description: Perfect resonance of dual cinder. 1.5x power multiplier.
+  cost: 125
+  culture: ember
+- id: ember_ash
+  name: Rising Smoke
+  el1: ember
+  el2: ash
+  relationType: adjacent
+  description: Combines Ember and Ash. Triggers Ash adjacent bonus (+2 Shield).
+  cost: 100
+  culture: ember
+- id: ash_ember
+  name: Ashen Sirocco
+  el1: ash
+  el2: ember
+  relationType: adjacent
+  description: Combines Ash and Ember. Triggers Heat adjacent bonus (+2 Damage).
+  cost: 100
+  culture: ember
+- id: ash_spark
+  name: Spark Shower
+  el1: ash
+  el2: spark
+  relationType: adjacent
+  description: Combines Ash and Spark. Triggers Spark adjacent bonus (+2 Heal).
+  cost: 100
+  culture: ember
+- id: spark_ash
+  name: Ashen Spark
+  el1: spark
+  el2: ash
+  relationType: adjacent
+  description: Combines Spark and Ash. Triggers Ash adjacent bonus (+2 Shield).
+  cost: 100
+  culture: ember
+- id: spark_cinder
+  name: Sparking Cinder
+  el1: spark
+  el2: cinder
+  relationType: adjacent
+  description: Combines Spark and Cinder. Triggers Cinder adjacent bonus (+2 Shield).
+  cost: 100
+  culture: ember
+- id: cinder_spark
+  name: Cinder Spark
+  el1: cinder
+  el2: spark
+  relationType: adjacent
+  description: Combines Cinder and Spark. Triggers Spark adjacent bonus (+2 Heal).
+  cost: 100
+  culture: ember
+- id: cinder_ember
+  name: Volcanic Magma
+  el1: cinder
+  el2: ember
+  relationType: adjacent
+  description: Combines Cinder and Ember. Triggers Heat adjacent bonus (+2 Damage).
+  cost: 100
+  culture: ember
+- id: ember_cinder
+  name: Molten Crucible
+  el1: ember
+  el2: cinder
+  relationType: adjacent
+  description: Combines Ember and Cinder. Triggers Cinder adjacent bonus (+2 Shield).
+  cost: 100
+  culture: ember
+- id: ember_spark
+  name: Plasma Pressure
+  el1: ember
+  el2: spark
+  relationType: opposed
+  description: Combines Opposed Ember and Spark. 50% chance for 1.5x power, otherwise
+    0.5x penalty.
+  cost: 150
+  culture: ember
+- id: spark_ember
+  name: Boiling Spark
+  el1: spark
+  el2: ember
+  relationType: opposed
+  description: Combines Opposed Spark and Ember. 50% chance for 1.5x power, otherwise
+    0.5x penalty.
+  cost: 150
+  culture: ember
+- id: ash_cinder
+  name: Searing Gale
+  el1: ash
+  el2: cinder
+  relationType: opposed
+  description: Combines Opposed Ash and Cinder. 50% chance for 1.5x power, otherwise
+    0.5x penalty.
+  cost: 150
+  culture: ember
+- id: cinder_ash
+  name: Cinder Ash
+  el1: cinder
+  el2: ash
+  relationType: opposed
+  description: Combines Opposed Cinder and Ash. 50% chance for 1.5x power, otherwise
+    0.5x penalty.
+  cost: 150
+  culture: ember
+boons:
+- id: ember_power
+  tier: basic
+  targetType: element
+  targetId: ember
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: ash_shield
+  tier: basic
+  targetType: element
+  targetId: ash
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: spark_heal
+  tier: basic
+  targetType: element
+  targetId: spark
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: cinder_power
+  tier: basic
+  targetType: element
+  targetId: cinder
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: sever_basic
+  tier: basic
+  targetType: action
+  targetId: sever
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: guard_basic
+  tier: basic
+  targetType: action
+  targetId: guard
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: mend_basic
+  tier: basic
+  targetType: action
+  targetId: mend
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: unmake_basic
+  tier: basic
+  targetType: action
+  targetId: unmake
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: single_basic
+  tier: basic
+  targetType: combination
+  targetId: single
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: same_basic
+  tier: basic
+  targetType: combination
+  targetId: same
+  effectShape: flat
+  modifier: 2
+  essenceCost: 20
+- id: sever_power
+  tier: advanced
+  targetType: action
+  targetId: sever
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: guard_power
+  tier: advanced
+  targetType: action
+  targetId: guard
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: mend_power
+  tier: advanced
+  targetType: action
+  targetId: mend
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: unmake_power
+  tier: advanced
+  targetType: action
+  targetId: unmake
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: ember_advanced
+  tier: advanced
+  targetType: element
+  targetId: ember
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: ash_advanced
+  tier: advanced
+  targetType: element
+  targetId: ash
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: spark_advanced
+  tier: advanced
+  targetType: element
+  targetId: spark
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: cinder_advanced
+  tier: advanced
+  targetType: element
+  targetId: cinder
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: single_advanced
+  tier: advanced
+  targetType: combination
+  targetId: single
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: same_advanced
+  tier: advanced
+  targetType: combination
+  targetId: same
+  effectShape: flat
+  modifier: 3
+  essenceCost: 30
+- id: ember_sever_duo
+  tier: elite
+  targetType: combination
+  targetId: ember_sever
+  effectShape: flat
+  modifier: 5
+  essenceCost: 45
+  requiresBoonId: ember_power
+- id: spark_mend_duo
+  tier: elite
+  targetType: combination
+  targetId: spark_mend
+  effectShape: flat
+  modifier: 5
+  essenceCost: 45
+  requiresBoonId: spark_heal
+- id: ash_guard_duo
+  tier: elite
+  targetType: combination
+  targetId: ash_guard
+  effectShape: flat
+  modifier: 5
+  essenceCost: 45
+  requiresBoonId: ash_shield
+- id: cinder_unmake_duo
+  tier: elite
+  targetType: combination
+  targetId: cinder_unmake
+  effectShape: flat
+  modifier: 5
+  essenceCost: 45
+  requiresBoonId: cinder_power
+- id: no_fizzle
+  tier: master
+  targetType: combination
+  targetId: opposed
+  effectShape: qualitative
+  qualitativeEffect: Opposed plays cannot Fizzle this run
+  essenceCost: 65
+- id: same_amplify
+  tier: master
+  targetType: combination
+  targetId: same
+  effectShape: qualitative
+  qualitativeEffect: Same-relation plays gain +1 to their multiplier this run
+  essenceCost: 65
+- id: guard_reflect
+  tier: master
+  targetType: action
+  targetId: guard
+  effectShape: qualitative
+  qualitativeEffect: Guard actions also deal their shield value as damage
+  essenceCost: 65
+- id: escalation_boon
+  tier: master
+  targetType: combination
+  targetId: same
+  effectShape: qualitative
+  qualitativeEffect: 'Burster Build: Consecutive Same plays stack Escalation (+0.25x
+    multiplier per stack)'
+  essenceCost: 65
+- id: volatile_surge
+  tier: master
+  targetType: combination
+  targetId: opposed
+  effectShape: qualitative
+  qualitativeEffect: 'Gambler Build: Opposed plays stack Momentum multipliers on both
+    success & fail'
+  essenceCost: 65
+- id: essence_ledger
+  tier: master
+  targetType: economy
+  targetId: essence
+  effectShape: qualitative
+  qualitativeEffect: 'Vault Build: Unspent Essence grants compounding card power efficiency
+    (+1% per 2 Essence)'
+  essenceCost: 65
+relics:
+- id: cracked_core
+  name: Cracked Core
+  category: economy
+  description: +1 hand size for this run.
+- id: steadfast_ember
+  name: Steadfast Ember
+  category: safety-net
+  description: Survive a lethal hit at 1 HP instead of dying, once per run.
+- id: merchants_ledger
+  name: Merchant's Ledger
+  category: economy
+  description: Treasure Rooms grant +50% Essence.
+- id: fractured_lens
+  name: Fractured Lens
+  category: info
+  description: Reward slots show their tier's odds before choosing.
+- id: loaded_ledger
+  name: Loaded Ledger
+  category: utility
+  description: Rest Or's rolled attachment is always the current Floor's weighted-favorite
+    type.
+- id: cracked_mirror
+  name: Cracked Mirror
+  category: risk
+  description: Opposed plays' success and fail multipliers both increase by +0.25x.
+- id: anchor_of_ash
+  name: Anchor of Ash
+  category: economy
+  description: Guard actions also grant +1 Essence.
+- id: oracles_eye
+  name: Oracle's Eye
+  category: utility
+  description: Automatically reveals the next branch's detail at every future hub
+    for the rest of this run.
+- id: echos_insight
+  name: Echo's Insight
+  category: info
+  master: true
+  description: Reveals one random undiscovered combination permanently, on acquisition.
+- id: embers_momentum
+  name: Ember's Momentum
+  category: synergy
+  description: 'Burster Build: Same plays increase combo damage and build momentum.'
+- id: steadfast_ward
+  name: Steadfast Ward
+  category: synergy
+  description: 'Steward Build: Guard actions stack defensive ward barrier and reflect
+    damage.'
+enemies:
+  behavior_types:
+  - id: mirror
+    name: The Mirror
+    description: Reflects the player's last-played Action back at them.
+  - id: escalator
+    name: The Escalator
+    description: Damage/effect grows measurably every N turns — direct generalization
+      of Molten Ashling's existing Escalating mechanic.
+  - id: weaver
+    name: The Weaver
+    description: Its own Vulnerable/Resistant Secondary Type shifts during the fight.
+  - id: saboteur
+    name: The Saboteur
+    description: Disables a specific, visible hand slot for one turn. NO Essence-drain
+      variant — explicitly rejected.
+  - id: parasite
+    name: The Parasite
+    description: Applies a debuff that worsens each turn left unanswered.
+  - id: coin
+    name: The Coin
+    description: Telegraphs two possible next moves at once, resolves to one at random.
+  - id: countdown
+    name: The Countdown
+    description: Telegraphs one devastating attack a fixed, visible number of turns
+      in advance.
+  band_stats:
+    advanced:
+      hp: 20
+      dmgPerTurn: 3.5
+    elite:
+      hp: 32
+      dmgPerTurn: 4
+    master:
+      hp: 55
+      dmgPerTurn: 3.5
+  basic:
+  - id: ashling
+    name: Ashling
+    tier: basic
+    hp: 14
+    signature: Single-pattern Ember striker.
+  - id: drifting_cinder
+    name: Drifting Cinder
+    tier: basic
+    hp: 10
+    signature: Low HP, erratic — intent changes randomly each turn.
+  - id: sparkling_husk
+    name: Sparkling Husk
+    tier: basic
+    hp: 8
+    signature: Fast, fragile — dies in 2-3 hits, but hits first.
+  - id: ashbound_wisp
+    name: Ashbound Wisp
+    tier: basic
+    hp: 12
+    signature: Always telegraphs Guard on turn 1, forcing a wasted opening turn if
+      rushed.
+  behavior_roster:
+  - id: mirror_adv
+    name: Mirror Sentinel (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - mirror
+    signature: '[[The Mirror] Reflects the player''s last-played Action back at them.]
+      Vulnerable to HYBRID, Resistant to VOLATILE.'
+  - id: escalator_adv
+    name: Escalator Ashling (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - escalator
+    signature: '[[The Escalator] Damage/effect grows measurably every N turns — direct
+      generalization of Molten Ashling''s existing Escalating mechanic.] Vulnerable
+      to BURST, Resistant to VOLATILE.'
+  - id: weaver_adv
+    name: Weaver Phantom (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - weaver
+    signature: '[[The Weaver] Its own Vulnerable/Resistant Secondary Type shifts during
+      the fight.] Vulnerable to BURST, Resistant to HYBRID.'
+  - id: saboteur_adv
+    name: Saboteur Fiend (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - saboteur
+    signature: '[[The Saboteur] Disables a specific, visible hand slot for one turn.
+      NO Essence-drain variant — explicitly rejected.] Vulnerable to HYBRID, Resistant
+      to VOLATILE.'
+  - id: parasite_adv
+    name: Parasite Spore (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - parasite
+    signature: '[[The Parasite] Applies a debuff that worsens each turn left unanswered.]
+      Vulnerable to BURST, Resistant to VOLATILE.'
+  - id: coin_adv
+    name: Coin Gambler (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - coin
+    signature: '[[The Coin] Telegraphs two possible next moves at once, resolves to
+      one at random.] Vulnerable to BURST, Resistant to HYBRID.'
+  - id: countdown_adv
+    name: Countdown Charger (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - countdown
+    signature: '[[The Countdown] Telegraphs one devastating attack a fixed, visible
+      number of turns in advance.] Vulnerable to HYBRID, Resistant to VOLATILE.'
+  - id: tally_adv
+    name: Tally Counter (Advanced)
+    tier: advanced
+    band: advanced
+    hp: 20
+    dmgPerTurn: 3.5
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - tally
+    signature: '[tally] Vulnerable to BURST, Resistant to VOLATILE.'
+  - id: elite_countdown_parasite
+    name: Ticking Void (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - countdown
+    - parasite
+    signature: '[Blended: [The Countdown] Telegraphs one devastating attack a fixed,
+      visible number of turns in advance. + [The Parasite] Applies a debuff that worsens
+      each turn left unanswered.] Race the timer while a debuff snowballs. Alternates
+      intents each turn.'
+  - id: elite_escalator_weaver
+    name: Flux Shifter (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - escalator
+    - weaver
+    signature: '[Blended: [The Escalator] Damage/effect grows measurably every N turns
+      — direct generalization of Molten Ashling''s existing Escalating mechanic. +
+      [The Weaver] Its own Vulnerable/Resistant Secondary Type shifts during the fight.]
+      Scaling damage combined with shifting type resistances. Alternates intents each
+      turn.'
+  - id: elite_tally_saboteur
+    name: Lattice Lock (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - tally
+    - saboteur
+    signature: '[Blended: tally + [The Saboteur] Disables a specific, visible hand
+      slot for one turn. NO Essence-drain variant — explicitly rejected.] Punishes
+      repeated plays while restricting hand slots. Alternates intents each turn.'
+  - id: elite_mirror_coin
+    name: Prism Gambler (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - mirror
+    - coin
+    signature: '[Blended: [The Mirror] Reflects the player''s last-played Action back
+      at them. + [The Coin] Telegraphs two possible next moves at once, resolves to
+      one at random.] Reflects plays while presenting dual unpredictable choices.
+      Alternates intents each turn.'
+  - id: elite_parasite_weaver
+    name: Miasma Weaver (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - parasite
+    - weaver
+    signature: '[Blended: [The Parasite] Applies a debuff that worsens each turn left
+      unanswered. + [The Weaver] Its own Vulnerable/Resistant Secondary Type shifts
+      during the fight.] Escalating rot with cycling defense stances. Alternates intents
+      each turn.'
+  - id: elite_countdown_weaver
+    name: Chronos Ward (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - countdown
+    - weaver
+    signature: '[Blended: [The Countdown] Telegraphs one devastating attack a fixed,
+      visible number of turns in advance. + [The Weaver] Its own Vulnerable/Resistant
+      Secondary Type shifts during the fight.] Massive countdown spike paired with
+      shifting weaknesses. Alternates intents each turn.'
+  - id: elite_tally_escalator
+    name: Resonance Overload (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - tally
+    - escalator
+    signature: '[Blended: tally + [The Escalator] Damage/effect grows measurably every
+      N turns — direct generalization of Molten Ashling''s existing Escalating mechanic.]
+      Scaling threat that punishes repetitive card combinations. Alternates intents
+      each turn.'
+  - id: elite_saboteur_mirror
+    name: Echo Binder (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - saboteur
+    - mirror
+    signature: '[Blended: [The Saboteur] Disables a specific, visible hand slot for
+      one turn. NO Essence-drain variant — explicitly rejected. + [The Mirror] Reflects
+      the player''s last-played Action back at them.] Locks hand options and reflects
+      active plays. Alternates intents each turn.'
+  - id: elite_coin_parasite
+    name: Fate Decay (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - coin
+    - parasite
+    signature: '[Blended: [The Coin] Telegraphs two possible next moves at once, resolves
+      to one at random. + [The Parasite] Applies a debuff that worsens each turn left
+      unanswered.] Dual telegraphed moves with worsening decay debuffs. Alternates
+      intents each turn.'
+  - id: elite_escalator_countdown
+    name: Dual Engine (Elite)
+    tier: elite
+    band: elite
+    hp: 32
+    dmgPerTurn: 4
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - escalator
+    - countdown
+    signature: '[Blended: [The Escalator] Damage/effect grows measurably every N turns
+      — direct generalization of Molten Ashling''s existing Escalating mechanic. +
+      [The Countdown] Telegraphs one devastating attack a fixed, visible number of
+      turns in advance.] Simultaneous steady scaling and big burst countdown timer.
+      Alternates intents each turn.'
+  - id: master_countdown_parasite
+    name: Singularity Core (Master)
+    tier: master
+    band: master
+    hp: 55
+    dmgPerTurn: 3.5
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - countdown
+    - parasite
+    signature: '[Master Blended: [The Countdown] Telegraphs one devastating attack
+      a fixed, visible number of turns in advance. + [The Parasite] Applies a debuff
+      that worsens each turn left unanswered.] Extreme countdown pressure with worsening
+      rot.'
+  - id: master_tally_saboteur
+    name: Dissonance Sovereign (Master)
+    tier: master
+    band: master
+    hp: 55
+    dmgPerTurn: 3.5
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - tally
+    - saboteur
+    signature: '[Master Blended: tally + [The Saboteur] Disables a specific, visible
+      hand slot for one turn. NO Essence-drain variant — explicitly rejected.] Locked
+      hand slots and punishing counter-strikes.'
+  - id: master_mirror_escalator
+    name: Reflective Storm (Master)
+    tier: master
+    band: master
+    hp: 55
+    dmgPerTurn: 3.5
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - mirror
+    - escalator
+    signature: '[Master Blended: [The Mirror] Reflects the player''s last-played Action
+      back at them. + [The Escalator] Damage/effect grows measurably every N turns
+      — direct generalization of Molten Ashling''s existing Escalating mechanic.]
+      Action reflection paired with non-stop scaling damage.'
+  - id: master_weaver_tally
+    name: Shifting Judgement (Master)
+    tier: master
+    band: master
+    hp: 55
+    dmgPerTurn: 3.5
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    behaviorTypeIds:
+    - weaver
+    - tally
+    signature: '[Master Blended: [The Weaver] Its own Vulnerable/Resistant Secondary
+      Type shifts during the fight. + tally] Constantly cycling weaknesses and repetition
+      counter.'
+  - id: master_countdown_escalator
+    name: Apex Overload (Master)
+    tier: master
+    band: master
+    hp: 55
+    dmgPerTurn: 3.5
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    behaviorTypeIds:
+    - countdown
+    - escalator
+    signature: '[Master Blended: [The Countdown] Telegraphs one devastating attack
+      a fixed, visible number of turns in advance. + [The Escalator] Damage/effect
+      grows measurably every N turns — direct generalization of Molten Ashling''s
+      existing Escalating mechanic.] Relentless escalation punctuated by heavy countdown
+      spikes.'
+  - id: master_parasite_saboteur
+    name: Corrupting Warden (Master)
+    tier: master
+    band: master
+    hp: 55
+    dmgPerTurn: 3.5
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    behaviorTypeIds:
+    - parasite
+    - saboteur
+    signature: '[Master Blended: [The Parasite] Applies a debuff that worsens each
+      turn left unanswered. + [The Saboteur] Disables a specific, visible hand slot
+      for one turn. NO Essence-drain variant — explicitly rejected.] Hand slot disruption
+      with snowballing parasitic decay.'
+  legacy_named:
+  - id: molten_ashling
+    name: Molten Ashling
+    tier: advanced
+    hp: 20
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    signature: Aggressive escalation — damage output increases each turn survived.
+  - id: cinder_brute
+    name: Cinder Brute
+    tier: advanced
+    hp: 24
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    signature: Telegraphs one heavy hit every 3rd turn — real punish for not Guarding
+      on cue.
+  - id: spark_lash
+    name: Spark Lash
+    tier: advanced
+    hp: 16
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    signature: Hits twice per turn, low individual damage — punishes ignoring chip
+      damage.
+  - id: ashen_marauder
+    name: Ashen Marauder
+    tier: advanced
+    hp: 18
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    signature: DoT-focused — mirrors the player's own Unmake pattern back at them.
+  - id: rootbound_guardian
+    name: Rootbound Guardian
+    tier: elite
+    hp: 30
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    signature: Self-heals each turn — real damage race, punishes slow builds.
+  - id: bulwark
+    name: Bulwark
+    tier: elite
+    hp: 40
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    signature: High HP, immovable — the Depression-floor grind fight.
+  - id: fracture_warden
+    name: Fracture Warden
+    tier: elite
+    hp: 28
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    signature: Punishes Opposed-relation plays specifically — reduces their success
+      chance.
+  - id: cinderlord_sentinel
+    name: Cinderlord Sentinel
+    tier: elite
+    hp: 32
+    secondaryType: burst
+    vulnerable: hybrid
+    resistant: volatile
+    signature: Stacks its own Shield each turn uninterrupted — rewards sustained aggression.
+  bosses:
+  - id: fractured_echo
+    name: Fractured Echo (Boss)
+    tier: master
+    hp: 50
+    secondaryType: hybrid
+    vulnerable: burst
+    resistant: volatile
+    signature: Shifting resonance and void rot DoT bursts.
+  - id: deep_dissonance
+    name: Deep Dissonance (Boss)
+    tier: master
+    hp: 60
+    secondaryType: volatile
+    vulnerable: burst
+    resistant: hybrid
+    signature: Overwhelming dissonance scream and phase rot.
+  enemy_pool_order:
+  - basic
+  - behavior_roster
+  - legacy_named
+  - bosses
+build_gates:
+  escalation_boon: burster
+  embers_momentum: burster
+  cracked_mirror: gambler
+  volatile_surge: gambler
+  guard_reflect: steward
+  steadfast_ward: steward
+  ember_sever_duo: weaver
+  spark_mend_duo: weaver
+  ash_guard_duo: weaver
+  cinder_unmake_duo: weaver
+  anchor_of_ash: vault
+  essence_ledger: vault
+build_details:
+  burster:
+    name: Burster
+    mechanicName: Escalation
+    description: Consecutive Same plays stack Escalation (+0.25x multiplier per stack,
+      resets on non-Same play).
+    icon: 🔥
+  gambler:
+    name: Gambler
+    mechanicName: Momentum
+    description: Opposed plays stack Momentum (+0.15x to Opposed multipliers on both
+      success & fail).
+    icon: 🎲
+  steward:
+    name: Steward
+    mechanicName: Reserves
+    description: Guard actions accumulate Ward Reserves (+2 Ward per Guard, boosting
+      defenses & reflect).
+    icon: 🛡️
+  weaver:
+    name: Weaver
+    mechanicName: Chain
+    description: Alternating element/action combinations stack Chain (+4 flat effect
+      value per Chain link).
+    icon: 🧵
+  vault:
+    name: Vault
+    mechanicName: Compound
+    description: Unspent Essence grants compounding card power efficiency (+1% per
+      2 Essence, up to +25%).
+    icon: 💎
+floor_config:
+  '1':
+    numLayers: 7
+    gateType: minRoster
+    gateValue: 0
+  '2':
+    numLayers: 6
+    gateType: minRoster
+    gateValue: 10
+  '3':
+    numLayers: 7
+    gateType: minRoster
+    gateValue: 18
+  '4':
+    numLayers: 8
+    gateType: maxDeckSize
+    gateValue: 6
+  '5':
+    numLayers: 9
+    gateType: maxDeckSize
+    gateValue: 5
+floor_flavor:
+  '1':
+    name: Denial
+    description: The floor waits, quiet. Nothing here seems to know what's coming.
+  '2':
+    name: Anger
+    description: Everything here is faster, sharper, less patient.
+  '3':
+    name: Bargaining
+    description: Something here is always negotiating — for time, for pieces, for
+      you.
+  '4':
+    name: Depression
+    description: The weight is real here. So is what you'll find carrying it.
+  '5':
+    name: Acceptance
+    description: Whatever this becomes, it becomes it here.
+rest_or_weights:
+  '1':
+    peek: 0.7
+    gift: 0.15
+    treasure: 0.15
+  '2':
+    peek: 0.2
+    gift: 0.7
+    treasure: 0.1
+  '3':
+    peek: 0.2
+    gift: 0.1
+    treasure: 0.7
+  '4':
+    peek: 0.7
+    gift: 0.15
+    treasure: 0.15
+  '5':
+    peek: 0.34
+    gift: 0.33
+    treasure: 0.33
+room_element_lean:
+  fight: ember
+  rest_craft: ash
+  treasure: spark
+  store: cinder
+  anomaly: ember
+  boss: cinder
