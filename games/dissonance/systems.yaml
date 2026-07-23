@@ -1,0 +1,88 @@
+game_id: dissonance
+
+description: |
+  Dissonance Depths — a roguelike deckbuilder built on the RFDGameStudio runtime.
+  ECS-style system manifest per ADR-006. Lua logic is split into domain modules.
+
+# No engine system Lua modules required; the split game files are loaded via lua_files.
+engine_systems: []
+
+systems:
+  combat:
+    components: [combination, intent]
+    functions:
+      - resolve_combination
+      - get_secondary_type
+      - get_type_multiplier
+      - canonicalize_elements
+      - get_behavior_type_intent
+      - get_enemy_intent
+  builds:
+    components: [active_build, build_gate]
+    functions:
+      - check_build_gate
+      - get_build_offer_warning
+      - apply_synergy_mechanic
+  rooms:
+    components: [reward, opening_pack, map]
+    functions:
+      - generate_fixed_reward
+      - generate_reward
+      - generate_opening_pack
+      - resolve_rest_or_attachment
+  enemies:
+    components: [enemy_pool]
+    functions:
+      - build_enemy_pool
+      - find_enemy_def
+      - generate_enemy
+      - generate_enemy_band
+  discovery:
+    components: [codex]
+    functions:
+      - record_discovery
+      - is_discovered
+      - record_card_discovery
+      - record_boon_discovery
+      - record_relic_discovery
+      - record_enemy_discovery
+      - record_room_type_discovery
+      - get_discovery_summary
+
+lua_files:
+  - logic/combat.lua
+  - logic/builds.lua
+  - logic/rooms.lua
+  - logic/enemies.lua
+  - logic/discovery.lua
+  - logic/logic.lua
+
+phase_registry:
+  title:
+    ui: title_screen
+  opening:
+    ui: opening_pack
+  roster:
+    ui: codex
+  floorChoice:
+    ui: floor_choice
+  map:
+    ui: map
+  combat:
+    ui: combat
+  reward:
+    ui: reward
+  rest:
+    ui: rest
+  treasure:
+    ui: treasure
+  store:
+    ui: store
+  anomaly:
+    ui: anomaly
+  discoveryReview:
+    ui: discovery_review
+
+entities:
+  run:
+    systems: [combat, builds, rooms, enemies, discovery]
