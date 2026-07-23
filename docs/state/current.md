@@ -9,8 +9,9 @@
 Presentation-only registry update, no game logic touched.
 
 - Added `ts/src/games/dissonance/config.ts` with `gameId: 'dissonance'`,
-  `label: 'Dissonance Depths'`, `status: 'dev'`, real description, and a
-  lazy-loaded placeholder `App.tsx`.
+  `label: 'Dissonance Depths'`, `status: 'dev'`, and real description.
+  No `component` is registered yet, so clicking the card honestly renders
+  "No Renderer" instead of a misleading placeholder.
 - Added Dissonance to `ts/src/engine/loader.ts` static `GAME_ASSETS` map so the
   TypeScript loader can read `games/dissonance/{data,ui,systems}.yaml` — this
   fixed the local-host `Studio Error — Unknown game: dissonance`.
@@ -31,10 +32,9 @@ Presentation-only registry update, no game logic touched.
 - Live browser check via Playwright confirmed the arcade selector renders the
   exact order with Dissonance Depths first and the `DEV` badge visible.
 - Diff reviewed: only `ts/src/games/dissonance/config.ts`,
-  `ts/src/games/dissonance/App.tsx`, `ts/src/engine/loader.ts`,
-  `ts/src/games/registry.ts`, `ts/src/games/slimebreeder/config.ts`,
-  `ts/src/games/slimegarden/config.ts`, and
-  `ts/tests/test_arcade_registry_directive.ts` were modified.
+  `ts/src/engine/loader.ts`, `ts/src/games/registry.ts`,
+  `ts/src/games/slimebreeder/config.ts`, `ts/src/games/slimegarden/config.ts`,
+  and `ts/tests/test_arcade_registry_directive.ts` were modified.
 
 ## Dissonance Depths — Initial Lua Port & Anchor Tests — COMPLETED
 
