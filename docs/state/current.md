@@ -34,10 +34,11 @@ architecture as a new game under `games/dissonance`.
   1. **Burster** — acquire `escalation_boon` → commits `activeBuild: burster`.
      Play `ember+ember sever` → `modifiedValue` goes from 12 to 14 with an
      Escalation log message.
-  2. **Weaver** — corrected chain mechanic: plays `sever, guard, sever (repeat),
-     mend, unmake`. The repeat moves `sever` to end without duplicating; the
-     bonus of +16 triggers only on the 4th distinct action (`unmake`), and the
-     chain resets to `['unmake']`.
+  2. **Weaver** — hard-reset chain mechanic: plays `sever, guard, sever
+     (repeat), mend, unmake`. The repeat resets the chain to `['sever']`;
+     the subsequent `mend` and `unmake` are not enough to reach 4 distinct
+     actions, so no bonus fires. A clean `sever, guard, mend, unmake` chain
+     triggers the +16 bonus on `unmake` and then resets.
   3. **Vault** — corrected compound mechanic: undamaged Guard plays stack
      Compound; a damaged Guard does not; on the 3rd undamaged Guard the
      payout is `+10 Essence` and stacks reset. Current unspent Essence is
@@ -62,7 +63,7 @@ architecture as a new game under `games/dissonance`.
 
 ### Test Floor
 
-- Python: **472 passed**, 8 warnings
+- Python: **473 passed**, 8 warnings
 - TypeScript: **197 passed**
 
 ## Fix Missing Level-Up Logic & Advance Cycle Button — COMPLETED
