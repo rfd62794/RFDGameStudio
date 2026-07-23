@@ -1,6 +1,53 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 19 2026*
+*Last updated: July 22 2026*
+
+## Dissonance Depths — Initial Lua Port & Anchor Tests — COMPLETED
+
+### Work
+
+Ported the verified TypeScript Dissonance prototype into the RFDGameStudio
+architecture as a new game under `games/dissonance`.
+
+- Generated `data.yaml` from the TS source: Ember card pool (52 named
+  combinations), 41 boons, 12 relics, enemy roster (38 enemies across behavior
+  roster + legacy + bosses), floors, rest-or weights, build gates, and
+  room element leans.
+- Implemented split Lua logic modules:
+  - `logic/combat.lua` — element/component resolution, secondary-type
+    advantage, enemy intent generation.
+  - `logic/builds.lua` — build gates and corrected synergy mechanics
+    (Weaver tracks 4 distinct action types; Vault compounds on undamaged
+    Guard plays instead of reading unspent Essence).
+  - `logic/rooms.lua` — reward generation, opening pack, rest-or attachment
+    helpers.
+  - `logic/enemies.lua` — flat enemy pool construction from data.yaml.
+  - `logic/discovery.lua` — 5-category Codex tracking.
+  - `logic/logic.lua` — entry-point wrapper.
+- Created `systems.yaml` with the lua_files manifest and phase registry.
+- Created `ui.yaml` with phase screens and the 5-category Codex UI.
+- Added `tests/test_dissonance_anchors.py` covering resolve_combination
+  (exhaustive comparison against a TS-equivalent Python baseline), build
+  gates, synergy mechanics (Burster, Weaver, Vault, Steward, Gambler),
+  discovery tracking, enemy intents, and reward/opening-pack shape.
+
+### Files Added
+
+- `games/dissonance/data.yaml`
+- `games/dissonance/systems.yaml`
+- `games/dissonance/ui.yaml`
+- `games/dissonance/logic/combat.lua`
+- `games/dissonance/logic/builds.lua`
+- `games/dissonance/logic/rooms.lua`
+- `games/dissonance/logic/enemies.lua`
+- `games/dissonance/logic/discovery.lua`
+- `games/dissonance/logic/logic.lua`
+- `tests/test_dissonance_anchors.py`
+
+### Test Floor
+
+- Python: **472 passed**, 8 warnings
+- TypeScript: **195 passed**
 
 ## Fix Missing Level-Up Logic & Advance Cycle Button — COMPLETED
 
