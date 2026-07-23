@@ -1,3 +1,4 @@
+import React from 'react';
 import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
@@ -6,6 +7,7 @@ const config: GameConfig = {
   description: 'A turn-based deckbuilding roguelike — Culture-based card combinations, gated Build Archetype synergies, and a 5-floor descent through a fracturing station AI.',
   color: '#ef4444',
   status: 'dev',
+  component: React.lazy(() => import('./App')),
 };
 
 export default config;
