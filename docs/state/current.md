@@ -81,6 +81,13 @@ architecture as a new game under `games/dissonance`.
      enemies, room_types) and confirm `get_discovery_summary` returns 1 in
      each bucket.
 
+> **Live browser verification — NOT YET MET.** The directive §4 completion
+> criterion required *"real browser session, not just unit tests"* verification
+> of the Build Archetype trace and Codex population. What was delivered was a
+> real Lua-runtime trace via `studio.runtime.load_game`/`call`, not a browser
+> session, because no renderer exists yet to verify against. This checkbox is
+> left honestly unchecked pending the renderer directive.
+
 ### Files Added
 
 - `games/dissonance/data.yaml`
