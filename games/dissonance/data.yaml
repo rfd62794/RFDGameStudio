@@ -107,169 +107,397 @@ card_name_map:
   ember_spark_unmake: Volatile Unmaking
   ash_cinder_unmake: Silent Consumption
 named_cards:
-- id: ember_none
-  name: Ignis Spark
-  el1: ember
-  el2: null
-  relationType: single
-  description: Channel pure fire. Applies single Ember alignment.
-  cost: 75
-  culture: ember
-- id: ash_none
-  name: Ashen Drift
-  el1: ash
-  el2: null
-  relationType: single
-  description: Channel drifting ash. Applies single Ash alignment.
-  cost: 75
-  culture: ember
-- id: spark_none
-  name: Flickering Flare
-  el1: spark
-  el2: null
-  relationType: single
-  description: Channel crackling electricity. Applies single Spark alignment.
-  cost: 75
-  culture: ember
-- id: cinder_none
-  name: Glowing Smolder
-  el1: cinder
-  el2: null
-  relationType: single
-  description: Channel residual heat. Applies single Cinder alignment.
-  cost: 75
-  culture: ember
-- id: ember_ember
-  name: Consuming Inferno
-  el1: ember
-  el2: ember
-  relationType: same
-  description: Perfect resonance of dual flame. 1.5x power multiplier.
-  cost: 125
-  culture: ember
-- id: ash_ash
-  name: Volcanic Ashstorm
+- id: ash_ash_guard
+  name: Ashen Fortress
   el1: ash
   el2: ash
   relationType: same
-  description: Perfect resonance of dual ash. 1.5x power multiplier.
   cost: 125
   culture: ember
-- id: spark_spark
-  name: Static Discharge
+- id: ash_ash_mend
+  name: Deep Ash Rest
+  el1: ash
+  el2: ash
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ash_ash_sever
+  name: Ashfall Reaper
+  el1: ash
+  el2: ash
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ash_ash_unmake
+  name: Ashfall Blight
+  el1: ash
+  el2: ash
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ash_cinder_guard
+  name: Smothered Bastion
+  el1: ash
+  el2: cinder
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ash_cinder_mend
+  name: Buried Ember's Gift
+  el1: ash
+  el2: cinder
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ash_cinder_sever
+  name: Smother's Gambit
+  el1: ash
+  el2: cinder
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ash_cinder_unmake
+  name: Silent Consumption
+  el1: ash
+  el2: cinder
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ash_none_guard
+  name: Ashen Bulwark
+  el1: ash
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ash_none_mend
+  name: Ashen Balm
+  el1: ash
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ash_none_sever
+  name: Ashen Lash
+  el1: ash
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ash_none_unmake
+  name: Choking Ash
+  el1: ash
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ash_spark_guard
+  name: Charged Cinderscreen
+  el1: ash
+  el2: spark
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ash_spark_mend
+  name: Rekindled Vigor
+  el1: ash
+  el2: spark
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ash_spark_sever
+  name: Kindling Arc
+  el1: ash
+  el2: spark
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ash_spark_unmake
+  name: Static Ashburn
+  el1: ash
+  el2: spark
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: cinder_cinder_guard
+  name: Iron Cinder Wall
+  el1: cinder
+  el2: cinder
+  relationType: same
+  cost: 125
+  culture: ember
+- id: cinder_cinder_mend
+  name: Cinderbed Recovery
+  el1: cinder
+  el2: cinder
+  relationType: same
+  cost: 125
+  culture: ember
+- id: cinder_cinder_sever
+  name: Cinderstorm Cleave
+  el1: cinder
+  el2: cinder
+  relationType: same
+  cost: 125
+  culture: ember
+- id: cinder_cinder_unmake
+  name: Deep Cinder Rot
+  el1: cinder
+  el2: cinder
+  relationType: same
+  cost: 125
+  culture: ember
+- id: cinder_none_guard
+  name: Cinder Plating
+  el1: cinder
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: cinder_none_mend
+  name: Cinder's Comfort
+  el1: cinder
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: cinder_none_sever
+  name: Cinder Blade
+  el1: cinder
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: cinder_none_unmake
+  name: Smoldering Rot
+  el1: cinder
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ember_ash_guard
+  name: Smoke Veil
+  el1: ember
+  el2: ash
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_ash_mend
+  name: Smoke-Cured Wound
+  el1: ember
+  el2: ash
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_ash_sever
+  name: Smoldering Edge
+  el1: ember
+  el2: ash
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_ash_unmake
+  name: Smoldering Curse
+  el1: ember
+  el2: ash
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_cinder_guard
+  name: Hearthguard
+  el1: ember
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_cinder_mend
+  name: Hearthfire Mend
+  el1: ember
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_cinder_sever
+  name: Coalfire Slash
+  el1: ember
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_cinder_unmake
+  name: Hearthrot
+  el1: ember
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: ember_ember_guard
+  name: Blazing Bastion
+  el1: ember
+  el2: ember
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ember_ember_mend
+  name: Ember's Full Warmth
+  el1: ember
+  el2: ember
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ember_ember_sever
+  name: Blazing Twinstrike
+  el1: ember
+  el2: ember
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ember_ember_unmake
+  name: Twin Cinder Unmaking
+  el1: ember
+  el2: ember
+  relationType: same
+  cost: 125
+  culture: ember
+- id: ember_none_guard
+  name: Ember Ward
+  el1: ember
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ember_none_mend
+  name: Ember's Mend
+  el1: ember
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ember_none_sever
+  name: Ember Strike
+  el1: ember
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ember_none_unmake
+  name: Slow Burn
+  el1: ember
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: ember_spark_guard
+  name: Volatile Aegis
+  el1: ember
+  el2: spark
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ember_spark_mend
+  name: Unstable Regeneration
+  el1: ember
+  el2: spark
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ember_spark_sever
+  name: Volatile Ignition
+  el1: ember
+  el2: spark
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: ember_spark_unmake
+  name: Volatile Unmaking
+  el1: ember
+  el2: spark
+  relationType: opposed
+  cost: 150
+  culture: ember
+- id: spark_cinder_guard
+  name: Insulated Plating
+  el1: spark
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: spark_cinder_mend
+  name: Glowing Renewal
+  el1: spark
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: spark_cinder_sever
+  name: Ember-Forged Spike
+  el1: spark
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: spark_cinder_unmake
+  name: Emberous Decay
+  el1: spark
+  el2: cinder
+  relationType: adjacent
+  cost: 100
+  culture: ember
+- id: spark_none_guard
+  name: Static Barrier
+  el1: spark
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: spark_none_mend
+  name: Quickspark Recovery
+  el1: spark
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: spark_none_sever
+  name: Spark Lance
+  el1: spark
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: spark_none_unmake
+  name: Arcing Decay
+  el1: spark
+  el2: null
+  relationType: single
+  cost: 75
+  culture: ember
+- id: spark_spark_guard
+  name: Overcharged Barrier
   el1: spark
   el2: spark
   relationType: same
-  description: Perfect resonance of dual spark. 1.5x power multiplier.
   cost: 125
   culture: ember
-- id: cinder_cinder
-  name: Cinder Monolith
-  el1: cinder
-  el2: cinder
+- id: spark_spark_mend
+  name: Surge Restoration
+  el1: spark
+  el2: spark
   relationType: same
-  description: Perfect resonance of dual cinder. 1.5x power multiplier.
   cost: 125
   culture: ember
-- id: ember_ash
-  name: Rising Smoke
-  el1: ember
-  el2: ash
-  relationType: adjacent
-  description: Combines Ember and Ash. Triggers Ash adjacent bonus (+2 Shield).
-  cost: 100
-  culture: ember
-- id: ash_ember
-  name: Ashen Sirocco
-  el1: ash
-  el2: ember
-  relationType: adjacent
-  description: Combines Ash and Ember. Triggers Heat adjacent bonus (+2 Damage).
-  cost: 100
-  culture: ember
-- id: ash_spark
-  name: Spark Shower
-  el1: ash
-  el2: spark
-  relationType: adjacent
-  description: Combines Ash and Spark. Triggers Spark adjacent bonus (+2 Heal).
-  cost: 100
-  culture: ember
-- id: spark_ash
-  name: Ashen Spark
+- id: spark_spark_sever
+  name: Overcharged Spark
   el1: spark
-  el2: ash
-  relationType: adjacent
-  description: Combines Spark and Ash. Triggers Ash adjacent bonus (+2 Shield).
-  cost: 100
-  culture: ember
-- id: spark_cinder
-  name: Sparking Cinder
-  el1: spark
-  el2: cinder
-  relationType: adjacent
-  description: Combines Spark and Cinder. Triggers Cinder adjacent bonus (+2 Shield).
-  cost: 100
-  culture: ember
-- id: cinder_spark
-  name: Cinder Spark
-  el1: cinder
   el2: spark
-  relationType: adjacent
-  description: Combines Cinder and Spark. Triggers Spark adjacent bonus (+2 Heal).
-  cost: 100
+  relationType: same
+  cost: 125
   culture: ember
-- id: cinder_ember
-  name: Volcanic Magma
-  el1: cinder
-  el2: ember
-  relationType: adjacent
-  description: Combines Cinder and Ember. Triggers Heat adjacent bonus (+2 Damage).
-  cost: 100
-  culture: ember
-- id: ember_cinder
-  name: Molten Crucible
-  el1: ember
-  el2: cinder
-  relationType: adjacent
-  description: Combines Ember and Cinder. Triggers Cinder adjacent bonus (+2 Shield).
-  cost: 100
-  culture: ember
-- id: ember_spark
-  name: Plasma Pressure
-  el1: ember
-  el2: spark
-  relationType: opposed
-  description: Combines Opposed Ember and Spark. 50% chance for 1.5x power, otherwise
-    0.5x penalty.
-  cost: 150
-  culture: ember
-- id: spark_ember
-  name: Boiling Spark
+- id: spark_spark_unmake
+  name: Overload Decay
   el1: spark
-  el2: ember
-  relationType: opposed
-  description: Combines Opposed Spark and Ember. 50% chance for 1.5x power, otherwise
-    0.5x penalty.
-  cost: 150
-  culture: ember
-- id: ash_cinder
-  name: Searing Gale
-  el1: ash
-  el2: cinder
-  relationType: opposed
-  description: Combines Opposed Ash and Cinder. 50% chance for 1.5x power, otherwise
-    0.5x penalty.
-  cost: 150
-  culture: ember
-- id: cinder_ash
-  name: Cinder Ash
-  el1: cinder
-  el2: ash
-  relationType: opposed
-  description: Combines Opposed Cinder and Ash. 50% chance for 1.5x power, otherwise
-    0.5x penalty.
-  cost: 150
+  el2: spark
+  relationType: same
+  cost: 125
   culture: ember
 boons:
 - id: ember_power
