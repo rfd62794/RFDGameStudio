@@ -48,6 +48,20 @@ systems:
       - record_enemy_discovery
       - record_room_type_discovery
       - get_discovery_summary
+  run_state:
+    components: [run, map, deck]
+    functions:
+      - build_card_pool
+      - shuffle_deck
+      - draw_card
+      - draw_hand
+      - generate_branching_map
+      - evaluate_map_balance
+      - generate_balanced_map
+      - create_run
+      - enter_active_node
+      - advance_node
+      - select_branch
 
 lua_files:
   - logic/combat.lua
@@ -55,6 +69,7 @@ lua_files:
   - logic/rooms.lua
   - logic/enemies.lua
   - logic/discovery.lua
+  - logic/run_state.lua
   - logic/logic.lua
 
 phase_registry:
@@ -85,4 +100,4 @@ phase_registry:
 
 entities:
   run:
-    systems: [combat, builds, rooms, enemies, discovery]
+    systems: [combat, builds, rooms, enemies, discovery, run_state]
