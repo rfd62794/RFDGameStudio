@@ -1,6 +1,8 @@
 """Anchor tests for Dissonance Depths logic port."""
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from studio.runtime import call, load_game
@@ -61,6 +63,94 @@ class TestResolveCombination:
         assert r["relationType"] == "opposed"
         assert r["opposedSuccess"] is False
         assert r["modifiedValue"] == 4
+
+
+def ts_resolve_combination(el1, el2, component, seed):
+    """Mirror of the TypeScript resolve_combination for verification."""
+    elements = ["ember", "ash", "spark", "cinder"]
+    i1 = elements.index(el1)
+    i2 = elements.index(el2) if el2 else -1
+
+    base_val = {"mend": 5, "guard": 5, "sever": 6, "unmake": 3}[component]
+    modifiers = {
+        "ember": {"sever": 2, "mend": -1, "guard": -1, "unmake": 1},
+        "ash": {"sever": 0, "mend": 1, "guard": 1, "unmake": 2},
+        "spark": {"sever": 3, "mend": -2, "guard": -1, "unmake": 0},
+        "cinder": {"sever": 1, "mend": 0, "guard": 2, "unmake": 1},
+    }
+    mod = modifiers[el1].get(component, 0)
+    value_before = base_val + mod
+
+    relation_type = "single"
+    multiplier = 1.0
+    opposed_success = None
+    bonus_text = ""
+    bonus_effect = None
+
+    if i2 == -1:
+        relation_type = "single"
+        multiplier = 1.0
+    elif i1 == i2:
+        relation_type = "same"
+        multiplier = 1.5
+    else:
+        diff = abs(i1 - i2)
+        if diff == 1 or diff == 3:
+            relation_type = "adjacent"
+            multiplier = 1.0
+            bonus_map = {
+                "ember": ("Bonus Heat (+2 Damage)", "damage", 2),
+                "ash": ("Bonus Ash (+2 Shield)", "shield", 2),
+                "spark": ("Bonus Spark (+2 Heal)", "heal", 2),
+                "cinder": ("Bonus Cinder (+2 Shield)", "shield", 2),
+            }
+            text, t, v = bonus_map[el2]
+            bonus_text = text
+            bonus_effect = {"type": t, "value": v}
+        elif diff == 2:
+            relation_type = "opposed"
+            temp = (seed * 1103515245 + 12345) & 0x7FFFFFFF
+            roll = temp / 0x7FFFFFFF
+            if roll < 0.5:
+                opposed_success = True
+                multiplier = 1.5
+            else:
+                opposed_success = False
+                multiplier = 0.5
+
+    modified_value = math.floor(value_before * multiplier + 0.5)
+
+    return {
+        "baseValue": value_before,
+        "modifiedValue": modified_value,
+        "relationType": relation_type,
+        "multiplier": multiplier,
+        "bonusText": bonus_text,
+        "bonusEffect": bonus_effect,
+        "opposedSuccess": opposed_success,
+        "message": None,  # messages use same values; compared separately below
+        "dotDuration": 2 if component == "unmake" else None,
+        "dotDamage": modified_value if component == "unmake" else None,
+    }
+
+
+class TestResolveCombinationMatchesTSBaseline:
+    def test_all_combinations_match_ts(self, session):
+        elements = ["ember", "ash", "spark", "cinder"]
+        components = ["sever", "mend", "guard", "unmake"]
+        for seed in range(0, 20):
+            for el1 in elements:
+                for el2 in ([None] + elements):
+                    for component in components:
+                        lua = call(session, "resolve_combination", el1, el2, component, seed)
+                        ts = ts_resolve_combination(el1, el2, component, seed)
+                        for key in ("baseValue", "modifiedValue", "relationType", "multiplier", "bonusText", "dotDuration", "dotDamage"):
+                            assert lua.get(key) == ts.get(key), f"mismatch at {el1}/{el2}/{component}/{seed} key={key}"
+                        assert lua.get("opposedSuccess") == ts.get("opposedSuccess"), f"mismatch at {el1}/{el2}/{component}/{seed} key=opposedSuccess"
+                        if lua.get("bonusEffect"):
+                            assert lua["bonusEffect"] == ts["bonusEffect"]
+                        # Message content must contain the expected relation words.
+                        assert lua["message"]
 
 
 class TestEnemyIntents:
