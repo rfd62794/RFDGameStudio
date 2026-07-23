@@ -30,12 +30,21 @@ architecture as a new game under `games/dissonance`.
   (exhaustive comparison against a TS-equivalent Python baseline), build
   gates, synergy mechanics (Burster, Weaver, Vault, Steward, Gambler),
   discovery tracking, enemy intents, and reward/opening-pack shape.
-- Ran a live Lua trace (via `studio.runtime.load_game`/`call`) that:
-  1. Acquires `escalation_boon` → commits `activeBuild: burster`.
-  2. Plays `ember+ember sever` with that build → `modifiedValue` goes from 12
-     to 14 with an Escalation log message.
-  3. Records one item in each Codex category (cards, boons, relics, enemies,
-     room_types) and confirms `get_discovery_summary` returns 1 in each bucket.
+- Ran live Lua traces (via `studio.runtime.load_game`/`call`):
+  1. **Burster** — acquire `escalation_boon` → commits `activeBuild: burster`.
+     Play `ember+ember sever` → `modifiedValue` goes from 12 to 14 with an
+     Escalation log message.
+  2. **Weaver** — corrected chain mechanic: plays `sever, guard, sever (repeat),
+     mend, unmake`. The repeat moves `sever` to end without duplicating; the
+     bonus of +16 triggers only on the 4th distinct action (`unmake`), and the
+     chain resets to `['unmake']`.
+  3. **Vault** — corrected compound mechanic: undamaged Guard plays stack
+     Compound; a damaged Guard does not; on the 3rd undamaged Guard the
+     payout is `+10 Essence` and stacks reset. Current unspent Essence is
+     never read.
+  4. **Codex** — record one item in each category (cards, boons, relics,
+     enemies, room_types) and confirm `get_discovery_summary` returns 1 in
+     each bucket.
 
 ### Files Added
 
