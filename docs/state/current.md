@@ -9,10 +9,10 @@
 Ported the verified TypeScript Dissonance prototype into the RFDGameStudio
 architecture as a new game under `games/dissonance`.
 
-- Generated `data.yaml` from the TS source: Ember card pool (52 named
-  combinations), 41 boons, 12 relics, enemy roster (38 enemies across behavior
-  roster + legacy + bosses), floors, rest-or weights, build gates, and
-  room element leans.
+- Generated `data.yaml` from the TS source: Ember card pool (56 named
+  combinations in `card_name_map`, expanded to 56 entries in `named_cards`),
+  41 boons, 12 relics, enemy roster (38 enemies across behavior roster + legacy +
+  bosses), floors, rest-or weights, build gates, and room element leans.
 - Implemented split Lua logic modules:
   - `logic/combat.lua` — element/component resolution, secondary-type
     advantage, enemy intent generation.
@@ -30,6 +30,12 @@ architecture as a new game under `games/dissonance`.
   (exhaustive comparison against a TS-equivalent Python baseline), build
   gates, synergy mechanics (Burster, Weaver, Vault, Steward, Gambler),
   discovery tracking, enemy intents, and reward/opening-pack shape.
+- Ran a live Lua trace (via `studio.runtime.load_game`/`call`) that:
+  1. Acquires `escalation_boon` → commits `activeBuild: burster`.
+  2. Plays `ember+ember sever` with that build → `modifiedValue` goes from 12
+     to 14 with an Escalation log message.
+  3. Records one item in each Codex category (cards, boons, relics, enemies,
+     room_types) and confirms `get_discovery_summary` returns 1 in each bucket.
 
 ### Files Added
 
@@ -43,6 +49,7 @@ architecture as a new game under `games/dissonance`.
 - `games/dissonance/logic/discovery.lua`
 - `games/dissonance/logic/logic.lua`
 - `tests/test_dissonance_anchors.py`
+- `ts/tests/test_dissonance_recovery_manifest.ts`
 
 ### Test Floor
 
