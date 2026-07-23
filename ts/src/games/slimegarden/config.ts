@@ -3,7 +3,7 @@ import type { GameConfig } from '../../engine/types';
 const config: GameConfig = {
   gameId: 'slimegarden',
   label: 'Slimegarden',
-  description: 'A multi-tank slime breeding and genetics sandbox — pulls from the SlimeGarden core loop, reimagined as a standalone TypeScript demo.',
+  description: 'The original multi-tank slime breeding and genetics sandbox — dispatch specimens, claim territory, and manage garrison risk across planet nodes.',
   color: '#6c8ef7',
   status: 'external',
   embedUrl: '/arcade/slimegarden/',
