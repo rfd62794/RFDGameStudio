@@ -126,6 +126,20 @@ function generate_fixed_reward(max_hp, owned_card_ids, held_boon_ids, held_relic
   return slots
 end
 
+function _diagnostic_card_pool(data)
+  return card_pool_from_data(data)
+end
+
+function _diagnostic_filtered_pool(current_unlocked, enemy_tier, data)
+  current_unlocked = ensure_collect(current_unlocked)
+  local target_relation = RELATION_BY_TIER[enemy_tier] or "single"
+  local all_cards = card_pool_from_data(data)
+  local pool = filter_pool(all_cards, function(c)
+    return c.relationType == target_relation and not has_id(current_unlocked, c.id)
+  end)
+  return { total = #all_cards, filtered = #pool, relation = target_relation }
+end
+
 function generate_reward(current_unlocked, enemy_tier, data)
   current_unlocked = ensure_collect(current_unlocked)
   local target_relation = RELATION_BY_TIER[enemy_tier] or "single"
