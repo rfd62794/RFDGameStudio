@@ -2,6 +2,35 @@
 
 *Last updated: July 22 2026*
 
+## Arcade Registry — Reorder, Add Dissonance, Delist SlimeBreeder/Slimegarden — COMPLETED
+
+### Work
+
+Presentation-only registry update, no game logic touched.
+
+- Added `ts/src/games/dissonance/config.ts` with `gameId: 'dissonance'`,
+  `label: 'Dissonance Depths'`, `status: 'dev'`, and real description.
+- Reordered `GAME_REGISTRY` in `ts/src/games/registry.ts` to:
+  `dissonance → slimeworld → shoal → voiddrift → corpworld → brewfield →
+  horse_racing → slither_rogue → mutant_battle_ball → slime_coin →
+  chimera_wilds → scrapcrawl → ledger → trinity_siege`.
+- Delisted `slimebreeder` and `slimegarden` from the public array while
+  leaving both source directories intact on disk.
+- Fixed the copy-paste description bug:
+  - `slimebreeder` now reads: "A multi-tank slime breeding and genetics
+    sandbox — a standalone TypeScript reimagining of the SlimeGarden core loop."
+  - `slimegarden` now reads: "The original multi-tank slime breeding and
+    genetics sandbox — dispatch specimens, claim territory, and manage garrison
+    risk across planet nodes."
+- Added `ts/tests/test_arcade_registry_directive.ts` verifying Dissonance
+  presence/order/status, delisted IDs, and source-directory integrity.
+- Live browser check via Playwright confirmed the arcade selector renders the
+  exact order with Dissonance Depths first and the `DEV` badge visible.
+- Diff reviewed: only `ts/src/games/dissonance/config.ts`,
+  `ts/src/games/registry.ts`, `ts/src/games/slimebreeder/config.ts`,
+  `ts/src/games/slimegarden/config.ts`, and
+  `ts/tests/test_arcade_registry_directive.ts` were modified.
+
 ## Dissonance Depths — Initial Lua Port & Anchor Tests — COMPLETED
 
 ### Work
@@ -64,7 +93,7 @@ architecture as a new game under `games/dissonance`.
 ### Test Floor
 
 - Python: **473 passed**, 8 warnings
-- TypeScript: **197 passed**
+- TypeScript: **201 passed** (197 existing + 4 new registry directive tests)
 
 ## Fix Missing Level-Up Logic & Advance Cycle Button — COMPLETED
 
