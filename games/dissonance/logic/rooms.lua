@@ -26,7 +26,8 @@ local function card_pool_from_data(data)
       local el1 = parts[1]
       local el2_raw = parts[2]
       local component = parts[3]
-      local el2 = (el2_raw == "none") and nil or el2_raw
+      local el2
+      if el2_raw ~= "none" then el2 = el2_raw end
       local canonical = canonicalize_elements(el1, el2)
       local c_el1, c_el2 = canonical[1], canonical[2]
       local relation_type = "single"
@@ -124,20 +125,6 @@ function generate_fixed_reward(max_hp, owned_card_ids, held_boon_ids, held_relic
   end
 
   return slots
-end
-
-function _diagnostic_card_pool(data)
-  return card_pool_from_data(data)
-end
-
-function _diagnostic_filtered_pool(current_unlocked, enemy_tier, data)
-  current_unlocked = ensure_collect(current_unlocked)
-  local target_relation = RELATION_BY_TIER[enemy_tier] or "single"
-  local all_cards = card_pool_from_data(data)
-  local pool = filter_pool(all_cards, function(c)
-    return c.relationType == target_relation and not has_id(current_unlocked, c.id)
-  end)
-  return { total = #all_cards, filtered = #pool, relation = target_relation }
 end
 
 function generate_reward(current_unlocked, enemy_tier, data)

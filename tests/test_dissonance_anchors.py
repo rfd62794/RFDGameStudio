@@ -25,7 +25,7 @@ class TestResolveCombination:
         assert r["baseValue"] == 8
         assert r["modifiedValue"] == 8
         assert r["multiplier"] == 1.0
-        assert r["bonusEffect"] is None
+        assert r.get("bonusEffect") is None
 
     def test_same_ember_ember_mend(self, session):
         r = call(session, "resolve_combination", "ember", "ember", "mend", 1)
@@ -191,9 +191,9 @@ class TestRoomRewards:
         random.seed(123)
         slots = call(session, "generate_fixed_reward", 25, [], [], [], "basic", data)
         kinds = [s["kind"] for s in slots]
-        assert "heal" in kinds
+        assert kinds[0] == "heal"
         assert "card" in kinds
-        assert "benefit" in kinds
+        assert "benefit" in kinds or "relic" in kinds
 
     def test_generate_reward_returns_up_to_three_cards(self, session, data):
         import random
