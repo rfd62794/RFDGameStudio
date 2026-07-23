@@ -218,6 +218,21 @@ class TestSynergyMechanics:
         assert total_bonus == 16
         assert active["mechanicState"]["chain"] == ["unmake"]  # current action seeds next chain
 
+    def test_weaver_chain_hard_resets_on_repeat(self, session):
+        active = {"buildId": "weaver", "mechanicState": {}}
+        run_state = {"essence": 0}
+        total_bonus = 0
+        for comp in ("sever", "guard", "sever", "mend", "unmake"):
+            card = {"component": comp, "relationType": "single", "el1": "ember", "el2": None}
+            base = call(session, "resolve_combination", "ember", None, comp, 1)
+            out = call(session, "apply_synergy_mechanic", active, card, base, run_state, False)
+            active = {"buildId": "weaver", "mechanicState": out["nextMechanicState"]}
+            total_bonus += out.get("extraValueBonus", 0)
+        # Repeat of 'sever' hard-resets the chain; only 3 distinct actions follow,
+        # so the bonus never fires and the chain ends as [sever, mend, unmake].
+        assert total_bonus == 0
+        assert active["mechanicState"]["chain"] == ["sever", "mend", "unmake"]
+
     def test_vault_compound_payout(self, session):
         active = {"buildId": "vault", "mechanicState": {}}
         run_state = {"essence": 0}

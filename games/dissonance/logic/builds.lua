@@ -128,16 +128,15 @@ function apply_synergy_mechanic(active_build, played_card, result, run_state, da
     end
 
     local action = played_card.component
-    local found_at = nil
-    for i, c in ipairs(chain) do
-      if c == action then found_at = i; break end
+    local repeated = false
+    for _, c in ipairs(chain) do
+      if c == action then repeated = true; break end
     end
 
-    if found_at then
-      -- Move to end to maintain recency without duplicates.
-      table.remove(chain, found_at)
-      table.insert(chain, action)
-      table.insert(log_messages, string.format("🧵 [Weaver Chain] Repeated action '%s' moved to end; chain stays distinct.", action))
+    if repeated then
+      -- Hard reset: a repeat disqualifies the current chain.
+      chain = { action }
+      table.insert(log_messages, string.format("🧵 [Weaver Chain Reset] Repeated action '%s' — chain reset. Start again from this play.", action))
     else
       table.insert(chain, action)
     end
