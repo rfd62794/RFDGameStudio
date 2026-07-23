@@ -496,6 +496,45 @@ function advance_node(run_state)
   return next_state
 end
 
+-- === Rest & Craft ===
+-- Heal path: flat +40% of playerMaxHp, matching the same formula rooms.lua
+-- uses for the reward "heal" slot (generate_fixed_reward).
+
+function apply_rest(run_state)
+  local heal_amount = math.floor((run_state.playerMaxHp or 25) * 0.4 + 0.5)
+  local new_hp = math.min(run_state.playerMaxHp or 25, (run_state.playerHp or 0) + heal_amount)
+
+  local logs = {}
+  for _, l in ipairs(ensure_collect(run_state.logs)) do table.insert(logs, l) end
+  table.insert(logs, string.format("Rested. Recovered %d HP (%d -> %d).", new_hp - (run_state.playerHp or 0), run_state.playerHp or 0, new_hp))
+
+  local next_state = shallow_copy(run_state)
+  next_state.playerHp = new_hp
+  next_state.logs = logs
+  return next_state
+end
+
+-- Attachment path: resolves the weighted peek/gift/treasure roll via the
+-- existing rooms.lua resolve_rest_or_attachment helper and logs the outcome.
+-- Full Gift/Treasure reward granting is Treasure/Store-phase content,
+-- deferred to a later pass per the directive's own time-boxing allowance.
+
+function apply_attachment(run_state, data, is_pre_boss)
+  local outcome = resolve_rest_or_attachment(
+    run_state.seed, run_state.currentNodeId, run_state.currentFloor,
+    false, is_pre_boss or false, data
+  )
+
+  local logs = {}
+  for _, l in ipairs(ensure_collect(run_state.logs)) do table.insert(logs, l) end
+  table.insert(logs, string.format("Attachment resolved: %s.", outcome))
+
+  local next_state = shallow_copy(run_state)
+  next_state.logs = logs
+  next_state.lastAttachmentOutcome = outcome
+  return next_state
+end
+
 function select_branch(run_state, target_node_id)
   local logs = {}
   for _, l in ipairs(ensure_collect(run_state.logs)) do table.insert(logs, l) end
