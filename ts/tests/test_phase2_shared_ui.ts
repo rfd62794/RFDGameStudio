@@ -38,8 +38,8 @@ describe('Phase 2 shared UI retrofits', () => {
     expect(app).toContain("{ id: 'missions', label: 'MISSIONS' }");
     expect(app).toContain("{ id: 'economy', label: 'ECONOMY' }");
     expect(app).toContain("{ id: 'lab', label: 'LAB' }");
-    expect(roster).toMatch(/import\s*\{[^}]*TabBar[^}]*\}\s*from\s*['"]\.\.\/\.\.\/\.\.\/ui\/components['"]/);
-    expect(missions).toMatch(/import\s*\{[^}]*TabBar[^}]*\}\s*from\s*['"]\.\.\/\.\.\/\.\.\/ui\/components['"]/);
+    expect(roster).toMatch(/import\s*\{[^}]*TabBar[^}]*\}\s*from\s*['"]\.\.\/\.\.\/\.\.\/ui\/components(\/TabBar)?['"]/);
+    expect(missions).toMatch(/import\s*\{[^}]*TabBar[^}]*\}\s*from\s*['"]\.\.\/\.\.\/\.\.\/ui\/components(\/TabBar)?['"]/);
   });
 
   it('test_shoal_chrome_retrofit', () => {

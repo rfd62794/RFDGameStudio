@@ -12,7 +12,8 @@ import type { GameSession } from '../../../engine/types';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
 import { SlimeDexTab } from './SlimeDexTab';
-import { Button, StatBar, TabBar } from '../../../ui/components';
+import { Button, StatBar } from '../../../ui/components';
+import { TabBar } from '../../../ui/components/TabBar';
 
 interface RosterTabProps {
   key?: any;
