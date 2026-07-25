@@ -201,3 +201,6 @@ saves/
 
 # Temp Slime Garden Zip
 temp_slimegarden_zip/
+
+# Dist folders (generated build outputs)
+dist*/
