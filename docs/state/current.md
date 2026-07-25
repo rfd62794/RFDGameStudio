@@ -2629,3 +2629,52 @@ RFDGameStudio/
 | **ScrapCrawl A** | ScrapCrawl Core Loop Port | ✅ **CERTIFIED** |
 | 4 | Second Game | Pending |
 | 5 | Rust Runtime | Pending |
+
+## Shared UI Layer Compliance (ADR-008) — CERTIFIED
+
+### What changed
+- Completed an audit of all finished React/TypeScript games for shared UI component usage.
+- Wrote `docs/analysis/ui-component-audit.md` with per-game component usage, hand-rolled equivalents, and compliance status for the eight games in scope.
+- Added three evidence-backed shared templates derived from Brewfield and Dissonance real-world references:
+  - `TitleScreen` — title, tagline, pitch/quote, and variable menu items (used by `Brewfield` `IntroScreen` and `Dissonance` `TitlePhase`).
+  - `EndStateScreen` — win/loss end state with icon, headline, flavor, stats, and restart button (used by `Brewfield` `GameOverScreen` and the new `Dissonance` `RunEndPhase`).
+  - `ProgressIndicator` — generic node/edge progress chrome with `linear` and `graph` layouts (used by `Brewfield` `MapProgress` and `Dissonance` `MapPhase`).
+- Retrofitted Dissonance's built phases onto shared primitives:
+  - `TitlePhase` → `TitleScreen`
+  - `RewardPhase` → `Card` + `Button`
+  - `MapPhase` → `ProgressIndicator` (graph layout)
+  - `CombatPhase` → `StatBar`, `Card`, `Panel`
+  - `RestCraftPhase` → `Card` + `Button`
+  - `DeckBuildPhase` → `Card` + `Button`
+  - `OpeningPhase` / `FloorChoicePhase` → `Button`, `Card`, `Badge`
+  - New `RunEndPhase` wrapping `EndStateScreen`, replacing the inline run-end markup in `App.tsx`.
+- Retrofitted Brewfield priority surfaces:
+  - `IntroScreen` → `TitleScreen` + `Card` feature cards
+  - `GameOverScreen` → `EndStateScreen`
+  - `MapProgress` → `ProgressIndicator` (linear layout)
+- Added additive `id` props to shared `Button` and `Card` to preserve stable selectors/tests.
+- Added 11 new TypeScript tests across `test_ui_audit_report.ts`, `test_ui_shared_templates.tsx`, `test_dissonance_shared_ui.tsx`, and `test_brewfield_shared_ui.tsx`.
+
+### Test proof
+
+```
+uv run pytest
+→ 502 passed, 8 warnings
+
+cd ts && npm run test
+→ Test Files  34 passed
+→ Tests  212 passed
+```
+
+### Compliance status summary
+
+| Game | Status |
+|---|---|
+| Dissonance | ✅ Title/end/map chrome now ADR-008 compliant |
+| Brewfield | ✅ Intro/end/map chrome now ADR-008 compliant |
+| SlimeWorld | Mostly compliant (shared `Button`, `StatBar`, `TabBar` already used) |
+| Shoal | Custom canvas renderer; shared components not applicable to world surface |
+| Horse Racing | Mostly compliant (uses 6 shared primitives) |
+| Mutant Battle Ball | Partially compliant (uses `Modal`) |
+| Slither Rogue | Partially compliant (uses `Modal`) |
+| Scrapcrawl | Generic PyGame-style renderer stack; no React shared components used |
