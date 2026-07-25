@@ -2722,6 +2722,6 @@ uv run pytest -q
 → 502 passed, 8 warnings
 
 cd ts && npm run test
-→ Test Files  37 passed
-→ Tests  229 passed
+→ Test Files  39 passed
+→ Tests  242 passed
 ```
