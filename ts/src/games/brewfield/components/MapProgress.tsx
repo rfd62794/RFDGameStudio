@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Swords, Compass, Flame, Skull } from 'lucide-react';
 import { ProgressIndicator } from '../../../ui/components';
 import type { ProgressNode } from '../../../ui/components';
@@ -8,7 +9,7 @@ interface MapProgressProps {
   currentNodeId: number;
 }
 
-const NODE_ICONS: Record<string, React.ReactNode> = {
+const NODE_ICONS: Record<string, ReactNode> = {
   fight: <Swords style={{ width: '1rem', height: '1rem' }} />,
   forage: <Compass style={{ width: '1rem', height: '1rem' }} />,
   rest: <Flame style={{ width: '1rem', height: '1rem' }} />,
