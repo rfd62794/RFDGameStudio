@@ -178,6 +178,28 @@ class TestRewardApplication:
         result = call(session, "apply_reward_slot", run, {"kind": "relic", "relicId": "cracked_core"}, data)
         assert "cracked_core" in result["relics"]
 
+    def test_apply_reward_slot_benefit_commits_build_gate(self, session, data):
+        # Live wiring check: claiming a gate-triggering Boon through the
+        # actual reward-claim path must set run_state.activeBuild for real,
+        # not just append the boon to the list. This is the path
+        # resolve_combat_turn -> apply_synergy_mechanic actually reads from.
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        assert run.get("activeBuild") in (None, {"buildId": None, "mechanicState": {}})
+
+        result = call(session, "apply_reward_slot", run, {"kind": "benefit", "boonId": "escalation_boon"}, data)
+        assert result["activeBuild"]["buildId"] == "burster"
+        assert any("Build Committed" in log for log in result["logs"])
+
+        # And the committed build must actually be live for combat synergy —
+        # not just set and then ignored downstream.
+        run2 = call(session, "create_run", ["ember_ember_sever"], 42, 1, 0, data)
+        run2 = call(session, "enter_active_node", run2, ["ember_ember_sever"], data)
+        run2["activeBuild"] = result["activeBuild"]
+        card = next(c for c in run2["deckState"]["hand"] if c["component"] == "sever" and c["relationType"] == "same")
+        turn = call(session, "resolve_combat_turn", run2, card, data)
+        assert any("Escalation" in log for log in turn["nextState"]["logs"])
+
 
 class TestRestCraft:
     def test_apply_rest_heals_correct_percentage(self, session, data):

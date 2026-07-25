@@ -520,6 +520,13 @@ function apply_reward_slot(run_state, slot, data)
       table.insert(boons, boon)
       next_state.boons = boons
       table.insert(logs, string.format("Claimed reward: acquired Boon \"%s\".", boon.id))
+
+      local gate = check_build_gate(boon.id, run_state.activeBuild)
+      next_state.activeBuild = gate.build
+      if gate.newlyCommitted then
+        local details = BUILD_DETAILS[gate.build.buildId]
+        table.insert(logs, string.format("%s Build Committed: %s (%s) unlocked!", details.icon, details.name, details.mechanicName))
+      end
     end
   elseif slot.kind == "relic" then
     local relics = {}
@@ -527,6 +534,13 @@ function apply_reward_slot(run_state, slot, data)
     table.insert(relics, slot.relicId)
     next_state.relics = relics
     table.insert(logs, string.format("Claimed reward: acquired Relic \"%s\".", slot.relicId))
+
+    local gate = check_build_gate(slot.relicId, run_state.activeBuild)
+    next_state.activeBuild = gate.build
+    if gate.newlyCommitted then
+      local details = BUILD_DETAILS[gate.build.buildId]
+      table.insert(logs, string.format("%s Build Committed: %s (%s) unlocked!", details.icon, details.name, details.mechanicName))
+    end
   elseif slot.kind == "card" then
     table.insert(logs, string.format("Claimed reward: unlocked Card \"%s\".", slot.cardId))
   end
