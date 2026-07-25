@@ -2714,6 +2714,14 @@ cd ts && npm run test
 - Per-game bundles exclude other games' Lua logic and the unified arcade `dist/` remains intact.
 - Added placeholder entries for all seven ready games to `RFD_IT_Publishing/config/games.yaml`; `python publisher.py list` loads them.
 - Itch slugs are placeholders (`rdug627/...`) and have not been deployed; awaiting explicit go-ahead before `butler push`.
+- Renamed `STABLE_GAMES` to `STANDALONE_BUILD_GAMES` to avoid overclaiming; the array now explicitly means "has a working standalone build", not "stable quality".
+
+### Population re-check (§2.3)
+
+- Re-checked `corpworld`, `ledger`, `trinity_siege`, `slimebreeder`, and `slimegarden` for standalone readiness.
+- `corpworld`, `ledger`, and `trinity_siege` each have only a `config.ts` with `status: 'external'` in `ts/src/games/{id}/` and no `App.tsx`, `data.yaml`, or `logic.lua`.
+- `slimebreeder` and `slimegarden` also have only a `config.ts` with `status: 'external'` and no corresponding `games/{id}/` directory.
+- Result: none of the five are ready for standalone builds; the re-check was run and confirmed negative rather than skipped.
 
 ### Test proof
 
