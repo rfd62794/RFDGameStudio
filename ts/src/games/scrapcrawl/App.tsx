@@ -11,7 +11,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { GameShell } from '../../components';
-import { Badge, Button, Card, EmptyState, ErrorBox, Panel, StatBar } from '../../ui/components';
+import { Badge, Button, Card, EmptyState, ErrorBox, Panel } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
@@ -303,7 +303,7 @@ export default function App({ session }: GameRendererProps) {
                 const tier2Cost = getTierCost(entry, 2);
                 const isTool = id === 'tool';
                 return (
-                  <div key={id} className="sc-recipe-card">
+                  <Card key={id} className="sc-recipe-card">
                     <div className="sc-recipe-header">
                       <div>
                         <div className="sc-recipe-name">{entry?.name ?? id}</div>
@@ -312,28 +312,27 @@ export default function App({ session }: GameRendererProps) {
                       <Icon size={16} className="sc-recipe-icon" />
                     </div>
                     <div className="sc-recipe-buttons">
-                      <button
-                        className={`sc-button sc-craft-button ${canCraft && player.scrap >= tier1Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
+                      <Button
+                        id={`scrapcrawl-craft-${id}-1`}
+                        label={`Tier 1 — ${tier1Cost} Scrap`}
                         onClick={() => handleCraft(id, 1)}
                         disabled={!canCraft || (isTool ? player.tier2Unlocked : player.scrap < tier1Cost)}
                         title={canCraft ? 'Craft at Home Base workbench' : 'No workbench detected in this node'}
-                      >
-                        <span className="sc-recipe-tier">Tier 1</span>
-                        <span className="sc-recipe-cost">{tier1Cost} Scrap</span>
-                      </button>
-                      <button
-                        className={`sc-button sc-craft-button ${canCraft && !isTool && player.tier2Unlocked && player.scrap >= tier2Cost ? 'sc-button-affordable' : 'sc-button-unaffordable'}`}
+                        variant="primary"
+                        size="sm"
+                      />
+                      <Button
+                        id={`scrapcrawl-craft-${id}-2`}
+                        icon={!player.tier2Unlocked && !isTool ? <Lock size={10} /> : undefined}
+                        label={`Tier 2 — ${tier2Cost} Scrap`}
                         onClick={() => handleCraft(id, 2)}
                         disabled={!canCraft || (isTool ? player.tier2Unlocked : (!player.tier2Unlocked || player.scrap < tier2Cost))}
                         title={canCraft ? 'Craft at Home Base workbench' : 'No workbench detected in this node'}
-                      >
-                        <span className="sc-recipe-tier">
-                          {!player.tier2Unlocked && <Lock size={10} />} Tier 2
-                        </span>
-                        <span className="sc-recipe-cost">{tier2Cost} Scrap</span>
-                      </button>
+                        variant="primary"
+                        size="sm"
+                      />
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -345,7 +344,7 @@ export default function App({ session }: GameRendererProps) {
           <h2 className="sc-panel-title"><Terminal size={12} /> Manual Trace Log</h2>
           <div className="sc-trace-body">
             {combatHistory.length === 0 && (
-              <div className="sc-trace-empty">System loaded. Player initialized at Home Base.</div>
+              <EmptyState message="System loaded. Player initialized at Home Base." />
             )}
             {combatHistory.map((entry, i) => {
               let modifier = 'sc-trace-info';
