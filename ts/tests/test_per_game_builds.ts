@@ -15,12 +15,22 @@ function assets(game: string) {
 }
 
 function jsName(game: string) {
-  return assets(game).find((f) => f.endsWith('.js')) ?? '';
+  return assets(game).find((f) => f.startsWith('index-') && f.endsWith('.js')) ?? '';
 }
 
 function jsContent(game: string) {
   return readFileSync(resolve(dist(game), 'assets', jsName(game)), 'utf8');
 }
+
+const GAMES = [
+  'brewfield',
+  'shoal',
+  'slimeworld',
+  'chimera_wilds',
+  'mutant_battle_ball',
+  'scrapcrawl',
+  'slime_coin',
+];
 
 describe('Per-game standalone builds', () => {
   it('test_brewfield_standalone_build_produces_output', () => {
@@ -77,14 +87,10 @@ describe('Per-game standalone builds', () => {
       resolve(import.meta.dirname, '../../../RFD_IT_Publishing/config/games.yaml'),
       'utf8'
     );
-    expect(cfg).toContain('brewfield:');
-    expect(cfg).toContain('shoal:');
-    expect(cfg).toContain('slimeworld:');
-    expect(cfg).toContain('rdug627/brewfield');
-    expect(cfg).toContain('rdug627/shoal');
-    expect(cfg).toContain('rdug627/slimeworld');
-    expect(cfg).toContain('dist-brewfield');
-    expect(cfg).toContain('dist-shoal');
-    expect(cfg).toContain('dist-slimeworld');
+    for (const game of GAMES) {
+      expect(cfg).toContain(`${game}:`);
+      expect(cfg).toContain(`rdug627/${game}`);
+      expect(cfg).toContain(`dist-${game}`);
+    }
   });
 });
