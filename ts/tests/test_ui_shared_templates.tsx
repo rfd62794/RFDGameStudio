@@ -139,7 +139,7 @@ describe('ProgressIndicator', () => {
 
     expect(container.querySelectorAll('button').length).toBe(3);
     // Completed node is disabled; active should be clickable.
-    const buttons = Array.from(container.querySelectorAll('button'));
+    const buttons = Array.from(container.querySelectorAll('button')) as HTMLElement[];
     await act(async () => buttons[1].click());
     expect(selectFn).toHaveBeenCalledWith(2);
     root.unmount();
