@@ -1,13 +1,13 @@
 import ReactDOM from 'react-dom/client';
 import '../../index.css';
-import App from '../../games/brewfield/App';
+import App from '../../games/scrapcrawl/App';
 import { buildStandaloneSession } from '../../engine/standaloneLoader';
 
-import dataRaw from '../../../../games/brewfield/data.yaml?raw';
-import uiRaw from '../../../../games/brewfield/ui.yaml?raw';
-import systemsRaw from '../../../../games/brewfield/systems.yaml?raw';
-import logicRaw from '../../../../games/brewfield/logic.lua?raw';
-const gameId = 'brewfield';
+import dataRaw from '../../../../games/scrapcrawl/data.yaml?raw';
+import uiRaw from '../../../../games/scrapcrawl/ui.yaml?raw';
+import systemsRaw from '../../../../games/scrapcrawl/systems.yaml?raw';
+import logicRaw from '../../../../games/scrapcrawl/logic.lua?raw';
+const gameId = 'scrapcrawl';
 
 const session = buildStandaloneSession({
   gameId,

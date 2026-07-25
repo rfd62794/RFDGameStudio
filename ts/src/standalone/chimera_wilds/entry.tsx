@@ -1,13 +1,13 @@
 import ReactDOM from 'react-dom/client';
 import '../../index.css';
-import App from '../../games/brewfield/App';
+import App from '../../games/chimera_wilds/App';
 import { buildStandaloneSession } from '../../engine/standaloneLoader';
 
-import dataRaw from '../../../../games/brewfield/data.yaml?raw';
-import uiRaw from '../../../../games/brewfield/ui.yaml?raw';
-import systemsRaw from '../../../../games/brewfield/systems.yaml?raw';
-import logicRaw from '../../../../games/brewfield/logic.lua?raw';
-const gameId = 'brewfield';
+import dataRaw from '../../../../games/chimera_wilds/data.yaml?raw';
+import uiRaw from '../../../../games/chimera_wilds/ui.yaml?raw';
+import systemsRaw from '../../../../games/chimera_wilds/systems.yaml?raw';
+import logicRaw from '../../../../games/chimera_wilds/logic.lua?raw';
+const gameId = 'chimera_wilds';
 
 const session = buildStandaloneSession({
   gameId,

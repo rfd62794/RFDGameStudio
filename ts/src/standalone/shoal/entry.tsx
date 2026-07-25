@@ -6,14 +6,11 @@ import { buildStandaloneSession } from '../../engine/standaloneLoader';
 import dataRaw from '../../../../games/shoal/data.yaml?raw';
 import uiRaw from '../../../../games/shoal/ui.yaml?raw';
 import systemsRaw from '../../../../games/shoal/systems.yaml?raw';
-import logicRaw from '../../../../games/shoal/logic.lua?raw';
 import utilsRaw from '../../../../games/shoal/utils.lua?raw';
 import stateRaw from '../../../../games/shoal/state.lua?raw';
 import entitiesRaw from '../../../../games/shoal/entities.lua?raw';
 import steeringRaw from '../../../../games/shoal/steering.lua?raw';
-import actionRaw from '../../../../engine/primitives/action.lua?raw';
-import movementRaw from '../../../../engine/primitives/movement.lua?raw';
-
+import logicRaw from '../../../../games/shoal/logic.lua?raw';
 const gameId = 'shoal';
 
 const session = buildStandaloneSession({
@@ -28,10 +25,7 @@ const session = buildStandaloneSession({
     'steering.lua': steeringRaw,
     'logic.lua': logicRaw,
   },
-  engineLuaFiles: {
-    'primitives/action.lua': actionRaw,
-    'primitives/movement.lua': movementRaw,
-  },
+  engineLuaFiles: { },
 });
 
 const rootEl = document.getElementById('root');

@@ -1,13 +1,13 @@
 import ReactDOM from 'react-dom/client';
 import '../../index.css';
-import App from '../../games/brewfield/App';
+import App from '../../games/slime_coin/App';
 import { buildStandaloneSession } from '../../engine/standaloneLoader';
 
-import dataRaw from '../../../../games/brewfield/data.yaml?raw';
-import uiRaw from '../../../../games/brewfield/ui.yaml?raw';
-import systemsRaw from '../../../../games/brewfield/systems.yaml?raw';
-import logicRaw from '../../../../games/brewfield/logic.lua?raw';
-const gameId = 'brewfield';
+import dataRaw from '../../../../games/slime_coin/data.yaml?raw';
+import uiRaw from '../../../../games/slime_coin/ui.yaml?raw';
+import systemsRaw from '../../../../games/slime_coin/systems.yaml?raw';
+import logicRaw from '../../../../games/slime_coin/logic.lua?raw';
+const gameId = 'slime_coin';
 
 const session = buildStandaloneSession({
   gameId,
