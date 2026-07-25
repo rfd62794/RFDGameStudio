@@ -4,6 +4,7 @@ import { Coins, FastForward } from 'lucide-react';
 import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
 import { navigateTo } from '../../arcade/routing';
+import { STABLE_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
 import { LabTab } from './components/LabTab';
@@ -46,11 +47,6 @@ const SEED_SHAPE_DEFAULTS: Record<string, { vertexCount: number; irregularity: n
   Gray: { vertexCount: 4, irregularity: 20 },
 };
 
-const STABLE_GAMES = [
-  { id: 'brewfield', label: 'Brewfield' },
-  { id: 'shoal', label: 'Shoal' },
-  { id: 'slimeworld', label: 'SlimeWorld' },
-];
 
 const INITIAL_ZONES: CombatZone[] = [
   { id: 'zone_cinder', name: 'Rusty Cinder Craters', requiredColor: 'Red', recommendedLevel: 1, difficulty: 1, creditsReward: 50, xpReward: 60, isUnlocked: true, isFirstClearCompleted: false, flavorText: 'An iron-rich expanse of heat chimneys and jagged slag-heaps. Ideal for Red Slimes to solidify their core.' },

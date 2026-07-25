@@ -3,15 +3,11 @@ import { AnimatePresence } from 'framer-motion';
 import { GameShell } from '../../components';
 import { MoreGamesByMe } from '../../ui/components';
 import { navigateTo } from '../../arcade/routing';
+import { STABLE_GAMES } from '../../games/registry';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { BrewfieldGameState, ElementType, ComponentType } from './types';
 
-const STABLE_GAMES = [
-  { id: 'brewfield', label: 'Brewfield' },
-  { id: 'shoal', label: 'Shoal' },
-  { id: 'slimeworld', label: 'SlimeWorld' },
-];
 
 import IntroScreen from './components/IntroScreen';
 import GameOverScreen from './components/GameOverScreen';

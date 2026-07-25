@@ -4,15 +4,11 @@ import { useGameLoop } from '../../hooks';
 import { GameShell } from '../../components';
 import { Button, MoreGamesByMe } from '../../ui/components';
 import { navigateTo } from '../../arcade/routing';
+import { STABLE_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
 import './styles.css';
 
-const STABLE_GAMES = [
-  { id: 'brewfield', label: 'Brewfield' },
-  { id: 'shoal', label: 'Shoal' },
-  { id: 'slimeworld', label: 'SlimeWorld' },
-];
 
 let backgroundCache: HTMLCanvasElement | null = null;
 
