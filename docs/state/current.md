@@ -2706,11 +2706,13 @@ cd ts && npm run test
 ## Per-Game Builds & Itch Publishing
 
 - Added `MoreGamesByMe` shared component with `mode` prop (`arcade`/`standalone`) and exported it from `ts/src/ui/components/index.ts`.
-- Wired `MoreGamesByMe` footer into `brewfield`, `shoal`, and `slimeworld` `App.tsx`.
-- Created standalone entry points and per-game Vite configs producing a root `index.html` in `dist-brewfield/`, `dist-shoal/`, and `dist-slimeworld/` with relative asset paths.
-- Added `build:brewfield`, `build:shoal`, and `build:slimeworld` scripts to `ts/package.json`.
-- Per-game bundles exclude other games' Lua logic (verified no `resolve_brew`, `compute_fish_forces`, `create_seed_slime`, or `spawn_fruit` in wrong bundles) and the unified arcade `dist/` remains intact.
-- Added placeholder `brewfield`, `shoal`, and `slimeworld` entries to `RFD_IT_Publishing/config/games.yaml`; `python publisher.py list` loads them.
+- Created `ts/vite.standalone.factory.ts` with `makeStandaloneConfig(gameId)` and collapsed all existing per-game Vite configs to one-line factory calls.
+- Added `ts/tools/generate-standalone-entry.ts` to generate `entry.tsx`/`index.html` from a logic-layer audit, and regenerated entries for `brewfield`, `shoal`, `slimeworld`, `chimera_wilds`, `mutant_battle_ball`, `scrapcrawl`, and `slime_coin`.
+- Wired `MoreGamesByMe` footer into `brewfield`, `shoal`, `slimeworld`, `chimera_wilds`, `mutant_battle_ball`, `scrapcrawl`, and `slime_coin` `App.tsx`.
+- Per-game Vite configs produce a root `index.html` in each `dist-{game}/` with relative asset paths.
+- Added `build:{game}` scripts for all seven ready games to `ts/package.json`.
+- Per-game bundles exclude other games' Lua logic and the unified arcade `dist/` remains intact.
+- Added placeholder entries for all seven ready games to `RFD_IT_Publishing/config/games.yaml`; `python publisher.py list` loads them.
 - Itch slugs are placeholders (`rdug627/...`) and have not been deployed; awaiting explicit go-ahead before `butler push`.
 
 ### Test proof
