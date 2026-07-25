@@ -43,14 +43,16 @@ function parseAuditRow(gameId: string): { primitives: string[]; systems: string[
   const auditPath = resolve(REPO_ROOT, '..', 'docs', 'analysis', 'logic-layer-compliance-audit.md');
   const audit = readFileSync(auditPath, 'utf8');
 
-  const rowRegex = new RegExp(`\\\\|\\\\s*\\\`${gameId}\\\`\\\\s*\\\\|([^\\n]*?)(?:\\r?\\n|$)`, 'gi');
-  let match: RegExpExecArray | null = null;
+  const marker = `| \`${gameId}\` |`;
   let cells: string[] = [];
-  while ((match = rowRegex.exec(audit)) !== null) {
-    cells = match[1].split('|').map((c) => c.trim());
-    if (cells.some((c) => c === '**U**' || c === 'N/A' || c === '**D**')) {
-      break;
-    }
+  for (const rawLine of audit.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line.startsWith(marker)) continue;
+    if (!line.includes('**U**') && !line.includes('**D**') && !line.includes('N/A')) continue;
+    const parts = line.split('|').map((c) => c.trim());
+    // first and last are empty; cell 1 is the game id; primitives start at 2
+    cells = parts.slice(2, -1);
+    break;
   }
   if (cells.length === 0) {
     return { primitives: [], systems: [] };
