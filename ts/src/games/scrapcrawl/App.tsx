@@ -159,7 +159,7 @@ export default function App({ session }: GameRendererProps) {
       <div className="sc-dashboard">
         <div className="sc-grid">
           {/* Left column — World Graph */}
-          <section className="sc-panel sc-world">
+          <Panel className="sc-panel sc-world">
             <h2 className="sc-panel-title"><Compass size={12} /> World Graph</h2>
 
             <div className="sc-current-room">
@@ -217,26 +217,23 @@ export default function App({ session }: GameRendererProps) {
                   const target = rooms[targetId];
                   const isFight = target?.interaction_types?.includes('fight') ?? false;
                   return (
-                    <button
+                    <Button
                       key={targetId}
-                      className="sc-connection"
+                      id={`scrapcrawl-move-${targetId}`}
+                      icon={<ChevronRight size={12} />}
+                      label={`${targetId} — ${isFight ? 'Fight' : 'Safe'}`}
                       onClick={() => handleMove(targetId)}
-                    >
-                      <span className="sc-connection-name">
-                        <ChevronRight size={12} /> {targetId}
-                      </span>
-                      <span className={`sc-connection-badge ${isFight ? 'sc-badge-fight' : 'sc-badge-safe'}`}>
-                        {isFight ? 'Fight' : 'Safe'}
-                      </span>
-                    </button>
+                      variant={isFight ? 'danger' : 'neutral'}
+                      size="sm"
+                    />
                   );
                 })}
               </div>
             </div>
-          </section>
+          </Panel>
 
           {/* Center column — Equipment & Trace */}
-          <section className="sc-panel sc-loadout">
+          <Panel className="sc-panel sc-loadout">
             <h2 className="sc-panel-title"><Terminal size={12} /> Equipment Life & Growth</h2>
 
             <div className="sc-equipment-table">
@@ -294,10 +291,10 @@ export default function App({ session }: GameRendererProps) {
             <div className="sc-rule">
               <strong>Rule §2</strong> When life reaches 0, fall back to unarmed baseline. Broken state is not an error.
             </div>
-          </section>
+          </Panel>
 
           {/* Right column — Crafting Catalog */}
-          <section className="sc-panel sc-crafting">
+          <Panel className="sc-panel sc-crafting">
             <h2 className="sc-panel-title"><Wrench size={12} /> Crafting Catalog</h2>
             <div className="sc-recipe-list">
               {CATALOG_ORDER.map(({ id, slot, icon: Icon }) => {
@@ -340,11 +337,11 @@ export default function App({ session }: GameRendererProps) {
                 );
               })}
             </div>
-          </section>
+          </Panel>
         </div>
 
         {/* Terminal trace */}
-        <section className="sc-trace">
+        <Panel className="sc-trace">
           <h2 className="sc-panel-title"><Terminal size={12} /> Manual Trace Log</h2>
           <div className="sc-trace-body">
             {combatHistory.length === 0 && (
@@ -363,7 +360,7 @@ export default function App({ session }: GameRendererProps) {
               );
             })}
           </div>
-        </section>
+        </Panel>
       </div>
     </GameShell>
   );
