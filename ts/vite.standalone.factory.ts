@@ -4,7 +4,14 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+function getDirname(): string {
+  const url = import.meta.url;
+  if (url && url.startsWith('file:')) {
+    return fileURLToPath(new URL('.', url));
+  }
+  return process.cwd();
+}
+const __dirname = getDirname();
 
 export function makeStandaloneConfig(gameId: string): UserConfig {
   return {

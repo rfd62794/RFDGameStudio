@@ -9,7 +9,7 @@ describe('vite standalone factory', () => {
   it('parameterizes root and outDir by gameId', () => {
     const config = makeStandaloneConfig('demo');
     expect(config.base).toBe('./');
-    expect(config.root).toContain('src/standalone/demo');
+    expect(config.root).toMatch(/src[\\/]standalone[\\/]demo/);
     expect(config.build?.outDir).toContain('dist-demo');
   });
 
