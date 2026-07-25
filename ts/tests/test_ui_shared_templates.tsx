@@ -36,7 +36,7 @@ describe('TitleScreen', () => {
     expect(container.textContent).toContain('This is the pitch.');
     expect(container.textContent).toContain('A memorable quote.');
 
-    const buttons = Array.from(container.querySelectorAll('button'));
+    const buttons = Array.from(container.querySelectorAll('button')) as HTMLElement[];
     expect(buttons.length).toBe(2);
     expect(buttons[0].textContent).toContain('Start');
 
@@ -91,7 +91,7 @@ describe('EndStateScreen', () => {
         restartLabel="Retry"
       />
     );
-    const button = container.querySelector('button');
+    const button = container.querySelector('button') as HTMLElement | null;
     expect(button?.textContent).toContain('Retry');
     await act(async () => button?.click());
     expect(restart).toHaveBeenCalled();
