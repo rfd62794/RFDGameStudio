@@ -14,7 +14,7 @@ import { GameShell } from '../../components';
 import { Badge, Button, Card, EmptyState, ErrorBox, MoreGamesByMe, Panel } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
-import { STABLE_GAMES } from '../../games/registry';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
 import './styles.css';
@@ -163,7 +163,7 @@ export default function App({ session }: GameRendererProps) {
           <MoreGamesByMe
             mode={mode}
             currentGameId="scrapcrawl"
-            games={STABLE_GAMES}
+            games={STANDALONE_BUILD_GAMES}
             onSelectGame={navigateTo}
             arcadeBaseUrl={arcadeBaseUrl}
           />

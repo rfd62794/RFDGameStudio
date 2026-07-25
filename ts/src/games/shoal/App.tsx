@@ -4,7 +4,7 @@ import { useGameLoop } from '../../hooks';
 import { GameShell } from '../../components';
 import { Button, MoreGamesByMe } from '../../ui/components';
 import { navigateTo } from '../../arcade/routing';
-import { STABLE_GAMES } from '../../games/registry';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
 import './styles.css';
@@ -82,7 +82,7 @@ export default function App({ session }: GameRendererProps) {
         <MoreGamesByMe
           mode={mode}
           currentGameId="shoal"
-          games={STABLE_GAMES}
+          games={STANDALONE_BUILD_GAMES}
           onSelectGame={navigateTo}
           arcadeBaseUrl={arcadeBaseUrl}
         />

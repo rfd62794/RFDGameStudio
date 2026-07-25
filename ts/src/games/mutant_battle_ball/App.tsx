@@ -3,7 +3,7 @@ import { GameShell, TabManager } from '../../components';
 import { Badge, ErrorBox, MoreGamesByMe } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
-import { STABLE_GAMES } from '../../games/registry';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { MBBGameState, MatchState, MutantParts, Part } from './types';
 import RosterTab     from './components/RosterTab';
@@ -146,7 +146,7 @@ export default function App({ session }: GameRendererProps) {
         <MoreGamesByMe
           mode={mode}
           currentGameId="mutant_battle_ball"
-          games={STABLE_GAMES}
+          games={STANDALONE_BUILD_GAMES}
           onSelectGame={navigateTo}
           arcadeBaseUrl={arcadeBaseUrl}
         />

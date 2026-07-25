@@ -42,7 +42,7 @@ export function findGame(gameId: string): GameConfig | undefined {
   return GAME_REGISTRY.find(g => g.gameId === gameId);
 }
 
-export const STABLE_GAMES = [
+export const STANDALONE_BUILD_GAMES = [
   { id: 'brewfield', label: 'Brewfield' },
   { id: 'shoal', label: 'Shoal' },
   { id: 'slimeworld', label: 'SlimeWorld' },

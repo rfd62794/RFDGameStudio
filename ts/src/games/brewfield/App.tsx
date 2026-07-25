@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { GameShell } from '../../components';
 import { MoreGamesByMe } from '../../ui/components';
 import { navigateTo } from '../../arcade/routing';
-import { STABLE_GAMES } from '../../games/registry';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { BrewfieldGameState, ElementType, ComponentType } from './types';
@@ -172,7 +172,7 @@ export default function App({ session }: GameRendererProps) {
         <MoreGamesByMe
           mode={mode}
           currentGameId="brewfield"
-          games={STABLE_GAMES}
+          games={STANDALONE_BUILD_GAMES}
           onSelectGame={navigateTo}
           arcadeBaseUrl={arcadeBaseUrl}
         />

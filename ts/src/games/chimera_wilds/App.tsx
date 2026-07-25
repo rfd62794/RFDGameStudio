@@ -3,7 +3,7 @@ import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { MoreGamesByMe } from '../../ui/components';
-import { STABLE_GAMES } from '../../games/registry';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Part, Chimera, EncounterResult, ChimeraWildsGameState } from './types';
 import './styles.css';
@@ -91,7 +91,7 @@ export default function App({ session }: GameRendererProps) {
         <MoreGamesByMe
           mode={mode}
           currentGameId="chimera_wilds"
-          games={STABLE_GAMES}
+          games={STANDALONE_BUILD_GAMES}
           onSelectGame={navigateTo}
           arcadeBaseUrl={arcadeBaseUrl}
         />

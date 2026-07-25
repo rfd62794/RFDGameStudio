@@ -3,7 +3,7 @@ import { GameShell } from '../../components';
 import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { MoreGamesByMe } from '../../ui/components';
-import { STABLE_GAMES } from '../../games/registry';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
 import BoardCanvas from './components/BoardCanvas';
@@ -171,7 +171,7 @@ export default function App({ session }: GameRendererProps) {
         <MoreGamesByMe
           mode={mode}
           currentGameId="slime_coin"
-          games={STABLE_GAMES}
+          games={STANDALONE_BUILD_GAMES}
           onSelectGame={navigateTo}
           arcadeBaseUrl={arcadeBaseUrl}
         />
