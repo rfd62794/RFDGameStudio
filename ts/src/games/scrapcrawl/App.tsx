@@ -170,26 +170,29 @@ export default function App({ session }: GameRendererProps) {
               <div className="sc-current-room-name">{currentRoom.name}</div>
               <div className="sc-room-tags">
                 {currentRoom.interaction_types.map(type => (
-                  <span key={type} className={`sc-room-tag ${type === 'fight' ? 'sc-tag-fight' : type === 'craft' ? 'sc-tag-craft' : 'sc-tag-safe'}`}>
-                    {type}
-                  </span>
+                  <Badge
+                    key={type}
+                    label={type}
+                    variant={type === 'fight' ? 'red' : type === 'craft' ? 'amber' : 'green'}
+                  />
                 ))}
                 {currentRoom.difficulty !== undefined && (
-                  <span className="sc-room-tag sc-tag-diff">DIFF {currentRoom.difficulty}</span>
+                  <Badge label={`DIFF ${currentRoom.difficulty}`} variant="muted" />
                 )}
               </div>
             </div>
 
             <div className="sc-interact">
               <div className="sc-interact-label">Interact Node</div>
-              <button
-                className="sc-button sc-fight-button"
+              <Button
+                id="scrapcrawl-fight-button"
+                icon={<Dices size={14} />}
+                label={canFight ? 'Resolve Combat (D20)' : 'No Combat Here'}
                 onClick={handleFight}
                 disabled={!canFight}
                 title={canFight ? 'Resolve a D20 combat encounter' : 'No combat encounters detected in this node'}
-              >
-                <Dices size={14} /> {canFight ? 'Resolve Combat (D20)' : 'No Combat Here'}
-              </button>
+                variant="primary"
+              />
             </div>
 
             {lastResult && (
