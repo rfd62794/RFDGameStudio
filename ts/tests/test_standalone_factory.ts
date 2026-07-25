@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@vitejs/plugin-react', () => ({ default: () => ({ name: 'react' }) }));
+vi.mock('@tailwindcss/vite', () => ({ default: () => ({ name: 'tailwindcss' }) }));
+
 import { makeStandaloneConfig } from '../vite.standalone.factory';
 
 describe('vite standalone factory', () => {
