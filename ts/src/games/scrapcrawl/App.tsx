@@ -11,8 +11,10 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { GameShell } from '../../components';
-import { Badge, Button, Card, EmptyState, ErrorBox, Panel } from '../../ui/components';
+import { Badge, Button, Card, EmptyState, ErrorBox, MoreGamesByMe, Panel } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
+import { navigateTo } from '../../arcade/routing';
+import { STABLE_GAMES } from '../../games/registry';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
 import './styles.css';
@@ -77,6 +79,9 @@ function pushLog(prev: ScrapCrawlGameState | null, entry: string): string[] {
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const { call, error } = useLuaCall(session);
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const data = session.files.data as Record<string, unknown>;
   const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
 
@@ -151,9 +156,18 @@ export default function App({ session }: GameRendererProps) {
         </div>
       }
       footer={
-        <div className="sc-footer">
-          Disposable equipment, win-only proficiency, no repair. Fight only where hostiles exist.
-        </div>
+        <>
+          <div className="sc-footer">
+            Disposable equipment, win-only proficiency, no repair. Fight only where hostiles exist.
+          </div>
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STABLE_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        </>
       }
     >
       <div className="sc-dashboard">

@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
+import { navigateTo } from '../../arcade/routing';
+import { MoreGamesByMe } from '../../ui/components';
+import { STABLE_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
 import BoardCanvas from './components/BoardCanvas';
@@ -49,6 +52,9 @@ function buildInitialState(session: unknown): SlimeCoinGameState {
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const { call } = useLuaCall(session);
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   
   const [renderState, setRenderState] = useState<SlimeCoinRenderState | null>(null);
   const [input, setInput] = useState<SlimeCoinInput>({ fire: false, side: 'right' });
@@ -160,6 +166,15 @@ export default function App({ session }: GameRendererProps) {
           <span className="sc-hand">Hand: {state.hand_in}</span>
           <span className="sc-tokens">🟢 {state.tokens}</span>
         </div>
+      }
+      footer={
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="slime_coin"
+          games={STABLE_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
       }
     >
       <div className="sc-main">
