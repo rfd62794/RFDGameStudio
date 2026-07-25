@@ -43,16 +43,18 @@ function parseAuditRow(gameId: string): { primitives: string[]; systems: string[
   const auditPath = resolve(REPO_ROOT, '..', 'docs', 'analysis', 'logic-layer-compliance-audit.md');
   const audit = readFileSync(auditPath, 'utf8');
 
-  const rowRegex = new RegExp(
-    `\\\\|\\\\s*\\\`${gameId}\\\`\\\\s*\\\\|([^\\n]*(?:\\*\\*U\\*\\*|N/A)[^\\n]*)`,
-    'i'
-  );
-  const match = audit.match(rowRegex);
-  if (!match) {
+  const rowRegex = new RegExp(`\\\\|\\\\s*\\\`${gameId}\\\`\\\\s*\\\\|([^\\n]*?)(?:\\r?\\n|$)`, 'gi');
+  let match: RegExpExecArray | null = null;
+  let cells: string[] = [];
+  while ((match = rowRegex.exec(audit)) !== null) {
+    cells = match[1].split('|').map((c) => c.trim());
+    if (cells.some((c) => c === '**U**' || c === 'N/A' || c === '**D**')) {
+      break;
+    }
+  }
+  if (cells.length === 0) {
     return { primitives: [], systems: [] };
   }
-
-  const cells = match[1].split('|').map((c) => c.trim());
   // matrix columns: action, consequence, entity, lifecycle, movement, physics, resolution, combat, genetics, market, odds
   const primitiveCells = cells.slice(0, 7);
   const systemCells = cells.slice(7, 11);
