@@ -7,6 +7,7 @@ import dataRaw from '../../../../games/chimera_wilds/data.yaml?raw';
 import uiRaw from '../../../../games/chimera_wilds/ui.yaml?raw';
 import systemsRaw from '../../../../games/chimera_wilds/systems.yaml?raw';
 import logicRaw from '../../../../games/chimera_wilds/logic.lua?raw';
+
 const gameId = 'chimera_wilds';
 
 const session = buildStandaloneSession({

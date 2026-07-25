@@ -7,6 +7,8 @@ import dataRaw from '../../../../games/slime_coin/data.yaml?raw';
 import uiRaw from '../../../../games/slime_coin/ui.yaml?raw';
 import systemsRaw from '../../../../games/slime_coin/systems.yaml?raw';
 import logicRaw from '../../../../games/slime_coin/logic.lua?raw';
+import entityRaw from '../../../../engine/primitives/entity.lua?raw';
+
 const gameId = 'slime_coin';
 
 const session = buildStandaloneSession({
@@ -17,7 +19,9 @@ const session = buildStandaloneSession({
   gameLuaFiles: {
     'logic.lua': logicRaw,
   },
-  engineLuaFiles: { },
+  engineLuaFiles: {
+    'primitives/entity.lua': entityRaw,
+  },
 });
 
 const rootEl = document.getElementById('root');

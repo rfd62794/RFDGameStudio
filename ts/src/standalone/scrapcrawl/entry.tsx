@@ -7,6 +7,8 @@ import dataRaw from '../../../../games/scrapcrawl/data.yaml?raw';
 import uiRaw from '../../../../games/scrapcrawl/ui.yaml?raw';
 import systemsRaw from '../../../../games/scrapcrawl/systems.yaml?raw';
 import logicRaw from '../../../../games/scrapcrawl/logic.lua?raw';
+import actionRaw from '../../../../engine/primitives/action.lua?raw';
+
 const gameId = 'scrapcrawl';
 
 const session = buildStandaloneSession({
@@ -17,7 +19,9 @@ const session = buildStandaloneSession({
   gameLuaFiles: {
     'logic.lua': logicRaw,
   },
-  engineLuaFiles: { },
+  engineLuaFiles: {
+    'primitives/action.lua': actionRaw,
+  },
 });
 
 const rootEl = document.getElementById('root');

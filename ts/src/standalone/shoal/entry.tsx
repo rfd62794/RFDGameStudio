@@ -11,8 +11,9 @@ import stateRaw from '../../../../games/shoal/state.lua?raw';
 import entitiesRaw from '../../../../games/shoal/entities.lua?raw';
 import steeringRaw from '../../../../games/shoal/steering.lua?raw';
 import logicRaw from '../../../../games/shoal/logic.lua?raw';
-import primitives_actionRaw from '../../../../engine/primitives/action.lua?raw';
-import primitives_movementRaw from '../../../../engine/primitives/movement.lua?raw';
+import actionRaw from '../../../../engine/primitives/action.lua?raw';
+import movementRaw from '../../../../engine/primitives/movement.lua?raw';
+
 const gameId = 'shoal';
 
 const session = buildStandaloneSession({
@@ -28,8 +29,8 @@ const session = buildStandaloneSession({
     'logic.lua': logicRaw,
   },
   engineLuaFiles: {
-    'primitives/action.lua': primitives_actionRaw,
-    'primitives/movement.lua': primitives_movementRaw,
+    'primitives/action.lua': actionRaw,
+    'primitives/movement.lua': movementRaw,
   },
 });
 

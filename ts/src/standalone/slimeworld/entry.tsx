@@ -12,6 +12,8 @@ import missionsRaw from '../../../../games/slimeworld/missions.lua?raw';
 import economyRaw from '../../../../games/slimeworld/economy.lua?raw';
 import codexRaw from '../../../../games/slimeworld/codex.lua?raw';
 import logicRaw from '../../../../games/slimeworld/logic.lua?raw';
+import actionRaw from '../../../../engine/primitives/action.lua?raw';
+
 const gameId = 'slimeworld';
 
 const session = buildStandaloneSession({
@@ -27,7 +29,9 @@ const session = buildStandaloneSession({
     'codex.lua': codexRaw,
     'logic.lua': logicRaw,
   },
-  engineLuaFiles: { },
+  engineLuaFiles: {
+    'primitives/action.lua': actionRaw,
+  },
 });
 
 const rootEl = document.getElementById('root');
