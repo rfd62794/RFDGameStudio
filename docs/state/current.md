@@ -2690,3 +2690,26 @@ cd ts && npm run test
 | Mutant Battle Ball | ✅ Roster/`App` chrome now ADR-008 compliant |
 | Slither Rogue | Partially compliant (uses `Modal`) |
 | Scrapcrawl | ✅ `App.tsx` chrome now ADR-008 compliant |
+
+## Shared Logic Layer Compliance (ADR-007) — Audit
+
+- Audited all ten real Lua-backed games against all eleven `engine/primitives` and `engine/systems` files.
+- Only `engine/primitives/action.lua` is genuinely reused (`clamp` in `scrapcrawl`, `shoal`, `slimeworld`, `slither_rogue`; `collect` in `horse_racing`, `dissonance`). `brewfield` still duplicates `clamp` locally.
+- `engine/primitives/entity.lua` is barely used (`slime_coin` calls `copy_entity` once; `generate_id`/`validate_entity` have no callers).
+- `engine/primitives/movement.lua` is narrowly used (`shoal`/`slither_rogue` call `dist2`).
+- `engine/systems/genetics.lua` and `odds.lua` are only used by `horse_racing` (`generate_horse`, `calculate_odds`).
+- `consequence`, `lifecycle`, `physics`, `resolution`, `combat`, and `market` have no real callers in game Lua.
+- Cross-game duplicates not yet in `engine/`: `copy_table`, `get_state_summary`, `init_game`, `tick_game`, `calculate_stats`, `distance`, `lerp`, `advance_node`, `get_enemy_intent`, `init_player`, `build_render_state`.
+- Full report: `docs/analysis/logic-layer-compliance-audit.md`.
+- Verdict: current divergence is largely justified; no broad extension of the existing engine layer is supported by the evidence. The real extraction backlog is the cross-game duplicate table, not the existing eleven files.
+
+### Test proof
+
+```
+uv run pytest
+→ 502 passed, 8 warnings
+
+cd ts && npm run test
+→ Test Files  35 passed
+→ Tests  218 passed
+```
