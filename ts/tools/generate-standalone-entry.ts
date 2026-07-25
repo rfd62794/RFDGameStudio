@@ -16,6 +16,16 @@ const PRIMITIVE_ORDER = [
   'lifecycle',
 ];
 
+const PRIMITIVE_COLUMN_ORDER = [
+  'action',
+  'consequence',
+  'entity',
+  'lifecycle',
+  'movement',
+  'physics',
+  'resolution',
+];
+
 const SYSTEM_ORDER = ['combat', 'genetics', 'market', 'odds'];
 
 function toIdentifier(fileName: string): string {
@@ -33,7 +43,7 @@ function parseAuditRow(gameId: string): { primitives: string[]; systems: string[
   const auditPath = resolve(REPO_ROOT, '..', 'docs', 'analysis', 'logic-layer-compliance-audit.md');
   const audit = readFileSync(auditPath, 'utf8');
 
-  const rowRegex = new RegExp(`\\|\\s*\`${gameId}\`\\s*\\|([^\\n]+)\\|`, 'i');
+  const rowRegex = new RegExp(`\\|\\s*\`${gameId}\`\\s*\\|(.*)`, 'i');
   const match = audit.match(rowRegex);
   if (!match) {
     return { primitives: [], systems: [] };
@@ -45,8 +55,9 @@ function parseAuditRow(gameId: string): { primitives: string[]; systems: string[
   const systemCells = cells.slice(7, 11);
 
   const primitives: string[] = [];
-  PRIMITIVE_ORDER.forEach((name, idx) => {
-    if (primitiveCells[idx] && primitiveCells[idx].includes('**U**')) {
+  PRIMITIVE_ORDER.forEach((name) => {
+    const idx = PRIMITIVE_COLUMN_ORDER.indexOf(name);
+    if (idx >= 0 && primitiveCells[idx] && primitiveCells[idx].includes('**U**')) {
       primitives.push(name);
     }
   });
