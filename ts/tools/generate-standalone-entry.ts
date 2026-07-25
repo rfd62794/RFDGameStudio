@@ -181,7 +181,7 @@ export function writeStandaloneEntry(gameId: string): void {
   console.log(`Generated standalone entry for ${gameId} in ${outDir}`);
 }
 
-if (import.meta.url === `file://${__filename}`) {
+if (process.argv[1] === __filename) {
   const gameId = process.argv[2];
   if (!gameId) {
     console.error('Usage: tsx tools/generate-standalone-entry.ts <gameId>');
