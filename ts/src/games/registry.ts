@@ -41,3 +41,13 @@ export const GAME_REGISTRY: GameConfig[] = [
 export function findGame(gameId: string): GameConfig | undefined {
   return GAME_REGISTRY.find(g => g.gameId === gameId);
 }
+
+export const STABLE_GAMES = [
+  { id: 'brewfield', label: 'Brewfield' },
+  { id: 'shoal', label: 'Shoal' },
+  { id: 'slimeworld', label: 'SlimeWorld' },
+  { id: 'chimera_wilds', label: 'Chimera Wilds' },
+  { id: 'mutant_battle_ball', label: 'Mutant Battle Ball' },
+  { id: 'scrapcrawl', label: 'ScrapCrawl' },
+  { id: 'slime_coin', label: 'Slime Coin' },
+];
