@@ -2,10 +2,17 @@ import { useState, useRef, useEffect } from 'react';
 import { call } from '../../engine/runtime';
 import { useGameLoop } from '../../hooks';
 import { GameShell } from '../../components';
-import { Button } from '../../ui/components';
+import { Button, MoreGamesByMe } from '../../ui/components';
+import { navigateTo } from '../../arcade/routing';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
 import './styles.css';
+
+const STABLE_GAMES = [
+  { id: 'brewfield', label: 'Brewfield' },
+  { id: 'shoal', label: 'Shoal' },
+  { id: 'slimeworld', label: 'SlimeWorld' },
+];
 
 let backgroundCache: HTMLCanvasElement | null = null;
 
@@ -51,6 +58,9 @@ function initGame(session: GameRendererProps['session']): RenderState {
 }
 
 export default function App({ session }: GameRendererProps) {
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [tool, setTool] = useState<ToolMode>('fish');
   const [stats, setStats] = useState<Stats>({
     fish_count: 0,
@@ -71,6 +81,15 @@ export default function App({ session }: GameRendererProps) {
           <span>Algae {stats.algae_count}</span>
           <span>Chunks {stats.chunk_count}</span>
         </div>
+      }
+      footer={
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="shoal"
+          games={STABLE_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
       }
     >
       <div className="shoal-app">

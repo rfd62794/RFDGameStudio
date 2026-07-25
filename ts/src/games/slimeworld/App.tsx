@@ -3,8 +3,9 @@ import './styles.css';
 import { Coins, FastForward } from 'lucide-react';
 import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
+import { navigateTo } from '../../arcade/routing';
 import type { GameRendererProps } from '../../engine/types';
-import { Button, ErrorBox, TabBar } from '../../ui/components';
+import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
 import { LabTab } from './components/LabTab';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
@@ -44,6 +45,12 @@ const SEED_SHAPE_DEFAULTS: Record<string, { vertexCount: number; irregularity: n
   Blue: { vertexCount: 4, irregularity: 10 },
   Gray: { vertexCount: 4, irregularity: 20 },
 };
+
+const STABLE_GAMES = [
+  { id: 'brewfield', label: 'Brewfield' },
+  { id: 'shoal', label: 'Shoal' },
+  { id: 'slimeworld', label: 'SlimeWorld' },
+];
 
 const INITIAL_ZONES: CombatZone[] = [
   { id: 'zone_cinder', name: 'Rusty Cinder Craters', requiredColor: 'Red', recommendedLevel: 1, difficulty: 1, creditsReward: 50, xpReward: 60, isUnlocked: true, isFirstClearCompleted: false, flavorText: 'An iron-rich expanse of heat chimneys and jagged slag-heaps. Ideal for Red Slimes to solidify their core.' },
@@ -100,6 +107,9 @@ function luaResult(value: unknown[]): [Record<string, unknown> | null, string | 
 }
 
 export default function App({ session }: GameRendererProps) {
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [state, setState] = useState<LabState>(() => initialState(session));
   const [primaryTab, setPrimaryTab] = useState<'roster' | 'missions' | 'economy' | 'lab'>('roster');
   const [selectedSlimeId, setSelectedSlimeId] = useState<string | null>(null);
@@ -335,7 +345,20 @@ export default function App({ session }: GameRendererProps) {
 
 
   return (
-    <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span></div>}>
+    <GameShell
+      gameLabel="SLIMEWORLD"
+      gameId="slimeworld"
+      statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span></div>}
+      footer={
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="slimeworld"
+          games={STABLE_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
+      }
+    >
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         {warning && <ErrorBox message={warning} />}
         <TabBar

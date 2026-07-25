@@ -1,9 +1,17 @@
 import { useCallback, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { GameShell } from '../../components';
+import { MoreGamesByMe } from '../../ui/components';
+import { navigateTo } from '../../arcade/routing';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { BrewfieldGameState, ElementType, ComponentType } from './types';
+
+const STABLE_GAMES = [
+  { id: 'brewfield', label: 'Brewfield' },
+  { id: 'shoal', label: 'Shoal' },
+  { id: 'slimeworld', label: 'SlimeWorld' },
+];
 
 import IntroScreen from './components/IntroScreen';
 import GameOverScreen from './components/GameOverScreen';
@@ -24,6 +32,9 @@ function buildInitialState(session: {
 }
 
 export default function App({ session }: GameRendererProps) {
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const data = session.files.data;
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const { call } = useLuaCall(session);
@@ -161,6 +172,15 @@ export default function App({ session }: GameRendererProps) {
       gameId="brewfield"
       phase="Phase A"
       statusArea={statusArea}
+      footer={
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="brewfield"
+          games={STABLE_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
+      }
     >
       {!isInitialized || !state ? (
         <div className="h-full flex items-center justify-center bg-stone-950 text-stone-300 font-mono text-sm">

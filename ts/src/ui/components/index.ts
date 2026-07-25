@@ -16,3 +16,4 @@ export {
   type ProgressConnection,
   type ProgressNodeState,
 } from './ProgressIndicator';
+export { MoreGamesByMe, type MoreGamesByMeProps } from './MoreGamesByMe';

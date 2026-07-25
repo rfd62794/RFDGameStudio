@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:brewfield": "vite build --config vite.brewfield.config.ts",
+    "build:shoal": "vite build --config vite.shoal.config.ts",
+    "build:slimeworld": "vite build --config vite.slimeworld.config.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
