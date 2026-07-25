@@ -186,6 +186,7 @@ export default function App({ session }: GameRendererProps) {
               <div className="sc-interact-label">Interact Node</div>
               <Button
                 id="scrapcrawl-fight-button"
+                className="sc-fight-button"
                 icon={<Dices size={14} />}
                 label={canFight ? 'Resolve Combat (D20)' : 'No Combat Here'}
                 onClick={handleFight}
@@ -220,6 +221,7 @@ export default function App({ session }: GameRendererProps) {
                     <Button
                       key={targetId}
                       id={`scrapcrawl-move-${targetId}`}
+                      className="sc-connection"
                       icon={<ChevronRight size={12} />}
                       label={`${targetId} — ${isFight ? 'Fight' : 'Safe'}`}
                       onClick={() => handleMove(targetId)}
@@ -314,6 +316,7 @@ export default function App({ session }: GameRendererProps) {
                     <div className="sc-recipe-buttons">
                       <Button
                         id={`scrapcrawl-craft-${id}-1`}
+                        className="sc-craft-button"
                         label={`Tier 1 — ${tier1Cost} Scrap`}
                         onClick={() => handleCraft(id, 1)}
                         disabled={!canCraft || (isTool ? player.tier2Unlocked : player.scrap < tier1Cost)}
@@ -323,6 +326,7 @@ export default function App({ session }: GameRendererProps) {
                       />
                       <Button
                         id={`scrapcrawl-craft-${id}-2`}
+                        className="sc-craft-button"
                         icon={!player.tier2Unlocked && !isTool ? <Lock size={10} /> : undefined}
                         label={`Tier 2 — ${tier2Cost} Scrap`}
                         onClick={() => handleCraft(id, 2)}
