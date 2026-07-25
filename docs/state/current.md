@@ -2703,13 +2703,23 @@ cd ts && npm run test
 - Full report: `docs/analysis/logic-layer-compliance-audit.md`.
 - Verdict: current divergence is largely justified; no broad extension of the existing engine layer is supported by the evidence. The real extraction backlog is the cross-game duplicate table, not the existing eleven files.
 
+## Per-Game Builds & Itch Publishing
+
+- Added `MoreGamesByMe` shared component with `mode` prop (`arcade`/`standalone`) and exported it from `ts/src/ui/components/index.ts`.
+- Wired `MoreGamesByMe` footer into `brewfield`, `shoal`, and `slimeworld` `App.tsx`.
+- Created standalone entry points and per-game Vite configs producing a root `index.html` in `dist-brewfield/`, `dist-shoal/`, and `dist-slimeworld/` with relative asset paths.
+- Added `build:brewfield`, `build:shoal`, and `build:slimeworld` scripts to `ts/package.json`.
+- Per-game bundles exclude other games' Lua logic (verified no `resolve_brew`, `compute_fish_forces`, `create_seed_slime`, or `spawn_fruit` in wrong bundles) and the unified arcade `dist/` remains intact.
+- Added placeholder `brewfield`, `shoal`, and `slimeworld` entries to `RFD_IT_Publishing/config/games.yaml`; `python publisher.py list` loads them.
+- Itch slugs are placeholders (`rdug627/...`) and have not been deployed; awaiting explicit go-ahead before `butler push`.
+
 ### Test proof
 
 ```
-uv run pytest
+uv run pytest -q
 → 502 passed, 8 warnings
 
 cd ts && npm run test
-→ Test Files  35 passed
-→ Tests  218 passed
+→ Test Files  37 passed
+→ Tests  229 passed
 ```
