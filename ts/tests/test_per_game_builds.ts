@@ -75,6 +75,23 @@ describe('Per-game standalone builds', () => {
     expect(js).not.toContain('spawn_fruit');
   });
 
+  for (const game of ['chimera_wilds', 'mutant_battle_ball', 'scrapcrawl', 'slime_coin']) {
+    it(`test_${game}_standalone_build_produces_output`, () => {
+      expect(existsSync(resolve(dist(game), 'index.html'))).toBe(true);
+      const a = assets(game);
+      expect(a.some((f) => f.endsWith('.js'))).toBe(true);
+      expect(a.some((f) => f.endsWith('.css'))).toBe(true);
+    });
+
+    it(`test_${game}_build_excludes_other_games_code`, () => {
+      const js = jsContent(game);
+      expect(js).not.toContain('resolve_brew');
+      expect(js).not.toContain('compute_fish_forces');
+      expect(js).not.toContain('create_seed_slime');
+      expect(js).not.toContain('spawn_fruit');
+    });
+  }
+
   it('test_unified_arcade_build_unaffected', () => {
     expect(existsSync(resolve(unifiedDist(), 'index.html'))).toBe(true);
     const a = readdirSync(resolve(unifiedDist(), 'assets'));
