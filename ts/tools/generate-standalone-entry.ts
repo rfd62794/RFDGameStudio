@@ -29,7 +29,9 @@ const PRIMITIVE_COLUMN_ORDER = [
 const SYSTEM_ORDER = ['combat', 'genetics', 'market', 'odds'];
 
 function toIdentifier(fileName: string): string {
-  const base = fileName.replace(/\.[^.]+$/, '');
+  const normalized = fileName.replace(/\\/g, '/');
+  const lastSegment = normalized.split('/').pop() ?? fileName;
+  const base = lastSegment.replace(/\.[^.]+$/, '');
   const sanitized = base.replace(/[^a-zA-Z0-9]/g, '_');
   return sanitized + 'Raw';
 }
@@ -150,6 +152,7 @@ import dataRaw from '../../../../games/${gameId}/data.yaml?raw';
 import uiRaw from '../../../../games/${gameId}/ui.yaml?raw';
 import systemsRaw from '../../../../games/${gameId}/systems.yaml?raw';
 ${gameImports}${engineImports ? '\n' + engineImports : ''}
+
 const gameId = '${gameId}';
 
 const session = buildStandaloneSession({
