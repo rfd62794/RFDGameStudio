@@ -1,4 +1,5 @@
 import { Flame, Package, ArrowRight } from 'lucide-react';
+import { Button, Card } from '../../../ui/components';
 import type { RunState } from '../types';
 
 interface RestCraftPhaseProps {
@@ -15,47 +16,107 @@ export default function RestCraftPhase({ run, onRest, onAttachment, onContinue }
 
   return (
     <div
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 flex flex-col items-center text-center gap-6 shadow-2xl max-w-2xl mx-auto my-4"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 'var(--space-6)',
+        maxWidth: '576px',
+        margin: 'var(--space-6) auto',
+        padding: 'var(--space-8)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
+        textAlign: 'center',
+      }}
       id="viewport-rest-craft-phase"
     >
-      <h2 className="text-2xl font-black text-slate-100 tracking-wider">REST &amp; CRAFT STOP</h2>
-      <p className="text-xs font-mono text-slate-500">HP {run.playerHp}/{run.playerMaxHp}</p>
+      <h2
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--font-size-xl)',
+          fontWeight: 400,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          margin: 0,
+          color: 'var(--text)',
+        }}
+      >
+        Rest &amp; Craft Stop
+      </h2>
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>
+        HP {run.playerHp}/{run.playerMaxHp}
+      </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-        <button
-          onClick={onRest}
-          disabled={resolved}
-          className="p-5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/40 transition-all flex flex-col items-center gap-2 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 'var(--space-4)',
+          width: '100%',
+        }}
+      >
+        <Card
           id="rest-craft-rest-btn"
+          onClick={onRest}
+          className="rest-craft-option"
         >
-          <Flame className="w-6 h-6 text-emerald-400" />
-          <span className="text-sm font-bold text-slate-100">Rest (+40% Max HP)</span>
-        </button>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              opacity: resolved ? 0.3 : 1,
+              pointerEvents: resolved ? 'none' : 'auto',
+            }}
+          >
+            <Flame style={{ width: '1.5rem', height: '1.5rem', color: 'var(--green)' }} />
+            <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--text)' }}>
+              Rest (+40% Max HP)
+            </span>
+          </div>
+        </Card>
 
-        <button
-          onClick={onAttachment}
-          disabled={resolved}
-          className="p-5 rounded-xl border border-sky-500/40 bg-sky-950/20 hover:bg-sky-950/40 transition-all flex flex-col items-center gap-2 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+        <Card
           id="rest-craft-attachment-btn"
+          onClick={onAttachment}
+          className="rest-craft-option"
         >
-          <Package className="w-6 h-6 text-sky-400" />
-          <span className="text-sm font-bold text-slate-100">Attachment (Peek/Gift/Treasure)</span>
-        </button>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              opacity: resolved ? 0.3 : 1,
+              pointerEvents: resolved ? 'none' : 'auto',
+            }}
+          >
+            <Package style={{ width: '1.5rem', height: '1.5rem', color: 'var(--accent)' }} />
+            <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--text)' }}>
+              Attachment (Peek/Gift/Treasure)
+            </span>
+          </div>
+        </Card>
       </div>
 
       {run.lastAttachmentOutcome && (
-        <p className="text-xs font-mono text-sky-300">Attachment resolved: {run.lastAttachmentOutcome}</p>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--accent)' }}>
+          Attachment resolved: {run.lastAttachmentOutcome}
+        </p>
       )}
 
       {resolved && (
-        <button
-          onClick={onContinue}
-          className="w-full max-w-md py-3.5 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2.5 uppercase tracking-wider text-xs cursor-pointer"
+        <Button
           id="rest-craft-continue-btn"
-        >
-          <span>Continue — Return to Map</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          label="Continue — Return to Map"
+          icon={<ArrowRight style={{ width: '1rem', height: '1rem' }} />}
+          onClick={onContinue}
+          variant="primary"
+          size="lg"
+        />
       )}
     </div>
   );

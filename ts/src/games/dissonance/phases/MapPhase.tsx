@@ -1,4 +1,7 @@
 import { Swords, Flame, Gem, Store, Zap, Crown, ArrowRight } from 'lucide-react';
+import { Button } from '../../../ui/components';
+import { ProgressIndicator } from '../../../ui/components';
+import type { ProgressNode } from '../../../ui/components';
 import type { RunNode, RunState } from '../types';
 
 interface MapPhaseProps {
@@ -21,92 +24,109 @@ export default function MapPhase({ run, onEnterCurrentNode, onSelectBranch }: Ma
   const alreadyVisited = run.visitedNodeIds.includes(run.currentNodeId);
   const branchOptions = alreadyVisited ? (currentNode?.connectsTo ?? []) : [];
 
+  const nodes: ProgressNode[] = run.nodes.map((n) => {
+    let state: 'completed' | 'active' | 'pending' = 'pending';
+    if (n.id === run.currentNodeId) state = 'active';
+    else if (run.visitedNodeIds.includes(n.id)) state = 'completed';
+    return {
+      id: n.id,
+      type: n.type,
+      label: n.type === 'fight' || n.type === 'boss' ? n.enemyName : n.type,
+      description: n.type === 'fight' || n.type === 'boss' ? n.enemyName : n.type,
+      state,
+      x: n.x,
+      y: n.y,
+    };
+  });
+
+  const connections = run.nodes.flatMap((n) =>
+    (n.connectsTo ?? []).map((targetId) => ({ from: n.id, to: targetId }))
+  );
+
   return (
     <div
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative max-w-5xl mx-auto my-4"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-6)',
+        maxWidth: '1024px',
+        margin: 'var(--space-6) auto',
+        padding: 'var(--space-6)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
+      }}
       id="viewport-map-phase"
     >
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-black text-slate-100 tracking-wider uppercase">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--font-size-lg)',
+            fontWeight: 400,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            margin: 0,
+            color: 'var(--text)',
+          }}
+        >
           Floor {run.currentFloor} — {run.nodes.length} Nodes
         </h2>
-        <span className="text-xs font-mono text-slate-500">
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>
           HP {run.playerHp}/{run.playerMaxHp} · Essence {run.essence}
         </span>
       </div>
 
       {run.lastMapBalance && (
-        <div className="text-[10px] font-mono text-slate-500 bg-slate-950/60 border border-slate-800 rounded-lg p-2">
+        <div
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--font-size-xs)',
+            color: 'var(--text-muted)',
+            background: 'var(--bg)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            padding: 'var(--space-2)',
+          }}
+        >
           Map generation validated: {run.lastMapBalance.netDamage} HP net damage
           (band [{run.lastMapBalance.band[0]}-{run.lastMapBalance.band[1]}] HP,
           {' '}{run.lastMapBalance.attempts} attempt(s)).
         </div>
       )}
 
-      <div className="relative w-full overflow-x-auto py-4" id="map-node-graph">
-        <svg width="100%" height="260" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 pointer-events-none">
-          {run.nodes.flatMap((n) =>
-            (n.connectsTo ?? []).map((targetId) => {
-              const target = run.nodes.find((t) => t.id === targetId);
-              if (!target || n.x === undefined || target.x === undefined) return null;
-              return (
-                <line
-                  key={`${n.id}-${targetId}`}
-                  x1={n.x} y1={n.y} x2={target.x} y2={target.y}
-                  stroke="#3f3f5f" strokeWidth={0.4}
-                />
-              );
-            })
-          )}
-        </svg>
-        <div className="relative w-full h-64">
-          {run.nodes.map((n) => {
-            const Icon = NODE_ICONS[n.type];
-            const isCurrent = n.id === run.currentNodeId;
-            const isVisited = run.visitedNodeIds.includes(n.id);
-            const isSelectable = branchOptions.includes(n.id);
-            return (
-              <button
-                key={n.id}
-                disabled={!isSelectable}
-                onClick={() => isSelectable && onSelectBranch(n.id)}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                  isCurrent
-                    ? 'bg-amber-500 border-amber-300 text-slate-950 shadow-lg shadow-amber-500/30'
-                    : isSelectable
-                    ? 'bg-slate-800 border-amber-500/60 text-amber-300 hover:bg-slate-700 cursor-pointer'
-                    : isVisited
-                    ? 'bg-slate-800/50 border-slate-700 text-slate-600'
-                    : 'bg-slate-950 border-slate-800 text-slate-600'
-                }`}
-                style={{ left: `${n.x}%`, top: `${n.y}%` }}
-                id={`map-node-${n.id}`}
-                title={n.type === 'fight' || n.type === 'boss' ? n.enemyName : n.type}
-              >
-                <Icon className="w-4 h-4" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <ProgressIndicator
+        id="map-node-graph"
+        layout="graph"
+        nodes={nodes}
+        currentNodeId={run.currentNodeId}
+        connections={connections}
+        getNodeIcon={(type) => {
+          const Icon = NODE_ICONS[type as RunNode['type']];
+          return Icon ? <Icon style={{ width: '1rem', height: '1rem' }} /> : null;
+        }}
+        onSelectNode={(id) => {
+          const targetId = String(id);
+          if (branchOptions.includes(targetId)) onSelectBranch(targetId);
+        }}
+      />
 
       {!alreadyVisited && currentNode && (
-        <button
-          onClick={onEnterCurrentNode}
-          className="w-full max-w-md mx-auto py-3.5 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2.5 uppercase tracking-wider text-xs cursor-pointer"
+        <Button
           id="map-enter-node-btn"
-        >
-          <span>
-            Enter {currentNode.type === 'fight' || currentNode.type === 'boss'
-              ? `Fight: ${currentNode.enemyName}`
-              : currentNode.type}
-          </span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          label={`Enter ${currentNode.type === 'fight' || currentNode.type === 'boss'
+            ? `Fight: ${currentNode.enemyName}`
+            : currentNode.type}`}
+          icon={<ArrowRight style={{ width: '1rem', height: '1rem' }} />}
+          onClick={onEnterCurrentNode}
+          variant="primary"
+          size="lg"
+        />
       )}
 
       {alreadyVisited && branchOptions.length > 0 && (
-        <p className="text-xs font-mono text-slate-400 text-center">
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)', textAlign: 'center' }}>
           Select a connected node above to travel there.
         </p>
       )}

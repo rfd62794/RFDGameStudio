@@ -1,4 +1,5 @@
 import { Lock, ArrowRight } from 'lucide-react';
+import { Card } from '../../../ui/components';
 
 interface FloorFlavor {
   name: string;
@@ -17,42 +18,88 @@ interface FloorChoicePhaseProps {
 export default function FloorChoicePhase({ floorFlavor, onChoose }: FloorChoicePhaseProps) {
   return (
     <div
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 flex flex-col items-center text-center gap-6 shadow-2xl max-w-3xl mx-auto my-4"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 'var(--space-6)',
+        maxWidth: '768px',
+        margin: 'var(--space-6) auto',
+        padding: 'var(--space-8)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
+        textAlign: 'center',
+      }}
       id="viewport-floor-choice-phase"
     >
-      <h2 className="text-2xl md:text-3xl font-black text-slate-100 tracking-wider">
-        SELECT DESCENT FLOOR
+      <h2
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--font-size-2xl)',
+          fontWeight: 400,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          margin: 0,
+          color: 'var(--text)',
+        }}
+      >
+        Select Descent Floor
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 'var(--space-4)',
+          width: '100%',
+        }}
+      >
         {[1, 2, 3, 4, 5].map((floor) => {
           const flavor = floorFlavor[String(floor)];
           const locked = floor !== 1;
           return (
-            <button
+            <Card
               key={floor}
-              disabled={locked}
-              onClick={() => !locked && onChoose(floor)}
-              className={`text-left p-4 rounded-xl border transition-all flex flex-col gap-1 ${
-                locked
-                  ? 'bg-slate-950/60 border-slate-800/60 text-slate-600 cursor-not-allowed'
-                  : 'bg-slate-800/80 border-amber-500/40 hover:border-amber-400 cursor-pointer'
-              }`}
               id={`floor-choice-${floor}`}
+              onClick={locked ? undefined : () => onChoose(floor)}
+              className="floor-choice-card"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-amber-400">
-                  Floor {floor}{flavor ? ` — ${flavor.name}` : ''}
-                </span>
-                {locked ? <Lock className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5 text-amber-400" />}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--space-1)',
+                  textAlign: 'left',
+                  opacity: locked ? 0.5 : 1,
+                  pointerEvents: locked ? 'none' : 'auto',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--font-size-xs)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      color: 'var(--amber)',
+                    }}
+                  >
+                    Floor {floor}{flavor ? ` — ${flavor.name}` : ''}
+                  </span>
+                  {locked
+                    ? <Lock style={{ width: '0.875rem', height: '0.875rem', color: 'var(--text-muted)' }} />
+                    : <ArrowRight style={{ width: '0.875rem', height: '0.875rem', color: 'var(--amber)' }} />}
+                </div>
+                {flavor && <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>{flavor.description}</p>}
+                {locked && (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>
+                    Requires meta-progression roster gating (not yet ported).
+                  </span>
+                )}
               </div>
-              {flavor && <p className="text-xs text-slate-400">{flavor.description}</p>}
-              {locked && (
-                <span className="text-[10px] text-slate-600 mt-1">
-                  Requires meta-progression roster gating (not yet ported).
-                </span>
-              )}
-            </button>
+            </Card>
           );
         })}
       </div>

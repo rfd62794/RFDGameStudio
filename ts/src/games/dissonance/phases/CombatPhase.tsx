@@ -1,4 +1,5 @@
 import { Swords, Shield, Skull } from 'lucide-react';
+import { Card, Panel, StatBar } from '../../../ui/components';
 import type { DeckCard, RunState } from '../types';
 
 interface CombatPhaseProps {
@@ -19,57 +20,133 @@ export default function CombatPhase({ run, onPlayCard }: CombatPhaseProps) {
 
   return (
     <div
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative max-w-5xl mx-auto my-4"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-6)',
+        maxWidth: '1024px',
+        margin: 'var(--space-6) auto',
+        padding: 'var(--space-6)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
+      }}
       id="viewport-combat-phase"
     >
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">You</span>
-          <div className="flex items-center gap-3 text-sm font-bold text-slate-100">
-            <span>HP {run.playerHp}/{run.playerMaxHp}</span>
-            {run.playerShield > 0 && (
-              <span className="flex items-center gap-1 text-sky-400">
-                <Shield className="w-4 h-4" /> {run.playerShield}
-              </span>
-            )}
-          </div>
-        </div>
-        <Swords className="w-6 h-6 text-amber-500" />
-        <div className="flex flex-col gap-1 items-end">
-          <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">{enemy.name}</span>
-          <span className="text-sm font-bold text-rose-400">HP {enemy.hp}/{enemy.maxHp}</span>
-        </div>
-      </div>
-
-      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 flex items-center gap-2 text-xs font-mono text-amber-300">
-        <Skull className="w-4 h-4" />
-        <span>Enemy Intent: {enemy.intent.description}</span>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="combat-hand">
-        {run.deckState.hand.map((card) => (
-          <button
-            key={card.id}
-            onClick={() => onPlayCard(card)}
-            className="p-3 rounded-xl border border-slate-700 bg-slate-800/70 hover:border-amber-500/60 hover:bg-slate-800 transition-all flex flex-col gap-1.5 text-left cursor-pointer"
-            id={`combat-card-${card.id}`}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid var(--border)',
+          paddingBottom: 'var(--space-4)',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--text-muted)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
           >
-            <span className="text-[9px] font-mono uppercase text-amber-400">
+            You
+          </span>
+          <StatBar label="HP" value={run.playerHp} max={run.playerMaxHp} />
+          {run.playerShield > 0 && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1)', color: 'var(--accent)', fontSize: 'var(--font-size-sm)' }}>
+              <Shield style={{ width: '1rem', height: '1rem' }} /> {run.playerShield}
+            </span>
+          )}
+        </div>
+        <Swords style={{ width: '1.5rem', height: '1.5rem', color: 'var(--amber)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', alignItems: 'flex-end' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--text-muted)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            {enemy.name}
+          </span>
+          <StatBar label="HP" value={enemy.hp} max={enemy.maxHp} color="var(--red)" />
+        </div>
+      </div>
+
+      <Panel padding="sm">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--font-size-xs)',
+            color: 'var(--amber)',
+          }}
+        >
+          <Skull style={{ width: '1rem', height: '1rem' }} />
+          <span>Enemy Intent: {enemy.intent.description}</span>
+        </div>
+      </Panel>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: 'var(--space-3)',
+        }}
+        id="combat-hand"
+      >
+        {run.deckState.hand.map((card) => (
+          <Card
+            key={card.id}
+            id={`combat-card-${card.id}`}
+            onClick={() => onPlayCard(card)}
+          >
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'var(--font-size-xs)',
+                color: 'var(--amber)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+              }}
+            >
               {COMPONENT_LABEL[card.component] ?? card.component}
             </span>
-            <span className="text-xs font-bold text-slate-100">{card.name}</span>
-            <span className="text-[9px] font-mono text-slate-500 capitalize">
+            <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--text)' }}>{card.name}</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>
               {card.el1}{card.el2 ? ` + ${card.el2}` : ''} · {card.relationType}
             </span>
-          </button>
+          </Card>
         ))}
       </div>
 
-      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 max-h-40 overflow-y-auto flex flex-col gap-1 text-[10px] font-mono text-slate-400" id="combat-log">
-        {run.logs.slice(-12).map((log, i) => (
-          <div key={i}>{log}</div>
-        ))}
-      </div>
+      <Panel padding="sm" className="combat-log-panel">
+        <div
+          style={{
+            maxHeight: '10rem',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-1)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'var(--font-size-xs)',
+            color: 'var(--text-muted)',
+          }}
+          id="combat-log"
+        >
+          {run.logs.slice(-12).map((log, i) => (
+            <div key={i}>{log}</div>
+          ))}
+        </div>
+      </Panel>
     </div>
   );
 }

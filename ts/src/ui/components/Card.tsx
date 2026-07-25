@@ -4,12 +4,13 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
+  id?: string;
 }
 
-export function Card({ children, className, onClick }: CardProps) {
+export function Card({ children, className, onClick, id }: CardProps) {
   const cls = ['card-base', className].filter(Boolean).join(' ');
   return (
-    <div className={cls} onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
+    <div id={id} className={cls} onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
       {children}
     </div>
   );

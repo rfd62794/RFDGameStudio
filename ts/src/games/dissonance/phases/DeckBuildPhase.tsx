@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Button, Card } from '../../../ui/components';
 
 interface CardInfo {
   id: string;
@@ -31,46 +32,102 @@ export default function DeckBuildPhase({ unlockedCardIds, cardPool, deckSize, on
 
   return (
     <div
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 flex flex-col items-center text-center gap-6 shadow-2xl max-w-4xl mx-auto my-4"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 'var(--space-6)',
+        maxWidth: '896px',
+        margin: 'var(--space-6) auto',
+        padding: 'var(--space-8)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
+        textAlign: 'center',
+      }}
       id="viewport-deck-build-phase"
     >
-      <h2 className="text-2xl md:text-3xl font-black text-slate-100 tracking-wider">BUILD YOUR DECK</h2>
-      <p className="text-xs font-mono text-slate-400">
+      <h2
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--font-size-2xl)',
+          fontWeight: 400,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          margin: 0,
+          color: 'var(--text)',
+        }}
+      >
+        Build Your Deck
+      </h2>
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>
         Select up to {deckSize} cards from your unlocked pool ({selected.length}/{deckSize} selected)
       </p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full max-h-96 overflow-y-auto p-1">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: 'var(--space-3)',
+          width: '100%',
+          maxHeight: '24rem',
+          overflowY: 'auto',
+          padding: 'var(--space-1)',
+        }}
+      >
         {unlockedCardIds.map((id) => {
           const card = byId.get(id);
           const isSelected = selected.includes(id);
           return (
-            <button
+            <Card
               key={id}
-              onClick={() => toggle(id)}
-              className={`relative p-3 rounded-xl border text-left transition-all flex flex-col gap-1 cursor-pointer ${
-                isSelected
-                  ? 'bg-amber-950/60 border-amber-500/60'
-                  : 'bg-slate-800/60 border-slate-700 hover:border-slate-600'
-              }`}
               id={`deck-build-card-${id}`}
+              onClick={() => toggle(id)}
+              className="deck-build-card"
             >
-              {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 absolute top-2 right-2" />}
-              <span className="text-[9px] font-mono uppercase text-slate-500">{card?.component ?? id}</span>
-              <span className="text-xs font-bold text-slate-100">{card?.name ?? id}</span>
-            </button>
+              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', textAlign: 'left' }}>
+                {isSelected && (
+                  <CheckCircle2
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '0.875rem',
+                      height: '0.875rem',
+                      color: 'var(--amber)',
+                    }}
+                  />
+                )}
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 'var(--font-size-xs)',
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {card?.component ?? id}
+                </span>
+                <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--text)' }}>
+                  {card?.name ?? id}
+                </span>
+              </div>
+            </Card>
           );
         })}
       </div>
 
-      <button
-        onClick={() => onConfirm(selected)}
-        disabled={selected.length === 0}
-        className="w-full max-w-md py-3.5 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2.5 uppercase tracking-wider text-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+      <Button
         id="deck-build-confirm-btn"
-      >
-        <span>Confirm Deck — Begin Run</span>
-        <ArrowRight className="w-4 h-4" />
-      </button>
+        label="Confirm Deck — Begin Run"
+        icon={<ArrowRight style={{ width: '1rem', height: '1rem' }} />}
+        onClick={() => onConfirm(selected)}
+        variant="primary"
+        size="lg"
+        disabled={selected.length === 0}
+      />
     </div>
   );
 }

@@ -9,9 +9,10 @@ interface ButtonProps {
   size?: 'sm' | 'md' | 'lg';
   title?: string;
   className?: string;
+  id?: string;
 }
 
-export function Button({ label, icon, onClick, variant = 'primary', disabled, size = 'md', title, className }: ButtonProps) {
+export function Button({ label, icon, onClick, variant = 'primary', disabled, size = 'md', title, className, id }: ButtonProps) {
   if (import.meta.env.DEV && !label && !icon) {
     console.warn('Button requires a label or icon.');
   }
@@ -27,7 +28,7 @@ export function Button({ label, icon, onClick, variant = 'primary', disabled, si
   ].filter(Boolean).join(' ');
 
   return (
-    <button className={cls} onClick={onClick} disabled={disabled} title={title}>
+    <button id={id} className={cls} onClick={onClick} disabled={disabled} title={title}>
       {icon}
       {label}
     </button>

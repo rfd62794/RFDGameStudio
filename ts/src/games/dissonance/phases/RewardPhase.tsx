@@ -1,4 +1,5 @@
 import { Heart, Layers, Gem, Sparkles, ArrowRight } from 'lucide-react';
+import { Button, Card } from '../../../ui/components';
 import type { RewardSlot } from '../types';
 
 interface RewardPhaseProps {
@@ -29,35 +30,78 @@ function slotLabel(slot: RewardSlot): string {
 export default function RewardPhase({ slots, onClaimAll }: RewardPhaseProps) {
   return (
     <div
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 flex flex-col items-center text-center gap-6 shadow-2xl max-w-3xl mx-auto my-4"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 'var(--space-6)',
+        maxWidth: '768px',
+        margin: 'var(--space-6) auto',
+        padding: 'var(--space-8)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)',
+      }}
       id="viewport-reward-phase"
     >
-      <h2 className="text-2xl font-black text-slate-100 tracking-wider">VICTORY — CLAIM REWARDS</h2>
+      <h2
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--font-size-xl)',
+          fontWeight: 400,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          margin: 0,
+          color: 'var(--text)',
+        }}
+      >
+        Victory — Claim Rewards
+      </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 'var(--space-4)',
+          width: '100%',
+        }}
+      >
         {slots.map((slot, i) => {
           const Icon = SLOT_ICON[slot.kind];
           return (
-            <div
+            <Card
               key={i}
-              className="p-4 rounded-xl border border-amber-500/40 bg-amber-950/20 flex flex-col items-center gap-2"
+              className="reward-slot"
               id={`reward-slot-${i}`}
             >
-              <Icon className="w-6 h-6 text-amber-400" />
-              <span className="text-xs font-bold text-slate-100">{slotLabel(slot)}</span>
-            </div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                }}
+              >
+                <Icon style={{ width: '1.5rem', height: '1.5rem', color: 'var(--amber)' }} />
+                <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--text)' }}>
+                  {slotLabel(slot)}
+                </span>
+              </div>
+            </Card>
           );
         })}
       </div>
 
-      <button
-        onClick={onClaimAll}
-        className="w-full max-w-md py-3.5 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2.5 uppercase tracking-wider text-xs cursor-pointer"
+      <Button
         id="reward-claim-all-btn"
-      >
-        <span>Claim All — Return to Map</span>
-        <ArrowRight className="w-4 h-4" />
-      </button>
+        label="Claim All — Return to Map"
+        icon={<ArrowRight style={{ width: '1rem', height: '1rem' }} />}
+        onClick={onClaimAll}
+        variant="primary"
+        size="lg"
+        className="reward-claim-all-btn"
+      />
     </div>
   );
 }
