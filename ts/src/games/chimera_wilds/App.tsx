@@ -1,6 +1,9 @@
 import { useCallback } from 'react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
+import { navigateTo } from '../../arcade/routing';
+import { MoreGamesByMe } from '../../ui/components';
+import { STABLE_GAMES } from '../../games/registry';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Part, Chimera, EncounterResult, ChimeraWildsGameState } from './types';
 import './styles.css';
@@ -33,6 +36,9 @@ function pickRandomParts(partsData: Part[], rng: () => number): Part[] {
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const { call, error } = useLuaCall(session);
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
 
   const handleEncounter = useCallback(() => {
     if (!state) return;
@@ -82,9 +88,13 @@ export default function App({ session }: GameRendererProps) {
         </div>
       }
       footer={
-        <div className="cw-footer">
-          One-roll encounter. Each chimera is assembled from six real Mutant Battle Ball parts.
-        </div>
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="chimera_wilds"
+          games={STABLE_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
       }
     >
       <div className="cw-main">

@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { GameShell, TabManager } from '../../components';
-import { Badge, ErrorBox } from '../../ui/components';
+import { Badge, ErrorBox, MoreGamesByMe } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
+import { navigateTo } from '../../arcade/routing';
+import { STABLE_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { MBBGameState, MatchState, MutantParts, Part } from './types';
 import RosterTab     from './components/RosterTab';
@@ -65,6 +67,9 @@ function buildInitialState(session: unknown): MBBGameState {
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const { call, error } = useLuaCall(session);
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [activeTab, setActiveTab] = useState('roster');
 
   const [matchState, setMatchState] = useState<MatchState | null>(null);
@@ -136,6 +141,15 @@ export default function App({ session }: GameRendererProps) {
           <Badge label={`⚙ ${state.iron} IRON`} variant="accent" />
           {error && <ErrorBox message={error} />}
         </div>
+      }
+      footer={
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="mutant_battle_ball"
+          games={STABLE_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
       }
     >
       <TabManager tabs={TABS} active={activeTab} onChange={setActiveTab}>
