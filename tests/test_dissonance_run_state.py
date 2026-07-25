@@ -155,3 +155,119 @@ class TestRunStateFSM:
         moved = call(session, "select_branch", run, target)
         assert moved["currentNodeId"] == target
         assert moved["status"] == "not_started"
+
+
+class TestRewardApplication:
+    def test_apply_reward_slot_heal(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        run["playerHp"] = 5
+        result = call(session, "apply_reward_slot", run, {"kind": "heal", "amount": 10}, data)
+        assert result["playerHp"] == 15
+
+    def test_apply_reward_slot_benefit_adds_boon(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        boon_id = data["boons"][0]["id"]
+        result = call(session, "apply_reward_slot", run, {"kind": "benefit", "boonId": boon_id}, data)
+        assert any(b["id"] == boon_id for b in result["boons"])
+
+    def test_apply_reward_slot_relic_adds_relic_id(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        result = call(session, "apply_reward_slot", run, {"kind": "relic", "relicId": "cracked_core"}, data)
+        assert "cracked_core" in result["relics"]
+
+
+class TestRestCraft:
+    def test_apply_rest_heals_correct_percentage(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        run["playerHp"] = 10
+        rested = call(session, "apply_rest", run)
+        expected_heal = int(run["playerMaxHp"] * 0.4 + 0.5)
+        assert rested["playerHp"] == min(run["playerMaxHp"], 10 + expected_heal)
+
+    def test_apply_rest_does_not_exceed_max_hp(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        run["playerHp"] = run["playerMaxHp"]
+        rested = call(session, "apply_rest", run)
+        assert rested["playerHp"] == run["playerMaxHp"]
+
+    def test_apply_attachment_resolves_gift_or_treasure(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        result = call(session, "apply_attachment", run, data, True)
+        assert result["lastAttachmentOutcome"] in ("gift", "treasure", "peek")
+
+    def test_rest_or_exclusivity_enforced_in_lua(self, session, data):
+        deck_ids = ["ember_none_sever"]
+        run = call(session, "create_run", deck_ids, 42, 1, 0, data)
+        rested = call(session, "apply_rest", run)
+        assert rested["restCraftResolvedNodeId"] == rested["currentNodeId"]
+
+        # Second call for the SAME node visit must be a real backend no-op,
+        # not just a UI-level disable — HP must not change again.
+        locked_attempt = call(session, "apply_attachment", rested, data, False)
+        assert locked_attempt["playerHp"] == rested["playerHp"]
+        assert "lastAttachmentOutcome" not in locked_attempt or locked_attempt.get("lastAttachmentOutcome") is None
+        assert "already resolved" in locked_attempt["logs"][-1]
+
+        # Attachment-first also locks out Rest for the same visit.
+        run2 = call(session, "create_run", deck_ids, 43, 1, 0, data)
+        run2["playerHp"] = 5
+        attached = call(session, "apply_attachment", run2, data, False)
+        locked_rest = call(session, "apply_rest", attached)
+        assert locked_rest["playerHp"] == attached["playerHp"]
+        assert "already resolved" in locked_rest["logs"][-1]
+
+
+class TestCombatTurnResolution:
+    def _combat_run(self, session, data, seed=42):
+        deck_ids = [
+            "ember_none_sever", "ash_none_mend", "spark_none_guard", "cinder_none_unmake",
+            "ember_ember_sever", "ash_ash_mend", "spark_spark_guard", "cinder_cinder_unmake",
+        ]
+        run = call(session, "create_run", deck_ids, seed, 1, 0, data)
+        return call(session, "enter_active_node", run, deck_ids, data)
+
+    def test_combat_turn_applies_enemy_intent(self, session, data):
+        run = self._combat_run(session, data)
+        starting_turn = run["turnCount"]
+        card = next(c for c in run["deckState"]["hand"] if c["component"] == "guard")
+        result = call(session, "resolve_combat_turn", run, card, data)
+        next_state = result["nextState"]
+        assert next_state["turnCount"] == starting_turn + 1
+        assert next_state["enemy"]["intent"] is not None
+        # A guard card played into a real attack intent must show the enemy
+        # having actually acted (shield reset each turn after being consumed).
+        assert isinstance(next_state["playerShield"], int)
+        assert any("[Enemy Turn]" in log for log in next_state["logs"])
+
+    def test_combat_turn_detects_enemy_defeated(self, session, data):
+        run = self._combat_run(session, data)
+        run["enemy"]["hp"] = 1
+        card = next(c for c in run["deckState"]["hand"] if c["component"] == "sever")
+        result = call(session, "resolve_combat_turn", run, card, data)
+        assert result["fightWon"] is True
+        assert result["nextState"]["enemy"]["hp"] == 0
+        assert result["nextState"]["status"] == "reward"
+
+    def test_combat_turn_detects_player_defeated(self, session, data):
+        run = self._combat_run(session, data)
+        run["playerHp"] = 1
+        run["enemy"]["intent"] = {"type": "attack", "value": 50, "description": "Overwhelming Strike"}
+        card = next(c for c in run["deckState"]["hand"] if c["component"] == "guard")
+        result = call(session, "resolve_combat_turn", run, card, data)
+        assert result["fightWon"] is False
+        assert result["nextState"]["status"] == "game_over"
+        assert result["nextState"]["playerHp"] == 0
+
+    def test_combat_turn_removes_played_card_from_hand(self, session, data):
+        run = self._combat_run(session, data)
+        card = run["deckState"]["hand"][0]
+        result = call(session, "resolve_combat_turn", run, card, data)
+        next_hand_ids = [c["id"] for c in result["nextState"]["deckState"]["hand"]]
+        assert card["id"] not in next_hand_ids
+        assert len(result["nextState"]["deckState"]["hand"]) == 5

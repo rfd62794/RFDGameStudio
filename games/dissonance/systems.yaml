@@ -62,6 +62,10 @@ systems:
       - enter_active_node
       - advance_node
       - select_branch
+      - apply_rest
+      - apply_attachment
+      - resolve_combat_turn
+      - apply_reward_slot
 
 lua_files:
   - logic/combat.lua
