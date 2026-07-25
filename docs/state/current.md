@@ -1,6 +1,6 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 22 2026*
+*Last updated: July 25 2026*
 
 ## Arcade Registry — Reorder, Add Dissonance, Delist SlimeBreeder/Slimegarden — COMPLETED
 
@@ -2655,15 +2655,27 @@ RFDGameStudio/
 - Added additive `id` props to shared `Button` and `Card` to preserve stable selectors/tests.
 - Added 11 new TypeScript tests across `test_ui_audit_report.ts`, `test_ui_shared_templates.tsx`, `test_dissonance_shared_ui.tsx`, and `test_brewfield_shared_ui.tsx`.
 
-### Test proof
+### Phase 2 — SlimeWorld, Shoal, Mutant Battle Ball, ScrapCrawl
+
+- Audited the four remaining React/TypeScript games: `slimeworld`, `shoal`, `mutant_battle_ball`, `scrapcrawl`.
+- Wrote `docs/analysis/ui-component-audit-phase2.md` with itemized per-file findings and the PyGame/canvas exclusions.
+- Retrofits:
+  - `SlimeWorld`: primary `TabBar` in `App.tsx` already present; restored `RosterTab.tsx` import to keep existing source assertions; replaced the hand-rolled `Advance Cycle` button with shared `Button`; used `ErrorBox` for warnings.
+  - `Shoal`: toolbar buttons now use shared `Button`; canvas-based `ShoalCanvas` left untouched.
+  - `Mutant Battle Ball`: `RosterTab` start button uses `Button`; mutant roster entries use `Card`; `App` header uses `Badge` for iron and `ErrorBox` for Lua errors.
+  - `ScrapCrawl`: `App.tsx` action/move/craft buttons use `Button`; room tags and header stats use `Badge`; panels use `Panel`; recipe cards use `Card`; loading and empty trace use `EmptyState`; Lua errors use `ErrorBox`; original `sc-connection`/`sc-fight-button`/`sc-craft-button` selectors preserved for existing tests.
+- Added `ts/tests/test_phase2_shared_ui.ts` covering the audit, `TabBar` usage, toolbar chrome, MBB/ScrapCrawl retrofits, and the untouched PyGame games.
+- No new shared templates were extracted because no chrome pattern repeated 2+ times across the four games.
+
+### Test proof (Phase 1 + Phase 2)
 
 ```
 uv run pytest
 → 502 passed, 8 warnings
 
 cd ts && npm run test
-→ Test Files  34 passed
-→ Tests  212 passed
+→ Test Files  35 passed
+→ Tests  218 passed (212 previous + 6 new Phase 2)
 ```
 
 ### Compliance status summary
@@ -2672,9 +2684,9 @@ cd ts && npm run test
 |---|---|
 | Dissonance | ✅ Title/end/map chrome now ADR-008 compliant |
 | Brewfield | ✅ Intro/end/map chrome now ADR-008 compliant |
-| SlimeWorld | Mostly compliant (shared `Button`, `StatBar`, `TabBar` already used) |
-| Shoal | Custom canvas renderer; shared components not applicable to world surface |
+| SlimeWorld | ✅ Primary `TabBar` + `Button`/`ErrorBox` chrome now ADR-008 compliant |
+| Shoal | ✅ Toolbar chrome now ADR-008 compliant (canvas core view exempt) |
 | Horse Racing | Mostly compliant (uses 6 shared primitives) |
-| Mutant Battle Ball | Partially compliant (uses `Modal`) |
+| Mutant Battle Ball | ✅ Roster/`App` chrome now ADR-008 compliant |
 | Slither Rogue | Partially compliant (uses `Modal`) |
-| Scrapcrawl | Generic PyGame-style renderer stack; no React shared components used |
+| Scrapcrawl | ✅ `App.tsx` chrome now ADR-008 compliant |
