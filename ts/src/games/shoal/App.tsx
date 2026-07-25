@@ -54,7 +54,7 @@ const TOOL_LABELS: Record<ToolMode, string> = {
 
 function initGame(session: GameRendererProps['session']): RenderState {
   const data = session.files.data as Record<string, unknown>;
-  return call(session, 'init_game', data) as RenderState;
+  return call(session, 'init_game', data)[0] as RenderState;
 }
 
 export default function App({ session }: GameRendererProps) {
@@ -199,7 +199,7 @@ function ShoalCanvas({
       input.clicked = true;
     }
 
-    const rs = call(session, 'tick_game', dt, input) as RenderState;
+    const rs = call(session, 'tick_game', dt, input)[0] as RenderState;
     renderStateRef.current = rs;
     onStats(rs.stats);
     drawGame(canvasRef.current, rs, s.dims, session.files.data);
