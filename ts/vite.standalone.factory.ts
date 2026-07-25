@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import type { UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
@@ -6,8 +6,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-export function makeStandaloneConfig(gameId: string) {
-  return defineConfig({
+export function makeStandaloneConfig(gameId: string): UserConfig {
+  return {
     base: './',
     root: path.resolve(__dirname, 'src', 'standalone', gameId),
     plugins: [react() as any, tailwindcss() as any],
@@ -32,5 +32,5 @@ export function makeStandaloneConfig(gameId: string) {
         allow: [path.resolve(__dirname, '..')],
       },
     },
-  });
+  };
 }
