@@ -1,11 +1,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const REPO_ROOT = resolve(__dirname, '..', '..');
+const REPO_ROOT = process.cwd();
 
 const PRIMITIVE_ORDER = [
   'action',
@@ -31,7 +30,7 @@ function readYaml(path: string): Record<string, unknown> | null {
 }
 
 function parseAuditRow(gameId: string): { primitives: string[]; systems: string[] } {
-  const auditPath = resolve(REPO_ROOT, 'docs', 'analysis', 'logic-layer-compliance-audit.md');
+  const auditPath = resolve(REPO_ROOT, '..', 'docs', 'analysis', 'logic-layer-compliance-audit.md');
   const audit = readFileSync(auditPath, 'utf8');
 
   const rowRegex = new RegExp(`\\|\\s*\`${gameId}\`\\s*\\|([^\\n]+)\\|`, 'i');
@@ -63,12 +62,12 @@ function parseAuditRow(gameId: string): { primitives: string[]; systems: string[
 }
 
 function getGameLuaFiles(gameId: string): string[] {
-  const systems = readYaml(resolve(REPO_ROOT, 'games', gameId, 'systems.yaml'));
+  const systems = readYaml(resolve(REPO_ROOT, '..', 'games', gameId, 'systems.yaml'));
   const luaFiles = systems?.['lua_files'] as string[] | undefined;
   if (luaFiles && luaFiles.length > 0) {
     return luaFiles;
   }
-  const fallback = resolve(REPO_ROOT, 'games', gameId, 'logic.lua');
+  const fallback = resolve(REPO_ROOT, '..', 'games', gameId, 'logic.lua');
   if (existsSync(fallback)) {
     return ['logic.lua'];
   }
@@ -77,7 +76,7 @@ function getGameLuaFiles(gameId: string): string[] {
 
 function getEngineLuaFiles(gameId: string): { key: string; file: string }[] {
   const { primitives, systems } = parseAuditRow(gameId);
-  const systemsYaml = readYaml(resolve(REPO_ROOT, 'games', gameId, 'systems.yaml'));
+  const systemsYaml = readYaml(resolve(REPO_ROOT, '..', 'games', gameId, 'systems.yaml'));
   const extraSystems = (systemsYaml?.['engine_systems'] as string[] | undefined) ?? [];
   const allSystems = [...new Set([...systems, ...extraSystems])];
 
@@ -96,7 +95,7 @@ function getEngineLuaFiles(gameId: string): { key: string; file: string }[] {
 }
 
 function getGameTitle(gameId: string): string {
-  const data = readYaml(resolve(REPO_ROOT, 'games', gameId, 'data.yaml'));
+  const data = readYaml(resolve(REPO_ROOT, '..', 'games', gameId, 'data.yaml'));
   const game = data?.['game'] as Record<string, unknown> | undefined;
   if (game && typeof game['name'] === 'string') {
     return game['name'];
@@ -171,7 +170,7 @@ if (rootEl) {
 }
 
 export function writeStandaloneEntry(gameId: string): void {
-  const outDir = resolve(REPO_ROOT, 'ts', 'src', 'standalone', gameId);
+  const outDir = resolve(REPO_ROOT, 'src', 'standalone', gameId);
   if (!existsSync(outDir)) {
     mkdirSync(outDir, { recursive: true });
   }
