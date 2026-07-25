@@ -11,6 +11,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { GameShell } from '../../components';
+import { Badge, Button, Card, EmptyState, ErrorBox, Panel, StatBar } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
@@ -131,7 +132,7 @@ export default function App({ session }: GameRendererProps) {
   }, [state, canCraft, call, data, setState]);
 
   if (!isInitialized || !state) {
-    return <div className="sc-loading">Loading ScrapCrawl…</div>;
+    return <EmptyState message="Loading ScrapCrawl…" />;
   }
 
   const { player, currentRoom, lastResult, combatHistory } = state;
@@ -143,21 +144,10 @@ export default function App({ session }: GameRendererProps) {
       phase="PHASE A.1"
       statusArea={
         <div className="sc-header-stats">
-          <div className="sc-stat">
-            <span className="sc-stat-label">Scrap</span>
-            <span className="sc-stat-value sc-stat-accent">{String(player.scrap).padStart(3, '0')}</span>
-          </div>
-          <div className="sc-stat">
-            <span className="sc-stat-label">Tier 2</span>
-            <span className={`sc-stat-badge ${player.tier2Unlocked ? 'sc-badge-active' : 'sc-badge-locked'}`}>
-              {player.tier2Unlocked ? 'ACTIVE' : 'LOCKED'}
-            </span>
-          </div>
-          <div className="sc-stat">
-            <span className="sc-stat-label">Room</span>
-            <span className="sc-stat-value">{currentRoom.name}</span>
-          </div>
-          {error && <span className="sc-error">{error}</span>}
+          <Badge label={`Scrap ${String(player.scrap).padStart(3, '0')}`} variant="accent" />
+          <Badge label={player.tier2Unlocked ? 'Tier 2 ACTIVE' : 'Tier 2 LOCKED'} variant={player.tier2Unlocked ? 'green' : 'muted'} />
+          <Badge label={`Room ${currentRoom.name}`} variant="accent" />
+          {error && <ErrorBox message={error} />}
         </div>
       }
       footer={

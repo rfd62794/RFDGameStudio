@@ -9,7 +9,7 @@ import { Slime, SlimeColor, PlanetNode, LabState } from '../types';
 import { COLOR_SPECS, isCapitolHardened } from '../gameLogic';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenPicker } from './SpecimenPicker';
-import { TabBar } from '../../../ui/components/TabBar';
+import { TabBar } from '../../../ui/components';
 
 interface MissionsTabProps {
   key?: string;

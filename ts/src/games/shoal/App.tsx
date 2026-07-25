@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { call } from '../../engine/runtime';
 import { useGameLoop } from '../../hooks';
 import { GameShell } from '../../components';
+import { Button } from '../../ui/components';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
 import './styles.css';
@@ -75,15 +76,15 @@ export default function App({ session }: GameRendererProps) {
       <div className="shoal-app">
         <div className="shoal-toolbar">
           {TOOLS.map((t) => (
-            <button
+            <Button
               key={t}
-              type="button"
-              className={tool === t ? 'shoal-tool active' : 'shoal-tool'}
+              id={`shoal-tool-${t}`}
+              label={TOOL_LABELS[t]}
               onClick={() => setTool(t)}
-              aria-label={TOOL_LABELS[t]}
-            >
-              {TOOL_LABELS[t]}
-            </button>
+              variant={tool === t ? 'primary' : 'neutral'}
+              size="sm"
+              className={tool === t ? 'shoal-tool active' : 'shoal-tool'}
+            />
           ))}
         </div>
         <ShoalCanvas session={session} tool={tool} onStats={setStats} />

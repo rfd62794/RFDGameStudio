@@ -4,7 +4,7 @@ import { Coins, FastForward } from 'lucide-react';
 import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
-import { TabBar } from '../../ui/components/TabBar';
+import { Button, ErrorBox, TabBar } from '../../ui/components';
 import { LabTab } from './components/LabTab';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
@@ -335,9 +335,9 @@ export default function App({ session }: GameRendererProps) {
 
 
   return (
-    <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><button onClick={handleAdvanceCycle} className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-lg border border-cyan-500 cursor-pointer transition-all shadow-[0_0_10px_rgba(8,145,178,0.3)]"><FastForward className="w-3.5 h-3.5" />Advance Cycle</button><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span></div>}>
+    <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span></div>}>
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-        {warning && <div role="alert">{warning}</div>}
+        {warning && <ErrorBox message={warning} />}
         <TabBar
           tabs={[{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]}
           active={primaryTab}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button, Card } from '../../../ui/components';
 import type { MBBGameState } from '../types';
 
 interface RosterTabProps {
@@ -16,13 +17,13 @@ export default function RosterTab({ state, setState, session, call, opponent, on
       <h2>Roster</h2>
       <div className="mutant-list">
         {state.roster.map(mutant => (
-          <div key={mutant.id} className="mutant-card">
+          <Card key={mutant.id} className="mutant-card">
             <div className="mutant-name" style={{ color: mutant.color }}>{mutant.name}</div>
             <div className="mutant-status">{mutant.status}</div>
-          </div>
+          </Card>
         ))}
       </div>
-      <button className="start-match-btn" onClick={onStartMatch}>Start Match</button>
+      <Button id="mbb-start-match" label="Start Match" onClick={onStartMatch} variant="primary" />
     </div>
   );
 }

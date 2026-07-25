@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { GameShell, TabManager } from '../../components';
+import { Badge, ErrorBox } from '../../ui/components';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import type { MBBGameState, MatchState, MutantParts, Part } from './types';
@@ -132,8 +133,8 @@ export default function App({ session }: GameRendererProps) {
       gameId="mutant_battle_ball"
       statusArea={
         <div className="mbb-header">
-          <span className="mbb-iron">⚙ {state.iron} IRON</span>
-          {error && <span className="mbb-error">{error}</span>}
+          <Badge label={`⚙ ${state.iron} IRON`} variant="accent" />
+          {error && <ErrorBox message={error} />}
         </div>
       }
     >
