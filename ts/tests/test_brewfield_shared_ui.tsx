@@ -72,9 +72,9 @@ describe('Brewfield shared UI retrofits', () => {
 
     const buttons = container.querySelectorAll('button');
     expect(buttons.length).toBe(nodes.length);
-    expect(container.textContent).toContain('fight');
-    expect(container.textContent).toContain('forage');
-    expect(container.textContent).toContain('rest');
+    expect(container.textContent).toContain('FIGHT');
+    expect(container.textContent).toContain('FORAGE');
+    expect(container.textContent).toContain('REST');
     expect(container.textContent).toContain('BOSS');
     root.unmount();
   });

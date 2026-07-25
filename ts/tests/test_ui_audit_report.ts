@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-const AUDIT_PATH = resolve(__dirname, '../docs/analysis/ui-component-audit.md');
+const AUDIT_PATH = resolve(__dirname, '../../docs/analysis/ui-component-audit.md');
 
 const GAMES = [
   'brewfield',
