@@ -43,7 +43,10 @@ function parseAuditRow(gameId: string): { primitives: string[]; systems: string[
   const auditPath = resolve(REPO_ROOT, '..', 'docs', 'analysis', 'logic-layer-compliance-audit.md');
   const audit = readFileSync(auditPath, 'utf8');
 
-  const rowRegex = new RegExp(`\\|\\s*\`${gameId}\`\\s*\\|(.*)`, 'i');
+  const rowRegex = new RegExp(
+    `\\\\|\\\\s*\\\`${gameId}\\\`\\\\s*\\\\|([^\\n]*(?:\\*\\*U\\*\\*|N/A)[^\\n]*)`,
+    'i'
+  );
   const match = audit.match(rowRegex);
   if (!match) {
     return { primitives: [], systems: [] };
