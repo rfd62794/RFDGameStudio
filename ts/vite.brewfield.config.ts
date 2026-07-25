@@ -14,7 +14,7 @@ export default defineConfig({
     outDir: 'dist-brewfield',
     emptyOutDir: true,
     rollupOptions: {
-      input: path.resolve('src/standalone/brewfield/index.html'),
+      input: { index: path.resolve('src/standalone/brewfield/index.html') },
     },
   },
   optimizeDeps: {

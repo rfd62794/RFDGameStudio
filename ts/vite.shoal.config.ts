@@ -14,7 +14,7 @@ export default defineConfig({
     outDir: 'dist-shoal',
     emptyOutDir: true,
     rollupOptions: {
-      input: path.resolve('src/standalone/shoal/index.html'),
+      input: { index: path.resolve('src/standalone/shoal/index.html') },
     },
   },
   optimizeDeps: {

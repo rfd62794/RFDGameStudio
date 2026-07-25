@@ -14,7 +14,7 @@ export default defineConfig({
     outDir: 'dist-slimeworld',
     emptyOutDir: true,
     rollupOptions: {
-      input: path.resolve('src/standalone/slimeworld/index.html'),
+      input: { index: path.resolve('src/standalone/slimeworld/index.html') },
     },
   },
   optimizeDeps: {
