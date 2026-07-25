@@ -9,6 +9,10 @@
     "build:brewfield": "vite build --config vite.brewfield.config.ts",
     "build:shoal": "vite build --config vite.shoal.config.ts",
     "build:slimeworld": "vite build --config vite.slimeworld.config.ts",
+    "build:chimera_wilds": "vite build --config vite.chimera_wilds.config.ts",
+    "build:mutant_battle_ball": "vite build --config vite.mutant_battle_ball.config.ts",
+    "build:scrapcrawl": "vite build --config vite.scrapcrawl.config.ts",
+    "build:slime_coin": "vite build --config vite.slime_coin.config.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
