@@ -2713,7 +2713,7 @@ cd ts && npm run test
 - Added `build:{game}` scripts for all seven ready games to `ts/package.json`.
 - Per-game bundles exclude other games' Lua logic and the unified arcade `dist/` remains intact.
 - Added placeholder entries for all seven ready games to `RFD_IT_Publishing/config/games.yaml`; `python publisher.py list` loads them.
-- Itch slugs are placeholders (`rdug627/...`) and have not been deployed; awaiting explicit go-ahead before `butler push`.
+- First real itch.io deploys executed for `brewfield`, `shoal`, and `slimeworld` via `python publisher.py deploy <game> --target itchio`; `butler push` reported success for all three. A `charmap` decode error appeared in the Python stderr reader thread but did not stop the uploads.
 - Renamed `STABLE_GAMES` to `STANDALONE_BUILD_GAMES` to avoid overclaiming; the array now explicitly means "has a working standalone build", not "stable quality".
 
 ### Population re-check (§2.3)
