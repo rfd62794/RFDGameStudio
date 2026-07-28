@@ -131,7 +131,7 @@ export default function App({ session }: GameRendererProps) {
             />
             <Button
               id="shoal-random-seed"
-              label="\uD83C\uDFB2 Random Seed"
+              label="🎲 Random Seed"
               onClick={() => {
                 const randomSeed = Math.floor(Math.random() * 0xFFFFFFFF);
                 setSeedInput(String(randomSeed));
