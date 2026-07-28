@@ -1969,3 +1969,199 @@ def test_shark_ticks_with_target_tracks_nearby_fish_via_single_scan() -> None:
     _, fy, had_target = call(session, "compute_shark_forces", shark, st, None)
     assert had_target is True
     assert fy > 0  # retreat force dominates despite a nearby fish target
+
+
+def test_breed_probability_unchanged_no_deaths() -> None:
+    """Control case: with no deaths/births during the discrete tick, the cached
+    population snapshot used by every breeding candidate (Finding 1) matches
+    what a fresh count_alive() would produce, since nothing mutates the list.
+    Deterministic: current == capacity gives breed_probability == 0 for both
+    candidates, guaranteeing no mid-loop mutation either way."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+
+    shark_a = {
+        "id": "shark_a", "type": "shark", "alive": True, "x": 300, "depth": 300,
+        "vx": 0, "vd": 0, "max_speed": 0, "max_force": 90, "radius": 7,
+        "exposure": 0, "hunger": 0, "fed": 5, "age": 100,
+        "ticks_total": 0, "ticks_with_target": 0, "last_meal_tick": 0,
+    }
+    shark_b = {
+        "id": "shark_b", "type": "shark", "alive": True, "x": 500, "depth": 300,
+        "vx": 0, "vd": 0, "max_speed": 0, "max_force": 90, "radius": 7,
+        "exposure": 0, "hunger": 0, "fed": 5, "age": 100,
+        "ticks_total": 0, "ticks_with_target": 0, "last_meal_tick": 0,
+    }
+    data["creatures"]["shark"]["breed_age"] = 0
+    data["creatures"]["shark"]["breed_fed_threshold"] = 0
+    data["creatures"]["shark"]["carrying_capacity"] = 2  # == current alive count -> probability 0
+    data["creatures"]["shark"]["starve_limit"] = 100000  # neither shark starves
+
+    st = {
+        "data": data,
+        "world": {"width": 1200, "height": 800, "floor_depth": 800},
+        "fish": [],
+        "sharks": [shark_a, shark_b],
+        "chunks": [],
+        "algae": [],
+        "tick_count": 1,
+        "diagnostics": {"meals": [], "deaths": []},
+        "stats": {"fish_count": 0, "shark_count": 2, "chunk_count": 0, "algae_count": 0},
+    }
+
+    call(session, "update_discrete_events", st, 999)
+
+    assert shark_a["alive"] is True
+    assert shark_b["alive"] is True
+    assert len(st["sharks"]) == 2  # no births: probability was deterministically 0 for both
+
+
+def test_breed_probability_snapshot_timing() -> None:
+    """Documents the snapshot-timing behavior flagged in Finding 1's RULE: a
+    death mid-tick does not retroactively change an already-computed breed
+    probability for a different creature processed later in the same discrete
+    tick. shark_a starves (dies) during the loop; shark_b, processed after it,
+    still uses the pre-loop population snapshot (2), not the post-death count
+    (1) — so shark_b's breed_probability stays 0, even though a fresh
+    count_alive() at that point in the old per-candidate implementation would
+    have produced 0.5."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+
+    shark_a = {
+        "id": "shark_a", "type": "shark", "alive": True, "x": 300, "depth": 300,
+        "vx": 0, "vd": 0, "max_speed": 0, "max_force": 90, "radius": 7,
+        "exposure": 0, "hunger": 100, "fed": 5, "age": 100,
+        "ticks_total": 0, "ticks_with_target": 0, "last_meal_tick": 0,
+    }
+    shark_b = {
+        "id": "shark_b", "type": "shark", "alive": True, "x": 500, "depth": 300,
+        "vx": 0, "vd": 0, "max_speed": 0, "max_force": 90, "radius": 7,
+        "exposure": 0, "hunger": 0, "fed": 5, "age": 100,
+        "ticks_total": 0, "ticks_with_target": 0, "last_meal_tick": 0,
+    }
+    data["creatures"]["shark"]["breed_age"] = 0
+    data["creatures"]["shark"]["breed_fed_threshold"] = 0
+    data["creatures"]["shark"]["carrying_capacity"] = 2  # == pre-loop alive count -> snapshot probability 0
+    data["creatures"]["shark"]["starve_limit"] = 100  # shark_a's hunger (100) triggers starvation this pass
+
+    st = {
+        "data": data,
+        "world": {"width": 1200, "height": 800, "floor_depth": 800},
+        "fish": [],
+        "sharks": [shark_a, shark_b],
+        "chunks": [],
+        "algae": [],
+        "tick_count": 1,
+        "diagnostics": {"meals": [], "deaths": []},
+        "stats": {"fish_count": 0, "shark_count": 2, "chunk_count": 0, "algae_count": 0},
+    }
+
+    call(session, "update_discrete_events", st, 999)
+
+    # shark_a died mid-loop, dropping the live population to 1 by the time
+    # shark_b's breed check runs.
+    assert shark_a["alive"] is False
+    # shark_b's breed_probability still used the pre-loop snapshot (2/2 -> 0),
+    # not the post-death live count (1/2 -> 0.5), so no new shark was born.
+    assert len(st["sharks"]) == 2
+
+
+def test_bucket_coords_computed_once() -> None:
+    """Structural regression for Finding 2: compute_fish_forces computes the
+    fish's bucket bx/by exactly once (2 math.floor calls) and reuses them for
+    both the algae-hash lookup and the boids-neighbor lookup, instead of
+    recomputing them a second time (which would show 4 math.floor calls)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, {"tool": "algae", "x": 300, "y": 300, "clicked": True})
+    call(session, "tick_game", 0, {"tool": "fish", "x": 300, "y": 300, "clicked": True})
+    # Run one real tick so GAME_STATE.spatial_hash is populated.
+    call(session, "tick_game", 0.1, {})
+
+    game_state = session.executor.get_global("GAME_STATE")
+    fish0 = game_state["fish"][0]
+
+    lua = session.executor._lua
+    lua.execute(
+        "_G.__floor_calls = 0\n"
+        "_G.__real_math_floor = math.floor\n"
+        "math.floor = function(x) _G.__floor_calls = _G.__floor_calls + 1 return _G.__real_math_floor(x) end\n"
+    )
+    try:
+        call(session, "move_creature", fish0, 0.1)
+    finally:
+        floor_calls = lua.globals()["__floor_calls"]
+        lua.execute("math.floor = _G.__real_math_floor\n")
+
+    # Exactly one bx and one by computation (2 math.floor calls) — not 4.
+    assert floor_calls == 2
+
+
+def test_nodule_danger_cache_matches_live_computation() -> None:
+    """n.cached_danger equals compute_fish_cold_rate(n.depth, data) computed
+    fresh, immediately after update_algae_core has run for the tick."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, {"tool": "algae", "x": 300, "y": 300, "clicked": True})
+    call(session, "tick_game", 0.1, {})
+
+    game_state = session.executor.get_global("GAME_STATE")
+    for core in game_state["algae"]:
+        for n in core["nodules"]:
+            if n["live"]:
+                fresh = call(session, "compute_fish_cold_rate", n["depth"], data)
+                assert math.isclose(n["cached_danger"], fresh, abs_tol=0.0001)
+
+
+def test_nodule_danger_cache_updates_after_depth_change() -> None:
+    """The single most important test in this directive: after a core's depth
+    changes over several ticks, the cached_danger on its nodules reflects the
+    NEW depth, not the value cached at spawn time. This is the direct
+    regression test against the invalidation risk named in Finding 3 — proving
+    update_algae (which writes the cache) genuinely runs before update_creatures
+    (which reads it) reads stale, one-tick-old data."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    # Spawn deep in the bathypelagic band; ratio=1 (all nodules live) drives
+    # the lerp target toward min_surface_depth (80), so core.depth genuinely
+    # moves over subsequent ticks, sweeping through several depth bands.
+    call(session, "tick_game", 0, {"tool": "algae", "x": 300, "y": 300, "clicked": True})
+
+    game_state = session.executor.get_global("GAME_STATE")
+    nodule_id = game_state["algae"][0]["nodules"][0]["id"]
+    initial_depth = game_state["algae"][0]["nodules"][0]["depth"]
+    initial_cached_danger = game_state["algae"][0]["nodules"][0]["cached_danger"]
+
+    for _ in range(30):
+        call(session, "tick_game", 0.1, {})
+
+    game_state = session.executor.get_global("GAME_STATE")
+    nodules_after = [n for n in game_state["algae"][0]["nodules"] if n["id"] == nodule_id]
+    assert len(nodules_after) == 1
+    n_after = nodules_after[0]
+
+    # The depth genuinely changed (moving toward the shallower target).
+    assert n_after["depth"] != initial_depth
+
+    # The cache reflects the NEW depth's danger rating, computed fresh...
+    fresh_at_new_depth = call(session, "compute_fish_cold_rate", n_after["depth"], data)
+    assert math.isclose(n_after["cached_danger"], fresh_at_new_depth, abs_tol=0.0001)
+
+    # ...and is NOT the stale value cached at spawn time for the old depth.
+    assert not math.isclose(n_after["cached_danger"], initial_cached_danger, abs_tol=0.0001)
