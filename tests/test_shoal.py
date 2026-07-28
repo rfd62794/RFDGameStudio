@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 
+from studio.executor import _to_python
 from studio.runtime import load_game, call
 
 
@@ -2013,11 +2014,15 @@ def test_breed_probability_unchanged_no_deaths() -> None:
         "stats": {"fish_count": 0, "shark_count": 2, "chunk_count": 0, "algae_count": 0},
     }
 
-    call(session, "update_discrete_events", st, 999)
+    # update_discrete_events mutates st in place and returns nothing, so the
+    # Lua table must be kept alive across the call to read the result back.
+    lua_st = session.executor._to_lua(st)
+    session.executor._lua.globals()["update_discrete_events"](lua_st, 999)
+    result = _to_python(lua_st)
 
-    assert shark_a["alive"] is True
-    assert shark_b["alive"] is True
-    assert len(st["sharks"]) == 2  # no births: probability was deterministically 0 for both
+    assert result["sharks"][0]["alive"] is True
+    assert result["sharks"][1]["alive"] is True
+    assert len(result["sharks"]) == 2  # no births: probability was deterministically 0 for both
 
 
 def test_breed_probability_snapshot_timing() -> None:
