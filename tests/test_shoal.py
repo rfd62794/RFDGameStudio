@@ -2070,14 +2070,16 @@ def test_breed_probability_snapshot_timing() -> None:
         "stats": {"fish_count": 0, "shark_count": 2, "chunk_count": 0, "algae_count": 0},
     }
 
-    call(session, "update_discrete_events", st, 999)
+    lua_st = session.executor._to_lua(st)
+    session.executor._lua.globals()["update_discrete_events"](lua_st, 999)
+    result = _to_python(lua_st)
 
     # shark_a died mid-loop, dropping the live population to 1 by the time
     # shark_b's breed check runs.
-    assert shark_a["alive"] is False
+    assert result["sharks"][0]["alive"] is False
     # shark_b's breed_probability still used the pre-loop snapshot (2/2 -> 0),
     # not the post-death live count (1/2 -> 0.5), so no new shark was born.
-    assert len(st["sharks"]) == 2
+    assert len(result["sharks"]) == 2
 
 
 def test_bucket_coords_computed_once() -> None:
