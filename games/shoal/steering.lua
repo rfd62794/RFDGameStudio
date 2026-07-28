@@ -157,8 +157,19 @@ function compute_fish_forces(f, st, hash)
     -- seek nearest live, safe algae nodule
     local max_safe_rate = cfg.max_safe_cold_rate
     local nearest_nodule, nearest_dist2 = nil, cfg.perception.algae * cfg.perception.algae
-    for _, core in ipairs(st.algae) do
-        for _, n in ipairs(core.nodules) do
+    local nearby_algae
+    if hash and hash.algae then
+        local bw = data.spatial_hash.bucket_width
+        local bd = data.spatial_hash.bucket_depth
+        local bx = math.floor(f.x / bw) % math.ceil(st.world.width / bw)
+        local by = math.floor(f.depth / bd) % math.ceil(st.world.height / bd)
+        local bx_range = math.ceil(cfg.perception.algae / bw)
+        local by_range = math.ceil(cfg.perception.algae / bd)
+        nearby_algae = get_nearby(hash, bx, by, "algae", bx_range, by_range)
+    end
+    if nearby_algae then
+        for _, entry in ipairs(nearby_algae) do
+            local n = entry.n
             if n.live then
                 local nodule_danger = compute_fish_cold_rate(n.depth, data)
                 if nodule_danger <= max_safe_rate then
@@ -166,6 +177,21 @@ function compute_fish_forces(f, st, hash)
                     if d2 < nearest_dist2 then
                         nearest_dist2 = d2
                         nearest_nodule = n
+                    end
+                end
+            end
+        end
+    else
+        for _, core in ipairs(st.algae) do
+            for _, n in ipairs(core.nodules) do
+                if n.live then
+                    local nodule_danger = compute_fish_cold_rate(n.depth, data)
+                    if nodule_danger <= max_safe_rate then
+                        local d2 = dist2(f.x, f.depth, n.x, n.depth)
+                        if d2 < nearest_dist2 then
+                            nearest_dist2 = d2
+                            nearest_nodule = n
+                        end
                     end
                 end
             end
@@ -240,17 +266,9 @@ function compute_shark_forces(s, st, hash)
         s.in_retreat = false
     end
 
-    if s.in_retreat then
-        -- PRIORITY OVERRIDE: full commitment to retreat, no pursuit.
-        local retreat_ratio = (s.exposure - cfg.exposure_retreat_resume_threshold)
-            / (cfg.exposure.threshold - cfg.exposure_retreat_resume_threshold)
-        retreat_ratio = math.max(math.min(retreat_ratio, 1.0), 0.3)
-        local retreat_force = cfg.exposure_retreat_weight * s.max_force * retreat_ratio
-        return 0, retreat_force
-    end
-
-    local fx, fy = 0, 0
-
+    -- Computed once regardless of retreat state: this is also the source of
+    -- truth for the ticks_with_target diagnostic in move_creature, so it must
+    -- run even when retreat overrides pursuit below.
     local nearest_fish, fish_dist2 = nil, cfg.perception.fish * cfg.perception.fish
     for _, f in ipairs(st.fish) do
         if f.alive then
@@ -270,6 +288,19 @@ function compute_shark_forces(s, st, hash)
             nearest_chunk = c
         end
     end
+
+    local had_target = (nearest_fish ~= nil) or (nearest_chunk ~= nil)
+
+    if s.in_retreat then
+        -- PRIORITY OVERRIDE: full commitment to retreat, no pursuit.
+        local retreat_ratio = (s.exposure - cfg.exposure_retreat_resume_threshold)
+            / (cfg.exposure.threshold - cfg.exposure_retreat_resume_threshold)
+        retreat_ratio = math.max(math.min(retreat_ratio, 1.0), 0.3)
+        local retreat_force = cfg.exposure_retreat_weight * s.max_force * retreat_ratio
+        return 0, retreat_force, had_target
+    end
+
+    local fx, fy = 0, 0
 
     if nearest_fish and (not nearest_chunk or fish_dist2 < chunk_dist2) then
         local sr = stopping_radius(s.max_speed, s.max_force, 1.3)
@@ -294,7 +325,7 @@ function compute_shark_forces(s, st, hash)
         fy = fy + home_bias
     end
 
-    return fx, fy
+    return fx, fy, had_target
 end
 
 function compute_exposure_rate(depth, data)

@@ -910,7 +910,7 @@ def test_shark_home_bias_pulls_up_when_no_target() -> None:
         "chunks": [],
     }
 
-    fx, fy = call(session, "compute_shark_forces", s, st, None)
+    fx, fy, _ = call(session, "compute_shark_forces", s, st, None)
     assert fy < 0
     # With force_depth_arrive: steer_y = -150, weight 0.8 => force = -120,
     # clamped to shark max_force of 90, so fy = -90.
@@ -961,7 +961,7 @@ def test_shark_home_bias_off_during_active_hunt() -> None:
         "chunks": [],
     }
 
-    fx, fy = call(session, "compute_shark_forces", s, st, None)
+    fx, fy, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy, 0.0, abs_tol=0.0001)
 
 
@@ -1116,34 +1116,34 @@ def test_exposure_retreat_is_graded() -> None:
 
     # Below the enter threshold: normal, no retreat.
     s["exposure"] = 0
-    _, fy_0 = call(session, "compute_shark_forces", s, st, None)
+    _, fy_0, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_0, 0.0, abs_tol=0.0001)
 
     s["exposure"] = 69
-    _, fy_69 = call(session, "compute_shark_forces", s, st, None)
+    _, fy_69, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_69, 0.0, abs_tol=0.0001)
 
     # At the 70 enter threshold, ratio = (70 - 40) / (100 - 40) = 0.5; force = 135.
     s["exposure"] = 70
     s["in_retreat"] = False
-    _, fy_70 = call(session, "compute_shark_forces", s, st, None)
+    _, fy_70, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_70, 135.0, abs_tol=0.01)
 
     # At 55 while in retreat, ratio = (55 - 40) / (100 - 40) = 0.25, clamped to 0.3.
     s["exposure"] = 55
     s["in_retreat"] = True
-    _, fy_55 = call(session, "compute_shark_forces", s, st, None)
+    _, fy_55, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_55, 81.0, abs_tol=0.01)
 
     # At 85: ratio = (85 - 40) / (100 - 40) = 0.75; force = 3.0 * 90 * 0.75 = 202.5
     s["exposure"] = 85
     s["in_retreat"] = True
-    _, fy_85 = call(session, "compute_shark_forces", s, st, None)
+    _, fy_85, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_85, 202.5, abs_tol=0.01)
 
     s["exposure"] = 100
     s["in_retreat"] = True
-    _, fy_100 = call(session, "compute_shark_forces", s, st, None)
+    _, fy_100, _ = call(session, "compute_shark_forces", s, st, None)
     assert math.isclose(fy_100, 270.0, abs_tol=0.01)
 
 
@@ -1188,14 +1188,14 @@ def test_exposure_retreat_interrupts_active_hunt() -> None:
     # Healthy shark: active pursuit pulls upward toward the prey.
     s["exposure"] = 0
     s["in_retreat"] = False
-    fx_healthy, fy_healthy = call(session, "compute_shark_forces", s, st, None)
+    fx_healthy, fy_healthy, _ = call(session, "compute_shark_forces", s, st, None)
     assert fy_healthy < 0
     assert fx_healthy == 0
 
     # Critical exposure: retreat overrides completely; no seek component, only retreat.
     s["exposure"] = 90
     s["in_retreat"] = False
-    fx_critical, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    fx_critical, fy_critical, _ = call(session, "compute_shark_forces", s, st, None)
     assert fx_critical == 0
     assert fy_critical > 0
     assert fy_critical > fy_healthy
@@ -1237,13 +1237,13 @@ def test_exposure_retreat_interrupts_chunk_pursuit() -> None:
 
     s["exposure"] = 0
     s["in_retreat"] = False
-    fx_healthy, fy_healthy = call(session, "compute_shark_forces", s, st, None)
+    fx_healthy, fy_healthy, _ = call(session, "compute_shark_forces", s, st, None)
     assert fy_healthy < 0
     assert fx_healthy == 0
 
     s["exposure"] = 90
     s["in_retreat"] = False
-    fx_critical, fy_critical = call(session, "compute_shark_forces", s, st, None)
+    fx_critical, fy_critical, _ = call(session, "compute_shark_forces", s, st, None)
     assert fx_critical == 0
     assert fy_critical > 0
     assert fy_critical > fy_healthy
@@ -1423,7 +1423,7 @@ def test_exposure_retreat_hysteresis() -> None:
     moved = call(session, "move_creature", shark, 0.0)
     assert moved["in_retreat"] is True
     shark = moved
-    _, fy = call(session, "compute_shark_forces", shark, {
+    _, fy, _ = call(session, "compute_shark_forces", shark, {
         "data": data,
         "world": {"width": 1200, "height": 800},
         "fish": [],
@@ -1436,7 +1436,7 @@ def test_exposure_retreat_hysteresis() -> None:
     moved = call(session, "move_creature", shark, 0.0)
     assert moved["in_retreat"] is False
     shark = moved
-    _, fy = call(session, "compute_shark_forces", shark, {
+    _, fy, _ = call(session, "compute_shark_forces", shark, {
         "data": data,
         "world": {"width": 1200, "height": 800},
         "fish": [],
@@ -1787,3 +1787,185 @@ def test_creature_colors_avoid_reserved_colors() -> None:
             dg = g - rc[1]
             db = b - rc[2]
             assert math.sqrt(dr * dr + dg * dg + db * db) >= min_distance
+
+
+def test_get_shark_targets_removed() -> None:
+    """The redundant diagnostic-only scan function no longer exists as a Lua global."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    call(session, "init_game", data)
+    fn = session.executor._lua.globals()["get_shark_targets"]
+    assert fn is None
+
+
+def test_algae_nodules_present_in_spatial_hash() -> None:
+    """rebuild_spatial_hash indexes live algae nodules under hash.algae, not just fish/shark."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 300, "clicked": True })
+
+    game_state = session.executor.get_global("GAME_STATE")
+    hash_ = game_state["spatial_hash"]
+    assert "algae" in hash_
+    total_entries = sum(len(bucket) for bucket in hash_["algae"].values())
+    assert total_entries > 0
+
+
+def test_fish_finds_algae_at_full_perception_range_via_hash() -> None:
+    """A fish at the edge of its 250-unit algae perception radius still finds a nodule
+    after algae seeking moved from a raw full scan to the hashed bucket lookup — the
+    real correctness risk flagged for the 3x3-bucket search vs. a 250-unit radius."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["separate"] = 0
+    data["steering_weights"]["fish"]["align"] = 0
+    data["steering_weights"]["fish"]["cohere"] = 0
+
+    call(session, "init_game", data)
+    # Algae at 300,300; fish placed just inside the 250-unit perception radius,
+    # spanning multiple 120x80 buckets away from the algae's bucket.
+    call(session, "tick_game", 0, { "tool": "algae", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "fish", "x": 540, "y": 300, "clicked": True })
+
+    state = call(session, "tick_game", 0, {})
+    start_x = state["fish"][0]["x"]
+
+    for _ in range(20):
+        state = call(session, "tick_game", 0.1, {})
+
+    # If the fish found the nodule, it should have moved toward it (x decreasing).
+    assert state["fish"][0]["x"] < start_x
+
+
+def test_shark_population_plateaus_near_carrying_capacity() -> None:
+    """Unbounded shark breeding is throttled by carrying_capacity, mirroring fish."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 80
+    data["spawn"]["initial_sharks"] = 30
+    data["spawn"]["initial_algae_hubs"] = 6
+    data["creatures"]["shark"]["breed_age"] = 0
+    data["creatures"]["shark"]["breed_fed_threshold"] = 0
+    data["creatures"]["shark"]["carrying_capacity"] = 20
+    data["creatures"]["shark"]["starve_limit"] = 100000
+
+    call(session, "init_game", data)
+    for _ in range(200):
+        state = call(session, "tick_game", 0.1, {})
+
+    assert state["stats"]["shark_count"] <= 30
+
+
+def test_shark_breeds_reliably_below_carrying_capacity() -> None:
+    """A shark well below carrying capacity breeds almost certainly once eligible."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["shark"]["breed_age"] = 0
+    data["creatures"]["shark"]["breed_fed_threshold"] = 1
+    data["creatures"]["shark"]["carrying_capacity"] = 1000
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(20):
+        state = call(session, "tick_game", 0.1, {})
+
+    assert state["stats"]["shark_count"] > 1
+
+
+def test_shark_does_not_breed_at_or_above_carrying_capacity() -> None:
+    """A shark at carrying capacity has a zero breed probability and cannot spawn."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["creatures"]["shark"]["breed_age"] = 0
+    data["creatures"]["shark"]["breed_fed_threshold"] = 1
+    data["creatures"]["shark"]["carrying_capacity"] = 1
+    data["flesh_chunk"]["min_spawn"] = 1
+    data["flesh_chunk"]["max_spawn"] = 1
+    data["flesh_chunk"]["sink_rate"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+
+    call(session, "init_game", data)
+    call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
+    call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
+
+    for _ in range(20):
+        state = call(session, "tick_game", 0.1, {})
+
+    assert state["stats"]["shark_count"] == 1
+
+
+def test_shark_ticks_with_target_tracks_nearby_fish_via_single_scan() -> None:
+    """had_target reflects a nearby fish even while the shark is in retreat (no
+    pursuit), confirming the single scan in compute_shark_forces preserves the
+    original two-scan diagnostic semantics."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["steering_weights"]["shark"]["seek_fish"] = 0
+    data["steering_weights"]["shark"]["seek_flesh"] = 0
+
+    call(session, "init_game", data)
+
+    prey = {
+        "id": "fish_target_probe",
+        "type": "fish",
+        "alive": True,
+        "x": 300,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 100,
+        "max_force": 50,
+        "radius": 4,
+    }
+    shark = {
+        "id": "shark_target_probe",
+        "type": "shark",
+        "x": 305,
+        "depth": 300,
+        "vx": 0,
+        "vd": 0,
+        "max_speed": 150,
+        "max_force": 90,
+        "radius": 7,
+        "exposure": 90,
+        "hunger": 0,
+        "ticks_total": 0,
+        "ticks_with_target": 0,
+        "in_retreat": False,
+    }
+    st = {
+        "data": data,
+        "world": { "width": 1200, "height": 800 },
+        "fish": [prey],
+        "chunks": [],
+    }
+
+    _, fy, had_target = call(session, "compute_shark_forces", shark, st, None)
+    assert had_target is True
+    assert fy > 0  # retreat force dominates despite a nearby fish target

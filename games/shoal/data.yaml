@@ -52,6 +52,7 @@ creatures:
       flesh: 220
     breed_age: 18
     breed_fed_threshold: 3
+    carrying_capacity: 20
     starve_limit: 20
     max_turn_rate: 6.0
     home_depth: 300

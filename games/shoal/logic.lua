@@ -55,7 +55,7 @@ end
 
 function rebuild_spatial_hash(st)
     local data = st.data
-    local hash = { fish = {}, shark = {} }
+    local hash = { fish = {}, shark = {}, algae = {} }
     local bw = data.spatial_hash.bucket_width
     local bd = data.spatial_hash.bucket_depth
     for _, f in ipairs(st.fish) do
@@ -76,13 +76,26 @@ function rebuild_spatial_hash(st)
             table.insert(hash.shark[key], s)
         end
     end
+    for _, core in ipairs(st.algae) do
+        for _, n in ipairs(core.nodules) do
+            if n.live then
+                local bx = math.floor(n.x / bw) % math.ceil(st.world.width / bw)
+                local by = math.floor(n.depth / bd) % math.ceil(st.world.height / bd)
+                local key = bx .. "," .. by
+                if not hash.algae[key] then hash.algae[key] = {} end
+                table.insert(hash.algae[key], { n = n, core = core })
+            end
+        end
+    end
     st.spatial_hash = hash
 end
 
-function get_nearby(hash, bx, by, type)
+function get_nearby(hash, bx, by, type, bx_range, by_range)
+    bx_range = bx_range or 1
+    by_range = by_range or 1
     local list = {}
-    for dx = -1, 1 do
-        for dy = -1, 1 do
+    for dx = -bx_range, bx_range do
+        for dy = -by_range, by_range do
             local k = (bx + dx) .. "," .. (by + dy)
             if hash[type][k] then
                 for _, ent in ipairs(hash[type][k]) do
@@ -133,32 +146,6 @@ local function limit_turn(old_vx, old_vy, new_vx, new_vy, max_turn_rate, max_spe
     return math.cos(clamped_angle) * speed, math.sin(clamped_angle) * speed
 end
 
-function get_shark_targets(s, st)
-    local data = st.data
-    local cfg = data.creatures.shark
-    local nearest_fish, fish_dist2 = nil, cfg.perception.fish * cfg.perception.fish
-    for _, f in ipairs(st.fish) do
-        if f.alive then
-            local d2 = dist2(s.x, s.depth, f.x, f.depth)
-            if d2 < fish_dist2 then
-                fish_dist2 = d2
-                nearest_fish = f
-            end
-        end
-    end
-
-    local nearest_chunk, chunk_dist2 = nil, cfg.perception.flesh * cfg.perception.flesh
-    for _, c in ipairs(st.chunks) do
-        local d2 = dist2(s.x, s.depth, c.x, c.depth)
-        if d2 < chunk_dist2 then
-            chunk_dist2 = d2
-            nearest_chunk = c
-        end
-    end
-
-    return nearest_fish, nearest_chunk
-end
-
 function move_creature(c, dt)
     local st = GAME_STATE
     local data = st.data
@@ -166,10 +153,10 @@ function move_creature(c, dt)
     if c.type == "fish" then
         fx, fy = compute_fish_forces(c, st, st.spatial_hash)
     else
-        fx, fy = compute_shark_forces(c, st, st.spatial_hash)
-        local nearest_fish, nearest_chunk = get_shark_targets(c, st)
+        local had_target
+        fx, fy, had_target = compute_shark_forces(c, st, st.spatial_hash)
         c.ticks_total = c.ticks_total + 1
-        if nearest_fish or nearest_chunk then
+        if had_target then
             c.ticks_with_target = c.ticks_with_target + 1
         end
     end
@@ -371,9 +358,14 @@ function update_discrete_events(st, dt)
             kill_creature(st, s)
         end
         if s.age >= data.creatures.shark.breed_age and (s.fed or 0) >= data.creatures.shark.breed_fed_threshold then
-            spawn_shark(st, s.x, s.depth)
-            s.fed = 0
-            s.age = 0
+            local current_sharks = count_alive(st.sharks)
+            local capacity = data.creatures.shark.carrying_capacity
+            local breed_probability = math.max(0, 1 - (current_sharks / capacity))
+            if math.random() < breed_probability then
+                spawn_shark(st, s.x, s.depth)
+                s.fed = 0
+                s.age = 0
+            end
         end
         s.age = s.age + 1
         ::next_shark::

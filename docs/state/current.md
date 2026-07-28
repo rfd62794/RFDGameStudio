@@ -2733,3 +2733,13 @@ cd ts && npm run test
 → Test Files  39 passed
 → Tests  242 passed
 ```
+
+## Shoal — Performance Optimization + Shark Population Bounding (v2.25.0)
+
+- **Finding 1 (duplicate shark targeting):** `get_shark_targets` in `logic.lua` re-scanned every fish and chunk a second time per shark per tick, solely to feed `ticks_total`/`ticks_with_target`. Removed it; `compute_shark_forces` (`steering.lua`) now computes `nearest_fish`/`nearest_chunk` once (before the retreat branch, since the diagnostic must reflect target presence even during retreat) and returns a third `had_target` value that `move_creature` consumes directly.
+- **Finding 2 (unhashed algae seek):** `rebuild_spatial_hash` now also indexes live algae nodules under `hash.algae` (entries are `{n, core}`). `compute_fish_forces`'s algae-seek loop uses `get_nearby(hash, bx, by, "algae", bx_range, by_range)` when a hash is present, falling back to the original raw nested loop when `hash` is `nil` (e.g. direct-call tests).
+- **Correctness fix for the 3x3-bucket search:** `get_nearby` gained optional `bx_range`/`by_range` params (default `1`, preserving the existing fish/shark 3x3 neighbor search unchanged). For algae, `bx_range = ceil(cfg.perception.algae / bucket_width)` and `by_range = ceil(cfg.perception.algae / bucket_depth)` are computed per-call so the 250-unit algae perception radius is fully covered against the 120x80 bucket grid (previously a fixed ±1 bucket would have under-searched this radius).
+- **Finding 3 (unbounded shark breeding):** Added `creatures.shark.carrying_capacity: 20` to `data.yaml` (draft tuning value, proportional to fish's `100`). Shark breeding in `update_discrete_events` now uses the same `breed_probability = max(0, 1 - current/capacity)` throttle already used by fish, gated by `math.random()`.
+- `VERSION` bumped `2.24.0` → `2.25.0`.
+- Added 7 regression tests to `tests/test_shoal.py`: `get_shark_targets` removal, algae nodules present in `GAME_STATE.spatial_hash.algae`, a fish at the edge of its 250-unit perception radius still finds a nodule post-hashing, shark population plateaus near `carrying_capacity` over an extended run, shark breeds reliably below capacity / not at-or-above capacity, and `had_target` correctly reflects a nearby fish even while a shark is in retreat. Updated 11 existing `compute_shark_forces` call sites in the same test file to unpack the new third return value.
+- Test proof: `uv run pytest tests/test_shoal.py -q` → 67 passed. Full floor: `uv run pytest -q` → 509 passed, 8 warnings.
