@@ -16,6 +16,8 @@ spawn:
   initial_sharks: 8
   initial_algae_hubs: 6
   algae_spawn_depth: 180
+  seed: null # optional; nil falls back to os.time() (current non-deterministic behavior)
+  cluster_radius: 150 # minimum separation between algae hub cluster centers
 
 creatures:
   fish:

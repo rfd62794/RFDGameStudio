@@ -1583,8 +1583,11 @@ def test_fish_settles_at_home_depth_from_both_directions() -> None:
     assert deep["depth"] < 210
 
 
-def test_algae_hubs_spawn_evenly_at_fixed_depth() -> None:
-    """Initial algae hubs are evenly spaced horizontally and all at the same depth."""
+def test_algae_hubs_spawn_with_valid_count_and_depth() -> None:
+    """Initial algae hubs spawn with the configured count, each within world
+    depth bounds. Superseded the old even-spacing/fixed-depth assumption —
+    see test_algae_hubs_are_no_longer_evenly_spaced for the clustering
+    regression guard (Seeded Procedural Reef Generation, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["spawn"]["initial_fish"] = 0
@@ -1597,22 +1600,10 @@ def test_algae_hubs_spawn_evenly_at_fixed_depth() -> None:
     algae = state["algae"]
     assert len(algae) == 6
 
-    expected_depth = data["spawn"]["algae_spawn_depth"]
     world_width = data["world"]["width"]
-    hub_count = data["spawn"]["initial_algae_hubs"]
-    spacing = world_width / (hub_count + 1)
-
-    xs = []
     for core in algae:
-        assert math.isclose(core["depth"], expected_depth, abs_tol=0.001)
-        xs.append(core["x"])
-
-    xs.sort()
-    for i, x in enumerate(xs, start=1):
-        assert math.isclose(x, spacing * i, abs_tol=0.001)
-
-    for i in range(1, len(xs)):
-        assert math.isclose(xs[i] - xs[i - 1], spacing, abs_tol=0.001)
+        assert 0 <= core["x"] < world_width
+        assert data["world"]["surface_depth"] <= core["depth"] <= data["world"]["floor_depth"]
 
 
 def test_algae_core_has_eight_spoke_nodules_and_no_center_overlap() -> None:
@@ -2180,3 +2171,121 @@ def test_nodule_danger_cache_updates_after_depth_change() -> None:
 
     # ...and is NOT the stale value cached at spawn time for the old depth.
     assert not math.isclose(n_after["cached_danger"], initial_cached_danger, abs_tol=0.0001)
+
+
+def _spawn_snapshot(session, data, seed) -> dict:
+    """Run init_game with the given spawn.seed and return the initial
+    positions of every algae hub, fish, and shark."""
+    data["spawn"]["seed"] = seed
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, {})
+    return {
+        "algae": [(c["x"], c["depth"]) for c in state["algae"]],
+        "fish": [(f["x"], f["depth"]) for f in state["fish"]],
+        "sharks": [(s["x"], s["depth"]) for s in state["sharks"]],
+    }
+
+
+def test_same_seed_produces_identical_initial_state() -> None:
+    """Two separate runs with spawn.seed = 42 produce byte-identical
+    hub/fish/shark positions."""
+    session_a = load_game("shoal", seed=42)
+    data_a = session_a.files.data
+    snapshot_a = _spawn_snapshot(session_a, data_a, 42)
+
+    session_b = load_game("shoal", seed=42)
+    data_b = session_b.files.data
+    snapshot_b = _spawn_snapshot(session_b, data_b, 42)
+
+    assert snapshot_a == snapshot_b
+
+
+def test_different_seeds_produce_different_layouts() -> None:
+    """Seeds 1 and 2 produce non-identical hub positions."""
+    session_1 = load_game("shoal", seed=42)
+    snapshot_1 = _spawn_snapshot(session_1, session_1.files.data, 1)
+
+    session_2 = load_game("shoal", seed=42)
+    snapshot_2 = _spawn_snapshot(session_2, session_2.files.data, 2)
+
+    assert snapshot_1["algae"] != snapshot_2["algae"]
+
+
+def test_omitted_seed_still_spawns_a_valid_world() -> None:
+    """No regression to default non-deterministic behavior when
+    spawn.seed is left nil (falls back to os.time())."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = None
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, {})
+
+    assert len(state["algae"]) == data["spawn"]["initial_algae_hubs"]
+    assert len(state["fish"]) == data["spawn"]["initial_fish"]
+    assert len(state["sharks"]) == data["spawn"]["initial_sharks"]
+
+
+def test_algae_hubs_respect_minimum_cluster_separation() -> None:
+    """No two hubs closer than cluster_radius, across 20 seeded runs."""
+    for seed in range(1, 21):
+        session = load_game("shoal", seed=42)
+        data = session.files.data
+        data["spawn"]["seed"] = seed
+        cluster_radius = data["spawn"]["cluster_radius"]
+
+        call(session, "init_game", data)
+        state = call(session, "tick_game", 0, {})
+        hubs = [(c["x"], c["depth"]) for c in state["algae"]]
+
+        for i in range(len(hubs)):
+            for j in range(i + 1, len(hubs)):
+                dx = hubs[i][0] - hubs[j][0]
+                dd = hubs[i][1] - hubs[j][1]
+                dist = math.sqrt(dx * dx + dd * dd)
+                assert dist >= cluster_radius - 0.01, (
+                    f"seed={seed}: hubs {i},{j} are {dist:.2f} apart, "
+                    f"below cluster_radius {cluster_radius}"
+                )
+
+
+def test_algae_hubs_are_no_longer_evenly_spaced() -> None:
+    """Variance of inter-hub distances is non-trivial (not the old
+    constant-spacing pattern) — regression guard against silently reverting
+    to arithmetic placement."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 42
+    data["spawn"]["initial_algae_hubs"] = 8
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, {})
+
+    xs = sorted(c["x"] for c in state["algae"])
+    gaps = [xs[i] - xs[i - 1] for i in range(1, len(xs))]
+    mean_gap = sum(gaps) / len(gaps)
+    variance = sum((g - mean_gap) ** 2 for g in gaps) / len(gaps)
+
+    # Evenly-spaced placement gives variance ~= 0; clustered placement must
+    # not silently collapse back to that.
+    assert variance > 100.0
+
+
+def test_hub_depth_stays_within_its_assigned_depth_band() -> None:
+    """Every hub's spawn depth falls inside some depth_bands entry's
+    top/bottom range (guards against the shallow-bias formula pushing a
+    hub's depth outside all defined bands)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 42
+    data["spawn"]["initial_algae_hubs"] = 10
+
+    call(session, "init_game", data)
+    state = call(session, "tick_game", 0, {})
+
+    bands = data["depth_bands"]
+    for core in state["algae"]:
+        depth = core["depth"]
+        assert any(b["top"] <= depth <= b["bottom"] for b in bands), (
+            f"hub depth {depth} falls outside all depth_bands entries"
+        )
