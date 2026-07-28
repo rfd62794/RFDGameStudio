@@ -1996,6 +1996,10 @@ def test_breed_probability_unchanged_no_deaths() -> None:
     data["creatures"]["shark"]["breed_fed_threshold"] = 0
     data["creatures"]["shark"]["carrying_capacity"] = 2  # == current alive count -> probability 0
     data["creatures"]["shark"]["starve_limit"] = 100000  # neither shark starves
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    call(session, "init_game", data)  # GAME_STATE must exist: uid() (via kill_creature) reads it
 
     st = {
         "data": data,
@@ -2044,6 +2048,10 @@ def test_breed_probability_snapshot_timing() -> None:
     data["creatures"]["shark"]["breed_fed_threshold"] = 0
     data["creatures"]["shark"]["carrying_capacity"] = 2  # == pre-loop alive count -> snapshot probability 0
     data["creatures"]["shark"]["starve_limit"] = 100  # shark_a's hunger (100) triggers starvation this pass
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    call(session, "init_game", data)  # GAME_STATE must exist: uid() (via kill_creature) reads it
 
     st = {
         "data": data,
