@@ -58,11 +58,14 @@ export default function App({ session }: GameRendererProps) {
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [tool, setTool] = useState<ToolMode>('fish');
+  const [reefKey, setReefKey] = useState(0);
+  const [seedInput, setSeedInput] = useState('');
   const [stats, setStats] = useState<Stats>({
     fish_count: 0,
     shark_count: 0,
     algae_count: 0,
     chunk_count: 0,
+    seed: 0,
   });
 
   return (
@@ -76,6 +79,7 @@ export default function App({ session }: GameRendererProps) {
           <span>Sharks {stats.shark_count}</span>
           <span>Algae {stats.algae_count}</span>
           <span>Chunks {stats.chunk_count}</span>
+          <span>Seed {stats.seed}</span>
         </div>
       }
       footer={
@@ -101,8 +105,47 @@ export default function App({ session }: GameRendererProps) {
               className={tool === t ? 'shoal-tool active' : 'shoal-tool'}
             />
           ))}
+          <div className="shoal-seed-control">
+            <input
+              type="number"
+              value={seedInput}
+              onChange={(e) => setSeedInput(e.target.value)}
+              placeholder="Seed"
+              className="shoal-seed-input"
+            />
+            <Button
+              id="shoal-new-reef"
+              label="New Reef"
+              onClick={() => {
+                const parsed = parseInt(seedInput, 10);
+                const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
+                if (seedInput.trim() === '' || isNaN(parsed)) {
+                  spawn.seed = null;
+                } else {
+                  spawn.seed = parsed;
+                }
+                setReefKey((k) => k + 1);
+              }}
+              variant="neutral"
+              size="sm"
+            />
+            <Button
+              id="shoal-random-seed"
+              label="\uD83C\uDFB2 Random Seed"
+              onClick={() => {
+                const randomSeed = Math.floor(Math.random() * 0xFFFFFFFF);
+                setSeedInput(String(randomSeed));
+                const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
+                spawn.seed = randomSeed;
+                setReefKey((k) => k + 1);
+              }}
+              variant="neutral"
+              size="sm"
+            />
+            <span className="shoal-seed-hint">Same seed reproduces this starting reef. The simulation itself is not seeded.</span>
+          </div>
         </div>
-        <ShoalCanvas session={session} tool={tool} onStats={setStats} />
+        <ShoalCanvas key={reefKey} session={session} tool={tool} onStats={setStats} />
       </div>
     </GameShell>
   );

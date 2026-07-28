@@ -5,6 +5,7 @@ function init_game(data)
     GAME_STATE.diagnostics = { meals = {}, deaths = {} }
     spawn_initial_entities(GAME_STATE, data)
     local st = GAME_STATE
+    st.stats.seed = st.resolved_seed
     st.stats.fish_count = count_alive(st.fish)
     st.stats.shark_count = count_alive(st.sharks)
     st.stats.algae_count = count_algae_nodules(st)

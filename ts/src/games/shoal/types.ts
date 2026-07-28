@@ -37,6 +37,7 @@ export interface Stats {
   shark_count: number;
   algae_count: number;
   chunk_count: number;
+  seed: number;
 }
 
 export interface RenderState {

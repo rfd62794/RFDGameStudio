@@ -2289,3 +2289,45 @@ def test_hub_depth_stays_within_its_assigned_depth_band() -> None:
         assert any(b["top"] <= depth <= b["bottom"] for b in bands), (
             f"hub depth {depth} falls outside all depth_bands entries"
         )
+
+
+def test_stats_seed_matches_explicit_seed() -> None:
+    """The resolved seed appears in stats.seed and equals the explicit value
+    passed via data.spawn.seed (Player-Controlled Reef Seed, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 12345
+
+    state = call(session, "init_game", data)
+
+    assert "seed" in state["stats"]
+    assert state["stats"]["seed"] == 12345
+
+
+def test_stats_seed_present_when_no_seed_given() -> None:
+    """When data.spawn.seed is nil, stats.seed is still present and is a
+    positive integer (from os.time()), not nil or zero
+    (Player-Controlled Reef Seed, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = None
+
+    state = call(session, "init_game", data)
+
+    assert "seed" in state["stats"]
+    assert isinstance(state["stats"]["seed"], int)
+    assert state["stats"]["seed"] > 0
+
+
+def test_stats_seed_equals_resolved_seed_on_game_state() -> None:
+    """stats.seed matches the resolved_seed stored on GAME_STATE, ensuring
+    the value surfaced to the player is the one actually used by the PRNG
+    (Player-Controlled Reef Seed, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 999
+
+    state = call(session, "init_game", data)
+    game_state = session.executor.get_global("GAME_STATE")
+
+    assert state["stats"]["seed"] == game_state["resolved_seed"] == 999

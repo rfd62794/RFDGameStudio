@@ -73,7 +73,9 @@ end
 
 function spawn_initial_entities(st, data)
     local world = data.world
-    local prng = make_prng(data.spawn.seed)
+    local resolved_seed = data.spawn.seed or os.time()
+    local prng = make_prng(resolved_seed)
+    st.resolved_seed = resolved_seed
 
     local hub_count = data.spawn.initial_algae_hubs
     local cluster_radius = data.spawn.cluster_radius
