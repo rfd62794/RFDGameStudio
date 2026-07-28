@@ -71,13 +71,15 @@ function new_algae_nodule(cx, cdepth, dir, dist)
     elseif dir == 2 then dx = -dist
     elseif dir == 3 then dx = dist
     end
+    local depth = cdepth + dy
     return {
         id = uid("nodule"),
         x = cx + dx,
-        depth = cdepth + dy,
+        depth = depth,
         live = true,
         cooldown = 0,
         offset = { x = dx, y = dy },
+        cached_danger = compute_fish_cold_rate(depth, GAME_STATE.data),
     }
 end
 
