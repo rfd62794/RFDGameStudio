@@ -24,8 +24,12 @@ function tick_game(dt, input)
     handle_input(st, input)
 
     rebuild_spatial_hash(st)
-    update_creatures(st, dt)
+    -- update_algae must run before update_creatures: update_algae_core
+    -- caches n.cached_danger from the freshly-computed n.depth, and
+    -- compute_fish_forces (called from update_creatures) reads that cache.
+    -- Reversing this order would make fish read a tick-stale danger rating.
     update_algae(st, dt)
+    update_creatures(st, dt)
     update_chunks(st, dt)
     update_discrete_events(st, dt)
 
@@ -249,6 +253,8 @@ function update_discrete_events(st, dt)
     st.discrete_accum = 0
 
     local data = st.data
+    local current_fish_alive = count_alive(st.fish)
+    local current_shark_alive = count_alive(st.sharks)
 
     -- fish grazing
     for _, f in ipairs(st.fish) do
@@ -259,9 +265,8 @@ function update_discrete_events(st, dt)
                     if graze_nodule(st, n, core) then
                         f.fed = f.fed + 1
                         if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
-                            local current_fish = count_alive(st.fish)
                             local capacity = data.creatures.fish.carrying_capacity
-                            local breed_probability = math.max(0, 1 - (current_fish / capacity))
+                            local breed_probability = math.max(0, 1 - (current_fish_alive / capacity))
                             if math.random() < breed_probability then
                                 spawn_fish(st, f.x, f.depth)
                                 f.fed = 0
@@ -358,9 +363,8 @@ function update_discrete_events(st, dt)
             kill_creature(st, s)
         end
         if s.age >= data.creatures.shark.breed_age and (s.fed or 0) >= data.creatures.shark.breed_fed_threshold then
-            local current_sharks = count_alive(st.sharks)
             local capacity = data.creatures.shark.carrying_capacity
-            local breed_probability = math.max(0, 1 - (current_sharks / capacity))
+            local breed_probability = math.max(0, 1 - (current_shark_alive / capacity))
             if math.random() < breed_probability then
                 spawn_shark(st, s.x, s.depth)
                 s.fed = 0

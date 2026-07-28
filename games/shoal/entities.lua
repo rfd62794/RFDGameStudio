@@ -188,6 +188,7 @@ function update_algae_core(core, st, dt)
     for _, n in ipairs(core.nodules) do
         n.x = wrap_x(core.x + n.offset.x, st.world)
         n.depth = clamp_depth(core.depth + n.offset.y, st.world)
+        n.cached_danger = compute_fish_cold_rate(n.depth, data)
     end
     core.x = wrap_x(core.x, st.world)
 end

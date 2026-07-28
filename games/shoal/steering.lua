@@ -154,15 +154,22 @@ function compute_fish_forces(f, st, hash)
     local cfg = data.creatures.fish
     local fx, fy = 0, 0
 
+    -- Bucket coordinates are shared by the algae-hash lookup below and the
+    -- boids-neighbor lookup further down; computed once here instead of
+    -- twice (Finding 2).
+    local bx, by, bw, bd
+    if hash then
+        bw = data.spatial_hash.bucket_width
+        bd = data.spatial_hash.bucket_depth
+        bx = math.floor(f.x / bw) % math.ceil(st.world.width / bw)
+        by = math.floor(f.depth / bd) % math.ceil(st.world.height / bd)
+    end
+
     -- seek nearest live, safe algae nodule
     local max_safe_rate = cfg.max_safe_cold_rate
     local nearest_nodule, nearest_dist2 = nil, cfg.perception.algae * cfg.perception.algae
     local nearby_algae
     if hash and hash.algae then
-        local bw = data.spatial_hash.bucket_width
-        local bd = data.spatial_hash.bucket_depth
-        local bx = math.floor(f.x / bw) % math.ceil(st.world.width / bw)
-        local by = math.floor(f.depth / bd) % math.ceil(st.world.height / bd)
         local bx_range = math.ceil(cfg.perception.algae / bw)
         local by_range = math.ceil(cfg.perception.algae / bd)
         nearby_algae = get_nearby(hash, bx, by, "algae", bx_range, by_range)
@@ -171,7 +178,7 @@ function compute_fish_forces(f, st, hash)
         for _, entry in ipairs(nearby_algae) do
             local n = entry.n
             if n.live then
-                local nodule_danger = compute_fish_cold_rate(n.depth, data)
+                local nodule_danger = n.cached_danger
                 if nodule_danger <= max_safe_rate then
                     local d2 = dist2(f.x, f.depth, n.x, n.depth)
                     if d2 < nearest_dist2 then
@@ -185,7 +192,7 @@ function compute_fish_forces(f, st, hash)
         for _, core in ipairs(st.algae) do
             for _, n in ipairs(core.nodules) do
                 if n.live then
-                    local nodule_danger = compute_fish_cold_rate(n.depth, data)
+                    local nodule_danger = n.cached_danger
                     if nodule_danger <= max_safe_rate then
                         local d2 = dist2(f.x, f.depth, n.x, n.depth)
                         if d2 < nearest_dist2 then
@@ -223,10 +230,6 @@ function compute_fish_forces(f, st, hash)
     -- boids forces: separate, align, cohere share the same neighbor source and school radius
     local others
     if hash then
-        local bw = data.spatial_hash.bucket_width
-        local bd = data.spatial_hash.bucket_depth
-        local bx = math.floor(f.x / bw) % math.ceil(st.world.width / bw)
-        local by = math.floor(f.depth / bd) % math.ceil(st.world.height / bd)
         others = get_nearby(hash, bx, by, "fish")
     else
         others = st.fish
