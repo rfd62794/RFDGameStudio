@@ -1,5 +1,16 @@
 import type { ReactNode } from 'react';
 
+export interface MenuShellClassNames {
+  shell?: string;
+  inner?: string;
+  titleWrap?: string;
+  title?: string;
+  subtitle?: string;
+  grid?: string;
+  cta?: string;
+  launchBtn?: string;
+}
+
 export interface MenuShellProps {
   gameTitle: string;
   subtitle?: string;
@@ -7,7 +18,8 @@ export interface MenuShellProps {
   children: ReactNode;
   ctaLabel: string;
   onCta: () => void;
-  className?: string;
+  classNames?: Partial<MenuShellClassNames>;
+  beforeInner?: ReactNode;
 }
 
 export function MenuShell({
@@ -17,19 +29,22 @@ export function MenuShell({
   children,
   ctaLabel,
   onCta,
-  className = '',
+  classNames,
+  beforeInner,
 }: MenuShellProps) {
+  const cn = classNames ?? {};
   return (
-    <div className={`menu-shell ${className}`}>
+    <div className={cn.shell ?? 'menu-shell'}>
+      {beforeInner}
       {heroSlot && <div className="menu-hero">{heroSlot}</div>}
-      <div className="menu-shell-inner">
-        <div className="menu-title-wrap">
-          <h1 className="menu-title">{gameTitle}</h1>
-          {subtitle && <p className="menu-subtitle">{subtitle}</p>}
+      <div className={cn.inner ?? 'menu-shell-inner'}>
+        <div className={cn.titleWrap ?? 'menu-title-wrap'}>
+          <h1 className={cn.title ?? 'menu-title'}>{gameTitle}</h1>
+          {subtitle && <p className={cn.subtitle ?? 'menu-subtitle'}>{subtitle}</p>}
         </div>
-        <div className="menu-grid">{children}</div>
-        <div className="menu-cta">
-          <button className="menu-launch-btn" onClick={onCta}>
+        <div className={cn.grid ?? 'menu-grid'}>{children}</div>
+        <div className={cn.cta ?? 'menu-cta'}>
+          <button className={cn.launchBtn ?? 'menu-launch-btn'} onClick={onCta}>
             {ctaLabel}
           </button>
         </div>
