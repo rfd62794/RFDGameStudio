@@ -3035,3 +3035,51 @@ The improvement (6.02x → 5.60x) is measurable but modest because the grazing l
 - Zero `<button>` elements in refactored `MainMenu.tsx` — all delegated to shared components.
 - Zero seed control references in `App.tsx` toolbar (`seedInput`, `New Reef`, `Random Seed`, `seed-hint` all removed).
 - Browser preview running at `http://localhost:5174/arcade/rfdgamestudio/` for visual verification.
+
+---
+
+## Stage 3 Scaffolding Tool — `studio_scaffold_game` (ADR-012)
+
+**Directive:** Create a scaffolding tool that generates the empty vessel for a new game from an existing `examples/{slug}/` concept. Never writes real game logic — Stage 4 (Convert) fills it by hand later. The permanent fix: generated entry points use `import.meta.glob` instead of hand-listed `.lua` imports, making the "silent break when file set changes" bug class structurally impossible.
+
+### Tool: `studio_scaffold_game(concept_slug, target_type=None)`
+
+**`recommend_target_type(examples_dir)`** — inspects `examples/{slug}/src` for `.tsx` files, `package.json` React deps, `.lua`/`.yaml` files. Returns `{recommendation, reason, confidence}`. Never silently decides — requires explicit `target_type` argument to proceed.
+
+**TS-native scaffold** creates:
+- `ts/src/games/{game_id}/App.tsx` — stub component ("Not yet converted")
+- `ts/src/games/{game_id}/config.ts` — GameConfig stub with `status: 'dev'`
+- `ts/vite.{game_id}.config.ts` — `makeStandaloneConfig('{game_id}')`
+- `ts/src/standalone/{game_id}/entry.tsx` — uses `import.meta.glob` for both game and engine `.lua` files
+- `ts/src/standalone/{game_id}/index.html`
+- `games/{game_id}/` — data.yaml, ui.yaml, systems.yaml, logic.lua (stub), VERSION
+- Registry entry — additive only (one import + one array line)
+
+**Lua-backed scaffold** creates:
+- `games/{game_id}/` — data.yaml, ui.yaml, systems.yaml (`lua_files: []`), logic.lua (stub with `init_game`/`tick_game`), VERSION
+
+### The permanent fix
+Generated `entry.tsx` uses `import.meta.glob('../../../../games/{game_id}/*.lua', {query: '?raw', import: 'default', eager: true})` instead of hand-listed `import logicRaw from '...logic.lua?raw'` lines. When a game's Lua file set changes (modularization, new files), the glob auto-picks them up — zero hand-editing needed.
+
+### What it never does
+- Writes real game logic or infers what a prototype "does"
+- Auto-populates `App.tsx`/`logic.lua` beyond boilerplate stubs
+- Retrofits existing games' entry points (Shoal's included — that's a named follow-up)
+- Silently defaults to the common case (`ts_native`) without explicit confirmation
+
+### Files touched
+- `studio_mcp/scaffold.py` (new) — tool implementation
+- `studio_mcp/tools.py` (modified) — import + register
+- `studio_mcp/server.py` (modified) — import + `mcp.tool()` decorator
+- `tests/test_scaffold.py` (new) — 8 tests covering all 5 anchors
+
+### Verification
+- Pre-flight floor: **545 passed**, 0 failed, 8 warnings.
+- Post-implementation: **553 passed** (545 + 8 new), 0 failed, 8 warnings.
+- Manual end-to-end: scaffolded `throwaway-test` concept → `tsc --noEmit` zero errors for new files → `vite build` succeeded (47 modules, glob resolved `.lua` files correctly).
+- `git diff --stat 1835029~1`: 4 files (`scaffold.py`, `tools.py`, `server.py`, `test_scaffold.py`).
+- Throwaway test output cleaned up (not committed).
+- Registry modification confirmed additive-only: exactly 2 lines added (import + array entry).
+
+### Named follow-up
+**Retrofit existing games' entry points with `import.meta.glob` pattern.** Shoal's `entry.tsx` currently hand-lists 5 `.lua` files (`utils`, `state`, `entities`, `steering`, `logic`). The pending Logic-Layer Modularization directive would break this. This is a separate explicit task — scaffolding only applies the pattern going forward.
