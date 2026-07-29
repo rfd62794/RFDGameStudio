@@ -375,31 +375,42 @@ function drawGame(
   // Depth gradient background + surface line (cached offscreen)
   ctx.drawImage(getBackgroundCache(world), 0, 0);
 
-  // Draw algae cores
+  // Draw algae cores (batched)
   ctx.fillStyle = renderCfg?.algae_core_color ?? '#eab308';
+  ctx.beginPath();
   for (const core of rs.algae) {
-    ctx.beginPath();
+    ctx.moveTo(core.x + 5, core.depth);
     ctx.arc(core.x, core.depth, 5, 0, Math.PI * 2);
-    ctx.fill();
   }
+  ctx.fill();
 
-  // Draw algae nodules
+  // Draw algae nodules (batched)
   ctx.fillStyle = renderCfg?.algae_color ?? '#10b981';
+  ctx.beginPath();
   for (const core of rs.algae) {
     for (const n of core.nodules) {
-      ctx.beginPath();
+      ctx.moveTo(n.x + n.radius, n.depth);
       ctx.arc(n.x, n.depth, n.radius, 0, Math.PI * 2);
-      ctx.fill();
     }
   }
+  ctx.fill();
 
-  // Draw flesh chunks with decay-based color lerp
+  // Draw flesh chunks with decay-based color lerp (batched into decay buckets)
   const chunkColor = renderCfg?.chunk_color ?? '#f43f5e';
   const coreColor = renderCfg?.algae_core_color ?? '#eab308';
+  const chunksByBucket = new Map<number, typeof rs.chunks>();
   for (const c of rs.chunks) {
-    ctx.fillStyle = lerpColor(chunkColor, coreColor, c.decay_ratio ?? 0);
+    const bucket = Math.round((c.decay_ratio ?? 0) * 5) / 5;
+    const group = chunksByBucket.get(bucket);
+    if (group) group.push(c); else chunksByBucket.set(bucket, [c]);
+  }
+  for (const [bucket, group] of chunksByBucket) {
+    ctx.fillStyle = lerpColor(chunkColor, coreColor, bucket);
     ctx.beginPath();
-    ctx.arc(c.x, c.depth, c.radius, 0, Math.PI * 2);
+    for (const c of group) {
+      ctx.moveTo(c.x + c.radius, c.depth);
+      ctx.arc(c.x, c.depth, c.radius, 0, Math.PI * 2);
+    }
     ctx.fill();
   }
 

@@ -261,26 +261,33 @@ function update_discrete_events(st, dt)
     local current_fish_alive = count_alive(st.fish)
     local current_shark_alive = count_alive(st.sharks)
 
-    -- fish grazing
+    -- fish grazing (via spatial hash, one bite per fish per tick)
+    local bw = data.spatial_hash.bucket_width
+    local bd = data.spatial_hash.bucket_depth
     for _, f in ipairs(st.fish) do
         if not f.alive then goto next_fish end
-        for _, core in ipairs(st.algae) do
-            for _, n in ipairs(core.nodules) do
-                if n.live and distance(f.x, f.depth, n.x, n.depth) <= f.radius + data.algae.nodule_radius then
-                    if graze_nodule(st, n, core) then
-                        f.fed = f.fed + 1
-                        if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
-                            local capacity = data.creatures.fish.carrying_capacity
-                            local breed_probability = math.max(0, 1 - (current_fish_alive / capacity))
-                            if math.random() < breed_probability then
-                                spawn_fish(st, f.x, f.depth)
-                                f.fed = 0
-                                f.age = 0
-                            end
+
+        local bx = math.floor(f.x / bw) % math.ceil(st.world.width / bw)
+        local by = math.floor(f.depth / bd) % math.ceil(st.world.height / bd)
+        local by_range = math.ceil(data.algae.nodule_radius / bd) + 1
+        local nearby = get_nearby(st.spatial_hash, bx, by, "algae", 1, by_range)
+
+        for _, entry in ipairs(nearby) do
+            local n, core = entry.n, entry.core
+            if n.live and distance(f.x, f.depth, n.x, n.depth) <= f.radius + data.algae.nodule_radius then
+                if graze_nodule(st, n, core) then
+                    f.fed = f.fed + 1
+                    if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
+                        local capacity = data.creatures.fish.carrying_capacity
+                        local breed_probability = math.max(0, 1 - (current_fish_alive / capacity))
+                        if math.random() < breed_probability then
+                            spawn_fish(st, f.x, f.depth)
+                            f.fed = 0
+                            f.age = 0
                         end
                     end
-                    break
                 end
+                break
             end
         end
         ::next_fish::
