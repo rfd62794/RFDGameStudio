@@ -13,9 +13,21 @@ import './styles.css';
 
 let backgroundCache: HTMLCanvasElement | null = null;
 
-function formatDepthLabel(topUnits: number, bottomUnits: number): string {
-  const toFeet = (m: number) => Math.round((m * 3.28084) / 10) * 10;
-  return `${topUnits}\u2013${bottomUnits}m (${toFeet(topUnits)}\u2013${toFeet(bottomUnits)}ft)`;
+function drawDepthTicks(ctx: CanvasRenderingContext2D, floorDepth: number, dims: { w: number; h: number }) {
+  const tickIntervalM = 100;
+  const scale = dims.h / floorDepth;
+  ctx.font = '12px sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  for (let depth = 0; depth <= floorDepth; depth += tickIntervalM) {
+    const y = depth * scale;
+    const feet = Math.round((depth * 3.28084) / 10) * 10;
+    const label = `${depth}m / ${feet}ft`;
+    ctx.textAlign = 'left';
+    ctx.fillText(label, 4, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(label, dims.w - 4, y);
+  }
 }
 
 function getBackgroundCache(world: { width: number; height: number }): HTMLCanvasElement {
@@ -441,21 +453,9 @@ function drawGame(
   // Draw sharks batched by color
   drawSharksBatched(ctx, rs.sharks);
 
-  // Draw depth band labels along both canvas edges
-  const bands = (data as { depth_bands?: Array<{ id: string; top: number; bottom: number }> }).depth_bands;
-  if (bands) {
-    ctx.font = '12px sans-serif';
-    ctx.textBaseline = 'middle';
-    for (const band of bands) {
-      const midDepth = (band.top + band.bottom) / 2;
-      const label = formatDepthLabel(band.top, band.bottom);
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.textAlign = 'left';
-      ctx.fillText(label, 4, midDepth);
-      ctx.textAlign = 'right';
-      ctx.fillText(label, world.width - 4, midDepth);
-    }
-  }
+  // Draw evenly-spaced depth ticks on both edges (replaces band-range labels)
+  const floorDepth = (data as { world?: { floor_depth?: number } }).world?.floor_depth ?? 800;
+  drawDepthTicks(ctx, floorDepth, { w: world.width, h: world.height });
 
   ctx.restore();
 }
