@@ -41,7 +41,9 @@ export default function ReefPreview({ session }: ReefPreviewProps) {
     window.addEventListener('resize', handleResize);
     handleResize();
 
-    const data = { ...session.files.data, spawn: { ...session.files.data['spawn' as keyof typeof session.files.data], ...PREVIEW_SPAWN } };
+    const baseData = session.files.data as Record<string, unknown>;
+    const baseSpawn = baseData.spawn as Record<string, unknown>;
+    const data = { ...baseData, spawn: { ...baseSpawn, ...PREVIEW_SPAWN } };
     renderStateRef.current = call(session, 'init_game', data)[0] as RenderState;
     stateRef.current.initialized = true;
     if (canvasRef.current) {
