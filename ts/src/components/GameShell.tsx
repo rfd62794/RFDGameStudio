@@ -14,6 +14,8 @@ export interface GameShellProps {
   children: ReactNode;
   /** Optional footer region */
   footer?: ReactNode;
+  /** Optional extra content rendered next to the back button (e.g. game-specific nav) */
+  headerExtra?: ReactNode;
   className?: string;
 }
 
@@ -29,20 +31,24 @@ export function GameShell({
   statusArea,
   children,
   footer,
+  headerExtra,
   className = '',
 }: GameShellProps) {
   return (
     <div className={`game-shell ${className}`}>
       <header className="game-shell-header">
         <div className="game-shell-header-inner">
-          <button
-            type="button"
-            className="game-shell-back"
-            onClick={navigateHome}
-            aria-label="Back to Arcade"
-          >
-            ← Arcade
-          </button>
+          <div className="game-shell-back-group">
+            <button
+              type="button"
+              className="game-shell-back"
+              onClick={navigateHome}
+              aria-label="Back to Arcade"
+            >
+              ← Arcade
+            </button>
+            {headerExtra}
+          </div>
 
           <div className="game-shell-brand">
             <h1 className="game-shell-title">{gameLabel}</h1>
