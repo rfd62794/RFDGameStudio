@@ -2331,3 +2331,282 @@ def test_stats_seed_equals_resolved_seed_on_game_state() -> None:
     game_state = session.executor.get_global("GAME_STATE")
 
     assert state["stats"]["seed"] == game_state["resolved_seed"] == 999
+
+
+def _deplete_core_nodules(st, core):
+    """Set all nodules in a core to dead with a long cooldown."""
+    for n in core["nodules"]:
+        n["live"] = False
+        n["cooldown"] = 999.0
+
+
+def test_decomposing_chunk_near_depleted_core_reduces_nodule_cooldowns() -> None:
+    """A chunk decomposing within decompose_radius of a depleted core reduces
+    its nodules' cooldowns but does not instantly revive them
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 1
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    core = st["algae"][1]
+    _deplete_core_nodules(st, core)
+    # Record cooldowns before decomposition
+    cooldowns_before = [n["cooldown"] for n in core["nodules"]]
+
+    # Place a chunk right at the core's position and decompose it
+    chunk = {
+        "id": "test_chunk",
+        "x": core["x"],
+        "depth": core["depth"],
+        "vx": 0,
+        "vd": 0,
+        "radius": data["flesh_chunk"]["radius"],
+    }
+    call(session, "decompose_chunk", st, chunk)
+
+    cooldowns_after = [n["cooldown"] for n in core["nodules"]]
+    # At least some cooldowns should have decreased
+    assert any(after < before for before, after in zip(cooldowns_before, cooldowns_after))
+    # No nodule should be instantly revived (live still False)
+    assert all(not n["live"] for n in core["nodules"])
+
+
+def test_decomposing_chunk_with_no_core_nearby_spawns_new_core() -> None:
+    """A chunk decaying far from any existing core spawns a new core
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 1
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    existing_core = st["algae"][1]
+    core_count_before = len(st["algae"])
+
+    # Place a chunk far from the existing core (beyond decompose_radius)
+    far_x = existing_core["x"] + data["flesh_chunk"]["decompose_radius"] + 200
+    chunk = {
+        "id": "test_chunk",
+        "x": far_x,
+        "depth": existing_core["depth"],
+        "vx": 0,
+        "vd": 0,
+        "radius": data["flesh_chunk"]["radius"],
+    }
+    call(session, "decompose_chunk", st, chunk)
+
+    core_count_after = len(st["algae"])
+    assert core_count_after == core_count_before + 1
+
+
+def test_decomposition_does_not_affect_cores_outside_decompose_radius() -> None:
+    """Only the core within decompose_radius has its nodule cooldowns reduced
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    # Spawn two cores: one near origin, one far away
+    near_core = call(session, "spawn_algae_core", st, 100, 200)
+    far_core = call(session, "spawn_algae_core", st, 100 + data["flesh_chunk"]["decompose_radius"] + 200, 200)
+    _deplete_core_nodules(st, near_core)
+    _deplete_core_nodules(st, far_core)
+
+    near_before = [n["cooldown"] for n in near_core["nodules"]]
+    far_before = [n["cooldown"] for n in far_core["nodules"]]
+
+    # Decompose a chunk near the near_core only
+    chunk = {
+        "id": "test_chunk",
+        "x": near_core["x"],
+        "depth": near_core["depth"],
+        "vx": 0,
+        "vd": 0,
+        "radius": data["flesh_chunk"]["radius"],
+    }
+    call(session, "decompose_chunk", st, chunk)
+
+    near_after = [n["cooldown"] for n in near_core["nodules"]]
+    far_after = [n["cooldown"] for n in far_core["nodules"]]
+
+    assert any(a < b for b, a in zip(near_before, near_after))
+    assert far_after == far_before
+
+
+def test_core_empty_for_less_than_starvation_seconds_survives() -> None:
+    """A core empty for less than starvation_seconds is still present
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 1
+    starvation = data["algae"]["starvation_seconds"]
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    core = st["algae"][1]
+    _deplete_core_nodules(st, core)
+
+    # Advance less than the starvation threshold
+    state = call(session, "tick_game", starvation - 1, {})
+
+    # Core should still be present
+    assert len(st["algae"]) >= 1
+
+
+def test_core_empty_for_longer_than_starvation_seconds_is_removed() -> None:
+    """A core empty for longer than starvation_seconds is removed from st.algae
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 1
+    starvation = data["algae"]["starvation_seconds"]
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    core = st["algae"][1]
+    _deplete_core_nodules(st, core)
+
+    # Advance past the starvation threshold (in small steps to avoid dt clamp)
+    elapsed = 0
+    while elapsed < starvation + 1:
+        state = call(session, "tick_game", 0.1, {})
+        elapsed += 0.1
+
+    # Core should have been removed
+    assert len(st["algae"]) == 0
+
+
+def test_core_that_regrows_one_nodule_resets_starvation_timer() -> None:
+    """A core that regrows even one nodule resets its starvation timer
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 1
+    starvation = data["algae"]["starvation_seconds"]
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    core = st["algae"][1]
+    _deplete_core_nodules(st, core)
+
+    # Advance partway (less than starvation)
+    elapsed = 0
+    while elapsed < starvation - 5:
+        call(session, "tick_game", 0.1, {})
+        elapsed += 0.1
+
+    # Manually regrow one nodule
+    core["nodules"][1]["live"] = True
+    core["nodules"][1]["cooldown"] = 0
+
+    # Advance past what would have been the original threshold
+    elapsed2 = 0
+    while elapsed2 < starvation + 5:
+        call(session, "tick_game", 0.1, {})
+        elapsed2 += 0.1
+
+    # Core should still be present — the timer reset when a nodule regrew
+    assert len(st["algae"]) >= 1
+
+
+def test_chunk_render_state_exposes_valid_decay_ratio() -> None:
+    """decay_ratio is present in chunk render state, 0 before reaching floor,
+    and rises toward 1 as floor_timer approaches grace
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    # Spawn a chunk at surface — it should be sinking, not at floor
+    call(session, "spawn_flesh_chunks", st, 600, 50, 1)
+
+    # Tick once — chunk should still be sinking (decay_ratio 0)
+    state = call(session, "tick_game", 0.05, {})
+    assert len(state["chunks"]) >= 1
+    assert state["chunks"][0]["decay_ratio"] == 0
+
+    # Now manually place a chunk at the floor with a partial timer
+    floor_depth = data["world"]["floor_depth"]
+    grace = data["flesh_chunk"]["floor_grace_time"]
+    st["chunks"][1]["depth"] = floor_depth
+    st["chunks"][1]["floor_timer"] = grace * 0.5
+
+    state = call(session, "tick_game", 0, {})
+    # Find the floor chunk (the one with decay_ratio > 0)
+    floor_chunk = None
+    for c in state["chunks"]:
+        if c["decay_ratio"] > 0:
+            floor_chunk = c
+            break
+    assert floor_chunk is not None
+    assert 0 < floor_chunk["decay_ratio"] <= 1
+
+
+def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
+    """In a seeded run with heavy grazing then heavy decomposition, the core
+    count is observed at both a lower and a higher value than its starting
+    count, proving both starvation and replenishment actually fire
+    (Reef Decomposition Loop, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 42
+    data["spawn"]["initial_fish"] = 80
+    data["spawn"]["initial_sharks"] = 12
+    data["spawn"]["initial_algae_hubs"] = 6
+    # Make starvation faster to see core death within reasonable tick count
+    data["algae"]["starvation_seconds"] = 10
+
+    call(session, "init_game", data)
+    st = session.executor.get_global("GAME_STATE")
+
+    starting_core_count = len(st["algae"])
+    min_core_count = starting_core_count
+    max_core_count = starting_core_count
+
+    # Run for a substantial number of ticks — fish graze, cores starve,
+    # creatures die, chunks decompose and spawn new cores
+    for _ in range(500):
+        state = call(session, "tick_game", 0.1, {})
+        current = len(st["algae"])
+        if current < min_core_count:
+            min_core_count = current
+        if current > max_core_count:
+            max_core_count = current
+
+    # Core count must have dropped below starting (starvation fired)
+    assert min_core_count < starting_core_count, (
+        f"Core count never dropped below starting {starting_core_count}; "
+        f"min was {min_core_count}"
+    )
+    # Core count must have risen above starting at some point (replenishment fired)
+    assert max_core_count > starting_core_count, (
+        f"Core count never rose above starting {starting_core_count}; "
+        f"max was {max_core_count}"
+    )
