@@ -360,7 +360,7 @@ def _scaffold_ts_native(
     if registry_path.exists():
         registry_content = registry_path.read_text(encoding="utf-8")
         if f"./{game_id}/config" not in registry_content:
-            import_name = _camel_case_from_game_id(game_id)
+            import_name = f"{_camel_case_from_game_id(game_id)}Config"
             import_line = f"import {import_name} from './{game_id}/config';\n"
             lines = registry_content.splitlines(keepends=True)
             last_import_idx = -1
