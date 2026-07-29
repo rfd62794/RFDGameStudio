@@ -9,7 +9,7 @@ export function navigateTo(gameId: string): void {
 
 export function navigateHome(mode: 'arcade' | 'standalone' = 'arcade', arcadeBaseUrl?: string): void {
   if (mode === 'standalone' && arcadeBaseUrl) {
-    window.location.href = arcadeBaseUrl;
+    window.open(arcadeBaseUrl, '_blank', 'noopener,noreferrer');
     return;
   }
   window.location.href = window.location.href.split('?')[0];
