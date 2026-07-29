@@ -12,6 +12,15 @@ import './styles.css';
 
 let backgroundCache: HTMLCanvasElement | null = null;
 
+const DEPTH_BAND_LABELS: Record<string, string> = {
+  sunlit_surface: 'Sunlit Surface',
+  epipelagic: 'Epipelagic',
+  mesopelagic: 'Mesopelagic',
+  bathypelagic: 'Bathypelagic',
+  abyssopelagic: 'Abyssopelagic',
+  hadopelagic: 'Hadopelagic',
+};
+
 function getBackgroundCache(world: { width: number; height: number }): HTMLCanvasElement {
   if (backgroundCache) return backgroundCache;
   const bg = document.createElement('canvas');
@@ -328,6 +337,24 @@ function drawSharksBatched(ctx: CanvasRenderingContext2D, sharks: RenderState['s
   }
 }
 
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace('#', '');
+  return [
+    parseInt(h.slice(0, 2), 16),
+    parseInt(h.slice(2, 4), 16),
+    parseInt(h.slice(4, 6), 16),
+  ];
+}
+
+function lerpColor(a: string, b: string, t: number): string {
+  const [ar, ag, ab] = hexToRgb(a);
+  const [br, bg, bb] = hexToRgb(b);
+  const r = Math.round(ar + (br - ar) * t);
+  const g = Math.round(ag + (bg - ag) * t);
+  const bl = Math.round(ab + (bb - ab) * t);
+  return `rgb(${r},${g},${bl})`;
+}
+
 function drawGame(
   canvas: HTMLCanvasElement,
   rs: RenderState,
@@ -366,9 +393,11 @@ function drawGame(
     }
   }
 
-  // Draw flesh chunks
-  ctx.fillStyle = renderCfg?.chunk_color ?? '#f43f5e';
+  // Draw flesh chunks with decay-based color lerp
+  const chunkColor = renderCfg?.chunk_color ?? '#f43f5e';
+  const coreColor = renderCfg?.algae_core_color ?? '#eab308';
   for (const c of rs.chunks) {
+    ctx.fillStyle = lerpColor(chunkColor, coreColor, c.decay_ratio ?? 0);
     ctx.beginPath();
     ctx.arc(c.x, c.depth, c.radius, 0, Math.PI * 2);
     ctx.fill();
@@ -379,6 +408,22 @@ function drawGame(
 
   // Draw sharks batched by color
   drawSharksBatched(ctx, rs.sharks);
+
+  // Draw depth band labels along both canvas edges
+  const bands = (data as { depth_bands?: Array<{ id: string; top: number; bottom: number }> }).depth_bands;
+  if (bands) {
+    ctx.font = '12px sans-serif';
+    ctx.textBaseline = 'middle';
+    for (const band of bands) {
+      const midDepth = (band.top + band.bottom) / 2;
+      const label = DEPTH_BAND_LABELS[band.id] ?? band.id;
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.textAlign = 'left';
+      ctx.fillText(label, 4, midDepth);
+      ctx.textAlign = 'right';
+      ctx.fillText(label, world.width - 4, midDepth);
+    }
+  }
 
   ctx.restore();
 }
