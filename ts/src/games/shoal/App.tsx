@@ -108,6 +108,11 @@ export default function App({ session }: GameRendererProps) {
       gameLabel="SHOAL"
       gameId="shoal"
       phase="2.0"
+      headerExtra={
+        <button className="game-shell-back" onClick={() => setScreen('title')}>
+          ← Title
+        </button>
+      }
       statusArea={
         <div className="shoal-status">
           <span>Fish {stats.fish_count}</span>
@@ -115,9 +120,6 @@ export default function App({ session }: GameRendererProps) {
           <span>Algae {stats.algae_count}</span>
           <span>Chunks {stats.chunk_count}</span>
           <span>Seed {stats.seed}</span>
-          <button className="shoal-back-to-title" onClick={() => setScreen('title')}>
-            ← Title
-          </button>
         </div>
       }
       footer={

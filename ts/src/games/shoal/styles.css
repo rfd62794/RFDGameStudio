@@ -293,21 +293,3 @@
   height: 100%;
   opacity: 0.5;
 }
-
-/* ─── Back to Title ────────────────────────────────────────────── */
-
-.shoal-back-to-title {
-  background: none;
-  border: 1px solid #334155;
-  color: #94a3b8;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
-}
-
-.shoal-back-to-title:hover {
-  color: #e2e8f0;
-  border-color: #3b82f6;
-}
