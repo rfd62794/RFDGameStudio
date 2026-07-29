@@ -2982,3 +2982,56 @@ The improvement (6.02x → 5.60x) is measurable but modest because the grazing l
 - `daily_seed()` verified: returns `20260729`, two calls with `seed="daily"` produce identical reef layouts.
 - `git diff --stat 7854d37~1`: `state.lua`, `test_shoal.py`, `App.tsx` (3 files, all in scope).
 - Screenshots: Shoal is a browser canvas game — visual verification of depth ticks must be done manually in the browser.
+
+---
+
+## Shared Menu Components & Shoal Title Screen (v2.31.0)
+
+**Directive:** Extract shared menu components from slither_rogue's existing `MainMenu.tsx` and build Shoal's new title screen on top of them. Refactoring the existing consumer is the real validation.
+
+### Shared components (`ts/src/components/`)
+
+**`MenuShell.tsx`** — Extracted shell layout: title, subtitle, optional `heroSlot`, content grid, CTA button. Supports per-element `classNames` overrides so each game can use its own CSS classes. `beforeInner` slot for pre-inner content (slither_rogue's bg glows + badge). `heroSlot` is optional — slither_rogue omits it, Shoal passes `ReefPreview`.
+
+**`OptionSelectGroup.tsx`** — Extracted labeled-row-of-buttons-with-active-state pattern. Generic `<T>` over option values. Supports `renderOption` slot for custom button content (slither_rogue's color swatches use it for the two-dot color preview). Per-element `classNames` overrides.
+
+### slither_rogue refactor (`MainMenu.tsx`)
+- All three option groups (color picker, movement controls, run duration) now use `OptionSelectGroup` with `classNames` passing the existing `sr-` classes.
+- Shell layout (title, subtitle, grid, CTA) now uses `MenuShell` with `classNames` passing `sr-` classes.
+- **Zero `<button>` elements remain in `MainMenu.tsx`** — all button rendering delegated to shared components.
+- `Play` icon import removed (CTA button now rendered by `MenuShell`).
+- Visual appearance unchanged — same CSS classes, same DOM structure (buttons inside option rows, same class names).
+
+### Shoal title screen (`TitleScreen.tsx`, `ReefPreview.tsx`)
+- **`ReefPreview`**: Own lightweight session using `init_game`/`tick_game` with preview-only spawn params (18 fish, 3 sharks, 3 hubs). Reuses `drawGame` verbatim (exported from `App.tsx`). No HUD, no input handling. Rendered at 50% opacity behind the title screen content.
+- **`TitleScreen`**: Built on `MenuShell` with `ReefPreview` as `heroSlot`. Four scenario presets using `OptionSelectGroup`:
+  - Balanced Reef (60/8/6), Sparse Reef (30/4/4), Feeding Frenzy (50/16/5), Lush Garden (70/4/10)
+- Three start actions: "Start Game" (CTA, uses selected scenario + null seed), "🎲 Random Seed", "📅 Today's Reef" (uses `seed: 'daily'`).
+- Each action directly starts the game — no separate confirm step.
+
+### App.tsx changes
+- Added `screen: 'title' | 'game'` state; renders `TitleScreen` first.
+- `handleStart` writes scenario config into `session.files.data.spawn` and transitions to game screen.
+- **Removed all in-game seed controls**: `seedInput` state, "New Reef" button, "🎲 Random Seed" button, seed input field, seed hint text.
+- Added "← Title" button in status area to return to title screen.
+- `drawGame` exported for reuse by `ReefPreview`.
+
+### Files touched
+- `ts/src/components/MenuShell.tsx` (new)
+- `ts/src/components/OptionSelectGroup.tsx` (new)
+- `ts/src/components/index.ts` (exports)
+- `ts/src/games/slither_rogue/components/MainMenu.tsx` (refactored)
+- `ts/src/games/shoal/components/TitleScreen.tsx` (new)
+- `ts/src/games/shoal/components/ReefPreview.tsx` (new)
+- `ts/src/games/shoal/App.tsx` (screen state, removed seed controls)
+- `ts/src/games/shoal/styles.css` (title screen + reef preview + back-to-title CSS)
+
+### Verification
+- Pre-flight: `npx tsc --noEmit` — 40 pre-existing errors in other games, zero in shoal/slither_rogue/components.
+- Post-implementation: 40 errors (same baseline), zero new errors.
+- `studio_build` → success, built in 6.16s.
+- `pytest tests\test_shoal.py -q` → 103 passed in 49.07s.
+- `git diff --stat c3729cb~1`: 8 files (6 from §1 + `index.ts` exports + `styles.css` for title screen styling).
+- Zero `<button>` elements in refactored `MainMenu.tsx` — all delegated to shared components.
+- Zero seed control references in `App.tsx` toolbar (`seedInput`, `New Reef`, `Random Seed`, `seed-hint` all removed).
+- Browser preview running at `http://localhost:5174/arcade/rfdgamestudio/` for visual verification.
