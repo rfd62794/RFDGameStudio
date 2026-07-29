@@ -111,6 +111,7 @@ function force_separate(x, y, neighbors, radius_sq, weight, max_force)
 end
 
 function force_avoid(x, y, obstacles, radius_sq, weight, max_force, exclude_id)
+    if not obstacles then return 0, 0 end
     local sx, sy = 0, 0
     for _, o in ipairs(obstacles) do
         if o.id ~= exclude_id then

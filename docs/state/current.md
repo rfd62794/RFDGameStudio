@@ -2796,3 +2796,44 @@ Baseline confirmed before any change (per directive's STOP gate): `uv run pytest
 - `VERSION` bumped `2.26.0` → `2.27.0`.
 - Test proof: `.venv\Scripts\python.exe -m pytest tests\test_shoal.py -q` → **89 passed** in 6.14s.
 - TypeScript build: `studio_build` → success, built in 5.41s.
+
+---
+
+## Shoal — Reef Tuning & Chunk Avoidance (v2.27.0 → v2.28.0)
+
+**Directive:** Two playtest-driven fixes: (1) rebalance starvation/decomposition with empirically tested values, (2) add creature-vs-chunk obstacle avoidance for fish and sharks.
+
+### Tuning values (`data.yaml`)
+
+Empirically tested against default population (60 fish, 8 sharks, 6 hubs, seed=42, 2400 ticks at dt=0.25 = 10 simulated minutes):
+
+- `algae.regrow_cooldown`: 3.0 → **10.0** — slower regrowth gives nodules more dead time, but alone can't force 8 independent timers to sync.
+- `algae.starvation_seconds`: 30 → **8** — the real lever. With 8 nodules on independent cooldowns, getting all 8 simultaneously dead for 30s was nearly impossible; 8s produces 2 starvation events in 10 min.
+- `flesh_chunk.decompose_radius`: 100 → **450** — at 100, most far-field chunk deaths minted new cores (13 new cores in 10 min, uncapped growth). At 450, most deaths reinforce existing cores (3 new cores, bounded).
+
+### Chunk avoidance (`steering.lua`)
+
+- New `force_avoid(x, y, obstacles, radius_sq, weight, max_force, exclude_id)` — variant of `force_separate` without the `.alive` check (chunks don't have that field), plus optional `exclude_id` for sharks to skip their currently-pursued chunk. Guards against nil `obstacles` for test stubs.
+- `compute_fish_forces`: Added `force_avoid` call after boids block, before depth/wander. Fish avoid all chunks unconditionally (no `exclude_id`).
+- `compute_shark_forces`: Added `target_chunk_id = nil` as outer-scope local at function top, set to `nearest_chunk.id` inside the `elseif nearest_chunk` branch. `force_avoid` call placed after all branches, unconditionally, before `return fx, fy, had_target`. **Scoping approach: outer-scope local** (`target_chunk_id` declared at function top, set inside the branch) — the existing `nearest_chunk` local was in scope at the return point but only the branch knew whether it was actually being pursued.
+
+### New config (`data.yaml`)
+
+- `steering_weights.fish.avoid_chunk`: **0.8**
+- `steering_weights.shark.avoid_chunk`: **0.5**
+- `avoid_chunk_radius`: **25** (top-level, shared by both species — chunks are the same physical size regardless of which creature is avoiding)
+
+### Tests (6 new, 95 total)
+
+1. `test_starvation_fires_under_default_population_within_real_window` — 2400 ticks at dt=0.25 with default population and new tuning values. Monkey-patches `update_algae` with a starvation event counter (new cores can spawn in the same tick via `decompose_chunk`, masking count drops). Asserts ≥1 event.
+2. `test_core_count_growth_bounded_under_new_decompose_radius` — same run, asserts core count never exceeds 2× starting count.
+3. `test_force_avoid_zero_outside_radius_real_repulsion_inside` — unit test: far obstacle → (0,0), near obstacle → nonzero force pointing away.
+4. `test_force_avoid_excludes_given_id` — two obstacles at equal distance, one excluded → force reflects only the non-excluded one.
+5. `test_fish_steering_includes_measurable_deflection_near_chunk` — real `compute_fish_forces` call with chunk within `avoid_chunk_radius` differs from baseline with no chunks.
+6. `test_hunting_shark_still_avoids_non_targeted_chunks` — shark pursuing one chunk still shows avoidance of a second non-targeted chunk.
+
+**Pre-existing test fix:** `test_algae_core_count_can_both_rise_and_fall_across_a_run` updated with `decompose_radius=50` override (the new default of 450 prevents new core spawning with only 3 hubs in a 1200px world).
+
+- `VERSION` bumped `2.27.0` → `2.28.0`.
+- Test proof: `.venv\Scripts\python.exe -m pytest tests\test_shoal.py -q` → **95 passed** in 16.89s.
+- `git diff --stat HEAD` confirms only `steering.lua` and `tests/test_shoal.py` touched (data.yaml was committed in a prior session).

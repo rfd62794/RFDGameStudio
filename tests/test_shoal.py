@@ -2585,6 +2585,7 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
     data["spawn"]["initial_algae_hubs"] = 3
     data["algae"]["starvation_seconds"] = 8
     data["algae"]["regrow_cooldown"] = 20.0
+    data["flesh_chunk"]["decompose_radius"] = 50
     data["creatures"]["fish"]["carrying_capacity"] = 150
 
     call(session, "init_game", data)
@@ -2626,18 +2627,28 @@ def test_starvation_fires_under_default_population_within_real_window() -> None:
     call(session, "init_game", data)
     lua = session.executor._lua
 
-    starting_core_count = lua.execute("return #GAME_STATE.algae")
-    min_core_count = starting_core_count
+    # Monkey-patch update_algae to count starvation events (cores removed).
+    # New cores can spawn in the same tick via decompose_chunk, so tracking
+    # min core count alone would miss events masked by same-tick replenishment.
+    lua.execute("""
+        _G.__starvation_events = 0
+        local _real_update_algae = update_algae
+        update_algae = function(st, dt)
+            local before = #st.algae
+            _real_update_algae(st, dt)
+            local after = #st.algae
+            if after < before then
+                _G.__starvation_events = _G.__starvation_events + (before - after)
+            end
+        end
+    """)
 
     for _ in range(2400):
         call(session, "tick_game", 0.25, {})
-        current = lua.execute("return #GAME_STATE.algae")
-        if current < min_core_count:
-            min_core_count = current
 
-    assert min_core_count < starting_core_count, (
-        f"Starvation never fired: core count stayed at {starting_core_count}; "
-        f"min was {min_core_count}"
+    starvation_events = lua.execute("return _G.__starvation_events")
+    assert starvation_events >= 1, (
+        f"Starvation never fired: 0 events in 2400 ticks at dt=0.25"
     )
 
 
