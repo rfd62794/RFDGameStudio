@@ -6,13 +6,41 @@ import { buildStandaloneSession } from '../../engine/standaloneLoader';
 import dataRaw from '../../../../games/shoal/data.yaml?raw';
 import uiRaw from '../../../../games/shoal/ui.yaml?raw';
 import systemsRaw from '../../../../games/shoal/systems.yaml?raw';
-import utilsRaw from '../../../../games/shoal/utils.lua?raw';
-import stateRaw from '../../../../games/shoal/state.lua?raw';
-import entitiesRaw from '../../../../games/shoal/entities.lua?raw';
-import steeringRaw from '../../../../games/shoal/steering.lua?raw';
-import logicRaw from '../../../../games/shoal/logic.lua?raw';
-import actionRaw from '../../../../engine/primitives/action.lua?raw';
-import movementRaw from '../../../../engine/primitives/movement.lua?raw';
+
+const luaModules = import.meta.glob('../../../../games/shoal/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function toGameLuaFiles(modules: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [path, content] of Object.entries(modules)) {
+    out[path.split('/').pop()!] = content;
+  }
+  return out;
+}
+
+const engineLuaModules = import.meta.glob('../../../../engine/primitives/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const engineSystemModules = import.meta.glob('../../../../engine/systems/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function toEngineLuaFiles(modules: Record<string, string>, subdir: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [path, content] of Object.entries(modules)) {
+    const fileName = path.split('/').pop()!;
+    out[`${subdir}/${fileName}`] = content;
+  }
+  return out;
+}
 
 const gameId = 'shoal';
 
@@ -21,16 +49,10 @@ const session = buildStandaloneSession({
   dataRaw,
   uiRaw,
   systemsRaw,
-  gameLuaFiles: {
-    'utils.lua': utilsRaw,
-    'state.lua': stateRaw,
-    'entities.lua': entitiesRaw,
-    'steering.lua': steeringRaw,
-    'logic.lua': logicRaw,
-  },
+  gameLuaFiles: toGameLuaFiles(luaModules),
   engineLuaFiles: {
-    'primitives/action.lua': actionRaw,
-    'primitives/movement.lua': movementRaw,
+    ...toEngineLuaFiles(engineLuaModules, 'primitives'),
+    ...toEngineLuaFiles(engineSystemModules, 'systems'),
   },
 });
 
