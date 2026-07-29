@@ -8,6 +8,8 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
 import { MECHANICS_COPY } from './mechanicsCopy';
+import TitleScreen from './components/TitleScreen';
+import type { StartConfig } from './components/TitleScreen';
 import './styles.css';
 
 
@@ -75,9 +77,9 @@ export default function App({ session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const [screen, setScreen] = useState<'title' | 'game'>('title');
   const [tool, setTool] = useState<ToolMode>('fish');
   const [reefKey, setReefKey] = useState(0);
-  const [seedInput, setSeedInput] = useState('');
   const [showMechanics, setShowMechanics] = useState(false);
   const [stats, setStats] = useState<Stats>({
     fish_count: 0,
@@ -86,6 +88,20 @@ export default function App({ session }: GameRendererProps) {
     chunk_count: 0,
     seed: 0,
   });
+
+  const handleStart = (config: StartConfig) => {
+    const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
+    spawn.initial_fish = config.initial_fish;
+    spawn.initial_sharks = config.initial_sharks;
+    spawn.initial_algae_hubs = config.initial_algae_hubs;
+    spawn.seed = config.seed;
+    setReefKey((k) => k + 1);
+    setScreen('game');
+  };
+
+  if (screen === 'title') {
+    return <TitleScreen session={session} onStart={handleStart} />;
+  }
 
   return (
     <GameShell
@@ -99,6 +115,9 @@ export default function App({ session }: GameRendererProps) {
           <span>Algae {stats.algae_count}</span>
           <span>Chunks {stats.chunk_count}</span>
           <span>Seed {stats.seed}</span>
+          <button className="shoal-back-to-title" onClick={() => setScreen('title')}>
+            ← Title
+          </button>
         </div>
       }
       footer={
@@ -131,45 +150,6 @@ export default function App({ session }: GameRendererProps) {
             variant="neutral"
             size="sm"
           />
-          <div className="shoal-seed-control">
-            <input
-              type="number"
-              value={seedInput}
-              onChange={(e) => setSeedInput(e.target.value)}
-              placeholder="Seed"
-              className="shoal-seed-input"
-            />
-            <Button
-              id="shoal-new-reef"
-              label="New Reef"
-              onClick={() => {
-                const parsed = parseInt(seedInput, 10);
-                const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
-                if (seedInput.trim() === '' || isNaN(parsed)) {
-                  spawn.seed = null;
-                } else {
-                  spawn.seed = parsed;
-                }
-                setReefKey((k) => k + 1);
-              }}
-              variant="neutral"
-              size="sm"
-            />
-            <Button
-              id="shoal-random-seed"
-              label="🎲 Random Seed"
-              onClick={() => {
-                const randomSeed = Math.floor(Math.random() * 0xFFFFFFFF);
-                setSeedInput(String(randomSeed));
-                const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
-                spawn.seed = randomSeed;
-                setReefKey((k) => k + 1);
-              }}
-              variant="neutral"
-              size="sm"
-            />
-            <span className="shoal-seed-hint">Same seed reproduces this starting reef. The simulation itself is not seeded.</span>
-          </div>
         </div>
         <ShoalCanvas key={reefKey} session={session} tool={tool} onStats={setStats} />
         {showMechanics && (
