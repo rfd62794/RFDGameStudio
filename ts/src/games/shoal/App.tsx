@@ -108,6 +108,8 @@ export default function App({ session }: GameRendererProps) {
       gameLabel="SHOAL"
       gameId="shoal"
       phase="2.0"
+      mode={mode}
+      arcadeBaseUrl={arcadeBaseUrl}
       headerExtra={
         <button className="game-shell-back" onClick={() => setScreen('title')}>
           ← Title

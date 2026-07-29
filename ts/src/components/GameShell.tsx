@@ -16,6 +16,10 @@ export interface GameShellProps {
   footer?: ReactNode;
   /** Optional extra content rendered next to the back button (e.g. game-specific nav) */
   headerExtra?: ReactNode;
+  /** 'arcade' (embedded, strips ?game=) or 'standalone' (navigates to arcadeBaseUrl) */
+  mode?: 'arcade' | 'standalone';
+  /** External arcade URL for standalone/itch builds */
+  arcadeBaseUrl?: string;
   className?: string;
 }
 
@@ -32,6 +36,8 @@ export function GameShell({
   children,
   footer,
   headerExtra,
+  mode = 'arcade',
+  arcadeBaseUrl,
   className = '',
 }: GameShellProps) {
   return (
@@ -42,7 +48,7 @@ export function GameShell({
             <button
               type="button"
               className="game-shell-back"
-              onClick={navigateHome}
+              onClick={() => navigateHome(mode, arcadeBaseUrl)}
               aria-label="Back to Arcade"
             >
               ← Arcade
