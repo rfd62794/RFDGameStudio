@@ -263,16 +263,9 @@ function compute_fish_forces(f, st, hash)
     local cohere_x, cohere_y = force_cohere(f.x, f.depth, others, school_radius_sq, weights.cohere, f.max_force)
     fx, fy = fx + cohere_x, fy + cohere_y
 
-    -- avoid all nodes in range except the current seek target
+    -- avoid chunks (fish never eat chunks, so every chunk is avoided)
     local avoid_radius_sq = data.avoid_chunk_radius * data.avoid_chunk_radius
-    local avoid_targets = {}
-    for _, entry in ipairs(nearby_algae or {}) do
-        avoid_targets[#avoid_targets + 1] = entry.n
-    end
-    for _, c in ipairs(st.chunks or {}) do
-        avoid_targets[#avoid_targets + 1] = c
-    end
-    local avoid_x, avoid_y = force_avoid(f.x, f.depth, avoid_targets, avoid_radius_sq, weights.avoid_chunk, f.max_force, nearest_nodule and nearest_nodule.id)
+    local avoid_x, avoid_y = force_avoid(f.x, f.depth, st.chunks, avoid_radius_sq, weights.avoid_chunk, f.max_force)
     fx, fy = fx + avoid_x, fy + avoid_y
 
     -- depth arrival: return to and settle at the fish's home depth
@@ -361,24 +354,9 @@ function compute_shark_forces(s, st, hash)
         fy = fy + home_bias
     end
 
-    -- avoid all nodes in range except the one currently being pursued (if any)
+    -- avoid all chunks except the one currently being pursued (if any)
     local avoid_radius_sq = data.avoid_chunk_radius * data.avoid_chunk_radius
-    local avoid_targets = {}
-    if hash and hash.algae then
-        local bw = data.spatial_hash.bucket_width
-        local bd = data.spatial_hash.bucket_depth
-        local sbx = math.floor(s.x / bw) % math.ceil(st.world.width / bw)
-        local sby = math.floor(s.depth / bd) % math.ceil(st.world.height / bd)
-        local sby_range = math.ceil(data.avoid_chunk_radius / bd) + 1
-        local nearby_algae_for_shark = get_nearby(hash, sbx, sby, "algae", 1, sby_range)
-        for _, entry in ipairs(nearby_algae_for_shark or {}) do
-            avoid_targets[#avoid_targets + 1] = entry.n
-        end
-    end
-    for _, c in ipairs(st.chunks) do
-        avoid_targets[#avoid_targets + 1] = c
-    end
-    local avoid_x, avoid_y = force_avoid(s.x, s.depth, avoid_targets, avoid_radius_sq, weights.avoid_chunk, s.max_force, target_chunk_id)
+    local avoid_x, avoid_y = force_avoid(s.x, s.depth, st.chunks, avoid_radius_sq, weights.avoid_chunk, s.max_force, target_chunk_id)
     fx, fy = fx + avoid_x, fy + avoid_y
 
     return fx, fy, had_target

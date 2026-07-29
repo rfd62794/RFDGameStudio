@@ -1,5 +1,4 @@
 -- shoal/utils.lua — shared math helpers
--- dist2 is provided by engine/primitives/movement.lua (loaded before game files).
 
 function clamp(val, min, max)
     return math.max(min, math.min(max, val))
@@ -17,6 +16,11 @@ end
 
 function clamp_depth(d, world)
     return clamp(d, world.surface_depth, world.floor_depth)
+end
+
+function dist2(ax, ay, bx, by)
+    local dx, dy = ax - bx, ay - by
+    return dx * dx + dy * dy
 end
 
 function distance(ax, ay, bx, by)

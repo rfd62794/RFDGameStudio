@@ -1,5 +1,5 @@
 engine_version: "1.0"
-engine_systems: []   # no shared engine system wiring; dist2 sourced from engine/primitives/movement.lua
+engine_systems: []   # self-contained port — no shared engine system wiring
 
 lua_files:
   - utils.lua
