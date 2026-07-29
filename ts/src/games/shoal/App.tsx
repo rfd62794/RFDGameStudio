@@ -7,19 +7,16 @@ import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode } from './types';
+import { MECHANICS_COPY } from './mechanicsCopy';
 import './styles.css';
 
 
 let backgroundCache: HTMLCanvasElement | null = null;
 
-const DEPTH_BAND_LABELS: Record<string, string> = {
-  sunlit_surface: 'Sunlit Surface',
-  epipelagic: 'Epipelagic',
-  mesopelagic: 'Mesopelagic',
-  bathypelagic: 'Bathypelagic',
-  abyssopelagic: 'Abyssopelagic',
-  hadopelagic: 'Hadopelagic',
-};
+function formatDepthLabel(topUnits: number, bottomUnits: number): string {
+  const toFeet = (m: number) => Math.round((m * 3.28084) / 10) * 10;
+  return `${topUnits}\u2013${bottomUnits}m (${toFeet(topUnits)}\u2013${toFeet(bottomUnits)}ft)`;
+}
 
 function getBackgroundCache(world: { width: number; height: number }): HTMLCanvasElement {
   if (backgroundCache) return backgroundCache;
@@ -69,6 +66,7 @@ export default function App({ session }: GameRendererProps) {
   const [tool, setTool] = useState<ToolMode>('fish');
   const [reefKey, setReefKey] = useState(0);
   const [seedInput, setSeedInput] = useState('');
+  const [showMechanics, setShowMechanics] = useState(false);
   const [stats, setStats] = useState<Stats>({
     fish_count: 0,
     shark_count: 0,
@@ -114,6 +112,13 @@ export default function App({ session }: GameRendererProps) {
               className={tool === t ? 'shoal-tool active' : 'shoal-tool'}
             />
           ))}
+          <Button
+            id="shoal-mechanics"
+            label="Mechanics"
+            onClick={() => setShowMechanics(true)}
+            variant="neutral"
+            size="sm"
+          />
           <div className="shoal-seed-control">
             <input
               type="number"
@@ -155,6 +160,22 @@ export default function App({ session }: GameRendererProps) {
           </div>
         </div>
         <ShoalCanvas key={reefKey} session={session} tool={tool} onStats={setStats} />
+        {showMechanics && (
+          <div className="shoal-mechanics-overlay" onClick={() => setShowMechanics(false)}>
+            <div className="shoal-mechanics-popup" onClick={(e) => e.stopPropagation()}>
+              <div className="shoal-mechanics-header">
+                <span className="shoal-mechanics-title">Mechanics</span>
+                <button
+                  className="shoal-mechanics-close"
+                  onClick={() => setShowMechanics(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <pre className="shoal-mechanics-text">{MECHANICS_COPY}</pre>
+            </div>
+          </div>
+        )}
       </div>
     </GameShell>
   );
@@ -427,7 +448,7 @@ function drawGame(
     ctx.textBaseline = 'middle';
     for (const band of bands) {
       const midDepth = (band.top + band.bottom) / 2;
-      const label = DEPTH_BAND_LABELS[band.id] ?? band.id;
+      const label = formatDepthLabel(band.top, band.bottom);
       ctx.fillStyle = 'rgba(255,255,255,0.7)';
       ctx.textAlign = 'left';
       ctx.fillText(label, 4, midDepth);
