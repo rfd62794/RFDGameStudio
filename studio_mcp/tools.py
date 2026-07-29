@@ -18,6 +18,7 @@ Fifteen tools exposed to Claude:
   studio_process_intake      — hash and version dropped AI-Studio zip files
   studio_promote_to_examples — extract, build, and deploy an intake concept to the arcade
   studio_generate_registry_entry — create config.ts + registry entry for a new external-tier game
+  studio_scaffold_game — scaffold a new game skeleton from an examples concept (ADR-012 Stage 3)
 
 All tools return dicts. Errors are returned as {"error": str, "tool": str}.
 No exceptions are raised to the MCP client.
@@ -41,6 +42,7 @@ from studio.executor import LuaError
 from studio.runtime import load_game
 from studio_mcp.game_metadata import write_game_metadata
 from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
+from studio_mcp.scaffold import studio_scaffold_game
 from studio_mcp.session_store import create_session, get_session
 from studio_mcp.verify import verify_arcade_deploy
 

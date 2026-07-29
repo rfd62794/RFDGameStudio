@@ -6,7 +6,8 @@ Exposes fifteen tools to Claude:
   studio_run_tests, studio_balance_report, studio_get_state,
   studio_screenshot, studio_build,
   studio_write_arcade_index, studio_write_arcade_page, studio_deploy_arcade,
-  studio_process_intake, studio_promote_to_examples
+  studio_process_intake, studio_promote_to_examples,
+  studio_scaffold_game
 
 Run with:
   uv run uvicorn studio_mcp.server:asgi_app --host 0.0.0.0 --port 8025
@@ -34,6 +35,7 @@ from studio_mcp.tools import (
     studio_promote_to_examples,
     studio_run_headless,
     studio_run_tests,
+    studio_scaffold_game,
     studio_screenshot,
     studio_validate_game,
     studio_write_arcade_index,
@@ -59,6 +61,7 @@ mcp.tool()(studio_write_arcade_page)
 mcp.tool()(studio_deploy_arcade)
 mcp.tool()(studio_process_intake)
 mcp.tool()(studio_promote_to_examples)
+mcp.tool()(studio_scaffold_game)
 
 
 async def health(request: Request) -> Response:
