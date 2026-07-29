@@ -94,6 +94,7 @@ algae:
   max_sunk_depth: 600
   min_surface_depth: 80
   depth_lerp_speed: 20
+  starvation_seconds: 30
 
 flesh_chunk:
   radius: 5
@@ -103,6 +104,8 @@ flesh_chunk:
   shark_eat_range: 20
   hunger_refund: 3
   floor_grace_time: 2.5
+  decompose_radius: 100
+  decompose_replenish_amount: 2.0
 
 depth_bands:
   - id: sunlit_surface
