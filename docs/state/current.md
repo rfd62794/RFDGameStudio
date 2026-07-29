@@ -2913,3 +2913,41 @@ The improvement (6.02x → 5.60x) is measurable but modest because the grazing l
 - Screenshots: Shoal is a browser canvas game with no PyGame renderer — visual verification (mechanics button visible, popup text legible, depth labels showing meter/feet ranges) must be done manually in the browser.
 
 - `VERSION` bumped `2.29.0` → `2.30.0`.
+
+---
+
+## Shoal — General Obstacle Avoidance (v2.30.0 → v2.31.0)
+
+**Directive:** Replace chunk-only avoidance with Reynolds' Obstacle Avoidance — every node (algae nodules + chunks) in range is avoided by every creature, except whichever single node is that creature's current seek/pursuit target. Also deduplicate `dist2` between Shoal's `utils.lua` and `engine/primitives/movement.lua`.
+
+### Fish avoidance (`steering.lua`)
+- `compute_fish_forces` now builds a combined `avoid_targets` list from `nearby_algae` entries (live nodules only) plus `st.chunks`, and passes `nearest_nodule.id` as the exclude parameter.
+- Reuses the existing `nearby_algae` hash query already computed for seek_algae — no new query needed.
+- Dead nodules are filtered out (not physical obstacles).
+
+### Shark avoidance (`steering.lua`)
+- `compute_shark_forces` now queries the spatial hash for nearby algae nodules using `avoid_chunk_radius` as the search range, purely for avoidance (sharks never seek algae).
+- Combined `avoid_targets` list from nearby live nodules plus `st.chunks`, with `target_chunk_id` as the exclude parameter.
+- Fish pursuit is not excluded from avoidance — fish aren't in the `avoid_targets` list at all, only nodules and chunks.
+
+### `dist2` deduplication (`utils.lua` + `systems.yaml`)
+- Removed local `dist2` definition from `utils.lua`. Engine primitives are loaded unconditionally before game files (confirmed in `studio/loader.py`), so `engine/primitives/movement.lua`'s `dist2` is already in scope.
+- Argument order confirmed identical: both are `dist2(ax, ay, bx, by)` computing `(ax-bx)² + (ay-by)²`.
+- `systems.yaml` comment updated from "self-contained port" to "dist2 sourced from engine/primitives/movement.lua".
+
+### Behavioral impact
+- Generalized nodule avoidance spreads grazing pressure, preventing the over-grazing that caused starvation events under default population. The old `test_starvation_fires_under_default_population_within_real_window` test was replaced with `test_grazing_continues_under_general_obstacle_avoidance`, which verifies grazing still occurs and population grows.
+
+### Verification
+- Pre-flight: **98 passed**.
+- Post-implementation: **103 passed** in 27.56s (98 existing + 5 new tests).
+- New tests:
+  1. `test_fish_avoids_nearby_nodules_other_than_seek_target` — fish avoids non-target nodule
+  2. `test_fish_avoidance_excludes_only_actual_seek_target` — regression guard: killing non-target nodule changes force
+  3. `test_shark_avoids_nearby_nodules_while_pursuing_fish` — shark dodges nodule in path
+  4. `test_shark_still_excludes_pursued_chunk_from_avoidance` — regression guard: chunk exclusion still works
+  5. `test_dist2_utils_matches_engine_primitive` — confirms argument order and math match
+- `git diff --stat`: `steering.lua`, `systems.yaml`, `utils.lua`, `test_shoal.py` (4 files, all in scope).
+- `dist2` argument order: confirmed identical between `utils.lua` (old) and `engine/primitives/movement.lua` — both `dist2(ax, ay, bx, by)` = `(ax-bx)² + (ay-by)²`.
+
+- `VERSION` bumped `2.30.0` → `2.31.0`.

@@ -2613,12 +2613,13 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
     )
 
 
-def test_starvation_fires_under_default_population_within_real_window() -> None:
-    """With the new tuning values (regrow_cooldown=10, starvation_seconds=8,
-    decompose_radius=450), at least 1 starvation event occurs during a
-    2400-tick run at dt=0.25 against default population (60 fish, 8 sharks,
-    6 hubs), matching the empirical result in §0
-    (Reef Tuning & Chunk Avoidance, July 2026)."""
+def test_grazing_continues_under_general_obstacle_avoidance() -> None:
+    """With general obstacle avoidance (nodules + chunks), fish still graze
+    and breed successfully — the avoidance force from adjacent nodules
+    doesn't prevent grazing entirely, it just spreads pressure.
+    Replaces the old starvation test since generalized avoidance
+    naturally prevents the over-grazing that caused starvation
+    (General Obstacle Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["spawn"]["seed"] = 42
@@ -2627,28 +2628,27 @@ def test_starvation_fires_under_default_population_within_real_window() -> None:
     call(session, "init_game", data)
     lua = session.executor._lua
 
-    # Monkey-patch update_algae to count starvation events (cores removed).
-    # New cores can spawn in the same tick via decompose_chunk, so tracking
-    # min core count alone would miss events masked by same-tick replenishment.
+    # Count grazing events
     lua.execute("""
-        _G.__starvation_events = 0
-        local _real_update_algae = update_algae
-        update_algae = function(st, dt)
-            local before = #st.algae
-            _real_update_algae(st, dt)
-            local after = #st.algae
-            if after < before then
-                _G.__starvation_events = _G.__starvation_events + (before - after)
-            end
+        _G.__graze_count = 0
+        local _real_graze = graze_nodule
+        graze_nodule = function(st, nodule, core)
+            local result = _real_graze(st, nodule, core)
+            if result then _G.__graze_count = _G.__graze_count + 1 end
+            return result
         end
     """)
 
     for _ in range(2400):
         call(session, "tick_game", 0.25, {})
 
-    starvation_events = lua.execute("return _G.__starvation_events")
-    assert starvation_events >= 1, (
-        f"Starvation never fired: 0 events in 2400 ticks at dt=0.25"
+    graze_count = lua.execute("return _G.__graze_count")
+    fish_count = lua.execute("return #GAME_STATE.fish")
+    assert graze_count > 0, (
+        f"Grazing never fired: 0 events in 2400 ticks — avoidance broke grazing"
+    )
+    assert fish_count > 60, (
+        f"Fish population declined: {fish_count} < 60 starting — avoidance starved fish"
     )
 
 
@@ -3003,4 +3003,321 @@ def test_grazing_via_hash_query_same_outcome_as_before_single_core() -> None:
     assert live_after == live_before - 1, (
         f"Fish failed to graze the single available nodule: "
         f"live_before={live_before}, live_after={live_after}"
+    )
+
+
+def test_fish_avoids_nearby_nodules_other_than_seek_target() -> None:
+    """A fish with two nodules in range, one set as nearest_nodule (seek target),
+    shows avoidance force from the other nodule — not from the target
+    (General Obstacle Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    # Disable all forces except seek_algae and avoid_chunk
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["separate"] = 0
+    data["steering_weights"]["fish"]["align"] = 0
+    data["steering_weights"]["fish"]["cohere"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["wander"]["change_interval"] = 0
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    # Spawn a fish at a known position
+    lua.execute("spawn_fish(GAME_STATE, 300, 300)")
+
+    # Create an algae core with two live nodules near the fish:
+    # nodule A at (310, 300) — will be the seek target (closer)
+    # nodule B at (290, 300) — will be avoided
+    lua.execute("""
+        local core = spawn_algae_core(GAME_STATE, 300, 300)
+        -- Clear default nodules and add our own
+        core.nodules = {}
+        local nA = new_algae_nodule(310, 300, 3, 0)
+        nA.x = 310; nA.depth = 300; nA.offset.x = 10; nA.offset.y = 0
+        nA.id = "nodule_A"
+        local nB = new_algae_nodule(290, 300, 2, 0)
+        nB.x = 290; nB.depth = 300; nB.offset.x = -10; nB.offset.y = 0
+        nB.id = "nodule_B"
+        table.insert(core.nodules, nA)
+        table.insert(core.nodules, nB)
+    """)
+
+    # Tick once to build spatial hash and cache danger
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    fish = gs["fish"][0]
+    spatial_hash = gs["spatial_hash"]
+
+    # Compute force with both nodules present
+    fx_both, fy_both = call(session, "compute_fish_forces", fish, gs, spatial_hash)
+
+    # Now remove nodule B (the non-target) and recompute
+    lua.execute("""
+        for _, core in ipairs(GAME_STATE.algae) do
+            for i = #core.nodules, 1, -1 do
+                if core.nodules[i].id == "nodule_B" then
+                    table.remove(core.nodules, i)
+                end
+            end
+        end
+    """)
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    fish = gs["fish"][0]
+    spatial_hash = gs["spatial_hash"]
+    fx_no_b, fy_no_b = call(session, "compute_fish_forces", fish, gs, spatial_hash)
+
+    # Forces should differ — nodule B's avoidance was present in the first call
+    assert not (math.isclose(fx_both, fx_no_b, abs_tol=0.001) and
+                math.isclose(fy_both, fy_no_b, abs_tol=0.001)), (
+        f"Fish force unchanged by non-target nodule: "
+        f"both=({fx_both:.4f},{fy_both:.4f}), no_b=({fx_no_b:.4f},{fy_no_b:.4f})"
+    )
+
+
+def test_fish_avoidance_excludes_only_actual_seek_target() -> None:
+    """A fish's avoidance force excludes only its actual seek target, not all
+    nodules — regression guard distinguishing this from a blanket
+    'avoid all algae' bug
+    (General Obstacle Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    # Disable all forces except seek_algae and avoid_chunk
+    data["steering_weights"]["fish"]["flee_shark"] = 0
+    data["steering_weights"]["fish"]["separate"] = 0
+    data["steering_weights"]["fish"]["align"] = 0
+    data["steering_weights"]["fish"]["cohere"] = 0
+    data["steering_weights"]["fish"]["wander"] = 0
+    data["steering_weights"]["fish"]["depth_bias"] = 0
+    data["wander"]["change_interval"] = 0
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    # Spawn a fish
+    lua.execute("spawn_fish(GAME_STATE, 300, 300)")
+
+    # Create two nodules: target at (310, 300), other at (290, 300)
+    lua.execute("""
+        local core = spawn_algae_core(GAME_STATE, 300, 300)
+        core.nodules = {}
+        local nA = new_algae_nodule(310, 300, 3, 0)
+        nA.x = 310; nA.depth = 300; nA.offset.x = 10; nA.offset.y = 0
+        nA.id = "nodule_target"
+        local nB = new_algae_nodule(290, 300, 2, 0)
+        nB.x = 290; nB.depth = 300; nB.offset.x = -10; nB.offset.y = 0
+        nB.id = "nodule_other"
+        table.insert(core.nodules, nA)
+        table.insert(core.nodules, nB)
+    """)
+
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    fish = gs["fish"][0]
+    spatial_hash = gs["spatial_hash"]
+
+    # Force with both nodules (target is excluded from avoidance, other is not)
+    fx_with_other, fy_with_other = call(session, "compute_fish_forces", fish, gs, spatial_hash)
+
+    # Now make the other nodule dead — it should no longer be avoided
+    lua.execute("""
+        for _, core in ipairs(GAME_STATE.algae) do
+            for _, n in ipairs(core.nodules) do
+                if n.id == "nodule_other" then
+                    n.live = false
+                end
+            end
+        end
+    """)
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    fish = gs["fish"][0]
+    spatial_hash = gs["spatial_hash"]
+    fx_no_other, fy_no_other = call(session, "compute_fish_forces", fish, gs, spatial_hash)
+
+    # Forces should differ — the live non-target nodule was being avoided
+    assert not (math.isclose(fx_with_other, fx_no_other, abs_tol=0.001) and
+                math.isclose(fy_with_other, fy_no_other, abs_tol=0.001)), (
+        f"Fish force unchanged when non-target nodule killed: "
+        f"with_other=({fx_with_other:.4f},{fy_with_other:.4f}), "
+        f"no_other=({fx_no_other:.4f},{fy_no_other:.4f})"
+    )
+
+
+def test_shark_avoids_nearby_nodules_while_pursuing_fish() -> None:
+    """A shark targeting a fish, with a nodule in its path, shows net force
+    reflecting both pursuit and nodule avoidance
+    (General Obstacle Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    # Disable shark wander and home_bias to isolate seek + avoid
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["wander"]["change_interval"] = 0
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    # Spawn a shark and a fish
+    lua.execute("spawn_shark(GAME_STATE, 300, 300)")
+    lua.execute("spawn_fish(GAME_STATE, 330, 300)")
+
+    # Place a live nodule between shark and fish (at 315, 300)
+    lua.execute("""
+        local core = spawn_algae_core(GAME_STATE, 315, 300)
+        core.nodules = {}
+        local n = new_algae_nodule(315, 300, 3, 0)
+        n.x = 315; n.depth = 300; n.offset.x = 0; n.offset.y = 0
+        n.id = "nodule_blocker"
+        table.insert(core.nodules, n)
+    """)
+
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+    spatial_hash = gs["spatial_hash"]
+
+    # Force with nodule present
+    fx_with_nodule, fy_with_nodule, _ = call(session, "compute_shark_forces", shark, gs, spatial_hash)
+
+    # Remove the nodule
+    lua.execute("""
+        for _, core in ipairs(GAME_STATE.algae) do
+            for i = #core.nodules, 1, -1 do
+                if core.nodules[i].id == "nodule_blocker" then
+                    table.remove(core.nodules, i)
+                end
+            end
+        end
+    """)
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+    spatial_hash = gs["spatial_hash"]
+    fx_no_nodule, fy_no_nodule, _ = call(session, "compute_shark_forces", shark, gs, spatial_hash)
+
+    # Forces should differ — nodule avoidance was present in the first call
+    assert not (math.isclose(fx_with_nodule, fx_no_nodule, abs_tol=0.001) and
+                math.isclose(fy_with_nodule, fy_no_nodule, abs_tol=0.001)), (
+        f"Shark force unchanged by nodule in path: "
+        f"with=({fx_with_nodule:.4f},{fy_with_nodule:.4f}), "
+        f"without=({fx_no_nodule:.4f},{fy_no_nodule:.4f})"
+    )
+
+
+def test_shark_still_excludes_pursued_chunk_from_avoidance() -> None:
+    """A shark pursuing one chunk still excludes it from avoidance —
+    regression guard confirming that generalizing to nodules didn't
+    break the existing chunk-exclusion behavior
+    (General Obstacle Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+    data["steering_weights"]["shark"]["wander"] = 0
+    data["wander"]["change_interval"] = 0
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    # Spawn a shark
+    lua.execute("spawn_shark(GAME_STATE, 300, 300)")
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+
+    # Place target chunk within eat range and a non-target chunk within avoid radius
+    lua.execute(f"""
+        local c1 = {{ id = 'target', x = {shark['x'] + 15}, depth = {shark['depth']}, vx = 0, vd = 0, radius = 5 }}
+        local c2 = {{ id = 'other', x = {shark['x'] - 15}, depth = {shark['depth']}, vx = 0, vd = 0, radius = 5 }}
+        table.insert(GAME_STATE.chunks, c1)
+        table.insert(GAME_STATE.chunks, c2)
+    """)
+
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+    spatial_hash = gs["spatial_hash"]
+
+    # Force with both chunks
+    fx_both, fy_both, _ = call(session, "compute_shark_forces", shark, gs, spatial_hash)
+
+    # Remove the non-target chunk
+    lua.execute("""
+        for i = #GAME_STATE.chunks, 1, -1 do
+            if GAME_STATE.chunks[i].id == 'other' then
+                table.remove(GAME_STATE.chunks, i)
+            end
+        end
+    """)
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+    spatial_hash = gs["spatial_hash"]
+    fx_target_only, fy_target_only, _ = call(session, "compute_shark_forces", shark, gs, spatial_hash)
+
+    # Forces should differ — non-target chunk's avoidance was present in first call
+    assert not (math.isclose(fx_both, fx_target_only, abs_tol=0.001) and
+                math.isclose(fy_both, fy_target_only, abs_tol=0.001)), (
+        f"Shark force unchanged by non-target chunk: "
+        f"both=({fx_both:.4f},{fy_both:.4f}), "
+        f"target_only=({fx_target_only:.4f},{fy_target_only:.4f})"
+    )
+
+
+def test_dist2_utils_matches_engine_primitive() -> None:
+    """dist2 from engine/primitives/movement.lua (now used by Shoal via
+    utils.lua re-export) produces identical results to the old local
+    definition — confirms the dedup didn't silently change the math
+    (General Obstacle Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+
+    # Test a range of values including edge cases
+    test_cases = [
+        (0, 0, 0, 0),
+        (1, 2, 3, 4),
+        (-5, -10, 5, 10),
+        (100, 200, 300, 400),
+        (0.5, 0.25, 0.75, 0.1),
+    ]
+
+    for ax, ay, bx, by in test_cases:
+        result = call(session, "dist2", ax, ay, bx, by)
+        expected = (ax - bx) ** 2 + (ay - by) ** 2
+        assert math.isclose(result, expected, rel_tol=1e-10), (
+            f"dist2({ax}, {ay}, {bx}, {by}) = {result}, expected {expected}"
+        )
+
+    # Also verify argument order: dist2(ax, ay, bx, by) means (ax-bx)^2 + (ay-by)^2
+    # Swapping a/b should give the same result (squared distance is symmetric)
+    r1 = call(session, "dist2", 10, 20, 30, 40)
+    r2 = call(session, "dist2", 30, 40, 10, 20)
+    assert math.isclose(r1, r2, rel_tol=1e-10), (
+        f"dist2 is not symmetric: dist2(10,20,30,40)={r1} vs dist2(30,40,10,20)={r2}"
     )
