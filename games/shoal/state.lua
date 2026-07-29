@@ -1,5 +1,10 @@
 -- shoal/state.lua — GAME_STATE shape and initialization helpers
 
+function daily_seed()
+    local t = os.date("!*t")  -- UTC, not local time
+    return t.year * 10000 + t.month * 100 + t.day
+end
+
 function new_game_state(data)
     local world = data.world
     return {
@@ -73,7 +78,13 @@ end
 
 function spawn_initial_entities(st, data)
     local world = data.world
-    local resolved_seed = data.spawn.seed or os.time()
+    local raw_seed = data.spawn.seed
+    local resolved_seed
+    if raw_seed == "daily" then
+        resolved_seed = daily_seed()
+    else
+        resolved_seed = raw_seed or os.time()
+    end
     local prng = make_prng(resolved_seed)
     st.resolved_seed = resolved_seed
 
