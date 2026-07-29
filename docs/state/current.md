@@ -3094,7 +3094,7 @@ Generated `entry.tsx` uses `import.meta.glob('../../../../games/{game_id}/*.lua'
 
 **Problem:** `navigateHome()` in `routing.ts` was `window.location.href = window.location.href.split('?')[0]` — correct for arcade-embedded mode (strips `?game=`), but in standalone/itch builds this just reloads the current page instead of navigating to the arcade website. `VITE_ARCADE_BASE_URL` was configured but unused.
 
-**Fix:** `navigateHome(mode='arcade', arcadeBaseUrl?)` — when `mode='standalone'` and `arcadeBaseUrl` is set, navigates to the external arcade URL. Default parameters preserve existing behavior for all arcade-embedded callers. `GameShell` passes `mode`/`arcadeBaseUrl` through to the back button's `onClick`. Shoal's `App.tsx` wires its already-computed `mode`/`arcadeBaseUrl` into `GameShell`.
+**Fix:** `navigateHome(mode='arcade', arcadeBaseUrl?)` — when `mode='standalone'` and `arcadeBaseUrl` is set, uses `window.open(arcadeBaseUrl, '_blank', 'noopener,noreferrer')` to open the arcade URL in a new tab. This is required because Shoal runs inside a cross-origin iframe on itch.io (`html-classic.itch.zone` embedded on `itch.io`) — `window.location.href` only navigates the iframe's own document, never the real browser tab. `window.open` from a direct click is not subject to cross-origin navigation restrictions in any browser. Default parameters preserve existing behavior for all arcade-embedded callers (strips `?game=`). `GameShell` passes `mode`/`arcadeBaseUrl` through to the back button's `onClick`. Shoal's `App.tsx` wires its already-computed `mode`/`arcadeBaseUrl` into `GameShell`.
 
 **Compatibility fix:** `GameLoader.tsx` had two `onClick={navigateHome}` direct assignments that needed wrapping to `onClick={() => navigateHome()}` — the signature change from `() => void` to `(mode?, arcadeBaseUrl?) => void` broke TypeScript's `MouseEventHandler` assignability. Zero behavior change (default `mode='arcade'`).
 
@@ -3114,8 +3114,8 @@ Generated `entry.tsx` uses `import.meta.glob('../../../../games/{game_id}/*.lua'
 ### Verification
 - Pre-flight: **553 passed**, 0 failed, 8 warnings. `tsc --noEmit`: 40 pre-existing errors, none in target files.
 - Post-change: **553 passed**, 0 failed. `tsc --noEmit`: 40 errors (same baseline, zero new).
-- Standalone build: `vite build --config vite.shoal.config.ts` → **2168 modules transformed, built in 4.08s**.
-- `VITE_ARCADE_BASE_URL` (`https://rfditservices.com/games/rfdgamestudio/`) confirmed present in built output — standalone back button navigates here.
+- Standalone build: `vite build --config vite.shoal.config.ts` → **2168 modules transformed, built in 3.86s**.
+- `window.open` with `VITE_ARCADE_BASE_URL` (`https://rfditservices.com/games/rfdgamestudio/`) confirmed in built output — standalone back button opens arcade in a new tab, working from inside cross-origin itch.io iframe.
 - Arcade-embedded back button behavior unchanged: `navigateHome()` with no args defaults to `mode='arcade'`, strips `?game=` (identical to original).
 - Entry.tsx diffed against `scaffold.py`'s template: **IDENTICAL — zero deviations beyond `game_id` substitution**.
-- `git diff --stat 96a8de1`: 7 files (5 from §1 + `GameLoader.tsx` compatibility fix + `dist-shoal/` build output).
+- Deployed to **itch.io** (`publisher.py deploy shoal --target itchio` → success) and **arcade website** (`studio_deploy_arcade` → 40 files uploaded, verification all ok).
