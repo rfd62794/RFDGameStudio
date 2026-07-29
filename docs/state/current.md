@@ -2882,3 +2882,34 @@ The improvement (6.02x → 5.60x) is measurable but modest because the grazing l
 - Test proof: `.venv\Scripts\python.exe -m pytest tests\test_shoal.py -q` → **98 passed** in 25.34s.
 - TypeScript build: `studio_build` → success, built in 7.21s.
 - `git diff --stat HEAD` confirms only `tests/test_shoal.py` touched (`logic.lua` and `App.tsx` were committed in prior session).
+
+---
+
+## Shoal — Mechanics Popup & Depth Units (v2.29.0 → v2.30.0)
+
+**Directive:** Two legibility fixes — a Mechanics button with real copy explaining what the reef does, and depth labels in meters/feet instead of oceanographic zone names.
+
+### Mechanics popup (`App.tsx` + new `mechanicsCopy.ts`)
+
+- New `mechanicsCopy.ts` module exports `MECHANICS_COPY` — a 6-paragraph explainer covering: nutrient recycling (algae→fish→sharks→algae), starvation memory ("once in a while"), depth temperature/light gradient, debris avoidance steering, non-scripted emergent balance, and seed reproducibility (starting layout only, not the run).
+- "Mechanics" button added to the toolbar row alongside Spawn Fish/Shark/Algae/Cull.
+- Popup is a dismissible overlay: click outside or × button to close. Styled with the existing dark theme (`#0f172a` background, `#e2e8f0` text).
+- CSS added to `styles.css` for `.shoal-mechanics-overlay`, `.shoal-mechanics-popup`, `.shoal-mechanics-header`, `.shoal-mechanics-close`, `.shoal-mechanics-text`.
+
+### Depth labels (`App.tsx`)
+
+- Replaced `DEPTH_BAND_LABELS` (zone-name lookup: "Sunlit Surface", "Epipelagic", etc.) with `formatDepthLabel(top, bottom)` function.
+- Labels now show meter/feet ranges computed from the real `data.depth_bands` values, e.g. `0–150m (0–490ft)`.
+- Feet rounded to nearest 10 for readability. Meters shown at full precision (already whole numbers).
+- Zone names removed entirely — no subtitle, tooltip, or fallback. Per directive: if zone names are missed later, that's an explicit follow-up ask.
+
+### Verification
+
+- Pre-flight: **98 passed** (performance directive landed first).
+- Post-implementation: **98 passed** in 24.99s (no Lua changes, no new Python tests — this is a presentational/TypeScript-only directive).
+- TypeScript build: `studio_build` → success, built in 5.51s.
+- `npx tsc --noEmit`: 40 errors, all in other games (horse_racing, mutant_battle_ball, slither_rogue) and test files — zero errors in `shoal/`.
+- `git diff --stat HEAD`: all changes committed (commits `9bd0278` for mechanics copy, prior commits for App.tsx and styles.css).
+- Screenshots: Shoal is a browser canvas game with no PyGame renderer — visual verification (mechanics button visible, popup text legible, depth labels showing meter/feet ranges) must be done manually in the browser.
+
+- `VERSION` bumped `2.29.0` → `2.30.0`.
