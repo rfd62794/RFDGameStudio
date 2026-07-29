@@ -222,8 +222,11 @@ function compute_fish_cold_rate(depth, data)
 end
 
 function update_algae(st, dt)
-    for _, core in ipairs(st.algae) do
-        update_algae_core(core, st, dt)
+    for i = #st.algae, 1, -1 do
+        local alive = update_algae_core(st.algae[i], st, dt)
+        if not alive then
+            table.remove(st.algae, i)
+        end
     end
 end
 
@@ -241,6 +244,7 @@ function update_chunks(st, dt)
         if c.depth >= floor_depth - 0.5 then
             c.floor_timer = (c.floor_timer or 0) + dt
             if c.floor_timer >= grace then
+                decompose_chunk(st, c)
                 table.remove(st.chunks, i)
                 st.stats.chunk_count = #st.chunks
             end
@@ -485,6 +489,7 @@ function build_render_state(st)
             x = c.x,
             depth = c.depth,
             radius = c.radius,
+            decay_ratio = c.floor_timer and math.min(1, c.floor_timer / st.data.flesh_chunk.floor_grace_time) or 0,
         })
     end
 

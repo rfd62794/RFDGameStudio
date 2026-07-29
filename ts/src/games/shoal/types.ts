@@ -30,6 +30,7 @@ export interface FleshChunk {
   x: number;
   depth: number;
   radius: number;
+  decay_ratio: number;
 }
 
 export interface Stats {
