@@ -99,6 +99,7 @@ function spawn_algae_core(st, x, depth)
         target_depth = depth,
         nodules = nodules,
         max_nodules = #nodules,
+        empty_for = 0,
     }
     st.algae[#st.algae + 1] = core
     return core
@@ -176,6 +177,12 @@ function update_algae_core(core, st, dt)
         end
     end
 
+    if live == 0 then
+        core.empty_for = (core.empty_for or 0) + dt
+    else
+        core.empty_for = 0
+    end
+
     local ratio = live / core.max_nodules
     local target = lerp(data.algae.max_sunk_depth, data.algae.min_surface_depth, ratio)
     local diff = target - core.depth
@@ -193,6 +200,31 @@ function update_algae_core(core, st, dt)
         n.cached_danger = compute_fish_cold_rate(n.depth, data)
     end
     core.x = wrap_x(core.x, st.world)
+
+    return core.empty_for < data.algae.starvation_seconds
+end
+
+function decompose_chunk(st, chunk)
+    local data = st.data
+    local radius = data.flesh_chunk.decompose_radius
+    local nearest_core, nearest_d2 = nil, nil
+    for _, core in ipairs(st.algae) do
+        local d2 = dist2(chunk.x, chunk.depth, core.x, core.depth)
+        if d2 <= radius * radius and (not nearest_d2 or d2 < nearest_d2) then
+            nearest_core, nearest_d2 = core, d2
+        end
+    end
+
+    if nearest_core then
+        local boost = data.flesh_chunk.decompose_replenish_amount
+        for _, n in ipairs(nearest_core.nodules) do
+            if not n.live then
+                n.cooldown = math.max(0, n.cooldown - boost)
+            end
+        end
+    else
+        spawn_algae_core(st, chunk.x, chunk.depth)
+    end
 end
 
 function graze_nodule(st, nodule, core)
