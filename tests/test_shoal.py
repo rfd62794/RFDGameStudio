@@ -2333,13 +2333,6 @@ def test_stats_seed_equals_resolved_seed_on_game_state() -> None:
     assert state["stats"]["seed"] == game_state["resolved_seed"] == 999
 
 
-def _deplete_core_nodules(st, core):
-    """Set all nodules in a core to dead with a long cooldown."""
-    for n in core["nodules"]:
-        n["live"] = False
-        n["cooldown"] = 999.0
-
-
 def test_decomposing_chunk_near_depleted_core_reduces_nodule_cooldowns() -> None:
     """A chunk decomposing within decompose_radius of a depleted core reduces
     its nodules' cooldowns but does not instantly revive them
@@ -2351,29 +2344,28 @@ def test_decomposing_chunk_near_depleted_core_reduces_nodule_cooldowns() -> None
     data["spawn"]["initial_algae_hubs"] = 1
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
 
-    core = st["algae"][1]
-    _deplete_core_nodules(st, core)
-    # Record cooldowns before decomposition
-    cooldowns_before = [n["cooldown"] for n in core["nodules"]]
+    lua.execute("""
+        for _, n in ipairs(GAME_STATE.algae[1].nodules) do
+            n.live = false
+            n.cooldown = 999.0
+        end
+    """)
 
-    # Place a chunk right at the core's position and decompose it
-    chunk = {
-        "id": "test_chunk",
-        "x": core["x"],
-        "depth": core["depth"],
-        "vx": 0,
-        "vd": 0,
-        "radius": data["flesh_chunk"]["radius"],
-    }
-    call(session, "decompose_chunk", st, chunk)
+    gs = session.executor.get_global("GAME_STATE")
+    cooldowns_before = [n["cooldown"] for n in gs["algae"][0]["nodules"]]
+    core_x = gs["algae"][0]["x"]
+    core_depth = gs["algae"][0]["depth"]
 
-    cooldowns_after = [n["cooldown"] for n in core["nodules"]]
-    # At least some cooldowns should have decreased
-    assert any(after < before for before, after in zip(cooldowns_before, cooldowns_after))
-    # No nodule should be instantly revived (live still False)
-    assert all(not n["live"] for n in core["nodules"])
+    lua.execute(f"""
+        decompose_chunk(GAME_STATE, {{ x = {core_x}, depth = {core_depth}, radius = 5 }})
+    """)
+
+    gs = session.executor.get_global("GAME_STATE")
+    cooldowns_after = [n["cooldown"] for n in gs["algae"][0]["nodules"]]
+    assert any(a < b for b, a in zip(cooldowns_before, cooldowns_after))
+    assert all(not n["live"] for n in gs["algae"][0]["nodules"])
 
 
 def test_decomposing_chunk_with_no_core_nearby_spawns_new_core() -> None:
@@ -2386,25 +2378,19 @@ def test_decomposing_chunk_with_no_core_nearby_spawns_new_core() -> None:
     data["spawn"]["initial_algae_hubs"] = 1
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    gs = session.executor.get_global("GAME_STATE")
+    core_count_before = len(gs["algae"])
+    existing_x = gs["algae"][0]["x"]
+    existing_depth = gs["algae"][0]["depth"]
 
-    existing_core = st["algae"][1]
-    core_count_before = len(st["algae"])
+    far_x = existing_x + data["flesh_chunk"]["decompose_radius"] + 200
+    lua = session.executor._lua
+    lua.execute(f"""
+        decompose_chunk(GAME_STATE, {{ x = {far_x}, depth = {existing_depth}, radius = 5 }})
+    """)
 
-    # Place a chunk far from the existing core (beyond decompose_radius)
-    far_x = existing_core["x"] + data["flesh_chunk"]["decompose_radius"] + 200
-    chunk = {
-        "id": "test_chunk",
-        "x": far_x,
-        "depth": existing_core["depth"],
-        "vx": 0,
-        "vd": 0,
-        "radius": data["flesh_chunk"]["radius"],
-    }
-    call(session, "decompose_chunk", st, chunk)
-
-    core_count_after = len(st["algae"])
-    assert core_count_after == core_count_before + 1
+    gs = session.executor.get_global("GAME_STATE")
+    assert len(gs["algae"]) == core_count_before + 1
 
 
 def test_decomposition_does_not_affect_cores_outside_decompose_radius() -> None:
@@ -2417,30 +2403,33 @@ def test_decomposition_does_not_affect_cores_outside_decompose_radius() -> None:
     data["spawn"]["initial_algae_hubs"] = 0
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
+    radius = data["flesh_chunk"]["decompose_radius"]
 
-    # Spawn two cores: one near origin, one far away
-    near_core = call(session, "spawn_algae_core", st, 100, 200)
-    far_core = call(session, "spawn_algae_core", st, 100 + data["flesh_chunk"]["decompose_radius"] + 200, 200)
-    _deplete_core_nodules(st, near_core)
-    _deplete_core_nodules(st, far_core)
+    lua.execute(f"""
+        _G.__near_core = spawn_algae_core(GAME_STATE, 100, 200)
+        _G.__far_core = spawn_algae_core(GAME_STATE, {100 + radius + 200}, 200)
+        for _, n in ipairs(_G.__near_core.nodules) do
+            n.live = false
+            n.cooldown = 999.0
+        end
+        for _, n in ipairs(_G.__far_core.nodules) do
+            n.live = false
+            n.cooldown = 999.0
+        end
+    """)
 
-    near_before = [n["cooldown"] for n in near_core["nodules"]]
-    far_before = [n["cooldown"] for n in far_core["nodules"]]
+    gs = session.executor.get_global("GAME_STATE")
+    near_before = [n["cooldown"] for n in gs["algae"][0]["nodules"]]
+    far_before = [n["cooldown"] for n in gs["algae"][1]["nodules"]]
 
-    # Decompose a chunk near the near_core only
-    chunk = {
-        "id": "test_chunk",
-        "x": near_core["x"],
-        "depth": near_core["depth"],
-        "vx": 0,
-        "vd": 0,
-        "radius": data["flesh_chunk"]["radius"],
-    }
-    call(session, "decompose_chunk", st, chunk)
+    lua.execute("""
+        decompose_chunk(GAME_STATE, { x = 100, depth = 200, radius = 5 })
+    """)
 
-    near_after = [n["cooldown"] for n in near_core["nodules"]]
-    far_after = [n["cooldown"] for n in far_core["nodules"]]
+    gs = session.executor.get_global("GAME_STATE")
+    near_after = [n["cooldown"] for n in gs["algae"][0]["nodules"]]
+    far_after = [n["cooldown"] for n in gs["algae"][1]["nodules"]]
 
     assert any(a < b for b, a in zip(near_before, near_after))
     assert far_after == far_before
@@ -2457,16 +2446,22 @@ def test_core_empty_for_less_than_starvation_seconds_survives() -> None:
     starvation = data["algae"]["starvation_seconds"]
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
 
-    core = st["algae"][1]
-    _deplete_core_nodules(st, core)
+    lua.execute("""
+        for _, n in ipairs(GAME_STATE.algae[1].nodules) do
+            n.live = false
+            n.cooldown = 999.0
+        end
+    """)
 
-    # Advance less than the starvation threshold
-    state = call(session, "tick_game", starvation - 1, {})
+    elapsed = 0
+    while elapsed < starvation - 1:
+        call(session, "tick_game", 0.1, {})
+        elapsed += 0.1
 
-    # Core should still be present
-    assert len(st["algae"]) >= 1
+    gs = session.executor.get_global("GAME_STATE")
+    assert len(gs["algae"]) >= 1
 
 
 def test_core_empty_for_longer_than_starvation_seconds_is_removed() -> None:
@@ -2480,19 +2475,22 @@ def test_core_empty_for_longer_than_starvation_seconds_is_removed() -> None:
     starvation = data["algae"]["starvation_seconds"]
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
 
-    core = st["algae"][1]
-    _deplete_core_nodules(st, core)
+    lua.execute("""
+        for _, n in ipairs(GAME_STATE.algae[1].nodules) do
+            n.live = false
+            n.cooldown = 999.0
+        end
+    """)
 
-    # Advance past the starvation threshold (in small steps to avoid dt clamp)
     elapsed = 0
     while elapsed < starvation + 1:
-        state = call(session, "tick_game", 0.1, {})
+        call(session, "tick_game", 0.1, {})
         elapsed += 0.1
 
-    # Core should have been removed
-    assert len(st["algae"]) == 0
+    gs = session.executor.get_global("GAME_STATE")
+    assert len(gs["algae"]) == 0
 
 
 def test_core_that_regrows_one_nodule_resets_starvation_timer() -> None:
@@ -2506,29 +2504,32 @@ def test_core_that_regrows_one_nodule_resets_starvation_timer() -> None:
     starvation = data["algae"]["starvation_seconds"]
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
 
-    core = st["algae"][1]
-    _deplete_core_nodules(st, core)
+    lua.execute("""
+        for _, n in ipairs(GAME_STATE.algae[1].nodules) do
+            n.live = false
+            n.cooldown = 999.0
+        end
+    """)
 
-    # Advance partway (less than starvation)
     elapsed = 0
     while elapsed < starvation - 5:
         call(session, "tick_game", 0.1, {})
         elapsed += 0.1
 
-    # Manually regrow one nodule
-    core["nodules"][1]["live"] = True
-    core["nodules"][1]["cooldown"] = 0
+    lua.execute("""
+        GAME_STATE.algae[1].nodules[1].live = true
+        GAME_STATE.algae[1].nodules[1].cooldown = 0
+    """)
 
-    # Advance past what would have been the original threshold
     elapsed2 = 0
     while elapsed2 < starvation + 5:
         call(session, "tick_game", 0.1, {})
         elapsed2 += 0.1
 
-    # Core should still be present — the timer reset when a nodule regrew
-    assert len(st["algae"]) >= 1
+    gs = session.executor.get_global("GAME_STATE")
+    assert len(gs["algae"]) >= 1
 
 
 def test_chunk_render_state_exposes_valid_decay_ratio() -> None:
