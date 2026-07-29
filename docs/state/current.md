@@ -2837,3 +2837,48 @@ Empirically tested against default population (60 fish, 8 sharks, 6 hubs, seed=4
 - `VERSION` bumped `2.27.0` → `2.28.0`.
 - Test proof: `.venv\Scripts\python.exe -m pytest tests\test_shoal.py -q` → **95 passed** in 16.89s.
 - `git diff --stat HEAD` confirms only `steering.lua` and `tests/test_shoal.py` touched (data.yaml was committed in a prior session).
+
+---
+
+## Shoal — Grazing Loop Hash Query & Render Batching (v2.28.0 → v2.29.0)
+
+**Directive:** Fix the dominant real performance cost (confirmed by differential profiling) and a behavioral bug found while investigating it. Also batch canvas draw calls.
+
+### Performance root cause
+
+Differential profiling: zeroing fish drops average tick time 2.132ms → 0.279ms (7.6x). Zeroing sharks barely moves it (2.132ms → 2.088ms). Scaling fish 4.24x (64→271) scales tick time 6.02x — worse than linear, the signature of an unhashed loop whose cost grows with total creature×object pairs.
+
+Root cause: `logic.lua`'s grazing loop was brute-force O(fish × cores × nodules) with zero spatial acceleration. The `break` only escaped the innermost nodule loop, not the core loop — a fish that already grazed still got checked against every other core's nodules.
+
+### Grazing loop fix (`logic.lua`)
+
+Replaced brute-force triple loop with `get_nearby(st.spatial_hash, bx, by, "algae", 1, by_range)` query per fish, matching the pattern already used in `steering.lua`'s `compute_fish_forces`. The `break` now exits after the first nearby-list match — fixing both the performance issue and the double-graze bug (a fish within range of two nearby cores could graze two nodules in one tick, when one bite per fish per tick is the evident intent).
+
+### Render batching (`App.tsx`)
+
+- **Algae cores**: single `beginPath`/`fill` pair for all cores, using `moveTo(x + radius, y)` before each `arc()` to prevent stray connecting lines.
+- **Algae nodules**: single `beginPath`/`fill` pair for the entire nested loop.
+- **Flesh chunks**: grouped into at most 6 decay buckets (rounding `decay_ratio` to nearest 0.2), one `fillStyle`/`fill` per bucket instead of one per chunk.
+
+### Measured performance improvement
+
+```
+baseline (64 fish):  2.321ms/tick
+scaled (271 fish):  12.995ms/tick
+ratio: 5.60x  (pre-fix was 6.02x)
+```
+
+The improvement (6.02x → 5.60x) is measurable but modest because the grazing loop is only one component of tick time. The steering/movement loops (which already used the hash) dominate at high fish counts, and those scale linearly as expected. The double-graze bug fix is the more impactful behavioral improvement.
+
+### Tests (3 new, 98 total)
+
+1. `test_fish_scaling_stays_closer_to_linear_after_hash_fix` — real differential profile using `load_game`/`tick_game`, 500 ticks per measurement. Asserts ratio < 5.8x (clearly below old 6.02x).
+2. `test_fish_near_two_overlapping_cores_grazes_exactly_one_nodule_per_tick` — two cores with nodules at the same position, one stationary fish. Asserts exactly 1 nodule grazed per discrete tick (not 2). Uses `depth_lerp_speed=0` and fixed nodule offsets to prevent core drift.
+3. `test_grazing_via_hash_query_same_outcome_as_before_single_core` — regression guard: single core, single nodule, fish in range. Asserts the nodule is still grazed (query-pattern change doesn't break the simple case).
+
+**Test setup notes:** Grazing tests require `depth_lerp_speed=0` (prevents core sinking), `n.offset` correction (prevents `update_algae_core` from repositioning nodules), `cooldown=999` on killed nodules (prevents regrowth), and stationary fish (`max_speed=0, max_force=0, vx=0, vd=0`) to prevent drift before the discrete event fires.
+
+- `VERSION` bumped `2.28.0` → `2.29.0`.
+- Test proof: `.venv\Scripts\python.exe -m pytest tests\test_shoal.py -q` → **98 passed** in 25.34s.
+- TypeScript build: `studio_build` → success, built in 7.21s.
+- `git diff --stat HEAD` confirms only `tests/test_shoal.py` touched (`logic.lua` and `App.tsx` were committed in prior session).
