@@ -55,7 +55,7 @@ export default function GameLoader({ gameId }: { gameId: string }) {
       return (
         <div className="arcade-game-wrap">
           <div className="arcade-game-lobby-bar">
-            <button onClick={navigateHome} className="arcade-back-to-lobby">
+            <button onClick={() => navigateHome()} className="arcade-back-to-lobby">
               ← Back to Arcade
             </button>
           </div>
@@ -82,7 +82,7 @@ export default function GameLoader({ gameId }: { gameId: string }) {
       return (
         <div className="arcade-game-wrap">
           <div className="arcade-game-lobby-bar">
-            <button onClick={navigateHome} className="arcade-back-to-lobby">
+            <button onClick={() => navigateHome()} className="arcade-back-to-lobby">
               ← Back to Arcade
             </button>
           </div>
