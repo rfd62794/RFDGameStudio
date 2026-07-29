@@ -2757,3 +2757,42 @@ Baseline confirmed before any change (per directive's STOP gate): `uv run pytest
 - `VERSION` bumped `2.25.0` → `2.26.0`.
 - Added 5 new regression tests to `tests/test_shoal.py` (all listed above). Multi-tick population-trajectory consistency was cross-checked via the already-existing `test_shark_population_plateaus_near_carrying_capacity` and `test_fish_breeds_reliably_below_carrying_capacity`/`test_shark_breeds_reliably_below_carrying_capacity`, all still passing unchanged.
 - Test proof: `uv run pytest tests/test_shoal.py -q` → 72 passed. Full floor: `uv run pytest -q` → 514 passed, 8 warnings.
+
+---
+
+## Shoal — Reef Decomposition Loop & Depth Band Markers (v2.26.0 → v2.27.0)
+
+**Directive:** Close the trophic loop (decomposition → algae replenishment, algae starvation → real core death) and make depth bands legible with side text markers.
+
+**Changes by file:**
+
+- `games/shoal/data.yaml`: Added `algae.starvation_seconds: 30` (cores die after 30s with zero live nodules), `flesh_chunk.decompose_radius: 100` (search radius for nearest core during decomposition), `flesh_chunk.decompose_replenish_amount: 2.0` (cooldown reduction per decomposition event).
+- `games/shoal/entities.lua`:
+  - `spawn_algae_core`: Initializes `core.empty_for = 0` on new cores.
+  - `update_algae_core`: Tracks `core.empty_for` — increments by `dt` when `live_count == 0`, resets to `0` otherwise. Returns `core.empty_for < data.algae.starvation_seconds` (true = alive, false = starved).
+  - New `decompose_chunk(st, chunk)`: Finds nearest algae core within `decompose_radius`. If found, reduces cooldown of its non-live nodules by `decompose_replenish_amount`. If no core found, spawns a new algae core at the chunk's position.
+- `games/shoal/logic.lua`:
+  - `update_algae`: Reverse iteration with starvation removal — calls `update_algae_core`, removes cores that return false (starved).
+  - `update_chunks`: Calls `decompose_chunk(st, c)` before `table.remove` when a chunk's floor grace timer expires.
+  - `build_render_state`: Exposes `decay_ratio` on each chunk — `floor_timer / floor_grace_time` clamped to `[0, 1]`, or `0` if not on floor.
+- `ts/src/games/shoal/types.ts`: Added `decay_ratio: number` to `FleshChunk` interface.
+- `ts/src/games/shoal/App.tsx`:
+  - Added `DEPTH_BAND_LABELS` map (band id → display name, derived client-side).
+  - Added `hexToRgb`/`lerpColor` utility functions.
+  - Chunk rendering: fill color lerps from `chunk_color` to `algae_core_color` by `decay_ratio` (fade-to-bloom visual).
+  - Depth band labels: drawn at each band's vertical midpoint along both left and right canvas edges, using `rgba(255,255,255,0.7)`.
+- `tests/test_shoal.py`: Added 8 new regression tests:
+  1. `test_decomposing_chunk_near_depleted_core_reduces_nodule_cooldowns` — decomposition reduces nearby core's nodule cooldowns without instant revival.
+  2. `test_decomposing_chunk_with_no_core_nearby_spawns_new_core` — decomposition far from any core spawns a new core.
+  3. `test_decomposition_does_not_affect_cores_outside_decompose_radius` — only the core within radius is affected.
+  4. `test_core_empty_for_less_than_starvation_seconds_survives` — core with all nodules dead but empty_for < starvation_seconds survives.
+  5. `test_core_empty_for_longer_than_starvation_seconds_is_removed` — core starved past threshold is removed.
+  6. `test_core_that_regrows_one_nodule_resets_starvation_timer` — regrowing even one nodule resets empty_for to 0.
+  7. `test_chunk_render_state_exposes_valid_decay_ratio` — decay_ratio is 0 before floor, rises toward 1 as floor_timer approaches grace.
+  8. `test_algae_core_count_can_both_rise_and_fall_across_a_run` — integration test proving both starvation (count drops) and replenishment (count rises) fire in a seeded run.
+
+**Testing notes:** Tests use `session.executor._lua.execute()` for direct `GAME_STATE` manipulation (depleting nodules, calling `decompose_chunk`/`spawn_algae_core` on the real Lua state), since `get_global` returns a Python copy and `call()` passes copies to Lua. Integration test tuned with 120 fish, 20 sharks, 3 hubs, starvation_seconds=8, regrow_cooldown=20 to ensure both starvation and replenishment fire within 500 ticks.
+
+- `VERSION` bumped `2.26.0` → `2.27.0`.
+- Test proof: `.venv\Scripts\python.exe -m pytest tests\test_shoal.py -q` → **89 passed** in 6.14s.
+- TypeScript build: `studio_build` → success, built in 5.41s.

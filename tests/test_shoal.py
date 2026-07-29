@@ -2543,10 +2543,10 @@ def test_chunk_render_state_exposes_valid_decay_ratio() -> None:
     data["spawn"]["initial_algae_hubs"] = 0
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
 
-    # Spawn a chunk at surface — it should be sinking, not at floor
-    call(session, "spawn_flesh_chunks", st, 600, 50, 1)
+    # Spawn a chunk at surface on the real GAME_STATE
+    lua.execute("spawn_flesh_chunks(GAME_STATE, 600, 50, 1)")
 
     # Tick once — chunk should still be sinking (decay_ratio 0)
     state = call(session, "tick_game", 0.05, {})
@@ -2556,11 +2556,13 @@ def test_chunk_render_state_exposes_valid_decay_ratio() -> None:
     # Now manually place a chunk at the floor with a partial timer
     floor_depth = data["world"]["floor_depth"]
     grace = data["flesh_chunk"]["floor_grace_time"]
-    st["chunks"][1]["depth"] = floor_depth
-    st["chunks"][1]["floor_timer"] = grace * 0.5
+    lua.execute(f"""
+        local c = GAME_STATE.chunks[#GAME_STATE.chunks]
+        c.depth = {floor_depth}
+        c.floor_timer = {grace * 0.5}
+    """)
 
     state = call(session, "tick_game", 0, {})
-    # Find the floor chunk (the one with decay_ratio > 0)
     floor_chunk = None
     for c in state["chunks"]:
         if c["decay_ratio"] > 0:
@@ -2578,35 +2580,32 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["spawn"]["seed"] = 42
-    data["spawn"]["initial_fish"] = 80
-    data["spawn"]["initial_sharks"] = 12
-    data["spawn"]["initial_algae_hubs"] = 6
-    # Make starvation faster to see core death within reasonable tick count
-    data["algae"]["starvation_seconds"] = 10
+    data["spawn"]["initial_fish"] = 120
+    data["spawn"]["initial_sharks"] = 20
+    data["spawn"]["initial_algae_hubs"] = 3
+    data["algae"]["starvation_seconds"] = 8
+    data["algae"]["regrow_cooldown"] = 20.0
+    data["creatures"]["fish"]["carrying_capacity"] = 150
 
     call(session, "init_game", data)
-    st = session.executor.get_global("GAME_STATE")
+    lua = session.executor._lua
 
-    starting_core_count = len(st["algae"])
+    starting_core_count = lua.execute("return #GAME_STATE.algae")
     min_core_count = starting_core_count
     max_core_count = starting_core_count
 
-    # Run for a substantial number of ticks — fish graze, cores starve,
-    # creatures die, chunks decompose and spawn new cores
     for _ in range(500):
-        state = call(session, "tick_game", 0.1, {})
-        current = len(st["algae"])
+        call(session, "tick_game", 0.1, {})
+        current = lua.execute("return #GAME_STATE.algae")
         if current < min_core_count:
             min_core_count = current
         if current > max_core_count:
             max_core_count = current
 
-    # Core count must have dropped below starting (starvation fired)
     assert min_core_count < starting_core_count, (
         f"Core count never dropped below starting {starting_core_count}; "
         f"min was {min_core_count}"
     )
-    # Core count must have risen above starting at some point (replenishment fired)
     assert max_core_count > starting_core_count, (
         f"Core count never rose above starting {starting_core_count}; "
         f"max was {max_core_count}"
