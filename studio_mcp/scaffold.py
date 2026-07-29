@@ -177,7 +177,7 @@ def _scaffold_lua_backed(repo_root: Path, game_id: str, label: str) -> dict:
 _TS_APP_STUB = """\
 import type {{ GameRendererProps }} from '../../engine/types';
 
-export default function App({{ session }}: GameRendererProps) {{
+export default function App({{ session: _session }}: GameRendererProps) {{
   return (
     <div style={{{{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}}}>
       <h1>{label}</h1>
