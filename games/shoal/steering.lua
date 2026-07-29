@@ -269,7 +269,7 @@ function compute_fish_forces(f, st, hash)
     for _, entry in ipairs(nearby_algae or {}) do
         avoid_targets[#avoid_targets + 1] = entry.n
     end
-    for _, c in ipairs(st.chunks) do
+    for _, c in ipairs(st.chunks or {}) do
         avoid_targets[#avoid_targets + 1] = c
     end
     local avoid_x, avoid_y = force_avoid(f.x, f.depth, avoid_targets, avoid_radius_sq, weights.avoid_chunk, f.max_force, nearest_nodule and nearest_nodule.id)
