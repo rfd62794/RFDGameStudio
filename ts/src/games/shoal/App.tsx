@@ -388,7 +388,7 @@ function lerpColor(a: string, b: string, t: number): string {
   return `rgb(${r},${g},${bl})`;
 }
 
-function drawGame(
+export function drawGame(
   canvas: HTMLCanvasElement,
   rs: RenderState,
   dims: { w: number; h: number },
