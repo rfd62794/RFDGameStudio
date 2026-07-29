@@ -3083,3 +3083,39 @@ Generated `entry.tsx` uses `import.meta.glob('../../../../games/{game_id}/*.lua'
 
 ### Named follow-up
 **Retrofit existing games' entry points with `import.meta.glob` pattern.** Shoal's `entry.tsx` currently hand-lists 5 `.lua` files (`utils`, `state`, `entities`, `steering`, `logic`). The pending Logic-Layer Modularization directive would break this. This is a separate explicit task — scaffolding only applies the pattern going forward.
+
+---
+
+## Shoal — Live Polish: Arcade Link Fix & Entry Point Glob Retrofit
+
+**Directive:** Fix two confirmed-still-broken issues before pushing Shoal live to itch and the arcade website.
+
+### Bug 1 — `navigateHome` mode-aware (itch/standalone back link)
+
+**Problem:** `navigateHome()` in `routing.ts` was `window.location.href = window.location.href.split('?')[0]` — correct for arcade-embedded mode (strips `?game=`), but in standalone/itch builds this just reloads the current page instead of navigating to the arcade website. `VITE_ARCADE_BASE_URL` was configured but unused.
+
+**Fix:** `navigateHome(mode='arcade', arcadeBaseUrl?)` — when `mode='standalone'` and `arcadeBaseUrl` is set, navigates to the external arcade URL. Default parameters preserve existing behavior for all arcade-embedded callers. `GameShell` passes `mode`/`arcadeBaseUrl` through to the back button's `onClick`. Shoal's `App.tsx` wires its already-computed `mode`/`arcadeBaseUrl` into `GameShell`.
+
+**Compatibility fix:** `GameLoader.tsx` had two `onClick={navigateHome}` direct assignments that needed wrapping to `onClick={() => navigateHome()}` — the signature change from `() => void` to `(mode?, arcadeBaseUrl?) => void` broke TypeScript's `MouseEventHandler` assignability. Zero behavior change (default `mode='arcade'`).
+
+### Bug 2 — Shoal entry.tsx `import.meta.glob` retrofit
+
+**Problem:** `ts/src/standalone/shoal/entry.tsx` hand-listed 5 game `.lua` files and 2 engine `.lua` files. The pending Logic-Layer Modularization directive (deletes `steering.lua`, adds 8 new files) would silently break this.
+
+**Fix:** Replaced with the exact `import.meta.glob` pattern from `studio_mcp/scaffold.py`'s `_TS_ENTRY_TSX` template, substituting `shoal` for `{game_id}`. Verified byte-identical to the template via `difflib`. The glob auto-discovers all `.lua` files — when modularization runs, the entry point needs zero changes.
+
+### Files touched
+- `ts/src/arcade/routing.ts` — `navigateHome` mode-aware with default params
+- `ts/src/components/GameShell.tsx` — `mode`/`arcadeBaseUrl` props passed to `navigateHome`
+- `ts/src/games/shoal/App.tsx` — passes `mode`/`arcadeBaseUrl` into `GameShell`
+- `ts/src/standalone/shoal/entry.tsx` — `import.meta.glob` retrofit (byte-identical to scaffold template)
+- `ts/src/arcade/GameLoader.tsx` — wrap `navigateHome` in arrow functions for `onClick` type compatibility
+
+### Verification
+- Pre-flight: **553 passed**, 0 failed, 8 warnings. `tsc --noEmit`: 40 pre-existing errors, none in target files.
+- Post-change: **553 passed**, 0 failed. `tsc --noEmit`: 40 errors (same baseline, zero new).
+- Standalone build: `vite build --config vite.shoal.config.ts` → **2168 modules transformed, built in 4.08s**.
+- `VITE_ARCADE_BASE_URL` (`https://rfditservices.com/games/rfdgamestudio/`) confirmed present in built output — standalone back button navigates here.
+- Arcade-embedded back button behavior unchanged: `navigateHome()` with no args defaults to `mode='arcade'`, strips `?game=` (identical to original).
+- Entry.tsx diffed against `scaffold.py`'s template: **IDENTICAL — zero deviations beyond `game_id` substitution**.
+- `git diff --stat 96a8de1`: 7 files (5 from §1 + `GameLoader.tsx` compatibility fix + `dist-shoal/` build output).
