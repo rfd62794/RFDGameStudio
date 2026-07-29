@@ -2951,3 +2951,34 @@ The improvement (6.02x → 5.60x) is measurable but modest because the grazing l
 - `dist2` argument order: confirmed identical between `utils.lua` (old) and `engine/primitives/movement.lua` — both `dist2(ax, ay, bx, by)` = `(ax-bx)² + (ay-by)²`.
 
 - `VERSION` bumped `2.30.0` → `2.31.0`.
+
+---
+
+## Shoal — Flaky Test Fix, Daily Seed, Depth Tick Redesign (v2.31.0)
+
+**Directive:** Three independent, low-risk items — fix a flaky starvation test with a multi-seed aggregate, add a `daily_seed()` function for deterministic daily spawns, and replace band-range depth labels with evenly-spaced ticks.
+
+### Flaky test fix (`tests/test_shoal.py`)
+- Replaced `test_grazing_continues_under_general_obstacle_avoidance` (single-seed, could pass or fail by luck) with `test_starvation_fires_across_multiple_independent_seeds` — runs seeds 1–5 for 2400 ticks each, asserts `total_events >= 1` across the aggregate.
+- Root cause: only spawn is seeded; ongoing simulation randomness (breeding rolls, escape chance, wander jitter) is deliberately unseeded. A single-run `>= 1` assertion on a rare emergent event was structurally flaky.
+- Confirmed diagnosis: 5 runs of seed=42 alone produced 2, 1, 1, 0, 2 starvation events.
+
+### Daily seed (`games/shoal/state.lua`)
+- Added `daily_seed()` function: `os.date("!*t")` (UTC) → `t.year * 10000 + t.month * 100 + t.day` (e.g. `20260729`).
+- Wired into `spawn_initial_entities`: when `data.spawn.seed` is the string `"daily"`, uses `daily_seed()`; `nil` still means random (`os.time()`); numeric seeds still work as before.
+- UTC is deliberate — two players on opposite sides of the date line see the same reef.
+- Verified: two consecutive `init_game` calls with `seed="daily"` produce identical algae positions.
+
+### Depth ticks (`ts/src/games/shoal/App.tsx`)
+- Removed `formatDepthLabel` (band-range labels computed from `data.depth_bands`).
+- Added `drawDepthTicks(ctx, floorDepth, dims)` — renders labels every 100m from 0 to `floor_depth` on both left and right canvas edges, with meter/feet conversion.
+- Replaces the per-band label loop in `drawGame` entirely. Ticks scale automatically with `floor_depth` — no hardcoded per-band positions.
+- `tickIntervalM = 100` gives 9 ticks for `floor_depth: 800` (0, 100, 200, …, 800).
+
+### Verification
+- Pre-flight: **103 passed** (the old `test_grazing_continues_under_general_obstacle_avoidance` was already passing — the flakiness was structural, not guaranteed to surface on any given run).
+- Post-implementation: **103 passed** in 50.39s (multi-seed test takes ~50s for 5×2400 ticks, well under a minute).
+- TypeScript build: `studio_build` → success, built in 7.03s.
+- `daily_seed()` verified: returns `20260729`, two calls with `seed="daily"` produce identical reef layouts.
+- `git diff --stat 7854d37~1`: `state.lua`, `test_shoal.py`, `App.tsx` (3 files, all in scope).
+- Screenshots: Shoal is a browser canvas game — visual verification of depth ticks must be done manually in the browser.
