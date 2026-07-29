@@ -110,6 +110,24 @@ function force_separate(x, y, neighbors, radius_sq, weight, max_force)
     return nx * weight * max_force, ny * weight * max_force
 end
 
+function force_avoid(x, y, obstacles, radius_sq, weight, max_force, exclude_id)
+    local sx, sy = 0, 0
+    for _, o in ipairs(obstacles) do
+        if o.id ~= exclude_id then
+            local dx, dy = x - o.x, y - o.depth
+            local dist2 = dx * dx + dy * dy
+            if dist2 > 0 and dist2 < radius_sq then
+                local dist = math.sqrt(dist2)
+                sx = sx + (dx / dist) / dist
+                sy = sy + (dy / dist) / dist
+            end
+        end
+    end
+    if sx == 0 and sy == 0 then return 0, 0 end
+    local nx, ny = normalize(sx, sy)
+    return nx * weight * max_force, ny * weight * max_force
+end
+
 function force_align(x, y, neighbors, radius_sq, weight, max_force)
     local avx, avy, count = 0, 0, 0
     for _, n in ipairs(neighbors) do
@@ -244,6 +262,11 @@ function compute_fish_forces(f, st, hash)
     local cohere_x, cohere_y = force_cohere(f.x, f.depth, others, school_radius_sq, weights.cohere, f.max_force)
     fx, fy = fx + cohere_x, fy + cohere_y
 
+    -- avoid chunks (fish never eat chunks, so every chunk is avoided)
+    local avoid_radius_sq = data.avoid_chunk_radius * data.avoid_chunk_radius
+    local avoid_x, avoid_y = force_avoid(f.x, f.depth, st.chunks, avoid_radius_sq, weights.avoid_chunk, f.max_force)
+    fx, fy = fx + avoid_x, fy + avoid_y
+
     -- depth arrival: return to and settle at the fish's home depth
     local home_bias = force_depth_arrive(f.depth, f.vd, cfg.home_depth, weights.depth_bias, f.max_speed, f.max_force, 300)
     fy = fy + home_bias
@@ -259,6 +282,7 @@ function compute_shark_forces(s, st, hash)
     local data = st.data
     local weights = data.steering_weights.shark
     local cfg = data.creatures.shark
+    local target_chunk_id = nil
 
     -- Hysteresis: enter retreat at exposure_retreat_threshold, only exit
     -- once exposure drops below exposure_retreat_resume_threshold. Between
@@ -312,6 +336,7 @@ function compute_shark_forces(s, st, hash)
         local sx, sy = force_arrive(s.x, s.depth, s.vx, s.vd, nearest_fish.x, nearest_fish.depth, weights.seek_fish, s.max_speed, s.max_force, sr, min_speed)
         fx, fy = fx + sx, fy + sy
     elseif nearest_chunk then
+        target_chunk_id = nearest_chunk.id
         local sr = stopping_radius(s.max_speed, s.max_force, 1.3)
         sr = math.min(sr, cfg.perception.flesh)
         local min_speed = data.flesh_chunk.sink_rate
@@ -327,6 +352,11 @@ function compute_shark_forces(s, st, hash)
         local home_bias = force_depth_arrive(s.depth, s.vd, cfg.home_depth, cfg.home_bias_weight, s.max_speed, s.max_force, 300)
         fy = fy + home_bias
     end
+
+    -- avoid all chunks except the one currently being pursued (if any)
+    local avoid_radius_sq = data.avoid_chunk_radius * data.avoid_chunk_radius
+    local avoid_x, avoid_y = force_avoid(s.x, s.depth, st.chunks, avoid_radius_sq, weights.avoid_chunk, s.max_force, target_chunk_id)
+    fx, fy = fx + avoid_x, fy + avoid_y
 
     return fx, fy, had_target
 end

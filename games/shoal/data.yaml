@@ -77,10 +77,14 @@ steering_weights:
     cohere: 0.35
     wander: 0.4
     depth_bias: 0.8
+    avoid_chunk: 0.8
   shark:
     seek_fish: 1.5
     seek_flesh: 1.5
     wander: 0.3
+    avoid_chunk: 0.5
+
+avoid_chunk_radius: 25
 
 wander:
   circle_distance: 40
@@ -90,11 +94,11 @@ wander:
 algae:
   nodule_radius: 6
   spoke_distances: [24, 48]
-  regrow_cooldown: 3.0
+  regrow_cooldown: 10.0
   max_sunk_depth: 600
   min_surface_depth: 80
   depth_lerp_speed: 20
-  starvation_seconds: 30
+  starvation_seconds: 8
 
 flesh_chunk:
   radius: 5
@@ -104,7 +108,7 @@ flesh_chunk:
   shark_eat_range: 20
   hunger_refund: 3
   floor_grace_time: 2.5
-  decompose_radius: 100
+  decompose_radius: 450
   decompose_replenish_amount: 2.0
 
 depth_bands:
