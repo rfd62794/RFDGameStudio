@@ -18,7 +18,7 @@ describe('vite standalone factory', () => {
     const defs = config.define as Record<string, string>;
     expect(defs['import.meta.env.VITE_STANDALONE']).toBe('"true"');
     expect(defs['import.meta.env.VITE_ARCADE_BASE_URL']).toContain(
-      'rfditservices.com/games/rfdgamestudio/'
+      'rfditservices.com/arcade/rfdgamestudio/'
     );
   });
 });

@@ -21,7 +21,7 @@ export function makeStandaloneConfig(gameId: string): UserConfig {
     define: {
       'import.meta.env.VITE_STANDALONE': JSON.stringify('true'),
       'import.meta.env.VITE_ARCADE_BASE_URL': JSON.stringify(
-        'https://rfditservices.com/games/rfdgamestudio/'
+        'https://rfditservices.com/arcade/rfdgamestudio/'
       ),
     },
     build: {
