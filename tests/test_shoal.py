@@ -2610,3 +2610,205 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
         f"Core count never rose above starting {starting_core_count}; "
         f"max was {max_core_count}"
     )
+
+
+def test_starvation_fires_under_default_population_within_real_window() -> None:
+    """With the new tuning values (regrow_cooldown=10, starvation_seconds=8,
+    decompose_radius=450), at least 1 starvation event occurs during a
+    2400-tick run at dt=0.25 against default population (60 fish, 8 sharks,
+    6 hubs), matching the empirical result in §0
+    (Reef Tuning & Chunk Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 42
+    # Default population: 60 fish, 8 sharks, 6 hubs — no overrides
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    starting_core_count = lua.execute("return #GAME_STATE.algae")
+    min_core_count = starting_core_count
+
+    for _ in range(2400):
+        call(session, "tick_game", 0.25, {})
+        current = lua.execute("return #GAME_STATE.algae")
+        if current < min_core_count:
+            min_core_count = current
+
+    assert min_core_count < starting_core_count, (
+        f"Starvation never fired: core count stayed at {starting_core_count}; "
+        f"min was {min_core_count}"
+    )
+
+
+def test_core_count_growth_bounded_under_new_decompose_radius() -> None:
+    """With decompose_radius=450, total core count never exceeds 2x starting
+    count over a 2400-tick run at dt=0.25 against default population,
+    guarding against the old runaway-growth defect
+    (Reef Tuning & Chunk Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["seed"] = 42
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    starting_core_count = lua.execute("return #GAME_STATE.algae")
+    max_core_count = starting_core_count
+
+    for _ in range(2400):
+        call(session, "tick_game", 0.25, {})
+        current = lua.execute("return #GAME_STATE.algae")
+        if current > max_core_count:
+            max_core_count = current
+
+    assert max_core_count <= starting_core_count * 2, (
+        f"Core count grew unboundedly: starting={starting_core_count}, "
+        f"max={max_core_count}, ceiling={starting_core_count * 2}"
+    )
+
+
+def test_force_avoid_zero_outside_radius_real_repulsion_inside() -> None:
+    """force_avoid returns (0,0) when obstacle is outside radius_sq, and a
+    nonzero force pointing away when inside
+    (Reef Tuning & Chunk Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+
+    # Obstacle far away (distance > radius_sq)
+    far_result = call(session, "force_avoid", 100, 200, [{"id": "c1", "x": 500, "depth": 500}], 25 * 25, 1.0, 80)
+    assert far_result[0] == 0 and far_result[1] == 0
+
+    # Same obstacle moved inside radius
+    near_result = call(session, "force_avoid", 100, 200, [{"id": "c1", "x": 110, "depth": 200}], 25 * 25, 1.0, 80)
+    assert near_result[0] != 0 or near_result[1] != 0
+    # Force should point away from obstacle (negative x direction, since obstacle is at x=110, creature at x=100)
+    assert near_result[0] < 0
+
+
+def test_force_avoid_excludes_given_id() -> None:
+    """Two obstacles at equal close distance, one passed as exclude_id —
+    resulting force reflects only the non-excluded one
+    (Reef Tuning & Chunk Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+
+    obstacles = [
+        {"id": "c1", "x": 110, "depth": 200},
+        {"id": "c2", "x": 90, "depth": 200},
+    ]
+
+    # Exclude c1 — force should reflect only c2 (pushing toward negative x, away from c2 at x=90)
+    result = call(session, "force_avoid", 100, 200, obstacles, 25 * 25, 1.0, 80, "c1")
+    assert result[0] != 0 or result[1] != 0
+    # c2 is at x=90, creature at x=100, so repulsion is toward positive x
+    assert result[0] > 0
+
+    # Exclude c2 — force should reflect only c1 (pushing toward negative x, away from c1 at x=110)
+    result2 = call(session, "force_avoid", 100, 200, obstacles, 25 * 25, 1.0, 80, "c2")
+    assert result2[0] != 0 or result2[1] != 0
+    assert result2[0] < 0
+
+
+def test_fish_steering_includes_measurable_deflection_near_chunk() -> None:
+    """A fish's computed force with a chunk within avoid_chunk_radius differs
+    from the same fish's force with no chunk present
+    (Reef Tuning & Chunk Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    # Spawn one fish at a known position
+    lua.execute("spawn_fish(GAME_STATE, 300, 200)")
+    # Tick once to populate cached_danger on any nodules and spatial hash
+    call(session, "tick_game", 0.1, {})
+
+    # Get baseline force with no chunks
+    gs = session.executor.get_global("GAME_STATE")
+    fish = gs["fish"][0]
+    baseline = call(session, "compute_fish_forces", fish, session.executor.get_global("GAME_STATE"), None)
+
+    # Place a chunk right next to the fish (within avoid_chunk_radius=25)
+    lua.execute(f"""
+        local c = {{ id = 'test_chunk', x = {fish['x'] + 10}, depth = {fish['depth']}, vx = 0, vd = 0, radius = 5 }}
+        table.insert(GAME_STATE.chunks, c)
+    """)
+
+    # Get force with chunk nearby
+    gs = session.executor.get_global("GAME_STATE")
+    fish = gs["fish"][0]
+    with_chunk = call(session, "compute_fish_forces", fish, session.executor.get_global("GAME_STATE"), None)
+
+    # Forces should differ — the avoidance deflection is measurable
+    assert baseline != with_chunk, (
+        f"Fish force unchanged by nearby chunk: baseline={baseline}, with_chunk={with_chunk}"
+    )
+
+
+def test_hunting_shark_still_avoids_non_targeted_chunks() -> None:
+    """A shark pursuing one chunk within eat range still shows avoidance of a
+    second chunk within avoid_chunk_radius but not being pursued
+    (Reef Tuning & Chunk Avoidance, July 2026)."""
+    session = load_game("shoal", seed=42)
+    data = session.files.data
+    data["spawn"]["initial_fish"] = 0
+    data["spawn"]["initial_sharks"] = 0
+    data["spawn"]["initial_algae_hubs"] = 0
+
+    call(session, "init_game", data)
+    lua = session.executor._lua
+
+    # Spawn a shark at a known position
+    lua.execute("spawn_shark(GAME_STATE, 300, 300)")
+    call(session, "tick_game", 0.1, {})
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+
+    # Place target chunk within eat range (shark_eat_range=20) and perception
+    # Place non-target chunk within avoid_chunk_radius (25) but not the closest
+    lua.execute(f"""
+        local c1 = {{ id = 'target', x = {shark['x'] + 15}, depth = {shark['depth']}, vx = 0, vd = 0, radius = 5 }}
+        local c2 = {{ id = 'other', x = {shark['x'] - 15}, depth = {shark['depth']}, vx = 0, vd = 0, radius = 5 }}
+        table.insert(GAME_STATE.chunks, c1)
+        table.insert(GAME_STATE.chunks, c2)
+    """)
+
+    # Get shark force — should be pursuing c1 (target) while avoiding c2
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+    force_with_both = call(session, "compute_shark_forces", shark, session.executor.get_global("GAME_STATE"), None)
+
+    # Now remove c2 and get force with only the target
+    lua.execute("""
+        for i = #GAME_STATE.chunks, 1, -1 do
+            if GAME_STATE.chunks[i].id == 'other' then
+                table.remove(GAME_STATE.chunks, i)
+            end
+        end
+    """)
+
+    gs = session.executor.get_global("GAME_STATE")
+    shark = gs["sharks"][0]
+    force_target_only = call(session, "compute_shark_forces", shark, session.executor.get_global("GAME_STATE"), None)
+
+    # The forces should differ — c2's avoidance is present in the first call
+    assert force_with_both != force_target_only, (
+        f"Shark force unchanged by non-targeted chunk: with_both={force_with_both}, "
+        f"target_only={force_target_only}"
+    )
