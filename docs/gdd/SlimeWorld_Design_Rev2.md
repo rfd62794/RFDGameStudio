@@ -168,6 +168,51 @@ revision needs before it can mean anything.
 Fealty + Culture Favors is the second, larger piece — genuinely new systems,
 not a fix — and should follow only once Stage is confirmed real and live.
 
+### Status: Stage-Made-Real — COMPLETE (August 2026)
+
+Implemented in `games/slimeworld/logic.lua` (`compute_stage` +
+`STAGE_THRESHOLDS`, called per-slime from `advance_cycle`) and
+`games/slimeworld/territory.lua` (`initiate_breeding`, Elder tax + fixed
+`created_at` assignment on offspring). All anchors verified through the
+real `stateToLua()` → executor → `luaSlimeToTs()` bridge, not Lua-only
+mocks (`ts/tests/test_slime_stage.tsx`).
+
+**Six cycle thresholds — FIRST-PASS PLACEHOLDER, pending Robert's review,
+not locked:**
+
+| Stage | min_cycles |
+|---|---|
+| Hatchling | 0 |
+| Juvenile | 5 |
+| Young | 15 |
+| Prime | 30 |
+| Veteran | 60 |
+| Elder | 100 |
+
+**Elder breeding tax — locked `0.85x` (Rev 1), target value chosen this
+session:** applied to the offspring's computed stat block (`child.stats`,
+each of hp/atk/def/agi/int/chm floored at `value * 0.85`) when either
+parent's `stage == "Elder"`. Rev 1 named a "breeding tax" without
+specifying its target; offspring stat quality was chosen as the most
+direct reading of a tax on breeding with worn-out genetics.
+
+**Related bug fixed as a required prerequisite, same files:** offspring
+never had `created_at` set (defaulted to 0 in Lua, `Date.now()` on the TS
+side) — this alone would have made Stage compute as permanently wrong for
+every bred slime (unit mismatch between a millisecond epoch and the
+cycle counter). `initiate_breeding` now sets `child.created_at =
+state.cycle`.
+
+**Known remaining gap, explicitly out of this directive's file scope:**
+`App.tsx`'s `initialState()` still sets `createdAt: lua.createdAt ||
+Date.now()` for starter slimes at game start — since `create_seed_slime`
+never sets `created_at` either, starters still get a millisecond epoch
+timestamp instead of a cycle number, so their live Stage will be wrong
+until that's fixed. Not touched here because `App.tsx` isn't in this
+directive's §1 scope table (only `logic.lua`/`territory.lua`/test files
+were authorized) — flagged for the next session rather than silently
+fixed or silently ignored.
+
 ---
 
 *SlimeWorld Design.md, Revision 2 | RFD IT Services Ltd. | August 1 2026*
