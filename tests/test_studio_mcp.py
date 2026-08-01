@@ -5,6 +5,8 @@ Tests call tool functions directly — no HTTP server needed.
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from studio_mcp.tools import (
@@ -294,3 +296,83 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     target = site_repo / "static" / "arcade" / "rfdgamestudio"
     assert (target / "index.html").exists()
     assert (target / "assets" / "game.js").exists()
+
+
+# ---------------------------------------------------------------------------
+# Test 36 — Pipeline Stage Tracking: studio_deploy_arcade side effect
+# ---------------------------------------------------------------------------
+
+def _make_deploy_fixture(tmp_path, monkeypatch):
+    """Shared setup for the two pipeline-stage deploy tests below: a fake
+    dist/, fake example demo dists, a fake site repo, and a real, isolated
+    game-metadata.json (not the real project file)."""
+    from unittest.mock import MagicMock
+    import studio_mcp.tools as tools
+
+    fake_module_dir = tmp_path / "fake_module"
+    fake_module_dir.mkdir()
+    dist_dir = tmp_path / "ts" / "dist"
+    dist_dir.mkdir(parents=True)
+    (dist_dir / "index.html").write_text("<h1>Game</h1>", encoding="utf-8")
+
+    for demo_slug in tools._EXAMPLE_DEMOS:
+        demo_dist = tmp_path / "examples" / demo_slug / "dist"
+        demo_dist.mkdir(parents=True)
+        (demo_dist / "index.html").write_text(f"<h1>{demo_slug}</h1>", encoding="utf-8")
+
+    site_repo = tmp_path / "site"
+    site_repo.mkdir()
+    monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
+    monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
+    monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
+
+    metadata_path = tmp_path / "game-metadata.json"
+    metadata_path.write_text(
+        json.dumps({gid: {"pipeline_stage": "ai_studio"} for gid in tools.GAME_PATHS}),
+        encoding="utf-8",
+    )
+
+    def _fake_advance(game_id: str, new_stage: str, out_path=None):
+        from studio_mcp.game_metadata import advance_pipeline_stage as _real
+        return _real(game_id, new_stage, out_path=metadata_path)
+
+    monkeypatch.setattr(tools, "advance_pipeline_stage", _fake_advance)
+    return tools, metadata_path
+
+
+def test_arcade_deploy_sets_website_collection_on_real_success(tmp_path, monkeypatch) -> None:
+    """On a confirmed real successful deploy (hugo + SFTP both returncode 0),
+    every tracked game advances to website_collection."""
+    from unittest.mock import patch, MagicMock
+
+    tools, metadata_path = _make_deploy_fixture(tmp_path, monkeypatch)
+
+    mock_build = MagicMock(returncode=0, stdout="", stderr="")
+    mock_deploy = MagicMock(returncode=0, stdout="ok")
+
+    with patch("subprocess.run", side_effect=[mock_build, mock_deploy]):
+        result = tools.studio_deploy_arcade()
+
+    assert "error" not in result
+    data = json.loads(metadata_path.read_text(encoding="utf-8"))
+    for game_id in tools.GAME_PATHS:
+        assert data[game_id]["pipeline_stage"] == "website_collection"
+
+
+def test_arcade_deploy_does_not_advance_stage_on_real_failure(tmp_path, monkeypatch) -> None:
+    """A failed deploy (SFTP step returns nonzero) must never advance the
+    tracked pipeline_stage."""
+    from unittest.mock import patch, MagicMock
+
+    tools, metadata_path = _make_deploy_fixture(tmp_path, monkeypatch)
+
+    mock_build = MagicMock(returncode=0, stdout="", stderr="")
+    mock_deploy = MagicMock(returncode=1, stdout="sftp connection refused")
+
+    with patch("subprocess.run", side_effect=[mock_build, mock_deploy]):
+        tools.studio_deploy_arcade()
+
+    data = json.loads(metadata_path.read_text(encoding="utf-8"))
+    for game_id in tools.GAME_PATHS:
+        assert data[game_id]["pipeline_stage"] == "ai_studio"
