@@ -6,8 +6,43 @@ function check_level_up(slime, color_specs)
   end
 end
 
+-- Stage cycle thresholds — FIRST-PASS PLACEHOLDER, not derived from real
+-- playtesting data. Flagged per this project's standing discipline for
+-- un-validated numbers (same treatment already given to Boon pricing,
+-- enemy HP bands, and Balance Checker windows elsewhere in the studio).
+-- Pending Robert's review before being treated as locked.
+local STAGE_THRESHOLDS = {
+  { stage = "Hatchling", min_cycles = 0 },
+  { stage = "Juvenile",  min_cycles = 5 },
+  { stage = "Young",     min_cycles = 15 },
+  { stage = "Prime",     min_cycles = 30 },
+  { stage = "Veteran",   min_cycles = 60 },
+  { stage = "Elder",     min_cycles = 100 },
+}
+
+-- Stage is a function of cycles-in-service (current_cycle - created_at),
+-- deliberately NOT level/xp — aging is a clock independent of how hard a
+-- slime has been worked.
+function compute_stage(current_cycle, created_at)
+  local cycles_alive = (current_cycle or 0) - (created_at or 0)
+  local result = "Hatchling"
+  for _, entry in ipairs(STAGE_THRESHOLDS) do
+    if cycles_alive >= entry.min_cycles then
+      result = entry.stage
+    end
+  end
+  return result
+end
+
 function advance_cycle(state, color_specs)
   state.cycle = (state.cycle or 0) + 1
+
+  -- Recompute lifecycle Stage for every roster slime based on real cycles
+  -- in service. created_at defaults to the current cycle if missing (new
+  -- or legacy-unset slimes start as Hatchling rather than aging instantly).
+  for _, slime in ipairs(state.slimes or {}) do
+    slime.stage = compute_stage(state.cycle, slime.created_at or state.cycle)
+  end
 
   -- Expire contracts
   for _, contract in ipairs(state.contracts or {}) do

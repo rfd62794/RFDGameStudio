@@ -44,9 +44,12 @@ def test_real_line_count_reduction_confirmed() -> None:
         f"logic.lua ({len(new_logic_lines)} lines) must be smaller than "
         f"original ({len(original_lines)} lines)"
     )
-    # advance_cycle is the main content — should be around 227 lines
-    assert len(new_logic_lines) <= 300, (
-        f"logic.lua should be ~227 lines, got {len(new_logic_lines)}"
+    # advance_cycle is the main content. Threshold bumped from 300 -> 350
+    # in the "Make Stage Real" directive, which intentionally added real
+    # Stage computation (compute_stage + STAGE_THRESHOLDS + per-cycle loop)
+    # to this file per its own explicit scope table.
+    assert len(new_logic_lines) <= 350, (
+        f"logic.lua should be well under the original size, got {len(new_logic_lines)}"
     )
     # Original was 1223 lines
     assert len(original_lines) >= 1200, (

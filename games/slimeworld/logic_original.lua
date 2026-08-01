@@ -498,6 +498,22 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
   child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
   child.stats = calculate_stats(child.color, child.level or 1, child.hue, child.saturation, child.vertex_count, child.irregularity, color_specs)
+  -- Elder breeding tax (locked at 0.85x per SlimeWorld_Design.md Rev 1).
+  -- Applied to the offspring's computed stat block — the only concrete,
+  -- already-computed "yield" of breeding this function produces. Rev 1's
+  -- text names a "breeding tax" without specifying its exact target;
+  -- reducing offspring stat quality is the most direct reading of a tax
+  -- on breeding with worn-out (Elder) genetics.
+  if parent_a.stage == "Elder" or parent_b.stage == "Elder" then
+    local ELDER_BREEDING_TAX = 0.85
+    for key, value in pairs(child.stats) do
+      child.stats[key] = math.floor(value * ELDER_BREEDING_TAX)
+    end
+  end
+  -- created_at must be cycle-based (matching Stage's clock), not left nil —
+  -- otherwise the offspring's own Stage would compute incorrectly on the
+  -- very next advance_cycle tick.
+  child.created_at = state.cycle
   table.insert(state.slimes, child)
   for index, slime in ipairs(state.slimes) do
     if slime.id == parent_b_id then
@@ -1012,8 +1028,43 @@ function check_level_up(slime, color_specs)
   end
 end
 
+-- Stage cycle thresholds — FIRST-PASS PLACEHOLDER, not derived from real
+-- playtesting data. Flagged per this project's standing discipline for
+-- un-validated numbers (same treatment already given to Boon pricing,
+-- enemy HP bands, and Balance Checker windows elsewhere in the studio).
+-- Pending Robert's review before being treated as locked.
+local STAGE_THRESHOLDS = {
+  { stage = "Hatchling", min_cycles = 0 },
+  { stage = "Juvenile",  min_cycles = 5 },
+  { stage = "Young",     min_cycles = 15 },
+  { stage = "Prime",     min_cycles = 30 },
+  { stage = "Veteran",   min_cycles = 60 },
+  { stage = "Elder",     min_cycles = 100 },
+}
+
+-- Stage is a function of cycles-in-service (current_cycle - created_at),
+-- deliberately NOT level/xp — aging is a clock independent of how hard a
+-- slime has been worked.
+function compute_stage(current_cycle, created_at)
+  local cycles_alive = (current_cycle or 0) - (created_at or 0)
+  local result = "Hatchling"
+  for _, entry in ipairs(STAGE_THRESHOLDS) do
+    if cycles_alive >= entry.min_cycles then
+      result = entry.stage
+    end
+  end
+  return result
+end
+
 function advance_cycle(state, color_specs)
   state.cycle = (state.cycle or 0) + 1
+
+  -- Recompute lifecycle Stage for every roster slime based on real cycles
+  -- in service. created_at defaults to the current cycle if missing (new
+  -- or legacy-unset slimes start as Hatchling rather than aging instantly).
+  for _, slime in ipairs(state.slimes or {}) do
+    slime.stage = compute_stage(state.cycle, slime.created_at or state.cycle)
+  end
 
   -- Expire contracts
   for _, contract in ipairs(state.contracts or {}) do

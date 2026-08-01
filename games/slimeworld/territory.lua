@@ -120,6 +120,22 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
   child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
   child.stats = calculate_stats(child.color, child.level or 1, child.hue, child.saturation, child.vertex_count, child.irregularity, color_specs)
+  -- Elder breeding tax (locked at 0.85x per SlimeWorld_Design.md Rev 1).
+  -- Applied to the offspring's computed stat block — the only concrete,
+  -- already-computed "yield" of breeding this function produces. Rev 1's
+  -- text names a "breeding tax" without specifying its exact target;
+  -- reducing offspring stat quality is the most direct reading of a tax
+  -- on breeding with worn-out (Elder) genetics.
+  if parent_a.stage == "Elder" or parent_b.stage == "Elder" then
+    local ELDER_BREEDING_TAX = 0.85
+    for key, value in pairs(child.stats) do
+      child.stats[key] = math.floor(value * ELDER_BREEDING_TAX)
+    end
+  end
+  -- created_at must be cycle-based (matching Stage's clock), not left nil —
+  -- otherwise the offspring's own Stage would compute incorrectly on the
+  -- very next advance_cycle tick.
+  child.created_at = state.cycle
   table.insert(state.slimes, child)
   for index, slime in ipairs(state.slimes) do
     if slime.id == parent_b_id then
