@@ -54,7 +54,11 @@ def main() -> None:
             f"check the spelling."
         )
 
-    result = subprocess.run(["pytest", "-m", f"{game} or shared", "-v"])
+    # Use sys.executable -m pytest (not a bare "pytest" on PATH) so this
+    # always runs against the same interpreter/environment invoking this
+    # script -- the exact "wrong environment produced a silently different
+    # result" failure mode this directive exists to prevent.
+    result = subprocess.run([sys.executable, "-m", "pytest", "-m", f"{game} or shared", "-v"])
     sys.exit(result.returncode)
 
 
