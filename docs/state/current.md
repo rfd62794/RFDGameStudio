@@ -1,6 +1,33 @@
 # RFDGameStudio — Project State
 
-*Last updated: July 25 2026*
+*Last updated: August 1 2026*
+
+## Test Suite Classification + Selective Scoping — COMPLETED
+
+Real audit of every test file in both stacks (39 Python, 41 TypeScript),
+each assigned a bucket (a specific game, or `shared`), full reasoning for
+every ambiguous case. See `docs/gdd/TEST_SUITE_CLASSIFICATION.md` for the
+complete breakdown before assuming any file's scope.
+
+**Use `python scripts/test_scope.py <game_name>` to run one game's tests
+plus the mandatory shared suite** (`brewfield`, `chimera_wilds`,
+`dissonance`, `scrapcrawl`, `shoal`, `slimeworld`, `slither_rogue`) —
+never runs a game in isolation from `shared`, per ADR-005's precedent.
+Python markers live in `pyproject.toml` (`[tool.pytest.ini_options]`) +
+root `conftest.py`, auto-applied by filename, purely additive to a normal
+unfiltered `pytest` run.
+
+TypeScript `vitest --changed` (v2.1.9) was investigated and found **not
+viable** for this project — it fails during dependency-graph construction
+on the `import.meta.glob(..., { query: '?raw' })` pattern used to load
+`.lua` sources in `ts/src/engine/loader.ts`. Fallback: Vitest's positional
+filename-filter argument (`npx vitest run <substring>`) works today; no
+new TS tooling was built this session (investigation-only, per scope).
+
+**Real gap flagged, not fixed:** `horse_racing`, `mutant_battle_ball`, and
+`slime_coin` have no dedicated Python test file — their only coverage is
+inside multi-game shared-bucketed files, so `test_scope.py <that game>`
+currently just runs `shared`.
 
 ## Arcade Registry — Reorder, Add Dissonance, Delist SlimeBreeder/Slimegarden — COMPLETED
 
