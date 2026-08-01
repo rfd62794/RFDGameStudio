@@ -765,6 +765,16 @@ def studio_deploy_arcade() -> dict:
         deploy_stdout = deploy_proc.stdout or ""
         deploy_result = {"returncode": deploy_proc.returncode, "stdout": deploy_stdout[-1000:]}
 
+        # Pipeline stage advance: only on confirmed real success (hugo build
+        # AND the SFTP deploy subprocess both returned 0), never speculatively.
+        # A failed deploy must never advance the tracked stage. This covers
+        # every game deployed as part of this single atomic arcade deploy —
+        # the main ts/dist bundle plus every example demo — since
+        # studio_deploy_arcade succeeds or fails as one unit, not per-game.
+        if deploy_proc.returncode == 0:
+            for tracked_game_id in GAME_PATHS:
+                advance_pipeline_stage(tracked_game_id, PIPELINE_STAGE_WEBSITE_COLLECTION)
+
         return {
             "copied_files": copied_files,
             "build": build_result,
