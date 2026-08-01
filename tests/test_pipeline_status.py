@@ -6,15 +6,11 @@ Real anchor from RFDGameStudio_PipelineStageTracking_Directive.md §3:
 from __future__ import annotations
 
 import json
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_pipeline_status_report_groups_correctly(tmp_path, monkeypatch) -> None:
     """Given a known real metadata fixture, the report's grouping and
     counts are correct."""
-    import importlib
     import scripts.pipeline_status as pipeline_status
 
     fixture = {
