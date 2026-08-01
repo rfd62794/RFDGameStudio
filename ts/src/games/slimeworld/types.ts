@@ -1,3 +1,4 @@
+// test_scope demo: trivial, reversible comment for vitest --changed investigation
 export type SlimeColor = 'Red' | 'Blue' | 'Yellow' | 'Purple' | 'Orange' | 'Green' | 'Gray';
 export type SlimePattern = 'Solid' | 'Stripe' | 'Polka' | 'Glow' | 'Crown' | 'Ringed' | 'Nebula' | 'Obsidian';
 export type LifeStage = 'Hatchling' | 'Juvenile' | 'Young' | 'Prime' | 'Veteran' | 'Elder';
