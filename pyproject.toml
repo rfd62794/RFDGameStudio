@@ -24,7 +24,17 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "shared: engine-level / studio-mcp-tooling tests that must run regardless of which game changed (see docs/gdd/TEST_SUITE_CLASSIFICATION.md)",
+    "brewfield: Brewfield-specific tests",
+    "chimera_wilds: Chimera Wilds-specific tests",
+    "dissonance: Dissonance Depths-specific tests",
+    "scrapcrawl: ScrapCrawl-specific tests",
+    "shoal: Shoal-specific tests",
+    "slimeworld: SlimeWorld-specific tests",
+    "slither_rogue: Slither Rogue-specific tests",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["studio", "studio_mcp"]
