@@ -273,6 +273,8 @@ function advance_cycle(state, color_specs)
       dispatch.status = "completed"
       dispatch.result = { success = success, xp_gained = xp, credits_gained = credits, unlocked_zone_id = unlocked }
     end
+
+    for _, slime in ipairs(party) do slime.locked_role = nil end
   end
 
   -- Wilds unlock check

@@ -229,9 +229,9 @@ describe('Mission Serialization — stateToLua → advance_cycle Path', () => {
   });
 
   it('test_real_dispatch_resolves_through_full_stateToLua_path', () => {
-    // Dispatch doesn't get resolved in advance_cycle (separate gap),
-    // but the serialization fix still matters: Lua must be able to read
-    // zone_id and slime_ids from the stateToLua output.
+    // Dispatch resolution is covered end-to-end in test_dispatch_resolution.tsx.
+    // Here we confirm the serialization fix still matters: Lua must be able
+    // to read zone_id and slime_ids from the stateToLua output.
     // We verify by launching a dispatch through Lua, then round-tripping
     // through stateToLua and confirming Lua can still read the fields.
     const state = makeState({
@@ -264,15 +264,16 @@ describe('Mission Serialization — stateToLua → advance_cycle Path', () => {
     expect(dispatch['zone_id']).toBe('zone_cinder');
     expect(dispatch['slime_ids']).toEqual(['s1']);
 
-    // Call advance_cycle — dispatch won't resolve (separate gap), but the
-    // key proof is that Lua doesn't crash and the dispatch fields are
-    // readable snake_case, not nil camelCase
+    // Call advance_cycle — the key proof here is that Lua doesn't crash and
+    // the dispatch fields are readable snake_case, not nil camelCase
     const [raw] = call(session, 'advance_cycle', luaState, colorSpecs);
     expect(raw).toBeTruthy();
     const result = raw as Record<string, unknown>;
-    // Dispatch is still active (not resolved in advance_cycle — known gap)
-    // But the state was accepted by Lua without error
-    expect(result).toBeTruthy();
+    // Dispatch resolves within advance_cycle: status flips to completed
+    // with real snake_case fields readable from the stateToLua output.
+    const resultDispatch = result['active_dispatch'] as Record<string, unknown>;
+    expect(resultDispatch).toBeTruthy();
+    expect(String(resultDispatch['status'])).toBe('completed');
   });
 
   // ── Sanity check: would this test have caught the original bug? ──────────
