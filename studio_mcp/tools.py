@@ -40,7 +40,12 @@ import yaml
 
 from studio.executor import LuaError
 from studio.runtime import load_game
-from studio_mcp.game_metadata import write_game_metadata
+from studio_mcp.game_metadata import (
+    GAME_PATHS,
+    PIPELINE_STAGE_WEBSITE_COLLECTION,
+    advance_pipeline_stage,
+    write_game_metadata,
+)
 from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
 from studio_mcp.scaffold import studio_scaffold_game
 from studio_mcp.session_store import create_session, get_session

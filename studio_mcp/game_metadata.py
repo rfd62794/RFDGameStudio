@@ -85,8 +85,53 @@ def _read_version(cwd: Path, paths: list[str]) -> str:
     return "0.1.0"
 
 
-def generate_game_metadata() -> dict[str, dict[str, object]]:
-    """Produce the game metadata object derived from git and VERSION files."""
+# Pipeline Stage Tracking (additive, August 2026): where a game currently
+# sits in the real, repeated AI Studio -> website -> itch.io sequence.
+# Three real values only. Default for any game never explicitly advanced:
+# "ai_studio" -- a game untouched by either deploy tool is still sitting
+# where it started. This field is NOT derived from git like created/
+# last_updated -- it is a side effect written by studio_deploy_arcade
+# (-> "website_collection") and the itch.io butler push (-> "itch_published"),
+# only on confirmed real success. Not a strict forward-only state machine --
+# a real future re-polish pass is a legitimate event, not a regression.
+PIPELINE_STAGE_AI_STUDIO = "ai_studio"
+PIPELINE_STAGE_WEBSITE_COLLECTION = "website_collection"
+PIPELINE_STAGE_ITCH_PUBLISHED = "itch_published"
+_DEFAULT_PIPELINE_STAGE = PIPELINE_STAGE_AI_STUDIO
+
+_METADATA_PATH = REPO_ROOT / "ts" / "src" / "games" / "game-metadata.json"
+
+
+def _load_existing_pipeline_stages(out_path: Path) -> dict[str, str]:
+    """Read pipeline_stage values from the current on-disk metadata file, if
+    any, so a full regeneration (which rebuilds created/last_updated/version/
+    tracked fresh from git every time) never silently wipes real, previously
+    recorded pipeline progress. Never raises -- a missing or corrupt file
+    just means no prior stages to carry forward.
+    """
+    if not out_path.exists():
+        return {}
+    try:
+        existing = json.loads(out_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if not isinstance(existing, dict):
+        return {}
+    return {
+        game_id: info["pipeline_stage"]
+        for game_id, info in existing.items()
+        if isinstance(info, dict) and info.get("pipeline_stage")
+    }
+
+
+def generate_game_metadata(existing_stages: dict[str, str] | None = None) -> dict[str, dict[str, object]]:
+    """Produce the game metadata object derived from git and VERSION files.
+
+    existing_stages: game_id -> pipeline_stage, carried forward from the
+    current on-disk file so this rebuild never resets real pipeline
+    progress. Defaults to "ai_studio" for any game with no recorded stage.
+    """
+    existing_stages = existing_stages or {}
     result: dict[str, dict[str, object]] = {}
 
     for game_id, paths in GAME_PATHS.items():
@@ -110,18 +155,56 @@ def generate_game_metadata() -> dict[str, dict[str, object]]:
             "last_updated": last_updated,
             "version": version,
             "tracked": tracked,
+            "pipeline_stage": existing_stages.get(game_id, _DEFAULT_PIPELINE_STAGE),
         }
 
     return result
 
 
 def write_game_metadata() -> Path:
-    """Generate and write ts/src/games/game-metadata.json."""
-    metadata = generate_game_metadata()
-    out_path = REPO_ROOT / "ts" / "src" / "games" / "game-metadata.json"
+    """Generate and write ts/src/games/game-metadata.json.
+
+    Preserves any existing pipeline_stage per game across the rebuild.
+    """
+    out_path = _METADATA_PATH
+    existing_stages = _load_existing_pipeline_stages(out_path)
+    metadata = generate_game_metadata(existing_stages)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return out_path
+
+
+def advance_pipeline_stage(game_id: str, new_stage: str, out_path: Path | None = None) -> bool:
+    """Set game_id's pipeline_stage to new_stage in the on-disk metadata
+    file, called only after a real, confirmed successful deploy/publish
+    action -- never speculatively.
+
+    Refuses to regress an already-itch_published game back down to
+    website_collection (a successful arcade deploy re-verifies the website
+    copy, it does not mean the game fell off itch.io). Any other real
+    transition, including itch_published -> itch_published again after a
+    re-polish, is allowed -- this is a status field, not a one-way gate.
+
+    Returns True if a write happened, False otherwise (missing file,
+    unknown game_id, or a refused regression).
+    """
+    out_path = out_path or _METADATA_PATH
+    if not out_path.exists():
+        return False
+    try:
+        data = json.loads(out_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    if not isinstance(data, dict) or game_id not in data:
+        return False
+
+    current_stage = data[game_id].get("pipeline_stage", _DEFAULT_PIPELINE_STAGE)
+    if current_stage == PIPELINE_STAGE_ITCH_PUBLISHED and new_stage == PIPELINE_STAGE_WEBSITE_COLLECTION:
+        return False
+
+    data[game_id]["pipeline_stage"] = new_stage
+    out_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    return True
 
 
 if __name__ == "__main__":
