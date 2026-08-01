@@ -6,28 +6,9 @@ Real anchor from RFDGameStudio_PipelineStageTracking_Directive.md §3:
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT_PATH = REPO_ROOT / "scripts" / "pipeline_status.py"
-
-
-def _run_against_fixture(tmp_path: Path, fixture: dict) -> str:
-    fixture_dir = tmp_path / "ts" / "src" / "games"
-    fixture_dir.mkdir(parents=True)
-    (fixture_dir / "game-metadata.json").write_text(json.dumps(fixture), encoding="utf-8")
-
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT_PATH)],
-        cwd=str(tmp_path), capture_output=True, text=True,
-        env={"PYTHONPATH": str(REPO_ROOT)},
-    )
-    # pipeline_status.py resolves METADATA_PATH relative to its own file
-    # location (repo-root-relative), not cwd -- so this test instead
-    # monkeypatches the module directly rather than relying on cwd.
-    return result.stdout
 
 
 def test_pipeline_status_report_groups_correctly(tmp_path, monkeypatch) -> None:
