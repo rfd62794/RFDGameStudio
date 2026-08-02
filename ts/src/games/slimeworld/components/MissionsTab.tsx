@@ -91,7 +91,8 @@ export function MissionsTab({
   setPendingDisposalFavorId,
   disposalConfirmSlimeId,
   setDisposalConfirmSlimeId,
-  handleDisposeSlime
+  handleDisposeSlime,
+  regionLockNodeIds
 }: PlanetTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<'regions' | 'mediation' | 'exploration' | 'active' | 'zones' | 'favors'>('regions');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -132,7 +133,11 @@ export function MissionsTab({
   const activeExplorationNode = state.planetRegion?.nodes.find(n => n.id === state.activeExploration?.targetNodeId);
 
   const isNodeLocked = (node: PlanetNode) => {
-    return node.distanceFromCenter >= 150 && !state.wildsUnlocked;
+    if (node.distanceFromCenter >= 150 && !state.wildsUnlocked) return true;
+    if (!node.isCapitol && regionLockNodeIds && regionLockNodeIds.includes(node.id)) {
+      if (!state.regionUnlocks || !state.regionUnlocks[node.id]) return true;
+    }
+    return false;
   };
 
   const handleTogglePickerSelect = (id: string) => {
