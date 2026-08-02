@@ -287,3 +287,33 @@ planet_region:
     nodes: [planet_node]
     generated_at: timestamp
     geometry_version: {type: integer, optional: true}
+
+# --- REGION LOCKS ---
+# Breeding-gated access: a region unlocks permanently when the player breeds
+# a slime matching its composite lock (color target + shape tier + accent band).
+# Reuses real color_targets, shape_targets, and accent_targets by ID.
+# Convergence requires all other non-capitol regions unlocked + Metallic accent.
+region_locks:
+  # Ring 1 — Guild (6 Frontier nodes, Shape Tier 1, diffusion 0-30: Solid/Polka)
+  - {node_id: node_frontier_a, color_target_id: guild_ember_marsh, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_b, color_target_id: guild_marsh_gale, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_c, color_target_id: guild_gale_tundra, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_d, color_target_id: guild_tundra_crystal, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_e, color_target_id: guild_crystal_tide, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_f, color_target_id: guild_tide_ember, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  # Ring 2 — Rival (3 new nodes, Shape Tier 2, diffusion 45-85: Stripe/Nebula)
+  - {node_id: node_rival_a, color_target_id: rival_ember_tundra, shape_tier: 2, accent_type: diffusion, accent_target_ids: [accent_stripe, accent_nebula]}
+  - {node_id: node_rival_b, color_target_id: rival_marsh_crystal, shape_tier: 2, accent_type: diffusion, accent_target_ids: [accent_stripe, accent_nebula]}
+  - {node_id: node_rival_c, color_target_id: rival_gale_tide, shape_tier: 2, accent_type: diffusion, accent_target_ids: [accent_stripe, accent_nebula]}
+  # Ring 3 — Arc (6 Midpoint nodes, Shape Tier 3, diffusion 85-100: Ringed)
+  - {node_id: node_mid_a, color_target_id: arc_tide_ember_marsh, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_b, color_target_id: arc_ember_marsh_gale, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_c, color_target_id: arc_marsh_gale_tundra, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_d, color_target_id: arc_gale_tundra_crystal, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_e, color_target_id: arc_tundra_crystal_tide, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_f, color_target_id: arc_crystal_tide_ember, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  # Ring 4 — Skip (2 Midpoint nodes, Shape Tier 4/5, amplitude split: Glow vs Obsidian)
+  - {node_id: node_mid_g, color_target_id: skip_ember_gale_crystal, shape_tier: 4, accent_type: amplitude, accent_target_ids: [accent_glow]}
+  - {node_id: node_mid_h, color_target_id: skip_marsh_tundra_tide, shape_tier: 5, accent_type: amplitude, accent_target_ids: [accent_obsidian]}
+  # Capstone — Convergence (1 new node, Metallic accent only, all other non-capitol regions as prerequisites)
+  - {node_id: node_convergence, color_target_id: null, shape_tier: null, accent_type: metallic, accent_target_ids: [accent_metallic], prerequisites: [node_frontier_a, node_frontier_b, node_frontier_c, node_frontier_d, node_frontier_e, node_frontier_f, node_rival_a, node_rival_b, node_rival_c, node_mid_a, node_mid_b, node_mid_c, node_mid_d, node_mid_e, node_mid_f, node_mid_g, node_mid_h]}
