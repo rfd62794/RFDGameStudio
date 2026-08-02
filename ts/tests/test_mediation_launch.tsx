@@ -64,7 +64,7 @@ describe('Mediation Launch — Discarded Result Fix', () => {
     // apply it to state.activeMediation — not discard it.
     const state = makeState();
     const luaState = stateToLua(state);
-    const [raw] = call(session, 'launch_mediation', luaState, 'n1', ['s1', 's2']);
+    const [raw] = call(session, 'launch_mediation', luaState, 'n1', ['s1', 's2'], null);
 
     // Lua returns a real mission object
     expect(raw).toBeTruthy();
@@ -85,7 +85,7 @@ describe('Mediation Launch — Discarded Result Fix', () => {
     // Must destructure the return value — the original bug discarded it
     expect(handlerBody).toContain('const [raw]');
     expect(handlerBody).toContain("call(session, 'launch_mediation'");
-    expect(handlerBody).toContain('if (!raw) return');
+    expect(handlerBody).toContain('if (error || !raw)');
 
     // Must apply to state.activeMediation with real field mapping
     expect(handlerBody).toContain('activeMediation');
@@ -121,7 +121,7 @@ describe('Mediation Launch — Discarded Result Fix', () => {
     const luaState = stateToLua(state);
     // Calling with null node should not throw
     expect(() => {
-      call(session, 'launch_mediation', luaState, null, ['s1']);
+      call(session, 'launch_mediation', luaState, null, ['s1'], null);
     }).not.toThrow();
   });
 
@@ -151,7 +151,7 @@ describe('Mediation Launch — Discarded Result Fix', () => {
     const mediationSteps = [
       handlerBody.includes('if (!selectedMediationNodeId) return'),
       handlerBody.includes("call(session, 'launch_mediation'"),
-      handlerBody.includes('if (!raw) return'),
+      handlerBody.includes('if (error || !raw)'),
       handlerBody.includes('setState'),
       handlerBody.includes('setMediationDraftIds([])'),
       handlerBody.includes('setSelectedMediationNodeId(null)'),

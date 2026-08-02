@@ -125,7 +125,7 @@ export const SLIME_EXPLICIT_LUA_FIELDS = new Set([
   'generation', 'color_saturation', 'hue', 'saturation', 'diffusion_ratio',
   'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'parent_a',
   'parent_b', 'created_at', 'matched_target_id', 'matched_shape_target_id',
-  'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage',
+  'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage', 'region_unlocks',
 ]);
 
 export function luaSlimeToTs(raw: Raw): Slime {

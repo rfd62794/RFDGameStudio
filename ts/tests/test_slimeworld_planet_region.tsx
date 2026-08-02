@@ -8,15 +8,16 @@ const appSource = readFileSync(
   'utf8'
 );
 
-describe('SlimeWorld Planet Region Generation (20-Node)', () => {
-  it('test_generate_planet_region_returns_20_nodes', () => {
+describe('SlimeWorld Planet Region Generation (24-Node)', () => {
+  it('test_generate_planet_region_returns_24_nodes', () => {
     const region = generatePlanetRegion();
-    expect(region.nodes.length).toBe(20);
+    expect(region.nodes.length).toBe(24);
 
     const expectedIds = [
       'node_ember', 'node_marsh', 'node_gale', 'node_tundra', 'node_crystal', 'node_tide',
       'node_frontier_a', 'node_frontier_b', 'node_frontier_c', 'node_frontier_d', 'node_frontier_e', 'node_frontier_f',
-      'node_mid_a', 'node_mid_b', 'node_mid_c', 'node_mid_d', 'node_mid_e', 'node_mid_f', 'node_mid_g', 'node_mid_h'
+      'node_mid_a', 'node_mid_b', 'node_mid_c', 'node_mid_d', 'node_mid_e', 'node_mid_f', 'node_mid_g', 'node_mid_h',
+      'node_rival_a', 'node_rival_b', 'node_rival_c', 'node_convergence'
     ];
     for (const id of expectedIds) {
       expect(region.nodes.some(n => n.id === id)).toBe(true);
@@ -69,7 +70,7 @@ describe('SlimeWorld Planet Region Generation (20-Node)', () => {
   it('test_generate_planet_region_non_capitols_undiscovered', () => {
     const region = generatePlanetRegion();
     const nonCapitols = region.nodes.filter(n => !n.isCapitol);
-    expect(nonCapitols.length).toBe(14);
+    expect(nonCapitols.length).toBe(18);
     for (const node of nonCapitols) {
       expect(node.discovered).toBe(false);
       expect(node.ownerColor).toBeNull();
@@ -95,7 +96,7 @@ describe('SlimeWorld Planet Region Generation (20-Node)', () => {
   it('test_missions_tab_renders_full_map', () => {
     const region = generatePlanetRegion();
     expect(region).toBeTruthy();
-    expect(region.nodes.length).toBe(20);
+    expect(region.nodes.length).toBe(24);
 
     const hasRealNodes = region.nodes.every(n =>
       n.cellShape && n.labelX !== undefined && n.labelY !== undefined

@@ -77,7 +77,7 @@ describe('Lua→TS Field Safety — Alarm System', () => {
       base_stats: gray['base_stats'] as Record<string, number>,
       growth: gray['growth'] as Record<string, number>,
     };
-    const value = call(session, 'initiate_breeding', stateToLua(state), 'parent_a', 'parent_b', 0, data['color_targets'], null, data['shape_targets'], null, colorSpecs);
+    const value = call(session, 'initiate_breeding', stateToLua(state), 'parent_a', 'parent_b', 0, data['color_targets'], null, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets']);
     const [child, error] = luaResult(value);
 
     expect(error).toBeNull();
