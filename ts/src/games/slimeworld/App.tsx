@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import './styles.css';
-import { Coins, FastForward } from 'lucide-react';
+import { Coins, FastForward, X, Sparkles } from 'lucide-react';
 import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
 import { navigateTo } from '../../arcade/routing';
@@ -8,6 +8,7 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
 import { LabTab } from './components/LabTab';
+import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, prepopulateAllTutorials } from './tutorial';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
@@ -60,6 +61,20 @@ const INITIAL_CONTRACTS: CorporateContract[] = [
   { id: 'contract_init_2', title: 'CONTRACT RQ-8821', requiredColor: 'Red', requiredPattern: 'Stripe', creditsReward: 160, cyclesRemaining: 4, totalCycles: 4, flavorText: 'Physical shock loading test. Stripe pattern elastic membrane required for deceleration orbital sleds.' },
 ];
 
+const SAVE_KEY = 'slimeworld_save';
+
+function saveState(state: LabState): void {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {}
+}
+
+function loadSavedState(): LabState | null {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as LabState;
+  } catch { return null; }
+}
+
 export function initialState(session: GameRendererProps['session']): LabState {
   const data = session.files.data as Record<string, unknown>;
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
@@ -106,7 +121,24 @@ export default function App({ session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
-  const [state, setState] = useState<LabState>(() => initialState(session));
+  const [gamePhase, setGamePhase] = useState<'opening' | 'hub'>(() => {
+    const saved = loadSavedState();
+    if (saved) {
+      // Continue — skip opening beat, pre-populate tutorials (New Game Guard)
+      return 'hub';
+    }
+    // New Campaign — show opening beat
+    return 'opening';
+  });
+  const [state, setState] = useState<LabState>(() => {
+    const saved = loadSavedState();
+    if (saved) {
+      // New Game Guard: pre-populate all tutorial IDs as shown
+      return { ...saved, shownTutorials: prepopulateAllTutorials() };
+    }
+    return initialState(session);
+  });
+  const [activeTutorial, setActiveTutorial] = useState<string | null>(null);
   const [primaryTab, setPrimaryTab] = useState<'roster' | 'missions' | 'economy' | 'lab'>('roster');
   const [selectedSlimeId, setSelectedSlimeId] = useState<string | null>(null);
   const [parentAId, setParentAId] = useState<string | null>(null);
@@ -130,8 +162,48 @@ export default function App({ session }: GameRendererProps) {
   const [warning, setWarning] = useState<string | null>(null);
   const [pendingDisposalFavorId, setPendingDisposalFavorId] = useState<string | null>(null);
   const [disposalConfirmSlimeId, setDisposalConfirmSlimeId] = useState<string | null>(null);
+  const prevRegionUnlocksRef = useRef<Record<string, boolean> | undefined>(state.regionUnlocks);
+  const t1FiredRef = useRef(false);
 
   useEffect(() => { if (!selectedSlimeId && state.slimes[0]) setSelectedSlimeId(state.slimes[0].id); }, [selectedSlimeId, state.slimes]);
+
+  // T-1: fires on first Hub view (fresh game only)
+  useEffect(() => {
+    if (gamePhase !== 'hub') return;
+    if (t1FiredRef.current) return;
+    t1FiredRef.current = true;
+    if (shouldFireTutorial(state.shownTutorials, TUTORIAL_IDS.T1_HUB_VIEW)) {
+      setActiveTutorial(TUTORIAL_IDS.T1_HUB_VIEW);
+      setState(prev => ({ ...prev, shownTutorials: markTutorialShown(prev.shownTutorials, TUTORIAL_IDS.T1_HUB_VIEW) }));
+    }
+  }, [gamePhase, state.shownTutorials]);
+
+  // T-3: fires on first region unlock
+  useEffect(() => {
+    const prev = prevRegionUnlocksRef.current;
+    const curr = state.regionUnlocks;
+    if (!prev && curr) {
+      // First time regionUnlocks is set
+      const newKeys = Object.keys(curr).filter(k => curr[k]);
+      if (newKeys.length > 0 && shouldFireTutorial(state.shownTutorials, TUTORIAL_IDS.T3_REGION_UNLOCK)) {
+        setActiveTutorial(TUTORIAL_IDS.T3_REGION_UNLOCK);
+        setState(prev => ({ ...prev, shownTutorials: markTutorialShown(prev.shownTutorials, TUTORIAL_IDS.T3_REGION_UNLOCK) }));
+      }
+    } else if (prev && curr) {
+      // Check for newly added unlocks
+      const newKeys = Object.keys(curr).filter(k => curr[k] && !prev[k]);
+      if (newKeys.length > 0 && shouldFireTutorial(state.shownTutorials, TUTORIAL_IDS.T3_REGION_UNLOCK)) {
+        setActiveTutorial(TUTORIAL_IDS.T3_REGION_UNLOCK);
+        setState(prev => ({ ...prev, shownTutorials: markTutorialShown(prev.shownTutorials, TUTORIAL_IDS.T3_REGION_UNLOCK) }));
+      }
+    }
+    prevRegionUnlocksRef.current = curr;
+  }, [state.regionUnlocks, state.shownTutorials]);
+
+  // Auto-save on state change (after opening beat)
+  useEffect(() => {
+    if (gamePhase === 'hub') saveState(state);
+  }, [state, gamePhase]);
 
   const handleInitiateBreeding = useCallback(() => {
     if (!parentAId || !parentBId) return;
@@ -352,6 +424,19 @@ export default function App({ session }: GameRendererProps) {
     setDisposalConfirmSlimeId(null);
   }, [session, state]);
 
+  // T-2: fires when breeding/roster screen opened with an unlocked-region target visible
+  useEffect(() => {
+    if (gamePhase !== 'hub') return;
+    if (primaryTab !== 'roster') return;
+    if (!shouldFireTutorial(state.shownTutorials, TUTORIAL_IDS.T2_BREEDING_SCREEN)) return;
+    // Check if any region lock target is visible (any locked region exists)
+    const regionLockData = (session.files.data as Record<string, unknown>)['region_locks'] as Array<Record<string, unknown>> | undefined;
+    if (regionLockData && regionLockData.length > 0) {
+      setActiveTutorial(TUTORIAL_IDS.T2_BREEDING_SCREEN);
+      setState(prev => ({ ...prev, shownTutorials: markTutorialShown(prev.shownTutorials, TUTORIAL_IDS.T2_BREEDING_SCREEN) }));
+    }
+  }, [primaryTab, gamePhase, state.shownTutorials, session]);
+
   const primaryContent = primaryTab === 'roster' ? (
     <RosterTab {...({ state, session, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole, lastConsumedSlimeId } as any)} />
   ) : primaryTab === 'missions' ? (
@@ -362,6 +447,24 @@ export default function App({ session }: GameRendererProps) {
     <LabTab {...({ state, handleBuyUpgrade, handlePurchaseSeedSlime, activeSubTab: 'upgrades', setActiveSubTab: () => {}, selectedSlimeId: null, setSelectedSlimeId: () => {}, setRenameSlimeId: () => {}, setNewNameInput: () => {}, handleRecycleSlime: () => {}, parentAId: null, parentBId: null, setParentAId: () => {}, setParentBId: () => {}, isBreedingHatching: false, handleInitiateBreeding: () => {}, activeRegentPattern: null, setActiveRegentPattern: () => {}, onBuyRegent: () => {}, activeRegentColor: null, setActiveRegentColor: () => {}, onBuyColorRegent: () => {}, activeTargetRegent: null, setActiveTargetRegent: () => {}, onBuyTargetRegent: () => {}, handleToggleWorkerRole, handleDeliverContract: () => {}, handleSellOnMarket: () => {} } as any)} />
   );
 
+
+  // Opening beat — New Campaign only, never on Continue
+  if (gamePhase === 'opening') {
+    return (
+      <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<span className="text-slate-400 font-mono text-xs">New Campaign</span>}>
+        <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
+          <div className="text-center space-y-4 max-w-md">
+            <Sparkles className="w-12 h-12 mx-auto text-orange-400" />
+            <h2 className="text-xl font-bold text-slate-200 font-mono">EMBER STATION</h2>
+            <p className="text-sm text-slate-400 font-mono leading-relaxed">
+              Ember is your home. Two regions — Thornward and Abyssal Ember — lie within reach, but they are locked. Breed the right specimen to open them.
+            </p>
+          </div>
+          <Button id="slimeworld-begin" label="Begin" variant="primary" onClick={() => setGamePhase('hub')} />
+        </div>
+      </GameShell>
+    );
+  }
 
   return (
     <GameShell
@@ -387,6 +490,16 @@ export default function App({ session }: GameRendererProps) {
           variant="default"
         />
         {primaryContent}
+        {activeTutorial && TUTORIAL_CONTENT[activeTutorial] && (
+          <div className="absolute top-4 right-4 z-50 max-w-xs p-4 rounded-lg border border-blue-500/40 bg-slate-900/95 shadow-xl">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h3 className="text-sm font-bold text-blue-300 font-mono">{TUTORIAL_CONTENT[activeTutorial].title}</h3>
+              <button onClick={() => setActiveTutorial(null)} className="text-slate-500 hover:text-slate-300"><X className="w-4 h-4" /></button>
+            </div>
+            <p className="text-xs text-slate-400 font-mono leading-relaxed">{TUTORIAL_CONTENT[activeTutorial].body}</p>
+            <button onClick={() => setActiveTutorial(null)} className="mt-3 text-xs text-blue-400 hover:text-blue-300 font-mono">Dismiss</button>
+          </div>
+        )}
       </div>
     </GameShell>
   );

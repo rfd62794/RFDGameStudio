@@ -113,6 +113,7 @@ export interface LabState {
   targetRegentInventory?: Record<string, number>;
   petitions?: Petition[];
   regionUnlocks?: Record<string, boolean>;
+  shownTutorials?: Record<string, boolean>;
 }
 
 type Raw = Record<string, unknown>;
