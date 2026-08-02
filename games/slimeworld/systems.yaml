@@ -12,6 +12,7 @@ lua_files:
   - economy.lua
   - codex.lua
   - favors.lua
+  - regionlock.lua
   - logic.lua
 
 systems:
@@ -90,6 +91,19 @@ systems:
       - resolve_disposal
       - check_fealty_transition
 
+  - id: region_locks
+    description: "Breeding-gated region unlock resolution and mission eligibility"
+    components: [planet_node, region_unlocks, region_locks, slimes]
+    functions:
+      - is_region_unlocked
+      - is_capitol_node
+      - is_node_accessible
+      - check_accent_match
+      - check_shape_tier_match
+      - check_convergence_prerequisites
+      - check_slime_against_lock
+      - check_region_unlocks
+
   - id: garrison
     description: "Planetary garrison assignment and recall"
     components: [garrison_slime_id, locked_role, garrisoned_at]
@@ -141,5 +155,5 @@ entities:
     schema_ref: data.yaml#planet_node
   lab:
     description: "Roster, credits, contracts, and progression state"
-    systems: [breeding, dispatch, economy, upgrades, cycles, favors]
+    systems: [breeding, dispatch, economy, upgrades, cycles, favors, region_locks]
     schema_ref: data.yaml#lab

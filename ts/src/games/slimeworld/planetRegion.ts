@@ -142,7 +142,15 @@ export function generatePlanetRegion(): PlanetRegion {
     { id: 'node_mid_e', angle: 9 * Math.PI / 8, r: 125 },
     { id: 'node_mid_f', angle: 11 * Math.PI / 8, r: 125 },
     { id: 'node_mid_g', angle: 13 * Math.PI / 8, r: 125 },
-    { id: 'node_mid_h', angle: 15 * Math.PI / 8, r: 125 }
+    { id: 'node_mid_h', angle: 15 * Math.PI / 8, r: 125 },
+
+    // Rival Ring (R=100, between frontier and midpoint, offset to fill gaps)
+    { id: 'node_rival_a', angle: Math.PI / 3, r: 100 },
+    { id: 'node_rival_b', angle: Math.PI, r: 100 },
+    { id: 'node_rival_c', angle: 5 * Math.PI / 3, r: 100 },
+
+    // Convergence (center of the map)
+    { id: 'node_convergence', angle: 0, r: 0 }
   ];
 
   const seeds = seedDefs.map(def => {
@@ -295,7 +303,15 @@ export function generatePlanetRegion(): PlanetRegion {
     { id: 'node_mid_e', name: 'Midpoint Epsilon', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Purple: 20 } },
     { id: 'node_mid_f', name: 'Midpoint Zeta', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Blue: 20 } },
     { id: 'node_mid_g', name: 'Midpoint Eta', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Red: 10, Blue: 10 } },
-    { id: 'node_mid_h', name: 'Midpoint Theta', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Yellow: 10, Orange: 10 } }
+    { id: 'node_mid_h', name: 'Midpoint Theta', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Yellow: 10, Orange: 10 } },
+
+    // Rival Ring (3 new nodes — opposite-pair contest regions)
+    { id: 'node_rival_a', name: 'The Fault Line', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Red: 20, Green: 20 } },
+    { id: 'node_rival_b', name: 'Eclipse Void', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Orange: 20, Purple: 20 } },
+    { id: 'node_rival_c', name: 'Stormsurge', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: { Yellow: 20, Blue: 20 } },
+
+    // Convergence (capstone — center of map, gated behind all other regions + Metallic accent)
+    { id: 'node_convergence', name: 'The Convergence', ownerColor: null as SlimeColor | null, strength: 0, isCapitol: false, isSupplied: false, pressure: {} }
   ];
 
   const nodes: PlanetNode[] = nodeDefs.map((def) => {
