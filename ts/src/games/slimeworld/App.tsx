@@ -481,7 +481,7 @@ export default function App({ session }: GameRendererProps) {
         />
       }
     >
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         {warning && <ErrorBox message={warning} />}
         <TabBar
           tabs={[{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]}
@@ -489,7 +489,9 @@ export default function App({ session }: GameRendererProps) {
           onSelect={id => setPrimaryTab(id as 'roster' | 'missions' | 'economy' | 'lab')}
           variant="default"
         />
-        {primaryContent}
+        <div className="flex-1 overflow-y-auto p-2">
+          {primaryContent}
+        </div>
         {activeTutorial && TUTORIAL_CONTENT[activeTutorial] && (
           <div className="absolute top-4 right-4 z-50 max-w-xs p-4 rounded-lg border border-blue-500/40 bg-slate-900/95 shadow-xl">
             <div className="flex items-start justify-between gap-2 mb-2">

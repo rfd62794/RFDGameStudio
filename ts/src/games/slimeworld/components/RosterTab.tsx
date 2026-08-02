@@ -154,7 +154,7 @@ export function RosterTab({
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch flex-1">
               {/* Left Column: Specimen list */}
-              <div className="lg:col-span-6 flex flex-col space-y-3 overflow-y-auto max-h-[480px] pr-1">
+              <div className="lg:col-span-6 flex flex-col space-y-3 overflow-y-auto max-h-[60vh] pr-1">
                 {state.slimes.map((slime) => (
                   <SpecimenListItem
                     key={slime.id}

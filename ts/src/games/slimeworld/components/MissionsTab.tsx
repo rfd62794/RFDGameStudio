@@ -219,7 +219,7 @@ export function MissionsTab({
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* Interactive Map Canvas (SVG Polygon Render) */}
-              <div className="lg:col-span-7 border border-slate-800/80 bg-[#04080f]/50 rounded-xl p-4 flex flex-col justify-between items-center min-h-[350px] relative">
+              <div className="lg:col-span-7 border border-slate-800/80 bg-[#04080f]/50 rounded-xl p-4 flex flex-col justify-between items-center min-h-[300px] sm:min-h-[400px] relative">
                 <div className="absolute top-3 left-3 flex items-center space-x-1.5 bg-slate-950/70 px-2 py-1 rounded border border-slate-800 text-[10px] font-mono z-10">
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
                     state.wildsUnlocked ? 'bg-emerald-500' : 'bg-yellow-500'
@@ -229,7 +229,7 @@ export function MissionsTab({
                   </span>
                 </div>
 
-                <svg viewBox="0 0 600 600" className="w-full max-w-[500px] my-auto">
+                <svg viewBox="0 0 600 600" className="w-full max-w-[400px] sm:max-w-[500px] h-auto my-auto">
                   {/* Guidelines & Anchors first so they sit in the background */}
                   <circle cx="300" cy="300" r="30" fill="none" stroke="rgba(71, 85, 105, 0.4)" strokeWidth="1" strokeDasharray="3 3" />
                   <circle cx="300" cy="300" r="150" fill="none" stroke="rgba(71, 85, 105, 0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
@@ -330,7 +330,7 @@ export function MissionsTab({
               {/* Sidebar detail list & hovered node metrics */}
               <div className="lg:col-span-5 flex flex-col gap-4">
                 {/* Hovered/Selected Detail Panel */}
-                <div className="border border-slate-800 bg-[#080d16]/30 rounded-xl p-4 flex-1 flex flex-col justify-between min-h-[380px]">
+                <div className="border border-slate-800 bg-[#080d16]/30 rounded-xl p-4 flex-1 flex flex-col justify-between min-h-[300px] sm:min-h-[380px]">
                   {(() => {
                     if (!selectedNodeId) {
                       return (
