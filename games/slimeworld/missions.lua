@@ -10,14 +10,18 @@ function retrieve_completed_dispatch(state)
   return dispatch, nil
 end
 
-function launch_exploration(state, node_id, slime_ids)
+function launch_exploration(state, node_id, slime_ids, region_locks)
+  local accessible, err = is_node_accessible(state, node_id, region_locks)
+  if not accessible then return nil, err or "Region is locked" end
   state.active_exploration = { id = "exploration", target_node_id = node_id, slime_ids = slime_ids, cycles_remaining = 1, status = "active" }
-  return state.active_exploration
+  return state.active_exploration, nil
 end
 
-function launch_mediation(state, node_id, slime_ids)
+function launch_mediation(state, node_id, slime_ids, region_locks)
+  local accessible, err = is_node_accessible(state, node_id, region_locks)
+  if not accessible then return nil, err or "Region is locked" end
   state.active_mediation = { id = "mediation", target_node_id = node_id, slime_ids = slime_ids, cycles_remaining = 1, status = "active" }
-  return state.active_mediation
+  return state.active_mediation, nil
 end
 
 function assign_garrison(state, node_id, slime_id)
