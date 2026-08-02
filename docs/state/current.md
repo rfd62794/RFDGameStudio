@@ -1,6 +1,111 @@
 # RFDGameStudio — Project State
 
-*Last updated: August 1 2026*
+*Last updated: August 2 2026*
+
+## SlimeWorld Region Lock-Down — COMPLETED
+
+### What was built
+
+Implemented the Region Lock-Down directive per the design doc. Map regions
+are permanently unlocked by breeding slimes matching composite locks (color
+target + shape tier + accent band). 4 new map nodes added (3 Rival + 1
+Convergence capstone). Mission launches gated by region unlock state.
+
+### Lua side
+
+- **`games/slimeworld/regionlock.lua`** (new, ~120 lines) —
+  `check_region_unlocks`, `is_region_unlocked`, `is_node_accessible`,
+  `check_convergence_prerequisites`, `check_slime_against_lock`,
+  `check_accent_match`, `check_shape_tier_match`, `is_capitol_node`.
+  Reuses `match_color_target`, `match_shape_target`, `find_metallic_accent`
+  from `breeding.lua`.
+- **`games/slimeworld/territory.lua`** — `initiate_breeding` now accepts
+  `region_locks` and `accent_targets` params, calls `check_region_unlocks`
+  after child is created, sets `child.region_unlocks` with newly unlocked
+  node IDs.
+- **`games/slimeworld/missions.lua`** — `launch_exploration` and
+  `launch_mediation` now accept `region_locks` param, call
+  `is_node_accessible` to gate on locked/unlocked/capitol status. Return
+  `(nil, error)` on locked, `(mission, nil)` on success.
+- **`games/slimeworld/systems.yaml`** — added `regionlock.lua` to
+  `lua_files` (8 files now, was 7), registered `region_locks` system with
+  8 functions, added `region_locks` to lab entity systems.
+- **`games/slimeworld/logic_original.lua`** — regenerated to match
+  concatenated output of all 8 Lua files.
+
+### TypeScript side
+
+- **`ts/src/games/slimeworld/types.ts`** — added `regionUnlocks` to
+  `LabState`, `region_unlocks` in `stateToLua`, `region_unlocks` in
+  `SLIME_EXPLICIT_LUA_FIELDS`.
+- **`ts/src/games/slimeworld/App.tsx`** — `handleInitiateBreeding` passes
+  `region_locks` and `accent_targets` to Lua, reads `region_unlocks` from
+  child, merges into `state.regionUnlocks`. `handleLaunchMediation` and
+  `handleLaunchExploration` pass `region_locks` and handle error returns.
+- **`ts/src/games/slimeworld/planetRegion.ts`** — 4 new seed defs and
+  node defs: `node_rival_a/b/c` (R=100) and `node_convergence` (R=0,
+  center). Neighbors computed by existing polygon adjacency logic.
+- **`ts/src/games/slimeworld/components/MissionsTab.tsx`** —
+  `isNodeLocked` extended to check `regionLockNodeIds` prop against
+  `state.regionUnlocks`. Locked regions show as locked on the map.
+
+### Data
+
+- **`games/slimeworld/data.yaml`** — 18 `region_locks` entries: 6 Guild
+  (frontier, tier 1, diffusion), 3 Rival (rival, tier 2, diffusion), 6 Arc
+  (mid_a-f, tier 3, diffusion), 2 Skip (mid_g/h, tier 4/5, amplitude), 1
+  Convergence (metallic accent, all 17 other non-capitols as prerequisites).
+
+### Test coverage — `ts/tests/test_slimeworld_regionlock.tsx` (7 tests)
+
+1. `test_region_lock_data_references_real_targets` — every ID in
+   region_locks resolves to real color/shape/accent entries
+2. `test_new_map_nodes_have_real_neighbors` — 4 new nodes have computed
+   neighbor lists referencing real node IDs
+3. `test_region_unlocks_on_matching_breed` — slime matching a composite
+   lock unlocks the region (TS-Lua-TS bridge)
+4. `test_region_unlock_is_permanent` — already-unlocked regions are
+   not re-unlocked; state remains unlocked
+5. `test_convergence_requires_all_skip_regions` — Convergence stays
+   locked until all prerequisites met, even with matching Metallic slime
+6. `test_mission_blocked_on_locked_region` — launch_exploration and
+   launch_mediation refuse locked non-capitol nodes
+7. `test_mission_allowed_on_unlocked_or_capitol` — both capitol and
+   unlocked regions succeed
+
+### Existing test fixes
+
+- **`ts/tests/test_slimeworld_planet_region.tsx`** — updated node count
+  from 20 to 24, non-capitol count from 14 to 18.
+- **`ts/tests/test_mediation_launch.tsx`** — updated for new
+  `launch_mediation` signature (region_locks param, error return).
+- **`ts/tests/test_lua_slime_field_safety.tsx`** — added
+  `region_unlocks` to expected fields, updated breeding call signature.
+- **`tests/test_slimeworld_mediation_resolution.py`** — updated
+  `launch_mediation` call for new signature (region_locks param, tuple
+  return).
+- **`tests/test_slimeworld_file_split.py`** — `LUA_FILES_ORDER` updated
+  to include `regionlock.lua` (8 files), comment updated 7 to 8.
+
+### Design decisions
+
+- **Region lock count is 18, not 19** — the directive's "19" counts
+  6+3+6+2+1=18. The directive text has an arithmetic discrepancy; the
+  implementation matches the actual table (6 Guild + 3 Rival + 6 Arc +
+  2 Skip + 1 Convergence = 18).
+- **2e mission-reward unit bias** — deferred per directive scope. The
+  directive recommends "nearest/closest-to-match" as the default but
+  marks it as an open judgment call. No reward beyond mission access is
+  implemented for unlocking a region, per Robert's explicit instruction.
+- **No credit/resource/item reward** — unlocking a region grants access
+  to that region's missions, full stop.
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 264 passed (257 existing + 7 new)
+
+---
 
 ## SlimeWorld Fealty & Culture Favors (Rev 2) — COMPLETED
 
