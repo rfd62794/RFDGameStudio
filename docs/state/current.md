@@ -2,6 +2,90 @@
 
 *Last updated: August 1 2026*
 
+## SlimeWorld Fealty & Culture Favors (Rev 2) — COMPLETED
+
+### What was built
+
+Implemented the Fealty and Culture Favors system per the Rev 2 design doc.
+Favors arise procedurally from real node pressure state, are fulfilled via
+Mediation (+5 relationship) or Disposal (+15 relationship), and trigger
+permanent Fealty transitions at 100% relationship.
+
+### Lua side
+
+- **`games/slimeworld/favors.lua`** (new, 147 lines) — `generate_favors`,
+  `find_favor_for_node`, `fulfill_favor_via_mediation`, `resolve_disposal`,
+  `check_fealty_transition`. Constants: FAVOR_CAP=4,
+  FAVOR_PRESSURE_THRESHOLD=20, MEDIATION_FAVOR_INCREMENT=5,
+  DISPOSAL_FAVOR_INCREMENT=15, FEALTY_THRESHOLD=100.
+- **`games/slimeworld/codex.lua`** — `update_planet_supply_and_pressure`
+  skips fealty-locked nodes in pressure accumulation, decay, flips,
+  revolts, supply BFS, and cascade collapse. Fealty-locked nodes get
+  `pressure = {}` and `is_supplied = true`.
+- **`games/slimeworld/logic.lua`** — `advance_cycle` now calls
+  `check_fealty_transition` BEFORE the pressure sim (so 100%-relationship
+  nodes lock before the sim can revolt them), generates favors after the
+  sim, and extends mediation resolution to fulfill favors on success.
+  `resolve_disposal` returns the full mutated state.
+- **`games/slimeworld/systems.yaml`** — added `favors.lua` to `lua_files`
+  (7 files now, was 6), registered favors system with 5 functions.
+- **`games/slimeworld/logic_original.lua`** — regenerated to match
+  concatenated output of all 7 Lua files (byte-identical test updated).
+
+### TypeScript side
+
+- **`ts/src/games/slimeworld/types.ts`** — added `Favor` interface,
+  `fealtyLocked` to `PlanetNode`, `favors` to `LabState`, `luaFavorToTs`
+  bridge function, `fealty_locked` in `nodeToLua`/`luaNodeToTs`,
+  `culture_relationships` in `stateToLua`.
+- **`ts/src/games/slimeworld/App.tsx`** — `handleDisposeSlime` with
+  2-step confirmation, reads `favors` and `culture_relationships` from
+  `advance_cycle` result, passes disposal props to `MissionsTab`.
+- **`ts/src/games/slimeworld/components/MissionsTab.tsx`** — new
+  "FAVORS" sub-tab with culture relationship bars, active favors list,
+  and 2-step Disposal confirmation UI (Step 1: select slime, Step 2:
+  confirm permanent disposal).
+
+### Test coverage — `ts/tests/test_slimeworld_favors.tsx` (6 tests)
+
+1. `test_generate_favors_procedural_from_pressure` — favors generated
+   from nodes with foreign pressure ≥ 20, not from low-pressure nodes
+2. `test_favor_fulfillment_via_mediation_increments_relationships` —
+   mediation fulfillment path produces culture_relationships field
+3. `test_disposal_removes_slime_and_increments_relationships` —
+   `resolve_disposal` removes the slime and increments relationship by 15
+4. `test_fealty_transition_locks_nodes_at_100` — at 100 relationship,
+   nodes become fealty-locked and transfer to Gray ownership
+5. `test_fealty_locked_nodes_skipped_in_pressure` — fealty-locked nodes
+   have pressure cleared and remain locked through pressure simulation
+6. `test_disposal_ui_has_2step_confirmation` — source-level check that
+   MissionsTab has both steps and App.tsx calls `resolve_disposal`
+
+### Python test update
+
+- **`tests/test_slimeworld_file_split.py`** — `LUA_FILES_ORDER` updated
+  to include `favors.lua` (7 files), comment updated from 6→7.
+
+### Design decisions
+
+- **Fealty check runs BEFORE pressure sim** — prevents nodes at 100%
+  relationship from being revolted/flipped before fealty can lock them.
+  Original placement (after sim) caused test failures due to random
+  revolt probability consuming the node before the lock fired.
+- **`resolve_disposal` returns full state** (not just `true`) — allows
+  the TS bridge to read updated `slimes` and `culture_relationships`
+  from the return value without a separate round-trip.
+- **Fealty-locked nodes get `pressure = {}`** — cleared in the pressure
+  application step, not just skipped. Permanently stable territory
+  should not display stale pressure values.
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 257 passed (251 existing + 6 new)
+
+---
+
 ## Test Suite Classification + Selective Scoping — COMPLETED
 
 Real audit of every test file in both stacks (39 Python, 41 TypeScript),
