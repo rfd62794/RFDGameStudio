@@ -457,7 +457,7 @@ export default function App({ session }: GameRendererProps) {
             <Sparkles className="w-12 h-12 mx-auto text-orange-400" />
             <h2 className="text-xl font-bold text-slate-200 font-mono">EMBER STATION</h2>
             <p className="text-sm text-slate-400 font-mono leading-relaxed">
-              Ember is your home. Two regions — Thornward and Abyssal Ember — lie within reach, but they are locked. Breed the right specimen to open them.
+              Ember is your home. Two regions — Thornward and Abyssal Ember — lie within reach, but they are locked. Reach them to open them.
             </p>
           </div>
           <Button id="slimeworld-begin" label="Begin" variant="primary" onClick={() => setGamePhase('hub')} />

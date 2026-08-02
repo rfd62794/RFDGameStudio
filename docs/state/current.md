@@ -2,6 +2,82 @@
 
 *Last updated: August 2 2026*
 
+## SlimeWorld Demo Scope & Onboarding (Ember Path) — COMPLETED
+
+### What was built
+
+Implemented the Demo Scope & Onboarding directive per the design doc.
+New Campaign shows a short, locked Opening beat (Ember is home, two
+regions within reach — no mechanic teaching). Continue skips the beat
+and goes straight to Hub. Three trigger-based tutorials (T-1/T-2/T-3)
+fire on real player actions. New Game Guard pre-populates all tutorial
+IDs on restore so nothing re-fires for returning players. Region-lock
+status renders within the existing MissionsTab sub-tab structure.
+
+### New files
+
+- **`ts/src/games/slimeworld/tutorial.ts`** — Tutorial ID constants,
+  content definitions, `shouldFireTutorial`, `markTutorialShown`,
+  `prepopulateAllTutorials`. Three tutorial triggers: T-1 (first Hub
+  view), T-2 (first roster/breeding screen open), T-3 (first region
+  unlock — states permanence "forever").
+- **`ts/tests/test_slimeworld_onboarding.tsx`** — 6 bridge/source tests
+  per §3 anchors.
+
+### Modified files
+
+- **`ts/src/games/slimeworld/App.tsx`** — Added `gamePhase` state
+  ('opening' | 'hub') with New Campaign/Continue branch logic.
+  `loadSavedState`/`saveState` via localStorage. New Game Guard:
+  pre-populates all tutorial IDs on restore. Three `useEffect` triggers
+  for T-1/T-2/T-3. Opening beat rendering (Sparkles, Ember Station,
+  Begin button). Tutorial popup overlay (dismissable, with X button).
+  Auto-save on state change.
+- **`ts/src/games/slimeworld/types.ts`** — Added `shownTutorials` field
+  to `LabState`.
+
+### Design decisions
+
+- **No save/restore existed** — SlimeWorld had no localStorage or any
+  persistence. Built from scratch using `localStorage` with
+  `SAVE_KEY = 'slimeworld_save'`.
+- **Opening beat text has no mechanic teaching** — per Dissonance's
+  one-job-per-screen discipline. States only "Ember is your home" and
+  two regions are "within reach, but locked."
+- **T-2 fires on roster tab open** (not a separate breeding screen) —
+  SlimeWorld's Roster tab is where breeding happens, so T-2 triggers
+  when the player first opens it with region locks present.
+- **Region-lock status already in MissionsTab** — the existing
+  `isNodeLocked` function (extended in Region Lock-Down) already
+  renders locked regions within the MissionsTab 'regions' sub-tab.
+  No new top-level screen needed.
+
+### Test coverage — `ts/tests/test_slimeworld_onboarding.tsx` (6 tests)
+
+1. `test_new_campaign_shows_opening_beat` — source check: gamePhase
+   with 'opening'/'hub' branches, Ember text, Begin button, no
+   mechanic teaching
+2. `test_continue_skips_opening_beat` — source check: loadSavedState
+   in gamePhase initializer, save → 'hub', no save → 'opening'
+3. `test_new_game_guard_prevents_tutorial_replay` — source +
+   functional: prepopulateAllTutorials marks all 3 IDs, shouldFireTutorial
+   returns false for all
+4. `test_t1_fires_on_first_hub_view` — source check: T1_HUB_VIEW trigger,
+   t1FiredRef, shouldFireTutorial, content mentions Thornward/Abyssal Ember
+5. `test_t3_fires_on_first_region_unlock` — source check + Lua bridge:
+   T3_REGION_UNLOCK trigger, prevRegionUnlocksRef, "forever" in content,
+   breeding a matching slime produces region unlocks
+6. `test_region_status_renders_as_subview` — source check:
+   regionLockNodeIds in MissionsTab, isNodeLocked, 'regions' sub-tab,
+   no new top-level screen
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 270 passed (264 existing + 6 new)
+
+---
+
 ## SlimeWorld Region Lock-Down — COMPLETED
 
 ### What was built
