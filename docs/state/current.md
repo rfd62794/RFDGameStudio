@@ -2,6 +2,100 @@
 
 *Last updated: August 2 2026*
 
+## SlimeWorld Identity Alignment — COMPLETED
+
+### What was built
+
+Implemented the Player-Aligned as Single Canonical Signal directive.
+Replaced the dual-meaning overload where `owner_color == "Gray"` served as
+both cultural identity AND player-control signal. Now `player_aligned` is
+the single canonical flag for "this node is player-controlled," set
+identically by all four claim paths (Force, Bribe, Convert, Fealty).
+
+### Design decisions
+
+- **Force and Bribe** still erase `owner_color` to Gray — raw coercion
+  erasing cultural identity is thematically correct. They now ALSO set
+  `player_aligned = true`.
+- **Convert and Fealty** now PRESERVE `owner_color` — relationship-based
+  outcomes keep the region's cultural identity. They set
+  `player_aligned = true` without touching `owner_color`.
+- **Single canonical signal**: Every downstream check reads
+  `player_aligned` only, never `owner_color == "Gray"`, for "is this
+  mine." Gray goes back to meaning only cultural/genetic identity.
+- **Pressure simulation**: `player_aligned` nodes are excluded from
+  pressure accumulation, flips, revolts, and supply collapse — same
+  treatment as `fealty_locked` nodes.
+
+### Modified files
+
+- **`games/slimeworld/territory.lua`** — `resolve_force_claim`: added
+  `player_aligned = true` (Gray stays). `resolve_bribe_claim`: same.
+  `resolve_convert_claim`: removed `owner_color = "Gray"` overwrite,
+  preserves original color, adds `player_aligned = true`.
+  `claim_grudge_color`: replaced `owner_color ~= "Gray"` with
+  `not node.player_aligned`.
+- **`games/slimeworld/favors.lua`** — `generate_favors` gate: replaced
+  `owner_color ~= "Gray"` with `not node.player_aligned`.
+  `check_fealty_transition`: removed `owner_color = "Gray"` overwrite,
+  added `player_aligned = true` alongside `fealty_locked = true`.
+- **`games/slimeworld/codex.lua`** — `update_planet_supply_and_pressure`:
+  all 6 exclusion checks now include `not node.player_aligned` alongside
+  existing `fealty_locked` checks (pressure accumulation, neighbor
+  targeting, pressure decay/clear, flip/revolt, supply BFS, cascade
+  collapse).
+- **`games/slimeworld/logic.lua`** — Updated comment on fealty transition
+  to reference `player_aligned` instead of Gray.
+- **`games/slimeworld/logic_original.lua`** — Regenerated to match split
+  file changes (byte-identical concatenation test).
+- **`ts/src/games/slimeworld/types.ts`** — Added `playerAligned` to
+  `PlanetNode` interface, bridged in `luaNodeToTs` and `nodeToLua`.
+- **`ts/tests/test_slimeworld_favors.tsx`** — Fixed existing fealty test:
+  now checks `playerAligned === true` and `ownerColor === 'Red'`
+  (preserved) instead of `ownerColor === 'Gray'` (overwritten).
+
+### New files
+
+- **`ts/tests/test_slimeworld_identity_alignment.tsx`** — 7 test anchors
+  per §3 of the directive.
+
+### Test coverage — `ts/tests/test_slimeworld_identity_alignment.tsx` (7 tests)
+
+1. `test_force_claim_sets_player_aligned_and_gray` — Force → Gray +
+   player_aligned
+2. `test_bribe_claim_sets_player_aligned_and_gray` — Bribe → Gray +
+   player_aligned
+3. `test_convert_claim_preserves_owner_color` — Convert → owner_color
+   preserved (Blue) + player_aligned
+4. `test_fealty_transition_preserves_owner_color` — Fealty → owner_color
+   preserved (Red) + player_aligned + fealty_locked
+5. `test_player_aligned_node_stops_generating_favors` — player_aligned
+   node produces no Favor regardless of owner_color
+6. `test_player_aligned_node_excluded_from_pressure_contest` —
+   player_aligned node has pressure cleared, excluded from sim
+7. `test_no_remaining_gray_based_control_checks` — grep proof: no
+   `owner_color ~= "Gray"` control checks remain in territory.lua or
+   favors.lua; all remaining Gray references are genuine color logic
+
+### Remaining Gray references (categorized)
+
+**Genuine color/genetic logic (not control checks):**
+- `territory.lua`: `dominant_color` fallback (`or "Gray"`), pressure
+  color filtering (`color ~= "Gray"`), `convert_target_color` default
+  (`local target_color = "Gray"`), Force/Bribe intentional erasure
+  (`owner_color = "Gray"`)
+- `breeding.lua`: saturation default, color snap threshold, color tier
+  table, shape defaults, interpolation blend target
+- `codex.lua`: wanderer petition color list, seed slime saturation
+- `favors.lua`: none remaining (all control checks replaced)
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 277 passed (270 existing + 7 new)
+
+---
+
 ## SlimeWorld Demo Scope & Onboarding (Ember Path) — COMPLETED
 
 ### What was built
