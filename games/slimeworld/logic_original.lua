@@ -886,14 +886,15 @@ function update_planet_supply_and_pressure(nodes)
   if nodes == nil then return {}, {} end
   local logs = {}
 
-  -- 1. Accumulate pressure
+  -- 1. Accumulate pressure (skip fealty-locked nodes — they exited the
+  -- pressure simulation permanently per Fealty spec)
   local pressure_changes = {}
   for _, node in ipairs(nodes) do
-    if node.owner_color and node.is_supplied then
+    if node.owner_color and node.is_supplied and not node.fealty_locked then
       local pressure_amount = math.floor(5 + (node.strength or 0) * 10)
       for _, neighbor_id in ipairs(node.neighbors or {}) do
         local neighbor = find_by_id(nodes, neighbor_id)
-        if neighbor and neighbor.owner_color ~= node.owner_color then
+        if neighbor and not neighbor.fealty_locked and neighbor.owner_color ~= node.owner_color then
           if pressure_changes[neighbor_id] == nil then pressure_changes[neighbor_id] = {} end
           local current = pressure_changes[neighbor_id][node.owner_color] or 0
           pressure_changes[neighbor_id][node.owner_color] = current + pressure_amount
@@ -902,25 +903,33 @@ function update_planet_supply_and_pressure(nodes)
     end
   end
 
-  -- Apply pressure changes & decay
+  -- Apply pressure changes & decay (skip fealty-locked nodes; clear their
+  -- pressure since they are permanently stable)
   for _, node in ipairs(nodes) do
-    local deltas = pressure_changes[node.id]
-    if deltas then
-      for color, amount in pairs(deltas) do
-        node.pressure = node.pressure or {}
-        node.pressure[color] = (node.pressure[color] or 0) + amount
+    if node.fealty_locked then
+      node.pressure = {}
+    else
+      local deltas = pressure_changes[node.id]
+      if deltas then
+        for color, amount in pairs(deltas) do
+          node.pressure = node.pressure or {}
+          node.pressure[color] = (node.pressure[color] or 0) + amount
+        end
       end
-    end
-    if node.pressure then
-      for color, val in pairs(node.pressure) do
-        if val > 0 then node.pressure[color] = math.max(0, val - 2) end
+      if node.pressure then
+        for color, val in pairs(node.pressure) do
+          if val > 0 then node.pressure[color] = math.max(0, val - 2) end
+        end
       end
     end
   end
 
-  -- 2. Check for ownership flips and revolts
+  -- 2. Check for ownership flips and revolts (skip fealty-locked nodes)
   local threshold = 100
   for _, node in ipairs(nodes) do
+    if node.fealty_locked then
+      -- Fealty-locked nodes are permanently stable: no flips, no revolts
+    else
     local highest_foreign_color = nil
     local highest_foreign_pressure = 0
     if node.pressure then
@@ -974,10 +983,18 @@ function update_planet_supply_and_pressure(nodes)
         node.strength = math.floor(node.strength * 1000) / 1000
       end
     end
+    end
   end
 
-  -- 3. BFS Supply Chain from Capitols
-  for _, n in ipairs(nodes) do n.is_supplied = false end
+  -- 3. BFS Supply Chain from Capitols (fealty-locked nodes are always
+  -- supplied — they are permanently the player's territory)
+  for _, n in ipairs(nodes) do
+    if n.fealty_locked then
+      n.is_supplied = true
+    else
+      n.is_supplied = false
+    end
+  end
   for _, capitol in ipairs(nodes) do
     if capitol.is_capitol and capitol.owner_color then
       capitol.is_supplied = true
@@ -998,9 +1015,10 @@ function update_planet_supply_and_pressure(nodes)
     end
   end
 
-  -- 4. Cascade collapse: unsupplied owned non-capitol nodes revert to Unclaimed
+  -- 4. Cascade collapse: unsupplied owned non-capitol nodes revert to
+  -- Unclaimed (skip fealty-locked nodes — permanently supplied)
   for _, node in ipairs(nodes) do
-    if node.owner_color and not node.is_supplied and not node.is_capitol then
+    if not node.fealty_locked and node.owner_color and not node.is_supplied and not node.is_capitol then
       table.insert(logs, "SUPPLY COLLAPSE: Node [" .. (node.name or node.id) .. "] lost same-color supply line connection to its Capitol. Node reverted to Unclaimed.")
       node.owner_color = nil
       node.strength = 0
@@ -1019,6 +1037,154 @@ function check_wilds_unlock_condition(slimes)
   end
   return false
 end
+
+-- favors.lua — Culture Favors: procedural requests generated from real
+-- per-node pressure state. The on-ramp to Fealty.
+--
+-- Design (per SlimeWorld_Design_Rev2.md):
+--   Favors are generated after each cycle's supply/pressure simulation,
+--   reflecting the real, just-updated state of the map. A Favor targets
+--   a single node where a culture is under foreign pressure. Fulfilling
+--   it via Mediation (extend existing resolver) or Disposal (sacrifice a
+--   slime) increments culture_relationships toward 100%.
+--
+-- Increment values (proposed, pending Robert's review — same discipline
+-- as Stage-Make-Real's Elder breeding tax):
+--   Mediation fulfillment: +5  (slow, quiet path)
+--   Disposal fulfillment:  +15 (stronger, costs a real slime)
+--   Fealty triggers at:     100
+--
+-- §2c design choice: Extend Mediation (option a). Mediation already
+-- targets a single node with a party of slimes — a Favor maps 1:1 to a
+-- node. On successful Mediation of a node with an active Favor, also
+-- reduce pressure and increment culture_relationships. This reuses
+-- tested code with a minimal extension rather than building a parallel
+-- resolution system.
+
+local FAVOR_CAP = 4
+local FAVOR_PRESSURE_THRESHOLD = 20
+local MEDIATION_FAVOR_INCREMENT = 5
+local DISPOSAL_FAVOR_INCREMENT = 15
+local FEALTY_THRESHOLD = 100
+
+function generate_favors(nodes, existing_favors)
+  if #existing_favors >= FAVOR_CAP then return existing_favors end
+  local favors = {}
+  for _, f in ipairs(existing_favors) do table.insert(favors, f) end
+  for _, node in ipairs(nodes or {}) do
+    if #favors >= FAVOR_CAP then break end
+    if not node.fealty_locked and node.owner_color and node.owner_color ~= "Gray" then
+      for pressure_color, amount in pairs(node.pressure or {}) do
+        if pressure_color ~= node.owner_color and amount >= FAVOR_PRESSURE_THRESHOLD then
+          local exists = false
+          for _, f in ipairs(favors) do
+            if f.node_id == node.id then exists = true break end
+          end
+          if not exists then
+            table.insert(favors, {
+              id = "favor_" .. os.time() .. "_" .. math.random(1000),
+              culture = node.owner_color,
+              node_id = node.id,
+              node_name = node.name or node.id,
+              pressure_color = pressure_color,
+              pressure_amount = amount,
+            })
+          end
+          break
+        end
+      end
+    end
+  end
+  return favors
+end
+
+function find_favor_for_node(favors, node_id)
+  for _, f in ipairs(favors or {}) do
+    if f.node_id == node_id then return f end
+  end
+  return nil
+end
+
+function fulfill_favor_via_mediation(state, node, favor)
+  local culture = favor.culture
+  local pressure_color = favor.pressure_color
+  if node.pressure and node.pressure[pressure_color] then
+    node.pressure[pressure_color] = math.max(0, node.pressure[pressure_color] - 30)
+  end
+  if not state.culture_relationships then state.culture_relationships = {} end
+  local current = state.culture_relationships[culture] or 0
+  if current < FEALTY_THRESHOLD then
+    state.culture_relationships[culture] = math.min(FEALTY_THRESHOLD, current + MEDIATION_FAVOR_INCREMENT)
+  end
+  for i, f in ipairs(state.favors or {}) do
+    if f.id == favor.id then
+      table.remove(state.favors, i)
+      break
+    end
+  end
+  return true
+end
+
+function resolve_disposal(state, slime_id, favor_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil then return false, "Slime not found" end
+  local favor = nil
+  for _, f in ipairs(state.favors or {}) do
+    if f.id == favor_id then favor = f break end
+  end
+  if favor == nil then return false, "Favor not found" end
+  for i, s in ipairs(state.slimes) do
+    if s.id == slime_id then
+      table.remove(state.slimes, i)
+      break
+    end
+  end
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, favor.node_id)
+  if node and node.pressure then
+    for color, _ in pairs(node.pressure) do
+      if color ~= node.owner_color then
+        node.pressure[color] = 0
+      end
+    end
+  end
+  if not state.culture_relationships then state.culture_relationships = {} end
+  local current = state.culture_relationships[favor.culture] or 0
+  if current < FEALTY_THRESHOLD then
+    state.culture_relationships[favor.culture] = math.min(FEALTY_THRESHOLD, current + DISPOSAL_FAVOR_INCREMENT)
+  end
+  for i, f in ipairs(state.favors or {}) do
+    if f.id == favor_id then
+      table.remove(state.favors, i)
+      break
+    end
+  end
+  return state, nil
+end
+
+function check_fealty_transition(state)
+  local transitions = {}
+  if not state.culture_relationships then return transitions end
+  for color, rel in pairs(state.culture_relationships) do
+    if rel >= FEALTY_THRESHOLD then
+      local nodes = state.planet_region and state.planet_region.nodes or {}
+      for _, node in ipairs(nodes) do
+        if node.owner_color == color and not node.fealty_locked then
+          node.fealty_locked = true
+          node.owner_color = "Gray"
+          node.strength = 1.0
+          node.pressure = {}
+          table.insert(transitions, {
+            color = color,
+            node_id = node.id,
+            node_name = node.name or node.id,
+          })
+        end
+      end
+    end
+  end
+  return transitions
+end
+
 
 function check_level_up(slime, color_specs)
   while (slime.xp or 0) >= 100 do
@@ -1121,33 +1287,25 @@ function advance_cycle(state, color_specs)
     end
   end
 
+  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to Gray
+  for _, t in ipairs(check_fealty_transition(state)) do
+    table.insert(state.logs, { id = "log_fealty_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
+      text = "FEALTY: [" .. (t.node_name or t.node_id) .. "] has sworn permanent loyalty. " .. t.color .. " territory joined your domain — the pressure simulation releases its hold.", type = "system" })
+  end
+
   -- Planet territory simulation: supply/pressure, flips, revolts, cascade collapse
   local region = state.planet_region
   if region and region.nodes and #region.nodes > 0 then
     local sim_nodes, sim_logs = update_planet_supply_and_pressure(region.nodes)
     region.nodes = sim_nodes
     for _, sim_log in ipairs(sim_logs) do
-      table.insert(state.logs, {
-        id = "log_sim_" .. os.time() .. "_" .. math.random(1000),
-        cycle = state.cycle,
-        text = sim_log,
-        type = "system",
-      })
+      table.insert(state.logs, { id = "log_sim_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle, text = sim_log, type = "system" })
     end
 
-    -- Stray generation on node flips (detect owner_color change)
-    -- We detect flips by checking if a node has strength 0.3 and no garrison (post-flip state)
-    -- and generate a stray matching the new owner color
+    -- Stray generation on node flips: parse sim_logs for TERRITORY FLIP entries
     local slimes = state.slimes or {}
-    for _, node in ipairs(region.nodes) do
-      -- Check for recently flipped nodes (strength == 0.3, owner_color set, pressure cleared)
-      -- This is a heuristic since we don't have prior state to compare
-      -- We use the sim_logs to detect flips instead
-    end
-    -- Parse sim_logs for TERRITORY FLIP entries to generate strays
     for _, sim_log in ipairs(sim_logs) do
       if string.find(sim_log, "TERRITORY FLIP:") then
-        -- Extract the new owner color from the log
         local new_color = string.match(sim_log, "to (%a+)%.")
         if new_color and #slimes < (state.roster_cap or 8) then
           local stray = create_seed_slime(new_color, "Solid", color_specs)
@@ -1155,17 +1313,16 @@ function advance_cycle(state, color_specs)
           stray.locked_role = "worker"
           stray.name = "Refugee " .. stray.name
           table.insert(slimes, stray)
-          table.insert(state.logs, {
-            id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000),
-            cycle = state.cycle,
-            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to WORKER.",
-            type = "combat",
-          })
+          table.insert(state.logs, { id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
+            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to WORKER.", type = "combat" })
         end
       end
     end
     state.slimes = slimes
   end
+
+  -- Generate Culture Favors from just-updated node pressure state
+  state.favors = generate_favors(state.planet_region and state.planet_region.nodes or {}, state.favors or {})
 
   -- Resolve active exploration
   if state.active_exploration and state.active_exploration.status == "active" then
@@ -1258,6 +1415,22 @@ function advance_cycle(state, color_specs)
         stability_change = math.floor(5 + math.random() * 5)
       end
       node.strength = math.min(1, strength + stability_change / 100)
+
+      -- Favor fulfillment via Mediation (§2c option a: extend existing
+      -- resolver). On successful mediation of a node with an active Favor,
+      -- also reduce foreign pressure and increment culture_relationships.
+      if success then
+        local favor = find_favor_for_node(state.favors, node.id)
+        if favor then
+          fulfill_favor_via_mediation(state, node, favor)
+          table.insert(state.logs, {
+            id = "log_favor_med_" .. os.time(),
+            cycle = state.cycle,
+            text = "FAVOR FULFILLED: Cultural favor for " .. favor.culture .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
+            type = "corporate",
+          })
+        end
+      end
 
       table.insert(state.logs, {
         id = "log_med_res_" .. os.time(),
