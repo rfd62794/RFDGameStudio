@@ -165,8 +165,6 @@ describe('SlimeWorld Fealty & Culture Favors', () => {
     // Find the non-capitol node (n1) which should be fealty-locked
     const n1Node = nodeArray.find(n => n['id'] === 'n1');
     expect(n1Node).toBeTruthy();
-    console.log('FEALTY DEBUG n1Node:', JSON.stringify(n1Node));
-    console.log('FEALTY DEBUG culture_relationships:', JSON.stringify(result['culture_relationships']));
     const node = luaNodeToTs(n1Node!);
     expect(node.fealtyLocked).toBe(true);
     expect(node.ownerColor).toBe('Gray');
