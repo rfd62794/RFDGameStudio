@@ -99,17 +99,10 @@ function advance_cycle(state, color_specs)
     end
   end
 
-  -- Check Fealty transitions BEFORE pressure simulation: any culture at
-  -- 100% relationship transfers its nodes to the player (Gray) and locks
-  -- them out of the pressure simulation permanently.
-  local pre_fealty_transitions = check_fealty_transition(state)
-  for _, transition in ipairs(pre_fealty_transitions) do
-    table.insert(state.logs, {
-      id = "log_fealty_" .. os.time() .. "_" .. math.random(1000),
-      cycle = state.cycle,
-      text = "FEALTY: [" .. (transition.node_name or transition.node_id) .. "] has sworn permanent loyalty. " .. transition.color .. " territory joined your domain — the pressure simulation releases its hold.",
-      type = "system",
-    })
+  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to Gray
+  for _, t in ipairs(check_fealty_transition(state)) do
+    table.insert(state.logs, { id = "log_fealty_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
+      text = "FEALTY: [" .. (t.node_name or t.node_id) .. "] has sworn permanent loyalty. " .. t.color .. " territory joined your domain — the pressure simulation releases its hold.", type = "system" })
   end
 
   -- Planet territory simulation: supply/pressure, flips, revolts, cascade collapse
@@ -118,27 +111,13 @@ function advance_cycle(state, color_specs)
     local sim_nodes, sim_logs = update_planet_supply_and_pressure(region.nodes)
     region.nodes = sim_nodes
     for _, sim_log in ipairs(sim_logs) do
-      table.insert(state.logs, {
-        id = "log_sim_" .. os.time() .. "_" .. math.random(1000),
-        cycle = state.cycle,
-        text = sim_log,
-        type = "system",
-      })
+      table.insert(state.logs, { id = "log_sim_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle, text = sim_log, type = "system" })
     end
 
-    -- Stray generation on node flips (detect owner_color change)
-    -- We detect flips by checking if a node has strength 0.3 and no garrison (post-flip state)
-    -- and generate a stray matching the new owner color
+    -- Stray generation on node flips: parse sim_logs for TERRITORY FLIP entries
     local slimes = state.slimes or {}
-    for _, node in ipairs(region.nodes) do
-      -- Check for recently flipped nodes (strength == 0.3, owner_color set, pressure cleared)
-      -- This is a heuristic since we don't have prior state to compare
-      -- We use the sim_logs to detect flips instead
-    end
-    -- Parse sim_logs for TERRITORY FLIP entries to generate strays
     for _, sim_log in ipairs(sim_logs) do
       if string.find(sim_log, "TERRITORY FLIP:") then
-        -- Extract the new owner color from the log
         local new_color = string.match(sim_log, "to (%a+)%.")
         if new_color and #slimes < (state.roster_cap or 8) then
           local stray = create_seed_slime(new_color, "Solid", color_specs)
@@ -146,21 +125,15 @@ function advance_cycle(state, color_specs)
           stray.locked_role = "worker"
           stray.name = "Refugee " .. stray.name
           table.insert(slimes, stray)
-          table.insert(state.logs, {
-            id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000),
-            cycle = state.cycle,
-            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to WORKER.",
-            type = "combat",
-          })
+          table.insert(state.logs, { id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
+            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to WORKER.", type = "combat" })
         end
       end
     end
     state.slimes = slimes
   end
 
-  -- Generate Culture Favors from real, just-updated node pressure state.
-  -- Favors are generated after the supply/pressure simulation so they
-  -- reflect the real current map, not stale pre-sim state.
+  -- Generate Culture Favors from just-updated node pressure state
   state.favors = generate_favors(state.planet_region and state.planet_region.nodes or {}, state.favors or {})
 
   -- Resolve active exploration
