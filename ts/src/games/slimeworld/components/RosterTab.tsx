@@ -130,7 +130,7 @@ export function RosterTab({
 
   const [activeSubTab, setActiveSubTab] = useState<'collection' | 'breeding' | 'slimedex'>('collection');
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 min-h-0">
       <TabBar
         tabs={[{ id: 'collection', label: 'COLLECTION' }, { id: 'breeding', label: 'SPLICING' }, { id: 'slimedex', label: 'SLIMEDEX' }]}
         active={activeSubTab}

@@ -156,7 +156,7 @@ export function LabTab({
 
   const activeSubTab = 'upgrades' as const;
   return (
-    <div className="flex flex-col flex-1">        {activeSubTab === 'upgrades' && (
+    <div className="flex flex-col flex-1 min-h-0">        {activeSubTab === 'upgrades' && (
           <motion.div
             key="sub_upgrades"
             initial={{ opacity: 0, y: 5 }}

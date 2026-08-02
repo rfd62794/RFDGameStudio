@@ -489,7 +489,7 @@ export default function App({ session }: GameRendererProps) {
           onSelect={id => setPrimaryTab(id as 'roster' | 'missions' | 'economy' | 'lab')}
           variant="default"
         />
-        <div className="flex-1 overflow-y-auto p-2">
+        <div className="flex-1 overflow-y-auto p-2 min-h-0">
           {primaryContent}
         </div>
         {activeTutorial && TUTORIAL_CONTENT[activeTutorial] && (

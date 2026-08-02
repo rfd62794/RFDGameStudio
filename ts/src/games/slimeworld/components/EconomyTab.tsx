@@ -162,7 +162,7 @@ export function EconomyTab({
 
   const activeSubTab = 'requisitions' as const;
   return (
-    <div className="flex flex-col flex-1">        {activeSubTab === 'requisitions' && (
+    <div className="flex flex-col flex-1 min-h-0">        {activeSubTab === 'requisitions' && (
           <motion.div
             key="sub_requisitions"
             initial={{ opacity: 0, y: 5 }}

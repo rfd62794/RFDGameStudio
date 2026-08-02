@@ -185,7 +185,7 @@ export function MissionsTab({
   const availableSlimes = state.slimes.filter(s => s.role === 'idle' && (!s.lockedRole || s.lockedRole === pickerType));
 
   return (
-    <div className="flex flex-col flex-1" id="planet_tab_root">
+    <div className="flex flex-col flex-1 min-h-0" id="planet_tab_root">
       <TabBar
         tabs={[{ id: 'regions', label: 'TERRITORY' }, { id: 'active', label: 'ACTIVE' }, { id: 'zones', label: 'ZONES' }, { id: 'mediation', label: 'MEDIATION' }, { id: 'exploration', label: 'EXPLORATION' }, { id: 'favors', label: 'FAVORS' }]}
         active={activeSubTab}
