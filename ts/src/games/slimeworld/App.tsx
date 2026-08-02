@@ -289,8 +289,9 @@ export default function App({ session }: GameRendererProps) {
   const handleRetrieveCompletedPod = useCallback(() => { const value = call(session, 'retrieve_completed_dispatch', stateToLua(state)); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'No completed dispatch.'); return; } setState(previous => ({ ...previous, activeDispatch: null })); }, [session, state]);
   const handleLaunchMediation = useCallback(() => {
     if (!selectedMediationNodeId) return;
-    const [raw] = call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds);
-    if (!raw) return;
+    const data = session.files.data as Record<string, unknown>;
+    const [raw, error] = call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds, data['region_locks']) as [Record<string, unknown> | null, string | null];
+    if (error || !raw) { setWarning(error ?? 'Region is locked.'); return; }
     const r = raw as Record<string, unknown>;
     setState(previous => ({
       ...previous,
@@ -301,8 +302,9 @@ export default function App({ session }: GameRendererProps) {
   }, [mediationDraftIds, selectedMediationNodeId, session, state]);
   const handleLaunchExploration = useCallback(() => {
     if (!selectedExplorationNodeId || explorationDraftIds.length === 0) return;
-    const [raw] = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds);
-    if (!raw) return;
+    const data = session.files.data as Record<string, unknown>;
+    const [raw, error] = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds, data['region_locks']) as [Record<string, unknown> | null, string | null];
+    if (error || !raw) { setWarning(error ?? 'Region is locked.'); return; }
     const r = raw as Record<string, unknown>;
     setState(previous => ({
       ...previous,

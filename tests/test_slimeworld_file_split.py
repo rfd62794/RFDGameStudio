@@ -28,6 +28,7 @@ LUA_FILES_ORDER = [
     "economy.lua",
     "codex.lua",
     "favors.lua",
+    "regionlock.lua",
     "logic.lua",
 ]
 
@@ -66,7 +67,7 @@ def test_no_lingering_single_file_reference() -> None:
     """systems.yaml must declare lua_files; no stale single-file references."""
     systems = yaml.safe_load((GAME_DIR / "systems.yaml").read_text(encoding="utf-8"))
 
-    # lua_files must be present and list all 7 files
+    # lua_files must be present and list all 8 files
     assert "lua_files" in systems, "systems.yaml must have lua_files key"
     declared = systems["lua_files"]
     assert declared == LUA_FILES_ORDER, (
