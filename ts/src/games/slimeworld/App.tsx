@@ -138,10 +138,11 @@ export default function App({ session }: GameRendererProps) {
     setIsBreedingHatching(true);
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs);
+    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets']);
     const [raw, error] = luaResult(value);
     if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
+    const childRegionUnlocks = (raw['region_unlocks'] ?? []) as string[];
     setLastConsumedSlimeId(child.consumedSlimeId ?? null);
     setState(previous => {
       const filteredSlimes = child.consumedSlimeId
@@ -153,6 +154,8 @@ export default function App({ session }: GameRendererProps) {
       if (child.matchedShapeTargetId) newShapeTargetCodex[child.matchedShapeTargetId] = true;
       const newColorCodex = { ...(previous.colorCodex ?? {}), [child.color]: { discovered: true } } as Record<SlimeColor, { discovered: boolean }>;
       const newPatternCodex = { ...(previous.patternCodex ?? {}), [child.pattern]: { discovered: true } } as Record<SlimePattern, { discovered: boolean }>;
+      const newRegionUnlocks = { ...(previous.regionUnlocks ?? {}) };
+      for (const nodeId of childRegionUnlocks) { newRegionUnlocks[nodeId] = true; }
       return {
         ...previous,
         credits: Math.max(0, previous.credits - 10),
@@ -161,6 +164,7 @@ export default function App({ session }: GameRendererProps) {
         shapeTargetCodex: newShapeTargetCodex,
         colorCodex: newColorCodex,
         patternCodex: newPatternCodex,
+        regionUnlocks: newRegionUnlocks,
       };
     });
     setParentAId(null); setParentBId(null); setIsBreedingHatching(false);
