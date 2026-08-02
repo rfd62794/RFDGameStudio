@@ -11,6 +11,7 @@ lua_files:
   - missions.lua
   - economy.lua
   - codex.lua
+  - favors.lua
   - logic.lua
 
 systems:
@@ -79,6 +80,16 @@ systems:
     functions:
       - launch_mediation
 
+  - id: favors
+    description: "Culture Favor generation, fulfillment, and Fealty transitions"
+    components: [planet_node, pressure, culture_relationships, favors, slimes]
+    functions:
+      - generate_favors
+      - find_favor_for_node
+      - fulfill_favor_via_mediation
+      - resolve_disposal
+      - check_fealty_transition
+
   - id: garrison
     description: "Planetary garrison assignment and recall"
     components: [garrison_slime_id, locked_role, garrisoned_at]
@@ -130,5 +141,5 @@ entities:
     schema_ref: data.yaml#planet_node
   lab:
     description: "Roster, credits, contracts, and progression state"
-    systems: [breeding, dispatch, economy, upgrades, cycles]
+    systems: [breeding, dispatch, economy, upgrades, cycles, favors]
     schema_ref: data.yaml#lab

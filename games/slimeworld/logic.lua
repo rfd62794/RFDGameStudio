@@ -145,6 +145,11 @@ function advance_cycle(state, color_specs)
     state.slimes = slimes
   end
 
+  -- Generate Culture Favors from real, just-updated node pressure state.
+  -- Favors are generated after the supply/pressure simulation so they
+  -- reflect the real current map, not stale pre-sim state.
+  state.favors = generate_favors(state.planet_region and state.planet_region.nodes or {}, state.favors or {})
+
   -- Resolve active exploration
   if state.active_exploration and state.active_exploration.status == "active" then
     local exploration = state.active_exploration
@@ -236,6 +241,22 @@ function advance_cycle(state, color_specs)
         stability_change = math.floor(5 + math.random() * 5)
       end
       node.strength = math.min(1, strength + stability_change / 100)
+
+      -- Favor fulfillment via Mediation (§2c option a: extend existing
+      -- resolver). On successful mediation of a node with an active Favor,
+      -- also reduce foreign pressure and increment culture_relationships.
+      if success then
+        local favor = find_favor_for_node(state.favors, node.id)
+        if favor then
+          fulfill_favor_via_mediation(state, node, favor)
+          table.insert(state.logs, {
+            id = "log_favor_med_" .. os.time(),
+            cycle = state.cycle,
+            text = "FAVOR FULFILLED: Cultural favor for " .. favor.culture .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
+            type = "corporate",
+          })
+        end
+      end
 
       table.insert(state.logs, {
         id = "log_med_res_" .. os.time(),
@@ -329,6 +350,18 @@ function advance_cycle(state, color_specs)
     if record.cycle >= state.cycle - 4 then table.insert(kept_sales, record) end
   end
   state.recent_market_sales = kept_sales
+
+  -- Check Fealty transitions: any culture at 100% relationship transfers its
+  -- nodes to the player (Gray) and locks them out of the pressure simulation.
+  local fealty_transitions = check_fealty_transition(state)
+  for _, transition in ipairs(fealty_transitions) do
+    table.insert(state.logs, {
+      id = "log_fealty_" .. os.time() .. "_" .. math.random(1000),
+      cycle = state.cycle,
+      text = "FEALTY: [" .. (transition.node_name or transition.node_id) .. "] has sworn permanent loyalty. " .. transition.color .. " territory joined your domain — the pressure simulation releases its hold.",
+      type = "system",
+    })
+  end
 
   return state
 end

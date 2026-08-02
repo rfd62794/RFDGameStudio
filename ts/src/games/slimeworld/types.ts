@@ -48,6 +48,7 @@ export interface PlanetNode {
   distanceFromCenter: number;
   discovered: boolean;
   garrisonSlimeId?: string | null;
+  fealtyLocked?: boolean;
 }
 
 export interface PlanetRegion { nodes: PlanetNode[]; generatedAt: number; geometryVersion?: number; }
@@ -64,6 +65,15 @@ export interface Petition {
   payoutMultiplier: number;
   reward?: number;
   expiresCycle: number;
+}
+
+export interface Favor {
+  id: string;
+  culture: SlimeColor;
+  nodeId: string;
+  nodeName: string;
+  pressureColor: SlimeColor;
+  pressureAmount: number;
 }
 
 export interface LogEntry {
@@ -92,6 +102,7 @@ export interface LabState {
   activeExploration?: Mission | null;
   hasAutoFeeder?: boolean;
   cultureRelationships?: Record<SlimeColor, number>;
+  favors?: Favor[];
   colorCodex?: Record<SlimeColor, { discovered: boolean }>;
   colorTargetCodex?: Record<string, boolean>;
   shapeCodex?: Record<string, boolean>;
@@ -153,6 +164,7 @@ export function luaNodeToTs(raw: Raw): PlanetNode {
     pressure: (raw['pressure'] ?? {}) as Partial<Record<SlimeColor, number>>, strength: number(raw, 'strength'),
     isCapitol: raw['is_capitol'] === true, isSupplied: raw['is_supplied'] === true, distanceFromCenter: number(raw, 'distance_from_center'),
     discovered: raw['discovered'] === true, garrisonSlimeId: (raw['garrison_slime_id'] ?? null) as string | null,
+    fealtyLocked: raw['fealty_locked'] === true,
   };
 }
 
@@ -161,13 +173,22 @@ export function slimeToLua(slime: Slime): Raw {
 }
 
 export function nodeToLua(node: PlanetNode): Raw {
-  return { id: node.id, name: node.name, cell_shape: node.cellShape, label_x: node.labelX, label_y: node.labelY, neighbors: node.neighbors, owner_color: node.ownerColor, pressure: node.pressure, strength: node.strength, is_capitol: node.isCapitol, is_supplied: node.isSupplied, distance_from_center: node.distanceFromCenter, discovered: node.discovered, garrison_slime_id: node.garrisonSlimeId };
+  return { id: node.id, name: node.name, cell_shape: node.cellShape, label_x: node.labelX, label_y: node.labelY, neighbors: node.neighbors, owner_color: node.ownerColor, pressure: node.pressure, strength: node.strength, is_capitol: node.isCapitol, is_supplied: node.isSupplied, distance_from_center: node.distanceFromCenter, discovered: node.discovered, garrison_slime_id: node.garrisonSlimeId, fealty_locked: node.fealtyLocked };
 }
 
 export function missionToLua(m: Mission): Raw {
   return { id: m.id, zone_id: m.zoneId, target_node_id: m.targetNodeId, slime_ids: m.slimeIds, cycles_remaining: m.cyclesRemaining, status: m.status };
 }
 
+export function luaFavorToTs(raw: Raw): Favor {
+  return {
+    id: string(raw, 'id'), culture: string(raw, 'culture', 'Gray') as SlimeColor,
+    nodeId: string(raw, 'node_id'), nodeName: string(raw, 'node_name'),
+    pressureColor: string(raw, 'pressure_color', 'Gray') as SlimeColor,
+    pressureAmount: number(raw, 'pressure_amount'),
+  };
+}
+
 export function stateToLua(state: LabState): Raw {
-  return { cycle: state.cycle, credits: state.credits, slimes: state.slimes.map(slimeToLua), contracts: state.contracts.map(contract => ({ id: contract.id, credits_reward: contract.creditsReward, cycles_remaining: contract.cyclesRemaining })), zones: state.zones, roster_cap: state.rosterCap, breeding_success_rate_modifier: state.breedingSuccessRateModifier, recent_market_sales: state.recentMarketSales, planet_region: state.planetRegion ? { nodes: state.planetRegion.nodes.map(nodeToLua), generated_at: state.planetRegion.generatedAt, geometry_version: state.planetRegion.geometryVersion } : null, active_dispatch: state.activeDispatch ? missionToLua(state.activeDispatch) : null, active_mediation: state.activeMediation ? missionToLua(state.activeMediation) : null, active_exploration: state.activeExploration ? missionToLua(state.activeExploration) : null, has_auto_feeder: state.hasAutoFeeder, culture_relationships: state.cultureRelationships, petitions: (state.petitions ?? []).map(p => ({ id: p.id, source: p.source, requested_color: p.requestedColor, requested_shape: p.requestedShape, payout_multiplier: p.payoutMultiplier, reward: p.reward, expires_cycle: p.expiresCycle })) };
+  return { cycle: state.cycle, credits: state.credits, slimes: state.slimes.map(slimeToLua), contracts: state.contracts.map(contract => ({ id: contract.id, credits_reward: contract.creditsReward, cycles_remaining: contract.cyclesRemaining })), zones: state.zones, roster_cap: state.rosterCap, breeding_success_rate_modifier: state.breedingSuccessRateModifier, recent_market_sales: state.recentMarketSales, planet_region: state.planetRegion ? { nodes: state.planetRegion.nodes.map(nodeToLua), generated_at: state.planetRegion.generatedAt, geometry_version: state.planetRegion.geometryVersion } : null, active_dispatch: state.activeDispatch ? missionToLua(state.activeDispatch) : null, active_mediation: state.activeMediation ? missionToLua(state.activeMediation) : null, active_exploration: state.activeExploration ? missionToLua(state.activeExploration) : null, has_auto_feeder: state.hasAutoFeeder, culture_relationships: state.cultureRelationships, favors: (state.favors ?? []).map(f => ({ id: f.id, culture: f.culture, node_id: f.nodeId, node_name: f.nodeName, pressure_color: f.pressureColor, pressure_amount: f.pressureAmount })), petitions: (state.petitions ?? []).map(p => ({ id: p.id, source: p.source, requested_color: p.requestedColor, requested_shape: p.requestedShape, payout_multiplier: p.payoutMultiplier, reward: p.reward, expires_cycle: p.expiresCycle })) };
 }
