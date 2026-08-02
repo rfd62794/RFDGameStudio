@@ -265,7 +265,9 @@ def test_full_mediation_lifecycle():
     slimes = [_slime("s1", chm=40, locked_role="mediator")]
     node = _node(strength=0.2)
     state = _state(slimes=slimes, node=node)
-    med_result = session.executor.call("launch_mediation", state, "node-1", ["s1"])
+    med_result = session.executor.call("launch_mediation", state, "node-1", ["s1"], None)
+    assert med_result is not None
+    med_result = med_result[0] if isinstance(med_result, tuple) else med_result
     assert med_result is not None
     assert med_result["status"] == "active"
     assert med_result["target_node_id"] == "node-1"

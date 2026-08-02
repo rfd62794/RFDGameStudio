@@ -83,7 +83,7 @@ describe('Mediation Launch — Discarded Result Fix', () => {
     const handlerBody = handlerMatch![1];
 
     // Must destructure the return value — the original bug discarded it
-    expect(handlerBody).toContain('const [raw]');
+    expect(handlerBody).toContain('const [raw, error]');
     expect(handlerBody).toContain("call(session, 'launch_mediation'");
     expect(handlerBody).toContain('if (error || !raw)');
 
