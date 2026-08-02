@@ -11,7 +11,7 @@ import { LabTab } from './components/LabTab';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
-import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Mission, type Slime, type SlimeColor, type SlimePattern } from './types';
+import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, luaFavorToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Mission, type Slime, type SlimeColor, type SlimePattern } from './types';
 import { generatePlanetRegion } from './planetRegion';
 
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
@@ -128,6 +128,8 @@ export default function App({ session }: GameRendererProps) {
   const [activeExplorationReport, setActiveExplorationReport] = useState<{ logs: string[]; success: boolean } | null>(null);
   const [lastConsumedSlimeId, setLastConsumedSlimeId] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
+  const [pendingDisposalFavorId, setPendingDisposalFavorId] = useState<string | null>(null);
+  const [disposalConfirmSlimeId, setDisposalConfirmSlimeId] = useState<string | null>(null);
 
   useEffect(() => { if (!selectedSlimeId && state.slimes[0]) setSelectedSlimeId(state.slimes[0].id); }, [selectedSlimeId, state.slimes]);
 
@@ -225,6 +227,8 @@ export default function App({ session }: GameRendererProps) {
       planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
       slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
       petitions: Array.isArray(result['petitions']) ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs) : previous.petitions,
+      cultureRelationships: (result['culture_relationships'] ?? previous.cultureRelationships) as Record<SlimeColor, number> | undefined,
+      favors: Array.isArray(result['favors']) ? (result['favors'] as Array<Record<string, unknown>>).map(luaFavorToTs) : previous.favors,
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
   }, [session, state]);
@@ -329,10 +333,23 @@ export default function App({ session }: GameRendererProps) {
     }));
   }, [session, state]);
 
+  const handleDisposeSlime = useCallback((favorId: string, slimeId: string) => {
+    const value = call(session, 'resolve_disposal', stateToLua(state), slimeId, favorId);
+    const [ok, error] = luaResult(value);
+    if (!ok || error) { setWarning(error ?? 'Disposal failed.'); return; }
+    setState(previous => ({
+      ...previous,
+      slimes: previous.slimes.filter(s => s.id !== slimeId),
+      favors: previous.favors?.filter(f => f.id !== favorId) ?? [],
+    }));
+    setPendingDisposalFavorId(null);
+    setDisposalConfirmSlimeId(null);
+  }, [session, state]);
+
   const primaryContent = primaryTab === 'roster' ? (
     <RosterTab {...({ state, session, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole, lastConsumedSlimeId } as any)} />
   ) : primaryTab === 'missions' ? (
-    <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim } as any)} />
+    <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim, pendingDisposalFavorId, setPendingDisposalFavorId, disposalConfirmSlimeId, setDisposalConfirmSlimeId, handleDisposeSlime } as any)} />
   ) : primaryTab === 'economy' ? (
     <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition } as any)} />
   ) : (
