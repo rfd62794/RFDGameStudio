@@ -33,7 +33,7 @@ function generate_favors(nodes, existing_favors)
   for _, f in ipairs(existing_favors) do table.insert(favors, f) end
   for _, node in ipairs(nodes or {}) do
     if #favors >= FAVOR_CAP then break end
-    if not node.fealty_locked and node.owner_color and node.owner_color ~= "Gray" then
+    if not node.fealty_locked and not node.player_aligned and node.owner_color then
       for pressure_color, amount in pairs(node.pressure or {}) do
         if pressure_color ~= node.owner_color and amount >= FAVOR_PRESSURE_THRESHOLD then
           local exists = false
@@ -130,7 +130,7 @@ function check_fealty_transition(state)
       for _, node in ipairs(nodes) do
         if node.owner_color == color and not node.fealty_locked then
           node.fealty_locked = true
-          node.owner_color = "Gray"
+          node.player_aligned = true
           node.strength = 1.0
           node.pressure = {}
           table.insert(transitions, {

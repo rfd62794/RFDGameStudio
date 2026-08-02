@@ -418,7 +418,7 @@ function claim_success_chance(power, target_power)
 end
 
 function claim_grudge_color(node, excluded_color)
-  if node.owner_color ~= nil and node.owner_color ~= "Gray" then return node.owner_color end
+  if node.owner_color ~= nil and not node.player_aligned then return node.owner_color end
   local result = nil
   local maximum_pressure = -1
   for color, value in pairs(node.pressure or {}) do
@@ -449,7 +449,7 @@ function resolve_force_claim(node, party, is_discovered, roll)
   local pressure = copy_pressure(node.pressure)
   local grudge = claim_grudge_color(node, dominant_color(party))
   if grudge ~= nil then pressure[grudge] = 85 end
-  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.4, pressure = pressure, discovered = true } }
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", player_aligned = true, strength = 0.4, pressure = pressure, discovered = true } }
 end
 
 function resolve_bribe_claim(node, credits_spent, is_discovered, roll)
@@ -461,7 +461,7 @@ function resolve_bribe_claim(node, credits_spent, is_discovered, roll)
   local pressure = copy_pressure(node.pressure)
   local grudge = claim_grudge_color(node, nil)
   if grudge ~= nil then pressure[grudge] = 45 end
-  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.5, pressure = pressure, discovered = true } }
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", player_aligned = true, strength = 0.5, pressure = pressure, discovered = true } }
 end
 
 function resolve_convert_claim(node, party, culture_relationship, is_discovered, roll)
@@ -477,7 +477,8 @@ function resolve_convert_claim(node, party, culture_relationship, is_discovered,
   local pressure = copy_pressure(node.pressure)
   local grudge = claim_grudge_color(node, dominant_color(party))
   if grudge ~= nil then pressure[grudge] = 5 end
-  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.6, pressure = pressure, discovered = true } }
+  local preserved_color = node.owner_color
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = preserved_color, player_aligned = true, strength = 0.6, pressure = pressure, discovered = true } }
 end
 
 function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets)
@@ -895,11 +896,11 @@ function update_planet_supply_and_pressure(nodes)
   -- pressure simulation permanently per Fealty spec)
   local pressure_changes = {}
   for _, node in ipairs(nodes) do
-    if node.owner_color and node.is_supplied and not node.fealty_locked then
+    if node.owner_color and node.is_supplied and not node.fealty_locked and not node.player_aligned then
       local pressure_amount = math.floor(5 + (node.strength or 0) * 10)
       for _, neighbor_id in ipairs(node.neighbors or {}) do
         local neighbor = find_by_id(nodes, neighbor_id)
-        if neighbor and not neighbor.fealty_locked and neighbor.owner_color ~= node.owner_color then
+        if neighbor and not neighbor.fealty_locked and not neighbor.player_aligned and neighbor.owner_color ~= node.owner_color then
           if pressure_changes[neighbor_id] == nil then pressure_changes[neighbor_id] = {} end
           local current = pressure_changes[neighbor_id][node.owner_color] or 0
           pressure_changes[neighbor_id][node.owner_color] = current + pressure_amount
@@ -911,7 +912,7 @@ function update_planet_supply_and_pressure(nodes)
   -- Apply pressure changes & decay (skip fealty-locked nodes; clear their
   -- pressure since they are permanently stable)
   for _, node in ipairs(nodes) do
-    if node.fealty_locked then
+    if node.fealty_locked or node.player_aligned then
       node.pressure = {}
     else
       local deltas = pressure_changes[node.id]
@@ -932,8 +933,8 @@ function update_planet_supply_and_pressure(nodes)
   -- 2. Check for ownership flips and revolts (skip fealty-locked nodes)
   local threshold = 100
   for _, node in ipairs(nodes) do
-    if node.fealty_locked then
-      -- Fealty-locked nodes are permanently stable: no flips, no revolts
+    if node.fealty_locked or node.player_aligned then
+      -- Fealty-locked / player-aligned nodes are permanently stable: no flips, no revolts
     else
     local highest_foreign_color = nil
     local highest_foreign_pressure = 0
@@ -994,7 +995,7 @@ function update_planet_supply_and_pressure(nodes)
   -- 3. BFS Supply Chain from Capitols (fealty-locked nodes are always
   -- supplied — they are permanently the player's territory)
   for _, n in ipairs(nodes) do
-    if n.fealty_locked then
+    if n.fealty_locked or n.player_aligned then
       n.is_supplied = true
     else
       n.is_supplied = false
@@ -1023,7 +1024,7 @@ function update_planet_supply_and_pressure(nodes)
   -- 4. Cascade collapse: unsupplied owned non-capitol nodes revert to
   -- Unclaimed (skip fealty-locked nodes — permanently supplied)
   for _, node in ipairs(nodes) do
-    if not node.fealty_locked and node.owner_color and not node.is_supplied and not node.is_capitol then
+    if not node.fealty_locked and not node.player_aligned and node.owner_color and not node.is_supplied and not node.is_capitol then
       table.insert(logs, "SUPPLY COLLAPSE: Node [" .. (node.name or node.id) .. "] lost same-color supply line connection to its Capitol. Node reverted to Unclaimed.")
       node.owner_color = nil
       node.strength = 0
@@ -1078,7 +1079,7 @@ function generate_favors(nodes, existing_favors)
   for _, f in ipairs(existing_favors) do table.insert(favors, f) end
   for _, node in ipairs(nodes or {}) do
     if #favors >= FAVOR_CAP then break end
-    if not node.fealty_locked and node.owner_color and node.owner_color ~= "Gray" then
+    if not node.fealty_locked and not node.player_aligned and node.owner_color then
       for pressure_color, amount in pairs(node.pressure or {}) do
         if pressure_color ~= node.owner_color and amount >= FAVOR_PRESSURE_THRESHOLD then
           local exists = false
@@ -1175,7 +1176,7 @@ function check_fealty_transition(state)
       for _, node in ipairs(nodes) do
         if node.owner_color == color and not node.fealty_locked then
           node.fealty_locked = true
-          node.owner_color = "Gray"
+          node.player_aligned = true
           node.strength = 1.0
           node.pressure = {}
           table.insert(transitions, {
@@ -1419,7 +1420,7 @@ function advance_cycle(state, color_specs)
     end
   end
 
-  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to Gray
+  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to player_aligned
   for _, t in ipairs(check_fealty_transition(state)) do
     table.insert(state.logs, { id = "log_fealty_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
       text = "FEALTY: [" .. (t.node_name or t.node_id) .. "] has sworn permanent loyalty. " .. t.color .. " territory joined your domain — the pressure simulation releases its hold.", type = "system" })

@@ -189,11 +189,11 @@ function update_planet_supply_and_pressure(nodes)
   -- pressure simulation permanently per Fealty spec)
   local pressure_changes = {}
   for _, node in ipairs(nodes) do
-    if node.owner_color and node.is_supplied and not node.fealty_locked then
+    if node.owner_color and node.is_supplied and not node.fealty_locked and not node.player_aligned then
       local pressure_amount = math.floor(5 + (node.strength or 0) * 10)
       for _, neighbor_id in ipairs(node.neighbors or {}) do
         local neighbor = find_by_id(nodes, neighbor_id)
-        if neighbor and not neighbor.fealty_locked and neighbor.owner_color ~= node.owner_color then
+        if neighbor and not neighbor.fealty_locked and not neighbor.player_aligned and neighbor.owner_color ~= node.owner_color then
           if pressure_changes[neighbor_id] == nil then pressure_changes[neighbor_id] = {} end
           local current = pressure_changes[neighbor_id][node.owner_color] or 0
           pressure_changes[neighbor_id][node.owner_color] = current + pressure_amount
@@ -205,7 +205,7 @@ function update_planet_supply_and_pressure(nodes)
   -- Apply pressure changes & decay (skip fealty-locked nodes; clear their
   -- pressure since they are permanently stable)
   for _, node in ipairs(nodes) do
-    if node.fealty_locked then
+    if node.fealty_locked or node.player_aligned then
       node.pressure = {}
     else
       local deltas = pressure_changes[node.id]
@@ -226,8 +226,8 @@ function update_planet_supply_and_pressure(nodes)
   -- 2. Check for ownership flips and revolts (skip fealty-locked nodes)
   local threshold = 100
   for _, node in ipairs(nodes) do
-    if node.fealty_locked then
-      -- Fealty-locked nodes are permanently stable: no flips, no revolts
+    if node.fealty_locked or node.player_aligned then
+      -- Fealty-locked / player-aligned nodes are permanently stable: no flips, no revolts
     else
     local highest_foreign_color = nil
     local highest_foreign_pressure = 0
@@ -288,7 +288,7 @@ function update_planet_supply_and_pressure(nodes)
   -- 3. BFS Supply Chain from Capitols (fealty-locked nodes are always
   -- supplied — they are permanently the player's territory)
   for _, n in ipairs(nodes) do
-    if n.fealty_locked then
+    if n.fealty_locked or n.player_aligned then
       n.is_supplied = true
     else
       n.is_supplied = false
@@ -317,7 +317,7 @@ function update_planet_supply_and_pressure(nodes)
   -- 4. Cascade collapse: unsupplied owned non-capitol nodes revert to
   -- Unclaimed (skip fealty-locked nodes — permanently supplied)
   for _, node in ipairs(nodes) do
-    if not node.fealty_locked and node.owner_color and not node.is_supplied and not node.is_capitol then
+    if not node.fealty_locked and not node.player_aligned and node.owner_color and not node.is_supplied and not node.is_capitol then
       table.insert(logs, "SUPPLY COLLAPSE: Node [" .. (node.name or node.id) .. "] lost same-color supply line connection to its Capitol. Node reverted to Unclaimed.")
       node.owner_color = nil
       node.strength = 0

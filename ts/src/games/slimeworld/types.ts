@@ -49,6 +49,7 @@ export interface PlanetNode {
   discovered: boolean;
   garrisonSlimeId?: string | null;
   fealtyLocked?: boolean;
+  playerAligned?: boolean;
 }
 
 export interface PlanetRegion { nodes: PlanetNode[]; generatedAt: number; geometryVersion?: number; }
@@ -167,6 +168,7 @@ export function luaNodeToTs(raw: Raw): PlanetNode {
     isCapitol: raw['is_capitol'] === true, isSupplied: raw['is_supplied'] === true, distanceFromCenter: number(raw, 'distance_from_center'),
     discovered: raw['discovered'] === true, garrisonSlimeId: (raw['garrison_slime_id'] ?? null) as string | null,
     fealtyLocked: raw['fealty_locked'] === true,
+    playerAligned: raw['player_aligned'] === true,
   };
 }
 
@@ -175,7 +177,7 @@ export function slimeToLua(slime: Slime): Raw {
 }
 
 export function nodeToLua(node: PlanetNode): Raw {
-  return { id: node.id, name: node.name, cell_shape: node.cellShape, label_x: node.labelX, label_y: node.labelY, neighbors: node.neighbors, owner_color: node.ownerColor, pressure: node.pressure, strength: node.strength, is_capitol: node.isCapitol, is_supplied: node.isSupplied, distance_from_center: node.distanceFromCenter, discovered: node.discovered, garrison_slime_id: node.garrisonSlimeId, fealty_locked: node.fealtyLocked };
+  return { id: node.id, name: node.name, cell_shape: node.cellShape, label_x: node.labelX, label_y: node.labelY, neighbors: node.neighbors, owner_color: node.ownerColor, pressure: node.pressure, strength: node.strength, is_capitol: node.isCapitol, is_supplied: node.isSupplied, distance_from_center: node.distanceFromCenter, discovered: node.discovered, garrison_slime_id: node.garrisonSlimeId, fealty_locked: node.fealtyLocked, player_aligned: node.playerAligned };
 }
 
 export function missionToLua(m: Mission): Raw {

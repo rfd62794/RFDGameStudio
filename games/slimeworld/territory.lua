@@ -40,7 +40,7 @@ function claim_success_chance(power, target_power)
 end
 
 function claim_grudge_color(node, excluded_color)
-  if node.owner_color ~= nil and node.owner_color ~= "Gray" then return node.owner_color end
+  if node.owner_color ~= nil and not node.player_aligned then return node.owner_color end
   local result = nil
   local maximum_pressure = -1
   for color, value in pairs(node.pressure or {}) do
@@ -71,7 +71,7 @@ function resolve_force_claim(node, party, is_discovered, roll)
   local pressure = copy_pressure(node.pressure)
   local grudge = claim_grudge_color(node, dominant_color(party))
   if grudge ~= nil then pressure[grudge] = 85 end
-  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.4, pressure = pressure, discovered = true } }
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", player_aligned = true, strength = 0.4, pressure = pressure, discovered = true } }
 end
 
 function resolve_bribe_claim(node, credits_spent, is_discovered, roll)
@@ -83,7 +83,7 @@ function resolve_bribe_claim(node, credits_spent, is_discovered, roll)
   local pressure = copy_pressure(node.pressure)
   local grudge = claim_grudge_color(node, nil)
   if grudge ~= nil then pressure[grudge] = 45 end
-  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.5, pressure = pressure, discovered = true } }
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", player_aligned = true, strength = 0.5, pressure = pressure, discovered = true } }
 end
 
 function resolve_convert_claim(node, party, culture_relationship, is_discovered, roll)
@@ -99,7 +99,8 @@ function resolve_convert_claim(node, party, culture_relationship, is_discovered,
   local pressure = copy_pressure(node.pressure)
   local grudge = claim_grudge_color(node, dominant_color(party))
   if grudge ~= nil then pressure[grudge] = 5 end
-  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.6, pressure = pressure, discovered = true } }
+  local preserved_color = node.owner_color
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = preserved_color, player_aligned = true, strength = 0.6, pressure = pressure, discovered = true } }
 end
 
 function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets)

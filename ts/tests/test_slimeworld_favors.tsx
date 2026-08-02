@@ -167,7 +167,8 @@ describe('SlimeWorld Fealty & Culture Favors', () => {
     expect(n1Node).toBeTruthy();
     const node = luaNodeToTs(n1Node!);
     expect(node.fealtyLocked).toBe(true);
-    expect(node.ownerColor).toBe('Gray');
+    expect(node.playerAligned).toBe(true);
+    expect(node.ownerColor).toBe('Red');
   });
 
   // §3.5: Fealty-locked nodes are skipped in pressure simulation

@@ -99,7 +99,7 @@ function advance_cycle(state, color_specs)
     end
   end
 
-  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to Gray
+  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to player_aligned
   for _, t in ipairs(check_fealty_transition(state)) do
     table.insert(state.logs, { id = "log_fealty_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
       text = "FEALTY: [" .. (t.node_name or t.node_id) .. "] has sworn permanent loyalty. " .. t.color .. " territory joined your domain — the pressure simulation releases its hold.", type = "system" })
