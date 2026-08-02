@@ -118,7 +118,7 @@ function resolve_disposal(state, slime_id, favor_id)
       break
     end
   end
-  return true, nil
+  return state, nil
 end
 
 function check_fealty_transition(state)

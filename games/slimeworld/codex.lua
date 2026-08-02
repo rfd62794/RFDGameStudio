@@ -202,9 +202,12 @@ function update_planet_supply_and_pressure(nodes)
     end
   end
 
-  -- Apply pressure changes & decay (skip fealty-locked nodes)
+  -- Apply pressure changes & decay (skip fealty-locked nodes; clear their
+  -- pressure since they are permanently stable)
   for _, node in ipairs(nodes) do
-    if not node.fealty_locked then
+    if node.fealty_locked then
+      node.pressure = {}
+    else
       local deltas = pressure_changes[node.id]
       if deltas then
         for color, amount in pairs(deltas) do
