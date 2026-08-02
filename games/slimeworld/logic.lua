@@ -99,6 +99,19 @@ function advance_cycle(state, color_specs)
     end
   end
 
+  -- Check Fealty transitions BEFORE pressure simulation: any culture at
+  -- 100% relationship transfers its nodes to the player (Gray) and locks
+  -- them out of the pressure simulation permanently.
+  local pre_fealty_transitions = check_fealty_transition(state)
+  for _, transition in ipairs(pre_fealty_transitions) do
+    table.insert(state.logs, {
+      id = "log_fealty_" .. os.time() .. "_" .. math.random(1000),
+      cycle = state.cycle,
+      text = "FEALTY: [" .. (transition.node_name or transition.node_id) .. "] has sworn permanent loyalty. " .. transition.color .. " territory joined your domain — the pressure simulation releases its hold.",
+      type = "system",
+    })
+  end
+
   -- Planet territory simulation: supply/pressure, flips, revolts, cascade collapse
   local region = state.planet_region
   if region and region.nodes and #region.nodes > 0 then
@@ -350,18 +363,6 @@ function advance_cycle(state, color_specs)
     if record.cycle >= state.cycle - 4 then table.insert(kept_sales, record) end
   end
   state.recent_market_sales = kept_sales
-
-  -- Check Fealty transitions: any culture at 100% relationship transfers its
-  -- nodes to the player (Gray) and locks them out of the pressure simulation.
-  local fealty_transitions = check_fealty_transition(state)
-  for _, transition in ipairs(fealty_transitions) do
-    table.insert(state.logs, {
-      id = "log_fealty_" .. os.time() .. "_" .. math.random(1000),
-      cycle = state.cycle,
-      text = "FEALTY: [" .. (transition.node_name or transition.node_id) .. "] has sworn permanent loyalty. " .. transition.color .. " territory joined your domain — the pressure simulation releases its hold.",
-      type = "system",
-    })
-  end
 
   return state
 end
