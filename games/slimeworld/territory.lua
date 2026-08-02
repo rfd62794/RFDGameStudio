@@ -102,7 +102,7 @@ function resolve_convert_claim(node, party, culture_relationship, is_discovered,
   return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", strength = 0.6, pressure = pressure, discovered = true } }
 end
 
-function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs)
+function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets)
   if parent_a_id == parent_b_id then return nil, "Parents must differ" end
   if #(state.slimes or {}) >= state.roster_cap then return nil, "Roster capacity reached" end
   local parent_a = find_by_id(state.slimes, parent_a_id)
@@ -145,6 +145,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   end
   child.consumed_slime_id = parent_b_id
   state.credits = math.max(0, (state.credits or 0) - 10)
+  child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
   return child, nil
 end
 
