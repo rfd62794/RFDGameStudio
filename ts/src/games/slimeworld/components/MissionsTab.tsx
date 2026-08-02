@@ -49,6 +49,11 @@ interface MissionsTabProps {
   handleForceClaim: (nodeId: string, slimeIds: string[]) => { success: boolean; log: string[] };
   handleBribeClaim: (nodeId: string, creditsSpent: number) => { success: boolean; log: string[] };
   handleConvertClaim: (nodeId: string, slimeIds: string[]) => { success: boolean; log: string[] };
+  pendingDisposalFavorId: string | null;
+  setPendingDisposalFavorId: (id: string | null) => void;
+  disposalConfirmSlimeId: string | null;
+  setDisposalConfirmSlimeId: (id: string | null) => void;
+  handleDisposeSlime: (favorId: string, slimeId: string) => void;
 }
 
 export function MissionsTab({
@@ -81,9 +86,14 @@ export function MissionsTab({
   handleRecallGarrison,
   handleForceClaim,
   handleBribeClaim,
-  handleConvertClaim
+  handleConvertClaim,
+  pendingDisposalFavorId,
+  setPendingDisposalFavorId,
+  disposalConfirmSlimeId,
+  setDisposalConfirmSlimeId,
+  handleDisposeSlime
 }: PlanetTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'regions' | 'mediation' | 'exploration' | 'active' | 'zones'>('regions');
+  const [activeSubTab, setActiveSubTab] = useState<'regions' | 'mediation' | 'exploration' | 'active' | 'zones' | 'favors'>('regions');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [pickerType, setPickerType] = useState<'mediation' | 'exploration' | 'claim' | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -172,9 +182,9 @@ export function MissionsTab({
   return (
     <div className="flex flex-col flex-1" id="planet_tab_root">
       <TabBar
-        tabs={[{ id: 'regions', label: 'TERRITORY' }, { id: 'active', label: 'ACTIVE' }, { id: 'zones', label: 'ZONES' }, { id: 'mediation', label: 'MEDIATION' }, { id: 'exploration', label: 'EXPLORATION' }]}
+        tabs={[{ id: 'regions', label: 'TERRITORY' }, { id: 'active', label: 'ACTIVE' }, { id: 'zones', label: 'ZONES' }, { id: 'mediation', label: 'MEDIATION' }, { id: 'exploration', label: 'EXPLORATION' }, { id: 'favors', label: 'FAVORS' }]}
         active={activeSubTab}
-        onSelect={id => setActiveSubTab(id as 'regions' | 'mediation' | 'exploration' | 'active' | 'zones')}
+        onSelect={id => setActiveSubTab(id as 'regions' | 'mediation' | 'exploration' | 'active' | 'zones' | 'favors')}
       />
         {!region ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 min-h-[400px]">
@@ -1811,6 +1821,134 @@ export function MissionsTab({
                 </motion.div>
               )}
             </div>
+          </motion.div>
+        ) : activeSubTab === 'favors' ? (
+          <motion.div
+            key="planet_favors"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex-1 flex flex-col"
+          >
+            <div className="mb-4">
+              <h2 className="text-base font-bold font-display text-white">Cultural Favors & Disposal</h2>
+              <p className="text-xs text-slate-400">Favors arise from real node pressure. Fulfill via Mediation (+5 rel) or Disposal (+15 rel). At 100, Fealty locks the territory permanently.</p>
+            </div>
+
+            {/* Culture Relationships Bar */}
+            <div className="mb-4 border border-slate-800 bg-[#080d16]/30 rounded-xl p-3">
+              <h4 className="text-[9px] font-mono text-slate-500 uppercase tracking-widest border-b border-slate-900 pb-1.5 mb-2">Culture Relationships</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {(['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green'] as SlimeColor[]).map(color => {
+                  const rel = state.cultureRelationships?.[color] ?? 0;
+                  return (
+                    <div key={color} className="flex flex-col gap-1">
+                      <div className="flex justify-between text-[9px] font-mono">
+                        <span style={{ color: COLOR_SPECS[color].rgb }} className="font-bold">{color}</span>
+                        <span className="text-slate-400">{rel}/100</span>
+                      </div>
+                      <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ width: `${rel}%`, backgroundColor: COLOR_SPECS[color].rgb }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Favors List */}
+            {(state.favors ?? []).length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-slate-850 rounded-xl bg-slate-950/10 min-h-[300px]">
+                <Sparkles className="w-10 h-10 text-slate-800 animate-pulse mb-3" />
+                <h3 className="text-xs font-bold text-slate-400 font-mono uppercase">No Active Favors</h3>
+                <p className="text-[11px] text-slate-500 max-w-xs mt-1">
+                  Advance cycles to generate Favors from real node pressure. Favors appear when a culture's territory is under foreign pressure ≥ 20.
+                </p>
+              </div>
+            ) : (
+              <div className="flex-1 space-y-3 overflow-y-auto max-h-[460px] pr-1">
+                {(state.favors ?? []).map(favor => {
+                  const node = state.planetRegion?.nodes.find(n => n.id === favor.nodeId);
+                  const isDisposalPending = pendingDisposalFavorId === favor.id;
+                  return (
+                    <div
+                      key={favor.id}
+                      className={`p-3.5 rounded-xl border transition-all ${
+                        isDisposalPending
+                          ? 'border-red-500/50 bg-red-950/15'
+                          : 'border-slate-800 bg-slate-900/10 hover:bg-slate-900/30'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <h3 className="font-mono text-xs font-bold text-white uppercase truncate">
+                            {favor.nodeName}
+                          </h3>
+                          <p className="text-[10px] text-slate-400 font-mono">
+                            Culture: <span style={{ color: COLOR_SPECS[favor.culture].rgb }} className="font-bold">{favor.culture}</span>
+                            {' | '}Pressure from: <span style={{ color: COLOR_SPECS[favor.pressureColor].rgb }} className="font-bold">{favor.pressureColor}</span> ({favor.pressureAmount})
+                          </p>
+                          {node?.fealtyLocked && (
+                            <span className="inline-block text-[8px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-900/30 font-bold uppercase">Fealty Locked</span>
+                          )}
+                        </div>
+                        <div className="shrink-0">
+                          {!isDisposalPending ? (
+                            <button
+                              onClick={() => {
+                                setPendingDisposalFavorId(favor.id);
+                                setDisposalConfirmSlimeId(null);
+                              }}
+                              className="px-3 py-1.5 bg-red-950/30 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded text-[9px] uppercase tracking-wider font-mono cursor-pointer transition-all"
+                            >
+                              Dispose Slime
+                            </button>
+                          ) : (
+                            <div className="space-y-1.5">
+                              <p className="text-[9px] text-red-400 font-mono font-bold uppercase">Step 1: Select slime to sacrifice</p>
+                              <select
+                                onChange={(e) => setDisposalConfirmSlimeId(e.target.value || null)}
+                                value={disposalConfirmSlimeId ?? ''}
+                                className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-[9px] rounded p-1 cursor-pointer font-mono"
+                              >
+                                <option value="">Select specimen...</option>
+                                {state.slimes.filter(s => !s.lockedRole).map(s => (
+                                  <option key={s.id} value={s.id}>{s.name} ({s.color} {s.pattern}, Lv.{s.level})</option>
+                                ))}
+                              </select>
+                              {disposalConfirmSlimeId && (
+                                <>
+                                  <p className="text-[9px] text-red-400 font-mono font-bold uppercase">Step 2: Confirm permanent disposal</p>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleDisposeSlime(favor.id, disposalConfirmSlimeId)}
+                                      className="flex-1 py-1.5 bg-red-600 hover:bg-red-500 text-white border border-red-500 rounded text-[9px] uppercase tracking-wider font-mono font-bold cursor-pointer transition-all"
+                                    >
+                                      Confirm Disposal
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setPendingDisposalFavorId(null);
+                                        setDisposalConfirmSlimeId(null);
+                                      }}
+                                      className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 rounded text-[9px] uppercase tracking-wider font-mono cursor-pointer transition-all"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         ) : null}
 
