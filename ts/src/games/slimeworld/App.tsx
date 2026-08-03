@@ -310,8 +310,9 @@ export default function App({ session }: GameRendererProps) {
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
     const strayAlerts = luaLogs.filter(l => l.type === 'combat' && l.text.startsWith('STRAY DETECTION'));
-    if (strayAlerts.length > 0) {
-      setActiveAlerts(prev => [...prev, ...strayAlerts]);
+    const fealtyAlerts = luaLogs.filter(l => l.type === 'system' && l.text.startsWith('FEALTY:'));
+    if (strayAlerts.length > 0 || fealtyAlerts.length > 0) {
+      setActiveAlerts(prev => [...prev, ...strayAlerts, ...fealtyAlerts]);
     }
   }, [session, state]);
   const handlePurchaseSeedSlime = useCallback((color: SlimeColor) => {
