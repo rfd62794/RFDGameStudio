@@ -230,7 +230,7 @@ function advance_cycle(state, color_specs)
 
       -- Favor fulfillment via Mediation (§2c option a: extend existing
       -- resolver). On successful mediation of a node with an active Favor,
-      -- also reduce foreign pressure and increment culture_relationships.
+      -- also reduce foreign pressure and increment color_relationships.
       if success then
         local favor = find_favor_for_node(state.favors, node.id)
         if favor then
@@ -238,7 +238,7 @@ function advance_cycle(state, color_specs)
           table.insert(state.logs, {
             id = "log_favor_med_" .. os.time(),
             cycle = state.cycle,
-            text = "FAVOR FULFILLED: Cultural favor for " .. favor.culture .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
+            text = "FAVOR FULFILLED: Cultural favor for " .. favor.owner_color .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
             type = "corporate",
           })
         end

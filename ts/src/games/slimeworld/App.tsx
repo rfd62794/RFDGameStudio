@@ -80,7 +80,7 @@ export function initialState(session: GameRendererProps['session']): LabState {
   const data = session.files.data as Record<string, unknown>;
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
   const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
-  const relationships = (lab['culture_relationships'] ?? {}) as Record<SlimeColor, number>;
+  const relationships = (lab['color_relationships'] ?? {}) as Record<SlimeColor, number>;
   const colorSpecs = buildColorSpecs(data);
   const starterSlimes = starters.map((starter, index) => {
     const color = (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor;
@@ -111,7 +111,7 @@ export function initialState(session: GameRendererProps['session']): LabState {
     colorCodex[slime.color] = { discovered: true };
     patternCodex[slime.pattern] = { discovered: true };
   }
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [], colorCodex, patternCodex };
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [], colorCodex, patternCodex };
 }
 
 function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
@@ -305,7 +305,7 @@ export default function App({ session }: GameRendererProps) {
       planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
       slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
       petitions: Array.isArray(result['petitions']) ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs) : previous.petitions,
-      cultureRelationships: (result['culture_relationships'] ?? previous.cultureRelationships) as Record<SlimeColor, number> | undefined,
+      colorRelationships: (result['color_relationships'] ?? previous.colorRelationships) as Record<SlimeColor, number> | undefined,
       favors: Array.isArray(result['favors']) ? (result['favors'] as Array<Record<string, unknown>>).map(luaFavorToTs) : previous.favors,
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));

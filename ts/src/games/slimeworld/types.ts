@@ -70,7 +70,7 @@ export interface Petition {
 
 export interface Favor {
   id: string;
-  culture: SlimeColor;
+  ownerColor: SlimeColor;
   nodeId: string;
   nodeName: string;
   pressureColor: SlimeColor;
@@ -102,7 +102,7 @@ export interface LabState {
   activeMediation?: Mission | null;
   activeExploration?: Mission | null;
   hasAutoFeeder?: boolean;
-  cultureRelationships?: Record<SlimeColor, number>;
+  colorRelationships?: Record<SlimeColor, number>;
   favors?: Favor[];
   colorCodex?: Record<SlimeColor, { discovered: boolean }>;
   colorTargetCodex?: Record<string, boolean>;
@@ -186,7 +186,7 @@ export function missionToLua(m: Mission): Raw {
 
 export function luaFavorToTs(raw: Raw): Favor {
   return {
-    id: string(raw, 'id'), culture: string(raw, 'culture', 'Gray') as SlimeColor,
+    id: string(raw, 'id'), ownerColor: string(raw, 'owner_color', 'Gray') as SlimeColor,
     nodeId: string(raw, 'node_id'), nodeName: string(raw, 'node_name'),
     pressureColor: string(raw, 'pressure_color', 'Gray') as SlimeColor,
     pressureAmount: number(raw, 'pressure_amount'),
@@ -194,5 +194,5 @@ export function luaFavorToTs(raw: Raw): Favor {
 }
 
 export function stateToLua(state: LabState): Raw {
-  return { cycle: state.cycle, credits: state.credits, slimes: state.slimes.map(slimeToLua), contracts: state.contracts.map(contract => ({ id: contract.id, credits_reward: contract.creditsReward, cycles_remaining: contract.cyclesRemaining })), zones: state.zones, roster_cap: state.rosterCap, breeding_success_rate_modifier: state.breedingSuccessRateModifier, recent_market_sales: state.recentMarketSales, planet_region: state.planetRegion ? { nodes: state.planetRegion.nodes.map(nodeToLua), generated_at: state.planetRegion.generatedAt, geometry_version: state.planetRegion.geometryVersion } : null, active_dispatch: state.activeDispatch ? missionToLua(state.activeDispatch) : null, active_mediation: state.activeMediation ? missionToLua(state.activeMediation) : null, active_exploration: state.activeExploration ? missionToLua(state.activeExploration) : null, has_auto_feeder: state.hasAutoFeeder, culture_relationships: state.cultureRelationships, favors: (state.favors ?? []).map(f => ({ id: f.id, culture: f.culture, node_id: f.nodeId, node_name: f.nodeName, pressure_color: f.pressureColor, pressure_amount: f.pressureAmount })), petitions: (state.petitions ?? []).map(p => ({ id: p.id, source: p.source, requested_color: p.requestedColor, requested_shape: p.requestedShape, payout_multiplier: p.payoutMultiplier, reward: p.reward, expires_cycle: p.expiresCycle })), region_unlocks: state.regionUnlocks ?? {} };
+  return { cycle: state.cycle, credits: state.credits, slimes: state.slimes.map(slimeToLua), contracts: state.contracts.map(contract => ({ id: contract.id, credits_reward: contract.creditsReward, cycles_remaining: contract.cyclesRemaining })), zones: state.zones, roster_cap: state.rosterCap, breeding_success_rate_modifier: state.breedingSuccessRateModifier, recent_market_sales: state.recentMarketSales, planet_region: state.planetRegion ? { nodes: state.planetRegion.nodes.map(nodeToLua), generated_at: state.planetRegion.generatedAt, geometry_version: state.planetRegion.geometryVersion } : null, active_dispatch: state.activeDispatch ? missionToLua(state.activeDispatch) : null, active_mediation: state.activeMediation ? missionToLua(state.activeMediation) : null, active_exploration: state.activeExploration ? missionToLua(state.activeExploration) : null, has_auto_feeder: state.hasAutoFeeder, color_relationships: state.colorRelationships, favors: (state.favors ?? []).map(f => ({ id: f.id, owner_color: f.ownerColor, node_id: f.nodeId, node_name: f.nodeName, pressure_color: f.pressureColor, pressure_amount: f.pressureAmount })), petitions: (state.petitions ?? []).map(p => ({ id: p.id, source: p.source, requested_color: p.requestedColor, requested_shape: p.requestedShape, payout_multiplier: p.payoutMultiplier, reward: p.reward, expires_cycle: p.expiresCycle })), region_unlocks: state.regionUnlocks ?? {} };
 }

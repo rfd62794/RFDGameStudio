@@ -15,7 +15,7 @@ lab:
   starting_roster_count: 3
   starting_roster_cap: 10
   starting_breeding_success_rate_modifier: 0
-  culture_relationships:
+  color_relationships:
     Red: 50
     Blue: 50
     Yellow: 50

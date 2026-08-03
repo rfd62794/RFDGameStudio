@@ -83,7 +83,7 @@ systems:
 
   - id: favors
     description: "Culture Favor generation, fulfillment, and Fealty transitions"
-    components: [planet_node, pressure, culture_relationships, favors, slimes]
+    components: [planet_node, pressure, color_relationships, favors, slimes]
     functions:
       - generate_favors
       - find_favor_for_node

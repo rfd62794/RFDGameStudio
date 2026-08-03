@@ -771,7 +771,7 @@ export function MissionsTab({
                                           }
                                         });
                                       }
-                                      const rel = state.cultureRelationships?.[targetColor] ?? 50;
+                                      const rel = state.colorRelationships?.[targetColor] ?? 50;
                                       return (
                                         <div className="flex items-center justify-between text-[9px] font-mono">
                                           <span className="text-slate-500 uppercase font-bold">Target Culture: {targetColor}</span>
@@ -898,7 +898,7 @@ export function MissionsTab({
                                         targetColor = c as SlimeColor;
                                       }
                                     });
-                                    const rel = state.cultureRelationships?.[targetColor] ?? 50;
+                                    const rel = state.colorRelationships?.[targetColor] ?? 50;
                                     const relBonus = (rel - 50) / 100;
                                     const adjustedChm = Math.round(totalChm * (1 + relBonus));
 
@@ -1844,7 +1844,7 @@ export function MissionsTab({
               <h4 className="text-[9px] font-mono text-slate-500 uppercase tracking-widest border-b border-slate-900 pb-1.5 mb-2">Culture Relationships</h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green'] as SlimeColor[]).map(color => {
-                  const rel = state.cultureRelationships?.[color] ?? 0;
+                  const rel = state.colorRelationships?.[color] ?? 0;
                   return (
                     <div key={color} className="flex flex-col gap-1">
                       <div className="flex justify-between text-[9px] font-mono">
@@ -1892,7 +1892,7 @@ export function MissionsTab({
                             {favor.nodeName}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-mono">
-                            Culture: <span style={{ color: COLOR_SPECS[favor.culture].rgb }} className="font-bold">{favor.culture}</span>
+                            Culture: <span style={{ color: COLOR_SPECS[favor.ownerColor].rgb }} className="font-bold">{favor.ownerColor}</span>
                             {' | '}Pressure from: <span style={{ color: COLOR_SPECS[favor.pressureColor].rgb }} className="font-bold">{favor.pressureColor}</span> ({favor.pressureAmount})
                           </p>
                           {node?.fealtyLocked && (

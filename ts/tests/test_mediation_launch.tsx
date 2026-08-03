@@ -51,7 +51,7 @@ function makeState(overrides: Partial<LabState> = {}): LabState {
     logs: [], activeMediation: null, activeExploration: null,
     planetRegion: makeRegion([makeNode('n1', 0.5, true), makeNode('n2', 0.3, true)]),
     wildsUnlocked: false, hasAutoFeeder: false,
-    cultureRelationships: {} as Record<SlimeColor, number>,
+    colorRelationships: {} as Record<SlimeColor, number>,
     recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {},
     ...overrides,
   };

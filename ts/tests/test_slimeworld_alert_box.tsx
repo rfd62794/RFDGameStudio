@@ -35,7 +35,7 @@ function makeMinimalState(): LabState {
     cycle: 1, credits: 1000, rosterCap: 10, breedingSuccessRateModifier: 0,
     slimes: [slime], contracts: [], zones: [], activeDispatch: null,
     logs: [], activeMediation: null, activeExploration: null, planetRegion: null,
-    wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: {} as Record<SlimeColor, number>,
+    wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: {} as Record<SlimeColor, number>,
     recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {},
     petitions: [],
   };

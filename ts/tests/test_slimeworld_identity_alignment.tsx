@@ -39,7 +39,7 @@ function makeMinimalState(): LabState {
     cycle: 1, credits: 1000, rosterCap: 10, breedingSuccessRateModifier: 0,
     slimes: [slime], contracts: [], zones: [], activeDispatch: null,
     logs: [], activeMediation: null, activeExploration: null, planetRegion: null,
-    wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: {} as Record<SlimeColor, number>,
+    wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: {} as Record<SlimeColor, number>,
     recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {},
     petitions: [],
   };
@@ -109,7 +109,7 @@ describe('SlimeWorld Identity Alignment Directive', () => {
       ],
       generatedAt: Date.now(),
     };
-    state.cultureRelationships = { Red: 100 } as Record<SlimeColor, number>;
+    state.colorRelationships = { Red: 100 } as Record<SlimeColor, number>;
     const [raw] = call(session, 'advance_cycle', stateToLua(state));
     const result = raw as Record<string, unknown>;
     const region = result['planet_region'] as Record<string, unknown>;

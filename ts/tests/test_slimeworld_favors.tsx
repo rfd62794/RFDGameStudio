@@ -34,7 +34,7 @@ function makeMinimalState(): LabState {
     cycle: 1, credits: 1000, rosterCap: 10, breedingSuccessRateModifier: 0,
     slimes: [slime], contracts: [], zones: [], activeDispatch: null,
     logs: [], activeMediation: null, activeExploration: null, planetRegion: null,
-    wildsUnlocked: false, hasAutoFeeder: false, cultureRelationships: {} as Record<SlimeColor, number>,
+    wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: {} as Record<SlimeColor, number>,
     recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {},
     petitions: [],
   };
@@ -72,7 +72,7 @@ describe('SlimeWorld Fealty & Culture Favors', () => {
     expect(favorArray.length).toBeGreaterThanOrEqual(1);
     const favor = luaFavorToTs(favorArray[0]);
     expect(favor.nodeId).toBe('n1');
-    expect(favor.culture).toBe('Red');
+    expect(favor.ownerColor).toBe('Red');
     expect(favor.pressureColor).toBe('Blue');
     expect(favor.pressureAmount).toBeGreaterThanOrEqual(20);
   });
@@ -92,10 +92,10 @@ describe('SlimeWorld Fealty & Culture Favors', () => {
     const result = raw as Record<string, unknown>;
     const favors = result['favors'] as Array<Record<string, unknown>>;
     expect(favors.length).toBeGreaterThanOrEqual(1);
-    const cultureRels = result['culture_relationships'] as Record<string, number> | undefined;
+    const colorRels = result['color_relationships'] as Record<string, number> | undefined;
     // After mediation fulfillment, relationships should exist and be > 0
     // (mediation success is random, so we check that the field is at least present)
-    expect(cultureRels !== undefined || favors.length > 0).toBe(true);
+    expect(colorRels !== undefined || favors.length > 0).toBe(true);
   });
 
   // §3.3: Disposal permanently removes a slime and increments culture_relationships
@@ -139,8 +139,8 @@ describe('SlimeWorld Fealty & Culture Favors', () => {
     // The slime should be removed
     const remainingSlimes = ok!['slimes'] as Array<unknown>;
     expect(remainingSlimes.length).toBe(0);
-    // culture_relationships should be incremented for Red
-    const rels = ok!['culture_relationships'] as Record<string, number>;
+    // color_relationships should be incremented for Red
+    const rels = ok!['color_relationships'] as Record<string, number>;
     expect(rels).toBeTruthy();
     expect((rels['Red'] ?? 0)).toBeGreaterThanOrEqual(15);
   });
@@ -155,8 +155,8 @@ describe('SlimeWorld Fealty & Culture Favors', () => {
       ],
       generatedAt: Date.now(),
     };
-    // Set culture_relationships to 100 for Red
-    state.cultureRelationships = { Red: 100 } as Record<SlimeColor, number>;
+    // Set color_relationships to 100 for Red
+    state.colorRelationships = { Red: 100 } as Record<SlimeColor, number>;
     const [raw] = call(session, 'advance_cycle', stateToLua(state));
     const result = raw as Record<string, unknown>;
     // After fealty transition, the node should be fealty_locked

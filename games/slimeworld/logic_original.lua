@@ -570,7 +570,7 @@ function convert_claim_action(state, node_id, slime_ids, culture_relationship, r
   local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
   if node == nil then return nil, "Node not found" end
   if culture_relationship == nil then
-    local relationships = state.culture_relationships or {}
+    local relationships = state.color_relationships or {}
     culture_relationship = relationships[convert_target_color(node)] or 50
   end
   local result = resolve_convert_claim(node, select_slimes(state.slimes, slime_ids), culture_relationship, node.discovered, roll)
@@ -1050,9 +1050,9 @@ end
 -- Design (per SlimeWorld_Design_Rev2.md):
 --   Favors are generated after each cycle's supply/pressure simulation,
 --   reflecting the real, just-updated state of the map. A Favor targets
---   a single node where a culture is under foreign pressure. Fulfilling
+--   a single node where a color is under foreign pressure. Fulfilling
 --   it via Mediation (extend existing resolver) or Disposal (sacrifice a
---   slime) increments culture_relationships toward 100%.
+--   slime) increments color_relationships toward 100%.
 --
 -- Increment values (proposed, pending Robert's review — same discipline
 -- as Stage-Make-Real's Elder breeding tax):
@@ -1063,7 +1063,7 @@ end
 -- §2c design choice: Extend Mediation (option a). Mediation already
 -- targets a single node with a party of slimes — a Favor maps 1:1 to a
 -- node. On successful Mediation of a node with an active Favor, also
--- reduce pressure and increment culture_relationships. This reuses
+-- reduce pressure and increment color_relationships. This reuses
 -- tested code with a minimal extension rather than building a parallel
 -- resolution system.
 
@@ -1089,7 +1089,7 @@ function generate_favors(nodes, existing_favors)
           if not exists then
             table.insert(favors, {
               id = "favor_" .. os.time() .. "_" .. math.random(1000),
-              culture = node.owner_color,
+              owner_color = node.owner_color,
               node_id = node.id,
               node_name = node.name or node.id,
               pressure_color = pressure_color,
@@ -1112,15 +1112,15 @@ function find_favor_for_node(favors, node_id)
 end
 
 function fulfill_favor_via_mediation(state, node, favor)
-  local culture = favor.culture
+  local owner_color = favor.owner_color
   local pressure_color = favor.pressure_color
   if node.pressure and node.pressure[pressure_color] then
     node.pressure[pressure_color] = math.max(0, node.pressure[pressure_color] - 30)
   end
-  if not state.culture_relationships then state.culture_relationships = {} end
-  local current = state.culture_relationships[culture] or 0
+  if not state.color_relationships then state.color_relationships = {} end
+  local current = state.color_relationships[owner_color] or 0
   if current < FEALTY_THRESHOLD then
-    state.culture_relationships[culture] = math.min(FEALTY_THRESHOLD, current + MEDIATION_FAVOR_INCREMENT)
+    state.color_relationships[owner_color] = math.min(FEALTY_THRESHOLD, current + MEDIATION_FAVOR_INCREMENT)
   end
   for i, f in ipairs(state.favors or {}) do
     if f.id == favor.id then
@@ -1153,10 +1153,10 @@ function resolve_disposal(state, slime_id, favor_id)
       end
     end
   end
-  if not state.culture_relationships then state.culture_relationships = {} end
-  local current = state.culture_relationships[favor.culture] or 0
+  if not state.color_relationships then state.color_relationships = {} end
+  local current = state.color_relationships[favor.owner_color] or 0
   if current < FEALTY_THRESHOLD then
-    state.culture_relationships[favor.culture] = math.min(FEALTY_THRESHOLD, current + DISPOSAL_FAVOR_INCREMENT)
+    state.color_relationships[favor.owner_color] = math.min(FEALTY_THRESHOLD, current + DISPOSAL_FAVOR_INCREMENT)
   end
   for i, f in ipairs(state.favors or {}) do
     if f.id == favor_id then
@@ -1169,8 +1169,8 @@ end
 
 function check_fealty_transition(state)
   local transitions = {}
-  if not state.culture_relationships then return transitions end
-  for color, rel in pairs(state.culture_relationships) do
+  if not state.color_relationships then return transitions end
+  for color, rel in pairs(state.color_relationships) do
     if rel >= FEALTY_THRESHOLD then
       local nodes = state.planet_region and state.planet_region.nodes or {}
       for _, node in ipairs(nodes) do
@@ -1551,7 +1551,7 @@ function advance_cycle(state, color_specs)
 
       -- Favor fulfillment via Mediation (§2c option a: extend existing
       -- resolver). On successful mediation of a node with an active Favor,
-      -- also reduce foreign pressure and increment culture_relationships.
+      -- also reduce foreign pressure and increment color_relationships.
       if success then
         local favor = find_favor_for_node(state.favors, node.id)
         if favor then
@@ -1559,7 +1559,7 @@ function advance_cycle(state, color_specs)
           table.insert(state.logs, {
             id = "log_favor_med_" .. os.time(),
             cycle = state.cycle,
-            text = "FAVOR FULFILLED: Cultural favor for " .. favor.culture .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
+            text = "FAVOR FULFILLED: Cultural favor for " .. favor.owner_color .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
             type = "corporate",
           })
         end

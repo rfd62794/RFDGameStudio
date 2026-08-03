@@ -35,7 +35,7 @@ function makeMinimalState(): LabState {
     slimes: [slime], contracts: [], zones: [], activeDispatch: null,
     logs: [], activeMediation: null, activeExploration: null, planetRegion: null,
     wildsUnlocked: false, hasAutoFeeder: false,
-    cultureRelationships: {} as Record<SlimeColor, number>,
+    colorRelationships: {} as Record<SlimeColor, number>,
     recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {},
     petitions: [],
   };

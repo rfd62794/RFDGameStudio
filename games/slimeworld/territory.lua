@@ -192,7 +192,7 @@ function convert_claim_action(state, node_id, slime_ids, culture_relationship, r
   local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
   if node == nil then return nil, "Node not found" end
   if culture_relationship == nil then
-    local relationships = state.culture_relationships or {}
+    local relationships = state.color_relationships or {}
     culture_relationship = relationships[convert_target_color(node)] or 50
   end
   local result = resolve_convert_claim(node, select_slimes(state.slimes, slime_ids), culture_relationship, node.discovered, roll)

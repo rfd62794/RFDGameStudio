@@ -64,7 +64,7 @@ function makeState(slimes: Slime[], overrides: Partial<LabState> = {}): LabState
     slimes, contracts: [], zones: [], activeDispatch: null,
     logs: [], activeMediation: null, activeExploration: null, planetRegion: null,
     wildsUnlocked: false, hasAutoFeeder: false,
-    cultureRelationships: {} as Record<SlimeColor, number>,
+    colorRelationships: {} as Record<SlimeColor, number>,
     recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {},
     ...overrides,
   };
