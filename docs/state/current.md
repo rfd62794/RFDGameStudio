@@ -1,6 +1,80 @@
 # RFDGameStudio — Project State
 
-*Last updated: August 2 2026*
+*Last updated: August 3 2026*
+
+## SlimeWorld Alert Box for Real-Time Notifications — COMPLETED
+
+### What was built
+
+Implemented a lightweight, reusable Alert Box component that surfaces
+new Stray/Refugee log entries as immediate, dismissable UI notifications.
+The game already logged stray arrivals in `state.logs` but never surfaced
+them in the moment — the Alert Box closes that gap.
+
+### Design decisions
+
+- **Detection mechanism**: New log entries are detected in
+  `handleAdvanceCycle` after each `advance_cycle` Lua bridge call. The
+  returned `luaLogs` array (parsed from the Lua result) is filtered for
+  `type === 'combat' && text.startsWith('STRAY DETECTION')`. This
+  matches the existing pattern: `handleAdvanceCycle` already parses
+  `result['logs']` into `luaLogs` and appends them to `state.logs`. The
+  alert filtering happens on the same `luaLogs` array, after
+  `setState`, without altering the logs array itself.
+- **Filter precision**: `type === 'combat'` alone would catch unrelated
+  combat entries. Confirmed via grep that the ONLY `type = "combat"`
+  entry in `logic.lua` is the STRAY DETECTION message. Still, the filter
+  uses both conditions for future-proofing.
+- **Generic component**: `AlertBox` accepts any `LogEntry`-shaped prop,
+  not hardcoded to Stray-specific text. Future directives can wire
+  additional trigger conditions (Favor completions, Fealty achieved)
+  onto the same component without a rewrite.
+- **Component location convention**: Game-specific components live in
+  `ts/src/games/slimeworld/components/`, shared UI components in
+  `ts/src/components/`. AlertBox is game-specific → placed in the
+  slimeworld components directory.
+- **Existing logs history unchanged**: `state.logs` is still appended
+  and sliced at -50 as before. The alert filtering is separate from the
+  logs state update.
+
+### New files
+
+- **`ts/src/games/slimeworld/components/AlertBox.tsx`** — Generic,
+  dismissable alert UI component. Accepts a `LogEntry` prop and an
+  `onDismiss` callback. Renders entry text with an amber-themed alert
+  style and X/Dismiss buttons.
+
+### Modified files
+
+- **`ts/src/games/slimeworld/App.tsx`** — Added `activeAlerts` state
+  (`LogEntry[]`). In `handleAdvanceCycle`, after `setState`, filters
+  `luaLogs` for stray detection entries and pushes them to
+  `activeAlerts`. Renders `AlertBox` components in a bottom-right
+  overlay container, each with dismiss functionality.
+
+### Test coverage — `ts/tests/test_slimeworld_alert_box.tsx` (5 tests)
+
+1. `test_alert_box_renders_given_log_entry` — Source check: AlertBox
+   accepts generic `LogEntry`, renders `entry.text`, not hardcoded to
+   Stray text
+2. `test_alert_box_dismissable` — Source check: dismiss calls
+   `onDismiss(entry.id)`, App.tsx filters by id to remove
+3. `test_stray_arrival_triggers_alert_real_bridge` — Real bridge test:
+   triggers territory flip via `advance_cycle`, confirms STRAY DETECTION
+   log appears, confirms App.tsx wires the detection filter
+4. `test_non_stray_combat_logs_do_not_trigger_alert` — Confirms filter
+   uses both `type === 'combat'` AND `text.startsWith('STRAY DETECTION')`;
+   confirms only 1 `type = "combat"` entry exists in logic.lua
+5. `test_existing_log_history_still_renders` — Confirms `state.logs`
+   append/slice logic unchanged; alert filtering is separate from logs
+   state update
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 282 passed (277 existing + 5 new)
+
+---
 
 ## SlimeWorld Identity Alignment — COMPLETED
 
