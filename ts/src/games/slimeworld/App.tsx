@@ -12,6 +12,7 @@ import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, 
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
+import { AlertBox } from './components/AlertBox';
 import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, luaFavorToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Mission, type Slime, type SlimeColor, type SlimePattern } from './types';
 import { generatePlanetRegion } from './planetRegion';
 
@@ -162,6 +163,7 @@ export default function App({ session }: GameRendererProps) {
   const [warning, setWarning] = useState<string | null>(null);
   const [pendingDisposalFavorId, setPendingDisposalFavorId] = useState<string | null>(null);
   const [disposalConfirmSlimeId, setDisposalConfirmSlimeId] = useState<string | null>(null);
+  const [activeAlerts, setActiveAlerts] = useState<LogEntry[]>([]);
   const prevRegionUnlocksRef = useRef<Record<string, boolean> | undefined>(state.regionUnlocks);
   const t1FiredRef = useRef(false);
 
@@ -307,6 +309,10 @@ export default function App({ session }: GameRendererProps) {
       favors: Array.isArray(result['favors']) ? (result['favors'] as Array<Record<string, unknown>>).map(luaFavorToTs) : previous.favors,
       logs: [...previous.logs, ...luaLogs].slice(-50),
     }));
+    const strayAlerts = luaLogs.filter(l => l.type === 'combat' && l.text.startsWith('STRAY DETECTION'));
+    if (strayAlerts.length > 0) {
+      setActiveAlerts(prev => [...prev, ...strayAlerts]);
+    }
   }, [session, state]);
   const handlePurchaseSeedSlime = useCallback((color: SlimeColor) => {
     const data = session.files.data as Record<string, unknown>;
@@ -500,6 +506,13 @@ export default function App({ session }: GameRendererProps) {
             </div>
             <p className="text-xs text-slate-400 font-mono leading-relaxed">{TUTORIAL_CONTENT[activeTutorial].body}</p>
             <button onClick={() => setActiveTutorial(null)} className="mt-3 text-xs text-blue-400 hover:text-blue-300 font-mono">Dismiss</button>
+          </div>
+        )}
+        {activeAlerts.length > 0 && (
+          <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2">
+            {activeAlerts.map(alert => (
+              <AlertBox key={alert.id} entry={alert} onDismiss={(id) => setActiveAlerts(prev => prev.filter(a => a.id !== id))} />
+            ))}
           </div>
         )}
       </div>
