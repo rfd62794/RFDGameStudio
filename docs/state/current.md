@@ -2,6 +2,125 @@
 
 *Last updated: August 3 2026*
 
+## SlimeWorld Color/Culture/Strain Naming Correction — COMPLETED
+
+### What was built
+
+Corrected a real naming lie: `favor.culture` and `state.culture_relationships`
+were named as if they held culture keys (`ember`, `marsh`, etc.), but every
+real value that ever flows through them is a color name (`Red`, `Blue`,
+etc.). Renamed both to `owner_color`/`color_relationships` across the full
+Lua↔TS bridge, and added a canonical, documentation-grade reference table
+so no future session has to reconstruct the culture/color/Strain mapping
+from `data.yaml` or guess.
+
+**Original premise checked and found false**: a prior report claimed
+`buildColorSpecs` in `App.tsx` incorrectly keys specs by culture key
+instead of color name. Direct source read confirmed the real, current
+code already does `specs[color] = ...` correctly. `buildColorSpecs` was
+NOT touched by this directive.
+
+### Design decisions
+
+- **Three parallel naming schemes, one load-bearing**: culture keys
+  (`ember`, `marsh`, `gale`, `tundra`, `crystal`, `tide` — display/
+  narrative only), color names (`Red`...`Blue`, plus `Gray` — the ONLY
+  scheme used for real state), Strain names (`Cinder Strain`...`Tide
+  Strain`, plus `Void Strain` — flavor text only, in `gameLogic.ts`).
+- **Pure rename, no behavior change**: every real call site confirmed via
+  source read before renaming. `git diff --stat` confirms only renames +
+  the two new reference files — zero logic changes.
+- **Reference table is documentation-grade, not a runtime dependency**:
+  `naming_reference.lua` is NOT added to `systems.yaml`'s `lua_files`, so
+  it never loads or executes. Comments explicitly warn against importing
+  it into gameplay logic.
+
+### Modified files (renames only)
+
+- **`games/slimeworld/favors.lua`** — `favor.culture` → `favor.owner_color`
+  in `generate_favors`, `fulfill_favor_via_mediation`, `resolve_disposal`.
+  `state.culture_relationships` → `state.color_relationships` throughout.
+- **`games/slimeworld/logic.lua`** — `favor.culture` → `favor.owner_color`
+  in the Favor-fulfilled log text; comment updated.
+- **`games/slimeworld/territory.lua`** — `state.culture_relationships` →
+  `state.color_relationships` in `convert_claim_action` (read call site).
+- **`games/slimeworld/logic_original.lua`** — Regenerated to match split
+  file changes (byte-identical concatenation test).
+- **`games/slimeworld/data.yaml`** — `lab.culture_relationships:` →
+  `lab.color_relationships:` (seed config key).
+- **`games/slimeworld/systems.yaml`** — `culture_relationships` →
+  `color_relationships` in the `favors` system's `components` list.
+- **`ts/src/games/slimeworld/types.ts`** — `Favor.culture` →
+  `Favor.ownerColor`; `LabState.cultureRelationships` →
+  `LabState.colorRelationships`; bridged in `luaFavorToTs` and
+  `stateToLua`.
+- **`ts/src/games/slimeworld/App.tsx`** — `lab['culture_relationships']`
+  → `lab['color_relationships']`; `cultureRelationships` →
+  `colorRelationships` in initial state and `handleAdvanceCycle`.
+- **`ts/src/games/slimeworld/components/MissionsTab.tsx`** —
+  `state.cultureRelationships` → `state.colorRelationships` (3 sites);
+  `favor.culture` → `favor.ownerColor` (Favor detail display).
+- **11 test files** — `cultureRelationships` → `colorRelationships`
+  boilerplate updated to match the renamed `LabState` field:
+  `test_slimeworld_favors.tsx`, `test_lua_slime_field_safety.tsx`,
+  `test_mission_serialization.tsx`, `test_slime_stage.tsx`,
+  `test_splicing_and_dex.tsx`, `test_slimeworld_identity_alignment.tsx`,
+  `test_dispatch_resolution.tsx`, `test_mediation_launch.tsx`,
+  `test_slimeworld_onboarding.tsx`, `test_slimeworld_petition_wiring.tsx`,
+  `test_slimeworld_regionlock.tsx`, `test_slimeworld_alert_box.tsx`.
+
+### New files
+
+- **`games/slimeworld/naming_reference.lua`** — Canonical
+  `CULTURE_COLOR_STRAIN_REFERENCE` table (culture key / color name /
+  Strain name), NOT loaded by the game (absent from `systems.yaml`'s
+  `lua_files`).
+- **`ts/src/games/slimeworld/namingReference.ts`** — TS equivalent,
+  `CULTURE_COLOR_STRAIN_REFERENCE` array with `CultureColorStrainEntry`
+  type.
+- **`ts/tests/test_slimeworld_naming_reference.tsx`** — 4 test anchors.
+
+### Test coverage — `ts/tests/test_slimeworld_naming_reference.tsx` (4 tests)
+
+1. `test_no_functional_code_references_old_culture_field_name` — Grep
+   proof: zero real references to `culture_relationships`/
+   `cultureRelationships`/`favor.culture` remain in favors.lua,
+   territory.lua, logic.lua, types.ts, App.tsx, MissionsTab.tsx, data.yaml
+2. `test_favor_generation_unchanged_after_rename` — Real bridge test:
+   favor generation via `advance_cycle` behaves identically; raw Lua
+   field is now `owner_color`, not `culture`
+3. `test_color_relationships_rename_preserves_fealty_threshold_logic` —
+   Real bridge test: Fealty threshold (100%) still locks nodes
+   identically; raw Lua state key is now `color_relationships`
+4. `test_reference_table_matches_real_data_yaml` — Confirms all 6
+   reference entries match `data.yaml`'s real culture→color mapping and
+   `gameLogic.ts`'s real Strain names; catches future drift
+
+### Real call sites confirmed (full audit list)
+
+**Lua**: `favors.lua` (`generate_favors`, `fulfill_favor_via_mediation`,
+`resolve_disposal`, `check_fealty_transition`), `logic.lua` (Favor log
+text), `territory.lua` (`convert_claim_action` read site).
+**Config**: `data.yaml` (`lab.color_relationships` seed), `systems.yaml`
+(`favors` system manifest).
+**TS**: `types.ts` (`Favor`, `LabState`, `luaFavorToTs`, `stateToLua`),
+`App.tsx` (initial state, `handleAdvanceCycle`), `MissionsTab.tsx`
+(relationship display, Favor detail display).
+**Tests**: 12 files updated for `LabState.colorRelationships` boilerplate
+compatibility.
+**Confirmed NOT touched**: `buildColorSpecs` (already correct),
+`data.yaml`'s `cultures` entries (source of truth), `gameLogic.ts`'s
+Strain flavor text (documented, not redesigned), garrison logic,
+territory.lua's `culture_relationship` (singular) local parameter name
+(not the renamed state field, not in directive scope).
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 286 passed (282 existing + 4 new)
+
+---
+
 ## SlimeWorld Alert Box for Real-Time Notifications — COMPLETED
 
 ### What was built
