@@ -90,8 +90,9 @@ describe('SlimeWorld Alert Box for Real-Time Notifications', () => {
     const colorSpecs: Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> = {};
     const cultures = data['cultures'] as Record<string, Record<string, unknown>>;
     if (cultures) {
-      for (const [color, culture] of Object.entries(cultures)) {
-        colorSpecs[color] = {
+      for (const [, culture] of Object.entries(cultures)) {
+        const colorName = String(culture['color']);
+        colorSpecs[colorName] = {
           base_stats: culture['base_stats'] as Record<string, number>,
           growth: culture['growth'] as Record<string, number>,
         };
