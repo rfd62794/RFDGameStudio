@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import './styles.css';
-import { Coins, FastForward, X, Sparkles } from 'lucide-react';
+import { Coins, FastForward, X, Sparkles, Settings } from 'lucide-react';
 import { GameShell } from '../../components';
 import { call } from '../../engine/runtime';
 import { navigateTo } from '../../arcade/routing';
@@ -13,6 +13,7 @@ import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
 import { AlertBox } from './components/AlertBox';
+import { OptionsMenu } from './components/OptionsMenu';
 import { luaNodeToTs, luaSlimeToTs, luaPetitionToTs, luaFavorToTs, stateToLua, type CombatZone, type CorporateContract, type LabState, type LogEntry, type Mission, type Slime, type SlimeColor, type SlimePattern } from './types';
 import { generatePlanetRegion } from './planetRegion';
 
@@ -164,6 +165,8 @@ export default function App({ session }: GameRendererProps) {
   const [pendingDisposalFavorId, setPendingDisposalFavorId] = useState<string | null>(null);
   const [disposalConfirmSlimeId, setDisposalConfirmSlimeId] = useState<string | null>(null);
   const [activeAlerts, setActiveAlerts] = useState<LogEntry[]>([]);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [pendingHardReset, setPendingHardReset] = useState(false);
   const prevRegionUnlocksRef = useRef<Record<string, boolean> | undefined>(state.regionUnlocks);
   const t1FiredRef = useRef(false);
 
@@ -256,6 +259,14 @@ export default function App({ session }: GameRendererProps) {
     const costs = { capacity: 150, stabilizer: 200, autofeeder: 250 };
     setState(previous => ({ ...previous, credits: previous.credits - costs[type], rosterCap: type === 'capacity' ? previous.rosterCap + 5 : previous.rosterCap, breedingSuccessRateModifier: type === 'stabilizer' ? previous.breedingSuccessRateModifier + 0.1 : previous.breedingSuccessRateModifier, hasAutoFeeder: type === 'autofeeder' ? true : previous.hasAutoFeeder }));
   }, [session, state]);
+
+  const handleHardReset = useCallback(() => {
+    try { localStorage.removeItem(SAVE_KEY); } catch {}
+    setState(initialState(session));
+    setGamePhase('opening');
+    setPendingHardReset(false);
+    setShowOptionsMenu(false);
+  }, [session]);
 
   const handleToggleWorkerRole = useCallback((id: string) => {
     if (call(session, 'toggle_worker_role', stateToLua(state), id)[0] !== true) return;
@@ -487,7 +498,7 @@ export default function App({ session }: GameRendererProps) {
     <GameShell
       gameLabel="SLIMEWORLD"
       gameId="slimeworld"
-      statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span></div>}
+      statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span><button onClick={() => setShowOptionsMenu(true)} className="text-slate-400 hover:text-slate-200" aria-label="Options"><Settings className="w-4 h-4" /></button></div>}
       footer={
         <MoreGamesByMe
           mode={mode}
@@ -524,6 +535,16 @@ export default function App({ session }: GameRendererProps) {
             {activeAlerts.map(alert => (
               <AlertBox key={alert.id} entry={alert} onDismiss={(id) => setActiveAlerts(prev => prev.filter(a => a.id !== id))} />
             ))}
+          </div>
+        )}
+        {showOptionsMenu && (
+          <div className="absolute top-4 right-4 z-50">
+            <OptionsMenu
+              onClose={() => { setShowOptionsMenu(false); setPendingHardReset(false); }}
+              pendingHardReset={pendingHardReset}
+              setPendingHardReset={setPendingHardReset}
+              onConfirmHardReset={handleHardReset}
+            />
           </div>
         )}
       </div>
