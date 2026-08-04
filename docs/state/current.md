@@ -2,6 +2,103 @@
 
 *Last updated: August 3 2026*
 
+## SlimeWorld Wire Fealty Transition + Achievement Moment — COMPLETED
+
+### What was built
+
+Corrected another false premise, same pattern as the naming-correction
+directive before it. The directive claimed `check_fealty_transition` is
+"never called anywhere on the TS side" and that "zero narrative/Echo text
+anywhere tied to Fealty" exists. **Both claims were checked against real
+source and found false.**
+
+**Real, direct-read findings**:
+- `check_fealty_transition` IS already called, from `logic.lua`'s
+  `advance_cycle` (line 103) — not from `App.tsx` directly, but reachable
+  end-to-end since `App.tsx` calls `advance_cycle`.
+- Real, distinct narrative text already exists at `logic.lua:104-105`:
+  `"FEALTY: [{node}] has sworn permanent loyalty. {color} territory
+  joined your domain — the pressure simulation releases its hold."` This
+  is already tonally distinct: Force/Bribe claims produce **no log text
+  at all** (immediate/silent), Favor fulfillment logs "Relationship
+  strengthened" (transactional, type `corporate`), Stray detection logs
+  an alarm-toned containment event (type `combat`). Fealty's text
+  uniquely emphasizes permanence and closure, consistent with the game's
+  established corporate/technical narrative voice (matches "CYCLE
+  ADVANCED... energy cells replenished" and "MEDIATION CONCLUDED...
+  Stability restored" in tone).
+- Call order is already correct and must NOT change: fealty transitions
+  fire **before** the same cycle's pressure simulation (by design — see
+  `logic.lua`'s own comment — so a newly-locked node is excluded from
+  pressure that same cycle, not one cycle late). The directive's assumed
+  order (after pressure sim/favor gen) would have introduced a real
+  regression; this was not implemented.
+
+**The one real, confirmed gap**: the Fealty log entry (type `system`,
+text prefixed `FEALTY:`) never triggered the existing `AlertBox` — only
+`combat` + `STRAY DETECTION` did. This directive closes exactly that gap,
+matching the Alert Box directive's own stated extensibility intent
+("a future directive can wire additional trigger conditions... onto the
+same component without a rewrite").
+
+### Design decisions
+
+- **No new narrative text written** — the real, pre-existing text
+  already satisfies Rev 2's tonal-distinctness requirement. Rewriting it
+  would have been solving a problem that doesn't exist.
+- **No call-order change** — the real order (fealty check before
+  pressure sim) is intentional and correct; reordering per the
+  directive's incorrect assumption would have broken same-cycle
+  exclusion.
+- **`AlertBox.tsx` untouched** — confirmed generic, renders any
+  `LogEntry`; only the trigger filter in `App.tsx` needed extending.
+
+### Modified files
+
+- **`ts/src/games/slimeworld/App.tsx`** — `handleAdvanceCycle` now also
+  filters `luaLogs` for `type === 'system' && text.startsWith('FEALTY:')`
+  (`fealtyAlerts`), pushed into `activeAlerts` alongside the existing
+  `strayAlerts`, matching the established pattern exactly.
+
+### New files
+
+- **`ts/tests/test_slimeworld_wire_fealty_transition.tsx`** — 5 test
+  anchors.
+
+### Test coverage (5 tests)
+
+1. `test_fealty_transition_triggers_alert_real_bridge` — Real bridge
+   test: drives `color_relationships` to 100% through the actual
+   `stateToLua`→executor→state-sync path, confirms the real `FEALTY:`
+   log fires and `App.tsx` wires it onto `AlertBox`
+2. `test_fealty_alert_text_distinct_from_stray_alert` — Confirms the real
+   text differs meaningfully from Stray/Refugee text (no shared
+   fragments, distinct tone words)
+3. `test_fealty_node_locked_permanently_after_transition` — Confirms
+   `fealtyLocked`/`playerAligned` set post-transition, and a subsequent
+   cycle with heavy pressure still excludes the locked node (regression
+   check against `codex.lua`'s exclusion logic)
+4. `test_no_transition_below_threshold` — 99% relationship does not
+   incorrectly trigger a Fealty log or lock
+5. `test_existing_favor_ui_unaffected` — `MissionsTab`'s Favor
+   display/disposal flow confirmed unchanged
+
+### Real, current state of Fealty end-to-end
+
+**Yes — a player can now actually reach and see a real Fealty
+achievement in the live game.** Demonstrated via
+`test_fealty_transition_triggers_alert_real_bridge`: driving a color's
+relationship to 100% and advancing a cycle produces a real `FEALTY:` log
+entry that `App.tsx` now surfaces through the existing `AlertBox`
+component — the previously-unreachable payoff is now reachable.
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 291 passed (286 existing + 5 new)
+
+---
+
 ## SlimeWorld Color/Culture/Strain Naming Correction — COMPLETED
 
 ### What was built

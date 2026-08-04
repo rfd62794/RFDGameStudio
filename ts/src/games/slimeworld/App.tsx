@@ -444,6 +444,16 @@ export default function App({ session }: GameRendererProps) {
     }
   }, [primaryTab, gamePhase, state.shownTutorials, session]);
 
+  // Gate Missions/Economy tab visibility on the real "at least one region
+  // unlocked" signal — the same underlying state T3_REGION_UNLOCK's own
+  // trigger derives from (state.regionUnlocks), not a tutorial-shown proxy.
+  // Persisted as part of LabState, so returning players with real existing
+  // progress see all four tabs immediately on load.
+  const hasUnlockedRegion = Object.values(state.regionUnlocks ?? {}).some(Boolean);
+  const visibleTabs = hasUnlockedRegion
+    ? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]
+    : [{ id: 'roster', label: 'ROSTER' }, { id: 'lab', label: 'LAB' }];
+
   const primaryContent = primaryTab === 'roster' ? (
     <RosterTab {...({ state, session, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole, lastConsumedSlimeId } as any)} />
   ) : primaryTab === 'missions' ? (
@@ -491,7 +501,7 @@ export default function App({ session }: GameRendererProps) {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         {warning && <ErrorBox message={warning} />}
         <TabBar
-          tabs={[{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]}
+          tabs={visibleTabs}
           active={primaryTab}
           onSelect={id => setPrimaryTab(id as 'roster' | 'missions' | 'economy' | 'lab')}
           variant="default"
