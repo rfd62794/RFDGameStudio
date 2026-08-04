@@ -2,6 +2,98 @@
 
 *Last updated: August 3 2026*
 
+## SlimeWorld Options Menu + Hard Reset (Pre-Publish) — COMPLETED
+
+### What was built
+
+Confirmed via source read: SlimeWorld has real `saveState`/`loadSavedState`
+`localStorage` persistence (`App.tsx`, key `slimeworld_save`) but no way
+for a player to clear it — a real, practical gap ahead of publishing to
+itch.io. Added a minimal SlimeWorld-only Options Menu whose only content
+is a confirmation-gated Hard Reset, built to hold more settings later.
+
+**Real pattern reused, not invented**: the existing Favor Disposal
+two-step confirm (`pendingDisposalFavorId`/`disposalConfirmSlimeId` in
+`MissionsTab.tsx`) was matched exactly — `OptionsMenu.tsx`'s `Hard Reset`
+button only sets a `pendingHardReset` flag (Step 1); a separate,
+gated `Confirm Hard Reset` button (Step 2, with a `Cancel` beside it)
+performs the real action. A single click can never trigger the reset.
+
+**Real reset target confirmed**: `handleHardReset` reuses `initialState
+(session)` — the exact same function a genuine new game constructs its
+state from — rather than hand-building a reset object. Combined with
+`setGamePhase('opening')`, this returns the player to the real Ember
+Station opening beat, with `regionUnlocks`/`shownTutorials` both
+naturally `undefined` (matching a fresh game exactly, composing
+correctly with the Gate Tabs directive's `Object.values(state
+.regionUnlocks ?? {}).some(Boolean)` check — only Roster + Lab show).
+`localStorage.removeItem(SAVE_KEY)` clears the real persisted key so a
+page refresh after reset still shows a fresh game.
+
+### Design decisions
+
+- **Options button placed in the header `statusArea`**, alongside the
+  existing Cycle counter, Advance Cycle button, and credits display —
+  the one place already visible from every tab, using a `Settings` icon
+  consistent with the rest of the header's icon-plus-label convention.
+- **`OptionsMenu.tsx` lives in `components/`**, matching `AlertBox.tsx`'s
+  location convention, and follows its same visual/structural style
+  (dismissable panel, `AlertTriangle` for the destructive-confirm step).
+- **No change to `saveState`/`loadState`'s own logic** — only
+  `localStorage.removeItem` was added; how saving/loading works is
+  untouched.
+- **SlimeWorld-only, deliberately** — no promotion to `GameShell` or
+  other games; a cross-game settings system is real, separate, future
+  work.
+
+### New files
+
+- **`ts/src/games/slimeworld/components/OptionsMenu.tsx`** — Minimal
+  menu: closable panel, two-step Hard Reset confirm.
+
+### Modified files
+
+- **`ts/src/games/slimeworld/App.tsx`** — `showOptionsMenu`/
+  `pendingHardReset` state, `handleHardReset` callback (clears
+  `SAVE_KEY`, resets state to `initialState(session)`, returns
+  `gamePhase` to `'opening'`), Options button in `statusArea`, and the
+  `OptionsMenu` overlay render (top-right, `z-50`, matching the
+  tutorial popup's positioning convention).
+
+### Test coverage — `ts/tests/test_slimeworld_options_menu_hard_reset.tsx` (5 tests)
+
+1. `test_options_menu_opens_and_closes` — Menu opens via the header
+   button, closes via `onClose` (which also resets `pendingHardReset`
+   so re-opening never starts mid-confirm)
+2. `test_hard_reset_requires_two_step_confirm` — Step 1 (`Hard Reset`)
+   only sets `pendingHardReset`; Step 2 (`Confirm Hard Reset`) is the
+   only path that calls the real reset; a `Cancel` path exists
+3. `test_hard_reset_clears_persisted_save` — Real check: writes to the
+   real `slimeworld_save` `localStorage` key, confirms `App.tsx`'s
+   handler clears that exact key
+4. `test_hard_reset_returns_to_fresh_game_state` — Confirms the handler
+   reuses `initialState(session)` + `setGamePhase('opening')`; confirms
+   the real fresh state has no `regionUnlocks`/`shownTutorials`
+5. `test_hard_reset_reflects_in_tab_gating` — Real integration: applies
+   the same `Object.values(...).some(Boolean)` derivation the Gate Tabs
+   directive uses against a real fresh state, confirms it evaluates
+   false (only Roster + Lab visible post-reset)
+
+### Where the Options Menu button was placed, and why
+
+In the header `statusArea`, immediately after the credits display,
+alongside the existing Cycle counter and Advance Cycle button — the one
+UI region already rendered on every tab regardless of which of the
+(now-gated) tabs is active, so Hard Reset stays reachable from Roster,
+Lab, or (once unlocked) Missions/Economy alike.
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 301 passed (296 existing + 5 new)
+
+---
+
 ## SlimeWorld Gate Missions/Economy Tabs Behind First Region Unlock — COMPLETED
 
 ### What was built
