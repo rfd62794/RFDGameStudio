@@ -115,6 +115,7 @@ export interface LabState {
   petitions?: Petition[];
   regionUnlocks?: Record<string, boolean>;
   shownTutorials?: Record<string, boolean>;
+  startingColor?: SlimeColor;
 }
 
 type Raw = Record<string, unknown>;

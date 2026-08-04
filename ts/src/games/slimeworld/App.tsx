@@ -8,7 +8,7 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
 import { LabTab } from './components/LabTab';
-import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, prepopulateAllTutorials } from './tutorial';
+import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, prepopulateAllTutorials, getT1RegionsAwaitBody, getOpeningBeatText } from './tutorial';
 import { RosterTab } from './components/RosterTab';
 import { MissionsTab } from './components/MissionsTab';
 import { EconomyTab } from './components/EconomyTab';
@@ -51,12 +51,24 @@ const SEED_SHAPE_DEFAULTS: Record<string, { vertexCount: number; irregularity: n
 };
 
 
-const INITIAL_ZONES: CombatZone[] = [
-  { id: 'zone_cinder', name: 'Rusty Cinder Craters', requiredColor: 'Red', recommendedLevel: 1, difficulty: 1, creditsReward: 50, xpReward: 60, isUnlocked: true, isFirstClearCompleted: false, flavorText: 'An iron-rich expanse of heat chimneys and jagged slag-heaps. Ideal for Red Slimes to solidify their core.' },
-  { id: 'zone_sulphur', name: 'Yellow Sulphur Fissures', requiredColor: 'Yellow', recommendedLevel: 2, difficulty: 1, creditsReward: 75, xpReward: 80, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'Acrid volcanic streams containing raw energetic sulfur dust. Yellow Slimes thrive in the high-speed thermal winds.' },
-  { id: 'zone_abyssal', name: 'Abyssal Frost Caves', requiredColor: 'Blue', recommendedLevel: 4, difficulty: 2, creditsReward: 120, xpReward: 150, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'Sub-surface ice tunnels with deep lithium reservoirs. Extremely dense. Blue Slimes absorb freezing pressure with ease.' },
-  { id: 'zone_jungle', name: 'Overgrown Biome Reactor', requiredColor: 'Green', recommendedLevel: 6, difficulty: 3, creditsReward: 200, xpReward: 250, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'A derelict agriculture vessel overgrown with synthetic bioluminescent flora. Green Slimes can assimilate the dense foliage.' },
-];
+// Real, precise design (per Robert directly): only Red/Blue/Yellow are
+// eligible new-game starting colors — these map to the three
+// lowest-difficulty zones (recommendedLevel 1/2/4). Green (level 6) is a
+// real, existing difficulty step up and stays excluded from the pool.
+const STARTING_COLOR_POOL: SlimeColor[] = ['Red', 'Blue', 'Yellow'];
+
+function pickStartingColor(): SlimeColor {
+  return STARTING_COLOR_POOL[Math.floor(Math.random() * STARTING_COLOR_POOL.length)];
+}
+
+function buildInitialZones(startingColor: SlimeColor): CombatZone[] {
+  return [
+    { id: 'zone_cinder', name: 'Rusty Cinder Craters', requiredColor: 'Red', recommendedLevel: 1, difficulty: 1, creditsReward: 50, xpReward: 60, isUnlocked: startingColor === 'Red', isFirstClearCompleted: false, flavorText: 'An iron-rich expanse of heat chimneys and jagged slag-heaps. Ideal for Red Slimes to solidify their core.' },
+    { id: 'zone_sulphur', name: 'Yellow Sulphur Fissures', requiredColor: 'Yellow', recommendedLevel: 2, difficulty: 1, creditsReward: 75, xpReward: 80, isUnlocked: startingColor === 'Yellow', isFirstClearCompleted: false, flavorText: 'Acrid volcanic streams containing raw energetic sulfur dust. Yellow Slimes thrive in the high-speed thermal winds.' },
+    { id: 'zone_abyssal', name: 'Abyssal Frost Caves', requiredColor: 'Blue', recommendedLevel: 4, difficulty: 2, creditsReward: 120, xpReward: 150, isUnlocked: startingColor === 'Blue', isFirstClearCompleted: false, flavorText: 'Sub-surface ice tunnels with deep lithium reservoirs. Extremely dense. Blue Slimes absorb freezing pressure with ease.' },
+    { id: 'zone_jungle', name: 'Overgrown Biome Reactor', requiredColor: 'Green', recommendedLevel: 6, difficulty: 3, creditsReward: 200, xpReward: 250, isUnlocked: false, isFirstClearCompleted: false, flavorText: 'A derelict agriculture vessel overgrown with synthetic bioluminescent flora. Green Slimes can assimilate the dense foliage.' },
+  ];
+}
 
 const INITIAL_CONTRACTS: CorporateContract[] = [
   { id: 'contract_init_1', title: 'CONTRACT RQ-3109', requiredColor: 'Purple', requiredPattern: 'Solid', creditsReward: 120, cyclesRemaining: 6, totalCycles: 6, flavorText: 'Corporation chemical trial requested. Purple membrane needed to buffer thermal fuel waste tanks on Reactor C-4.' },
@@ -80,9 +92,16 @@ function loadSavedState(): LabState | null {
 export function initialState(session: GameRendererProps['session']): LabState {
   const data = session.files.data as Record<string, unknown>;
   const lab = (data['lab'] ?? {}) as Record<string, unknown>;
-  const starters = (lab['starter_slimes'] ?? []) as Array<Record<string, unknown>>;
   const relationships = (lab['color_relationships'] ?? {}) as Record<SlimeColor, number>;
   const colorSpecs = buildColorSpecs(data);
+  // Real runtime random pick — not data.yaml-driven. Picked once per
+  // genuine new-game creation (fresh start or Hard Reset), then persists
+  // as part of saved LabState for the rest of that playthrough.
+  const startingColor = pickStartingColor();
+  const starters: Array<Record<string, unknown>> = [
+    { name: `Specimen-${startingColor}-Alpha`, color: startingColor, pattern: 'Solid' },
+    { name: `Specimen-${startingColor}-Beta`, color: startingColor, pattern: 'Solid' },
+  ];
   const starterSlimes = starters.map((starter, index) => {
     const color = (starter['color'] ?? COLORS[index % COLORS.length]) as SlimeColor;
     const [raw] = call(session, 'create_seed_slime', color, 'Solid', colorSpecs) as [Record<string, unknown> | null, string | null];
@@ -112,7 +131,7 @@ export function initialState(session: GameRendererProps['session']): LabState {
     colorCodex[slime.color] = { discovered: true };
     patternCodex[slime.pattern] = { discovered: true };
   }
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: INITIAL_ZONES, activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [], colorCodex, patternCodex };
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: buildInitialZones(startingColor), activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [], colorCodex, patternCodex, startingColor };
 }
 
 function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
