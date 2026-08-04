@@ -2,6 +2,84 @@
 
 *Last updated: August 3 2026*
 
+## SlimeWorld Gate Missions/Economy Tabs Behind First Region Unlock — COMPLETED
+
+### What was built
+
+Confirmed via direct source read: all four tabs (`roster`, `missions`,
+`economy`, `lab`) rendered simultaneously from the hub screen on turn
+one, with zero staging — the real, mechanical shape of "the game feels
+like too much." Gated `missions`/`economy` tab visibility behind the
+real, canonical "at least one region has ever been unlocked" signal,
+reusing existing state rather than building anything new.
+
+**Real source of truth used**: `state.regionUnlocks` — the same
+persisted `LabState` field `T3_REGION_UNLOCK`'s own trigger logic
+derives its "newKeys.length > 0" check from. Not a proxy: not
+`shownTutorials[T3_REGION_UNLOCK]` (which only means "the tutorial popup
+was shown," not "a region is actually unlocked"), and not a
+session-only ref. Because it's real persisted state (part of
+`stateToLua`/`saveState`/`loadSavedState`), a returning player with
+existing progress sees all four tabs immediately on load — no re-gating.
+
+### Design decisions
+
+- **Visibility gate only, not a data gate** — no new restriction on what
+  a player can *do* once Missions/Economy become visible; only when the
+  tab itself appears in the tab bar changed.
+- **`primaryTab` default (`'roster'`) confirmed safe** — `'roster'` is
+  present in both the gated (`roster` + `lab`) and ungated (all four)
+  tab lists, so no fresh game can default to a tab that's about to be
+  hidden. No default-value change needed.
+- **Node-level locking untouched** — `MissionsTab.tsx`'s own
+  `isNodeLocked`/`regionLockNodeIds` logic is a separate, already-working
+  system; confirmed unchanged via regression test.
+
+### Modified files
+
+- **`ts/src/games/slimeworld/App.tsx`** — Added `hasUnlockedRegion =
+  Object.values(state.regionUnlocks ?? {}).some(Boolean)` and a
+  `visibleTabs` array (gated: `roster`+`lab`; ungated: all four),
+  replacing the hardcoded 4-tab array passed to `TabBar`.
+
+### New files
+
+- **`ts/tests/test_slimeworld_tab_gating.tsx`** — 5 test anchors.
+
+### Test coverage (5 tests)
+
+1. `test_fresh_game_shows_only_roster_and_lab_tabs` — Fresh state (no
+   `regionUnlocks`) → gate signal false; confirms `App.tsx`'s real
+   ternary source matches
+2. `test_missions_economy_tabs_appear_after_first_unlock` — Real bridge
+   test: `check_region_unlocks` against a real matching slime unlocks
+   `node_frontier_a`; applying it the same way `handleInitiateBreeding`
+   does flips the gate signal true
+3. `test_returning_player_with_existing_progress_sees_all_tabs` — A
+   state with `regionUnlocks` pre-set (simulating a loaded save) shows
+   all four tabs immediately; confirms the gate isn't tied to the
+   T1-fired session ref
+4. `test_default_active_tab_never_hidden` — Confirms default `primaryTab`
+   (`'roster'`) is present in both tab-list branches
+5. `test_node_locking_unaffected` — `MissionsTab`'s
+   `isNodeLocked`/`regionLockNodeIds` and the real locked-node mission
+   refusal bridge behave identically
+
+### Real, current state — what a brand-new player sees
+
+A fresh game's first hub screen now shows **exactly Roster + Lab**,
+nothing else. Successfully breeding a slime matching any region's
+composite lock (color/shape/accent) sets `state.regionUnlocks[nodeId] =
+true`, which flips the gate and reveals Missions + Economy — the same
+real action that already fires the `T3_REGION_UNLOCK` tutorial.
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 296 passed (291 existing + 5 new)
+
+---
+
 ## SlimeWorld Wire Fealty Transition + Achievement Moment — COMPLETED
 
 ### What was built
