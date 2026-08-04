@@ -2,6 +2,113 @@
 
 *Last updated: August 3 2026*
 
+## SlimeWorld Random Starting Color Foundation — COMPLETED
+
+### What was built
+
+Replaced the static, `data.yaml`-driven starter color (always Red) with
+a real runtime random pick from `{Red, Blue, Yellow}` at genuine
+new-game creation — the foundational piece the onboarding redesign's
+later directives (post-breed reward, purchase restrictions, Economy's
+second-region gate, breeding cost) all assume exists first. Only the one
+real, randomly-selected zone starts `isUnlocked: true`; Green
+(`recommendedLevel` 6, a real existing difficulty step up) stays outside
+the pool entirely, matching Robert's explicit design.
+
+**Real place-name resolution, nothing invented**: confirmed via
+`naming_reference.lua`'s `CULTURE_COLOR_STRAIN_REFERENCE`
+(Red→ember, Yellow→gale, Blue→tide) and `data.yaml`'s real
+`color_targets` guild ring — each culture's two immediate neighbors on
+the color wheel are already-named real Color Codex targets
+(`guild_tide_ember`/`guild_ember_marsh` → "Abyssal Ember"/"Thornward" for
+Red; `guild_marsh_gale`/`guild_gale_tundra` → "Guild: Amberglow"/
+"Frostwind" for Yellow; `guild_crystal_tide`/`guild_tide_ember` →
+"Tidereign"/"Abyssal Ember" for Blue). `tutorial.ts`'s new
+`getOpeningBeatText`/`getT1RegionsAwaitBody` resolve these at runtime
+from the real `color_targets` data rather than hardcoding three
+parallel copies of the text.
+
+### Design decisions / judgment call flagged for review
+
+- **The opening beat's two locked-region names are now resolved from
+  real Color Codex guild-neighbor data** rather than the original
+  hardcoded "Thornward and Abyssal Ember" (which only made sense for a
+  Red start) — this was necessary since "Abyssal Ember" itself contains
+  the literal word "Ember," which would have stayed wrong for Yellow/Blue
+  starts if left untouched. The two neighbor names are derived
+  data, not invented, but *which two guild targets count as a culture's
+  "neighbors"* was this directive's own interpretation of the existing
+  ring structure — flagged here for Robert's confirmation, not silently
+  assumed to be beyond question.
+- **T2/T3 tutorial content confirmed already color-agnostic** — no
+  changes needed there, matching the directive's own suspicion.
+- **`data.yaml`'s `lab.starter_slimes` entries left untouched** —
+  confirmed via repo-wide search that nothing else reads them; they're
+  simply superseded by the new runtime pick, not deleted.
+- **Starter generation kept structurally identical** (`starters.map((starter, index) => ...)`
+  using `starter['name']`/`` `starter_${index}` ``) even though the
+  source array is now 2 locally-built descriptors instead of 3
+  `data.yaml` entries — preserves the existing id/name-override pattern
+  exactly, avoiding an unrelated rewrite.
+- **`startingColor` added to `LabState`** (optional, for old-save
+  backward compatibility) — persists automatically through the existing
+  `saveState`/`loadSavedState` JSON round-trip with no extra
+  serialization code needed. Hard Reset composes correctly: it calls
+  `initialState(session)` fresh, which internally re-picks.
+
+### Modified files
+
+- **`ts/src/games/slimeworld/App.tsx`** — `STARTING_COLOR_POOL`,
+  `pickStartingColor()`, `buildInitialZones(startingColor)` (replacing
+  static `INITIAL_ZONES`); `initialState` now picks once, builds 2
+  starters of that color, and returns `startingColor` on the state; the
+  opening beat and T1 tutorial render blocks now call
+  `getOpeningBeatText`/`getT1RegionsAwaitBody` instead of rendering
+  hardcoded text.
+- **`ts/src/games/slimeworld/tutorial.ts`** — Added
+  `HOME_CULTURE_BY_STARTING_COLOR`, `resolveHomeRegionNames`,
+  `getT1RegionsAwaitBody`, `getOpeningBeatText`. `TUTORIAL_CONTENT`'s
+  static T1 entry kept as a defensive fallback; T2/T3 untouched.
+- **`ts/src/games/slimeworld/types.ts`** — Added `startingColor?:
+  SlimeColor` to `LabState`.
+- **`ts/tests/test_slimeworld_onboarding.tsx`** — Updated one assertion
+  that checked for the now-removed hardcoded `"Ember is your home"`
+  string; replaced with a check against the real parameterized call
+  site, and narrowed an unrelated regex to avoid a false match against
+  the new `color_targets` data-access line.
+
+### New files
+
+- **`ts/tests/test_slimeworld_random_starting_color.tsx`** — 6 test
+  anchors.
+
+### Test coverage (6 tests)
+
+1. `test_starting_color_is_one_of_three_valid_options` — 40 real trials,
+   every pick in `{Red, Blue, Yellow}`, more than one distinct value
+   appears (genuine randomness, not a silent Red default)
+2. `test_two_starters_match_assigned_color` — Both starters' `color`
+   equals `startingColor` across 10 trials
+3. `test_only_matching_zone_unlocked_at_start` — Exactly one zone
+   unlocked, matching `startingColor`; Green always locked
+4. `test_starting_color_persists_across_save_load` — Real
+   `localStorage` JSON round-trip preserves the exact picked color
+5. `test_hard_reset_rerolls_starting_color` — Confirms the real handler
+   calls `initialState(session)` fresh; 40 trials show genuine re-roll
+   variance
+6. `test_opening_beat_text_matches_assigned_color` — Real
+   `getOpeningBeatText`/`getT1RegionsAwaitBody` output for all three
+   colors reference the correct culture name, never leaking "Ember" into
+   Yellow/Blue text
+
+### Test Floor
+
+- **Python:** 563 passed, 8 warnings
+- **TypeScript:** 307 passed (301 existing + 6 new, 1 pre-existing test
+  file corrected for the intentional text-parameterization change)
+
+---
+
 ## SlimeWorld Options Menu + Hard Reset (Pre-Publish) — COMPLETED
 
 ### What was built
