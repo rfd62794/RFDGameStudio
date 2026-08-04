@@ -497,14 +497,15 @@ export default function App({ session }: GameRendererProps) {
 
   // Opening beat — New Campaign only, never on Continue
   if (gamePhase === 'opening') {
+    const openingBeat = getOpeningBeatText(state.startingColor, (session.files.data as Record<string, unknown>)['color_targets'] as Array<Record<string, unknown>>);
     return (
       <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<span className="text-slate-400 font-mono text-xs">New Campaign</span>}>
         <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
           <div className="text-center space-y-4 max-w-md">
             <Sparkles className="w-12 h-12 mx-auto text-orange-400" />
-            <h2 className="text-xl font-bold text-slate-200 font-mono">EMBER STATION</h2>
+            <h2 className="text-xl font-bold text-slate-200 font-mono">{openingBeat.title}</h2>
             <p className="text-sm text-slate-400 font-mono leading-relaxed">
-              Ember is your home. Two regions — Thornward and Abyssal Ember — lie within reach, but they are locked. Reach them to open them.
+              {openingBeat.body}
             </p>
           </div>
           <Button id="slimeworld-begin" label="Begin" variant="primary" onClick={() => setGamePhase('hub')} />
@@ -545,7 +546,7 @@ export default function App({ session }: GameRendererProps) {
               <h3 className="text-sm font-bold text-blue-300 font-mono">{TUTORIAL_CONTENT[activeTutorial].title}</h3>
               <button onClick={() => setActiveTutorial(null)} className="text-slate-500 hover:text-slate-300"><X className="w-4 h-4" /></button>
             </div>
-            <p className="text-xs text-slate-400 font-mono leading-relaxed">{TUTORIAL_CONTENT[activeTutorial].body}</p>
+            <p className="text-xs text-slate-400 font-mono leading-relaxed">{activeTutorial === TUTORIAL_IDS.T1_HUB_VIEW ? getT1RegionsAwaitBody(state.startingColor, (session.files.data as Record<string, unknown>)['color_targets'] as Array<Record<string, unknown>>) : TUTORIAL_CONTENT[activeTutorial].body}</p>
             <button onClick={() => setActiveTutorial(null)} className="mt-3 text-xs text-blue-400 hover:text-blue-300 font-mono">Dismiss</button>
           </div>
         )}

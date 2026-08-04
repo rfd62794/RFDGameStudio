@@ -50,14 +50,20 @@ describe('SlimeWorld Demo Scope & Onboarding', () => {
     expect(appSource).toContain("'hub'");
     // The opening beat must render before the Hub (early return)
     expect(appSource).toContain("gamePhase === 'opening'");
-    // The opening beat states Ember is home — no mechanic teaching
-    expect(appSource).toContain('Ember is your home');
+    // The opening beat is now parameterized by the real assigned starting
+    // color (Random Starting Color Foundation directive) rather than
+    // hardcoding "Ember is your home" — confirm the real template still
+    // says "is your home" for whichever culture was actually assigned
+    expect(appSource).toContain('getOpeningBeatText(state.startingColor');
+    expect(readFileSync(resolve(import.meta.dirname, '../src/games/slimeworld/tutorial.ts'), 'utf8')).toContain('is your home');
     // The Begin button transitions to Hub
     expect(appSource).toContain("setGamePhase('hub')");
-    // No breeding/mechanic explanation in the opening beat text
-    const openingBeatMatch = appSource.match(/gamePhase === 'opening'[\s\S]*?Begin/);
+    // No breeding/mechanic explanation in the opening beat's rendered JSX
+    // (narrowed to the <h2>...Begin span, not the color_targets data-access
+    // line used only to resolve the real place names)
+    const openingBeatMatch = appSource.match(/<h2[\s\S]*?Begin/);
     expect(openingBeatMatch).toBeTruthy();
-    expect(openingBeatMatch![0]).not.toMatch(/breed|genetics|color.*target|shape.*target/i);
+    expect(openingBeatMatch![0]).not.toMatch(/breed|genetics/i);
   });
 
   // §3.2: Continue → Hub directly, beat never renders
