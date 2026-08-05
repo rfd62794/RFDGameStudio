@@ -499,7 +499,7 @@ export default function App({ session }: GameRendererProps) {
   if (gamePhase === 'opening') {
     const openingBeat = getOpeningBeatText(state.startingColor, (session.files.data as Record<string, unknown>)['color_targets'] as Array<Record<string, unknown>>);
     return (
-      <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" statusArea={<span className="text-slate-400 font-mono text-xs">New Campaign</span>}>
+      <GameShell gameLabel="SLIMEWORLD" gameId="slimeworld" mode={mode} arcadeBaseUrl={arcadeBaseUrl} statusArea={<span className="text-slate-400 font-mono text-xs">New Campaign</span>}>
         <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
           <div className="text-center space-y-4 max-w-md">
             <Sparkles className="w-12 h-12 mx-auto text-orange-400" />
@@ -518,6 +518,8 @@ export default function App({ session }: GameRendererProps) {
     <GameShell
       gameLabel="SLIMEWORLD"
       gameId="slimeworld"
+      mode={mode}
+      arcadeBaseUrl={arcadeBaseUrl}
       statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span><button onClick={() => setShowOptionsMenu(true)} className="text-slate-400 hover:text-slate-200" aria-label="Options"><Settings className="w-4 h-4" /></button></div>}
       footer={
         <MoreGamesByMe

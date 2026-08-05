@@ -163,3 +163,33 @@ itself, once identified, likely can and should be tested normally.
 | Rendering issue | May be partially or fully a Lua-files symptom -- confirm after that fix lands, don't assume either way |
 | Real verification standard | Actual live itch.io embed, browser dev tools -- not local dev, not assumption |
 | Depends on | The concurrent Missing-Lua-Files directive -- coordinate, don't conflict |
+
+---
+
+## UPDATE, same night -- Issue 2 (Rendering) CONFIRMED ALREADY SOLVED
+
+The concurrent Missing-Lua-Files directive's agent also independently
+diagnosed and fixed the rendering problem as a real side effect of their
+own investigation -- confirmed via independent verification (real CSS
+file size check: index-D0YeMEAM.css is now 125,014 bytes, matching their
+claimed ~125KB almost exactly; real .lua file count in dist-slimeworld
+confirmed at 21, all previously-missing files present).
+
+REAL ROOT CAUSE, different from this directive's original hypothesis:
+NOT env-var propagation, NOT a Lua-state-fallback symptom -- a genuine
+Tailwind v4 source-scanning gap. The standalone Vite root
+(src/standalone/{gameId}/) never included the real component directories
+(src/games/{gameId}/, src/ui/) in Tailwind's scan path, so size utility
+classes (w-10, h-16, etc.) were never generated -- SVG slime visuals fell
+back to unstyled intrinsic size. Fixed via explicit `@source` directives
+added to the shared ts/src/index.css.
+
+DO NOT re-investigate or re-fix Issue 2 -- it's real, confirmed, done.
+**Issue 1 (Back-to-Arcade link) is still open and is now this
+directive's only remaining real task.**
+
+Also confirmed, real, honest disclosure from the other directive: this
+same Tailwind gap affects every standalone game, not just SlimeWorld
+(confirmed via spot-check: brewfield/entry.tsx still uses the old,
+narrow single-file import pattern). That's a real, separate, future
+follow-up item -- not blocking, not this directive's job either.
