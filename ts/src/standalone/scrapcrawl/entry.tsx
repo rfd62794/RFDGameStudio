@@ -6,8 +6,44 @@ import { buildStandaloneSession } from '../../engine/standaloneLoader';
 import dataRaw from '../../../../games/scrapcrawl/data.yaml?raw';
 import uiRaw from '../../../../games/scrapcrawl/ui.yaml?raw';
 import systemsRaw from '../../../../games/scrapcrawl/systems.yaml?raw';
-import logicRaw from '../../../../games/scrapcrawl/logic.lua?raw';
-import actionRaw from '../../../../engine/primitives/action.lua?raw';
+
+const gameLuaModules = import.meta.glob('../../../../games/scrapcrawl/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function toGameLuaFiles(modules: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [modulePath, content] of Object.entries(modules)) {
+    out[modulePath.split('/').pop()!] = content;
+  }
+  return out;
+}
+
+const engineLuaModules = import.meta.glob('../../../../engine/primitives/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const engineSystemModules = import.meta.glob('../../../../engine/systems/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function toEngineLuaFiles(
+  modules: Record<string, string>,
+  subdir: string
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [modulePath, content] of Object.entries(modules)) {
+    const fileName = modulePath.split('/').pop()!;
+    out[`${subdir}/${fileName}`] = content;
+  }
+  return out;
+}
 
 const gameId = 'scrapcrawl';
 
@@ -16,11 +52,10 @@ const session = buildStandaloneSession({
   dataRaw,
   uiRaw,
   systemsRaw,
-  gameLuaFiles: {
-    'logic.lua': logicRaw,
-  },
+  gameLuaFiles: toGameLuaFiles(gameLuaModules),
   engineLuaFiles: {
-    'primitives/action.lua': actionRaw,
+    ...toEngineLuaFiles(engineLuaModules, 'primitives'),
+    ...toEngineLuaFiles(engineSystemModules, 'systems'),
   },
 });
 

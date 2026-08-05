@@ -34,6 +34,7 @@ SHARED_TEST_FILES = {
     "test_runtime.py",
     "test_scaffold.py",
     "test_shared_lua_primitives.py",
+    "test_standalone_build_integrity.py",
     "test_studio_mcp.py",
     "test_studio_promote.py",
     "test_ui_interpreter.py",
