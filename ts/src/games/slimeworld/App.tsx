@@ -578,6 +578,7 @@ export default function App({ session }: GameRendererProps) {
           active={primaryTab}
           onSelect={id => setPrimaryTab(id as 'roster' | 'missions' | 'economy' | 'lab')}
           variant="default"
+          testIdPrefix="sw-tab"
         />
         <div className="flex-1 overflow-y-auto p-2 min-h-0">
           {primaryContent}

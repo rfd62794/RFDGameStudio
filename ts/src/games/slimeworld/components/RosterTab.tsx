@@ -135,6 +135,7 @@ export function RosterTab({
         tabs={[{ id: 'collection', label: 'COLLECTION' }, { id: 'breeding', label: 'SPLICING' }, { id: 'slimedex', label: 'SLIMEDEX' }]}
         active={activeSubTab}
         onSelect={id => setActiveSubTab(id as 'collection' | 'breeding' | 'slimedex')}
+        testIdPrefix="sw-roster-sub"
       />      {activeSubTab === 'collection' && (
           <motion.div
             key="sub_collection"
@@ -516,6 +517,7 @@ export function RosterTab({
                         return (
                           <div
                             key={slime.id}
+                            data-testid={`sw-breed-candidate-${slime.id}`}
                             onClick={() => {
                               if (isAnySelected) {
                                   if (isSelectedA) setParentAId(null);
@@ -710,6 +712,7 @@ export function RosterTab({
                     </div>
                   ) : (
                     <button
+                      data-testid="sw-hatch-btn"
                       disabled={!parentAId || !parentBId}
                       onClick={handleInitiateBreeding}
                       className={`w-full py-3 text-xs font-bold font-mono uppercase tracking-wider rounded-lg border transition-all ${

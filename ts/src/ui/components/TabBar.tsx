@@ -8,9 +8,10 @@ interface TabBarProps {
   active: string;
   onSelect: (id: string) => void;
   variant?: 'default' | 'mobile';
+  testIdPrefix?: string;
 }
 
-export function TabBar({ tabs, active, onSelect, variant = 'default' }: TabBarProps) {
+export function TabBar({ tabs, active, onSelect, variant = 'default', testIdPrefix }: TabBarProps) {
   const barCls = variant === 'mobile' ? 'mobile-tab-bar' : 'tab-bar';
   const btnCls = variant === 'mobile' ? 'mobile-tab-btn' : 'tab-btn';
   return (
@@ -20,6 +21,7 @@ export function TabBar({ tabs, active, onSelect, variant = 'default' }: TabBarPr
           key={t.id}
           className={`${btnCls}${active === t.id ? ' active' : ''}`}
           onClick={() => onSelect(t.id)}
+          data-testid={testIdPrefix ? `${testIdPrefix}-${t.id}` : undefined}
         >
           {t.label}
         </button>
