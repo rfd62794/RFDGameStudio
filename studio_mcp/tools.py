@@ -1119,10 +1119,21 @@ def studio_promote_to_examples(
 # ── GENERATE REGISTRY ENTRY ─────────────────────────────────────────────────
 
 
+_DIGIT_WORDS = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four",
+                "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"}
+
+
 def _camel_case_from_game_id(game_id: str) -> str:
-    """Convert underscore game_id to camelCase (e.g. trinity_siege → trinitySiege)."""
+    """Convert underscore game_id to camelCase (e.g. trinity_siege → trinitySiege).
+
+    If the result would start with a digit (invalid JS identifier), the
+    leading digit is replaced with its English word form.
+    """
     parts = game_id.split("_")
-    return parts[0] + "".join(p.capitalize() for p in parts[1:])
+    result = parts[0] + "".join(p.capitalize() for p in parts[1:])
+    if result and result[0].isdigit():
+        result = _DIGIT_WORDS.get(result[0], result[0]) + result[1:]
+    return result
 
 
 def studio_generate_registry_entry(
