@@ -18,6 +18,8 @@ const EXPECTED_ORDER = [
   'scrapcrawl',
   'ledger',
   'trinity_siege',
+  '7_days_to_fry',
+  'kingmaker_squads',
 ];
 
 describe('Arcade Registry Directive — July 2026', () => {
