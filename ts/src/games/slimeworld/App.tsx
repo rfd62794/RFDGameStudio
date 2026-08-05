@@ -20,7 +20,7 @@ import { generatePlanetRegion } from './planetRegion';
 const COLORS: SlimeColor[] = ['Red', 'Blue', 'Yellow', 'Purple', 'Orange', 'Green', 'Gray'];
 const HUES: Record<SlimeColor, number> = { Red: 0, Orange: 60, Yellow: 120, Green: 180, Purple: 240, Blue: 300, Gray: 0 };
 
-function buildColorSpecs(data: Record<string, unknown>): Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> {
+export function buildColorSpecs(data: Record<string, unknown>): Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> {
   const specs: Record<string, { base_stats: Record<string, number>; growth: Record<string, number> }> = {};
   const cultures = data['cultures'] as Record<string, Record<string, unknown>>;
   if (cultures) {
@@ -40,7 +40,7 @@ function buildColorSpecs(data: Record<string, unknown>): Record<string, { base_s
 
 // SEED_SHAPE_DEFAULTS — mirrors the Lua table for TS-side field defaults
 // that create_seed_slime does not set on its return object.
-const SEED_SHAPE_DEFAULTS: Record<string, { vertexCount: number; irregularity: number }> = {
+export const SEED_SHAPE_DEFAULTS: Record<string, { vertexCount: number; irregularity: number }> = {
   Red: { vertexCount: 3, irregularity: 10 },
   Orange: { vertexCount: 3, irregularity: 15 },
   Yellow: { vertexCount: 6, irregularity: 10 },
@@ -59,6 +59,42 @@ const STARTING_COLOR_POOL: SlimeColor[] = ['Red', 'Blue', 'Yellow'];
 
 function pickStartingColor(): SlimeColor {
   return STARTING_COLOR_POOL[Math.floor(Math.random() * STARTING_COLOR_POOL.length)];
+}
+
+function circularHueDistance(a: number, b: number): number {
+  const diff = Math.abs(a - b) % 360;
+  return Math.min(diff, 360 - diff);
+}
+
+// Guided first-breed guarantee: pick the Ring-1 frontier lock whose
+// color target center hue is nearest to the starting color. This gives
+// the two same-color starters a reachable target to nudge toward on their
+// very first breed, so the first region unlock is reliable rather than
+// a genetic lottery.
+export function startingTargetRegentForColor(color: SlimeColor, data: Record<string, unknown>): string {
+  const hue = HUES[color];
+  const colorTargets = (data['color_targets'] ?? []) as Array<Record<string, unknown>>;
+  const regionLocks = (data['region_locks'] ?? []) as Array<Record<string, unknown>>;
+  const frontierLocks = regionLocks.filter(lock => {
+    const nodeId = lock['node_id'];
+    return typeof nodeId === 'string' && nodeId.startsWith('node_frontier');
+  });
+
+  let best: { targetId: string; distance: number } | null = null;
+  for (const lock of frontierLocks) {
+    const targetId = lock['color_target_id'] as string | undefined;
+    if (!targetId) continue;
+    const target = colorTargets.find(t => t['id'] === targetId);
+    if (!target) continue;
+    const centers = (target['center_hues'] ?? []) as number[];
+    if (!centers.length) continue;
+    const distance = Math.min(...centers.map(c => circularHueDistance(c, hue)));
+    if (!best || distance < best.distance) {
+      best = { targetId, distance };
+    }
+  }
+
+  return best?.targetId ?? 'guild_ember_marsh';
 }
 
 function buildInitialZones(startingColor: SlimeColor): CombatZone[] {
@@ -131,7 +167,8 @@ export function initialState(session: GameRendererProps['session']): LabState {
     colorCodex[slime.color] = { discovered: true };
     patternCodex[slime.pattern] = { discovered: true };
   }
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: buildInitialZones(startingColor), activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: {}, petitions: [], colorCodex, patternCodex, startingColor };
+  const startingTargetRegent = startingTargetRegentForColor(startingColor, data);
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: buildInitialZones(startingColor), activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: { [startingTargetRegent]: 1 }, petitions: [], colorCodex, patternCodex, startingColor };
 }
 
 function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
@@ -167,7 +204,10 @@ export default function App({ session }: GameRendererProps) {
   const [isBreedingHatching, setIsBreedingHatching] = useState(false);
   const [activeRegentPattern, setActiveRegentPattern] = useState<SlimePattern | null>(null);
   const [activeRegentColor, setActiveRegentColor] = useState<SlimeColor | null>(null);
-  const [activeTargetRegent, setActiveTargetRegent] = useState<string | null>(null);
+  const [activeTargetRegent, setActiveTargetRegent] = useState<string | null>(() => {
+    const inventory = state.targetRegentInventory ?? {};
+    return Object.keys(inventory)[0] ?? null;
+  });
   const [renameSlimeId, setRenameSlimeId] = useState<string | null>(null);
   const [newNameInput, setNewNameInput] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
