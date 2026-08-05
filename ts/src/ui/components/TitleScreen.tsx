@@ -148,6 +148,7 @@ export function TitleScreen({
           {menuItems.map((item) => (
             <Button
               key={item.id}
+              id={item.id}
               label={item.label}
               icon={item.icon}
               onClick={item.onClick}

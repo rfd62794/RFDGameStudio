@@ -26,6 +26,7 @@ dev = [
 testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "e2e: L3 headless playthrough smoke tests — real browser, real dev server (deselect with '-m \"not e2e\"')",
     "shared: engine-level / studio-mcp-tooling tests that must run regardless of which game changed (see docs/gdd/TEST_SUITE_CLASSIFICATION.md)",
     "brewfield: Brewfield-specific tests",
     "chimera_wilds: Chimera Wilds-specific tests",

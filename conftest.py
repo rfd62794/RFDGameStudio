@@ -62,7 +62,27 @@ GAME_TEST_FILE_PREFIXES = {
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
     for item in items:
-        filename = os.path.basename(str(item.fspath))
+        filepath = str(item.fspath)
+        filename = os.path.basename(filepath)
+
+        # E2E tests live under tests/e2e/ — always marked e2e + slow,
+        # plus the game marker when the filename contains a game prefix.
+        if os.sep + "e2e" + os.sep in filepath or "/e2e/" in filepath:
+            item.add_marker(pytest.mark.e2e)
+            item.add_marker(pytest.mark.slow)
+            stem = filename[:-3] if filename.endswith(".py") else filename
+            for prefix, game in GAME_TEST_FILE_PREFIXES.items():
+                if stem.startswith(prefix):
+                    item.add_marker(getattr(pytest.mark, game))
+                    break
+            else:
+                # E2E tests for games whose prefix is embedded differently
+                for game_name in GAME_TEST_FILE_PREFIXES.values():
+                    if game_name in stem:
+                        item.add_marker(getattr(pytest.mark, game_name))
+                        break
+            continue
+
         if filename in SHARED_TEST_FILES:
             item.add_marker(pytest.mark.shared)
             continue
