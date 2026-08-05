@@ -23,5 +23,14 @@ export default defineConfig({
       // Allow serving files from repo root (engine/, games/ directories)
       allow: ['..'],
     },
+    proxy: {
+      // Forward /arcade/{gameId}/ requests to the stable preview server
+      // so embed iframes resolve during dev. Excludes the main arcade app
+      // path (/arcade/rfdgamestudio/) which Vite serves directly.
+      '^/arcade/(?!rfdgamestudio)': {
+        target: 'http://localhost:5174',
+        changeOrigin: true,
+      },
+    },
   },
 });
