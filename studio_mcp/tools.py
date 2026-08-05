@@ -830,9 +830,12 @@ def _vite_binary(node_modules: Path) -> Path | None:
 def _ensure_node_modules(examples_dir: Path) -> Path | None:
     """Return a usable node_modules path for the project.
 
-    If the project already has a usable node_modules, it is returned.
-    Otherwise, an existing sibling examples/{other}/node_modules with matching
-    package.json dependencies is linked as a directory junction.
+    Resolution order:
+    1. Existing node_modules in the project directory (with vite binary).
+    2. Junction to a sibling with matching package.json dependencies.
+    3. Fresh `npm install` in the project directory (fallback).
+
+    Returns the node_modules path, or None only if package.json is missing.
     """
     project_node_modules = examples_dir / "node_modules"
 
@@ -851,32 +854,48 @@ def _ensure_node_modules(examples_dir: Path) -> Path | None:
 
     repo_root = Path(__file__).parent.parent
     examples_root = repo_root / "examples"
-    if not examples_root.exists():
+
+    # Try junction to a sibling with matching deps.
+    if examples_root.exists():
+        for sibling_dir in examples_root.iterdir():
+            if not sibling_dir.is_dir() or sibling_dir == examples_dir:
+                continue
+            sibling_pkg = sibling_dir / "package.json"
+            sibling_node_modules = sibling_dir / "node_modules"
+            if (
+                sibling_pkg.exists()
+                and sibling_node_modules.exists()
+                and _package_deps_match(project_pkg, sibling_pkg)
+                and _vite_binary(sibling_node_modules)
+            ):
+                try:
+                    subprocess.run(
+                        ["cmd", "/c", "mklink", "/J", str(project_node_modules), str(sibling_node_modules)],
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                    return project_node_modules
+                except Exception:
+                    # If the junction cannot be created, the caller can still try
+                    # the sibling path directly as a last resort.
+                    return sibling_node_modules
+
+    # No sibling match — run npm install directly.
+    try:
+        subprocess.run(
+            ["npm", "install"],
+            cwd=str(examples_dir),
+            capture_output=True,
+            text=True,
+            timeout=180,
+            shell=True,
+        )
+    except (subprocess.TimeoutExpired, Exception):
         return None
 
-    for sibling_dir in examples_root.iterdir():
-        if not sibling_dir.is_dir() or sibling_dir == examples_dir:
-            continue
-        sibling_pkg = sibling_dir / "package.json"
-        sibling_node_modules = sibling_dir / "node_modules"
-        if (
-            sibling_pkg.exists()
-            and sibling_node_modules.exists()
-            and _package_deps_match(project_pkg, sibling_pkg)
-            and _vite_binary(sibling_node_modules)
-        ):
-            try:
-                subprocess.run(
-                    ["cmd", "/c", "mklink", "/J", str(project_node_modules), str(sibling_node_modules)],
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                )
-                return project_node_modules
-            except Exception:
-                # If the junction cannot be created, the caller can still try
-                # the sibling path directly as a last resort.
-                return sibling_node_modules
+    if project_node_modules.exists() and _vite_binary(project_node_modules):
+        return project_node_modules
 
     return None
 
