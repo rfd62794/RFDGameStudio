@@ -13,6 +13,8 @@ import { chimeraWildsConfig } from './chimera_wilds/config';
 import { scrapcrawlConfig } from './scrapcrawl/config';
 import ledgerConfig from './ledger/config';
 import trinitySiegeConfig from './trinity_siege/config';
+import sevenDaysToFryConfig from './7_days_to_fry/config';
+import kingmakerSquadsConfig from './kingmaker_squads/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -33,6 +35,8 @@ export const GAME_REGISTRY: GameConfig[] = [
   scrapcrawlConfig,
   ledgerConfig,
   trinitySiegeConfig,
+  sevenDaysToFryConfig,
+  kingmakerSquadsConfig,
 ];
 
 /**
