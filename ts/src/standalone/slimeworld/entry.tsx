@@ -6,13 +6,44 @@ import { buildStandaloneSession } from '../../engine/standaloneLoader';
 import dataRaw from '../../../../games/slimeworld/data.yaml?raw';
 import uiRaw from '../../../../games/slimeworld/ui.yaml?raw';
 import systemsRaw from '../../../../games/slimeworld/systems.yaml?raw';
-import breedingRaw from '../../../../games/slimeworld/breeding.lua?raw';
-import territoryRaw from '../../../../games/slimeworld/territory.lua?raw';
-import missionsRaw from '../../../../games/slimeworld/missions.lua?raw';
-import economyRaw from '../../../../games/slimeworld/economy.lua?raw';
-import codexRaw from '../../../../games/slimeworld/codex.lua?raw';
-import logicRaw from '../../../../games/slimeworld/logic.lua?raw';
-import actionRaw from '../../../../engine/primitives/action.lua?raw';
+
+const gameLuaModules = import.meta.glob('../../../../games/slimeworld/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function toGameLuaFiles(modules: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [modulePath, content] of Object.entries(modules)) {
+    out[modulePath.split('/').pop()!] = content;
+  }
+  return out;
+}
+
+const engineLuaModules = import.meta.glob('../../../../engine/primitives/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const engineSystemModules = import.meta.glob('../../../../engine/systems/*.lua', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function toEngineLuaFiles(
+  modules: Record<string, string>,
+  subdir: string
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [modulePath, content] of Object.entries(modules)) {
+    const fileName = modulePath.split('/').pop()!;
+    out[`${subdir}/${fileName}`] = content;
+  }
+  return out;
+}
 
 const gameId = 'slimeworld';
 
@@ -21,16 +52,10 @@ const session = buildStandaloneSession({
   dataRaw,
   uiRaw,
   systemsRaw,
-  gameLuaFiles: {
-    'breeding.lua': breedingRaw,
-    'territory.lua': territoryRaw,
-    'missions.lua': missionsRaw,
-    'economy.lua': economyRaw,
-    'codex.lua': codexRaw,
-    'logic.lua': logicRaw,
-  },
+  gameLuaFiles: toGameLuaFiles(gameLuaModules),
   engineLuaFiles: {
-    'primitives/action.lua': actionRaw,
+    ...toEngineLuaFiles(engineLuaModules, 'primitives'),
+    ...toEngineLuaFiles(engineSystemModules, 'systems'),
   },
 });
 

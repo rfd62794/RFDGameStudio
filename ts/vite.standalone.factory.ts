@@ -1,7 +1,8 @@
-import type { UserConfig } from 'vite';
+import type { UserConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 function getDirname(): string {
@@ -13,11 +14,46 @@ function getDirname(): string {
 }
 const __dirname = getDirname();
 
+function copyGameAssetsPlugin(gameId: string): Plugin {
+  return {
+    name: 'copy-game-assets',
+    writeBundle: {
+      sequential: true,
+      order: 'post',
+      async handler() {
+        const repoRoot = path.resolve(__dirname, '..');
+        const outDir = path.resolve(__dirname, 'dist-' + gameId);
+
+        function copyDir(src: string, dest: string) {
+          if (!fs.existsSync(src)) return;
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.cpSync(src, dest, { recursive: true, force: true, dereference: true });
+        }
+
+        copyDir(
+          path.join(repoRoot, 'games', gameId),
+          path.join(outDir, 'games', gameId)
+        );
+        copyDir(
+          path.join(repoRoot, 'engine', 'primitives'),
+          path.join(outDir, 'engine', 'primitives')
+        );
+        copyDir(
+          path.join(repoRoot, 'engine', 'systems'),
+          path.join(outDir, 'engine', 'systems')
+        );
+
+        console.log(`[copy-game-assets] copied runtime assets for ${gameId} to ${outDir}`);
+      },
+    },
+  };
+}
+
 export function makeStandaloneConfig(gameId: string): UserConfig {
   return {
     base: './',
     root: path.resolve(__dirname, 'src', 'standalone', gameId),
-    plugins: [react() as any, tailwindcss() as any],
+    plugins: [react() as any, tailwindcss() as any, copyGameAssetsPlugin(gameId)],
     define: {
       'import.meta.env.VITE_STANDALONE': JSON.stringify('true'),
       'import.meta.env.VITE_ARCADE_BASE_URL': JSON.stringify(
