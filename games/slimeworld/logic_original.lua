@@ -81,6 +81,14 @@ function calculate_tier_value(color_name, shape_name, variance)
   return math.max(1, math.floor((color_value + shape_value) * (1 + variance) + 0.5))
 end
 
+-- Compounding breeding tax by offspring generation.
+-- base_cost=10 and rate=1.5 are balance-testing placeholders; they mirror
+-- the reasoning in the August 2026 directive but lack real SlimeWorld data.
+function calculate_breeding_cost(generation)
+  if generation == nil or generation <= 2 then return 0 end
+  return math.floor(10 * (1.5 ^ (generation - 2)) + 0.5)
+end
+
 function find_color_target(color_targets, target_id)
   if color_targets == nil or target_id == nil then return nil end
   for _, target in ipairs(color_targets) do
@@ -488,6 +496,16 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   local parent_b = find_by_id(state.slimes, parent_b_id)
   if parent_a == nil or parent_b == nil then return nil, "Parent not found" end
   local generation = math.max(parent_a.generation or 0, parent_b.generation or 0) + 1
+
+  -- Generation-keyed breeding tax: generations 1 and 2 are free; deeper
+  -- lineages cost more to protect the Tier 3/4 value curve. base_cost and
+  -- rate are placeholders pending real balance data (see directive).
+  local breeding_cost = calculate_breeding_cost(generation)
+  local credits = state.credits or 0
+  if credits < breeding_cost then
+    return nil, string.format("Insufficient credits: breeding generation %d costs %d credits (need %d more)", generation, breeding_cost, breeding_cost - credits)
+  end
+
   local child = breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
   local shape = breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
   child.vertex_count = shape.vertex_count
@@ -523,7 +541,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
     end
   end
   child.consumed_slime_id = parent_b_id
-  state.credits = math.max(0, (state.credits or 0) - 10)
+  state.credits = credits - breeding_cost
   child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
 
   -- Post-first-breed reward: when the first breed unlocks the first region,
@@ -974,7 +992,7 @@ function create_seed_slime(color, pattern, color_specs)
     xp = 0,
     stats = stats,
     role = "idle",
-    generation = 0,
+    generation = 1,
     hue = hue,
     saturation = saturation,
     color_saturation = saturation,

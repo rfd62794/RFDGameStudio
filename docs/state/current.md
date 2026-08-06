@@ -1898,55 +1898,116 @@ must be checked.
 
 ---
 
-## SlimeWorld Breeding Cost After First Breed — REVERTED (built against superseded directive)
+## SlimeWorld Compounding Breeding Tax by Generation — COMPLETED
 
-*August 5 2026 — corrected same session*
+*August 5 2026*
 
-### What happened
+### §0 Verification: `generation` is live
 
-The flat-cost implementation committed under this heading was built
-against an earlier `SlimeWorld — Directive: Breeding Cost After First Breed`
-that arrived in the session handoff. The currently active directive is
-`SlimeWorld_CompoundingBreedingTax_Directive.md`, which **replaced** the
-flat-cost design with `cost(generation) = base_cost * rate^(gen-2)` for
-offspring generation ≥ 3, free for generation ≤ 2.
+Confirmed by direct source read before any cost logic was written:
 
-The flat-cost work has been reverted. The test file
-`ts/tests/test_slimeworld_breed_cost_ui.tsx` was removed; the helper
-scaffolding in `tests/test_slimeworld_breeding_cost.py` was restored to its
-pre-flat-cost state.
-
-### Why the flat design was the wrong target
-
-- It keyed cost on breed count via `has_received_first_breed_reward`, not
-  on lineage depth (`generation`).
-- It introduced `test_breed_cost_does_not_scale_with_breed_count`, which
-  the current directive explicitly said to discard.
-- It never verified whether `generation` is live or correctly computed —
-  a mandatory §0 step in the current directive.
-
-### Pre-rebuild verification: `generation` is live
-
-Confirmed in current source:
-
-- `games/slimeworld/territory.lua` `initiate_breeding`:  
+- `games/slimeworld/territory.lua` `initiate_breeding` line 112:  
   `local generation = math.max(parent_a.generation or 0, parent_b.generation or 0) + 1`
-- `games/slimeworld/breeding.lua` `breed_slimes`:  
+- `games/slimeworld/breeding.lua` `breed_slimes` line 372:  
   `generation = generation,` on the returned child table.
+- `ts/src/games/slimeworld/types.ts`: `generation` is in `SLIME_EXPLICIT_LUA_FIELDS`,
+  bridged both directions via `luaSlimeToTs` and `slimeToLua`.
 
-So the child carries a real, monotonically increasing lineage depth, and
-that value is already available before any cost is deducted.
+**One real bug found and fixed during verification:** `create_seed_slime` in
+`codex.lua` was setting `generation = 0`, not `generation = 1`. The directive
+requires seed slimes to be generation 1 so that breeding two purchased seeds
+produces a generation-2 offspring (free). With generation 0, two seeds would
+have produced generation 1 — still free, but off-by-one from the directive's
+intent and inconsistent with the "starting slimes are generation 1" design.
+Fixed: `generation = 0` → `generation = 1` in `codex.lua`.
+
+### What was built
+
+Replaced the reverted flat-cost mechanism with a compounding tax keyed on
+the offspring's `generation` field — the lineage-depth record that already
+exists on every slime. No new persisted field was added.
+
+**Formula:**
+```
+cost(offspring_generation):
+  0                                              if offspring_generation <= 2
+  floor(10 * 1.5^(offspring_generation - 2) + 0.5)  if offspring_generation >= 3
+```
+
+Producing: gen 1=0, gen 2=0, gen 3=15, gen 4=23, gen 5=34, gen 6=51.
+
+### Placeholder values flagged
+
+- **`base_cost = 10`** — anchored to SlimeBreeder's `TIER_VALUE[1] = 5` (2x),
+  but no real SlimeWorld playtest data exists to tune this. Flagged as
+  placeholder pending Robert's confirmation or real data.
+- **`rate = 1.5`** — unverified guess. Produces a curve steep enough by
+  mid-lineage to require real Zone Exploration income, gentle enough near
+  the start not to choke onboarding. Flagged as placeholder.
+
+### Modified files
+
+- **`games/slimeworld/breeding.lua`** — Added `calculate_breeding_cost(generation)`
+  function: returns 0 for generation ≤ 2, `floor(10 * 1.5^(gen-2) + 0.5)` for
+  generation ≥ 3.
+- **`games/slimeworld/territory.lua`** — `initiate_breeding` now computes
+  `breeding_cost = calculate_breeding_cost(generation)` after computing
+  `generation` but before creating the child. If `credits < breeding_cost`,
+  returns `nil` with a specific error message naming the generation, cost,
+  and shortfall. On success, deducts `breeding_cost` from `state.credits`.
+  Removed the old flat `state.credits = math.max(0, (state.credits or 0) - 10)`.
+- **`games/slimeworld/codex.lua`** — `create_seed_slime`: `generation = 0` →
+  `generation = 1` (the verification bug fix).
+- **`games/slimeworld/logic_original.lua`** — Regenerated from split files.
+- **`ts/src/games/slimeworld/components/RosterTab.tsx`** — `getBreedingPrediction`
+  now computes `offspringGeneration`, calls `calculate_breeding_cost` via the
+  Lua bridge, and surfaces `prediction.generation`, `prediction.cost`, and
+  `prediction.canAfford`. The breed panel shows "Gen N — M Credits" (or "Free")
+  before the hatch button, with a red insufficient-funds warning when the
+  player can't afford the breed.
+- **`tests/test_slimeworld_breeding_cost.py`** — 6 new test anchors (file now
+  has 9 total).
+- **`ts/tests/test_slimeworld_breed_cost_ui.tsx`** — New file, 3 test anchors.
+
+### Test coverage
+
+**`tests/test_slimeworld_breeding_cost.py` (6 new tests)**
+1. `test_generation_computed_as_max_parent_plus_one` — verifies the real
+   generation formula: `max(7,4)+1=8`, `max(3,3)+1=4`
+2. `test_generation_two_breed_remains_free` — gen-1 × gen-1 → gen-2, costs 0,
+   across Red/Yellow/Blue
+3. `test_generation_three_breed_costs_base_rate` — gen-2 × gen-1 → gen-3,
+   deducts exactly 15 credits
+4. `test_breed_cost_compounds_with_generation` — `calculate_breeding_cost`
+   returns 15/23/34/51 for gens 3/4/5/6; integration breeds at each depth
+   confirm exact deduction
+5. `test_breed_fails_on_insufficient_credits_at_any_generation` — gen-3 breed
+   with 5 credits fails, state unchanged, error names generation + cost + shortfall
+6. `test_seed_purchased_slime_generation_one` — `create_seed_slime` returns
+   `generation == 1`
+
+**`ts/tests/test_slimeworld_breed_cost_ui.tsx` (3 tests)**
+1. `test_ui_shows_projected_cost_before_breed` — RosterTab source computes
+   `offspringGeneration`, calls `calculate_breeding_cost`, surfaces
+   `prediction.generation`/`prediction.cost`/`prediction.canAfford` with
+   "Gen N" label and "Insufficient funds" pre-commit warning
+2. `test_ui_shows_insufficient_funds_message` — bridge-level: gen-3 breed
+   with 5 credits returns specific error matching `/insufficient credits/i`,
+   `/generation 3/i`, `/15 credits/i`, `/need 10 more/i`
+3. `test_calculate_breeding_cost_compounds_correctly` — TS bridge call to
+   `calculate_breeding_cost` returns 0/0/15/23/34/51 for gens 1/2/3/4/5/6
+
+### Test floor
+
+- **Python:** 567 passed, 11 deselected, 8 warnings
+- **TypeScript:** 328 passed, 0 failed
 
 ### What is next
 
-1. Provide / point to `SlimeWorld_CompoundingBreedingTax_Directive.md` so the
-   rebuild can use the exact `base_cost`, `rate`, generation threshold, and
-   any UI/error-message requirements.
-2. Re-implement cost in `games/slimeworld/territory.lua` keyed on the
-   child's computed `generation`.
-3. Replace the Python/TypeScript tests with anchors matching the
-   compounding formula and its UI surfacing.
-4. Re-run full suites and update this section to COMPLETED.
+1. **Lab Purchases (`buy_upgrade`) cooldown** — not scoped in enough detail yet;
+   needs its own design pass first.
+2. **Envoy vs. Garrison** — unresolved design question.
+3. **`shapeCodex` liveness check** — a verification task, not a build task.
 
 ### Test anchors
 

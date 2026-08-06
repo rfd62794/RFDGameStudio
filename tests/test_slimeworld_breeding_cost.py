@@ -75,14 +75,14 @@ def test_breeding_result_communicates_consumed_slime():
 # correct before the cost logic means anything.
 def test_generation_computed_as_max_parent_plus_one():
     child, error, state = _initiate_with_lua_state(
-        _state([_slime("a", "Red", 3, generation=7), _slime("b", "Blue", 5, generation=4)]),
+        _state([_slime("a", "Red", 3, generation=7), _slime("b", "Blue", 5, generation=4)], credits=10000),
         "a", "b"
     )
     assert error is None
     assert child["generation"] == 8
     # Second check: equal parents
     child, error, state = _initiate_with_lua_state(
-        _state([_slime("a", "Red", 3, generation=3), _slime("b", "Blue", 5, generation=3)]),
+        _state([_slime("a", "Red", 3, generation=3), _slime("b", "Blue", 5, generation=3)], credits=10000),
         "a", "b"
     )
     assert error is None
@@ -105,7 +105,7 @@ def test_generation_two_breed_remains_free():
 # Generation 3 is the first taxed depth and should cost exactly the base_cost.
 def test_generation_three_breed_costs_base_rate():
     child, error, state = _initiate_with_lua_state(
-        _state([_slime("a", "Red", 3, generation=2), _slime("b", "Blue", 5, generation=1)], credits=10),
+        _state([_slime("a", "Red", 3, generation=2), _slime("b", "Blue", 5, generation=1)], credits=15),
         "a", "b"
     )
     assert error is None
@@ -118,10 +118,10 @@ def test_breed_cost_compounds_with_generation():
     session = _load()
     lua = session.executor._lua.globals()
     expected = {
-        3: 10,
-        4: 15,
-        5: 22,
-        6: 33,
+        3: 15,
+        4: 23,
+        5: 34,
+        6: 51,
     }
     for gen, cost in expected.items():
         actual = lua["calculate_breeding_cost"](gen)

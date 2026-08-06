@@ -170,7 +170,7 @@ function create_seed_slime(color, pattern, color_specs)
     xp = 0,
     stats = stats,
     role = "idle",
-    generation = 0,
+    generation = 1,
     hue = hue,
     saturation = saturation,
     color_saturation = saturation,

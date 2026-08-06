@@ -86,7 +86,7 @@ end
 -- the reasoning in the August 2026 directive but lack real SlimeWorld data.
 function calculate_breeding_cost(generation)
   if generation == nil or generation <= 2 then return 0 end
-  return math.floor(10 * (1.5 ^ (generation - 2)))
+  return math.floor(10 * (1.5 ^ (generation - 2)) + 0.5)
 end
 
 function find_color_target(color_targets, target_id)
