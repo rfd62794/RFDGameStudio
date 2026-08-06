@@ -103,25 +103,12 @@ function resolve_convert_claim(node, party, culture_relationship, is_discovered,
   return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = preserved_color, player_aligned = true, strength = 0.6, pressure = pressure, discovered = true } }
 end
 
-local BREEDING_COST = 10
-
 function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets)
   if parent_a_id == parent_b_id then return nil, "Parents must differ" end
   if #(state.slimes or {}) >= state.roster_cap then return nil, "Roster capacity reached" end
   local parent_a = find_by_id(state.slimes, parent_a_id)
   local parent_b = find_by_id(state.slimes, parent_b_id)
   if parent_a == nil or parent_b == nil then return nil, "Parent not found" end
-
-  -- Breed #1 is free (must stay frictionless for the onboarding Target Regent
-  -- moment); every breed after that costs a flat credit fee.
-  local is_first_breed = not state.has_received_first_breed_reward
-  if not is_first_breed then
-    local credits = state.credits or 0
-    if credits < BREEDING_COST then
-      return nil, string.format("Insufficient credits: breeding costs %d credits (need %d more)", BREEDING_COST, BREEDING_COST - credits)
-    end
-  end
-
   local generation = math.max(parent_a.generation or 0, parent_b.generation or 0) + 1
   local child = breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
   local shape = breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
@@ -158,9 +145,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
     end
   end
   child.consumed_slime_id = parent_b_id
-  if not is_first_breed then
-    state.credits = state.credits - BREEDING_COST
-  end
+  state.credits = math.max(0, (state.credits or 0) - 10)
   child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
 
   -- Post-first-breed reward: when the first breed unlocks the first region,
