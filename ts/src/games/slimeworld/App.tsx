@@ -279,6 +279,7 @@ export default function App({ session }: GameRendererProps) {
     if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
     const childRegionUnlocks = (raw['region_unlocks'] ?? []) as string[];
+    const addedStrays = ((raw['added_strays'] ?? []) as Record<string, unknown>[]).map(luaSlimeToTs);
     setLastConsumedSlimeId(child.consumedSlimeId ?? null);
     setState(previous => {
       const filteredSlimes = child.consumedSlimeId
@@ -295,7 +296,7 @@ export default function App({ session }: GameRendererProps) {
       return {
         ...previous,
         credits: Math.max(0, previous.credits - 10),
-        slimes: [...filteredSlimes, child],
+        slimes: [...filteredSlimes, child, ...addedStrays],
         colorTargetCodex: newColorTargetCodex,
         shapeTargetCodex: newShapeTargetCodex,
         colorCodex: newColorCodex,
@@ -388,7 +389,9 @@ export default function App({ session }: GameRendererProps) {
   const handlePurchaseSeedSlime = useCallback((color: SlimeColor) => {
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const [raw, err] = call(session, 'purchase_seed_slime', stateToLua(state), color, colorSpecs) as [Record<string, unknown> | null, string | null];
+    const regionLocks = (data['region_locks'] ?? []) as Array<Record<string, unknown>>;
+    const colorTargets = (data['color_targets'] ?? []) as Array<Record<string, unknown>>;
+    const [raw, err] = call(session, 'purchase_seed_slime', stateToLua(state), color, colorSpecs, regionLocks, colorTargets) as [Record<string, unknown> | null, string | null];
     if (err) { setWarning(err); return; }
     if (!raw || typeof raw !== 'object') { setWarning('Seed purchase failed.'); return; }
     const newSlime = luaSlimeToTs(raw as Record<string, unknown>);
@@ -514,15 +517,17 @@ export default function App({ session }: GameRendererProps) {
     }
   }, [primaryTab, gamePhase, state.shownTutorials, session]);
 
-  // Gate Missions/Economy tab visibility on the real "at least one region
-  // unlocked" signal — the same underlying state T3_REGION_UNLOCK's own
-  // trigger derives from (state.regionUnlocks), not a tutorial-shown proxy.
-  // Persisted as part of LabState, so returning players with real existing
-  // progress see all four tabs immediately on load.
-  const hasUnlockedRegion = Object.values(state.regionUnlocks ?? {}).some(Boolean);
-  const visibleTabs = hasUnlockedRegion
+  // Gate Missions/Economy tab visibility on state.regionUnlocks — the same
+  // real persisted signal T3_REGION_UNLOCK derives from, not a tutorial-shown
+  // proxy. Missions appears after the first unlock; Economy appears after the
+  // second. Returning players with real existing progress see the correct tabs
+  // immediately on load.
+  const unlockedRegionCount = Object.values(state.regionUnlocks ?? {}).filter(Boolean).length;
+  const visibleTabs = unlockedRegionCount >= 2
     ? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]
-    : [{ id: 'roster', label: 'ROSTER' }, { id: 'lab', label: 'LAB' }];
+    : unlockedRegionCount >= 1
+      ? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'lab', label: 'LAB' }]
+      : [{ id: 'roster', label: 'ROSTER' }, { id: 'lab', label: 'LAB' }];
 
   const primaryContent = primaryTab === 'roster' ? (
     <RosterTab {...({ state, session, selectedSlimeId, setSelectedSlimeId, setRenameSlimeId, setNewNameInput, handleRenameSlime, renameSlimeId, newNameInput, handleRecycleSlime, parentAId, parentBId, setParentAId, setParentBId, isBreedingHatching, handleInitiateBreeding, activeRegentPattern, setActiveRegentPattern, onBuyRegent: handleBuyRegent, activeRegentColor, setActiveRegentColor, onBuyColorRegent: handleBuyColorRegent, activeTargetRegent, setActiveTargetRegent, onBuyTargetRegent: handleBuyTargetRegent, handleToggleWorkerRole, lastConsumedSlimeId } as any)} />

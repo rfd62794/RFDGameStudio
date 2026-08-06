@@ -52,78 +52,59 @@ function makeState(overrides: Partial<LabState> = {}): LabState {
 
 // The real, canonical derivation used by App.tsx — mirrored here to
 // independently verify against real state rather than re-reading source.
-function hasUnlockedRegion(state: LabState): boolean {
-  return Object.values(state.regionUnlocks ?? {}).some(Boolean);
+function unlockedRegionCount(state: LabState): number {
+  return Object.values(state.regionUnlocks ?? {}).filter(Boolean).length;
 }
 
-describe('SlimeWorld Gate Missions/Economy Tabs Behind First Region Unlock', () => {
+describe('SlimeWorld Gate Missions on First Region, Economy on Second', () => {
   // §3.1: New game, zero regions unlocked → tabs array contains exactly roster and lab
   it('test_fresh_game_shows_only_roster_and_lab_tabs', () => {
     const freshState = makeState(); // regionUnlocks is unset, matches a real fresh game
-    expect(hasUnlockedRegion(freshState)).toBe(false);
+    expect(unlockedRegionCount(freshState)).toBe(0);
 
     // Confirm App.tsx's real gating source matches this derivation exactly
-    expect(appSource).toContain('Object.values(state.regionUnlocks ?? {}).some(Boolean)');
-    expect(appSource).toContain("? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]");
+    expect(appSource).toContain('unlockedRegionCount');
+    expect(appSource).toContain("const visibleTabs = unlockedRegionCount >= 2");
     expect(appSource).toContain(": [{ id: 'roster', label: 'ROSTER' }, { id: 'lab', label: 'LAB' }]");
     expect(appSource).toContain('tabs={visibleTabs}');
   });
 
-  // §3.2: Real bridge test — breed toward a real region's lock requirement,
-  // confirm successful unlock, confirm the gating signal flips to true
-  it('test_missions_economy_tabs_appear_after_first_unlock', () => {
-    // guild_ember_marsh: center_hue=30, tolerance=15, sat 65-100; shape_tier 1
-    // (e.g. shape_triangle, vertex_count=3); accent_solid: diffusion 0-10
-    const slime = makeSlime({
-      hue: 30, saturation: 80, vertexCount: 3, irregularity: 10,
-      diffusionRatio: 5, amplitude: 40,
-    });
-    const state = makeState({ slimes: [slime] });
-    const luaState = stateToLua(state);
-
-    const [result, error] = luaResult(
-      call(session, 'check_region_unlocks', luaState, slimeToLua(slime),
-        regionLocks, colorTargets, shapeTargets, accentTargets)
-    );
-    expect(error).toBeNull();
-    const unlockedArray = Object.values(result as Record<string, unknown>) as string[];
-    expect(unlockedArray).toContain('node_frontier_a');
-
-    // Apply the unlock exactly as App.tsx's handleInitiateBreeding does
-    const newRegionUnlocks: Record<string, boolean> = { ...(state.regionUnlocks ?? {}) };
-    for (const nodeId of unlockedArray) { newRegionUnlocks[nodeId] = true; }
-    const postUnlockState: LabState = { ...state, regionUnlocks: newRegionUnlocks };
-
-    expect(hasUnlockedRegion(state)).toBe(false); // before
-    expect(hasUnlockedRegion(postUnlockState)).toBe(true); // after — all four tabs now visible
+  // §3.2: After exactly one region unlock, Missions appears but Economy does not
+  it('test_missions_tab_appears_after_first_unlock_economy_stays_hidden', () => {
+    const state = makeState({ regionUnlocks: { node_frontier_a: true } });
+    expect(unlockedRegionCount(state)).toBe(1);
+    expect(appSource).toContain("unlockedRegionCount >= 1\n      ? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'lab', label: 'LAB' }]");
   });
 
-  // §3.3: Load a real saved state with a region already unlocked → all
-  // four tabs visible immediately, no re-gating
-  it('test_returning_player_with_existing_progress_sees_all_tabs', () => {
-    const returningState = makeState({ regionUnlocks: { node_frontier_a: true } });
-    expect(hasUnlockedRegion(returningState)).toBe(true);
-    // The gate reads real persisted state.regionUnlocks — the same field
-    // that gets saved/loaded via saveState/loadSavedState — not a
-    // session-only ref, so a returning player is never re-gated.
+  // §3.3: After the second region unlock, Economy also appears
+  it('test_economy_tab_appears_after_second_unlock', () => {
+    const state = makeState({ regionUnlocks: { node_frontier_a: true, node_frontier_b: true } });
+    expect(unlockedRegionCount(state)).toBe(2);
+    expect(appSource).toContain("? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'economy', label: 'ECONOMY' }, { id: 'lab', label: 'LAB' }]");
+  });
+
+  // §3.4: Returning player with pre-existing second-region progress sees Economy immediately
+  it('test_returning_player_with_existing_second_region_sees_economy_immediately', () => {
+    const returningState = makeState({ regionUnlocks: { node_frontier_a: true, node_frontier_b: true } });
+    expect(unlockedRegionCount(returningState)).toBe(2);
     expect(appSource).toContain('state.regionUnlocks');
     expect(appSource).not.toContain('t3FiredRef.current'); // gate isn't tied to the T3 tutorial-shown ref
   });
 
-  // §3.4: Default primaryTab is always among the currently-visible tab set,
+  // §3.5: Default primaryTab is always among the currently-visible tab set,
   // pre- and post-unlock
   it('test_default_active_tab_never_hidden', () => {
     const defaultTabMatch = appSource.match(/useState<'roster' \| 'missions' \| 'economy' \| 'lab'>\('(\w+)'\)/);
     expect(defaultTabMatch).toBeTruthy();
     const defaultTab = defaultTabMatch![1];
     expect(defaultTab).toBe('roster');
-    // 'roster' appears in both branches of the ternary (gated and ungated)
+    // 'roster' appears in the gated branch too
     const gatedBranch = "[{ id: 'roster', label: 'ROSTER' }, { id: 'lab', label: 'LAB' }]";
     expect(appSource).toContain(gatedBranch);
     expect(gatedBranch).toContain(`id: '${defaultTab}'`);
   });
 
-  // §3.5: MissionsTab's own node-level locking behaves identically before
+  // §3.6: MissionsTab's own node-level locking behaves identically before
   // and after this change — this is a visibility gate, not a data gate
   it('test_node_locking_unaffected', () => {
     expect(missionsSource).toContain('isNodeLocked');

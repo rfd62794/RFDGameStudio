@@ -147,6 +147,27 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.consumed_slime_id = parent_b_id
   state.credits = math.max(0, (state.credits or 0) - 10)
   child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
+
+  -- Post-first-breed reward: when the first breed unlocks the first region,
+  -- grant two additional Strays matching the player's assigned starting color.
+  -- Fires exactly once per game via the same region-unlock event the Target
+  -- Regent first-breed fix already guarantees.
+  child.added_strays = {}
+  if not state.has_received_first_breed_reward and #child.region_unlocks > 0 then
+    state.has_received_first_breed_reward = true
+    local starting_color = state.starting_color or "Red"
+    for i = 1, 2 do
+      if #(state.slimes or {}) < (state.roster_cap or 8) then
+        local stray = create_seed_slime(starting_color, "Solid", color_specs)
+        stray.id = "stray_breed_" .. os.time() .. "_" .. math.random(1000) .. "_" .. i
+        stray.locked_role = "worker"
+        stray.name = "Stray " .. stray.name
+        table.insert(state.slimes, stray)
+        table.insert(child.added_strays, stray)
+      end
+    end
+  end
+
   return child, nil
 end
 
