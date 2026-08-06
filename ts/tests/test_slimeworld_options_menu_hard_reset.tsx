@@ -79,10 +79,11 @@ describe('SlimeWorld Options Menu + Hard Reset (Pre-Publish)', () => {
   // visible, proving this directive composes correctly with the Gate Tabs directive
   it('test_hard_reset_reflects_in_tab_gating', () => {
     const freshState = initialState(session);
-    const hasUnlockedRegion = Object.values(freshState.regionUnlocks ?? {}).some(Boolean);
-    expect(hasUnlockedRegion).toBe(false);
+    const unlockedRegionCount = Object.values(freshState.regionUnlocks ?? {}).filter(Boolean).length;
+    expect(unlockedRegionCount).toBe(0);
 
     // Confirm the real gating source uses the same real field this reset restores
-    expect(appSource).toContain('Object.values(state.regionUnlocks ?? {}).some(Boolean)');
+    expect(appSource).toContain('unlockedRegionCount');
+    expect(appSource).toContain('state.regionUnlocks');
   });
 });
