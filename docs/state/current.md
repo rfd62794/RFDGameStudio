@@ -1896,6 +1896,85 @@ must be checked.
 - `docs/slimeworld_lifecycle_report.md` — generated report (current state:
   0 flagged, 3 resolved)
 
+---
+
+## SlimeWorld Breeding Cost After First Breed — COMPLETED
+
+*August 5 2026*
+
+### What was built
+
+Implemented the locked Aug 4 design decision: breeding is free for the
+first breed (preserving the Target Regent / post-first-breed reward
+onboarding moment), and costs a flat **10 credits** for every breed
+thereafter. This deliberately pushes the player into Zone Exploration
+(claims, contracts, market, Wanderer petitions) between breeds without
+adding an uncalibrated scaling curve.
+
+### Design decisions / judgment calls flagged for review
+
+- **`BREEDING_COST = 10` is a balance-testing placeholder**, not a tuned
+  value. It is anchored to SlimeBreeder's `TIER_VALUE[1] = 5` (roughly
+  2x a tier-1 slime's sale value), but SlimeWorld has no real playtest
+  credit-earn data yet (0 real play sessions logged as of Aug 5). The
+  number is explicitly flagged here as provisional pending Robert's
+  confirmation or real data.
+- **Flat cost, not scaling** — a scaling curve requires calibration data
+  that doesn't exist. A flat cost achieves the stated design goal with the
+  minimum unverified assumption.
+- **First-breed detection reuses the existing `has_received_first_breed_reward`
+  flag** from the post-first-breed reward work, which itself hooks off the
+  Target Regent first-breed-unlock guarantee. No second breed counter was
+  added.
+
+### Modified files
+
+- **`games/slimeworld/territory.lua`** — Added `BREEDING_COST = 10`;
+  rewrote `initiate_breeding` to exempt breed #1 (`not
+  state.has_received_first_breed_reward`), validate `credits >=
+  BREEDING_COST` for subsequent breeds, and deduct only on paid breeds.
+  Returns a detailed error message naming the cost and shortfall on
+  insufficient funds.
+- **`games/slimeworld/logic_original.lua`** — Regenerated from the split
+  files to keep the byte-identical concatenation test passing.
+- **`tests/test_slimeworld_breeding_cost.py`** — Added 5 new test anchors
+  (file now has 8 total): first-breed free, second-breed flat deduction,
+  insufficient-credits failure, multi-breed flat-cost guard, and
+  independence from seed-purchase cooldown state.
+- **`ts/tests/test_slimeworld_breed_cost_ui.tsx`** — New file, 2 test
+  anchors: the existing "Breeding Tax: 10 Credits" pre-commit display and
+  the insufficient-funds message path through `setWarning(error)` /
+  `ErrorBox`.
+
+### Test coverage
+
+**`tests/test_slimeworld_breeding_cost.py` (5 new tests)**
+1. `test_first_breed_remains_free` — breed #1 succeeds with 0 credits, no deduction
+2. `test_second_breed_deducts_flat_cost` — breed #2 deducts exactly 10 credits
+3. `test_breed_fails_on_insufficient_credits` — second breed with 5 credits fails, state unchanged, error names cost + shortfall
+4. `test_breed_cost_does_not_scale_with_breed_count` — breeds #2, #3, #4 each deduct 10, not more
+5. `test_breed_cost_independent_of_seed_purchase_cooldown` — `last_seed_purchase_cycle` does not affect or mutate breeding cost
+
+**`ts/tests/test_slimeworld_breed_cost_ui.tsx` (2 tests)**
+1. `test_ui_shows_breeding_cost_pre_commit` — RosterTab already surfaces "Breeding Tax: 10 Credits"
+2. `test_ui_shows_insufficient_funds_message` — `handleInitiateBreeding` passes Lua error to `setWarning`, `ErrorBox` renders `warning`, bridge confirms error is specific
+
+### Test floor
+
+- **Python:** 566 passed, 11 deselected, 8 warnings
+- **TypeScript:** 327 passed, 0 failed
+
+### What is next
+
+The remaining open SlimeWorld items, in the order Robert should pick from:
+
+1. **Lab Purchases (`buy_upgrade`) cooldown** — not scoped in enough detail yet;
+   needs its own design pass first.
+2. **Envoy vs. Garrison** — unresolved design question, unrelated to economy
+   gating.
+3. **`shapeCodex` liveness check** — a verification task, not a build task, and
+   unrelated to these fixes.
+
 ### Test anchors
 
 | Test | What it proves |
