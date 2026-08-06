@@ -396,6 +396,7 @@ export default function App({ session }: GameRendererProps) {
     if (err) { setWarning(err); return; }
     if (!raw || typeof raw !== 'object') { setWarning('Seed purchase failed.'); return; }
     const newSlime = luaSlimeToTs(raw as Record<string, unknown>);
+    const lastSeedPurchaseCycle = typeof (raw as Record<string, unknown>)['last_seed_purchase_cycle'] === 'number' ? (raw as Record<string, unknown>)['last_seed_purchase_cycle'] as number : state.cycle;
     const shapeDefaults = SEED_SHAPE_DEFAULTS[color] ?? { vertexCount: 4, irregularity: 10 };
     setState(prev => ({
       ...prev,
@@ -408,6 +409,7 @@ export default function App({ session }: GameRendererProps) {
         vertexCount: newSlime.vertexCount || shapeDefaults.vertexCount,
         irregularity: newSlime.irregularity || shapeDefaults.irregularity,
       }],
+      lastSeedPurchaseCycle,
       logs: [...prev.logs, {
         id: `log_seed_${Date.now()}`, cycle: prev.cycle, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         text: `RECRUITMENT: Dispensed starter specimen ${newSlime.name} (${color} Core).`, type: 'system' as LogEntry['type'],

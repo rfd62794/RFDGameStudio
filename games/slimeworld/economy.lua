@@ -145,5 +145,8 @@ function purchase_seed_slime(state, color, color_specs, region_locks, color_targ
   table.insert(state.slimes, seed)
   state.credits = (state.credits or 0) - cost
   state.last_seed_purchase_cycle = cycle
+  -- Bridge the cooldown timestamp back to TypeScript on the returned slime
+  -- so the UI can persist it without a separate return-shape change.
+  seed.last_seed_purchase_cycle = cycle
   return seed, nil
 end

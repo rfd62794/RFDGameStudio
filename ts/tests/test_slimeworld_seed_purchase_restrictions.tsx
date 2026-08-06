@@ -85,18 +85,19 @@ describe('SlimeWorld purchase_seed_slime restrictions and cooldown', () => {
   });
 
   it('test_purchase_seed_slime_cooldown_blocks_repeat_purchase', () => {
-    const state = makeState({ regionUnlocks: { node_frontier_a: true } });
-    const luaState = stateToLua(state);
+    const state = makeState({ regionUnlocks: { node_frontier_a: true }, cycle: 1 });
 
     const [first, errFirst] = luaResult(
-      call(session, 'purchase_seed_slime', luaState, 'Red', colorSpecs, regionLocks, colorTargets)
+      call(session, 'purchase_seed_slime', stateToLua(state), 'Red', colorSpecs, regionLocks, colorTargets)
     );
     expect(errFirst).toBeNull();
     expect(first).not.toBeNull();
+    const firstCycle = (first as Record<string, unknown>)['last_seed_purchase_cycle'] as number;
 
     // Same cycle: cooldown should block.
+    const blockedState = { ...state, lastSeedPurchaseCycle: firstCycle };
     const [second, errSecond] = luaResult(
-      call(session, 'purchase_seed_slime', luaState, 'Red', colorSpecs, regionLocks, colorTargets)
+      call(session, 'purchase_seed_slime', stateToLua(blockedState), 'Red', colorSpecs, regionLocks, colorTargets)
     );
     expect(second).toBeNull();
     expect(errSecond).toBeTruthy();
@@ -105,18 +106,18 @@ describe('SlimeWorld purchase_seed_slime restrictions and cooldown', () => {
 
   it('test_purchase_seed_slime_cooldown_clears_after_elapsed_cycles', () => {
     const state = makeState({ regionUnlocks: { node_frontier_a: true }, cycle: 1 });
-    const luaState = stateToLua(state);
 
     const [first, errFirst] = luaResult(
-      call(session, 'purchase_seed_slime', luaState, 'Red', colorSpecs, regionLocks, colorTargets)
+      call(session, 'purchase_seed_slime', stateToLua(state), 'Red', colorSpecs, regionLocks, colorTargets)
     );
     expect(errFirst).toBeNull();
     expect(first).not.toBeNull();
+    const firstCycle = (first as Record<string, unknown>)['last_seed_purchase_cycle'] as number;
 
     // Cooldown is 3 cycles: purchase at cycle 1 can next buy at cycle 4.
-    state.cycle = 4;
+    const clearedState = { ...state, cycle: 4, lastSeedPurchaseCycle: firstCycle };
     const [second, errSecond] = luaResult(
-      call(session, 'purchase_seed_slime', stateToLua(state), 'Red', colorSpecs, regionLocks, colorTargets)
+      call(session, 'purchase_seed_slime', stateToLua(clearedState), 'Red', colorSpecs, regionLocks, colorTargets)
     );
     expect(errSecond).toBeNull();
     expect(second).not.toBeNull();
