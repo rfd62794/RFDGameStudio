@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract } from '../types';
 import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, RawColorTarget } from '../gameLogic';
-import { getStaticList } from '../../../engine/runtime';
+import { call, getStaticList } from '../../../engine/runtime';
 import type { GameSession } from '../../../engine/types';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
@@ -87,7 +87,11 @@ export function RosterTab({
     const pA = state.slimes.find(s => s.id === parentAId);
     const pB = state.slimes.find(s => s.id === parentBId);
     if (!pA || !pB) return null;
-    
+
+    const offspringGeneration = Math.max(pA.generation ?? 0, pB.generation ?? 0) + 1;
+    const [cost] = call(session, 'calculate_breeding_cost', offspringGeneration) as [number];
+    const canAfford = (state.credits ?? 0) >= cost;
+
     let predictedColor = 'Unknown';
     let specialtyText = 'None';
     if (pA.color === pB.color) {
@@ -122,6 +126,9 @@ export function RosterTab({
       color: predictedColor,
       pattern: patternText,
       specialty: specialtyText,
+      generation: offspringGeneration,
+      cost,
+      canAfford,
       pA, pB
     };
   };
@@ -688,9 +695,16 @@ export function RosterTab({
                       </div>
 
                       <div className="bg-slate-900/60 p-2 rounded border border-slate-800/60 flex items-center justify-between">
-                        <span className="text-[10px] text-slate-400">Breeding Tax:</span>
-                        <span className="text-xs font-bold text-yellow-400 font-mono">10 Credits</span>
+                        <span className="text-[10px] text-slate-400">Lineage Gen / Cost:</span>
+                        <span className={`text-xs font-bold font-mono ${prediction.canAfford ? 'text-yellow-400' : 'text-red-400'}`}>
+                          Gen {prediction.generation} — {prediction.cost === 0 ? 'Free' : `${prediction.cost} Credits`}
+                        </span>
                       </div>
+                      {!prediction.canAfford && (
+                        <div className="text-[10px] font-mono text-red-400 bg-red-950/30 border border-red-900/40 rounded p-2">
+                          Insufficient funds: need {prediction.cost - (state.credits ?? 0)} more credits
+                        </div>
+                      )}
 
                       <div className="bg-red-950/30 border border-red-900/40 rounded p-2 flex items-center gap-2">
                         <span className="text-[10px] font-mono text-red-400 font-bold uppercase tracking-wider">⚠ Parent Beta will be consumed</span>

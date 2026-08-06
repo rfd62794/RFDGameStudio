@@ -81,6 +81,14 @@ function calculate_tier_value(color_name, shape_name, variance)
   return math.max(1, math.floor((color_value + shape_value) * (1 + variance) + 0.5))
 end
 
+-- Compounding breeding tax by offspring generation.
+-- base_cost=10 and rate=1.5 are balance-testing placeholders; they mirror
+-- the reasoning in the August 2026 directive but lack real SlimeWorld data.
+function calculate_breeding_cost(generation)
+  if generation == nil or generation <= 2 then return 0 end
+  return math.floor(10 * (1.5 ^ (generation - 2)))
+end
+
 function find_color_target(color_targets, target_id)
   if color_targets == nil or target_id == nil then return nil end
   for _, target in ipairs(color_targets) do

@@ -110,6 +110,16 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   local parent_b = find_by_id(state.slimes, parent_b_id)
   if parent_a == nil or parent_b == nil then return nil, "Parent not found" end
   local generation = math.max(parent_a.generation or 0, parent_b.generation or 0) + 1
+
+  -- Generation-keyed breeding tax: generations 1 and 2 are free; deeper
+  -- lineages cost more to protect the Tier 3/4 value curve. base_cost and
+  -- rate are placeholders pending real balance data (see directive).
+  local breeding_cost = calculate_breeding_cost(generation)
+  local credits = state.credits or 0
+  if credits < breeding_cost then
+    return nil, string.format("Insufficient credits: breeding generation %d costs %d credits (need %d more)", generation, breeding_cost, breeding_cost - credits)
+  end
+
   local child = breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
   local shape = breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
   child.vertex_count = shape.vertex_count
@@ -145,7 +155,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
     end
   end
   child.consumed_slime_id = parent_b_id
-  state.credits = math.max(0, (state.credits or 0) - 10)
+  state.credits = credits - breeding_cost
   child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
 
   -- Post-first-breed reward: when the first breed unlocks the first region,
