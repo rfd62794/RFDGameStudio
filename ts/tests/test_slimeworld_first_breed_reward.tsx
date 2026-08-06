@@ -152,7 +152,7 @@ describe('SlimeWorld post-first-breed reward', () => {
     const secondState = stateToLua({
       ...state,
       slimes: [secondStarters[0], secondStarters[1]],
-      has_received_first_breed_reward: true,
+      hasReceivedFirstBreedReward: true,
     });
     const second = luaResult(
       call(

@@ -168,7 +168,7 @@ export function initialState(session: GameRendererProps['session']): LabState {
     patternCodex[slime.pattern] = { discovered: true };
   }
   const startingTargetRegent = startingTargetRegentForColor(startingColor, data);
-  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: buildInitialZones(startingColor), activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: { [startingTargetRegent]: 1 }, petitions: [], colorCodex, patternCodex, startingColor };
+  return { cycle: Number(lab['starting_cycle'] ?? 1), credits: Number(lab['starting_credits'] ?? 100), rosterCap: Number(lab['starting_roster_cap'] ?? 10), breedingSuccessRateModifier: Number(lab['starting_breeding_success_rate_modifier'] ?? 0), slimes: starterSlimes, contracts: INITIAL_CONTRACTS, zones: buildInitialZones(startingColor), activeDispatch: null, logs: [], activeMediation: null, activeExploration: null, planetRegion: generatePlanetRegion(), wildsUnlocked: false, hasAutoFeeder: false, colorRelationships: relationships, recentMarketSales: [], regentInventory: {}, colorRegentInventory: {}, targetRegentInventory: { [startingTargetRegent]: 1 }, petitions: [], colorCodex, patternCodex, startingColor, hasReceivedFirstBreedReward: false };
 }
 
 function luaResult(value: unknown[]): [Record<string, unknown> | null, string | null] {
@@ -302,6 +302,7 @@ export default function App({ session }: GameRendererProps) {
         colorCodex: newColorCodex,
         patternCodex: newPatternCodex,
         regionUnlocks: newRegionUnlocks,
+        hasReceivedFirstBreedReward: previous.hasReceivedFirstBreedReward || addedStrays.length > 0,
       };
     });
     setParentAId(null); setParentBId(null); setIsBreedingHatching(false);
