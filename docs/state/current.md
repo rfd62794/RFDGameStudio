@@ -1395,6 +1395,141 @@ lua_files:
   - logic.lua
 ```
 
+---
+
+## SlimeWorld Onboarding Economy Corrections — COMPLETED
+
+*August 5 2026*
+
+### What was built
+
+Three separate, already-decided design corrections from the Aug 4 onboarding
+session, now implemented.
+
+#### 1. Economy tab gate correction
+
+`App.tsx` previously unlocked both Missions and Economy off the first
+`regionUnlocks` entry. Economy is now gated on the **second** region unlock,
+while Missions stays on the first. Returning players with pre-existing
+second-region progress see Economy immediately on load because the gate reads
+real persisted `state.regionUnlocks`, not a session-only ref or tutorial-shown
+proxy.
+
+#### 2. `purchase_seed_slime` restriction + cooldown
+
+`economy.lua` `purchase_seed_slime` now accepts `region_locks` and
+`color_targets` and enforces two independent gates:
+
+- **Color eligibility**: derives the set of purchasable colors from the
+  player's currently unlocked regions at call time (re-derived every call,
+  never cached). Each unlocked region's `color_target` contributes faction-anchor
+  colors within 60° of its center hues; any requested color outside that set is
+  rejected with the existing failure-path shape.
+- **Cooldown**: tracks `state.last_seed_purchase_cycle` and blocks repeat
+  purchases within `SEED_PURCHASE_COOLDOWN_CYCLES`.
+
+The TS side persists the cooldown cycle via `lastSeedPurchaseCycle` in
+`LabState` and round-trips it through `stateToLua` so subsequent calls see the
+real elapsed cycle count.
+
+#### 3. Post-first-breed reward
+
+`territory.lua` `initiate_breeding` now grants exactly two additional Strays
+after the player's first successful breed. The Strays match the player's real
+assigned starting color (read from `state.starting_color` through the bridge),
+not a hardcoded Red. The reward fires exactly once per game via a
+`has_received_first_breed_reward` flag tracked on `LabState` and round-tripped
+to Lua. The hook reuses the existing first-breed region-unlock event already
+guaranteed by the Target Regent fix.
+
+### Design decisions / judgment calls flagged for review
+
+- **`SEED_PURCHASE_COOLDOWN_CYCLES` is a placeholder set to `3`** — pending
+  Robert's confirmation before the value is treated as final. It is named and
+  commented explicitly as provisional.
+- **Purchasable-color derivation uses a 60° window** around each unlocked
+  region's `color_target` center hues to map to canonical faction-anchor colors.
+  This is a mechanical interpretation of "reachable from unlocked regions";
+  Robert may want a different reach rule.
+- **The post-first-breed reward triggers off the same region-unlock event as
+  the Target Regent fix**, so it fires on the first breed that unlocks a
+  region. If Robert intended it on literally any first successful breed
+  regardless of unlock outcome, the trigger would need to move.
+
+### Modified files
+
+- **`games/slimeworld/economy.lua`** — Added `SEED_PURCHASE_COOLDOWN_CYCLES`,
+  `derive_purchasable_colors`, `find_color_target_by_id`, and rewrote
+  `purchase_seed_slime` to take `region_locks`/`color_targets`, enforce color
+  eligibility, and enforce cooldown.
+- **`games/slimeworld/territory.lua`** — Added post-first-breed reward in
+  `initiate_breeding`: grants 2 Strays matching `state.starting_color` and sets
+  `state.has_received_first_breed_reward`.
+- **`games/slimeworld/logic_original.lua`** — Regenerated from the split files
+  for byte-identical concatenation test.
+- **`ts/src/games/slimeworld/App.tsx`** — Updated `handlePurchaseSeedSlime` to
+  pass `region_locks`/`color_targets` and persist `lastSeedPurchaseCycle`;
+  updated `handleInitiateBreeding` to read `added_strays` and persist
+  `hasReceivedFirstBreedReward`; changed `visibleTabs` gating so Economy
+  requires 2+ unlocked regions and Missions requires 1+.
+- **`ts/src/games/slimeworld/types.ts`** — Added `startingColor`,
+  `hasReceivedFirstBreedReward`, and `lastSeedPurchaseCycle` to `LabState`;
+  bridged all three in `stateToLua`; added `added_strays` to
+  `SLIME_EXPLICIT_LUA_FIELDS`.
+- **`ts/tests/test_slimeworld_tab_gating.tsx`** — Updated assertions for the
+  new Economy-on-second-region gate and Missions regression guard.
+- **`ts/tests/test_slimeworld_options_menu_hard_reset.tsx`** — Updated
+  `test_hard_reset_reflects_in_tab_gating` to use `unlockedRegionCount`.
+- **`ts/tests/test_lua_slime_field_safety.tsx`** — Added `added_strays` to
+  expected explicit fields.
+
+### New files
+
+- **`ts/tests/test_slimeworld_seed_purchase_restrictions.tsx`** — 5 test
+  anchors for color eligibility and cooldown.
+- **`ts/tests/test_slimeworld_first_breed_reward.tsx`** — 2 test anchors for
+  the post-first-breed reward.
+
+### Test coverage
+
+**`ts/tests/test_slimeworld_seed_purchase_restrictions.tsx` (5 tests)**
+1. `test_purchase_seed_slime_rejects_color_outside_unlocked_regions`
+2. `test_purchase_seed_slime_accepts_color_within_unlocked_regions`
+3. `test_purchase_seed_slime_eligibility_updates_after_new_region_unlock`
+4. `test_purchase_seed_slime_cooldown_blocks_repeat_purchase`
+5. `test_purchase_seed_slime_cooldown_clears_after_elapsed_cycles`
+
+**`ts/tests/test_slimeworld_first_breed_reward.tsx` (2 tests)**
+1. `test_post_first_breed_reward_grants_two_strays_matching_starting_color`
+   — parameterized across Red/Blue/Yellow
+2. `test_post_first_breed_reward_fires_exactly_once`
+
+**`ts/tests/test_slimeworld_tab_gating.tsx` (6 tests, updated)**
+1. `test_fresh_game_shows_only_roster_and_lab_tabs`
+2. `test_missions_tab_appears_after_first_unlock_economy_stays_hidden`
+3. `test_economy_tab_appears_after_second_unlock`
+4. `test_returning_player_with_existing_second_region_sees_economy_immediately`
+5. `test_default_active_tab_never_hidden`
+6. `test_node_locking_unaffected`
+
+### Test floor
+
+- **Python:** 561 passed, 11 deselected, 8 warnings
+- **TypeScript:** 325 passed, 0 failed
+
+### What is next
+
+The remaining open SlimeWorld items, in the order Robert should pick from:
+
+1. **Lab Purchases (`buy_upgrade`) cooldown** — not scoped in enough detail yet;
+   needs its own design pass first.
+2. **Breeding cost after first breed** — decided in principle, but the actual
+   cost number/scaling was never set. Do not invent a number here.
+3. **Envoy vs. Garrison** — unresolved design question, unrelated to economy
+   gating.
+4. **`shapeCodex` liveness check** — a verification task, not a build task, and
+   unrelated to these three fixes.
+
 ### Tooling updates
 
 - **`tools/detect_multi_return/scan_lua.py`** — Updated to respect

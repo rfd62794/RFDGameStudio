@@ -525,6 +525,27 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.consumed_slime_id = parent_b_id
   state.credits = math.max(0, (state.credits or 0) - 10)
   child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
+
+  -- Post-first-breed reward: when the first breed unlocks the first region,
+  -- grant two additional Strays matching the player's assigned starting color.
+  -- Fires exactly once per game via the same region-unlock event the Target
+  -- Regent first-breed fix already guarantees.
+  child.added_strays = {}
+  if not state.has_received_first_breed_reward and #child.region_unlocks > 0 then
+    state.has_received_first_breed_reward = true
+    local starting_color = state.starting_color or "Red"
+    for i = 1, 2 do
+      if #(state.slimes or {}) < (state.roster_cap or 8) then
+        local stray = create_seed_slime(starting_color, "Solid", color_specs)
+        stray.id = "stray_breed_" .. os.time() .. "_" .. math.random(1000) .. "_" .. i
+        stray.locked_role = "worker"
+        stray.name = "Stray " .. stray.name
+        table.insert(state.slimes, stray)
+        table.insert(child.added_strays, stray)
+      end
+    end
+  end
+
   return child, nil
 end
 
@@ -695,13 +716,89 @@ function rename_slime(state, slime_id, new_name)
   return slime, nil
 end
 
-function purchase_seed_slime(state, color, color_specs)
+-- PLACEHOLDER — pending Robert's confirmation. Number of cycles that must pass
+-- between seed purchases. Currently 3 cycles; treated as provisional until
+-- Robert sets the final value.
+local SEED_PURCHASE_COOLDOWN_CYCLES = 3
+
+-- Canonical faction anchor hues (matches color_genetics.faction_anchors in data.yaml).
+local FACTION_ANCHORS = {
+  { color = "Red",    hue = 0   },
+  { color = "Orange", hue = 60  },
+  { color = "Yellow", hue = 120 },
+  { color = "Green",  hue = 180 },
+  { color = "Purple", hue = 240 },
+  { color = "Blue",   hue = 300 },
+}
+
+function find_color_target_by_id(color_targets, target_id)
+  if color_targets == nil or target_id == nil then return nil end
+  for _, target in ipairs(color_targets) do
+    if target.id == target_id then return target end
+  end
+  return nil
+end
+
+-- Derive the set of seed-purchasable colors from the player's currently
+-- unlocked regions. For each unlocked region, look up its color_target and
+-- include every faction-anchor color within 60 degrees of any of the target's
+-- center hues. Re-derived every call; never cached.
+function derive_purchasable_colors(state, region_locks, color_targets)
+  local colors = {}
+  local seen = {}
+  local region_unlocks = state.region_unlocks or {}
+
+  for _, lock in ipairs(region_locks or {}) do
+    if region_unlocks[lock.node_id] == true then
+      local target = find_color_target_by_id(color_targets, lock.color_target_id)
+      if target and target.center_hues then
+        for _, center in ipairs(target.center_hues) do
+          for _, anchor in ipairs(FACTION_ANCHORS) do
+            local distance = circular_distance(center, anchor.hue)
+            if distance <= 60 then
+              if not seen[anchor.color] then
+                seen[anchor.color] = true
+                table.insert(colors, anchor.color)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  return colors
+end
+
+function purchase_seed_slime(state, color, color_specs, region_locks, color_targets)
   local cost = 50
   if (state.credits or 0) < cost then return nil, "Insufficient credits" end
   if #(state.slimes or {}) >= (state.roster_cap or 8) then return nil, "Roster capacity reached" end
+
+  -- Color eligibility gate: only colors reachable from currently unlocked regions.
+  local purchasable = derive_purchasable_colors(state, region_locks, color_targets)
+  local color_allowed = false
+  for _, allowed in ipairs(purchasable) do
+    if allowed == color then color_allowed = true break end
+  end
+  if not color_allowed then
+    return nil, "Color not available from unlocked regions"
+  end
+
+  -- Cooldown gate: independent of color eligibility.
+  local cycle = state.cycle or 0
+  local last_cycle = state.last_seed_purchase_cycle or -SEED_PURCHASE_COOLDOWN_CYCLES
+  if cycle - last_cycle < SEED_PURCHASE_COOLDOWN_CYCLES then
+    return nil, "Seed purchase on cooldown"
+  end
+
   local seed = create_seed_slime(color, "Solid", color_specs)
   table.insert(state.slimes, seed)
   state.credits = (state.credits or 0) - cost
+  state.last_seed_purchase_cycle = cycle
+  -- Bridge the cooldown timestamp back to TypeScript on the returned slime
+  -- so the UI can persist it without a separate return-shape change.
+  seed.last_seed_purchase_cycle = cycle
   return seed, nil
 end
 

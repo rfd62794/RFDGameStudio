@@ -40,6 +40,7 @@ describe('Lua→TS Field Safety — Alarm System', () => {
       'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'parent_a',
       'parent_b', 'created_at', 'matched_target_id', 'matched_shape_target_id',
       'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage', 'region_unlocks',
+      'added_strays',
     ];
     for (const field of expectedFields) {
       expect(SLIME_EXPLICIT_LUA_FIELDS.has(field)).toBe(true);
