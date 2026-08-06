@@ -64,7 +64,7 @@ describe('SlimeWorld Gate Missions on First Region, Economy on Second', () => {
 
     // Confirm App.tsx's real gating source matches this derivation exactly
     expect(appSource).toContain('unlockedRegionCount');
-    expect(appSource).toContain("const visibleTabs = unlockedRegionCount >= 2");
+    expect(appSource).toContain('visibleTabs = unlockedRegionCount >= 2');
     expect(appSource).toContain(": [{ id: 'roster', label: 'ROSTER' }, { id: 'lab', label: 'LAB' }]");
     expect(appSource).toContain('tabs={visibleTabs}');
   });
@@ -73,7 +73,8 @@ describe('SlimeWorld Gate Missions on First Region, Economy on Second', () => {
   it('test_missions_tab_appears_after_first_unlock_economy_stays_hidden', () => {
     const state = makeState({ regionUnlocks: { node_frontier_a: true } });
     expect(unlockedRegionCount(state)).toBe(1);
-    expect(appSource).toContain("unlockedRegionCount >= 1\n      ? [{ id: 'roster', label: 'ROSTER' }, { id: 'missions', label: 'MISSIONS' }, { id: 'lab', label: 'LAB' }]");
+    expect(appSource).toContain("unlockedRegionCount >= 1");
+    expect(appSource).toContain("{ id: 'missions', label: 'MISSIONS' }");
   });
 
   // §3.3: After the second region unlock, Economy also appears

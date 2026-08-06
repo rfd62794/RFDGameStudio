@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadGame, call } from '../src/engine/runtime';
 import { stateToLua, type LabState, type Slime, type SlimeColor } from '../src/games/slimeworld/types';
+import { buildColorSpecs } from '../src/games/slimeworld/App';
 
 const session = loadGame('slimeworld');
 const data = session.files.data as Record<string, unknown>;
@@ -39,15 +40,6 @@ function makeState(overrides: Partial<LabState> = {}): LabState {
     shownTutorials: {},
     ...overrides,
   } as LabState;
-}
-
-function buildColorSpecs(gameData: Record<string, unknown>): Record<string, unknown> {
-  const specs: Record<string, unknown> = {};
-  const colorList = (gameData['color_specs'] ?? []) as Array<Record<string, unknown>>;
-  for (const spec of colorList) {
-    specs[spec['color'] as string] = spec;
-  }
-  return specs;
 }
 
 const colorSpecs = buildColorSpecs(data);
