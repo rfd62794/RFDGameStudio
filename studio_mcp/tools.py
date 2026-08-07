@@ -638,7 +638,7 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
-_EXAMPLE_DEMOS = ["brewfield", "ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads"]
+_EXAMPLE_DEMOS = ["brewfield", "ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads", "antsim-redux", "facility-escape"]
 # folder name → deployed static subpath (gameId convention uses underscores)
 _DEMO_STATIC_NAME = {
     "brewfield": "brewfield",
@@ -650,6 +650,8 @@ _DEMO_STATIC_NAME = {
     "slimeworld": "slimeworld",
     "7-days-to-fry": "7_days_to_fry",
     "kingmaker-squads": "kingmaker_squads",
+    "antsim-redux": "antsim_redux",
+    "facility-escape": "facility_escape",
 }
 
 # demo slug → source directory (allows demos outside the examples/ tree)
@@ -663,6 +665,8 @@ _DEMO_SOURCE_PATHS: dict[str, Path] = {
     "slimeworld": Path(__file__).parent.parent / "examples" / "slimeworld",
     "7-days-to-fry": Path(__file__).parent.parent / "examples" / "7-days-to-fry",
     "kingmaker-squads": Path(__file__).parent.parent / "examples" / "kingmaker-squads",
+    "antsim-redux": Path(__file__).parent.parent / "examples" / "antsim-redux",
+    "facility-escape": Path(__file__).parent.parent / "examples" / "facility-escape",
 }
 
 

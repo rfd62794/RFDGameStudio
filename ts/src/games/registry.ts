@@ -15,6 +15,8 @@ import ledgerConfig from './ledger/config';
 import trinitySiegeConfig from './trinity_siege/config';
 import sevenDaysToFryConfig from './7_days_to_fry/config';
 import kingmakerSquadsConfig from './kingmaker_squads/config';
+import antsimReduxConfig from './antsim_redux/config';
+import facilityEscapeConfig from './facility_escape/config';
 
 /**
  * Formal game registry. Add new games here.
@@ -37,6 +39,8 @@ export const GAME_REGISTRY: GameConfig[] = [
   trinitySiegeConfig,
   sevenDaysToFryConfig,
   kingmakerSquadsConfig,
+  antsimReduxConfig,
+  facilityEscapeConfig,
 ];
 
 /**
