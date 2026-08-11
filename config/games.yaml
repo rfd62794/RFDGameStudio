@@ -5,11 +5,51 @@ games:
     build_dir: build/web
 
   voidrift:
-    itchio_slug: rfd62794/voidrift
-    channel: android
-    build_dir: build/android
+    itchio_slug: rdug627/voidrift
+    channel: html5
+    build_dir: C:\Github\VoidDrift\pkg
 
   greengap:
     itchio_slug: rfd62794/greengap
     channel: html5
     build_dir: public/
+
+  brewfield:
+    itchio_slug: rdug627/brewfield
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-brewfield
+
+  shoal:
+    itchio_slug: rdug627/shoal
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-shoal
+
+  slimeworld:
+    itchio_slug: rdug627/slimeworld
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-slimeworld
+
+  chimera_wilds:
+    itchio_slug: rdug627/chimera_wilds
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-chimera_wilds
+
+  mutant_battle_ball:
+    itchio_slug: rdug627/mutant_battle_ball
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-mutant_battle_ball
+
+  scrapcrawl:
+    itchio_slug: rdug627/scrapcrawl
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-scrapcrawl
+
+  slime_coin:
+    itchio_slug: rdug627/slime_coin
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-slime_coin
+
+  dissonance:
+    itchio_slug: rdug627/dissonance-depths
+    channel: html5
+    build_dir: C:\Github\RFDGameStudio\ts\dist-dissonance

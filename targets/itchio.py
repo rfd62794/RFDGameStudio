@@ -1,6 +1,42 @@
+import json
 import subprocess
 import yaml
 import os
+from pathlib import Path
+
+# Pipeline Stage Tracking (additive, August 2026): RFDGameStudio's
+# ts/src/games/game-metadata.json is the real source of truth for where a
+# game sits in the AI Studio -> website -> itch.io sequence. This repo is
+# separate from RFDGameStudio, so the path is configurable via env var with
+# the same "sensible default, overridable" convention already used by
+# RFDGameStudio's own SITE_REPO_PATH.
+_RFDGAMESTUDIO_PATH = Path(os.environ.get("RFDGAMESTUDIO_PATH", r"C:\Github\RFDGameStudio"))
+_GAME_METADATA_PATH = _RFDGAMESTUDIO_PATH / "ts" / "src" / "games" / "game-metadata.json"
+
+# games.yaml game name -> game-metadata.json game_id, where they differ.
+# Confirmed real mismatch this session: games.yaml uses "voidrift",
+# game-metadata.json/GAME_PATHS uses "voiddrift".
+_GAME_ID_ALIASES = {"voidrift": "voiddrift"}
+
+
+def _mark_itch_published(game_name: str) -> None:
+    """Best-effort: record game_name as itch_published in RFDGameStudio's
+    game-metadata.json. Called only after a real, confirmed successful
+    butler push (never on dry_run, never on failure). Never raises — a
+    metadata-write problem must not be reported as a publish failure, and
+    must not block the real push this function's caller already completed.
+    """
+    try:
+        if not _GAME_METADATA_PATH.exists():
+            return
+        data = json.loads(_GAME_METADATA_PATH.read_text(encoding="utf-8"))
+        game_id = _GAME_ID_ALIASES.get(game_name, game_name)
+        if not isinstance(data, dict) or game_id not in data:
+            return
+        data[game_id]["pipeline_stage"] = "itch_published"
+        _GAME_METADATA_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except Exception:
+        pass
 
 
 def check_butler() -> bool:
@@ -9,7 +45,9 @@ def check_butler() -> bool:
         result = subprocess.run(
             ["butler", "--version"],
             capture_output=True,
-            text=True
+            text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         return result.returncode == 0
     except FileNotFoundError:
@@ -59,9 +97,10 @@ def push(game_name: str, dry_run: bool = False) -> bool:
         return True
     
     try:
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace")
         if result.returncode == 0:
             print(f"Successfully pushed {game_name} to itch.io")
+            _mark_itch_published(game_name)
             return True
         else:
             print(f"Failed to push {game_name}: {result.stderr}")
