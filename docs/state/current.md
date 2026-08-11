@@ -291,6 +291,55 @@ Butler channel `html5` (build #1873500) from the official publisher route.
 
 ---
 
+## Shared Art Generation Module (`ts/src/engine/artGen/`) — COMPLETED
+
+### What was built
+
+Extracted the genuinely reusable parts of Dissonance's working SVG
+generator and SlimeWorld's working seeded polygon generator into a new,
+game-agnostic TypeScript module under `ts/src/engine/artGen/`, per
+ADR-005's "named pattern, not shared binary" rule.
+
+- `seededRandom.ts` — `mulberry32` and `hashStringToSeed` extracted
+  verbatim from the existing procedural SVG component; behavior verified
+  identical to the original (same seed → same sequence).
+- `types.ts` — generic `ArtGenConfig<TEntity>` seam plus `ColorSource`,
+  `BorderStyle`, `TierId`, `ShapeId`, and primitive render specs. The
+  module contains no game-specific vocabulary.
+- `shapes.ts` — generic primitives: gradient backgrounds, tier-style
+  borders, a small icon shape library (`blade`, `cross`, `shield`,
+  `spiral`, `coin`, `heart`, `eye`, `gear`, `dice`, `link`, `starburst`),
+  polygon point generation, and the spiky-star silhouette used for
+  portraits.
+- `index.ts` — public module exports.
+
+### Verification
+
+- `npx vitest run tests/test_artgen_seeded_random.ts` passes: same seed
+  produces the same sequence in both the original and extracted locations.
+- `npx vitest run tests/test_artgen_dissonance_equiv.ts` passes: all 56
+  Dissonance card SVGs regenerated from the new module match the
+  committed files byte-for-byte.
+- Grep `ts/src/engine/artGen/` for word-bounded `ember|ash|spark|cinder|
+  fish|shark|slime` returns zero matches — the seam held.
+- `npm test` passes: 58 test files, 384 tests, 0 failed.
+- `python -m pytest` passes: 577 tests, 1 pre-existing unrelated failure
+  (`test_slimeworld_first_breed_to_missions_unlock`), no new failures.
+- Shoal and SlimeWorld source files were not touched; no behavior changes
+  there.
+
+### Explicitly deferred follow-up work
+
+- Rewiring Shoal's `drawFish`/`drawSharksBatched` to consume generated
+  sprites instead of raw Canvas primitives.
+- Rewiring SlimeWorld's `SlimeVisual` to use the shared seeded-RNG and
+  polygon utilities instead of its local copies.
+- Any change to Dissonance's actual generated art output — the module only
+  extracts the reusable logic; the existing Python generator and committed
+  SVGs remain unchanged.
+
+---
+
 ## SlimeWorld Random Starting Color Foundation — COMPLETED
 
 ### What was built
