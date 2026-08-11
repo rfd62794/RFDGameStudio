@@ -638,7 +638,7 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
-_EXAMPLE_DEMOS = ["brewfield", "ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads", "antsim-redux", "facility-escape"]
+_EXAMPLE_DEMOS = ["ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads", "antsim-redux", "facility-escape"]
 # folder name → deployed static subpath (gameId convention uses underscores)
 _DEMO_STATIC_NAME = {
     "brewfield": "brewfield",

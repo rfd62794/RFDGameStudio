@@ -9,7 +9,6 @@ const EXPECTED_ORDER = [
   'shoal',
   'voiddrift',
   'corpworld',
-  'brewfield',
   'horse_racing',
   'slither_rogue',
   'mutant_battle_ball',
@@ -20,6 +19,8 @@ const EXPECTED_ORDER = [
   'trinity_siege',
   '7_days_to_fry',
   'kingmaker_squads',
+  'antsim_redux',
+  'facility_escape',
 ];
 
 describe('Arcade Registry Directive — July 2026', () => {

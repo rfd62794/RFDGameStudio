@@ -5,6 +5,7 @@ import type { DeckCard, RunState } from '../types';
 interface CombatPhaseProps {
   run: RunState;
   onPlayCard: (card: DeckCard) => void;
+  data?: Record<string, unknown>;
 }
 
 const COMPONENT_LABEL: Record<string, string> = {
@@ -14,7 +15,20 @@ const COMPONENT_LABEL: Record<string, string> = {
   unmake: 'DoT',
 };
 
-export default function CombatPhase({ run, onPlayCard }: CombatPhaseProps) {
+function findEnemyImageId(name: string, data?: Record<string, unknown>): string | null {
+  if (!data) return null;
+  const enemies = data.enemies as Record<string, Array<{ id: string; name: string }>> | undefined;
+  if (!enemies) return null;
+  for (const section of Object.values(enemies)) {
+    if (!Array.isArray(section)) continue;
+    for (const e of section) {
+      if (e.name === name || (name.startsWith(e.name) && e.name.length > 1)) return e.id;
+    }
+  }
+  return null;
+}
+
+export default function CombatPhase({ run, onPlayCard, data }: CombatPhaseProps) {
   const enemy = run.enemy;
   if (!enemy) return null;
 
@@ -75,6 +89,14 @@ export default function CombatPhase({ run, onPlayCard }: CombatPhaseProps) {
           >
             {enemy.name}
           </span>
+          {findEnemyImageId(enemy.name, data) && (
+            <img
+              src={`assets/dissonance/enemies/${findEnemyImageId(enemy.name, data)}.svg`}
+              alt=""
+              loading="lazy"
+              style={{ width: '3.5rem', height: '3.5rem', objectFit: 'contain' }}
+            />
+          )}
           <StatBar label="HP" value={enemy.hp} max={enemy.maxHp} color="var(--red)" />
         </div>
       </div>
@@ -109,6 +131,12 @@ export default function CombatPhase({ run, onPlayCard }: CombatPhaseProps) {
             id={`combat-card-${card.id}`}
             onClick={() => onPlayCard(card)}
           >
+            <img
+              src={`assets/dissonance/cards/${card.cardId}.svg`}
+              alt=""
+              loading="lazy"
+              style={{ width: '100%', height: '3rem', objectFit: 'contain' }}
+            />
             <span
               style={{
                 fontFamily: 'var(--font-mono)',

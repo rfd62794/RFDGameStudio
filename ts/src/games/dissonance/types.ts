@@ -71,6 +71,24 @@ export interface MapBalance {
   attempts: number;
 }
 
+export interface ResidueMark {
+  element: string;
+  level: number;
+}
+
+export interface TreasureOffer {
+  essence: number;
+  relicId?: string | null;
+}
+
+export interface StoreSlot {
+  boonId: string;
+  name: string;
+  tier: 'basic' | 'advanced' | 'elite' | 'master';
+  price: number;
+  description: string;
+}
+
 export type RunStatus =
   | 'not_started'
   | 'combat'
@@ -104,12 +122,19 @@ export interface RunState {
   relics: string[];
   usedRelicIds: string[];
   visitedNodeIds: string[];
+  resolvedNodeIds?: string[];
   startingBankedBonus: number;
   giftSkippedCount: number;
   activeBuild?: { buildId: string | null; mechanicState: Record<string, unknown> };
   lastMapBalance?: MapBalance;
   restCraftResolvedNodeId?: string;
   lastAttachmentOutcome?: 'peek' | 'gift' | 'treasure';
+  residue?: { marks: ResidueMark[]; fortifiedCharges: number };
+  currentTreasure?: TreasureOffer | null;
+  currentStoreSlots?: StoreSlot[] | null;
+  currentAnomaly?: string | null;
+  nextRewardBias?: 'single' | 'same' | 'adjacent' | 'opposed' | null;
+  echoRevealedCardId?: string | null;
 }
 
 export interface RewardSlot {

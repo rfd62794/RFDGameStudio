@@ -757,6 +757,10 @@ relics:
   category: info
   master: true
   description: Reveals one random undiscovered combination permanently, on acquisition.
+- id: fortified_residue
+  name: Fortified Residue
+  category: synergy
+  description: 'Residue Field marks cannot be annihilated by opposed elements for 3 charges. One charge is consumed each time annihilation is blocked.'
 - id: embers_momentum
   name: Ember's Momentum
   category: synergy
@@ -806,7 +810,7 @@ enemies:
   - id: ashling
     name: Ashling
     tier: basic
-    hp: 14
+    hp: 16
     signature: Single-pattern Ember striker.
   - id: drifting_cinder
     name: Drifting Cinder
@@ -1189,8 +1193,8 @@ enemies:
   legacy_named:
   - id: molten_ashling
     name: Molten Ashling
-    tier: advanced
-    hp: 20
+    tier: elite
+    hp: 26
     secondaryType: burst
     vulnerable: hybrid
     resistant: volatile
@@ -1224,15 +1228,15 @@ enemies:
   - id: rootbound_guardian
     name: Rootbound Guardian
     tier: elite
-    hp: 30
+    hp: 40
     secondaryType: burst
     vulnerable: hybrid
     resistant: volatile
     signature: Self-heals each turn — real damage race, punishes slow builds.
   - id: bulwark
     name: Bulwark
-    tier: elite
-    hp: 40
+    tier: advanced
+    hp: 20
     secondaryType: hybrid
     vulnerable: burst
     resistant: volatile
@@ -1386,3 +1390,21 @@ room_element_lean:
   store: cinder
   anomaly: ember
   boss: cinder
+
+store_tier_prices:
+  basic: 20
+  advanced: 30
+  elite: 45
+  master: 65
+
+treasure_essence_amount: 30
+
+residue:
+  max_slots: 2
+  max_level: 3
+  # Opposed element pairs by index distance 2 in ELEMENTS order: ember<->spark, ash<->cinder
+  opposed_pairs:
+    ember: spark
+    spark: ember
+    ash: cinder
+    cinder: ash

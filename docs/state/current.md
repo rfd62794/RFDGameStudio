@@ -1,6 +1,295 @@
 # RFDGameStudio — Project State
 
-*Last updated: August 3 2026*
+*Last updated: August 6 2026*
+
+## Dissonance Depths — BrewField Migration + Stub Phase Buildout — COMPLETED
+
+### What was built
+
+Closed the loop on the BrewField audit by migrating the verified mechanics
+into Dissonance Depths and building out the four previously stubbed
+non-combat phases (Treasure, Store, Anomaly, RunEnd).
+
+- **Residue Field mechanic**: implemented in `run_state.lua` and
+  `data.yaml`. Floor 4+ only. Same-element plays amplify the active residue
+  mark; opposed-element plays annihilate it. Unmake is explicitly excluded from
+  amplification. Added the `fortified_residue` relic category, which grants
+  charges that absorb annihilation before the mark is destroyed.
+- **Treasure phase**: flat Essence grant OR one random eligible Relic,
+  generated deterministically when the node is entered.
+- **Store phase**: 4 tier-eligible Boon slots (basic/advanced/elite/master)
+  priced from the existing Boon `essenceCost` values (20/30/45/65); purchase
+  deducts Essence, awards the Boon, and triggers build-gate logic.
+- **Anomaly phase**: 5 deterministic events proposed and implemented —
+  Echo's Memory (reveal a random card), Fragment Surge (+15 Essence / -3 HP),
+  Corrupted Merge (-5 HP / +10 Essence), Unstable Cache (random Card or Boon),
+  and Silence (bias the next reward roll toward one relation tier).
+- **RunEnd phase**: already built via shared `EndStateScreen`; left intact.
+- **BrewField enemy stats ported**: Ashling HP 16, Bulwark HP 20, Molten
+  Ashling HP 26, Rootbound Guardian HP 40, integrated into the existing
+  legacy roster in `data.yaml` without changing the enemy count.
+- **BrewField delisted from the public arcade registry**: removed from
+  `GAME_REGISTRY` and `STANDALONE_BUILD_GAMES` in `ts/src/games/registry.ts`,
+  the `build:brewfield` script, and `vite.brewfield.config.ts`; source
+  directories remain on disk per the SlimeWorld Prep precedent.
+- **Dissonance standalone build path added**: created
+  `ts/vite.dissonance.config.ts`, `ts/src/standalone/dissonance/index.html`,
+  and `ts/src/standalone/dissonance/entry.tsx` plus `build:dissonance`. This
+  lets Dissonance publish independently of the global arcade `npm run build`
+  path, which is blocked by pre-existing TypeScript errors in other games.
+
+### Modified files
+
+- `games/dissonance/data.yaml` — added `residue` config, `store_tier_prices`,
+  `treasure_essence_amount`, the `fortified_residue` relic, and updated
+  BrewField enemy HP values.
+- `games/dissonance/logic/run_state.lua` — added residue helpers, generated
+  room offers on entry, `resolve_treasure`, `resolve_store`, `resolve_anomaly`,
+  and integrated residue amplification/annihilation into
+  `resolve_combat_turn`.
+- `games/dissonance/logic/rooms.lua` — `generate_fixed_reward` now accepts
+  an optional `bias_relation` from the Silence anomaly.
+- `ts/src/games/dissonance/types.ts` — added `ResidueMark`,
+  `TreasureOffer`, `StoreSlot`, and the corresponding optional run-state
+  fields.
+- `ts/src/games/dissonance/App.tsx` — wired Treasure/Store/Anomaly
+  components and callbacks; reward generation passes `nextRewardBias`.
+- `ts/src/games/dissonance/phases/TreasurePhase.tsx` — new.
+- `ts/src/games/dissonance/phases/StorePhase.tsx` — new.
+- `ts/src/games/dissonance/phases/AnomalyPhase.tsx` — new.
+- `ts/src/games/registry.ts` — removed BrewField registry entries.
+- `ts/package.json` — removed `build:brewfield`; added `build:dissonance`.
+- `ts/vite.brewfield.config.ts` — removed.
+- `ts/vite.dissonance.config.ts` — new standalone build config.
+- `ts/src/standalone/dissonance/index.html` — new.
+- `ts/src/standalone/dissonance/entry.tsx` — new.
+- `ts/tests/test_arcade.ts` — updated `test_brewfield_in_registry` to assert
+  BrewField is no longer in the public registry.
+- `ts/tests/test_arcade_registry_directive.ts` — updated expected order to
+  match current registry and include `antsim_redux`/`facility_escape`.
+- `ts/tests/test_per_game_builds.ts` — removed BrewField standalone build
+  expectations.
+- `tests/test_standalone_build_integrity.py` — only builds games with both
+  `entry.tsx` and a matching `vite.{game}.config.ts`.
+
+### Live seeded verification
+
+Verified all room types and residue behavior via `studio.runtime`
+against seed 42:
+- Treasure resolves and grants Essence.
+- Store generates slots and can be left cleanly.
+- All 5 anomaly events resolve without error.
+- Residue Field logs appear on Floor 4+ same-element plays.
+- `fortified_residue` absorbs an opposed annihilation and consumes a charge.
+
+### Test Floor
+
+- **Python:** 577 passed, 1 failed, 8 warnings. The single failure is the
+  pre-existing SlimeWorld E2E `test_slimeworld_first_breed_to_missions_unlock`
+  (Economy tab gating changed in an earlier session and is unrelated to this
+  directive).
+- **TypeScript:** 326 passed, 0 failed.
+- **Dissonance standalone build:** `npm run build:dissonance` succeeds and
+  passes `test_standalone_build_integrity[dissonance]`.
+
+### Note on `npm run build`
+
+The full global arcade build `tsc && vite build` still fails due to
+pre-existing TypeScript errors in `horse_racing`, `mutant_battle_ball`, and
+`slither_rogue` that are outside this directive's scope. Dissonance now has
+its own `build:dissonance` standalone path, so it can publish without waiting
+for those other games to be fixed.
+
+---
+
+## Dissonance Depths — Unmake Rebalance + Enemy Tier Classification — COMPLETED
+
+### What was changed
+
+1. **Unmake rebalance**: the root cause of Unmake's above-target power was a
+   porting inconsistency — `logic/combat.lua` returned `dotDuration = 2`, but
+   `logic/run_state.lua` hard-coded the applied DoT to 3 turns. This made
+   Unmake deal 50% more damage than the validated card-value formula assumed.
+   Fixed `run_state.lua` to use `result.dotDuration` instead of the hard-coded
+   3, so the combat outcome matches the formula used for deck-power caps.
+2. **Enemy tier classification**: recomputed the real damage per turn for the
+   four ported BrewField legacy enemies using their actual Dissonance intent
+   patterns, then assigned tiers against the existing `DMG_PER_TURN` bands
+   (basic 2.5, advanced 3.5, elite 4, master 3.5). Updated `data.yaml`
+   accordingly.
+
+### Rebalanced 56-card power table
+
+Computed with the same formula as the original audit:
+`CardValue = modifiedValue × ActionWeight × RelationTierMultiplier`,
+`ActionWeight.unmake = totalDoTDamage × 0.85`, `dotDuration = 2`.
+
+| Component | Mean CardValue | Cards |
+|---|---|---|
+| sever | 10.97 | 14 |
+| unmake | **10.37** | 14 |
+| mend | 6.02 | 14 |
+| guard | 5.86 | 14 |
+| **Overall pool** | **8.30** | **56** |
+
+Unmake now sits in the requested 10–11 range and is comparable to Sever,
+rather than running ~50% ahead of it.
+
+### Abuse-case check
+
+Unconstrained top decks no longer collapse into all-Unmake builds:
+- **best-5**: 3 unmake / 2 sever, total 85.44 (avg 17.09)
+- **best-6**: 3 unmake / 3 sever, total 99.24 (avg 16.54)
+
+### Floor cap check
+
+The existing `POWER_LEVEL_CAP` still meaningfully constrains high-roll decks:
+- Floor 4 cap = 72 (target avg 12/card). best-6 total 99.24 → **blocked**.
+- Floor 5 cap = 60 (target avg 12/card). best-5 total 85.44 → **blocked**.
+- Reference 8-card deck power = 72 (avg 9/card), close to the pool mean of 8.30.
+
+### Legacy enemy tier assignments
+
+| Enemy | Avg dmg/turn in Dissonance | Closest band | New tier | Notes |
+|---|---|---|---|---|
+| Ashling | 2.25 | basic 2.5 | basic | unchanged |
+| Bulwark | 2.75 | basic 2.5 / advanced 3.5 (tie-ish) | **advanced** | damage sits between bands; HP 20 and heavy-attack pattern justify the conservative advanced placement |
+| Molten Ashling | 4.00 | elite 4.0 | **elite** | changed from advanced |
+| Rootbound Guardian | 4.00 | elite 4.0 | elite | unchanged |
+
+The BrewField source patterns are more aggressive, but Dissonance's existing
+intent patterns for these enemies are already scaled to these lower numbers, so
+tiers are based on the damage the enemies actually deal here.
+
+### Files changed
+
+- `games/dissonance/logic/run_state.lua` — Unmake DoT now respects
+  `result.dotDuration` from `resolve_combination`.
+- `games/dissonance/data.yaml` — Bulwark tier `elite` → `advanced`, Molten
+  Ashling tier `advanced` → `elite`.
+- `tests/test_dissonance_anchors.py` — no code change required (test mirrors
+  `combat.lua`, which still returns `dotDuration = 2`).
+
+### Test floor
+
+- Python: 577 passed, 1 failed — the single failure is the pre-existing
+  `test_slimeworld_first_breed_to_missions_unlock`.
+- TypeScript: 326 passed, 0 failed.
+- Dissonance standalone build: `npm run build:dissonance` and
+  `test_standalone_build_integrity[dissonance]` pass.
+
+---
+
+## Dissonance Depths — Placeholder Art Generation + Wiring — COMPLETED
+
+### What was built
+
+Built a deterministic, data-driven SVG generator for Dissonance's 106
+placeholder assets and wired them into the three highest-visibility screens.
+
+- **Asset convention check:** searched the repo for an existing
+  `ts/src/games/{game}/assets` or `public/assets` convention. No studio-wide
+  source-asset convention exists (only build artifacts in
+  `local-arcade-preview/`), so Dissonance's assets live in the standalone
+  game's public folder:
+  `ts/src/standalone/dissonance/public/assets/dissonance/{cards,relics,enemies}/`.
+  This is served automatically by Vite in both dev and the standalone build.
+- **Generator:** `scripts/generate_dissonance_art.py` reads
+  `games/dissonance/data.yaml` and produces 106 SVG files:
+  - 56 card arts from `named_cards` — colors blend `el1` and `el2`, shape is
+    keyed to component, border weight is keyed to `relationType`.
+  - 12 relic arts from `relics` — shape keyed to `category`.
+  - 38 enemy arts from `enemies` (all four sections: basic, behavior_roster,
+    legacy_named, bosses) — scale and color keyed to `tier`.
+- **Wiring:**
+  - `DeckBuildPhase.tsx` renders each card's SVG above the existing text.
+  - `CombatPhase.tsx` renders the enemy portrait and each hand card's SVG.
+  - `RewardPhase.tsx` renders card art for card rewards and relic art for
+    relic rewards; boon/heal slots remain text-only as scoped.
+- **Verification script:** `tmp/capture_dissonance_art.py` drives a real
+  Playwright session through New Run → Deck Build → Combat → Reward and
+  captures screenshots proving the generated art loads in all three wired
+  screens.
+
+### Generated asset counts
+
+| Category | Files | Source ids |
+|---|---|---|
+| Cards | 56 | `named_cards[].id` |
+| Relics | 12 | `relics[].id` |
+| Enemies | 38 | `enemies.{basic,behavior_roster,legacy_named,bosses}[].id` |
+| **Total** | **106** | — |
+
+### Files changed
+
+- `scripts/generate_dissonance_art.py` — new generator.
+- `ts/src/standalone/dissonance/public/assets/dissonance/` — 106 generated
+  SVGs (new).
+- `ts/src/games/dissonance/phases/DeckBuildPhase.tsx` — card art.
+- `ts/src/games/dissonance/phases/CombatPhase.tsx` — enemy portrait + hand
+  card art.
+- `ts/src/games/dissonance/App.tsx` — passes `data` to `CombatPhase` for
+  enemy id lookup.
+- `ts/src/games/dissonance/phases/RewardPhase.tsx` — card/relic art.
+
+### Deferred (explicitly not done)
+
+- Art on remaining screens (Codex/Roster gallery, Store, Treasure, Anomaly).
+- Inline SVG React components for theme reactivity — current static files use
+  baked hex colors, matching the directive's recommended default.
+- Replacing placeholder art with hand-authored assets.
+- Animations / hover states on the art itself.
+
+### Test floor
+
+- Python: no new Python code; Dissonance Lua tests remain 55/55 passed.
+- TypeScript: 326 passed, 0 failed.
+- `npm run build:dissonance` passes and copies all 106 assets into
+  `dist-dissonance/assets/dissonance/`.
+
+---
+
+## Dissonance Depths — Live Deployment — COMPLETED (HANDOFF)
+
+### rfditservices.com arcade
+
+- Rebuilt the global arcade bundle (`npx vite build` in `ts/`).
+- Removed `brewfield` from the `_EXAMPLE_DEMOS` deploy list in
+  `studio_mcp/tools.py` so the BrewField arcade shortcut is no longer
+  copied or published.
+- Ran `__deploy_arcade_now.py` (`studio_deploy_arcade`).
+  - Hugo build: 0.
+  - Smart deploy: 142 files uploaded, 661 skipped, 0 deleted.
+  - Arcade verification: `ok`.
+- Live URL: `https://rfditservices.com/arcade/rfdgamestudio/?game=dissonance`
+- Playwright verification captured the live Deck Build, Map, Combat, and
+  Reward screens with the generated art loading from the deployed bundle.
+
+### itch.io
+
+- Standalone build: `npm run build:dissonance` succeeded; 106 SVG assets
+  copied into `dist-dissonance/assets/dissonance/`.
+- Registered Dissonance in the official publishing pipeline:
+  - Added `dissonance` entry to `RFD_IT_Publishing/config/games.yaml`.
+  - Added `dissonance` entry to `RFDGameStudio/ts/src/games/game-metadata.json`.
+- Used the same SlimeWorld publishing route:
+  `python publisher.py deploy dissonance --target itchio` from
+  `C:\Github\RFD_IT_Publishing`.
+  - Butler command: `butler push C:\Github\RFDGameStudio\ts\dist-dissonance rdug627/dissonance-depths:html5`.
+  - Confirmed success; `game-metadata.json` updated to `pipeline_stage: itch_published`.
+- The project page URL is `https://rdug627.itch.io/dissonance-depths`. A live
+  fetch currently returns 404 because visibility is still Draft/Restricted.
+
+### Remaining dashboard-side work (user handoff)
+
+Per the SlimeWorld publish directive, the Visibility flip is **not** done
+autonomously. The user confirmed they will handle the itch.io dashboard
+metadata (Release status, screenshots, AI disclosure, and the Public
+visibility flip) and verify the live page at
+`https://rdug627.itch.io/dissonance-depths`. The build is already live on
+Butler channel `html5` (build #1873500) from the official publisher route.
+
+---
 
 ## SlimeWorld Random Starting Color Foundation — COMPLETED
 

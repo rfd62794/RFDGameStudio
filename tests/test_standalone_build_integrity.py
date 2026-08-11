@@ -66,10 +66,12 @@ if (rootEl) {
 
 
 def list_game_ids() -> list[str]:
-    """Return every game with a real standalone entry.tsx."""
+    """Return every game with both a standalone entry.tsx and a matching Vite config."""
     return sorted(
         d.name for d in STANDALONE_DIR.iterdir()
-        if d.is_dir() and (d / "entry.tsx").exists()
+        if d.is_dir()
+        and (d / "entry.tsx").exists()
+        and (TS_DIR / f"vite.{d.name}.config.ts").exists()
     )
 
 

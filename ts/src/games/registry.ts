@@ -4,7 +4,6 @@ import { slimeworldConfig } from './slimeworld/config';
 import shoalConfig from './shoal/config';
 import voiddriftConfig from './voiddrift/config';
 import corpworldConfig from './corpworld/config';
-import brewfieldConfig from './brewfield/config';
 import { horseRacingConfig } from './horse_racing/config';
 import { slitherRogueConfig } from './slither_rogue/config';
 import { mutantBattleBallConfig } from './mutant_battle_ball/config';
@@ -28,7 +27,6 @@ export const GAME_REGISTRY: GameConfig[] = [
   shoalConfig,
   voiddriftConfig,
   corpworldConfig,
-  brewfieldConfig,
   horseRacingConfig,
   slitherRogueConfig,
   mutantBattleBallConfig,
@@ -51,7 +49,6 @@ export function findGame(gameId: string): GameConfig | undefined {
 }
 
 export const STANDALONE_BUILD_GAMES = [
-  { id: 'brewfield', label: 'Brewfield' },
   { id: 'shoal', label: 'Shoal' },
   { id: 'slimeworld', label: 'SlimeWorld' },
   { id: 'chimera_wilds', label: 'Chimera Wilds' },

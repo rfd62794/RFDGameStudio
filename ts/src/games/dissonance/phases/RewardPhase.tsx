@@ -83,7 +83,25 @@ export default function RewardPhase({ slots, onClaimAll }: RewardPhaseProps) {
                   gap: 'var(--space-2)',
                 }}
               >
-                <Icon style={{ width: '1.5rem', height: '1.5rem', color: 'var(--amber)' }} />
+                {slot.kind === 'card' && slot.cardId && (
+                  <img
+                    src={`assets/dissonance/cards/${slot.cardId}.svg`}
+                    alt=""
+                    loading="lazy"
+                    style={{ width: '100%', height: '3.5rem', objectFit: 'contain' }}
+                  />
+                )}
+                {slot.kind === 'relic' && slot.relicId && (
+                  <img
+                    src={`assets/dissonance/relics/${slot.relicId}.svg`}
+                    alt=""
+                    loading="lazy"
+                    style={{ width: '3.5rem', height: '3.5rem', objectFit: 'contain' }}
+                  />
+                )}
+                {slot.kind !== 'card' && slot.kind !== 'relic' && (
+                  <Icon style={{ width: '1.5rem', height: '1.5rem', color: 'var(--amber)' }} />
+                )}
                 <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--text)' }}>
                   {slotLabel(slot)}
                 </span>

@@ -76,12 +76,12 @@ local function has_id(list, id)
   return false
 end
 
-function generate_fixed_reward(max_hp, owned_card_ids, held_boon_ids, held_relic_ids, enemy_tier, data)
+function generate_fixed_reward(max_hp, owned_card_ids, held_boon_ids, held_relic_ids, enemy_tier, data, bias_relation)
   owned_card_ids = ensure_collect(owned_card_ids)
   held_boon_ids = ensure_collect(held_boon_ids)
   held_relic_ids = ensure_collect(held_relic_ids)
 
-  local target_relation = RELATION_BY_TIER[enemy_tier] or "single"
+  local target_relation = bias_relation or RELATION_BY_TIER[enemy_tier] or "single"
   local all_cards = card_pool_from_data(data)
   local card_pool = filter_pool(all_cards, function(c)
     return c.relationType == target_relation and not has_id(owned_card_ids, c.id)

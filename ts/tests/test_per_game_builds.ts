@@ -23,7 +23,6 @@ function jsContent(game: string) {
 }
 
 const GAMES = [
-  'brewfield',
   'shoal',
   'slimeworld',
   'chimera_wilds',
@@ -33,13 +32,6 @@ const GAMES = [
 ];
 
 describe('Per-game standalone builds', () => {
-  it('test_brewfield_standalone_build_produces_output', () => {
-    expect(existsSync(resolve(dist('brewfield'), 'index.html'))).toBe(true);
-    const a = assets('brewfield');
-    expect(a.some((f) => f.endsWith('.js'))).toBe(true);
-    expect(a.some((f) => f.endsWith('.css'))).toBe(true);
-  });
-
   it('test_shoal_standalone_build_produces_output', () => {
     expect(existsSync(resolve(dist('shoal'), 'index.html'))).toBe(true);
     const a = assets('shoal');
@@ -52,13 +44,6 @@ describe('Per-game standalone builds', () => {
     const a = assets('slimeworld');
     expect(a.some((f) => f.endsWith('.js'))).toBe(true);
     expect(a.some((f) => f.endsWith('.css'))).toBe(true);
-  });
-
-  it('test_brewfield_build_excludes_other_games_code', () => {
-    const js = jsContent('brewfield');
-    expect(js).not.toContain('compute_fish_forces');
-    expect(js).not.toContain('create_seed_slime');
-    expect(js).not.toContain('spawn_fruit');
   });
 
   it('test_shoal_build_excludes_other_games_code', () => {

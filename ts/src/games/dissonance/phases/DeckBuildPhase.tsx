@@ -99,6 +99,12 @@ export default function DeckBuildPhase({ unlockedCardIds, cardPool, deckSize, on
                     }}
                   />
                 )}
+                <img
+                  src={`assets/dissonance/cards/${id}.svg`}
+                  alt=""
+                  loading="lazy"
+                  style={{ width: '100%', height: '4.5rem', objectFit: 'contain', opacity: 0.95 }}
+                />
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',

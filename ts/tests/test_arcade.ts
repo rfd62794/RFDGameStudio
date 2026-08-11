@@ -102,11 +102,9 @@ describe('Arcade Registry', () => {
     expect(config?.gameId).toBe('scrapcrawl');
   });
 
-  it('test_brewfield_in_registry', () => {
+  it('test_brewfield_not_in_registry', () => {
     const config = findGame('brewfield');
-    expect(config).toBeDefined();
-    expect(config?.gameId).toBe('brewfield');
-    expect(config?.status).toBe('stable');
+    expect(config).toBeUndefined();
   });
 
   it('test_scrapcrawl_config_lazy_loads_app', () => {
