@@ -159,6 +159,14 @@ Eight proven primitives extracted from prior projects. Each game implements the 
 
 ---
 
+## Publishing
+
+Deploying a game to itch.io is owned by a sibling repo, `RFD_IT_Publishing`
+— see [`docs/PUBLISHING.md`](docs/PUBLISHING.md) for the interface contract
+and `scripts/publish.py` for the validate-then-point entry command.
+
+---
+
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
