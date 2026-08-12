@@ -35,6 +35,16 @@ GAME_PATHS: dict[str, list[str]] = {
     "shoal": ["games/shoal", "ts/src/games/shoal"],
     "trinity_siege": ["examples/trinity-siege"],
     "slimebreeder": [],  # external repo, see _EXTERNAL_REPOS
+    # Added: these 7 are real GAME_REGISTRY entries (see ts/src/games/registry.ts)
+    # that were never given a GAME_PATHS entry, so they silently never appeared
+    # in game-metadata.json at all (not tracked=false -- just absent).
+    "dissonance": ["games/dissonance", "ts/src/games/dissonance"],
+    "slimeworld": ["games/slimeworld", "ts/src/games/slimeworld", "examples/slimeworld"],
+    "corpworld": ["ts/src/games/corpworld", "examples/corpworld"],
+    "7_days_to_fry": ["ts/src/games/7_days_to_fry", "examples/7-days-to-fry"],
+    "kingmaker_squads": ["ts/src/games/kingmaker_squads", "examples/kingmaker-squads"],
+    "antsim_redux": ["ts/src/games/antsim_redux", "examples/antsim-redux"],
+    "facility_escape": ["ts/src/games/facility_escape", "examples/facility-escape"],
 }
 
 
