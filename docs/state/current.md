@@ -2,6 +2,106 @@
 
 *Last updated: August 11 2026*
 
+## PlanetOfGreed — Phase 2: Rank, Population Balance & Displacement — COMPLETED
+
+**Directive:** Implement Rank as Territory + Population Balance (not
+territory alone), wired into CorpWorld's already-existing Boardroom Events
+plus a new, real Civic Unrest focus, with targeted displacement triggered
+off real Monthly Combat results. AI decision-logic upgrades and in-play
+culture stat modifiers remain explicitly out of scope, still open questions.
+
+### What was built (`examples/planetofgreed/src/`; CorpWorld and Phase 1's
+`mapGenerator.ts`/`combat.ts` untouched)
+
+- **`types.ts`**: added `Corporation.rank: number` (required — only App.tsx
+  constructs `Corporation` objects, so no read-only conflict). Added
+  `MapCell.publicOpinion?: number` — **optional at the type level only**,
+  because `mapGenerator.ts` is read-only this phase and its cell literals
+  don't set this field; App.tsx's `initializeNewGame` normalizes every real
+  cell to a concrete `50` immediately after map generation, so real game
+  state never actually has it undefined. Extended the civic focus union
+  from `'production' | 'defense'` (with `'unrest'` explicitly commented
+  "future phase, do not implement") to the real
+  `'production' | 'defense' | 'unrest'`.
+- **`App.tsx`**: added `applyPublicOpinionOffset` (clamped 0-100, adapted
+  from Kingmaker's `loyaltyLogic.ts:74-81` formula only, not its
+  `DefenseForce`/threat scaffolding, per the merge audit's verdict (b)) and
+  `computeRank` (territory × 10 + avg Population Balance, per the
+  directive's placeholder weighting), mutating corp objects in place —
+  matching this file's existing mutation convention, not a new pattern.
+  Wired a real `publicOpinionOffset` into all 11 choices across the 4
+  real, already-coded `EVENTS_TEMPLATES` (no new events invented), handled
+  in `handleSelectChoice` the same way `treasuryOffset`/`fortificationOffset`
+  already are. Added the `'unrest'` civic order's $10k cost (matching the
+  existing Defense pattern) and its effect (+8 Population Balance).
+  Rank recomputed at both real, distinct trigger points: full recompute
+  whenever the Annual Report is about to show (`advanceDay`'s year-tick
+  and elimination paths, plus `handleConcludeCombats`' campaign-over path),
+  and an immediate, targeted recompute in `handleConcludeCombats` — but
+  only when a real displacement actually occurred (victor's *current* rank
+  is exactly the defeated corp's rank + 1), logged explicitly
+  (`"House {X} displaces House {Y} — Rank {N} claimed by force."`), not on
+  every combat.
+- **`components/WeeklyOrdersPanel.tsx`** (not in the directive's scope
+  table, but necessary): CorpWorld's own UI already had a `disabled`
+  placeholder third civic button explicitly commented "Population Unrest
+  Focus - Commented/Disabled Placeholder (Future Phase)". Without enabling
+  it, Civic Unrest would have been unreachable from real gameplay and the
+  "real order issued" verification anchor couldn't have been satisfied.
+  Enabled it, matching the existing Production/Defense button pattern
+  exactly (same cost-check structure, same order-construction path).
+- **`components/AnnualReportView.tsx`**: now displays real `corp.rank`
+  (the scoreboard sorts by it directly, not a locally re-derived
+  territory/treasury sort) and each corp's average Population Balance.
+  Also fixed adjacent, now-stale hardcodes left over from Phase 1 (which
+  didn't touch this file): "of 5" / "FIVE RIVAL CONGLOMERATES" (now 6
+  corps) and hardcoded "Vanguard Conglomerate"/cyan-highlight text (now
+  the player's culture is selectable, name and color are dynamic).
+
+### Verification
+
+- **Stop-rule check before starting**: `tsc --noEmit` clean, `combat.ts`
+  confirmed still byte-identical to CorpWorld's original, CorpWorld's own
+  `git status` clean — all confirmed before any file was touched.
+- **Anchor 1 — `publicOpinion` defaults**: real `generateVoronoiMap` run,
+  all 36 cells (including all 6 capitals) confirmed at exactly 50 after
+  App.tsx's normalization step.
+- **Anchor 2 — clamping**: 50-10=40, 40-1000 clamped to 0, 0+1000 clamped
+  to 100 — confirmed via the real `applyPublicOpinionOffset` logic.
+- **Anchor 3 — `computeRank` by hand-calculation**: 3-corp test case
+  (A: 3 cells/avg 60 → score 90; B: 2 cells/avg 90 → score 110; C: 5
+  cells/avg 10 → score 60) — confirmed B ranks 1st despite the least
+  territory, matching the hand-calculated formula exactly.
+- **Anchor 4 — displacement adjacency**: confirmed fires only when
+  victor's rank is exactly defeated's rank + 1; confirmed it does NOT fire
+  for a 2-rank gap or when the victor was already ahead.
+- **Anchor 5 — event wiring**: all 11 choices across the 4 real events
+  carry the exact `publicOpinionOffset` values from the directive's table
+  (including the explicit `0`s), wired through the same code path as the
+  existing offsets.
+- `tsc --noEmit`: clean. `npm run build`: succeeded (2084 modules, ~7s).
+- **`mapGenerator.ts`/`combat.ts` genuinely untouched**: file hash/diff
+  confirms only `types.ts`, `App.tsx`, `WeeklyOrdersPanel.tsx`, and
+  `AnnualReportView.tsx` differ from Phase 1's/CorpWorld's certified state;
+  `mapGenerator.ts` still contains Phase 1's exact hybrid algorithm
+  (`ANGLE_SPREAD_WEIGHT`, `bestWheelAssignment`, unchanged);
+  `combat.ts`'s on-disk timestamp confirms it's never been touched since
+  the original fork.
+- Grep for any `cultureId`-keyed combat/production/treasury modifier:
+  still empty (only identity/naming/UI references) — no in-play culture
+  stat modifier introduced this phase either.
+- CorpWorld confirmed completely unaffected throughout (`git status`
+  clean, both before and after).
+
+### Still open, not resolved this phase
+
+AI decision-logic upgrade (`generateAIWeeklyOrders` remains pure-random,
+zero rival-awareness, per the merge audit) and in-play culture stat
+modifiers — both explicitly named as real, separate, unresolved design
+questions, not silently decided by this phase.
+
+---
+
 ## PlanetOfGreed — Phase 1: Culture Corporations & Wheel Placement — COMPLETED
 
 **Directive:** Expand the Phase 0 fork (`examples/planetofgreed/`) from
