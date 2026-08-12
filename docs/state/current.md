@@ -1,6 +1,70 @@
 # RFDGameStudio — Project State
 
-*Last updated: August 6 2026*
+*Last updated: August 11 2026*
+
+## PlanetOfGreed — Phase 0: Fork & Scaffold — COMPLETED
+
+**Directive:** Fork CorpWorld's real source into a new, independent
+`examples/planetofgreed/` directory, prove it builds and plays identically
+to CorpWorld with zero functional changes, before Phase 1 (six culture
+corps, wheel placement, Ember/Tundra rivalry — already directive-scoped)
+touches anything.
+
+### What was built
+
+- **`examples/planetofgreed/`** — new standalone Vite/React app, forked from
+  `examples/corpworld/`. `src/` (App.tsx, types.ts, utils/mapGenerator.ts,
+  utils/combat.ts, all 7 components) copied verbatim — confirmed
+  byte-identical to the CorpWorld source via SHA256 hash comparison on every
+  file, not just a mechanical copy assumed correct.
+- **Build config**: `package.json`, `tsconfig.json`, `index.html`,
+  `metadata.json`, `.env.example`, `.gitignore`, `README.md`, `VERSION`
+  copied unmodified (confirmed via reading CorpWorld's real
+  `vite.config.ts`/`package.json` first, not inferred from pattern-matching
+  other games). The one required change: `vite.config.ts`'s `base` updated
+  from `/arcade/corpworld/` to `/arcade/planetofgreed/`, since the fork must
+  serve independently — a build-path change, not a functional or content
+  change. `node_modules`/`dist` excluded from the copy; dependencies
+  installed fresh (`npm install`, 214 packages, 0 vulnerabilities).
+- **Registration explicitly deferred, not skipped.** Per this phase's own
+  rule (Dissonance and SlimeWorld both shipped without ever being added to
+  `studio_mcp/game_metadata.py`'s `GAME_PATHS` — a confirmed real failure
+  mode), `ts/src/games/registry.ts` and `GAME_PATHS` were **not** touched
+  this phase. Confirmed zero new entries in either file at completion.
+
+### Verification
+
+- **CorpWorld's pre-fork state confirmed directly**, not assumed: `git
+  status` inside `examples/corpworld` reported a clean tree before any file
+  was copied.
+- **Real build mechanism confirmed by reading**, not inferred: each
+  `examples/{game}` directory is an independent Vite/React app with its own
+  `vite.config.ts` (`base: '/arcade/{slug}/'`); `studio_mcp/tools.py`'s
+  `_EXAMPLE_DEMOS`/`_DEMO_SOURCE_PATHS`/`_DEMO_STATIC_NAME` is the real
+  mechanism that later copies a built `dist/` into the arcade site — read
+  directly before assuming PlanetOfGreed's config, not pattern-matched.
+- `tsc --noEmit`: **clean**, matching CorpWorld's own baseline (also
+  re-verified clean in this pass).
+- `npm run build`: **succeeded** (2084 modules transformed, 14.6s).
+- **Live playable loop confirmed**, not assumed from a clean build: booted
+  to the (unchanged, Phase-1-deferred) "BOOTING CORPWORLD EXECUTIVE
+  TERMINAL" screen, a full Weekly Planning Phase was authorized, at least
+  one Boardroom Event resolved, and at least one Monthly Combat resolved —
+  all confirmed live in-browser.
+- **CorpWorld confirmed completely untouched** at completion: `git status`
+  inside `examples/corpworld` still clean, zero diff.
+- Both `examples/corpworld/` and `examples/planetofgreed/` fall under the
+  repo's existing `examples/*` `.gitignore` rule (pre-port scratch space,
+  untracked by design, matching every other non-`ledger`/`shoal`/
+  `trinity-siege` example) — not a special case introduced by this phase.
+
+### Explicitly not done this phase
+
+No culture corps, no wheel placement, no Ember/Tundra rivalry, no Rank, no
+registry/`GAME_PATHS` registration. All of that is Phase 1
+(`PlanetOfGreed_Phase1_Directive.md`), not yet started.
+
+---
 
 ## Dissonance Depths — BrewField Migration + Stub Phase Buildout — COMPLETED
 
