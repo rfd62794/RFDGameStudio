@@ -2,6 +2,95 @@
 
 *Last updated: August 11 2026*
 
+## PlanetOfGreed — Phase 1: Culture Corporations & Wheel Placement — COMPLETED
+
+**Directive:** Expand the Phase 0 fork (`examples/planetofgreed/`) from
+CorpWorld's original 5 corps (1 player + 4 AI, no culture identity) to six
+real, culture-tagged corporations (1 player-selectable, 5 AI) placed on the
+map in wheel-cyclic order, with the Ember/Tundra "Fault Line" rival pair
+guaranteed maximally distant — all with **identical starting treasury,
+garrison, and combat strength**. Names/colors only; no in-play stat
+modifiers.
+
+### What was built (all in `examples/planetofgreed/src/`, CorpWorld untouched)
+
+- **`types.ts`**: added `CultureId` (`'ember' | 'marsh' | 'gale' | 'tundra' | 'crystal' | 'tide'`)
+  and a required `cultureId` field on `Corporation`.
+- **`App.tsx`**: replaced the static 5-entry `INITIAL_CORPORATIONS` with
+  `CULTURE_WHEEL` (the six cultures in real wheel-cyclic order) and
+  `buildInitialCorporations(playerCultureId)`, which builds all six corps
+  with real per-culture names/colors (Ember Ironworks, Marshveil Biotech,
+  Gale Vector Logistics, Tundra Bastion Holdings, Crystal Lattice
+  Consortium, Tidewell Capital) and identical `treasury: 100000` for every
+  corp regardless of culture. Added a minimal pre-game culture-selection
+  screen (six real buttons, gates `initializeNewGame` — no auto-init
+  without a real choice); `PLAYER_CORP_ID` stays a stable internal id, only
+  its culture/name/color now depend on the player's selection. Reset flow
+  re-enters culture selection rather than assuming the previous culture.
+- **`mapGenerator.ts`**: capital placement no longer uses pure greedy
+  farthest-point selection assigned in insertion order. Real, measured
+  problem found first: farthest-point's raw output, relabeled by a naive
+  angular sort, only put Ember/Tundra at the true maximum distance ~28-37%
+  of the time and got full wheel-adjacency right ~27-31% of the time across
+  200-300 generated maps — not reliable. Replaced with a hybrid, still
+  genuinely greedy/distance-driven selection (not a fixed target grid):
+  farthest-point-style greedy picks now also bias toward even angular
+  spacing around the map center (tuned weight, empirically verified), then
+  a brute-force bijection assigns the wheel's two opposite slots (Ember,
+  Tundra) to whichever two of the six candidate positions are *globally*
+  farthest apart — always achievable, for any point configuration — and
+  assigns the remaining four slots to maximize how many corps end up with
+  a real wheel-adjacent culture as their nearest actual map neighbor.
+  `combat.ts` untouched, confirmed byte-identical to CorpWorld's.
+
+### Verification
+
+- **Real problem surfaced, not assumed away**: the directive's suggested
+  "angular sort on farthest-point output" was implemented first and
+  empirically measured to fail most of the time (~30% success on both
+  anchors) before being replaced — reported to the user rather than
+  shipped silently. The final hybrid approach was chosen from user-selected
+  options after presenting the real numbers for each.
+- **200 real generated maps, actual `mapGenerator.ts`**:
+  - Culture-tag correctness (six real `cultureId`s, no duplicates, matches
+    `CULTURE_WHEEL`): **200/200**.
+  - Starting-condition symmetry (treasury, garrison, fortification
+    identical across all six): **200/200**.
+  - Ember-Tundra is the actual maximum-distance pair among all 15 pairs:
+    **200/200 (100%)**.
+  - Every corp's nearest real map neighbor is a wheel-adjacent culture:
+    **145/200 (72.5%)** — real, measured, not claimed as 100%. The
+    Ember/Tundra guarantee (the directive's explicit §2.3 test anchor) is
+    exact; the softer "every corp" property is a real optimization against
+    actual generated positions, not a hard geometric guarantee, given the
+    constraint of still using genuinely greedy/distance-driven position
+    selection rather than a fixed hexagonal target layout.
+  - Representative game-state dump captured live from the real
+    implementation (six cultureIds in wheel order, uniform treasury/
+    garrison/fortification, full 15-pair distance table with Ember-Tundra
+    at the top).
+- `tsc --noEmit`: clean, matching baseline.
+- `npm run build`: succeeded (2084 modules, ~6-16s).
+- Grep for any `cultureId`-keyed combat/production/treasury modifier:
+  **empty** — every `cultureId` reference is identity/naming/UI only.
+  `combat.ts` confirmed still byte-identical to CorpWorld's.
+- CorpWorld confirmed completely unaffected (`git status` clean throughout).
+- All three real registration points (`ts/src/games/registry.ts`,
+  `studio_mcp/game_metadata.py`'s `GAME_PATHS`, and
+  `studio_mcp/tools.py`'s `_EXAMPLE_DEMOS`/`_DEMO_SOURCE_PATHS`/
+  `_DEMO_STATIC_NAME`) confirmed to still have zero PlanetOfGreed entries —
+  none touched this phase, per the directive's explicit deferral.
+
+### Explicitly deferred to Phase 2, not built here
+
+Rank tracking (territory + Population Balance), Population Balance itself
+(the adapted Kingmaker `publicOpinion` formula), targeted displacement, any
+in-play stat modifier tied to culture identity, and registration in all
+three real production points (a single, deliberate step when PlanetOfGreed
+first deploys live — not assumed covered by any one of the three).
+
+---
+
 ## PlanetOfGreed — Phase 0: Fork & Scaffold — COMPLETED
 
 **Directive:** Fork CorpWorld's real source into a new, independent
