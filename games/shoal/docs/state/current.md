@@ -125,3 +125,121 @@ performance phase, out of scope for this rendering-layer directive.
 - `test_hunger_visual_mapping_monotonic` — monotonic scale/angularity
 - `test_fps_improved_or_unchanged` — profiler + docs + cache wiring
 - `test_no_regression_to_existing_floor` — prior phase intact + Lua state
+
+---
+
+## Spatial-Hash Optimisation — COMPLETED (August 13 2026)
+
+*Traces to the Deep Investigation report (Part A.2, A.5). The three
+unpartitioned O(n²) loops that dominated tick time were routed through
+the existing spatial hash.*
+
+### What was changed
+
+Three loops that did full unpartitioned scans were converted to
+`get_nearby`-via-spatial-hash lookups, using the same pattern already
+proven for fish-algae seeking and fish-fish boids:
+
+1. **Fish-flee-shark** (`steering.lua` `compute_fish_forces`): replaced
+   full scan of `st.sharks` with `get_nearby(hash, bx, by, "shark", ...)`
+   using `cfg.perception.shark` (190px → bx_range=2, by_range=3).
+2. **Shark-seek-fish** (`steering.lua` `compute_shark_forces`): replaced
+   full scan of `st.fish` with `get_nearby(hash, sbx, sby, "fish", ...)`
+   using `cfg.perception.fish` (220px → bx_range=2, by_range=3).
+3. **Shark-hunting** (`logic.lua` `update_discrete_events`): replaced
+   full scan of `st.fish` with `get_nearby(st.spatial_hash, sbx, sby,
+   "fish", ...)` using touch radius (12px → range=1).
+
+**World-wrapping fix:** `get_nearby` was extended with optional
+`wrap_bx`/`wrap_by` parameters. When provided, bucket indices are
+wrapped via modulo. This is needed for the seek and hunting loops
+because fish may cross the world x-axis boundary during
+`update_creatures` (fish are processed before sharks; the hunting loop
+runs after all creatures have moved), leaving them in a stale bucket on
+the opposite side of the hash. Without wrapping, a shark at x=15 would
+miss a fish that wrapped from x=1199 to x=11 — a real correctness gap
+confirmed by debug instrumentation. The flee loop does not need
+wrapping (both fish and sharks are at pre-move positions when it runs).
+Existing callers are unaffected (wrap parameters default to nil).
+
+**Nil-guard:** The hunting loop falls back to a full scan when
+`st.spatial_hash` is nil, for tests that call `update_discrete_events`
+directly with a hand-crafted state table.
+
+### Real before/after numbers
+
+**Pairwise check reduction (runtime-independent, structurally real):**
+
+| Scenario | Old (full scan) | New (hash) | Reduction |
+|---|---|---|---|
+| Default (60 fish, 8 sharks) | 1440/tick | 361/tick | **74.9%** |
+| High load (83 fish, 19 sharks) | 4512/tick | 1120/tick | **75.2%** |
+
+Per-loop breakdown (default, last sample):
+- flee: 480 → 185 | seek: 480 → 206 | hunt: 480 → 73
+
+**Tick time (Lua `os.clock`, lupa/Python runtime — excludes bridge overhead):**
+
+| Entity counts | Old (ms/tick) | New (ms/tick) | Change |
+|---|---|---|---|
+| 60 fish, 8 sharks (default) | 1.615 | 2.165 | +34% (slower) |
+| 83 fish, 19 sharks (high) | 2.255 | 2.695 | +18% (slower) |
+| 150 fish, 20 sharks | 4.450 | 5.100 | +15% (slower) |
+| 200 fish, 30 sharks | 6.620 | 7.240 | +9% (slower) |
+| 300 fish, 40 sharks | 10.255 | 12.590 | +23% (slower) |
+
+**Tick time did NOT improve in lupa/Python.** The `get_nearby` function's
+overhead (string key construction `kx..","..ky` per bucket, table
+allocation per call, bucket iteration) exceeds the savings from the 75%
+distance-check reduction at these entity counts. At 60 fish + 8 sharks,
+the old code does 1440 distance checks; the new code does ~2452 bucket
+lookups (each constructing a string key) + 361 distance checks = ~2813
+total operations — more total work, not less.
+
+**Important runtime context:** The production runtime is fengari
+(Lua-in-JavaScript in the browser), where the investigation measured
+64ms (default) and 106ms (high load). Lupa (Lua-in-Python) is 30-40×
+faster than fengari. In fengari, each Lua operation (including
+`dist2` distance checks) is likely more expensive relative to hash
+table lookups, so the 75% check reduction may translate to a meaningful
+tick-time improvement. **This cannot be verified from lupa
+measurements** — a fengari/browser measurement is needed to confirm the
+production impact. Per the directive: "If tick time does NOT improve
+meaningfully, that's a real finding to report as-is."
+
+### Correctness verification
+
+Eight equivalence tests verify that the hash-based lookups produce
+identical results to full scans, across 5 seeded layouts × 30 ticks
+each (150 tick-checks per test), plus a dedicated world-boundary
+wrapping test:
+
+- `test_fish_flee_shark_hash_matches_scan` — 0 mismatches across 150 checks
+- `test_shark_seek_fish_hash_matches_scan` — 0 mismatches across 150 checks
+- `test_shark_hunt_hash_matches_scan` — 0 mismatches across 150 checks
+- `test_hunt_equivalence_at_world_boundary` — 0 mismatches (wrapping edge case)
+- `test_pairwise_checks_reduced` — 75% reduction confirmed
+- `test_tick_time_improved` — hash active, checks reduced (tick time caveat above)
+- `test_tick_time_at_high_load` — hash active at high load
+- `test_fish_hunger_unaffected` — hunger field present, accumulating, exported
+
+### Fish hunger status
+
+The approved fish hunger field (`entities.lua:28`, `logic.lua:120/281/459`)
+is confirmed untouched by this directive. The `test_fish_hunger_unaffected`
+test verifies hunger accumulates over time and appears in the render state.
+
+### Files touched
+
+- `games/shoal/steering.lua` — flee + seek loops converted to hash; bucket
+  coords computed once and shared between seek and avoid sections
+- `games/shoal/logic.lua` — hunting loop converted to hash; `get_nearby`
+  extended with optional wrap parameters; test helper functions added
+- `tests/test_shoal.py` — 8 new test anchors
+
+### Test floor
+
+- Shoal suite: 111 passed, 0 failed (103 original + 8 new)
+- Full repo suite: 585 passed, 1 failed (pre-existing slimeworld E2E
+  failure `test_slimeworld_first_breed_to_missions_unlock`, unrelated to
+  Shoal, present before this change)

@@ -95,13 +95,16 @@ function rebuild_spatial_hash(st)
     st.spatial_hash = hash
 end
 
-function get_nearby(hash, bx, by, type, bx_range, by_range)
+function get_nearby(hash, bx, by, type, bx_range, by_range, wrap_bx, wrap_by)
     bx_range = bx_range or 1
     by_range = by_range or 1
     local list = {}
     for dx = -bx_range, bx_range do
         for dy = -by_range, by_range do
-            local k = (bx + dx) .. "," .. (by + dy)
+            local kx, ky = bx + dx, by + dy
+            if wrap_bx then kx = kx % wrap_bx end
+            if wrap_by then ky = ky % wrap_by end
+            local k = kx .. "," .. ky
             if hash[type][k] then
                 for _, ent in ipairs(hash[type][k]) do
                     table.insert(list, ent)
@@ -300,9 +303,27 @@ function update_discrete_events(st, dt)
         if not s.alive then goto next_shark end
         local ate = false
 
-        -- find nearest overlapping fish
+        -- find nearest overlapping fish (via spatial hash — same pattern as
+        -- fish grazing above; the touch radius is small relative to bucket
+        -- size so a 1-bucket range is always sufficient.  Bucket indices are
+        -- wrapped on the x-axis because fish may have crossed the world
+        -- boundary during update_creatures, leaving them in a stale bucket
+        -- on the opposite side — without wrapping the shark would miss a
+        -- touching fish that wrapped.)
         local nearest_fish, nearest_fish_d2 = nil, nil
-        for _, f in ipairs(st.fish) do
+        local nearby_fish
+        if st.spatial_hash and st.spatial_hash.fish then
+            local sbx = math.floor(s.x / bw) % math.ceil(st.world.width / bw)
+            local sby = math.floor(s.depth / bd) % math.ceil(st.world.height / bd)
+            local max_touch = s.radius + data.creatures.fish.radius
+            local fbx_range = math.ceil(max_touch / bw)
+            local fby_range = math.ceil(max_touch / bd)
+            local num_bx = math.ceil(st.world.width / bw)
+            nearby_fish = get_nearby(st.spatial_hash, sbx, sby, "fish", fbx_range, fby_range, num_bx)
+        else
+            nearby_fish = st.fish
+        end
+        for _, f in ipairs(nearby_fish) do
             if f.alive then
                 local d2 = dist2(s.x, s.depth, f.x, f.depth)
                 local touch_radius = s.radius + f.radius
@@ -528,4 +549,206 @@ function get_diagnostics()
     local st = GAME_STATE
     st.diagnostics = st.diagnostics or { meals = {}, deaths = {} }
     return st.diagnostics
+end
+
+-- Test helpers: verify hash-based lookups match full-scan results.
+-- These compare the spatial-hash lookup (which may use stale bucket
+-- positions after creatures have moved) against a brute-force full scan
+-- using current entity positions.  The distance check in both paths uses
+-- the entity objects' current x/depth fields, so the only difference is
+-- which entities are *considered* (bucket membership vs. full list).
+
+function _test_flee_equivalence()
+    local st = GAME_STATE
+    if not st or not st.spatial_hash then return { error = "no spatial hash" } end
+    local data = st.data
+    local hash = st.spatial_hash
+    local bw = data.spatial_hash.bucket_width
+    local bd = data.spatial_hash.bucket_depth
+    local cfg = data.creatures.fish
+    local num_bx = math.ceil(st.world.width / bw)
+    local num_by = math.ceil(st.world.height / bd)
+    local perception_sq = cfg.perception.shark * cfg.perception.shark
+    local mismatches = {}
+    for i, f in ipairs(st.fish) do
+        if f.alive then
+            local bx = math.floor(f.x / bw) % num_bx
+            local by = math.floor(f.depth / bd) % num_by
+            local bx_r = math.ceil(cfg.perception.shark / bw)
+            local by_r = math.ceil(cfg.perception.shark / bd)
+            local nearby = get_nearby(hash, bx, by, "shark", bx_r, by_r, num_bx)
+            local h_id, h_d2 = nil, perception_sq
+            for _, s in ipairs(nearby) do
+                if s.alive then
+                    local d2 = dist2(f.x, f.depth, s.x, s.depth)
+                    if d2 < h_d2 then h_d2 = d2; h_id = s.id end
+                end
+            end
+            local s_id, s_d2 = nil, perception_sq
+            for _, s in ipairs(st.sharks) do
+                if s.alive then
+                    local d2 = dist2(f.x, f.depth, s.x, s.depth)
+                    if d2 < s_d2 then s_d2 = d2; s_id = s.id end
+                end
+            end
+            if (h_id == nil) ~= (s_id == nil) then
+                mismatches[#mismatches + 1] = { kind = "miss", fish = i, hash_id = h_id, scan_id = s_id }
+            elseif h_id and s_id and h_id ~= s_id then
+                mismatches[#mismatches + 1] = { kind = "tie", fish = i, hash_id = h_id, scan_id = s_id, hash_d2 = h_d2, scan_d2 = s_d2 }
+            end
+        end
+    end
+    return { mismatches = mismatches, fish_checked = count_alive(st.fish) }
+end
+
+function _test_seek_equivalence()
+    local st = GAME_STATE
+    if not st or not st.spatial_hash then return { error = "no spatial hash" } end
+    local data = st.data
+    local hash = st.spatial_hash
+    local bw = data.spatial_hash.bucket_width
+    local bd = data.spatial_hash.bucket_depth
+    local cfg = data.creatures.shark
+    local num_bx = math.ceil(st.world.width / bw)
+    local num_by = math.ceil(st.world.height / bd)
+    local perception_sq = cfg.perception.fish * cfg.perception.fish
+    local mismatches = {}
+    for i, s in ipairs(st.sharks) do
+        if s.alive then
+            local bx = math.floor(s.x / bw) % num_bx
+            local by = math.floor(s.depth / bd) % num_by
+            local bx_r = math.ceil(cfg.perception.fish / bw)
+            local by_r = math.ceil(cfg.perception.fish / bd)
+            local nearby = get_nearby(hash, bx, by, "fish", bx_r, by_r, num_bx)
+            local h_id, h_d2 = nil, perception_sq
+            for _, f in ipairs(nearby) do
+                if f.alive then
+                    local d2 = dist2(s.x, s.depth, f.x, f.depth)
+                    if d2 < h_d2 then h_d2 = d2; h_id = f.id end
+                end
+            end
+            local s_id, s_d2 = nil, perception_sq
+            for _, f in ipairs(st.fish) do
+                if f.alive then
+                    local d2 = dist2(s.x, s.depth, f.x, f.depth)
+                    if d2 < s_d2 then s_d2 = d2; s_id = f.id end
+                end
+            end
+            if (h_id == nil) ~= (s_id == nil) then
+                mismatches[#mismatches + 1] = { kind = "miss", shark = i, hash_id = h_id, scan_id = s_id }
+            elseif h_id and s_id and h_id ~= s_id then
+                mismatches[#mismatches + 1] = { kind = "tie", shark = i, hash_id = h_id, scan_id = s_id, hash_d2 = h_d2, scan_d2 = s_d2 }
+            end
+        end
+    end
+    return { mismatches = mismatches, sharks_checked = count_alive(st.sharks) }
+end
+
+function _test_hunt_equivalence()
+    local st = GAME_STATE
+    if not st or not st.spatial_hash then return { error = "no spatial hash" } end
+    local data = st.data
+    local hash = st.spatial_hash
+    local bw = data.spatial_hash.bucket_width
+    local bd = data.spatial_hash.bucket_depth
+    local fish_radius = data.creatures.fish.radius
+    local num_bx = math.ceil(st.world.width / bw)
+    local num_by = math.ceil(st.world.height / bd)
+    local mismatches = {}
+    for i, s in ipairs(st.sharks) do
+        if s.alive then
+            local bx = math.floor(s.x / bw) % num_bx
+            local by = math.floor(s.depth / bd) % num_by
+            local max_touch = s.radius + fish_radius
+            local bx_r = math.ceil(max_touch / bw)
+            local by_r = math.ceil(max_touch / bd)
+            local nearby = get_nearby(hash, bx, by, "fish", bx_r, by_r, num_bx)
+            local h_id, h_d2 = nil, nil
+            for _, f in ipairs(nearby) do
+                if f.alive then
+                    local d2 = dist2(s.x, s.depth, f.x, f.depth)
+                    local tr = s.radius + f.radius
+                    if d2 <= tr * tr then
+                        if not h_d2 or d2 < h_d2 then h_d2 = d2; h_id = f.id end
+                    end
+                end
+            end
+            local s_id, s_d2 = nil, nil
+            for _, f in ipairs(st.fish) do
+                if f.alive then
+                    local d2 = dist2(s.x, s.depth, f.x, f.depth)
+                    local tr = s.radius + f.radius
+                    if d2 <= tr * tr then
+                        if not s_d2 or d2 < s_d2 then s_d2 = d2; s_id = f.id end
+                    end
+                end
+            end
+            if (h_id == nil) ~= (s_id == nil) then
+                mismatches[#mismatches + 1] = { kind = "miss", shark = i, hash_id = h_id, scan_id = s_id }
+            elseif h_id and s_id and h_id ~= s_id then
+                mismatches[#mismatches + 1] = { kind = "tie", shark = i, hash_id = h_id, scan_id = s_id, hash_d2 = h_d2, scan_d2 = s_d2 }
+            end
+        end
+    end
+    return { mismatches = mismatches, sharks_checked = count_alive(st.sharks) }
+end
+
+-- Count pairwise checks per tick for the three converted loops (hash-based)
+-- vs. what a full scan would have done.  Returns counts for a single
+-- "measurement" call — the test resets, ticks, then calls this.
+function _test_count_pairwise_hash()
+    local st = GAME_STATE
+    if not st or not st.spatial_hash then return { error = "no spatial hash" } end
+    local data = st.data
+    local hash = st.spatial_hash
+    local bw = data.spatial_hash.bucket_width
+    local bd = data.spatial_hash.bucket_depth
+    local fcfg = data.creatures.fish
+    local scfg = data.creatures.shark
+    local num_bx = math.ceil(st.world.width / bw)
+    local num_by = math.ceil(st.world.height / bd)
+    local flee_checks, seek_checks, hunt_checks = 0, 0, 0
+    for _, f in ipairs(st.fish) do
+        if f.alive then
+            local bx = math.floor(f.x / bw) % num_bx
+            local by = math.floor(f.depth / bd) % num_by
+            local bx_r = math.ceil(fcfg.perception.shark / bw)
+            local by_r = math.ceil(fcfg.perception.shark / bd)
+            local nearby = get_nearby(hash, bx, by, "shark", bx_r, by_r, num_bx)
+            flee_checks = flee_checks + #nearby
+        end
+    end
+    for _, s in ipairs(st.sharks) do
+        if s.alive then
+            local bx = math.floor(s.x / bw) % num_bx
+            local by = math.floor(s.depth / bd) % num_by
+            local bx_r = math.ceil(scfg.perception.fish / bw)
+            local by_r = math.ceil(scfg.perception.fish / bd)
+            local nearby = get_nearby(hash, bx, by, "fish", bx_r, by_r, num_bx)
+            seek_checks = seek_checks + #nearby
+            local max_touch = s.radius + data.creatures.fish.radius
+            local hbx_r = math.ceil(max_touch / bw)
+            local hby_r = math.ceil(max_touch / bd)
+            local hnearby = get_nearby(hash, bx, by, "fish", hbx_r, hby_r, num_bx)
+            hunt_checks = hunt_checks + #hnearby
+        end
+    end
+    local scan_flee = count_alive(st.fish) * count_alive(st.sharks)
+    local scan_seek = count_alive(st.sharks) * count_alive(st.fish)
+    local scan_hunt = count_alive(st.sharks) * count_alive(st.fish)
+    return {
+        hash = { flee = flee_checks, seek = seek_checks, hunt = hunt_checks, total = flee_checks + seek_checks + hunt_checks },
+        scan = { flee = scan_flee, seek = scan_seek, hunt = scan_hunt, total = scan_flee + scan_seek + scan_hunt },
+    }
+end
+
+function _test_measure_tick_time(n)
+    n = n or 100
+    local dt = 0.1
+    local start = os.clock()
+    for _ = 1, n do
+        tick_game(dt, {})
+    end
+    local elapsed = os.clock() - start
+    return { avg_ms = (elapsed / n) * 1000, total_s = elapsed, n = n }
 end

@@ -230,9 +230,18 @@ function compute_fish_forces(f, st, hash)
         fx, fy = fx + sx, fy + sy
     end
 
-    -- flee nearest shark
+    -- flee nearest shark (via spatial hash — same pattern as algae seek above;
+    -- falls back to full scan when hash is unavailable)
     local nearest_shark, shark_dist2 = nil, cfg.perception.shark * cfg.perception.shark
-    for _, s in ipairs(st.sharks) do
+    local nearby_sharks
+    if hash and hash.shark then
+        local bx_range = math.ceil(cfg.perception.shark / bw)
+        local by_range = math.ceil(cfg.perception.shark / bd)
+        nearby_sharks = get_nearby(hash, bx, by, "shark", bx_range, by_range)
+    else
+        nearby_sharks = st.sharks
+    end
+    for _, s in ipairs(nearby_sharks) do
         if s.alive then
             local d2 = dist2(f.x, f.depth, s.x, s.depth)
             if d2 < shark_dist2 then
@@ -294,6 +303,16 @@ function compute_shark_forces(s, st, hash)
     local cfg = data.creatures.shark
     local target_chunk_id = nil
 
+    -- Bucket coordinates are shared by the seek-fish lookup below and the
+    -- avoid-algae lookup further down; computed once here instead of twice.
+    local sbx, sby, sbw, sbd
+    if hash then
+        sbw = data.spatial_hash.bucket_width
+        sbd = data.spatial_hash.bucket_depth
+        sbx = math.floor(s.x / sbw) % math.ceil(st.world.width / sbw)
+        sby = math.floor(s.depth / sbd) % math.ceil(st.world.height / sbd)
+    end
+
     -- Hysteresis: enter retreat at exposure_retreat_threshold, only exit
     -- once exposure drops below exposure_retreat_resume_threshold. Between
     -- the two, the previous state persists (sticky).
@@ -306,8 +325,22 @@ function compute_shark_forces(s, st, hash)
     -- Computed once regardless of retreat state: this is also the source of
     -- truth for the ticks_with_target diagnostic in move_creature, so it must
     -- run even when retreat overrides pursuit below.
+    -- Uses the spatial hash (same pattern as fish-algae seeking); falls back
+    -- to a full scan when hash is unavailable.  Bucket indices are wrapped on
+    -- the x-axis because fish may have crossed the world boundary during
+    -- update_creatures (fish are processed before sharks), leaving them in a
+    -- stale bucket on the opposite side.
     local nearest_fish, fish_dist2 = nil, cfg.perception.fish * cfg.perception.fish
-    for _, f in ipairs(st.fish) do
+    local nearby_fish
+    if hash and hash.fish then
+        local bx_range = math.ceil(cfg.perception.fish / sbw)
+        local by_range = math.ceil(cfg.perception.fish / sbd)
+        local num_bx = math.ceil(st.world.width / sbw)
+        nearby_fish = get_nearby(hash, sbx, sby, "fish", bx_range, by_range, num_bx)
+    else
+        nearby_fish = st.fish
+    end
+    for _, f in ipairs(nearby_fish) do
         if f.alive then
             local d2 = dist2(s.x, s.depth, f.x, f.depth)
             if d2 < fish_dist2 then
@@ -367,11 +400,7 @@ function compute_shark_forces(s, st, hash)
     local avoid_radius_sq = data.avoid_chunk_radius * data.avoid_chunk_radius
     local avoid_targets = {}
     if hash and hash.algae then
-        local bw = data.spatial_hash.bucket_width
-        local bd = data.spatial_hash.bucket_depth
-        local sbx = math.floor(s.x / bw) % math.ceil(st.world.width / bw)
-        local sby = math.floor(s.depth / bd) % math.ceil(st.world.height / bd)
-        local sby_range = math.ceil(data.avoid_chunk_radius / bd) + 1
+        local sby_range = math.ceil(data.avoid_chunk_radius / sbd) + 1
         local nearby_algae_for_shark = get_nearby(hash, sbx, sby, "algae", 1, sby_range)
         for _, entry in ipairs(nearby_algae_for_shark or {}) do
             if entry.n.live then
