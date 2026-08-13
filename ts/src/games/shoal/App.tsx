@@ -289,18 +289,10 @@ function ShoalCanvas({
       input.clicked = true;
     }
 
-    const tickStart = performance.now();
     const rs = call(session, 'tick_game', dt, input)[0] as RenderState;
-    const tickTime = performance.now() - tickStart;
-
-    const drawStart = performance.now();
     renderStateRef.current = rs;
     onStats(rs.stats);
     drawGame(canvasRef.current, rs, s.dims, session.files.data);
-    const drawTime = performance.now() - drawStart;
-
-    _lastTickTime = tickTime;
-    _lastDrawTime = drawTime;
   }, {});
 
   return (
