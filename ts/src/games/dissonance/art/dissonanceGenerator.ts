@@ -206,7 +206,7 @@ export interface DissonanceData {
 }
 
 export function loadDissonanceData(repoRoot?: string): DissonanceData {
-  const root = repoRoot ?? resolve(fileURLToPath(import.meta.url), '..', '..', '..', '..', '..');
+  const root = repoRoot ?? resolve(fileURLToPath(import.meta.url), '..', '..', '..', '..', '..', '..');
   const dataPath = resolve(root, 'games', 'dissonance', 'data.yaml');
   return load(readFileSync(dataPath, 'utf-8')) as DissonanceData;
 }

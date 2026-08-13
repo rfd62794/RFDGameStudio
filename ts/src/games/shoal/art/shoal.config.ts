@@ -14,12 +14,12 @@
  * visual mapping needs to be added.
  */
 
-import { mulberry32, hashStringToSeed } from '../../engine/artGen/seededRandom';
+import { mulberry32, hashStringToSeed } from '../../../engine/artGen/seededRandom';
 import type {
   TeardropFinSpec,
   RadialBurstSpec,
   IrregularFragmentSpec,
-} from '../../engine/artGen/types';
+} from '../../../engine/artGen/types';
 
 // --- Species shape families ---
 
