@@ -17,7 +17,7 @@
  * lineTo/bezierCurveTo is the standard canvas optimization.
  */
 
-import { canvasTeardropFinPath } from '../../engine/artGen/shapes';
+import { canvasTeardropFinPath } from '../../../engine/artGen/shapes';
 import {
   buildTeardropFinSpec,
   buildAlgaeSpec,
@@ -26,6 +26,8 @@ import {
   type AgeStage,
   type ShoalSpecies,
 } from './shoal.config';
+import { mulberry32 } from '../../../engine/artGen/seededRandom';
+import type { TeardropFinSpec, RadialBurstSpec, IrregularFragmentSpec, PolygonSpec } from '../../../engine/artGen/types';
 
 // --- Cache key types ---
 
@@ -191,9 +193,6 @@ export function getCachedFleshChunkPath(key: FleshChunkCacheKey, radius: number,
 }
 
 // --- Path2D builders (mirror the canvas path generators but write to Path2D) ---
-
-import { mulberry32 } from '../../engine/artGen/seededRandom';
-import type { TeardropFinSpec, RadialBurstSpec, IrregularFragmentSpec, PolygonSpec } from '../../engine/artGen/types';
 
 function buildTeardropFinIntoPath2D(path: Path2D, spec: TeardropFinSpec): void {
   const { scale, angularity, dorsalFin, seed = 0 } = spec;
