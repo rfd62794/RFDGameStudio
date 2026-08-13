@@ -4911,3 +4911,173 @@ Generated `entry.tsx` uses `import.meta.glob('../../../../games/{game_id}/*.lua'
 - Arcade-embedded back button behavior unchanged: `navigateHome()` with no args defaults to `mode='arcade'`, strips `?game=` (identical to original).
 - Entry.tsx diffed against `scaffold.py`'s template: **IDENTICAL â€” zero deviations beyond `game_id` substitution**.
 - Deployed to **itch.io** (`publisher.py deploy shoal --target itchio` â†’ success) and **arcade website** (`studio_deploy_arcade` â†’ 40 files uploaded, verification all ok).
+
+---
+
+## Visual Re-Haul: Reusable SVG Generator Module — COMPLETED
+
+*August 12 2026 | Traces to Dissonance Depths Placeholder Art Generation
+directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
+
+### STOP-rule baselines (captured before any file touched)
+
+1. **Dissonance test/build floor:** 383 passed, 1 failed (pre-existing
+   `test_arcade_routing` timeout, unrelated to artgen). All artgen tests
+   passing (`test_artgen_dissonance_equiv`, `test_artgen_seeded_random`).
+2. **Dissonance 106-file SHA256 manifest:** captured to
+   `ts/tests/_dissonance_svg_baseline_manifest.txt` — 56 cards + 12 relics
+   + 38 enemies, every file hashed.
+3. **SlimeWorld polygon function:** located at
+   `SlimeVisual.tsx:generateSlimePolygonPoints` (lines 36-57), with local
+   `mulberry32`/`hashStringToSeed` duplicates. Test floor:
+   `test_slime_visual_geometry.tsx` passing.
+
+### Structural mismatches found and reported (not silently adapted)
+
+1. **Shared module already existed** at `ts/src/engine/artGen/` — generic,
+   config-driven (`ArtGenConfig<TEntity>`), with `renderShape`,
+   `renderSpikyStar`, `renderPolygonPoints`, `renderGradientBackground`,
+   `renderBorder`. User decision: use existing `artGen`, don't build
+   `ts/tools/svg_gen/`.
+2. **Real generator was Python** — `scripts/generate_dissonance_art.py`
+   (323 lines), not TypeScript. Produced all 106 committed SVGs. No
+   standalone TS generator existed; the TS test
+   `test_artgen_dissonance_equiv.ts` only covered cards (56), not relics
+   or enemies. User decision: reverse-engineer relics + enemies from
+   committed SVGs, port the full generator to TypeScript.
+3. **Shoal renders via HTML5 Canvas** — `drawGame()` uses `ctx.arc`,
+   `ctx.beginPath`, `ctx.fill` directly. Not SVG. User decision: both
+   canvas path generators AND SVG-to-canvas bridge.
+
+### What was built
+
+**Shared module additions** (`ts/src/engine/artGen/`):
+- `shapes.ts`: added `renderTeardropFin`, `renderRadialBurst`,
+  `renderIrregularFragment` (SVG primitives for fish/shark/algae/debris).
+  Added canvas-path counterparts: `canvasPolygonPath`,
+  `canvasTeardropFinPath`, `canvasRadialBurstPath`,
+  `canvasIrregularFragmentPath`. Added `svgToCanvas` bridge (SVG string
+  ? canvas via Blob/Image).
+- `types.ts`: added `TeardropFinSpec`, `RadialBurstSpec`,
+  `IrregularFragmentSpec`.
+
+**Dissonance config + generator** (`ts/src/games/dissonance/art/`):
+- `dissonance.config.ts`: all Dissonance-specific vocabulary extracted
+  from the Python generator — `ELEMENT_COLORS`, `COMPONENT_TO_SHAPE`,
+  `RELATION_TO_BORDER`, `RELIC_COLORS`, `TIER_VISUALS`, canvas dims.
+- `dissonanceGenerator.ts`: full TypeScript port of the Python generator.
+  Consumes `artGen` primitives + the config. Produces all 106 SVGs.
+  `generateCardSVG`, `generateRelicSVG`, `generateEnemySVG`,
+  `generateAllSVGs`, `buildIdManifest`, `loadDissonanceData`.
+
+**Shoal config + wiring** (`ts/src/games/shoal/art/`):
+- `shoal.config.ts`: species shapes (fish/shark/algae/fleshChunk),
+  lineage color inheritance (`inheritHue` — parent hue + seeded drift,
+  same convention as SlimeWorld/TurboShells), age curve
+  (young/mature/old ? saturation/scale), `buildTeardropFinSpec`,
+  `buildAlgaeSpec`, `buildFleshChunkSpec`.
+- `App.tsx`: `drawFish`/`drawSharksBatched` now use
+  `canvasTeardropFinPath` from artGen. Algae rendering uses
+  `canvasRadialBurstPath`. Flesh chunks use `canvasIrregularFragmentPath`.
+
+**SlimeWorld relocation**:
+- `SlimeVisual.tsx`: replaced local `mulberry32`/`hashStringToSeed`/
+  `generateSlimePolygonPoints` with imports from `artGen`.
+  `generateSlimePolygonPoints` is now a thin wrapper around
+  `renderPolygonPoints`. Re-exports `mulberry32`/`hashStringToSeed` to
+  preserve the existing test import surface.
+
+**Tests** (5 new files, 140 new tests):
+- `test_dissonance_zero_regression.ts`: 107 tests — regenerates all 106
+  SVGs from `data.yaml` and compares byte-for-byte to committed files.
+  **All 106 pass. Zero regression.**
+- `test_slimeworld_polygon_relocated.ts`: 7 tests — verifies
+  `generateSlimePolygonPoints` output matches `renderPolygonPoints` for
+  6 input sets + mulberry32 determinism.
+- `test_shared_manifest_exact_count.ts`: 5 tests — exact count (56/12/38),
+  no missing, no extra, no duplicates.
+- `test_shoal_config.ts`: 16 tests — distinct species shapes, lineage
+  color inheritance (100 trials within drift range, deterministic, hue
+  wrapping), age curve monotonic (saturation/scale direction correct).
+- `test_no_regression_to_existing_floor.ts`: 5 tests — 106 files exist,
+  pre-existing tests intact, SlimeVisual exports preserved, artGen
+  primitives present.
+
+### Verification
+
+- **Pre-refactor floor:** 383 passed, 1 failed (pre-existing
+  `test_arcade_routing` timeout).
+- **Post-refactor floor:** 523 passed, 1 failed (same pre-existing
+  timeout). **+140 new tests, all passing. Zero regressions.**
+- **Zero-regression test:** all 106 SVGs byte-identical pre/post refactor.
+  Raw output:
+  ```
+  ? tests/test_dissonance_zero_regression.ts (107 tests) 114ms
+  ? tests/test_slimeworld_polygon_relocated.ts (7 tests) 11ms
+  ? tests/test_shared_manifest_exact_count.ts (5 tests) 16ms
+  ? tests/test_shoal_config.ts (16 tests) 9ms
+  ? tests/test_no_regression_to_existing_floor.ts (5 tests) 16ms
+  Test Files  5 passed (5)
+       Tests  140 passed (140)
+  ```
+- **Python generator still works:** verified before refactoring that
+  `scripts/generate_dissonance_art.py` reproduces all 106 committed SVGs
+  byte-for-byte (0 mismatches). The TS port produces the same output.
+
+### Hunger/energy visual axis — CONFIRMED present in Shoal's real state
+
+The directive required this be confirmed present-or-absent. **CONFIRMED
+PRESENT:** Shoal's Lua game logic (`entities.lua`) tracks `fed` and
+`hunger` for both fish and sharks. `data.yaml` has `hunger_rate`,
+`starve_limit`, `breed_fed_threshold`, `starvation_seconds`,
+`hunger_refund`. The state is real and tracked — only the visual mapping
+(lean vs. full silhouette) is missing. This is a real, easy Phase 2
+addition: the state already exists, only the visual mapping needs to be
+added to `shoal.config.ts` and the canvas rendering.
+
+### Screens/consumers NOT wired this pass
+
+- **SlimeWorld** does not consume the new `renderTeardropFin`/
+  `renderRadialBurst`/`renderIrregularFragment` primitives — it only uses
+  the relocated `renderPolygonPoints`. SlimeWorld's slime rendering is
+  polygon-based (vertexCount/irregularity), not fin/burst/fragment-based.
+  The relocation is the correct scope; adding new shape families to
+  SlimeWorld would be a visual change, which is out of scope.
+- **Dissonance's game source** (`ts/src/games/dissonance/App.tsx` and
+  phases) was NOT modified — it loads SVGs from the asset directory, not
+  from the generator. The generator produces files; the game consumes
+  them. No wiring change needed.
+- **`svgToCanvas` bridge** is implemented and tested via the test suite
+  but not yet called by any game renderer. Shoal uses the canvas-path
+  generators directly (more efficient per-frame than SVG-to-image
+  conversion). The bridge is available for future consumers that prefer
+  SVG-based art in a canvas context.
+
+### Files touched
+
+- `ts/src/engine/artGen/shapes.ts` — added 7 new functions
+- `ts/src/engine/artGen/types.ts` — added 3 new interfaces
+- `ts/src/games/dissonance/art/dissonance.config.ts` — NEW
+- `ts/src/games/dissonance/art/dissonanceGenerator.ts` — NEW
+- `ts/src/games/shoal/art/shoal.config.ts` — NEW
+- `ts/src/games/shoal/App.tsx` — wired canvas path generators
+- `ts/src/games/slimeworld/components/SlimeVisual.tsx` — relocated to artGen
+- `ts/tests/test_dissonance_zero_regression.ts` — NEW
+- `ts/tests/test_slimeworld_polygon_relocated.ts` — NEW
+- `ts/tests/test_shared_manifest_exact_count.ts` — NEW
+- `ts/tests/test_shoal_config.ts` — NEW
+- `ts/tests/test_no_regression_to_existing_floor.ts` — NEW
+- `ts/tests/_dissonance_svg_baseline_manifest.txt` — NEW (STOP-rule baseline)
+
+### Not touched (read-only, verified)
+
+- `scripts/generate_dissonance_art.py` — the original Python generator,
+  unchanged. Still works as the original source of truth.
+- All 106 committed SVG files in `ts/public/assets/dissonance/` —
+  byte-identical, verified by the zero-regression test.
+- `ts/tests/test_artgen_dissonance_equiv.ts` — pre-existing card test,
+  still passing.
+- `ts/tests/test_artgen_seeded_random.ts` — pre-existing seeded-random
+  test, still passing.
+- `ts/tests/test_slime_visual_geometry.tsx` — pre-existing SlimeWorld
+  geometry test, still passing.
