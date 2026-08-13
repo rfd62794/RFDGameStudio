@@ -427,28 +427,32 @@ export function drawGame(
   // Depth gradient background + surface line (cached offscreen)
   ctx.drawImage(getBackgroundCache(world), 0, 0);
 
-  // Draw algae cores (batched) — uses shared artGen radial burst primitive
+  // Draw algae cores (batched) — uses cached Path2D
   const algaeCoreColor = renderCfg?.algae_core_color ?? '#eab308';
   const algaeColor = renderCfg?.algae_color ?? '#10b981';
   ctx.fillStyle = algaeCoreColor;
   for (const core of rs.algae) {
-    // Algae core: small radial burst (3 arms, low radius)
-    const spec = buildAlgaeSpec(1, algaeCoreColor, 0);
-    canvasRadialBurstPath(ctx, spec, core.x, core.depth);
+    const path = getCachedAlgaePath({ growthStage: 1 }, 8, algaeCoreColor);
+    ctx.save();
+    ctx.translate(core.x, core.depth);
+    ctx.fill(path);
+    ctx.restore();
   }
 
-  // Draw algae nodules (batched) — small radial bursts per nodule
+  // Draw algae nodules (batched) — cached Path2D per nodule radius
   ctx.fillStyle = algaeColor;
   for (const core of rs.algae) {
     for (const n of core.nodules) {
-      const spec = buildAlgaeSpec(0.5, algaeColor, 0);
-      // Override radius to match nodule radius
-      canvasRadialBurstPath(ctx, { ...spec, radius: n.radius, innerRadius: n.radius * 0.3 }, n.x, n.depth);
+      const path = getCachedAlgaePath({ growthStage: 0 }, n.radius, algaeColor);
+      ctx.save();
+      ctx.translate(n.x, n.depth);
+      ctx.fill(path);
+      ctx.restore();
     }
   }
 
   // Draw flesh chunks with decay-based color lerp (batched into decay buckets)
-  // Uses shared artGen irregular fragment primitive
+  // Uses cached Path2D
   const chunkColor = renderCfg?.chunk_color ?? '#f43f5e';
   const coreColor = renderCfg?.algae_core_color ?? '#eab308';
   const chunksByBucket = new Map<number, FleshChunk[]>();
@@ -458,11 +462,16 @@ export function drawGame(
     if (group) group.push(c); else chunksByBucket.set(bucket, [c]);
   }
   for (const [bucket, group] of chunksByBucket) {
-    ctx.fillStyle = lerpColor(chunkColor, coreColor, bucket);
-    ctx.strokeStyle = lerpColor(chunkColor, coreColor, bucket);
+    const color = lerpColor(chunkColor, coreColor, bucket);
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
     for (const c of group) {
-      const spec = buildFleshChunkSpec(lerpColor(chunkColor, coreColor, bucket), 0);
-      canvasIrregularFragmentPath(ctx, { ...spec, radius: c.radius }, c.x, c.depth);
+      const decayBucketInt = Math.round(bucket * 5);
+      const path = getCachedFleshChunkPath({ decayBucket: decayBucketInt }, c.radius, color);
+      ctx.save();
+      ctx.translate(c.x, c.depth);
+      ctx.fill(path);
+      ctx.restore();
     }
   }
 
@@ -485,15 +494,17 @@ export function drawGame(
 
   ctx.restore();
 
-  // Temporary FPS + entity count + geometry call overlay (§0 baseline)
+  // Temporary FPS + entity count + cache stats overlay
+  const cacheStats = getCacheStats();
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.font = '14px monospace';
   ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.fillRect(5, 5, 320, 80);
+  ctx.fillRect(5, 5, 380, 100);
   ctx.fillStyle = '#0f0';
   ctx.fillText(`FPS: ${_fpsCurrent}`, 10, 22);
   ctx.fillText(`Fish: ${rs.fish.length}  Sharks: ${rs.sharks.length}  Algae: ${rs.algae.length}  Chunks: ${rs.chunks.length}`, 10, 42);
-  ctx.fillText(`Geometry calls/frame: ${_geometryCallCount}`, 10, 62);
+  ctx.fillText(`Cache hits: ${cacheStats.hits}  misses: ${cacheStats.misses}`, 10, 62);
+  ctx.fillText(`Geometry calls/frame: ${_geometryCallCount} (cached: ${cacheStats.hits > 0 ? 'YES' : 'NO'})`, 10, 82);
   ctx.restore();
 }
