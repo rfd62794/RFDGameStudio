@@ -11,7 +11,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['tests/_setup/path2dPolyfill.ts'],
     include: ['tests/**/*.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['tests/_shared/**'],
+    exclude: ['tests/_shared/**', 'tests/_setup/**'],
   },
   optimizeDeps: {
     include: ['fengari-web'],
