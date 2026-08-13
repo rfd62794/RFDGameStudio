@@ -6,7 +6,7 @@ import { Button, MoreGamesByMe } from '../../ui/components';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
-import type { RenderState, Stats, ToolMode } from './types';
+import type { RenderState, Stats, ToolMode, FleshChunk, ShoalCreature } from './types';
 import { MECHANICS_COPY } from './mechanicsCopy';
 import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
@@ -314,7 +314,7 @@ function drawFish(
 }
 
 function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish']) {
-  const byColor = new Map<string, typeof fish>();
+  const byColor = new Map<string, ShoalCreature[]>();
   for (const f of fish) {
     const group = byColor.get(f.color);
     if (group) {
@@ -377,6 +377,12 @@ function lerpColor(a: string, b: string, t: number): string {
   return `rgb(${r},${g},${bl})`;
 }
 
+// Temporary FPS counter for §0 baseline measurement
+let _fpsFrameCount = 0;
+let _fpsLastTime = performance.now();
+let _fpsCurrent = 0;
+let _geometryCallCount = 0;
+
 export function drawGame(
   canvas: HTMLCanvasElement,
   rs: RenderState,
@@ -386,6 +392,16 @@ export function drawGame(
   const renderCfg = (data as { render?: Record<string, string> }).render;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
+
+  // FPS measurement
+  _fpsFrameCount++;
+  const now = performance.now();
+  if (now - _fpsLastTime >= 1000) {
+    _fpsCurrent = Math.round((_fpsFrameCount * 1000) / (now - _fpsLastTime));
+    _fpsFrameCount = 0;
+    _fpsLastTime = now;
+  }
+  _geometryCallCount = 0;
 
   const world = rs.world;
   ctx.clearRect(0, 0, dims.w, dims.h);
@@ -421,7 +437,7 @@ export function drawGame(
   // Uses shared artGen irregular fragment primitive
   const chunkColor = renderCfg?.chunk_color ?? '#f43f5e';
   const coreColor = renderCfg?.algae_core_color ?? '#eab308';
-  const chunksByBucket = new Map<number, typeof rs.chunks>>();
+  const chunksByBucket = new Map<number, FleshChunk[]>();
   for (const c of rs.chunks) {
     const bucket = Math.round((c.decay_ratio ?? 0) * 5) / 5;
     const group = chunksByBucket.get(bucket);
@@ -438,13 +454,32 @@ export function drawGame(
 
   // Draw fish batched by color
   drawFishBatched(ctx, rs.fish);
+  _geometryCallCount += rs.fish.length;
 
   // Draw sharks batched by color
   drawSharksBatched(ctx, rs.sharks);
+  _geometryCallCount += rs.sharks.length;
+
+  // Count algae geometry calls
+  _geometryCallCount += rs.algae.length; // cores
+  for (const core of rs.algae) _geometryCallCount += core.nodules.length; // nodules
+  _geometryCallCount += rs.chunks.length; // flesh chunks
 
   // Draw evenly-spaced depth ticks on both edges (replaces band-range labels)
   const floorDepth = (data as { world?: { floor_depth?: number } }).world?.floor_depth ?? 800;
   drawDepthTicks(ctx, floorDepth, { w: world.width, h: world.height });
 
+  ctx.restore();
+
+  // Temporary FPS + entity count + geometry call overlay (§0 baseline)
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.font = '14px monospace';
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(5, 5, 320, 80);
+  ctx.fillStyle = '#0f0';
+  ctx.fillText(`FPS: ${_fpsCurrent}`, 10, 22);
+  ctx.fillText(`Fish: ${rs.fish.length}  Sharks: ${rs.sharks.length}  Algae: ${rs.algae.length}  Chunks: ${rs.chunks.length}`, 10, 42);
+  ctx.fillText(`Geometry calls/frame: ${_geometryCallCount}`, 10, 62);
   ctx.restore();
 }
