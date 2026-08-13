@@ -25,6 +25,7 @@ function new_fish(x, depth)
         vd = random_float(-0.5, 0.5),
         age = 0,
         fed = 0,
+        hunger = 0,
         cold_exposure = 0,
         cold_damage = 0,
         radius = cfg.radius,

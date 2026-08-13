@@ -11,6 +11,9 @@ export interface ShoalCreature {
   color: string;
   angle: number;
   mature: boolean;
+  hunger?: number;
+  cold_exposure?: number;
+  cold_damage?: number;
 }
 
 export interface Nodule {

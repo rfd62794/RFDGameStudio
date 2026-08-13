@@ -117,6 +117,7 @@ function update_creatures(st, dt)
     for _, f in ipairs(st.fish) do
         if f.alive then
             move_creature(f, dt)
+            f.hunger = f.hunger + dt * data.creatures.fish.hunger_rate
         end
     end
     for _, s in ipairs(st.sharks) do
@@ -277,6 +278,7 @@ function update_discrete_events(st, dt)
             if n.live and distance(f.x, f.depth, n.x, n.depth) <= f.radius + data.algae.nodule_radius then
                 if graze_nodule(st, n, core) then
                     f.fed = f.fed + 1
+                    f.hunger = math.max(0, f.hunger - 1.0)
                     if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
                         local capacity = data.creatures.fish.carrying_capacity
                         local breed_probability = math.max(0, 1 - (current_fish_alive / capacity))
@@ -454,6 +456,7 @@ function build_render_state(st)
                 color = f.lineage_color,
                 angle = math.atan(f.vd, f.vx),
                 mature = f.mature,
+                hunger = f.hunger,
                 cold_exposure = f.cold_exposure,
                 cold_damage = f.cold_damage,
             })
