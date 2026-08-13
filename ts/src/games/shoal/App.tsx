@@ -332,7 +332,7 @@ function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish'
 }
 
 function drawSharksBatched(ctx: CanvasRenderingContext2D, sharks: RenderState['sharks']) {
-  const byColor = new Map<string, typeof sharks>();
+  const byColor = new Map<string, ShoalCreature[]>();
   for (const s of sharks) {
     const group = byColor.get(s.color);
     if (group) {
