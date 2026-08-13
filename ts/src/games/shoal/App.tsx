@@ -483,16 +483,9 @@ export function drawGame(
 
   // Draw fish batched by color
   drawFishBatched(ctx, rs.fish);
-  _geometryCallCount += rs.fish.length;
 
   // Draw sharks batched by color
   drawSharksBatched(ctx, rs.sharks);
-  _geometryCallCount += rs.sharks.length;
-
-  // Count algae geometry calls
-  _geometryCallCount += rs.algae.length; // cores
-  for (const core of rs.algae) _geometryCallCount += core.nodules.length; // nodules
-  _geometryCallCount += rs.chunks.length; // flesh chunks
 
   // Draw evenly-spaced depth ticks on both edges (replaces band-range labels)
   const floorDepth = (data as { world?: { floor_depth?: number } }).world?.floor_depth ?? 800;
@@ -500,18 +493,20 @@ export function drawGame(
 
   ctx.restore();
 
-  // Temporary FPS + timing + cache stats overlay
-  const cacheStats = getCacheStats();
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.font = '14px monospace';
-  ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.fillRect(5, 5, 420, 120);
-  ctx.fillStyle = '#0f0';
-  ctx.fillText(`FPS: ${_fpsCurrent}`, 10, 22);
-  ctx.fillText(`Fish: ${rs.fish.length}  Sharks: ${rs.sharks.length}  Algae: ${rs.algae.length}  Chunks: ${rs.chunks.length}`, 10, 42);
-  ctx.fillText(`Tick: ${_lastTickTime.toFixed(1)}ms  Draw: ${_lastDrawTime.toFixed(1)}ms`, 10, 62);
-  ctx.fillText(`Cache hits: ${cacheStats.hits}  misses: ${cacheStats.misses}`, 10, 82);
-  ctx.fillText(`Save/restore pairs: ${rs.fish.length + rs.sharks.length + rs.algae.reduce((a,c) => a + c.nodules.length, 0) + rs.chunks.length}`, 10, 102);
-  ctx.restore();
+  // Profiling overlay (toggle with '?' key)
+  if (profiler) {
+    const cacheStats = getCacheStats();
+    profiler.drawOverlay(ctx, {
+      entities: {
+        Fish: rs.fish.length,
+        Sharks: rs.sharks.length,
+        Algae: rs.algae.length,
+        Chunks: rs.chunks.length,
+      },
+      custom: {
+        'Cache hits': cacheStats.hits,
+        'Cache misses': cacheStats.misses,
+      },
+    });
+  }
 }

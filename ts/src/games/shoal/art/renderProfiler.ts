@@ -28,7 +28,9 @@
  *   setProfilingEnabled(false); // hide overlay
  */
 
-let _enabled = true;
+// Enabled by default in dev, disabled in production builds.
+// Toggle at runtime via '?' key (wired in App.tsx) or setProfilingEnabled().
+let _enabled = import.meta.env?.DEV ?? false;
 
 /**
  * Enable or disable the profiling overlay globally.
