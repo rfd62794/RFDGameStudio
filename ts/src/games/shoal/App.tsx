@@ -10,6 +10,17 @@ import type { RenderState, Stats, ToolMode } from './types';
 import { MECHANICS_COPY } from './mechanicsCopy';
 import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
+import {
+  canvasTeardropFinPath,
+  canvasRadialBurstPath,
+  canvasIrregularFragmentPath,
+} from '../../engine/artGen/shapes';
+import {
+  buildTeardropFinSpec,
+  buildAlgaeSpec,
+  buildFleshChunkSpec,
+  ageStageFromCreature,
+} from './art/shoal.config';
 import './styles.css';
 
 
@@ -282,28 +293,22 @@ function drawFish(
   x: number,
   y: number,
   radius: number,
-  angle: number
+  angle: number,
+  mature: boolean = true
 ) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
+  ctx.scale(radius / 25, radius / 25);
 
-  // Diamond body
-  ctx.beginPath();
-  ctx.moveTo(radius * 1.2, 0);
-  ctx.lineTo(0, radius * 0.7);
-  ctx.lineTo(-radius * 0.5, 0);
-  ctx.lineTo(0, -radius * 0.7);
-  ctx.closePath();
-  ctx.fill();
-
-  // Tail triangle, attached at the diamond's back point
-  ctx.beginPath();
-  ctx.moveTo(-radius * 0.5, 0);
-  ctx.lineTo(-radius * 1.6, radius * 0.6);
-  ctx.lineTo(-radius * 1.6, -radius * 0.6);
-  ctx.closePath();
-  ctx.fill();
+  // Use the shared artGen teardrop-fin canvas path generator.
+  // The scale is derived from the fish's radius so the shape fits the
+  // creature's size, and the age stage controls the scale multiplier
+  // via the Shoal config's age curve.
+  const ageStage = ageStageFromCreature(mature);
+  const spec = buildTeardropFinSpec('fish', ageStage, 0);
+  ctx.fillStyle = ctx.fillStyle; // preserve batched fill color
+  canvasTeardropFinPath(ctx, spec, 0, 0);
 
   ctx.restore();
 }
@@ -321,7 +326,7 @@ function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish'
   for (const [color, group] of byColor) {
     ctx.fillStyle = color;
     for (const f of group) {
-      drawFish(ctx, f.x, f.depth, f.radius, f.angle);
+      drawFish(ctx, f.x, f.depth, f.radius, f.angle, f.mature);
     }
   }
 }
@@ -340,16 +345,16 @@ function drawSharksBatched(ctx: CanvasRenderingContext2D, sharks: RenderState['s
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     for (const s of group) {
-      ctx.beginPath();
-      ctx.arc(s.x, s.depth, s.radius, 0, Math.PI * 2);
-      ctx.fill();
-      const tx = s.x - Math.cos(s.angle) * s.radius * 2.5;
-      const ty = s.depth - Math.sin(s.angle) * s.radius * 2.5;
-      ctx.beginPath();
-      ctx.moveTo(s.x, s.depth);
-      ctx.lineTo(tx, ty);
-      ctx.lineWidth = s.radius;
-      ctx.stroke();
+      // Use the shared artGen teardrop-fin canvas path generator with
+      // the shark spec (larger scale, higher angularity, dorsal fin).
+      ctx.save();
+      ctx.translate(s.x, s.depth);
+      ctx.rotate(s.angle);
+      ctx.scale(s.radius / 25, s.radius / 25);
+      const ageStage = ageStageFromCreature(s.mature);
+      const spec = buildTeardropFinSpec('shark', ageStage, 0);
+      canvasTeardropFinPath(ctx, spec, 0, 0);
+      ctx.restore();
     }
   }
 }
@@ -392,30 +397,31 @@ export function drawGame(
   // Depth gradient background + surface line (cached offscreen)
   ctx.drawImage(getBackgroundCache(world), 0, 0);
 
-  // Draw algae cores (batched)
-  ctx.fillStyle = renderCfg?.algae_core_color ?? '#eab308';
-  ctx.beginPath();
+  // Draw algae cores (batched) — uses shared artGen radial burst primitive
+  const algaeCoreColor = renderCfg?.algae_core_color ?? '#eab308';
+  const algaeColor = renderCfg?.algae_color ?? '#10b981';
+  ctx.fillStyle = algaeCoreColor;
   for (const core of rs.algae) {
-    ctx.moveTo(core.x + 5, core.depth);
-    ctx.arc(core.x, core.depth, 5, 0, Math.PI * 2);
+    // Algae core: small radial burst (3 arms, low radius)
+    const spec = buildAlgaeSpec(1, algaeCoreColor, 0);
+    canvasRadialBurstPath(ctx, spec, core.x, core.depth);
   }
-  ctx.fill();
 
-  // Draw algae nodules (batched)
-  ctx.fillStyle = renderCfg?.algae_color ?? '#10b981';
-  ctx.beginPath();
+  // Draw algae nodules (batched) — small radial bursts per nodule
+  ctx.fillStyle = algaeColor;
   for (const core of rs.algae) {
     for (const n of core.nodules) {
-      ctx.moveTo(n.x + n.radius, n.depth);
-      ctx.arc(n.x, n.depth, n.radius, 0, Math.PI * 2);
+      const spec = buildAlgaeSpec(0.5, algaeColor, 0);
+      // Override radius to match nodule radius
+      canvasRadialBurstPath(ctx, { ...spec, radius: n.radius, innerRadius: n.radius * 0.3 }, n.x, n.depth);
     }
   }
-  ctx.fill();
 
   // Draw flesh chunks with decay-based color lerp (batched into decay buckets)
+  // Uses shared artGen irregular fragment primitive
   const chunkColor = renderCfg?.chunk_color ?? '#f43f5e';
   const coreColor = renderCfg?.algae_core_color ?? '#eab308';
-  const chunksByBucket = new Map<number, typeof rs.chunks>();
+  const chunksByBucket = new Map<number, typeof rs.chunks>>();
   for (const c of rs.chunks) {
     const bucket = Math.round((c.decay_ratio ?? 0) * 5) / 5;
     const group = chunksByBucket.get(bucket);
@@ -423,12 +429,11 @@ export function drawGame(
   }
   for (const [bucket, group] of chunksByBucket) {
     ctx.fillStyle = lerpColor(chunkColor, coreColor, bucket);
-    ctx.beginPath();
+    ctx.strokeStyle = lerpColor(chunkColor, coreColor, bucket);
     for (const c of group) {
-      ctx.moveTo(c.x + c.radius, c.depth);
-      ctx.arc(c.x, c.depth, c.radius, 0, Math.PI * 2);
+      const spec = buildFleshChunkSpec(lerpColor(chunkColor, coreColor, bucket), 0);
+      canvasIrregularFragmentPath(ctx, { ...spec, radius: c.radius }, c.x, c.depth);
     }
-    ctx.fill();
   }
 
   // Draw fish batched by color

@@ -90,3 +90,35 @@ export interface SpikyStarSpec {
   center?: number;
   points?: number;
 }
+
+/** Specification for a teardrop/fin silhouette (fish/shark body family). */
+export interface TeardropFinSpec {
+  scale: number;       // base scale multiplier (1 = standard fish)
+  angularity: number;  // 0-100, higher = more angular/shark-like
+  dorsalFin: boolean;  // add a dorsal fin (shark)
+  seed?: number;       // for deterministic jitter
+}
+
+/** Specification for a radial burst shape (algae/debris). */
+export interface RadialBurstSpec {
+  armCount: number;    // number of arms/spokes
+  radius: number;      // outer radius
+  innerRadius?: number; // inner radius (default radius * 0.3)
+  fill: string;
+  stroke: string;
+  strokeWidth?: number;
+  center?: number;
+  seed?: number;       // for deterministic arm-length jitter
+}
+
+/** Specification for an irregular fragment (debris/flesh-chunk). */
+export interface IrregularFragmentSpec {
+  seed: number;
+  vertexCount?: number;  // default 7
+  irregularity?: number; // default 60
+  radius?: number;
+  center?: number;
+  fill: string;
+  stroke: string;
+  strokeWidth?: number;
+}

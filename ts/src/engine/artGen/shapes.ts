@@ -11,9 +11,12 @@ import type {
   BorderSpec,
   BorderStyle,
   GradientBackgroundSpec,
+  IrregularFragmentSpec,
   PolygonSpec,
+  RadialBurstSpec,
   ShapeRenderSpec,
   SpikyStarSpec,
+  TeardropFinSpec,
 } from './types';
 import { mulberry32 } from './seededRandom';
 
@@ -253,6 +256,304 @@ export function renderShape(spec: ShapeRenderSpec): string {
         `</g>`
       );
   }
+}
+
+/**
+ * Render a teardrop/fin silhouette — the fish/shark body family.
+ * scale: base size multiplier (1 = standard fish, 1.4 = shark).
+ * angularity: 0-100, higher = sharper/more predatory.
+ * dorsalFin: adds a triangular dorsal fin (shark trait).
+ * seed: deterministic jitter for organic variation.
+ */
+export function renderTeardropFin(spec: TeardropFinSpec): string {
+  const { scale, angularity, dorsalFin, seed = 0 } = spec;
+  const rng = mulberry32(seed);
+  const ang = angularity / 100; // 0..1
+  const jitter = (range: number) => (rng() - 0.5) * range;
+
+  // Body: teardrop pointing right (+x). Narrower tail at back.
+  const bodyLen = 40 * scale;
+  const bodyHeight = 25 * scale * (1 - ang * 0.3); // angular = narrower
+  const tailLen = 20 * scale * (1 + ang * 0.2);
+  const tailSpread = 12 * scale * (1 + ang * 0.3);
+
+  // Slight organic jitter on control points
+  const jx = jitter(2 * scale);
+  const jy = jitter(2 * scale);
+
+  const body = (
+    `<path d="M${bodyLen + jx},0 ` +
+    `C${bodyLen * 0.5},${bodyHeight} ${-bodyLen * 0.2},${bodyHeight * 0.8} ${-bodyLen * 0.3},${jy} ` +
+    `C${-bodyLen * 0.2},${-bodyHeight * 0.8} ${bodyLen * 0.5},${-bodyHeight} ${bodyLen + jx},0 Z" ` +
+    `fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>`
+  );
+
+  // Tail: triangle at the back
+  const tail = (
+    `<path d="M${-bodyLen * 0.3},${jy} ` +
+    `L${-bodyLen * 0.3 - tailLen},${tailSpread} ` +
+    `L${-bodyLen * 0.3 - tailLen},${-tailSpread} Z" ` +
+    `fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>`
+  );
+
+  let dorsal = '';
+  if (dorsalFin) {
+    const finHeight = 18 * scale * (1 + ang * 0.3);
+    const finBase = bodyLen * 0.15;
+    dorsal = (
+      `<path d="M${finBase - 5},${-bodyHeight * 0.5} ` +
+      `L${finBase + 5},${-bodyHeight * 0.5 - finHeight} ` +
+      `L${finBase + 15},${-bodyHeight * 0.5} Z" ` +
+      `fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>`
+    );
+  }
+
+  return `<g>${body}${tail}${dorsal}</g>`;
+}
+
+/**
+ * Render a radial burst shape — arms/spokes radiating from center.
+ * Used for algae (arm count varies by growth stage) and debris.
+ * seed: deterministic arm-length jitter for organic variation.
+ */
+export function renderRadialBurst(spec: RadialBurstSpec): string {
+  const {
+    armCount,
+    radius,
+    innerRadius = radius * 0.3,
+    fill,
+    stroke,
+    strokeWidth = 2,
+    center = 50,
+    seed = 0,
+  } = spec;
+  const rng = mulberry32(seed);
+  const coords: string[] = [];
+  const total = armCount * 2;
+
+  for (let i = 0; i < total; i++) {
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    const isOuter = i % 2 === 0;
+    const baseRad = isOuter ? radius : innerRadius;
+    // Jitter outer arm lengths for organic look
+    const rad = isOuter ? baseRad * (0.85 + rng() * 0.3) : baseRad;
+    const x = center + rad * Math.cos(angle);
+    const y = center + rad * Math.sin(angle);
+    coords.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+
+  return `<polygon points="${coords.join(' ')}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`;
+}
+
+/**
+ * Render an irregular fragment — small polygon for debris/flesh-chunks.
+ * Uses the same polygon algorithm as renderPolygonPoints but returns a
+ * complete <polygon> element with fill/stroke.
+ */
+export function renderIrregularFragment(spec: IrregularFragmentSpec): string {
+  const {
+    seed,
+    vertexCount = 7,
+    irregularity = 60,
+    radius = 30,
+    center = 50,
+    fill,
+    stroke,
+    strokeWidth = 2,
+  } = spec;
+  const points = renderPolygonPoints({ vertexCount, irregularity, seed, radius, center });
+  return `<polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`;
+}
+
+// ---------------------------------------------------------------------------
+// Canvas 2D path generators — for consumers that render to <canvas> instead
+// of SVG (e.g. Shoal). These produce drawing commands on a CanvasRenderingContext2D
+// using the same algorithms as the SVG counterparts above.
+// ---------------------------------------------------------------------------
+
+/**
+ * Draw a polygon onto a canvas 2D context using the same algorithm as
+ * renderPolygonPoints. The caller sets fillStyle/strokeStyle before calling.
+ * Does NOT call fill()/stroke() — caller decides whether to fill, stroke, or both.
+ */
+export function canvasPolygonPath(
+  ctx: CanvasRenderingContext2D,
+  spec: PolygonSpec,
+  offsetX = 0,
+  offsetY = 0
+): void {
+  const { vertexCount, irregularity, seed, radius = 40, center = 50 } = spec;
+  const angleStep = (2 * Math.PI) / vertexCount;
+  const rng = mulberry32(seed);
+  const irrFactor = irregularity / 100;
+
+  ctx.beginPath();
+  for (let i = 0; i < vertexCount; i++) {
+    const baseAngle = i * angleStep;
+    const angleJitter = (rng() - 0.5) * irrFactor * angleStep * 0.5;
+    const radiusJitter = 1 + (rng() - 0.5) * irrFactor * 0.6;
+    const angle = baseAngle + angleJitter;
+    const r = radius * radiusJitter;
+    const x = offsetX + center + r * Math.cos(angle) - center;
+    const y = offsetY + center + r * Math.sin(angle) - center;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+}
+
+/**
+ * Draw a teardrop/fin silhouette onto a canvas 2D context.
+ * Same shape family as renderTeardropFin. Caller sets fillStyle/strokeStyle.
+ * (x, y) is the center of the body. The shape points right (+x) before rotation.
+ */
+export function canvasTeardropFinPath(
+  ctx: CanvasRenderingContext2D,
+  spec: TeardropFinSpec,
+  x: number,
+  y: number
+): void {
+  const { scale, angularity, dorsalFin, seed = 0 } = spec;
+  const rng = mulberry32(seed);
+  const ang = angularity / 100;
+  const jitter = (range: number) => (rng() - 0.5) * range;
+
+  const bodyLen = 40 * scale;
+  const bodyHeight = 25 * scale * (1 - ang * 0.3);
+  const tailLen = 20 * scale * (1 + ang * 0.2);
+  const tailSpread = 12 * scale * (1 + ang * 0.3);
+  const jx = jitter(2 * scale);
+  const jy = jitter(2 * scale);
+
+  ctx.beginPath();
+  // Body
+  ctx.moveTo(x + bodyLen + jx, y);
+  ctx.bezierCurveTo(
+    x + bodyLen * 0.5, y + bodyHeight,
+    x - bodyLen * 0.2, y + bodyHeight * 0.8,
+    x - bodyLen * 0.3, y + jy
+  );
+  ctx.bezierCurveTo(
+    x - bodyLen * 0.2, y - bodyHeight * 0.8,
+    x + bodyLen * 0.5, y - bodyHeight,
+    x + bodyLen + jx, y
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  // Tail
+  ctx.beginPath();
+  ctx.moveTo(x - bodyLen * 0.3, y + jy);
+  ctx.lineTo(x - bodyLen * 0.3 - tailLen, y + tailSpread);
+  ctx.lineTo(x - bodyLen * 0.3 - tailLen, y - tailSpread);
+  ctx.closePath();
+  ctx.fill();
+
+  if (dorsalFin) {
+    const finHeight = 18 * scale * (1 + ang * 0.3);
+    const finBase = bodyLen * 0.15;
+    ctx.beginPath();
+    ctx.moveTo(x + finBase - 5, y - bodyHeight * 0.5);
+    ctx.lineTo(x + finBase + 5, y - bodyHeight * 0.5 - finHeight);
+    ctx.lineTo(x + finBase + 15, y - bodyHeight * 0.5);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+/**
+ * Draw a radial burst onto a canvas 2D context.
+ * Same shape family as renderRadialBurst. Caller sets fillStyle/strokeStyle.
+ */
+export function canvasRadialBurstPath(
+  ctx: CanvasRenderingContext2D,
+  spec: RadialBurstSpec,
+  x: number,
+  y: number
+): void {
+  const {
+    armCount,
+    radius,
+    innerRadius = radius * 0.3,
+    strokeWidth = 2,
+    seed = 0,
+  } = spec;
+  const rng = mulberry32(seed);
+  const total = armCount * 2;
+
+  ctx.beginPath();
+  for (let i = 0; i < total; i++) {
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    const isOuter = i % 2 === 0;
+    const baseRad = isOuter ? radius : innerRadius;
+    const rad = isOuter ? baseRad * (0.85 + rng() * 0.3) : baseRad;
+    const px = x + rad * Math.cos(angle);
+    const py = y + rad * Math.sin(angle);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+  if (strokeWidth > 0) {
+    ctx.stroke();
+  }
+}
+
+/**
+ * Draw an irregular fragment onto a canvas 2D context.
+ * Same shape family as renderIrregularFragment. Caller sets fillStyle/strokeStyle.
+ */
+export function canvasIrregularFragmentPath(
+  ctx: CanvasRenderingContext2D,
+  spec: IrregularFragmentSpec,
+  x: number,
+  y: number
+): void {
+  const {
+    seed,
+    vertexCount = 7,
+    irregularity = 60,
+    radius = 30,
+    strokeWidth = 2,
+  } = spec;
+  // canvasPolygonPath uses center=50 default; we offset so the polygon
+  // centers at (x, y). Pass center=0 and offset by (x, y).
+  canvasPolygonPath(ctx, { vertexCount, irregularity, seed, radius, center: 0 }, x, y);
+  ctx.fill();
+  if (strokeWidth > 0) {
+    ctx.stroke();
+  }
+}
+
+/**
+ * SVG-to-canvas bridge: render an SVG string to a canvas via an Image.
+ * Returns a Promise that resolves when the image is drawn. Useful for
+ * consumers that want to use SVG-generated art in a canvas context.
+ * The SVG must be self-contained (no external references).
+ */
+export function svgToCanvas(
+  ctx: CanvasRenderingContext2D,
+  svgString: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, x, y, width, height);
+      URL.revokeObjectURL(url);
+      resolve();
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to render SVG to canvas'));
+    };
+    img.src = url;
+  });
 }
 
 /** Helper to map a BorderStyle to a stroke width and dash array. */

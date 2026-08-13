@@ -3,36 +3,21 @@ import React from 'react';
 import { Slime, SlimeColor, SlimePattern } from '../types';
 import { COLOR_SPECS } from '../gameLogic';
 
-// --- Seeded PRNG (mulberry32) ---
-// Standard, well-known small PRNG with good distribution properties.
-// Deterministic: same seed → same sequence, every time.
-function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return function () {
-    a |= 0;
-    a = (a + 0x6D2B79F5) | 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// Derive a deterministic integer seed from a slime's id string.
-function hashStringToSeed(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
-  }
-  return hash >>> 0;
-}
+// --- Seeded PRNG + polygon generation: relocated to shared artGen module ---
+// The mulberry32, hashStringToSeed, and polygon generation logic was
+// extracted to ts/src/engine/artGen/ (the shared art primitives module).
+// SlimeVisual now imports from there instead of duplicating the logic.
+// The extraction is byte-identical — verified by test_artgen_seeded_random
+// and test_slimeworld_polygon_relocated_unchanged.
+import {
+  mulberry32,
+  hashStringToSeed,
+  renderPolygonPoints,
+} from '../../../engine/artGen';
 
 // Generate SVG polygon points for a slime silhouette.
-// vertexCount: number of polygon vertices (3–22)
-// irregularity: 0–100, where 0 = perfect regular polygon
-// seed: deterministic per-slime seed (from id hash)
-// radius: base radius in SVG units
-// center: center coordinate in SVG units
+// Thin wrapper around artGen's renderPolygonPoints — same algorithm,
+// same output, just relocated to the shared module.
 export function generateSlimePolygonPoints(
   vertexCount: number,
   irregularity: number,
@@ -40,23 +25,10 @@ export function generateSlimePolygonPoints(
   radius = 40,
   center = 50
 ): string {
-  const points: string[] = [];
-  const angleStep = (2 * Math.PI) / vertexCount;
-  const rng = mulberry32(seed);
-  const irrFactor = irregularity / 100;
-
-  for (let i = 0; i < vertexCount; i++) {
-    const baseAngle = i * angleStep;
-    const angleJitter = (rng() - 0.5) * irrFactor * angleStep * 0.5;
-    const radiusJitter = 1 + (rng() - 0.5) * irrFactor * 0.6;
-    const angle = baseAngle + angleJitter;
-    const r = radius * radiusJitter;
-    points.push(`${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`);
-  }
-  return points.join(' ');
+  return renderPolygonPoints({ vertexCount, irregularity, seed, radius, center });
 }
 
-// Export for testing
+// Re-export for testing (preserves the existing test import surface).
 export { mulberry32, hashStringToSeed };
 
 interface SlimeVisualProps {
