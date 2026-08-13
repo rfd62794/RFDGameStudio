@@ -182,55 +182,79 @@ Per-loop breakdown (default, last sample):
 
 Measured August 13 2026 in fengari-web via vitest, using `os.clock()`
 inside Lua (same approach as the original Deep Investigation report —
-excludes JS-Lua bridge overhead from the inner loop). Both old and new
-code measured in the same harness, same session, for a fair same-runtime
-comparison.
+excludes JS-Lua bridge overhead from the inner loop). All three
+configurations measured in the same harness, same session, for fair
+same-runtime comparison.
 
-| Scenario | Old — full scan (ms/tick) | New — hash (ms/tick) | Change |
-|---|---|---|---|
-| Default (60 fish, 8 sharks) | 34.873 | 42.642 | **+22.3% slower** |
-| High load (83 fish, 19 sharks) | 45.178 | 47.910 | **+6.0% slower** |
+| Scenario | Old — full scan (ms/tick) | Hash — pre-optimization (ms/tick) | Hash — post-optimization (ms/tick) | Post-fix vs old-scan |
+|---|---|---|---|---|
+| Default (60 fish, 8 sharks) | 34.873 | 42.642 | **27.379** | **-21.5% faster** |
+| High load (83 fish, 19 sharks) | 45.178 | 47.910 | **34.560** | **-23.5% faster** |
 
-**Outcome: Fengari tick time gets worse, matching lupa's direction.**
-The spatial-hash conversion is a confirmed regression in the production
-runtime, not just in lupa. The `get_nearby` function's per-call overhead
-(string key construction `kx..","..ky` per bucket, table allocation per
-call, bucket iteration) exceeds the savings from the 75% distance-check
-reduction at these entity counts in both runtimes.
+**Outcome: Optimized hash now beats full-scan in fengari.** The
+spatial-hash conversion, after optimizing `get_nearby`'s per-call
+overhead, is a confirmed real win in the production runtime — a
+21.5-23.5% tick-time improvement over the original full-scan code at
+both default and high-load scenarios.
 
-The regression is smaller in fengari than in lupa (+22% vs +34% at
-default, +6% vs +18% at high load), and shrinks at higher entity counts
-(+6% at 83/19 vs +22% at 60/8), suggesting the hash approach may
-eventually break even at very high entity counts where the O(n²) scan
-cost dominates the per-call hash overhead. But at the default and
-high-load scenarios the investigation defined, the hash is net-negative.
+**Profiling breakdown (get_nearby overhead optimization directive):**
+
+Before fixing, `get_nearby`'s per-call cost was profiled via
+`os.clock()` instrumentation across 200 ticks (~210 calls/tick at
+default, ~272 at high load):
+
+| Phase | Default (ms/call) | % of total | High load (ms/call) | % of total |
+|---|---|---|---|---|
+| Table allocation (`list = {}`) | 0.0015 | 1.0% | 0.0015 | 1.0% |
+| String key construction (`kx..","..ky`) | 0.0722 | 48.3% | 0.0697 | 47.3% |
+| Bucket iteration + `table.insert` | 0.0759 | 50.7% | 0.0755 | 51.7% |
+| **Total** | **0.1496** | 100% | **0.1472** | 100% |
+
+**Fixes implemented (matching profiling findings):**
+
+1. **Integer bucket keys** (eliminates 48% cost): Replaced string key
+   construction `kx .. "," .. ky` with integer-encoded key
+   `kx * 100000 + ky` — one arithmetic operation instead of string
+   concatenation, and Lua handles integer table keys more efficiently
+   than string keys (no interning/hashing). Applied to both
+   `rebuild_spatial_hash` (key construction) and `get_nearby` (key
+   lookup). `100000` is safely larger than any possible `by` value
+   (max `by = ceil(world_height/bd)-1 = 9`).
+2. **Direct list append** (eliminates part of 51% cost): Replaced
+   `table.insert(list, ent)` with `list[#list + 1] = ent` in both
+   `rebuild_spatial_hash` and `get_nearby` — eliminates the function
+   call overhead of `table.insert` per entity.
+3. **Localised `buckets` table** (minor): `local buckets = hash[type]`
+   hoisted out of the dx/dy loop in `get_nearby` — one table lookup
+   instead of one per bucket.
+
+**Not fixed (confirmed negligible by profiling):** Table allocation
+(`list = {}`) was only 1% of per-call cost — not worth the complexity of
+a reused/cleared-in-place scratch table.
 
 **Environment drift note:** The original investigation measured 64ms
 (default) and 106ms (high load) in fengari. The same old code measured
 today produces 34.9ms and 45.2ms — roughly 45-55% faster than the
 original investigation's numbers. This is environment drift (different
 Node.js version, hardware, etc. since the investigation ran), which is
-exactly why this directive required a same-harness old-vs-new comparison
-rather than comparing the new numbers against the stale 64ms/106ms
+exactly why the verification directive required a same-harness old-vs-
+new comparison rather than comparing against the stale 64ms/106ms
 baseline. The relative comparison (old vs new, same harness) is the
 authoritative finding.
 
 **Lupa numbers (superseded by fengari above, retained for context):**
-Lupa (Lua-in-Python) showed the same regression direction: +34% slower
-at default, +18% slower at high load. Lupa is 30-40× faster than fengari
-in absolute terms, so its absolute numbers (1.6-2.7ms) are not
-production-relevant, but its finding direction (hash is slower) is
-confirmed by the fengari measurement above.
+Lupa (Lua-in-Python) showed the same regression direction pre-fix: +34%
+slower at default, +18% slower at high load. Lupa is 30-40× faster than
+fengari in absolute terms, so its absolute numbers (1.6-2.7ms) are not
+production-relevant. The fengari measurement above is authoritative.
 
-**Implication for future work:** The 75% pairwise-check reduction is
-real and structurally sound, but `get_nearby`'s implementation cost
-needs its own optimization pass before the check reduction translates to
-a tick-time gain. Potential approaches (not this directive's scope):
-eliminate per-call table allocation (reuse a buffer), eliminate string
-key construction (use numeric bucket indices), or inline the bucket
-scan. The spatial-hash conversion itself is correct (8 equivalence tests
-pass) and the world-wrap fix is real — the issue is purely the hash
-lookup's per-call overhead vs the raw distance check it replaces.
+**Remaining gap:** Even with the 21.5-23.5% improvement, the post-fix
+tick time (27.4ms default, 34.6ms high load) is still ~1.6-2.1× over a
+16.67ms/60fps budget. This directive answered "can hashing win" — yes,
+it can. Closing the remaining gap to 60fps is a separate, larger
+effort. The TS-typed-array migration remains the real path to
+sub-16.67ms ticks if that target is required; the Lua-side hash
+optimization has now delivered what it can.
 
 ### Correctness verification
 
@@ -259,8 +283,12 @@ test verifies hunger accumulates over time and appears in the render state.
 - `games/shoal/steering.lua` — flee + seek loops converted to hash; bucket
   coords computed once and shared between seek and avoid sections
 - `games/shoal/logic.lua` — hunting loop converted to hash; `get_nearby`
-  extended with optional wrap parameters; test helper functions added
-- `tests/test_shoal.py` — 8 new test anchors
+  extended with optional wrap parameters; integer bucket keys
+  (`bx*100000+by`) replacing string concatenation; direct list append
+  (`list[#list+1]`) replacing `table.insert`; localised `buckets` table;
+  test helper functions added
+- `tests/test_shoal.py` — 8 new test anchors; 3 existing `get_nearby`
+  tests updated for integer key format
 
 ### Test floor
 
