@@ -289,10 +289,18 @@ function ShoalCanvas({
       input.clicked = true;
     }
 
+    const tickStart = performance.now();
     const rs = call(session, 'tick_game', dt, input)[0] as RenderState;
+    const tickTime = performance.now() - tickStart;
+
+    const drawStart = performance.now();
     renderStateRef.current = rs;
     onStats(rs.stats);
     drawGame(canvasRef.current, rs, s.dims, session.files.data);
+    const drawTime = performance.now() - drawStart;
+
+    _lastTickTime = tickTime;
+    _lastDrawTime = drawTime;
   }, {});
 
   return (
@@ -396,6 +404,8 @@ let _fpsFrameCount = 0;
 let _fpsLastTime = performance.now();
 let _fpsCurrent = 0;
 let _geometryCallCount = 0;
+let _lastTickTime = 0;
+let _lastDrawTime = 0;
 
 export function drawGame(
   canvas: HTMLCanvasElement,
@@ -494,17 +504,18 @@ export function drawGame(
 
   ctx.restore();
 
-  // Temporary FPS + entity count + cache stats overlay
+  // Temporary FPS + timing + cache stats overlay
   const cacheStats = getCacheStats();
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.font = '14px monospace';
   ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.fillRect(5, 5, 380, 100);
+  ctx.fillRect(5, 5, 420, 120);
   ctx.fillStyle = '#0f0';
   ctx.fillText(`FPS: ${_fpsCurrent}`, 10, 22);
   ctx.fillText(`Fish: ${rs.fish.length}  Sharks: ${rs.sharks.length}  Algae: ${rs.algae.length}  Chunks: ${rs.chunks.length}`, 10, 42);
-  ctx.fillText(`Cache hits: ${cacheStats.hits}  misses: ${cacheStats.misses}`, 10, 62);
-  ctx.fillText(`Geometry calls/frame: ${_geometryCallCount} (cached: ${cacheStats.hits > 0 ? 'YES' : 'NO'})`, 10, 82);
+  ctx.fillText(`Tick: ${_lastTickTime.toFixed(1)}ms  Draw: ${_lastDrawTime.toFixed(1)}ms`, 10, 62);
+  ctx.fillText(`Cache hits: ${cacheStats.hits}  misses: ${cacheStats.misses}`, 10, 82);
+  ctx.fillText(`Save/restore pairs: ${rs.fish.length + rs.sharks.length + rs.algae.reduce((a,c) => a + c.nodules.length, 0) + rs.chunks.length}`, 10, 102);
   ctx.restore();
 }
