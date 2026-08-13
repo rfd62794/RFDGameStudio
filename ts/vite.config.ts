@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['tests/_setup/path2dPolyfill.ts'],
     include: ['tests/**/*.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['tests/_shared/**'],
   },
