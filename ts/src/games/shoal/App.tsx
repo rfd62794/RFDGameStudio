@@ -19,8 +19,22 @@ import {
   buildTeardropFinSpec,
   buildAlgaeSpec,
   buildFleshChunkSpec,
+  buildTeardropFinSpecWithHunger,
   ageStageFromCreature,
+  getBatchColor,
+  FISH_MAX_HUNGER,
+  SHARK_MAX_HUNGER,
 } from './art/shoal.config';
+import {
+  getCachedCreaturePath,
+  getCachedAlgaePath,
+  getCachedFleshChunkPath,
+  hungerToBand,
+  HUNGER_BANDS,
+  getCacheStats,
+  resetCacheStats,
+  clearCache,
+} from './art/pathCache';
 import './styles.css';
 
 
@@ -294,39 +308,39 @@ function drawFish(
   y: number,
   radius: number,
   angle: number,
-  mature: boolean = true
+  mature: boolean = true,
+  hunger: number = 0
 ) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
   ctx.scale(radius / 25, radius / 25);
 
-  // Use the shared artGen teardrop-fin canvas path generator.
-  // The scale is derived from the fish's radius so the shape fits the
-  // creature's size, and the age stage controls the scale multiplier
-  // via the Shoal config's age curve.
+  // Use cached Path2D — geometry is only regenerated on state change
   const ageStage = ageStageFromCreature(mature);
-  const spec = buildTeardropFinSpec('fish', ageStage, 0);
-  ctx.fillStyle = ctx.fillStyle; // preserve batched fill color
-  canvasTeardropFinPath(ctx, spec, 0, 0);
+  const band = hungerToBand(hunger, FISH_MAX_HUNGER);
+  const path = getCachedCreaturePath({ species: 'fish', ageStage, hungerBand: band });
+  ctx.fill(path);
 
   ctx.restore();
 }
 
 function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish']) {
+  // Batch by hue-banded color (preserves batch grouping with lineage variety)
   const byColor = new Map<string, ShoalCreature[]>();
   for (const f of fish) {
-    const group = byColor.get(f.color);
+    const batchColor = getBatchColor(f.color);
+    const group = byColor.get(batchColor);
     if (group) {
       group.push(f);
     } else {
-      byColor.set(f.color, [f]);
+      byColor.set(batchColor, [f]);
     }
   }
   for (const [color, group] of byColor) {
     ctx.fillStyle = color;
     for (const f of group) {
-      drawFish(ctx, f.x, f.depth, f.radius, f.angle, f.mature);
+      drawFish(ctx, f.x, f.depth, f.radius, f.angle, f.mature, f.hunger ?? 0);
     }
   }
 }
@@ -334,26 +348,26 @@ function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish'
 function drawSharksBatched(ctx: CanvasRenderingContext2D, sharks: RenderState['sharks']) {
   const byColor = new Map<string, ShoalCreature[]>();
   for (const s of sharks) {
-    const group = byColor.get(s.color);
+    const batchColor = getBatchColor(s.color);
+    const group = byColor.get(batchColor);
     if (group) {
       group.push(s);
     } else {
-      byColor.set(s.color, [s]);
+      byColor.set(batchColor, [s]);
     }
   }
   for (const [color, group] of byColor) {
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     for (const s of group) {
-      // Use the shared artGen teardrop-fin canvas path generator with
-      // the shark spec (larger scale, higher angularity, dorsal fin).
       ctx.save();
       ctx.translate(s.x, s.depth);
       ctx.rotate(s.angle);
       ctx.scale(s.radius / 25, s.radius / 25);
       const ageStage = ageStageFromCreature(s.mature);
-      const spec = buildTeardropFinSpec('shark', ageStage, 0);
-      canvasTeardropFinPath(ctx, spec, 0, 0);
+      const band = hungerToBand(s.hunger ?? 0, SHARK_MAX_HUNGER);
+      const path = getCachedCreaturePath({ species: 'shark', ageStage, hungerBand: band });
+      ctx.fill(path);
       ctx.restore();
     }
   }

@@ -194,3 +194,134 @@ export function applyAgeSaturation(
 // --- Mutation drift range (for testing) ---
 
 export const DEFAULT_DRIFT_RANGE = 15;
+
+// --- Hunger visual mapping ---
+
+/**
+ * Max hunger values from data.yaml (real confirmed ranges).
+ * Fish: hunger_rate 0.05/sec → reaches 1.0 in 20 seconds. Grazing
+ *   reduces by 1.0. So fish hunger oscillates 0-1.0.
+ * Shark: hunger increases by dt every frame, starve_limit=20.
+ *   Eating reduces by 4 (fish) or 3 (chunk). Range 0-20.
+ */
+export const FISH_MAX_HUNGER = 1.0;
+export const SHARK_MAX_HUNGER = 20;
+
+/**
+ * Map a hunger value to a body-width scale multiplier.
+ * 0 hunger (full) → 1.0 (full silhouette)
+ * maxHunger (starving) → 0.7 (lean silhouette)
+ *
+ * This is a monotonic linear mapping — no reversals.
+ */
+export function hungerToBodyScale(hunger: number, maxHunger: number): number {
+  const normalized = Math.max(0, Math.min(1, hunger / maxHunger));
+  return 1.0 - normalized * 0.3; // 1.0 → 0.7
+}
+
+/**
+ * Map a hunger value to an angularity increase (narrower body = hungrier).
+ * 0 hunger → 0 extra angularity
+ * maxHunger → +30 angularity (visibly leaner)
+ */
+export function hungerToAngularityBonus(hunger: number, maxHunger: number): number {
+  const normalized = Math.max(0, Math.min(1, hunger / maxHunger));
+  return normalized * 30;
+}
+
+/**
+ * Build a TeardropFinSpec with hunger applied.
+ * Hunger reduces body width (via angularity increase) — the lean-vs-full
+ * silhouette variation the directive specifies.
+ */
+export function buildTeardropFinSpecWithHunger(
+  species: 'fish' | 'shark',
+  ageStage: AgeStage,
+  hunger: number,
+  seed: number = 0
+): TeardropFinSpec {
+  const maxHunger = species === 'fish' ? FISH_MAX_HUNGER : SHARK_MAX_HUNGER;
+  const base = SPECIES_SHAPES[species];
+  const ageScale = AGE_CURVE[ageStage].scaleMultiplier;
+  const angularityBonus = hungerToAngularityBonus(hunger, maxHunger);
+  return {
+    scale: base.scale * ageScale,
+    angularity: base.angularity + angularityBonus,
+    dorsalFin: base.dorsalFin,
+    seed,
+  };
+}
+
+// --- Hue banding for lineage color batching ---
+
+/**
+ * Number of hue bands for batch grouping. This is a tunable tradeoff:
+ * more bands = more visual variety but more fillStyle switches (fewer
+ * entities per batch). With ~60 fish and ~20 sharks, 12 bands gives
+ * ~5-7 entities per band on average — enough for batching to help.
+ *
+ * Chosen: 12 bands (30 degrees each on the 0-360 hue circle).
+ * Reasoning: with 60-100 fish, 12 bands gives ~5-8 fish per band,
+ * which is enough to amortize the fillStyle switch cost. More bands
+ * would reduce batch sizes below the break-even point; fewer would
+ * lose visible lineage distinction.
+ */
+export const HUE_BANDS = 12;
+export const HUE_BAND_SIZE = 360 / HUE_BANDS; // 30 degrees
+
+/**
+ * Quantize a continuous hue (0-360) to a band index (0 to HUE_BANDS-1).
+ */
+export function hueToBand(hue: number): number {
+  const normalized = ((hue % 360) + 360) % 360;
+  return Math.floor(normalized / HUE_BAND_SIZE) % HUE_BANDS;
+}
+
+/**
+ * Get the representative hue for a band (center of the band).
+ */
+export function bandToHue(band: number): number {
+  return band * HUE_BAND_SIZE + HUE_BAND_SIZE / 2;
+}
+
+/**
+ * Parse an hsl() color string and extract the hue.
+ */
+export function parseHueFromColor(color: string): number | null {
+  const match = color.match(/hsl\(\s*(\d+)/);
+  if (match) return parseFloat(match[1]);
+  // For hex colors, convert to HSL
+  const hexMatch = color.match(/^#([0-9a-f]{6})$/i);
+  if (hexMatch) {
+    const r = parseInt(hexMatch[1].slice(0, 2), 16) / 255;
+    const g = parseInt(hexMatch[1].slice(2, 4), 16) / 255;
+    const b = parseInt(hexMatch[1].slice(4, 6), 16) / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    if (max === min) return 0; // achromatic
+    const d = max - min;
+    let h: number;
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) * 60; break;
+      case g: h = ((b - r) / d + 2) * 60; break;
+      default: h = ((r - g) / d + 4) * 60; break;
+    }
+    return h;
+  }
+  return null;
+}
+
+/**
+ * Get the batch color for a given lineage color string.
+ * Quantizes the color's hue to a band, then returns a representative
+ * hsl() color for that band. This allows entities with similar hues
+ * to batch under the same fillStyle.
+ */
+export function getBatchColor(lineageColor: string): string {
+  const hue = parseHueFromColor(lineageColor);
+  if (hue === null) return lineageColor; // can't parse, use as-is
+  const band = hueToBand(hue);
+  const bandHue = bandToHue(band);
+  return hslColor(bandHue, 0.7, 0.55);
+}
