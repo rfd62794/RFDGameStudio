@@ -178,34 +178,59 @@ directly with a hand-crafted state table.
 Per-loop breakdown (default, last sample):
 - flee: 480 → 185 | seek: 480 → 206 | hunt: 480 → 73
 
-**Tick time (Lua `os.clock`, lupa/Python runtime — excludes bridge overhead):**
+**Tick time — Fengari (production runtime, Lua `os.clock` via vitest/Node):**
 
-| Entity counts | Old (ms/tick) | New (ms/tick) | Change |
+Measured August 13 2026 in fengari-web via vitest, using `os.clock()`
+inside Lua (same approach as the original Deep Investigation report —
+excludes JS-Lua bridge overhead from the inner loop). Both old and new
+code measured in the same harness, same session, for a fair same-runtime
+comparison.
+
+| Scenario | Old — full scan (ms/tick) | New — hash (ms/tick) | Change |
 |---|---|---|---|
-| 60 fish, 8 sharks (default) | 1.615 | 2.165 | +34% (slower) |
-| 83 fish, 19 sharks (high) | 2.255 | 2.695 | +18% (slower) |
-| 150 fish, 20 sharks | 4.450 | 5.100 | +15% (slower) |
-| 200 fish, 30 sharks | 6.620 | 7.240 | +9% (slower) |
-| 300 fish, 40 sharks | 10.255 | 12.590 | +23% (slower) |
+| Default (60 fish, 8 sharks) | 34.873 | 42.642 | **+22.3% slower** |
+| High load (83 fish, 19 sharks) | 45.178 | 47.910 | **+6.0% slower** |
 
-**Tick time did NOT improve in lupa/Python.** The `get_nearby` function's
-overhead (string key construction `kx..","..ky` per bucket, table
-allocation per call, bucket iteration) exceeds the savings from the 75%
-distance-check reduction at these entity counts. At 60 fish + 8 sharks,
-the old code does 1440 distance checks; the new code does ~2452 bucket
-lookups (each constructing a string key) + 361 distance checks = ~2813
-total operations — more total work, not less.
+**Outcome: Fengari tick time gets worse, matching lupa's direction.**
+The spatial-hash conversion is a confirmed regression in the production
+runtime, not just in lupa. The `get_nearby` function's per-call overhead
+(string key construction `kx..","..ky` per bucket, table allocation per
+call, bucket iteration) exceeds the savings from the 75% distance-check
+reduction at these entity counts in both runtimes.
 
-**Important runtime context:** The production runtime is fengari
-(Lua-in-JavaScript in the browser), where the investigation measured
-64ms (default) and 106ms (high load). Lupa (Lua-in-Python) is 30-40×
-faster than fengari. In fengari, each Lua operation (including
-`dist2` distance checks) is likely more expensive relative to hash
-table lookups, so the 75% check reduction may translate to a meaningful
-tick-time improvement. **This cannot be verified from lupa
-measurements** — a fengari/browser measurement is needed to confirm the
-production impact. Per the directive: "If tick time does NOT improve
-meaningfully, that's a real finding to report as-is."
+The regression is smaller in fengari than in lupa (+22% vs +34% at
+default, +6% vs +18% at high load), and shrinks at higher entity counts
+(+6% at 83/19 vs +22% at 60/8), suggesting the hash approach may
+eventually break even at very high entity counts where the O(n²) scan
+cost dominates the per-call hash overhead. But at the default and
+high-load scenarios the investigation defined, the hash is net-negative.
+
+**Environment drift note:** The original investigation measured 64ms
+(default) and 106ms (high load) in fengari. The same old code measured
+today produces 34.9ms and 45.2ms — roughly 45-55% faster than the
+original investigation's numbers. This is environment drift (different
+Node.js version, hardware, etc. since the investigation ran), which is
+exactly why this directive required a same-harness old-vs-new comparison
+rather than comparing the new numbers against the stale 64ms/106ms
+baseline. The relative comparison (old vs new, same harness) is the
+authoritative finding.
+
+**Lupa numbers (superseded by fengari above, retained for context):**
+Lupa (Lua-in-Python) showed the same regression direction: +34% slower
+at default, +18% slower at high load. Lupa is 30-40× faster than fengari
+in absolute terms, so its absolute numbers (1.6-2.7ms) are not
+production-relevant, but its finding direction (hash is slower) is
+confirmed by the fengari measurement above.
+
+**Implication for future work:** The 75% pairwise-check reduction is
+real and structurally sound, but `get_nearby`'s implementation cost
+needs its own optimization pass before the check reduction translates to
+a tick-time gain. Potential approaches (not this directive's scope):
+eliminate per-call table allocation (reuse a buffer), eliminate string
+key construction (use numeric bucket indices), or inline the bucket
+scan. The spatial-hash conversion itself is correct (8 equivalence tests
+pass) and the world-wrap fix is real — the issue is purely the hash
+lookup's per-call overhead vs the raw distance check it replaces.
 
 ### Correctness verification
 

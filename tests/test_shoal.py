@@ -799,17 +799,19 @@ def test_chunk_eat_range_is_larger_than_body_collision() -> None:
 def test_get_nearby_checks_all_surrounding_buckets() -> None:
     """get_nearby queries the 3x3 neighborhood around (bx, by), not one repeated key."""
     session = load_game("shoal", seed=42)
+    # Bucket keys are integer-encoded as bx * 100000 + by
+    M = 100000
     hash = {
         "fish": {
-            "1,2": [{ "id": "a" }],
-            "2,2": [{ "id": "b" }],
-            "3,2": [{ "id": "c" }],
-            "1,3": [{ "id": "d" }],
-            "2,3": [{ "id": "e" }],
-            "3,3": [{ "id": "f" }],
-            "1,4": [{ "id": "g" }],
-            "2,4": [{ "id": "h" }],
-            "3,4": [{ "id": "i" }],
+            1 * M + 2: [{ "id": "a" }],
+            2 * M + 2: [{ "id": "b" }],
+            3 * M + 2: [{ "id": "c" }],
+            1 * M + 3: [{ "id": "d" }],
+            2 * M + 3: [{ "id": "e" }],
+            3 * M + 3: [{ "id": "f" }],
+            1 * M + 4: [{ "id": "g" }],
+            2 * M + 4: [{ "id": "h" }],
+            3 * M + 4: [{ "id": "i" }],
         },
     }
     neighbors = call(session, "get_nearby", hash, 2, 3, "fish")
@@ -821,7 +823,8 @@ def test_get_nearby_checks_all_surrounding_buckets() -> None:
 def test_get_nearby_uses_bucket_coordinates_not_passed_key() -> None:
     """The old bug would read the same single bucket 9 times; fix uses real bx, by."""
     session = load_game("shoal", seed=42)
-    hash = { "fish": { "2,3": [{ "id": "target" }] } }
+    M = 100000
+    hash = { "fish": { 2 * M + 3: [{ "id": "target" }] } }
     neighbors = call(session, "get_nearby", hash, 2, 3, "fish")
     assert len(neighbors) == 1
     assert neighbors[0]["id"] == "target"
@@ -866,11 +869,12 @@ def test_compute_fish_forces_hash_equals_full_fish_fallback() -> None:
     }
 
     # Build a spatial hash where all three fish land in the same bucket.
+    # Bucket keys are integer-encoded as bx * 100000 + by
     bw = data["spatial_hash"]["bucket_width"]
     bd = data["spatial_hash"]["bucket_depth"]
     bx = math.floor(f["x"] / bw)
     by = math.floor(f["depth"] / bd)
-    key = f"{bx},{by}"
+    key = bx * 100000 + by
     hash = { "fish": { key: all_fish }, "shark": {} }
 
     fx_hash, fy_hash = call(session, "compute_fish_forces", f, st, hash)
