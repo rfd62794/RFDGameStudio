@@ -35,6 +35,7 @@ import {
   resetCacheStats,
   clearCache,
 } from './art/pathCache';
+import { RenderProfiler, setProfilingEnabled, isProfilingEnabled } from './art/renderProfiler';
 import './styles.css';
 
 
@@ -275,6 +276,19 @@ function ShoalCanvas({
     };
   }, []);
 
+  const profilerRef = useRef(new RenderProfiler());
+
+  // Toggle profiling overlay via '?' key
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === '?') {
+        setProfilingEnabled(!isProfilingEnabled());
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   useGameLoop((dt) => {
     const s = stateRef.current;
     if (!s.initialized || !canvasRef.current) return;
@@ -289,10 +303,17 @@ function ShoalCanvas({
       input.clicked = true;
     }
 
+    const profiler = profilerRef.current;
+    profiler.beginTick();
     const rs = call(session, 'tick_game', dt, input)[0] as RenderState;
+    profiler.endTick();
+
     renderStateRef.current = rs;
     onStats(rs.stats);
-    drawGame(canvasRef.current, rs, s.dims, session.files.data);
+
+    profiler.beginDraw();
+    drawGame(canvasRef.current, rs, s.dims, session.files.data, profiler);
+    profiler.endDraw();
   }, {});
 
   return (
@@ -391,33 +412,16 @@ function lerpColor(a: string, b: string, t: number): string {
   return `rgb(${r},${g},${bl})`;
 }
 
-// Temporary FPS counter for §0 baseline measurement
-let _fpsFrameCount = 0;
-let _fpsLastTime = performance.now();
-let _fpsCurrent = 0;
-let _geometryCallCount = 0;
-let _lastTickTime = 0;
-let _lastDrawTime = 0;
-
 export function drawGame(
   canvas: HTMLCanvasElement,
   rs: RenderState,
   dims: { w: number; h: number },
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  profiler?: RenderProfiler
 ) {
   const renderCfg = (data as { render?: Record<string, string> }).render;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-
-  // FPS measurement
-  _fpsFrameCount++;
-  const now = performance.now();
-  if (now - _fpsLastTime >= 1000) {
-    _fpsCurrent = Math.round((_fpsFrameCount * 1000) / (now - _fpsLastTime));
-    _fpsFrameCount = 0;
-    _fpsLastTime = now;
-  }
-  _geometryCallCount = 0;
 
   const world = rs.world;
   ctx.clearRect(0, 0, dims.w, dims.h);
