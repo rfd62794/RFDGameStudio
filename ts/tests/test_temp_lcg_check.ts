@@ -61,5 +61,33 @@ describe('TEMP LCG divergence check', () => {
     console.log('  fengari LCG values (simulated 32-bit):', fengariVals.join(', '));
 
     expect(wasmoonResult).toBeDefined();
+
+    // Now check math.random() — the other PRNG used by Shoal
+    const factory2 = new LuaFactory(WASM_PATH);
+    const lua2 = await factory2.createEngine();
+    try {
+      await lua2.doString('math.randomseed(42)');
+      const randVals = await lua2.doString(`
+        local vals = {}
+        for i = 1, 10 do
+          vals[i] = math.random()
+        end
+        return table.concat(vals, ', ')
+      `);
+      console.log('\n=== MATH.RANDOM DIVERGENCE CHECK (seed=42, 10 iterations) ===');
+      console.log('  wasmoon math.random() values:', randVals);
+
+      // Also check math.random with integer arg
+      const randIntVals = await lua2.doString(`
+        local vals = {}
+        for i = 1, 10 do
+          vals[i] = math.random(1, 100)
+        end
+        return table.concat(vals, ', ')
+      `);
+      console.log('  wasmoon math.random(1,100) values:', randIntVals);
+    } finally {
+      lua2.global.close();
+    }
   }, 30000);
 });
