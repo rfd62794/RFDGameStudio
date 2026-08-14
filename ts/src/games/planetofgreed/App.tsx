@@ -1440,15 +1440,15 @@ export default function App({ session }: GameRendererProps) {
                 id={`btn-select-culture-${cultureId}`}
                 data-testid={`pog-culture-${cultureId}`}
                 onClick={() => initializeNewGame(cultureId)}
-                className="border-4 border-[#141414] bg-white p-4 flex flex-col items-center gap-2 shadow-[4px_4px_0px_0px_#141414] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+                className="border-2 border-amber-600/40 bg-[#0f0f1a] p-4 flex flex-col items-center gap-2 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
               >
                 <span
-                  className="w-6 h-6 rounded-full border-2 border-[#141414]"
+                  className="w-6 h-6 rounded-full border border-amber-600/40"
                   style={{ backgroundColor: def.color }}
                 />
-                <span className="font-black uppercase text-xs tracking-wide">{cultureId}</span>
-                <span className="text-[10px] font-mono text-[#141414]/70 text-center">{def.corpName}</span>
-                <span className="text-[9px] font-serif italic text-[#141414]/60 text-center leading-snug mt-1">{HOUSE_DESCRIPTIONS[cultureId]}</span>
+                <span className="font-bold uppercase text-xs tracking-wide text-amber-200">{cultureId}</span>
+                <span className="text-[10px] font-mono text-amber-100/70 text-center">{def.corpName}</span>
+                <span className="text-[9px] font-serif italic text-amber-100/60 text-center leading-snug mt-1">{HOUSE_DESCRIPTIONS[cultureId]}</span>
               </button>
             );
           })}
