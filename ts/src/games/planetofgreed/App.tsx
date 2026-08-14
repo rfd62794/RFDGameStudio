@@ -19,6 +19,8 @@ import AnnualReportView from './components/AnnualReportView';
 import AlertQueue from '../../engine/shared/components/AlertQueue';
 import { AnimatePresence, motion } from 'framer-motion';
 import './index.css';
+import GuidedWalkthrough from './components/GuidedWalkthrough';
+import { HOUSE_DESCRIPTIONS, ENDING_TEXT, EVENT_FLAVOR_NOTE } from './flavorText';
 
 import { 
   Briefcase, Activity, AlertTriangle, Play, Pause, Compass, 
@@ -1377,6 +1379,7 @@ export default function App({ session }: GameRendererProps) {
                 />
                 <span className="font-black uppercase text-xs tracking-wide">{cultureId}</span>
                 <span className="text-[10px] font-mono text-[#141414]/70 text-center">{def.corpName}</span>
+                <span className="text-[9px] font-serif italic text-[#141414]/60 text-center leading-snug mt-1">{HOUSE_DESCRIPTIONS[cultureId]}</span>
               </button>
             );
           })}
@@ -1507,14 +1510,27 @@ export default function App({ session }: GameRendererProps) {
                 )}
 
                 <div className="flex-1">
-                  <WeeklyOrdersPanel
-                    selectedCell={selectedCell}
-                    allCells={gameState.cells}
-                    corporations={gameState.corporations}
-                    currentOrders={currentOrders}
-                    onSaveOrders={handleSaveOrders}
-                    playerCorp={playerCorp}
-                  />
+                  {isPlanningPhase ? (
+                    <GuidedWalkthrough
+                      allCells={gameState.cells}
+                      corporations={gameState.corporations}
+                      playerCorp={playerCorp}
+                      currentOrders={gameState.playerOrders}
+                      onSaveOrders={handleSaveOrders}
+                      onAllRegionsProcessed={handleEndPlanningPhase}
+                      selectedCellId={selectedCellId}
+                      onSelectCell={(id) => setSelectedCellId(id)}
+                    />
+                  ) : (
+                    <WeeklyOrdersPanel
+                      selectedCell={selectedCell}
+                      allCells={gameState.cells}
+                      corporations={gameState.corporations}
+                      currentOrders={currentOrders}
+                      onSaveOrders={handleSaveOrders}
+                      playerCorp={playerCorp}
+                    />
+                  )}
                 </div>
               </section>
 
@@ -1622,37 +1638,37 @@ export default function App({ session }: GameRendererProps) {
           of the Annual Report (same z-50, later in DOM) so the ending
           takes precedence when both are up. */}
       {gameState.endingEvent && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 select-none animate-fade-in" id="ending-placeholder" data-testid="pog-ending-placeholder">
-          <div className="bg-[#E4E3E0] border-4 border-[#141414] max-w-md w-full p-8 shadow-[6px_6px_0px_0px_#141414] flex flex-col gap-5 text-center text-[#141414]">
-            <span className="font-serif italic text-[11px] text-[#141414]/70 font-bold uppercase tracking-widest">
-              Seed Engine Online
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 select-none animate-fade-in" id="ending-placeholder" data-testid="pog-ending-placeholder">
+          <div className="bg-[#1a1a2e] border-2 border-amber-600/60 max-w-lg w-full p-8 flex flex-col gap-5 text-center text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.3)]">
+            <span className="font-serif italic text-[11px] text-amber-400/70 font-bold uppercase tracking-widest">
+              {ENDING_TEXT.subtitle}
             </span>
-            <h1 className="text-3xl font-black uppercase tracking-tight">
-              Rank 1 Reached
+            <h1 className="text-3xl font-bold uppercase tracking-tight text-amber-200">
+              {ENDING_TEXT.title}
             </h1>
-            <p className="text-sm font-mono font-semibold leading-relaxed text-[#141414]/90">
-              The Engine fires. What wakes up performs House Arrest on
-              humanity, starting with the winning President.
+            <p className="text-sm font-serif leading-relaxed text-amber-100/80 italic">
+              {ENDING_TEXT.body}
             </p>
-            <div className="bg-white border-2 border-[#141414] p-4 shadow-[2px_2px_0px_0px_#141414] font-mono text-xs">
+            <div className="bg-amber-950/40 border border-amber-700/40 p-4 font-mono text-xs">
               <div className="flex justify-between items-center py-1">
-                <span className="text-[#141414]/60">Fragment count:</span>
-                <span className="font-black text-lg">
+                <span className="text-amber-100/60">Fragment count:</span>
+                <span className="font-black text-lg text-amber-200" data-testid="pog-ending-fragment-count">
                   {gameState.endingEvent.fragmentCount}/{gameState.endingEvent.total}
                 </span>
               </div>
-              <p className="text-[10px] text-[#141414]/50 mt-2 italic">
+              <p className="text-[10px] text-amber-100/50 mt-3 italic font-serif leading-relaxed text-left">
                 {gameState.endingEvent.fragmentCount === gameState.endingEvent.total
-                  ? 'Echo wakes whole.'
-                  : 'Echo wakes with gaps.'}
+                  ? ENDING_TEXT.fragmentComplete
+                  : ENDING_TEXT.fragmentIncomplete}
               </p>
             </div>
             <button
               onClick={handleRequestNewGame}
-              className="w-full bg-red-400 hover:bg-red-500 text-[#141414] font-black border-2 border-[#141414] py-2.5 text-xs font-mono uppercase tracking-widest transition shadow-[2px_2px_0px_0px_#141414] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
+              className="w-full bg-amber-600 hover:bg-amber-500 text-[#1a1a2e] font-black border-2 border-amber-400 py-3 text-xs font-mono uppercase tracking-widest transition cursor-pointer"
               id="btn-restart-after-ending"
+              data-testid="pog-restart-after-ending"
             >
-              Begin New Campaign
+              {ENDING_TEXT.restartLabel}
             </button>
           </div>
         </div>

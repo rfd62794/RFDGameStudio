@@ -53,52 +53,52 @@ export default function BoardroomHeader({
   const playerRank = sortedCorps.findIndex(c => c.id === playerCorp.id) + 1;
 
   return (
-    <header className="bg-[#E4E3E0] border-b-4 border-[#141414] p-4 text-[#141414] flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 select-none" id="boardroom-header">
+    <header className="bg-[#1a1a2e] border-b-2 border-amber-600/40 p-4 text-amber-50 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 select-none" id="boardroom-header">
       {/* Brand & Temporal Cadence Widget */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
         {/* Title */}
-        <div className="border-2 border-[#141414] bg-white/60 px-3 py-1.5 shadow-[2px_2px_0px_0px_#141414] shrink-0">
-          <span className="font-serif italic text-[10px] uppercase tracking-widest text-[#141414]/60 block mb-0.5">COMM-NET INTEL</span>
-          <h1 className="text-xl font-sans font-black tracking-tighter uppercase leading-none text-[#141414] flex items-baseline gap-1.5">
-            PLANET OF <span className="font-mono font-light text-[#141414]/80">GREED</span>
+        <div className="border border-amber-600/40 bg-[#0f0f1a] px-3 py-1.5 shrink-0">
+          <span className="font-serif italic text-[10px] uppercase tracking-widest text-amber-400/60 block mb-0.5">EXECUTIVE TERMINAL</span>
+          <h1 className="text-xl font-sans font-bold tracking-tighter uppercase leading-none text-amber-200 flex items-baseline gap-1.5">
+            PLANET OF <span className="font-mono font-light text-amber-100/70">GREED</span>
           </h1>
         </div>
         
         {/* Visual Temporal Cadence Indicator (Containment Progress) */}
-        <div className="flex flex-col gap-1 border-2 border-[#141414] bg-white p-2 text-xs font-mono shadow-[2px_2px_0px_0px_#141414] min-w-[280px]">
-          <div className="flex justify-between items-center text-[9px] uppercase tracking-wider text-[#141414]/60 font-black">
-            <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-[#141414]" /> Epoch Progress</span>
-            <span className="font-bold text-[#141414] bg-[#141414]/10 px-1">Y{date.year} · Month {date.month}</span>
+        <div className="flex flex-col gap-1 border border-amber-600/40 bg-[#0f0f1a] p-2 text-xs font-mono min-w-[280px]">
+          <div className="flex justify-between items-center text-[9px] uppercase tracking-wider text-amber-400/60 font-bold">
+            <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-amber-400" /> Epoch Progress</span>
+            <span className="font-bold text-amber-200 bg-amber-900/30 px-1">Y{date.year} · Month {date.month}</span>
           </div>
           {/* Months of Year progress (12 tick marks) */}
-          <div className="grid grid-cols-12 gap-0.5 h-2 bg-[#E4E3E0] border border-[#141414]/30 p-0.5" title={`Month ${date.month} of 12`}>
+          <div className="grid grid-cols-12 gap-0.5 h-2 bg-[#1a1a2e] border border-amber-900/30 p-0.5" title={`Month ${date.month} of 12`}>
             {Array.from({ length: 12 }).map((_, i) => (
               <div 
                 key={i} 
                 className={`h-full transition-all duration-300 ${
                   i + 1 < date.month 
-                    ? 'bg-[#141414]/65' 
+                    ? 'bg-amber-700/60' 
                     : i + 1 === date.month 
                       ? 'bg-amber-400 animate-pulse' 
-                      : 'bg-[#141414]/10'
+                      : 'bg-amber-900/20'
                 }`}
               />
             ))}
           </div>
           {/* Containment subdivisions (Week inside Month, Day inside Week) */}
-          <div className="flex items-center justify-between gap-3 mt-1 text-[9px] text-[#141414]/80">
+          <div className="flex items-center justify-between gap-3 mt-1 text-[9px] text-amber-100/80">
             <div className="flex items-center gap-1">
-              <span className="text-[#141414]/50 font-bold uppercase text-[8px]">Week:</span>
+              <span className="text-amber-100/50 font-bold uppercase text-[8px]">Week:</span>
               <div className="flex gap-0.5">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div 
                     key={i} 
-                    className={`w-4 h-3.5 text-center text-[7.5px] font-bold border border-[#141414] flex items-center justify-center transition-all ${
+                    className={`w-4 h-3.5 text-center text-[7.5px] font-bold border border-amber-700/40 flex items-center justify-center transition-all ${
                       i + 1 === date.week 
-                        ? 'bg-amber-400 text-[#141414] font-black' 
+                        ? 'bg-amber-400 text-[#1a1a2e] font-black' 
                         : i + 1 < date.week 
-                          ? 'bg-[#141414]/20 text-[#141414]/60' 
-                          : 'bg-white text-[#141414]/30'
+                          ? 'bg-amber-900/40 text-amber-100/60' 
+                          : 'bg-[#0f0f1a] text-amber-100/30'
                     }`}
                   >
                     W{i + 1}
@@ -107,17 +107,17 @@ export default function BoardroomHeader({
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[#141414]/50 font-bold uppercase text-[8px]">Day:</span>
+              <span className="text-amber-100/50 font-bold uppercase text-[8px]">Day:</span>
               <div className="flex gap-0.5">
                 {Array.from({ length: 7 }).map((_, i) => (
                   <div 
                     key={i} 
-                    className={`w-2.5 h-2.5 border border-[#141414] flex items-center justify-center transition-all ${
+                    className={`w-2.5 h-2.5 border border-amber-700/40 flex items-center justify-center transition-all ${
                       i + 1 === date.day 
-                        ? 'bg-[#141414]' 
+                        ? 'bg-amber-400' 
                         : i + 1 < date.day 
-                          ? 'bg-[#141414]/45' 
-                          : 'bg-white'
+                          ? 'bg-amber-700/50' 
+                          : 'bg-[#0f0f1a]'
                     }`}
                     title={`Day ${i + 1} of 7`}
                   />
@@ -129,13 +129,13 @@ export default function BoardroomHeader({
       </div>
 
       {/* Simulation Speed & Advanced Timeline Controls */}
-      <div className="flex items-center justify-center bg-[#D4D3D0] border-2 border-[#141414] p-1.5 gap-2 max-w-xs mx-auto xl:mx-0 shadow-[2px_2px_0px_0px_#141414] shrink-0">
+      <div className="flex items-center justify-center bg-[#0f0f1a] border border-amber-600/40 p-1.5 gap-2 max-w-xs mx-auto xl:mx-0 shrink-0">
         <button
           onClick={onTogglePlay}
-          className={`p-1.5 border-2 border-[#141414] transition cursor-pointer ${
+          className={`p-1.5 border border-amber-600/40 transition cursor-pointer ${
             isSimulating 
-              ? 'bg-amber-400 text-[#141414] hover:bg-amber-500' 
-              : 'bg-emerald-400 text-[#141414] hover:bg-emerald-500'
+              ? 'bg-amber-400 text-[#1a1a2e] hover:bg-amber-500' 
+              : 'bg-emerald-600 text-amber-50 hover:bg-emerald-500'
           }`}
           title={isSimulating ? "Pause Simulation" : "Start Auto-Simulation"}
           id="btn-play-pause"
@@ -143,15 +143,15 @@ export default function BoardroomHeader({
           {isSimulating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
 
-        <div className="h-5 w-[1px] bg-[#141414]/40"></div>
+        <div className="h-5 w-[1px] bg-amber-700/40"></div>
 
         {/* Speed Controls */}
         <button
           onClick={() => onSetSpeed(1)}
           className={`px-2 py-0.5 text-xs font-mono border transition cursor-pointer ${
             simulationSpeed === 1 && isSimulating
-              ? 'bg-[#141414] text-[#E4E3E0] font-black border-[#141414]'
-              : 'border-transparent text-[#141414]/70 hover:text-[#141414]'
+              ? 'bg-amber-600 text-[#1a1a2e] font-black border-amber-400'
+              : 'border-transparent text-amber-100/50 hover:text-amber-100'
           }`}
           title="Normal Speed"
           id="btn-speed-1x"
