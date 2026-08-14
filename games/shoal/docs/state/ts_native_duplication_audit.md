@@ -7,35 +7,33 @@ honestly.*
 
 ---
 
-## §0 Critical finding: the premise needs adjusting
+## §0 Environment correction (v2)
 
-**The directive assumes a "TS-native catalog" of game logic to audit.
-That catalog does not exist yet.** Every game with a React component in
-`ts/src/games/` (10 games: dissonance, slimeworld, shoal, brewfield,
-horse_racing, slither_rogue, mutant_battle_ball, slime_coin,
-chimera_wilds, scrapcrawl) delegates its game logic to Lua via
-`useLuaCall`, `call()` from `engine/runtime`, or
-`session.executor.call()`. The TS code is rendering, UI, state
-marshaling, and in a few cases client-side preview logic — not game
-logic. Zero games have `tick_game`, `tick_match`, `simulate`, `step`,
-or any equivalent function implemented in TS.
+**The first version of this report claimed "Planet of Greed doesn't
+exist in the repo" and "zero TS-native game logic exists." Both claims
+were wrong, and the error was an artifact of where the audit looked,
+not a true statement about the studio.**
 
-The Shoal Performance Investigation's TS-native benchmark was a
-synthetic port that proved the performance ceiling — it was never
-committed as production code, and no other game has been ported either.
+The directive scoped the audit to `ts/src/games/` — the shared-git
+catalog of Lua-backed games with TS renderers. But per ADR-012's
+port-then-conversion pipeline, TS-native games land in `examples/{slug}/`
+first, and `examples/*` is gitignored (local-only, never enters shared
+git history). The audit's grep/search tools respected the gitignore,
+making `examples/` invisible. On this machine (the same Nitro checkout
+where the Phase 1 Engine Directive work happened), both
+`examples/corpworld/` and `examples/planetofgreed/` are present with
+real, tested TS-native game logic — including all four modules the
+first report said weren't there: `wheelTopology.ts`,
+`fragmentSystem.ts`, `endingSystem.ts`, `aiDecisions.ts`, each with
+passing vitest tests.
 
-**Planet of Greed does not exist in the repo.** ADR-013 mentions it as
-built in a Google AI Studio session, but its four modules
-(`wheelTopology.ts`, `fragmentSystem.ts`, `endingSystem.ts`,
-`aiDecisions.ts`) are not present anywhere in the codebase. There is
-nothing to check against the rest of the catalog.
-
-**What this audit actually covers:** the TS-side code that does exist
-across the 10 component-bearing games — rendering, UI, state
-marshaling, and the few files with real client-side logic. The
-candidate categories from the directive are assessed against this real
-code, not against an assumed TS-native game-logic catalog that isn't
-there.
+**What this corrected report covers:**
+1. The `ts/src/games/` catalog (10 Lua-backed games with TS renderers) —
+   findings from v1 that remain valid are kept in §3–§4.
+2. The `examples/` catalog (18 local-only TS-native games) — the real
+   TS-native game logic that v1 missed, led by the CorpWorld → Planet of
+   Greed fork relationship, which is the single largest duplication
+   finding in this audit.
 
 ---
 
@@ -221,18 +219,149 @@ requirements. This is the same finding as the Lua audit's
 
 ### F. Planet of Greed's four new modules
 
-**Finding: cannot assess — modules do not exist in the repo.**
+**Finding: all four modules exist and have been assessed. One (mulberry32
+in aiDecisions.ts) is a real duplication of artGen's seededRandom. The
+other three are novel with no catalog analog.**
 
-`wheelTopology.ts`, `fragmentSystem.ts`, `endingSystem.ts`, and
-`aiDecisions.ts` are not present anywhere in the codebase. Planet of
-Greed is mentioned in ADR-013 as built in a Google AI Studio session
-but was never committed. There is nothing to compare against.
+The first version of this report said these modules didn't exist. That
+was wrong — they live in `examples/planetofgreed/src/`, which is
+gitignored and was invisible to the audit's gitignore-respecting search
+tools. All four are present with passing vitest tests:
 
-The closest structural analog in the repo is SlimeWorld's
-`planetRegion.ts` (Voronoi diagram generation for a territorial map
-with 22 nodes on concentric rings), but this is a completely different
-topology from a "culture ring with opposite/adjacent lookups" —
-SlimeWorld's nodes are spatial Voronoi cells, not a relational wheel.
+**1. `wheelTopology.ts` (45 lines)** — 6-culture wheel with
+`getOpposite(c)` (index + 3 mod 6) and `getAdjacent(c)` (index ± 1,
+wrapping). Returns the *element at* the opposite/adjacent position, not
+a relation-type string.
+
+**Relation to Dissonance/Brewfield's wheel (§2D above):** Same concept
+(ordered ring, opposite = half-way around, adjacent = neighbor), but
+different size (6 vs 4), different API (returns the element vs returns
+a relation classification), and different consumers (AI target
+weighting vs card/brew resolution). A generalized wheel module could
+theoretically serve all three, but the APIs are different enough that
+promotion would require designing a new interface, not just extracting
+a function. This is a Phase 2 consideration, not a clean extraction.
+
+**Relation to SlimeWorld's `planetRegion.ts`:** SlimeWorld has 6
+capitols at 60° increments on a spatial ring, but that's Voronoi
+geometry (computing polygon cells from seed points), not relational
+topology (computing opposite/adjacent from a wheel index). Different
+problem, different code, no overlap.
+
+**2. `fragmentSystem.ts` (38 lines)** — `initializeFragments(corps)`
+sets each House's fragments to `[ownCultureId]`;
+`onHouseEliminated(eliminated, eliminator)` transfers all fragments
+with chain inheritance. **No analog anywhere in the catalog.** Unique
+to Planet of Greed's elimination mechanic.
+
+**3. `endingSystem.ts` (43 lines)** — `checkEnding(corps,
+playerHouseId)` returns an `EndingEvent` if the player is Rank 1.
+**No analog anywhere.** Unique to Planet of Greed's victory condition.
+
+**4. `aiDecisions.ts` (95 lines)** — wheel-aware AI target selection
+with weighted random neighbor choice. Contains `makeSeededRng(seed)`:
+```ts
+export function makeSeededRng(seed: number): () => number {
+  let s = seed >>> 0;
+  return function () {
+    s = (s + 0x6D2B79F5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+```
+
+**This is a duplicate of `ts/src/engine/artGen/seededRandom.ts`'s
+`mulberry32`:**
+```ts
+export function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+```
+
+Same algorithm, same constants (`0x6d2b79f5`), same output sequence.
+Cosmetic differences only: variable name (`s` vs `a`), hex casing
+(`0x6D2B79F5` vs `0x6d2b79f5`), and uint32 coercion (`>>> 0` vs `|= 0`
+then `| 0`). This is the third copy of mulberry32 in the studio —
+artGen has one, Planet of Greed's aiDecisions has one, and the
+synthetic Shoal TS-native benchmark port had one (now deleted).
+
+**Why this happened:** Planet of Greed was built in a Google AI Studio
+session that didn't have access to the shared `ts/src/engine/artGen/`
+module (it's a standalone `examples/` project with its own
+`node_modules`). The duplication is real but understandable — and it's
+the kind of thing that the port-then-conversion pipeline (ADR-012) is
+supposed to catch when the game moves from `examples/` to `ts/src/`.
+
+### G. CorpWorld → Planet of Greed fork (the largest finding)
+
+**Finding: massive real duplication. This is the single largest
+duplication finding in the entire audit, and v1 missed it entirely.**
+
+CorpWorld (`examples/corpworld/`) is ADR-010's cited TS-native
+precedent. Planet of Greed (`examples/planetofgreed/`) forked from
+CorpWorld and added the 4 modules above. The fork relationship is
+visible in the file structure — both have identical component filenames
+and the same `utils/` layout — and confirmed by hash comparison:
+
+| File | Status | Lines (CW / PoG) |
+|---|---|---|
+| `src/utils/combat.ts` | **BYTE-IDENTICAL** (SHA256 match) | 254 / 254 |
+| `src/main.tsx` | **BYTE-IDENTICAL** | — |
+| `src/components/AlertQueue.tsx` | **BYTE-IDENTICAL** | — |
+| `src/components/BoardroomHeader.tsx` | **BYTE-IDENTICAL** | — |
+| `src/components/CombatResolutionView.tsx` | **BYTE-IDENTICAL** | — |
+| `src/components/DailyEventModal.tsx` | **BYTE-IDENTICAL** | — |
+| `src/components/PlanetMap.tsx` | **BYTE-IDENTICAL** | — |
+| `src/types.ts` | DIFFERS (PoG adds CultureId, rank, fragments, publicOpinion, EndingEvent) | 117 / 155 |
+| `src/utils/mapGenerator.ts` | DIFFERS (PoG rewrites capital placement for wheel-ordered spread) | 228 / 355 |
+| `src/components/AnnualReportView.tsx` | DIFFERS (PoG adds ending-event display) | 189 / 202 |
+| `src/components/WeeklyOrdersPanel.tsx` | DIFFERS (PoG adds civic-unrest order type) | 681 / 692 |
+| `src/App.tsx` | DIFFERS (PoG integrates 4 new modules + rank/fragment logic) | 1344 / 1686 |
+
+**7 of 12 files are byte-identical.** The RPS combat system
+(`combat.ts`, 254 lines of real game logic — rock-paper-scissors unit
+counters, deterministic weave-sort attack order, fortification
+absorption, multi-round resolution, tie-breaker) is the most
+significant duplicated logic. No other game in the catalog (Lua or TS,
+`ts/src/games/` or `examples/`) has this combat system — it's unique
+to CorpWorld and Planet of Greed, and it's byte-for-byte identical
+between them.
+
+**What this means for promotion:** Unlike the Dissonance/Brewfield
+wheel relation (10 lines, different consumers) or the Chimera/MBB
+part-slot types (type definitions, no logic), this is **254 lines of
+identical game logic** plus **6 identical React components**. If
+CorpWorld and Planet of Greed both move into `ts/src/games/` per
+ADR-012's conversion pipeline, the combat system and shared components
+should be extracted into a shared module first — otherwise the studio
+ships two byte-identical copies of a 254-line combat resolver.
+
+**The diverged files are genuinely diverged, not superficially:**
+- `mapGenerator.ts`: PoG rewrote the capital-placement algorithm to
+  bias for angular spread (so 6 capitals arrange into a wheel shape)
+  and added wheel-cyclic relabeling. The first ~180 lines (Voronoi
+  generation, sector names) are shared; the placement logic is new.
+- `App.tsx`: PoG integrated `wheelTopology`, `fragmentSystem`,
+  `endingSystem`, and `aiDecisions` into the game loop, plus
+  `computeRank` for the Rank/PopBalance system. 342 new lines.
+- `types.ts`: PoG added `CultureId`, `Corporation.rank`,
+  `Corporation.fragments`, `MapCell.publicOpinion`, `EndingEvent`, and
+  the `'unrest'` civic focus option.
+
+These diverged files are not promotion candidates — they're where
+Planet of Greed's unique mechanics live. The promotion candidate is the
+**7 byte-identical files**, led by `combat.ts`.
 
 ---
 
