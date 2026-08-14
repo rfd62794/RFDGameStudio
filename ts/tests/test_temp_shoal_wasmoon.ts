@@ -37,9 +37,19 @@ const shoalDataRaw = readFileSync(resolve(shoalDir, 'data.yaml'), 'utf-8');
 const shoalSystemsRaw = readFileSync(resolve(shoalDir, 'systems.yaml'), 'utf-8');
 const shoalSystems = yaml.load(shoalSystemsRaw) as Record<string, unknown>;
 const luaFileList = shoalSystems['lua_files'] as string[];
-const engineSource = ''; // Shoal uses no engine systems (engine_systems: [])
 
-const shoalLuaSource = luaFileList
+// Load engine primitives (same order as loader.ts buildEngineSource)
+const engineDir = resolve(repoRoot, 'engine', 'primitives');
+const PRIMITIVE_ORDER = [
+  'action.lua', 'entity.lua', 'resolution.lua', 'consequence.lua',
+  'movement.lua', 'physics.lua', 'lifecycle.lua',
+];
+const engineSource = PRIMITIVE_ORDER
+  .map(f => { try { return readFileSync(resolve(engineDir, f), 'utf-8'); } catch { return ''; } })
+  .filter(s => s.length > 0)
+  .join('\n\n');
+
+const shoalLuaSource = engineSource + '\n\n' + luaFileList
   .map(f => readFileSync(resolve(shoalDir, f), 'utf-8'))
   .join('\n\n');
 
