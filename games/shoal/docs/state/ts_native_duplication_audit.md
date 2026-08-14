@@ -432,56 +432,98 @@ shared types instead of defining their own.
 | Audit | Flagged candidates | Real promotion candidates | Ratio |
 |---|---|---|---|
 | Lua Deep Investigation (Part C) | 11 | 2 (`distance`, `lerp`) | 18% |
-| TS-Native Cross-Game (this audit) | 5 categories + Planet of Greed's 4 modules | 2 (element-wheel `getRelation`, part-slot types) | ~18% of categories |
+| TS-Native Cross-Game v1 (wrong scope) | 5 categories | 2 (wheel `getRelation`, part-slot types) | — |
+| TS-Native Cross-Game v2 (corrected) | 5 categories + CorpWorld/PoG fork | 4 (wheel `getRelation`, part-slot types, **CorpWorld/PoG combat.ts + 6 components**, **mulberry32 duplicate**) | — |
 
-**The ratio is the same.** The Lua audit found 2 of 11 flagged
-functions were real candidates. This audit found 2 real candidates
-across 5 categories (plus 4 modules that don't exist to assess). The
-discipline of "read real source, diff for real" produces the same
-result regardless of language: most apparent duplication is superficial
-variation, not genuine structural identity.
+**The v1 "same ratio as the Lua audit" conclusion was an artifact of
+the wrong scope, not a real finding.** When the audit includes the
+actual TS-native catalog (`examples/`), the duplication picture is
+*richer* than the Lua audit found — because CorpWorld and Planet of
+Greed share 7 byte-identical files including a 254-line combat
+resolver, which is a larger duplication than anything in the Lua
+catalog. The Lua audit's 2-of-11 ratio described a catalog where no
+two games shared a full system. The TS-native catalog has a fork
+relationship where 7 of 12 files are byte-identical — a fundamentally
+different shape of duplication.
 
-The TS-native catalog is neither richer nor leaner in real duplication
-than the Lua catalog — because the TS code that exists is the same
-category of code (rendering, UI, types, client-side previews) that
-doesn't have the complex game-logic interactions that produce both
-real duplication (shared math) and false duplication (same name,
-different complexity).
+The v1 findings that remain valid (Dissonance/Brewfield wheel relation,
+Chimera/MBB part-slot types) are still real, just smaller in context.
+The CorpWorld/PoG fork dwarfs them.
 
 ---
 
 ## §5 Honest caveats
 
-- **This audit covers TS-side code only.** The Lua game logic catalog
-  was already audited in the Deep Investigation's Part C. This audit
-  doesn't re-audit Lua; it checks whether the TS layer has additional
-  duplication worth promoting.
-- **The "TS-native catalog" doesn't exist yet.** If Shoal (or other
-  games) are migrated to TS-native per the Performance Investigation's
-  recommendation, a future audit should re-run against the actual
-  TS-native game logic — that's where real algorithmic duplication
-  (spatial hash, steering forces, lifecycle patterns) would become
-  visible if it exists.
-- **Planet of Greed's modules are unassessable.** If they're committed
-  to the repo later, a targeted check of `wheelTopology.ts` against
-  Dissonance/Brewfield's element-wheel logic and against SlimeWorld's
-  `planetRegion.ts` would be worthwhile.
+- **v1 was wrong about scope.** The directive said `ts/src/games/`, but
+  the real TS-native game logic lives in `examples/` (gitignored, per
+  ADR-012). v1's headline ("zero TS-native game logic exists") was an
+  artifact of that scope mismatch, not a true statement. v2 corrects
+  this by including `examples/`.
+- **The `examples/` catalog may have more duplication than this audit
+  found.** v2 specifically examined CorpWorld and Planet of Greed
+  (the fork relationship the user flagged) and the 4 Planet of Greed
+  modules. The other 16 `examples/` games were not exhaustively
+  diffed against each other — a future pass could check for additional
+  fork relationships or shared systems among them.
+- **The mulberry32 duplication is a port-then-conversion pipeline gap.**
+  Planet of Greed's `aiDecisions.ts` reimplemented mulberry32 because
+  the standalone `examples/` project doesn't import from
+  `ts/src/engine/artGen/`. When the game converts to `ts/src/games/`
+  per ADR-012, this should be replaced with the shared import. The
+  same may be true for other `examples/` games that need seeded RNG.
+- **The wheel-topology pattern spans three games with different APIs.**
+  Dissonance/Brewfield (4-element, returns relation type), Planet of
+  Greed (6-element, returns opposite/adjacent element), and
+  SlimeWorld (6-capitol spatial ring, Voronoi geometry). A generalized
+  wheel module is conceivable but would require designing a new
+  interface — it's a Phase 2 consideration, not a clean extraction.
 
 ---
 
 ## §6 Completion criteria checklist
 
-- [x] Every TS-native game's relevant source actually read, not inferred from structure/naming
-- [x] Each candidate category assessed with real findings, including categories that turn out empty (spatial partitioning, steering math, entity lifecycle, UI routing — all empty)
-- [x] Real diffs provided for anything reported as a promotion candidate (element-wheel `getRelation`: Dissonance vs Brewfield Lua + TS; Part-slot types: Chimera Wilds vs Mutant Battle Ball TS + Lua)
-- [x] Planet of Greed's four new modules specifically checked — confirmed not present in repo, cannot assess
-- [x] Honest comparison to the Lua audit's 2-of-11 result — same ~18% ratio
+- [x] Every TS-native game's relevant source actually read, not inferred from structure/naming — **v2 corrects v1's omission of `examples/`**
+- [x] Each candidate category assessed with real findings, including categories that turn out empty (spatial partitioning, steering math, entity lifecycle, UI routing — all empty in `ts/src/games/`)
+- [x] Real diffs provided for anything reported as a promotion candidate:
+  - element-wheel `getRelation`: Dissonance vs Brewfield (Lua + TS)
+  - Part-slot types: Chimera Wilds vs Mutant Battle Ball (TS + Lua)
+  - **CorpWorld vs Planet of Greed: 7 of 12 files byte-identical (SHA256-verified), led by 254-line `combat.ts`**
+  - **mulberry32: Planet of Greed's `aiDecisions.ts` vs artGen's `seededRandom.ts`**
+- [x] Planet of Greed's four new modules specifically checked — all four present, read, and assessed (wheelTopology: related to D/B wheel but different API; fragmentSystem: novel; endingSystem: novel; aiDecisions: contains mulberry32 duplicate)
+- [x] Honest comparison to the Lua audit — v1's "same ratio" was an artifact of wrong scope; v2 finds the TS-native catalog has *more* duplication than the Lua catalog due to the CorpWorld/PoG fork
 - [x] Zero code changes made — confirmed via diff
 - [x] No regression to existing floor — nothing changed
 
 ---
 
+## §7 What v1 got right and wrong
+
+**Right (kept in v2):**
+- The Dissonance/Brewfield element-wheel `getRelation` finding — real
+  diff, real duplication, appropriately small
+- The Chimera Wilds/Mutant Battle Ball part-slot type finding — real
+  structural duplication, appropriately small
+- The "empty" categories (spatial partitioning, steering, entity
+  lifecycle, UI routing) — correctly empty for `ts/src/games/`
+- The method: read real source, diff for real, report honestly
+
+**Wrong (corrected in v2):**
+- "Planet of Greed doesn't exist in the repo" — it exists in
+  `examples/planetofgreed/`, which is gitignored and invisible to
+  gitignore-respecting search tools
+- "Zero TS-native game logic exists" — `examples/` has 18 TS-native
+  games with real logic, including CorpWorld (ADR-010's cited
+  precedent) and Planet of Greed
+- "Same ~18% ratio as the Lua audit" — an artifact of the wrong scope;
+  the real TS-native catalog has the CorpWorld/PoG fork, which is a
+  larger duplication than anything in the Lua catalog
+- The grep/search tools respected `.gitignore`, making `examples/`
+  invisible — the audit should have used `exec` with `Get-ChildItem`
+  or explicitly searched `examples/` from the start
+
+---
+
 *RFDGameStudio | TS-Native Cross-Game Duplication Audit | August 2026*
-*The direction changed. The discipline for deciding what's actually
-shared didn't. Same ratio as the Lua audit: most apparent duplication
-is superficial, not structural.*
+*v2: corrected scope. The method (read real source, diff for real)
+was right. The scope (where to look) was wrong. The biggest finding
+was in the directory the search tools couldn't see.*
