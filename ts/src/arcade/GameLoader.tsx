@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { loadGame } from '../engine/runtime';
-import type { GameSession, GameConfig } from '../engine/types';
+import type { GameSession, GameConfig, GameFiles, LuaExecutor } from '../engine/types';
 import { findGame } from '../games/registry';
 import { navigateHome } from './routing';
+
+/**
+ * Create a stub session for TS-native games that have no Lua/yaml assets.
+ * These games manage their own state entirely in React/TS and don't use
+ * the Lua executor or data/ui yaml files. The session is provided to
+ * satisfy GameRendererProps but is not used by the game.
+ */
+function createStubSession(gameId: string): GameSession {
+  const stubFiles: GameFiles = { gameId, data: {}, ui: {}, logic: '', engineSource: '' };
+  const stubExecutor: LuaExecutor = { call: () => [] };
+  return { gameId, files: stubFiles, executor: stubExecutor };
+}
 
 export default function GameLoader({ gameId }: { gameId: string }) {
   const [session, setSession] = useState<GameSession | null>(null);
@@ -27,13 +39,31 @@ export default function GameLoader({ gameId }: { gameId: string }) {
     let cancelled = false;
     (async () => {
       try {
-        const s = await loadGame(gameId, 42);
         if (!cfg) {
           setError(
-            `Game "${gameId}" loaded successfully but has no registered config in registry.ts — this is a studio configuration error, not a player-facing one. Check that the game is added to GAME_REGISTRY.`
+            `Game "${gameId}" has no registered config in registry.ts — this is a studio configuration error, not a player-facing one. Check that the game is added to GAME_REGISTRY.`
           );
           return;
         }
+
+        // TS-native games with a component but no Lua/yaml assets get a
+        // stub session. They manage their own state entirely in React/TS.
+        // Lua-backed hybrid games (component + yaml) still go through
+        // loadGame to get a real session with the Lua executor.
+        let s: GameSession;
+        try {
+          s = await loadGame(gameId, 42);
+        } catch {
+          // loadGame throws "Unknown game" if the game is not in
+          // GAME_ASSETS (no yaml files). If the game has a component,
+          // it's TS-native — use a stub session.
+          if (cfg.component) {
+            s = createStubSession(gameId);
+          } else {
+            throw new Error(`Unknown game: ${gameId}`);
+          }
+        }
+
         if (!cancelled) {
           setSession(s);
           setConfig(cfg);
