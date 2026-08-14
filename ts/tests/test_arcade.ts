@@ -83,6 +83,13 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(App, { session }));
     });
 
+    // Dismiss title screen
+    const newGameButton = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('New Game'));
+    expect(newGameButton).toBeTruthy();
+    await act(async () => {
+      newGameButton!.click();
+    });
+
     const buttons = container.querySelectorAll('button');
     const encounterButton = Array.from(buttons).find(b => b.textContent?.includes('Face the Wilds'));
     expect(encounterButton).toBeTruthy();
@@ -153,6 +160,13 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(ScrapCrawlApp, { session }));
     });
 
+    // Dismiss title screen
+    const newGameButton = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('New Game'));
+    expect(newGameButton).toBeTruthy();
+    await act(async () => {
+      newGameButton!.click();
+    });
+
     // Move from Home Base to a fight room first.
     const moveButton = container.querySelector('.sc-connection') as HTMLButtonElement | null;
     expect(moveButton).toBeTruthy();
@@ -183,6 +197,13 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(ScrapCrawlApp, { session }));
     });
 
+    // Dismiss title screen
+    const newGameButton = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('New Game'));
+    expect(newGameButton).toBeTruthy();
+    await act(async () => {
+      newGameButton!.click();
+    });
+
     const fightButton = container.querySelector('.sc-fight-button') as HTMLButtonElement | null;
     expect(fightButton).toBeTruthy();
     expect(fightButton!.disabled).toBe(true);
@@ -196,6 +217,13 @@ describe('Arcade Registry', () => {
 
     await act(async () => {
       root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    // Dismiss title screen
+    const newGameButton = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('New Game'));
+    expect(newGameButton).toBeTruthy();
+    await act(async () => {
+      newGameButton!.click();
     });
 
     const moveButton = container.querySelector('.sc-connection') as HTMLButtonElement | null;
@@ -231,6 +259,13 @@ describe('Arcade Registry', () => {
       root.render(React.createElement(ScrapCrawlApp, { session }));
     });
 
+    // Dismiss title screen
+    const newGameButton = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('New Game'));
+    expect(newGameButton).toBeTruthy();
+    await act(async () => {
+      newGameButton!.click();
+    });
+
     const moveButton = container.querySelector('.sc-connection') as HTMLButtonElement | null;
     expect(moveButton).toBeTruthy();
 
@@ -254,6 +289,13 @@ describe('Arcade Registry', () => {
 
     await act(async () => {
       root.render(React.createElement(ScrapCrawlApp, { session }));
+    });
+
+    // Dismiss title screen
+    const newGameButton = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('New Game'));
+    expect(newGameButton).toBeTruthy();
+    await act(async () => {
+      newGameButton!.click();
     });
 
     const craftButtons = container.querySelectorAll('.sc-craft-button');
