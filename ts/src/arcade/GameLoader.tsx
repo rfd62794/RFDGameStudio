@@ -41,7 +41,7 @@ export default function GameLoader({ gameId }: { gameId: string }) {
       try {
         if (!cfg) {
           setError(
-            `Game "${gameId}" has no registered config in registry.ts — this is a studio configuration error, not a player-facing one. Check that the game is added to GAME_REGISTRY.`
+            `Game "${gameId}" loaded successfully but has no registered config in registry.ts — this is a studio configuration error, not a player-facing one. Check that the game is added to GAME_REGISTRY.`
           );
           return;
         }
