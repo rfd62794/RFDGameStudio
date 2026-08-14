@@ -12,7 +12,11 @@
  *   - mulberry32 / hashStringToSeed  (seeded PRNG)
  *   - getRelation                     (element-wheel classification)
  *   - PartSlot / Part / PartsBySlot   (6-slot body-part type system)
+ *   - resolveCellCombat               (RPS combat resolver, 254 lines)
+ *   - Shared components               (AlertQueue, BoardroomHeader, etc.)
  */
 export * from './seededRandom';
 export * from './wheelRelation';
 export * from './partSlots';
+export * from './combat';
+export * from './componentTypes';

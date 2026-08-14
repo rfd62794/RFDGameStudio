@@ -8,7 +8,6 @@ const EXPECTED_ORDER = [
   'slimeworld',
   'shoal',
   'voiddrift',
-  'corpworld',
   'horse_racing',
   'slither_rogue',
   'mutant_battle_ball',
@@ -18,9 +17,9 @@ const EXPECTED_ORDER = [
   'ledger',
   'trinity_siege',
   '7_days_to_fry',
-  'kingmaker_squads',
   'antsim_redux',
   'facility_escape',
+  'planetofgreed',
 ];
 
 describe('Arcade Registry Directive — July 2026', () => {
@@ -39,6 +38,17 @@ describe('Arcade Registry Directive — July 2026', () => {
     expect(actual).toEqual(EXPECTED_ORDER);
   });
 
+  it('test_registry_planetofgreed_present', () => {
+    const entry = GAME_REGISTRY.find(g => g.gameId === 'planetofgreed');
+    expect(entry).toBeDefined();
+    expect(entry!.gameId).toBe('planetofgreed');
+    expect(entry!.label).toBe('Planet of Greed');
+    expect(entry!.description).toBeTruthy();
+    expect(entry!.description!.length).toBeGreaterThan(0);
+    expect(entry!.status).toBe('dev');
+    expect(entry!.component).toBeDefined();
+  });
+
   it('test_registry_slimebreeder_slimegarden_absent', () => {
     const ids = GAME_REGISTRY.map(g => g.gameId);
     expect(ids).not.toContain('slimebreeder');
@@ -48,6 +58,26 @@ describe('Arcade Registry Directive — July 2026', () => {
   it('test_slimebreeder_slimegarden_source_intact', () => {
     const repoRoot = resolve(import.meta.dirname, '../..');
     for (const id of ['slimebreeder', 'slimegarden']) {
+      const dir = resolve(repoRoot, 'ts/src/games', id);
+      expect(existsSync(dir), `${id} source dir missing`).toBe(true);
+      expect(lstatSync(dir).isDirectory(), `${id} path is not a directory`).toBe(true);
+      const config = resolve(dir, 'config.ts');
+      expect(existsSync(config), `${id} config.ts missing`).toBe(true);
+    }
+  });
+
+  // Retirement tests — CorpWorld and KingMaker Squads retired Aug 2026.
+  // Matching SlimeBreeder precedent: config.ts preserved in ts/src/games/,
+  // explicitly absent from registry, source in examples/ preserved untouched.
+  it('test_registry_corpworld_kingmaker_absent', () => {
+    const ids = GAME_REGISTRY.map(g => g.gameId);
+    expect(ids).not.toContain('corpworld');
+    expect(ids).not.toContain('kingmaker_squads');
+  });
+
+  it('test_corpworld_kingmaker_source_intact', () => {
+    const repoRoot = resolve(import.meta.dirname, '../..');
+    for (const id of ['corpworld', 'kingmaker_squads']) {
       const dir = resolve(repoRoot, 'ts/src/games', id);
       expect(existsSync(dir), `${id} source dir missing`).toBe(true);
       expect(lstatSync(dir).isDirectory(), `${id} path is not a directory`).toBe(true);

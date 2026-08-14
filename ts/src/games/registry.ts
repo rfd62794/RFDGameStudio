@@ -3,7 +3,6 @@ import dissonanceConfig from './dissonance/config';
 import { slimeworldConfig } from './slimeworld/config';
 import shoalConfig from './shoal/config';
 import voiddriftConfig from './voiddrift/config';
-import corpworldConfig from './corpworld/config';
 import { horseRacingConfig } from './horse_racing/config';
 import { slitherRogueConfig } from './slither_rogue/config';
 import { mutantBattleBallConfig } from './mutant_battle_ball/config';
@@ -13,9 +12,16 @@ import { scrapcrawlConfig } from './scrapcrawl/config';
 import ledgerConfig from './ledger/config';
 import trinitySiegeConfig from './trinity_siege/config';
 import sevenDaysToFryConfig from './7_days_to_fry/config';
-import kingmakerSquadsConfig from './kingmaker_squads/config';
 import antsimReduxConfig from './antsim_redux/config';
 import facilityEscapeConfig from './facility_escape/config';
+import { planetofgreedConfig } from './planetofgreed/config';
+
+// Retired games (matching SlimeBreeder precedent): config.ts preserved in
+// their ts/src/games/{slug}/ directories, but NOT imported here. Source
+// in examples/ preserved untouched. Explicit absence confirmed by
+// test_arcade_registry_directive.ts.
+//   - corpworld:        Planet of Greed's fork ancestor. Retired Aug 2026.
+//   - kingmaker_squads: Wheel/culture-identity design source. Retired Aug 2026.
 
 /**
  * Formal game registry. Add new games here.
@@ -26,7 +32,6 @@ export const GAME_REGISTRY: GameConfig[] = [
   slimeworldConfig,
   shoalConfig,
   voiddriftConfig,
-  corpworldConfig,
   horseRacingConfig,
   slitherRogueConfig,
   mutantBattleBallConfig,
@@ -36,9 +41,9 @@ export const GAME_REGISTRY: GameConfig[] = [
   ledgerConfig,
   trinitySiegeConfig,
   sevenDaysToFryConfig,
-  kingmakerSquadsConfig,
   antsimReduxConfig,
   facilityEscapeConfig,
+  planetofgreedConfig,
 ];
 
 /**
