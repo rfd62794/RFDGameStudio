@@ -279,6 +279,9 @@ const EVENTS_TEMPLATES = [
 ];
 
 export default function App({ session }: GameRendererProps) {
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [selectedCellId, setSelectedCellId] = useState<number | null>(null);
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
@@ -1394,7 +1397,7 @@ export default function App({ session }: GameRendererProps) {
   // Matches Dissonance's TitlePhase and Shoal's TitleScreen usage.
   if (showTitleScreen) {
     return (
-      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
         <TitleScreen
           title="Planet of Greed"
           tagline="Six Houses. One Engine. One winner."
@@ -1412,7 +1415,7 @@ export default function App({ session }: GameRendererProps) {
   // Matches KingMaker's confirmed new-game-only mechanism.
   if (showOpeningSequence) {
     return (
-      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
         <OpeningSequence onComplete={handleOpeningComplete} />
       </GameShell>
     );
@@ -1423,7 +1426,7 @@ export default function App({ session }: GameRendererProps) {
   // wheel-opposite rival) the player gets.
   if (pendingCultureSelection) {
     return (
-      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
         <div className="min-h-screen bg-[#1a1a2e] text-amber-50 font-sans flex flex-col justify-center items-center gap-6 p-6 select-none">
           <div className="text-center">
             <h1 className="text-2xl font-bold uppercase tracking-tight text-amber-200">Choose Your House</h1>
@@ -1460,7 +1463,7 @@ export default function App({ session }: GameRendererProps) {
 
   if (!gameState) {
     return (
-      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
         <div className="min-h-screen bg-[#1a1a2e] flex flex-col justify-center items-center text-amber-100 font-mono gap-3 select-none">
           <RefreshCw className="w-10 h-10 text-amber-400 animate-spin" />
           <span className="font-bold">BOOTING PLANET OF GREED EXECUTIVE TERMINAL...</span>
@@ -1479,7 +1482,7 @@ export default function App({ session }: GameRendererProps) {
     : 0;
 
   return (
-    <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+    <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
     <div className="min-h-screen bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
 
       {/* HEADER SECTION */}

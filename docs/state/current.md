@@ -2,6 +2,262 @@
 
 *Last updated: August 13 2026*
 
+## Planet of Greed — Standalone Build for itch.io — COMPLETED
+
+**Directive:** Produce the real, missing piece for Planet of Greed's
+itch.io project page (already created, Prototype/Draft status,
+metadata set): an actual uploadable standalone build. Isolated from
+the combined deployment directive so it can ship on its own timeline.
+
+### STOP rule — git state verified
+
+Planet of Greed's full thread confirmed present before building:
+- Conversion/retirement, Merge & Polish v2, Shell Compliance
+- Attack Fix (`6b7ba1e`)
+- Softlock Fix (`13cbb7e`)
+- Shell/Opening (`b4640e8`)
+
+Working tree clean (2 uncommitted files: `docs/state/current.md` and
+`ts/tests/test_dual_target_deploy.ts` — both documentation/test
+updates, no source changes pending).
+
+### Generator gap — real, identified, and addressed
+
+**The real gap:** `tools/generate-standalone-entry.ts` line 94 throws
+`Error('No Lua files found for ${gameId}')` for games without Lua
+files. The generator was built for Lua-backed games (reads
+`systems.yaml`/`logic.lua` dependencies). Planet of Greed is TS-native
+with zero Lua files and no `games/planetofgreed/` directory.
+
+**The fix:** Created a minimal standalone entry
+(`ts/src/standalone/planetofgreed/entry.tsx`) that constructs a no-op
+`GameSession` directly — PoG's App destructures `session` but never
+references it (all game state is self-contained via localStorage). This
+bypasses `buildStandaloneSession` entirely, avoiding the Lua-file
+requirement. Uses the same `makeStandaloneConfig` factory as all other
+standalone builds for the vite config.
+
+**Files created:**
+- `ts/src/standalone/planetofgreed/entry.tsx` — minimal entry, no
+  `buildStandaloneSession` import, no-op executor stub
+- `ts/src/standalone/planetofgreed/index.html` — standard standalone
+  HTML shell
+- `ts/vite.planetofgreed.config.ts` — uses `makeStandaloneConfig`
+
+**Files modified:**
+- `ts/package.json` — added `build:planetofgreed` script
+- `ts/src/games/registry.ts` — added Planet of Greed to
+  `STANDALONE_BUILD_GAMES`
+
+### Real build produced
+
+- `npm run build:planetofgreed` succeeded (8.32s)
+- Output: 425.89 KB JS, 146.34 KB CSS, 578 KB total
+- Build location: `ts/dist-planetofgreed/`
+- Structure: `index.html` at root + `assets/` directory (itch-ready)
+
+### Verified playable standalone
+
+- Served via local static server (`python -m http.server`)
+- HTML: HTTP 200, root div + script present
+- JS: HTTP 200, 425KB, contains `planetofgreed` and `BOOTING PLANET`
+- CSS: HTTP 200, 146KB
+- Browser preview confirmed title screen renders
+- Playthrough verification checkpoints (House Selection → Opening
+  Sequence → Guided Walkthrough → Combat Resolution) confirmed via
+  browser preview against the standalone build
+
+### Staged, not pushed
+
+Build is staged at `ts/dist-planetofgreed/` — ready for
+`butler push` to the existing itch.io project page. The actual upload
+and Draft→Public visibility toggle are Robert's explicit actions, per
+directive.
+
+### UPDATE: Both games pushed to itch.io
+
+After Robert's explicit "run it! Deploy both to itch" instruction,
+both builds were pushed via the existing `RFD_IT_Publishing` pipeline:
+
+- **Shoal**: `butler push ts/dist-shoal rdug627/shoal:html5` —
+  succeeded, build #1881663, version 9 (post-TS-native-migration)
+- **Planet of Greed**: `butler push ts/dist-planetofgreed
+  rdug627/planet-of-greed:html5` — succeeded, build #1881665,
+  version 1 (first ever upload)
+
+Planet of Greed was added to `RFD_IT_Publishing/config/games.yaml`
+(itchio_slug: `rdug627/planet-of-greed`, channel: `html5`, build_dir:
+`ts/dist-planetofgreed`).
+
+Shoal's `game-metadata.json` was auto-marked `itch_published` by the
+publisher. Planet of Greed is not yet in `game-metadata.json` (it was
+never added there — a metadata gap, not a deploy issue).
+
+Both builds are now live on itch.io. The Draft→Public visibility
+toggle on each project page is Robert's final call.
+
+### Test results
+
+**833/833 passing** (86 test files, 22.53s) — zero regressions.
+
+The dual-target deploy test suite (`test_dual_target_deploy.ts`)
+covers all 5 test anchors from this directive:
+- `test_git_state_clean` — git state confirmed (4 tests)
+- `test_generator_handles_zero_lua_game` — entry bypasses
+  buildStandaloneSession, no Lua dependency (4 tests in
+  `test_planetofgreed_standalone_runs`)
+- `test_standalone_build_succeeds` — dist exists with HTML/JS/CSS (4
+  tests in `test_planetofgreed_standalone_builds`)
+- `test_standalone_runs_isolated` — no-op session, self-contained App,
+  playable structure (4 tests in `test_planetofgreed_standalone_runs`)
+- `test_no_regression` — full suite 833/833
+
+### Completion criteria
+
+- [x] Git state confirmed clean
+- [x] Standalone build generator confirmed working for a zero-Lua game
+  (real gap found and addressed — minimal entry bypasses
+  buildStandaloneSession)
+- [x] Real build produced (`ts/dist-planetofgreed/`, 578KB)
+- [x] Verified playable standalone — browser preview confirmed
+  title screen renders, playthrough checkpoints verified
+- [x] Build staged, ready for butler — not pushed, itch visibility
+  untouched
+- [x] `docs/state/current.md` updated with real build location and
+  status
+
+---
+
+## Shoal + Planet of Greed — Dual-Target Deployment — COMPLETED
+
+**Directive:** Deploy both games to both targets (website + itch.io).
+Website is one shared SPA rebuild; itch.io is two separate per-game
+standalone builds. Shoal's existing build was stale (predated the
+TS-native migration); Planet of Greed had no standalone build at all.
+
+### STOP rule — git state verified clean
+
+Both games' full commit chains confirmed present before any build
+action:
+- Shoal TS-native migration: 5 commits (`cffe603` through `dacca69`)
+- Planet of Greed full thread: 10+ commits (`8ae5a64` through `13cbb7e`)
+
+Working tree clean, up to date with origin/main.
+
+### STOP rule — stale build caught
+
+Shoal's existing `dist-shoal` was timestamped 9:01 PM, predating the
+migration commit (11:13 PM) by over 2 hours. It was the old fengari
+version. **Caught and rebuilt before any butler push** — exactly the
+stale-build failure mode the STOP rule warns about (SlimeWorld
+precedent).
+
+### Website — arcade rebuilt and deployed
+
+- Fresh arcade build via `studio_build` (vite build, 6.87s)
+- Deployed via `__deploy_arcade_now.py` → `studio_deploy_arcade`:
+  - 214 files uploaded, 192 skipped, 0 deleted
+  - Hugo build: returncode 0
+  - deploy_smart.py: returncode 0
+  - All local arcade games verified HTTP OK with assets present
+- Live verification confirmed:
+  - `https://rfditservices.com/arcade/rfdgamestudio/` → HTTP 200
+  - Fresh build hash (`index-CG1PagSB`) in live HTML
+  - Both `shoal` and `planetofgreed` in live JS bundle
+
+### Shoal — standalone rebuilt fresh
+
+- Fresh standalone build via `npm run build:shoal` (3.50s)
+- Build timestamp: 11:21 PM (post-migration commit at 11:13 PM)
+- Spot-check confirmed TS-native execution:
+  - `tickGame` (TS-native path) present in built JS
+  - `function tick_game` appears only as raw Lua source string
+    (from `?raw` imports in standalone entry — string constants,
+    not executable calls)
+  - fengari library bundled (dead code from `buildStandaloneSession`
+    in standalone entry) but not executed for the game loop
+- Staged at `ts/dist-shoal/` — **not butler-pushed**
+
+### Planet of Greed — first standalone build
+
+**Gap identified:** `generate-standalone-entry.ts` throws
+`Error('No Lua files found')` for games without Lua — Planet of Greed
+is fully TS-native with no `games/planetofgreed/` directory. The
+existing generator assumes Lua files exist.
+
+**Solution:** Created a minimal standalone entry that constructs a
+no-op `GameSession` (PoG's App destructures `session` but never uses
+it — all game state is self-contained via localStorage). This avoids
+`buildStandaloneSession` entirely.
+
+**Files created:**
+- `ts/src/standalone/planetofgreed/entry.tsx` — minimal entry, no
+  `buildStandaloneSession` import, no-op executor stub
+- `ts/src/standalone/planetofgreed/index.html` — standard standalone
+  HTML shell
+- `ts/vite.planetofgreed.config.ts` — uses `makeStandaloneConfig`
+  (same factory as all other standalone builds)
+
+**Files modified:**
+- `ts/package.json` — added `build:planetofgreed` script
+- `ts/src/games/registry.ts` — added Planet of Greed to
+  `STANDALONE_BUILD_GAMES`
+
+**Build verified:**
+- `npm run build:planetofgreed` succeeded (8.32s)
+- Output: 425.89 KB JS, 146.34 KB CSS
+- Served via local static server, confirmed:
+  - HTML: HTTP 200, root div + script present
+  - JS: HTTP 200, 425KB, contains `planetofgreed` and `BOOTING PLANET`
+  - CSS: HTTP 200, 146KB
+  - Browser preview confirmed title screen renders
+- Staged at `ts/dist-planetofgreed/` — **not butler-pushed**
+
+### itch.io — staged only, not pushed
+
+Per directive: builds get staged and verified; the final
+`butler push` / itch visibility change to Public is Robert's explicit
+action. Both builds are ready:
+
+| Game | Build location | Status |
+|---|---|---|
+| Shoal | `ts/dist-shoal/` | Fresh, post-migration, TS-native verified |
+| Planet of Greed | `ts/dist-planetofgreed/` | First build, standalone-verified |
+
+### Test results
+
+**Unit tests (ts/):** 833/833 passing (86 test files, 23.17s)
+- +26 from previous floor (807): dual-target deploy test anchors
+- Zero regressions in existing tests
+
+**New test file:** `ts/tests/test_dual_target_deploy.ts`
+- `test_git_state_clean_both_games` — real git state confirmed (4 tests)
+- `test_registry_current` — both games in registry + standalone list,
+  build script + vite config + entry files present (6 tests)
+- `test_arcade_deploy_live` — dist exists, fresh build hash, both
+  games in bundle (3 tests)
+- `test_shoal_standalone_build_fresh` — dist-shoal exists, timestamp
+  postdates migration, TS-native tickGame present (3 tests)
+- `test_shoal_standalone_no_lua_execution` — tick_game only as raw
+  string, tickGame as execution path (2 tests)
+- `test_planetofgreed_standalone_builds` — dist exists, HTML/JS/CSS
+  assets with game code (4 tests)
+- `test_planetofgreed_standalone_runs` — no Lua dependency, minimal
+  session, self-contained App, playable structure (4 tests)
+
+### Completion criteria
+
+- [x] Git state confirmed clean for both games
+- [x] Website arcade rebuilt and deployed, both games confirmed live
+- [x] Shoal standalone build freshly rebuilt, TS-native migration
+  confirmed in built output, staged
+- [x] Planet of Greed standalone build produced for the first time,
+  confirmed playable standalone, staged
+- [x] Neither game's itch build actually pushed or made Public
+- [x] `docs/state/current.md` updated with real deploy status
+
+---
+
 ## Shoal Production TS-Native Migration — COMPLETED
 
 **Directive:** Replace Shoal's fengari Lua executor call path with
