@@ -39,9 +39,8 @@ function fengariRun(seed: number, fish: number, sharks: number, hubs: number, ti
   for (let i = 0; i < ticks; i++) executor.call('tick_game', 0.1, {});
   const elapsed = performance.now() - start;
 
-  // Get final state
-  const state = executor.call('build_render_state')[0] as Record<string, unknown>;
-  const stats = state.stats as Record<string, unknown>;
+  // Get final state via get_state_summary (reads from GAME_STATE global)
+  const stats = executor.call('get_state_summary')[0] as Record<string, unknown>;
 
   return {
     fishCount: stats.fish_count as number,
@@ -96,8 +95,7 @@ describe('Shoal Entity Count Reconciliation', () => {
     // 200 measured ticks
     for (let i = 0; i < 200; i++) executor.call('tick_game', 0.1, {});
 
-    const state = executor.call('build_render_state')[0] as Record<string, unknown>;
-    const stats = state.stats as Record<string, unknown>;
+    const stats = executor.call('get_state_summary')[0] as Record<string, unknown>;
     console.log(`\n=== FENGARI Default (60 fish, 8 sharks) after 10 warmup + 200 ticks (no extra warmup) ===`);
     console.log(`  ${stats.fish_count} fish, ${stats.shark_count} sharks, ${stats.algae_count} algae nodules, ${stats.chunk_count} chunks`);
     expect(stats.fish_count as number).toBeGreaterThan(0);
@@ -115,8 +113,7 @@ describe('Shoal Entity Count Reconciliation', () => {
     for (let i = 0; i < 10; i++) executor.call('tick_game', 0.1, {});
     for (let i = 0; i < 200; i++) executor.call('tick_game', 0.1, {});
 
-    const state = executor.call('build_render_state')[0] as Record<string, unknown>;
-    const stats = state.stats as Record<string, unknown>;
+    const stats = executor.call('get_state_summary')[0] as Record<string, unknown>;
     console.log(`\n=== FENGARI High load (83 fish, 19 sharks) after 10 warmup + 200 ticks (no extra warmup) ===`);
     console.log(`  ${stats.fish_count} fish, ${stats.shark_count} sharks, ${stats.algae_count} algae nodules, ${stats.chunk_count} chunks`);
     expect(stats.fish_count as number).toBeGreaterThan(0);
