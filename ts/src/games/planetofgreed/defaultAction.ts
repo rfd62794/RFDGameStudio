@@ -228,13 +228,12 @@ function pickExpandUnits(cell: MapCell): UnitGroup {
  *    (moderate threat — need more bodies before fighting)
  *
  * EXPANSION RULES (grow when safe):
- * 5. Garrison >= 4 + neutral neighbor → Expand
- *    (safe and strong — push outward into neutral territory)
- *
- * REDISTRIBUTION RULES (move units from safe to contested):
- * 6. Safe cell (no rival adjacency, fort >= 1, garrison >= 3) +
+ * 5. Safe cell (no rival adjacency, fort >= 1, garrison >= 3) +
  *    contested own-cell exists → Redistribute to contested cell
- *    (spare units from quiet sectors toward the front line)
+ *    (spare units from quiet sectors toward the front line — takes
+ *    priority over neutral expansion because the front line is urgent)
+ * 6. Garrison >= 4 + neutral neighbor → Expand
+ *    (safe and strong — push outward into neutral territory)
  *
  * STABILIZATION RULES (internal maintenance):
  * 7. Public opinion < 40 + can afford → Civic Unrest
@@ -306,10 +305,12 @@ export function getDefaultAction(
     return { type: 'reinforce', reinforceType: cell.preferredProduction };
   }
 
-  // Rule 5: Strong garrison + neutral neighbor → Expand
-  if (garrison >= 4) {
-    const target = findNeutralNeighbor(cell, allCells);
-    if (target) {
+  // Rule 5: Safe cell + contested own-cell exists → Redistribute
+  // (spare units from quiet sectors toward the front line — this takes
+  // priority over neutral expansion because the front line is more urgent)
+  if (isSafeCell(cell, allCells, corporations, playerCorp)) {
+    const target = findContestedOwnCell(allCells, corporations, playerCorp);
+    if (target && target.id !== cell.id) {
       const unitsSent = pickExpandUnits(cell);
       const totalSent = unitsSent.circle + unitsSent.square + unitsSent.triangle;
       if (totalSent > 0) {
@@ -318,10 +319,10 @@ export function getDefaultAction(
     }
   }
 
-  // Rule 6: Safe cell + contested own-cell exists → Redistribute
-  if (isSafeCell(cell, allCells, corporations, playerCorp)) {
-    const target = findContestedOwnCell(allCells, corporations, playerCorp);
-    if (target && target.id !== cell.id) {
+  // Rule 6: Strong garrison + neutral neighbor → Expand
+  if (garrison >= 4) {
+    const target = findNeutralNeighbor(cell, allCells);
+    if (target) {
       const unitsSent = pickExpandUnits(cell);
       const totalSent = unitsSent.circle + unitsSent.square + unitsSent.triangle;
       if (totalSent > 0) {

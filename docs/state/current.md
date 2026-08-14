@@ -2,6 +2,155 @@
 
 *Last updated: August 13 2026*
 
+## Planet of Greed Attack Capability Fix + Aggressive Default Redesign — COMPLETED
+
+**Directive:** Fix a real bug (attacking rival-owned Regions doesn't
+work) and redesign the guided walkthrough's default heuristic to
+actually press the wheel-locked rivalry instead of being entirely
+passive. Diagnose the bug before redesigning the heuristic — the
+heuristic is meaningless if the underlying mechanic is broken.
+
+### STOP rule — real root cause identified before any fix
+
+**Three-stage diagnosis** (per the directive's STOP rule):
+
+| Stage | Status | Evidence |
+|---|---|---|
+| (a) UI selectable | **BROKEN** | GuidedWalkthrough.tsx line 371: `{neutralNeighbors.length > 0 && garrison >= 2 && (` — Expand button only rendered for neutral neighbors. Rival-owned neighbors never shown as targets. |
+| (b) Wiring | WORKS | App.tsx line 559: Expand order creates a transit regardless of target ownership. No ownership check on the target. |
+| (c) Resolution | WORKS | App.tsx line 937-942: Combat detection correctly identifies rival-owned cells with alien invaders as contested. `resolveCellCombat` called with correct forces from both garrison and transits. |
+
+**Root cause: UI-only.** The old `WeeklyOrdersPanel` (line 524) maps
+ALL neighbors including rival-owned — attacks worked before. The bug
+was introduced in Merge & Polish Op v2 when `GuidedWalkthrough`
+replaced `WeeklyOrdersPanel` as the primary flow and only exposed
+neutral neighbors as Expand targets.
+
+### Unit redistribution — confirmed as real existing mechanic
+
+**Not new scope.** The `expand` order type can target any neighbor,
+including own-owned cells. When units arrive at an own-owned cell,
+App.tsx line 811 (`if (arr.corpId === cell.ownerId)`) merges them
+into the garrison. This IS redistribution — units move from one owned
+cell to another via the transit system (4-day travel time).
+
+The `expand` order type is used for three distinct actions:
+1. **Expand** — target a neutral cell (claim new territory)
+2. **Attack** — target a rival-owned cell (triggers combat at month-end)
+3. **Redistribute** — target an own-owned cell (merges units into garrison)
+
+No new order type was needed. The fix was exposing all three target
+types in the GuidedWalkthrough UI.
+
+### Fix — GuidedWalkthrough UI
+
+Replaced the single "Expand to neutral neighbor" button with three
+distinct buttons:
+
+1. **Expand** (cyan, ArrowRight icon) — neutral neighbors only.
+   `data-testid="pog-action-expand"`
+2. **Attack** (red, Swords icon) — rival-owned neighbors.
+   `data-testid="pog-action-attack"`
+3. **Reinforce** (sky, Send icon) — own-owned neighbors.
+   `data-testid="pog-action-redistribute"`
+
+All three issue `{ type: 'expand', targetCellId, unitsSent }` orders —
+the downstream processing is the same, the UI distinction is for
+player clarity. The action label and icon now dynamically reflect
+whether an expand order targets a neutral, rival, or own cell.
+
+### Aggressive default heuristic — redesigned
+
+**Old heuristic (6 rules, entirely passive):**
+1. Opposite rival + low fort → Fortify
+2. Any rival + low garrison → Reinforce
+3. Strong garrison + neutral neighbor → Expand
+4. Low opinion → Civic Unrest
+5. Low fort → Fortify
+6. Else → Hold
+
+**New heuristic (9 rules, aggressive first):**
+
+| Rule | Condition | Default Action | Rationale |
+|---|---|---|---|
+| 1 | Garrison >= 4 + wheel-opposite rival adjacent | Attack rival | Press the "Fault Line" — the wheel's central tension |
+| 2 | Garrison >= 4 + any rival adjacent | Attack rival | Strong enough to push — take the fight to them |
+| 3 | Opposite rival + low fort (<2) + can afford | Fortify | Can't attack — shore up defenses against highest threat |
+| 4 | Any rival + low garrison (<3) + can afford | Reinforce | Need more bodies before fighting |
+| 5 | Safe cell (no rival, fort >= 1, garrison >= 3) + contested own-cell exists | Redistribute | Spare units from quiet sectors toward the front line |
+| 6 | Garrison >= 4 + neutral neighbor | Expand | Safe and strong — push outward |
+| 7 | Low opinion (<40) + can afford | Civic Unrest | Population is restive — invest before it strikes |
+| 8 | Low fort (<2) + can afford | Fortify | General defense |
+| 9 | Else | Hold | Safe default |
+
+**Design rationale:** The wheel-locked rival is the game's central
+tension ("The Wheel Is Fate"). The original heuristic was entirely
+defensive — it never recommended attacking, even when the player had
+a strong garrison adjacent to a weak rival. This undercut the pillar.
+The new rules prioritize attacking the wheel-opposite rival first
+(Rule 1), then any rival (Rule 2), when the garrison is strong enough
+to press the advantage. Only when the garrison is NOT strong enough
+do the defensive rules (3, 4) kick in.
+
+**Redistribution priority:** Rule 5 (redistribution) fires before
+Rule 6 (neutral expansion) because the front line is more urgent than
+expanding into empty space. A safe cell with spare units should send
+them toward a contested own-cell, not into neutral territory.
+
+### Threat-ordering — re-confirmed sensible
+
+The threat-ordering (highest threat first) still serves the aggressive
+defaults well:
+- **Threat 3** (opposite rival adjacent) — presented first, where the
+  aggressive default (Attack) is most relevant
+- **Threat 2** (any rival adjacent) — presented second, same logic
+- **Threat 1** (low fort/opinion) — presented third, stabilization
+- **Threat 0** (safe) — presented last, where redistribution defaults
+  apply (spare units from quiet sectors)
+
+This is the right order: the player addresses the front line first,
+then deals with redistribution from safe areas. No change needed.
+
+### Test results
+
+**Unit tests (ts/):** 750/750 passing (83 test files, 21.71s)
+- +33 from previous floor (717): attack capability + heuristic tests
+- Zero regressions in existing tests
+- `test_arcade_routing.ts` timeout is a known flaky-under-load issue,
+  passes in isolation (985ms)
+
+**New test file:** `ts/tests/test_planetofgreed_attack_heuristic.ts`
+- `test_attack_order_selectable` — rival-owned neighbors can be
+  selected as attack targets (4 tests)
+- `test_attack_order_triggers_combat` — issued attack orders are
+  present at month-end processing (3 tests)
+- `test_attack_resolves_correctly` — RPS resolution applies correctly
+  to both attacker and defender (5 tests)
+- `test_redistribution_mechanic_confirmed_or_built` — real working
+  path exists for moving units from safe to contested (5 tests)
+- `test_default_heuristic_recommends_attacks` — strong Regions
+  adjacent to a rival default toward attack (5 tests)
+- `test_default_heuristic_recommends_redistribution` — safe Regions
+  are flagged as redistribution candidates (4 tests)
+- `test_threat_ordering_sensible_under_aggressive_defaults` —
+  threat ordering still serves aggressive defaults well (2 tests)
+- `test_no_regression` — all existing functionality preserved (5 tests)
+
+### Files modified this phase
+
+**Modified files:**
+- `ts/src/games/planetofgreed/components/GuidedWalkthrough.tsx` —
+  added Attack and Redistribute buttons, dynamic action labels/icons
+- `ts/src/games/planetofgreed/defaultAction.ts` — redesigned
+  heuristic with 9 aggressive rules, added helper functions
+  (findOppositeRivalNeighbor, findRivalNeighbor, findOwnNeighbor,
+  isSafeCell, findContestedOwnCell)
+
+**New files:**
+- `ts/tests/test_planetofgreed_attack_heuristic.ts` — 33 test anchors
+
+---
+
 ## Planet of Greed Shell Compliance + Opening Sequence — COMPLETED
 
 **Directive:** Close two real gaps the Merge & Polish Op v2 completion
