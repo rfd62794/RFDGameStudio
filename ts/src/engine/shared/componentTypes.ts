@@ -43,6 +43,11 @@ export interface Corporation {
   isPlayer: boolean;
   treasury: number;
   scoutedCells: { [cellId: number]: boolean };
+  // Optional fields used by games that extend the base Corporation
+  // (Planet of Greed adds rank, fragments, cultureId).
+  rank?: number;
+  fragments?: string[];
+  cultureId?: string;
 }
 
 export interface RecruitmentItem {
