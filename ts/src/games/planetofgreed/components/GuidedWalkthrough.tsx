@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapCell, Corporation, WeeklyOrder, UnitGroup, UnitType, OrderType } from '../types';
+import { MapCell, Corporation, WeeklyOrder, UnitGroup } from '../types';
 import { getDefaultAction, sortRegionsByThreat, getThreatLevel } from '../defaultAction';
-import { HOUSE_DESCRIPTIONS, REGION_FLAVOR_PREFIXES } from '../flavorText';
-import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye, AlertTriangle, ChevronRight, Award } from 'lucide-react';
+import { REGION_FLAVOR_PREFIXES } from '../flavorText';
+import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye, AlertTriangle } from 'lucide-react';
 
 interface GuidedWalkthroughProps {
   allCells: MapCell[];
@@ -32,10 +32,8 @@ export default function GuidedWalkthrough({
   allCells,
   corporations,
   playerCorp,
-  currentOrders,
   onSaveOrders,
   onAllRegionsProcessed,
-  selectedCellId,
   onSelectCell,
 }: GuidedWalkthroughProps) {
   // Sort owned regions by threat level (highest first), then by ID

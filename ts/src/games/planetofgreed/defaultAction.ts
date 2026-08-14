@@ -1,4 +1,4 @@
-import { MapCell, Corporation, WeeklyOrder, UnitType, UnitGroup, CultureId } from './types';
+import { MapCell, Corporation, WeeklyOrder, UnitType, UnitGroup } from './types';
 import { getOpposite, getAdjacent } from './wheelTopology';
 
 /**
