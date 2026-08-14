@@ -467,12 +467,33 @@ suggested. The numbers are therefore conservative — a typed-array
 implementation would be faster. The conclusion doesn't change either
 way.
 
-**Final benchmark results (200 ticks, matching fengari baseline
-methodology, with JIT warmup):**
+**Entity count reconciliation (the wasmoon-lesson check):** The
+prior wasmoon comparison was invalidated by `wander_targets` upvalue
+persisting across re-initializations, causing different population
+trajectories. Before treating the TS numbers as settled, the same
+scrutiny was applied here. Both the TS port and the real fengari Lua
+code were run for 50 warmup + 200 measured ticks (identical config:
+seed=42, 60 fish/8 sharks default, 83 fish/19 sharks high load), and
+entity counts were compared at the end of the measurement period:
+
+| Scenario | TS port | Fengari Lua | Match? |
+|---|---|---|---|
+| Default (50+200) | 50 fish, 17 sharks, 25 algae, 13 chunks | 50 fish, 17 sharks, 25 algae, 13 chunks | **EXACT** |
+| High load (50+200) | 62 fish, 17 sharks, 32 algae, 16 chunks | 62 fish, 17 sharks, 32 algae, 16 chunks | **EXACT** |
+
+The entity counts match exactly. The TS port reproduces the Lua
+simulation's behavior faithfully — same PRNG sequence, same
+breeding/death logic, same entity trajectories. The benchmark is
+measuring the same workload, not a diverged trajectory. This is the
+check that was missing from the wasmoon comparison.
+
+**Final benchmark results (200 ticks, 50 warmup, JIT-warmed via
+2000-tick runs before measurement, matching fengari baseline
+methodology):**
 
 | Measurement | Default (60 fish, 8 sharks) | High load (83 fish, 19 sharks) |
 |---|---|---|
-| **TS-native (performance.now)** | **0.262 ms/tick** | **0.306 ms/tick** |
+| **TS-native (performance.now)** | **0.220 ms/tick** | **0.278 ms/tick** |
 | Fengari (Lua-only os.clock) | 27.379 ms/tick | 34.560 ms/tick |
 | Fengari (real interop perf.now) | 28.685 ms/tick | 50.822 ms/tick |
 | Wasmoon (Lua-only os.clock) | 35.760 ms/tick | 46.600 ms/tick |
@@ -480,14 +501,14 @@ methodology, with JIT warmup):**
 
 | Speedup | Default | High load |
 |---|---|---|
-| TS vs fengari interop | **109.6x** | **166.0x** |
-| TS vs fengari Lua-only | 104.5x | 112.9x |
-| TS vs wasmoon interop | 193.4x | 320.0x |
-| TS vs 16.67ms budget | **63.6x headroom** | **54.5x headroom** |
+| TS vs fengari interop | **130.4x** | **182.7x** |
+| TS vs fengari Lua-only | 124.5x | 124.4x |
+| TS vs wasmoon interop | 230.3x | 352.3x |
+| TS vs 16.67ms budget | **75.8x headroom** | **60.0x headroom** |
 
 **Verdict: The gap is not just closed — it's obliterated.** TS-native
-runs at 0.26-0.31ms/tick, 100-166x faster than fengari's real interop,
-with 54-64x headroom against a 16.67ms/60fps budget. The fengari
+runs at 0.22-0.28ms/tick, 130-183x faster than fengari's real interop,
+with 60-76x headroom against a 16.67ms/60fps budget. The fengari
 baseline's 28ms/tick is almost entirely VM overhead and boundary-
 crossing cost, not the algorithm itself — the same algorithm in V8
 runs in under a third of a millisecond.
@@ -499,7 +520,7 @@ Investigation directive.** Three approaches measured, one clear winner:
 2. ~~Keep squeezing fengari~~ — delivered a real 21-24% win via
    `get_nearby` optimization, but still 1.6-2.1x over budget, and
    further Lua-side gains are presumably smaller marginal now
-3. **TS-native migration** — 0.26-0.31ms/tick, 54-64x headroom against
+3. **TS-native migration** — 0.22-0.28ms/tick, 60-76x headroom against
    60fps budget. The structural answer the thread kept pointing at.
 
 Part B's ~2-3ms estimate was conservative — the real number is 10x
