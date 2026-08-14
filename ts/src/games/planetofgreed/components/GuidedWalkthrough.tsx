@@ -55,6 +55,16 @@ export default function GuidedWalkthrough({
     setProcessedRegions(new Set());
   }, [ownedRegions.length]);
 
+  const currentCell = ownedRegions[currentRegionIndex] ?? null;
+  const isProcessed = currentCell ? processedRegions.has(currentCell.id) : false;
+
+  // Select this cell on the map — must be before any early returns
+  useEffect(() => {
+    if (currentCell && !isProcessed) {
+      onSelectCell(currentCell.id);
+    }
+  }, [currentCell?.id]);
+
   if (ownedRegions.length === 0) {
     return (
       <div className="bg-[#1a1a2e] border-2 border-amber-600/40 p-6 text-amber-100 flex flex-col items-center justify-center text-center h-full min-h-[400px]">
@@ -67,7 +77,6 @@ export default function GuidedWalkthrough({
     );
   }
 
-  const currentCell = ownedRegions[currentRegionIndex];
   if (!currentCell) {
     // All regions processed
     return (
@@ -92,14 +101,6 @@ export default function GuidedWalkthrough({
   const defaultAction = getDefaultAction(currentCell, allCells, corporations, playerCorp);
   const activeOrder = customOrder ?? defaultAction;
   const threatLevel = getThreatLevel(currentCell, allCells, corporations, playerCorp);
-  const isProcessed = processedRegions.has(currentCell.id);
-
-  // Select this cell on the map
-  useEffect(() => {
-    if (currentCell && !isProcessed) {
-      onSelectCell(currentCell.id);
-    }
-  }, [currentCell?.id]);
 
   const handleConfirm = () => {
     // Save the order (active order) for this cell
