@@ -299,7 +299,8 @@ function update_discrete_events(st, dt)
                     if f.fed >= data.creatures.fish.breed_fed_threshold and f.age >= data.creatures.fish.breed_age then
                         local capacity = data.creatures.fish.carrying_capacity
                         local breed_probability = math.max(0, 1 - (current_fish_alive / capacity))
-                        if st.prng() < breed_probability then
+                        local prng = st.prng or math.random
+                        if prng() < breed_probability then
                             spawn_fish(st, f.x, f.depth)
                             f.fed = 0
                             f.age = 0
@@ -368,7 +369,8 @@ function update_discrete_events(st, dt)
             if speed_ratio > 0.8 then
                 escape_chance = escape_chance + data.creatures.fish.escape_speed_bonus
             end
-            if st.prng() < escape_chance then
+            local prng = st.prng or math.random
+            if prng() < escape_chance then
                 -- escaped: knock the fish away so it isn't re-caught next tick
                 local dx, dy = nearest_fish.x - s.x, nearest_fish.depth - s.depth
                 local dist = math.sqrt(dx * dx + dy * dy)
@@ -414,7 +416,8 @@ function update_discrete_events(st, dt)
         if s.age >= data.creatures.shark.breed_age and (s.fed or 0) >= data.creatures.shark.breed_fed_threshold then
             local capacity = data.creatures.shark.carrying_capacity
             local breed_probability = math.max(0, 1 - (current_shark_alive / capacity))
-            if st.prng() < breed_probability then
+            local prng = st.prng or math.random
+            if prng() < breed_probability then
                 spawn_shark(st, s.x, s.depth)
                 s.fed = 0
                 s.age = 0

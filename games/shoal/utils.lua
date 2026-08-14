@@ -48,11 +48,17 @@ function uid(prefix)
 end
 
 function random_float(a, b)
-    return a + GAME_STATE.prng() * (b - a)
+    if GAME_STATE and GAME_STATE.prng then
+        return a + GAME_STATE.prng() * (b - a)
+    end
+    return a + math.random() * (b - a)
 end
 
 function random_choice(list)
-    return list[math.floor(GAME_STATE.prng() * #list) + 1]
+    if GAME_STATE and GAME_STATE.prng then
+        return list[math.floor(GAME_STATE.prng() * #list) + 1]
+    end
+    return list[math.random(1, #list)]
 end
 
 local function hue_to_rgb(p, q, t)
