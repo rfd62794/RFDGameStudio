@@ -6509,11 +6509,61 @@ before interacting with game buttons.
 
 ### Test results
 
-Full suite: **832 passed, 1 failed** (833 total). The 1 failure is
-the expected git-cleanliness check in `test_dual_target_deploy.ts`
-(uncommitted changes at time of test run). All 32 `test_arcade.ts`
-tests pass, all 26 `test_dual_target_deploy.ts` tests pass
-individually, all 6 `test_gameshell.tsx` tests pass.
+Full suite: **833 passed, 0 failed** (86 test files). Confirmed fresh
+on a clean working tree with no hedged language. All 32 `test_arcade.ts`
+tests pass, all 26 `test_dual_target_deploy.ts` tests pass, all 6
+`test_gameshell.tsx` tests pass.
+
+### Shoal before/after GameShell grep (explicit)
+
+Shoal was on the fixed list. The prior performance investigation, TS-
+native migration, and production verification work on Shoal never
+surfaced this gap because none of that work audited GameShell
+compliance — it was focused on simulation performance and Lua-to-TS
+migration. The gap was real and is confirmed here:
+
+**Before (commit 35fc337^ — pre-audit):**
+```
+import { GameShell } from '../../components';    # imported but...
+import TitleScreen from './components/TitleScreen';
+    return <TitleScreen session={session} onStart={handleStart} />;  # title screen returned WITHOUT GameShell
+```
+The title screen state returned `<TitleScreen>` directly, bypassing
+GameShell entirely. The back-to-arcade button was absent on Shoal's
+title screen. GameShell was only used for the game state (line 136).
+
+**After (commit 35fc337 — post-audit):**
+```
+import { GameShell } from '../../components';
+import TitleScreen from './components/TitleScreen';
+      <GameShell                                    # title screen now wrapped
+        gameLabel="SHOAL" gameId="shoal" phase="2.0"
+        mode={mode} arcadeBaseUrl={arcadeBaseUrl}
+      >
+        <TitleScreen session={session} onStart={handleStart} />
+      </GameShell>
+    <GameShell                                       # game state still wrapped
+```
+Both states (title + game) now wrapped in GameShell. The back-to-arcade
+button is present on every render state.
+
+### horse_racing registry legitimacy confirmed
+
+horse_racing is a legitimate React/GameShell-wrappable entry, not a
+mistaken touch:
+
+- `ts/src/games/horse_racing/config.ts`: `component: React.lazy(() => import('./App'))` — has a real React App component
+- `ts/src/games/registry.ts` line 6: `import { horseRacingConfig } from './horse_racing/config';`
+- `ts/src/games/registry.ts` line 35: `horseRacingConfig,` — in GAME_REGISTRY
+- Status: `'stable'` — a production game, not a prototype
+
+horse_racing is NOT in `STANDALONE_BUILD_GAMES` (the itch.io export
+list) — it was separately noted as PyGame-based and excluded from the
+standalone pipeline. That exclusion is correct: arcade registry
+membership (in-app playable via React component) and standalone-
+exportability (itch.io build) are different things. The GameShell fix
+applies to the arcade context where horse_racing's React App is
+rendered inside GameLoader. This was not a mistaken touch.
 
 ### Registry gap (not fixed this pass)
 
