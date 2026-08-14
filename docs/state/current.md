@@ -2,6 +2,122 @@
 
 *Last updated: August 13 2026*
 
+## Planet of Greed Boardroom Event Softlock Investigation — COMPLETED
+
+**Directive:** Diagnose and fix a real softlock: a Boardroom Event modal
+showing negative Treasury (-$10,000) with all resolution options
+disabled, including two explicitly marked "NO COST". Two separate root
+causes, diagnosed independently before fixing either.
+
+### STOP rule — two root causes confirmed
+
+**Root cause 1: Negative Treasury — event double-charging (NOT the
+aggressive heuristic)**
+
+The event choice processing has two separate Treasury deductions:
+1. `treasury -= choice.cost` (line 1123 — the upfront cost, UI-checked)
+2. `treasury += updates.treasuryOffset` (line 1132 — additional offset)
+
+Four event choices had BOTH a positive `cost` AND a negative
+`treasuryOffset` for the same amount — double-charging the player:
+
+| Event | Choice | cost | treasuryOffset | Total deducted | effectText says |
+|---|---|---|---|---|---|
+| Iridium Lode | Secure Strategic Reserves | $10k | -$10k | $20k | "Cost: -$10,000" |
+| Rogue Drop Pod | Send Retrieval Squad | $10k | -$10k | $20k | "Spend $10,000" |
+| Rogue Drop Pod | Remote Detonate Payload | $2k | -$2k | $4k | "Spend $2,000" |
+| Solar Flare | Acquire Satellite Shielding | $15k | -$15k | $30k | "Cost: -$15,000" |
+
+The UI only checks affordability against `cost`, not `cost +
+treasuryOffset`. A player with $10k selecting "Secure Strategic
+Reserves" passes the UI check ($10k >= $10k), then gets double-charged
+to -$10k.
+
+**The aggressive heuristic is NOT the cause.** `expand` orders
+(Attack/Redistribute) are free — they're not in the order cost list
+(lines 517-521). The order processing checks affordability at line 525
+before deducting. This bug predates the aggressive heuristic entirely.
+
+**Root cause 2: Disabled "NO COST" options — affordability check bug**
+
+`DailyEventModal.tsx` line 62:
+```js
+const canAffordCash = playerCorp.treasury >= choice.cost;
+```
+
+When `choice.cost === 0` and `playerCorp.treasury === -10000`:
+`-10000 >= 0` is `false`. A genuinely free option is incorrectly
+disabled because the check doesn't handle `cost === 0` as always
+affordable.
+
+**Softlock confirmation:** Yes, this is a genuine softlock. With
+negative Treasury, ALL options are disabled — even $0-cost ones —
+because `treasury >= 0` fails for every choice. The player cannot
+proceed. There is no dismiss/close button on the event modal.
+
+### Fixes
+
+**Fix 1: Remove double-charging treasuryOffsets**
+
+Removed the negative `treasuryOffset` from the four affected event
+choices. The `cost` field already handles the deduction at line 1123;
+the `treasuryOffset` was redundantly deducting the same amount again
+at line 1132. Positive `treasuryOffset` values (bonuses from choices
+like "Settle Drilling Contracts" +$60k) are preserved — they're not
+double-charging, they're giving money.
+
+**Fix 2: $0-cost options always selectable**
+
+Changed the affordability check in `DailyEventModal.tsx`:
+```js
+// Before (broken):
+const canAffordCash = playerCorp.treasury >= choice.cost;
+// After (fixed):
+const canAffordCash = choice.cost === 0 || playerCorp.treasury >= choice.cost;
+```
+
+A $0-cost option is always affordable regardless of Treasury balance.
+This prevents the softlock even if Treasury somehow goes negative
+through other paths.
+
+**Fix 3: No unresolvable event state (defense-in-depth)**
+
+Verified that every event template has at least one `cost: 0` choice
+and none have `unitsCost`. Combined with the `cost === 0` fix, this
+guarantees at least one selectable option under any Treasury state.
+No dismiss button was added — events are meant to be resolved, not
+skipped, and the fix ensures they always can be.
+
+### Test results
+
+**Unit tests (ts/):** 776/776 passing (84 test files, 22.78s)
+- +26 from previous floor (750): softlock fix test anchors
+- Zero regressions in existing tests
+
+**New test file:** `ts/tests/test_planetofgreed_softlock_fix.ts`
+- `test_treasury_negative_path_traced` — root cause identified and
+  verified fixed (4 tests)
+- `test_aggressive_heuristic_affordability_checked` — confirms the
+  heuristic is NOT the cause (3 tests)
+- `test_zero_cost_option_always_selectable` — $0-cost options
+  selectable regardless of balance (5 tests)
+- `test_no_unresolvable_event_state` — every event has at least one
+  always-available resolution path (4 tests)
+- `test_no_regression` — all existing functionality preserved (10 tests)
+
+### Files modified this phase
+
+**Modified files:**
+- `ts/src/games/planetofgreed/App.tsx` — removed 4 double-charging
+  negative `treasuryOffset` values from event templates
+- `ts/src/engine/shared/components/DailyEventModal.tsx` — fixed
+  affordability check to always allow $0-cost options
+
+**New files:**
+- `ts/tests/test_planetofgreed_softlock_fix.ts` — 26 test anchors
+
+---
+
 ## Planet of Greed Attack Capability Fix + Aggressive Default Redesign — COMPLETED
 
 **Directive:** Fix a real bug (attacking rival-owned Regions doesn't
