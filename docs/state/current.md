@@ -2,6 +2,75 @@
 
 *Last updated: August 11 2026*
 
+## Shared Module Foundations â€” COMPLETED
+
+**Directive:** Three small, real, zero-regression extractions from the
+TS-Native Cross-Game Duplication Audit, establishing
+`ts/src/engine/shared/` as the convention for shared non-rendering TS
+logic (parallel to `ts/src/engine/artGen/` for rendering primitives).
+
+### New convention: `ts/src/engine/shared/`
+
+Created `ts/src/engine/shared/` with three real, proven extractions:
+
+1. **`seededRandom.ts`** â€” canonical home for `mulberry32` and
+   `hashStringToSeed`. Moved from `artGen/seededRandom.ts` (which now
+   re-exports from `shared/`). All existing artGen consumers (Shoal,
+   SlimeVisual, dissonanceGenerator, tests) keep working unchanged
+   through the re-export. Planet of Greed's duplicate `makeSeededRng`
+   in `aiDecisions.ts` could not be consolidated â€” cross-project import
+   from `examples/` to `ts/` doesn't resolve in the current build setup
+   (confirmed mechanically). This should be fixed at conversion time
+   per ADR-012.
+
+2. **`wheelRelation.ts`** â€” `getRelation(el1, el2, elementOrder)`
+   extracted from Brewfield's `gameLogic.ts`. Classifies the
+   relationship between two elements on an ordered wheel as
+   `same | adjacent | opposed | single`. Brewfield now imports from
+   shared (thin typed wrapper preserves Brewfield's public API).
+   Dissonance has no TS-side `getRelation` (its relation logic is
+   Lua-only in `combat.lua`); it's a documented future consumer if/when
+   its logic is ported to TS.
+
+3. **`partSlots.ts`** â€” `PartSlot`, `Part`, `PartsBySlot`, `PART_SLOTS`
+   extracted from Chimera Wilds and Mutant Battle Ball. Reconciliation:
+   adopted MBB's stricter typed union for `slot` (vs Chimera's
+   `string`) and required `price` (vs Chimera's optional). Confirmed
+   safe: all 12 real Chimera Wilds parts have valid slots and prices.
+   MBB's `MutantParts` is now a type alias for `PartsBySlot`.
+
+### Test anchors (18 new tests, all passing)
+
+- `test_shared_mulberry32.ts` (3 tests): shared mulberry32 output
+  byte-identical to artGen and SlimeVisual for 7 seeds Ã— 100 iterations
+- `test_shared_wheel_relation.ts` (9 tests): shared getRelation matches
+  Dissonance's Lua logic for all element pairs; Brewfield behavior
+  provably unchanged
+- `test_shared_part_slots.ts` (6 tests): shared Part compatible with
+  both games; all real Chimera Wilds data has valid slots and prices
+
+### Zero regression confirmed
+
+- `ts/` full suite: 608/608 passing (was 589/590 pre-change; the +18
+  are the new test anchors, the -1 pre-existing flaky arcade_routing
+  timeout didn't manifest this run)
+- Dissonance zero-regression: 107/107 passing (all 106 SVGs
+  byte-identical)
+- Planet of Greed: 11/11 passing (no files touched â€” cross-project
+  import constraint)
+- Per-game builds: 14/14 passing (chimera_wilds, mutant_battle_ball
+  standalone builds still produce output and exclude other games' code)
+
+### What was NOT done this phase
+
+- CorpWorld/Planet of Greed `combat.ts` (254 lines byte-identical) â€”
+  pending timing decision on whether extraction happens now or as part
+  of ADR-012's Stage 4 conversion
+- Planet of Greed's `makeSeededRng` duplicate â€” cross-project import
+  doesn't resolve; defer to conversion time
+
+---
+
 ## PlanetOfGreed â€” Phase 2: Rank, Population Balance & Displacement â€” COMPLETED
 
 **Directive:** Implement Rank as Territory + Population Balance (not
@@ -4914,7 +4983,7 @@ Generated `entry.tsx` uses `import.meta.glob('../../../../games/{game_id}/*.lua'
 
 ---
 
-## Visual Re-Haul: Reusable SVG Generator Module — COMPLETED
+## Visual Re-Haul: Reusable SVG Generator Module ï¿½ COMPLETED
 
 *August 12 2026 | Traces to Dissonance Depths Placeholder Art Generation
 directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
@@ -4925,7 +4994,7 @@ directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
    `test_arcade_routing` timeout, unrelated to artgen). All artgen tests
    passing (`test_artgen_dissonance_equiv`, `test_artgen_seeded_random`).
 2. **Dissonance 106-file SHA256 manifest:** captured to
-   `ts/tests/_dissonance_svg_baseline_manifest.txt` — 56 cards + 12 relics
+   `ts/tests/_dissonance_svg_baseline_manifest.txt` ï¿½ 56 cards + 12 relics
    + 38 enemies, every file hashed.
 3. **SlimeWorld polygon function:** located at
    `SlimeVisual.tsx:generateSlimePolygonPoints` (lines 36-57), with local
@@ -4934,18 +5003,18 @@ directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
 
 ### Structural mismatches found and reported (not silently adapted)
 
-1. **Shared module already existed** at `ts/src/engine/artGen/` — generic,
+1. **Shared module already existed** at `ts/src/engine/artGen/` ï¿½ generic,
    config-driven (`ArtGenConfig<TEntity>`), with `renderShape`,
    `renderSpikyStar`, `renderPolygonPoints`, `renderGradientBackground`,
    `renderBorder`. User decision: use existing `artGen`, don't build
    `ts/tools/svg_gen/`.
-2. **Real generator was Python** — `scripts/generate_dissonance_art.py`
+2. **Real generator was Python** ï¿½ `scripts/generate_dissonance_art.py`
    (323 lines), not TypeScript. Produced all 106 committed SVGs. No
    standalone TS generator existed; the TS test
    `test_artgen_dissonance_equiv.ts` only covered cards (56), not relics
    or enemies. User decision: reverse-engineer relics + enemies from
    committed SVGs, port the full generator to TypeScript.
-3. **Shoal renders via HTML5 Canvas** — `drawGame()` uses `ctx.arc`,
+3. **Shoal renders via HTML5 Canvas** ï¿½ `drawGame()` uses `ctx.arc`,
    `ctx.beginPath`, `ctx.fill` directly. Not SVG. User decision: both
    canvas path generators AND SVG-to-canvas bridge.
 
@@ -4963,7 +5032,7 @@ directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
 
 **Dissonance config + generator** (`ts/src/games/dissonance/art/`):
 - `dissonance.config.ts`: all Dissonance-specific vocabulary extracted
-  from the Python generator — `ELEMENT_COLORS`, `COMPONENT_TO_SHAPE`,
+  from the Python generator ï¿½ `ELEMENT_COLORS`, `COMPONENT_TO_SHAPE`,
   `RELATION_TO_BORDER`, `RELIC_COLORS`, `TIER_VISUALS`, canvas dims.
 - `dissonanceGenerator.ts`: full TypeScript port of the Python generator.
   Consumes `artGen` primitives + the config. Produces all 106 SVGs.
@@ -4972,7 +5041,7 @@ directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
 
 **Shoal config + wiring** (`ts/src/games/shoal/art/`):
 - `shoal.config.ts`: species shapes (fish/shark/algae/fleshChunk),
-  lineage color inheritance (`inheritHue` — parent hue + seeded drift,
+  lineage color inheritance (`inheritHue` ï¿½ parent hue + seeded drift,
   same convention as SlimeWorld/TurboShells), age curve
   (young/mature/old ? saturation/scale), `buildTeardropFinSpec`,
   `buildAlgaeSpec`, `buildFleshChunkSpec`.
@@ -4988,18 +5057,18 @@ directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
   preserve the existing test import surface.
 
 **Tests** (5 new files, 140 new tests):
-- `test_dissonance_zero_regression.ts`: 107 tests — regenerates all 106
+- `test_dissonance_zero_regression.ts`: 107 tests ï¿½ regenerates all 106
   SVGs from `data.yaml` and compares byte-for-byte to committed files.
   **All 106 pass. Zero regression.**
-- `test_slimeworld_polygon_relocated.ts`: 7 tests — verifies
+- `test_slimeworld_polygon_relocated.ts`: 7 tests ï¿½ verifies
   `generateSlimePolygonPoints` output matches `renderPolygonPoints` for
   6 input sets + mulberry32 determinism.
-- `test_shared_manifest_exact_count.ts`: 5 tests — exact count (56/12/38),
+- `test_shared_manifest_exact_count.ts`: 5 tests ï¿½ exact count (56/12/38),
   no missing, no extra, no duplicates.
-- `test_shoal_config.ts`: 16 tests — distinct species shapes, lineage
+- `test_shoal_config.ts`: 16 tests ï¿½ distinct species shapes, lineage
   color inheritance (100 trials within drift range, deterministic, hue
   wrapping), age curve monotonic (saturation/scale direction correct).
-- `test_no_regression_to_existing_floor.ts`: 5 tests — 106 files exist,
+- `test_no_regression_to_existing_floor.ts`: 5 tests ï¿½ 106 files exist,
   pre-existing tests intact, SlimeVisual exports preserved, artGen
   primitives present.
 
@@ -5024,13 +5093,13 @@ directive (Aug 10) and SlimeWorld's seeded-polygon shape renderer.*
   `scripts/generate_dissonance_art.py` reproduces all 106 committed SVGs
   byte-for-byte (0 mismatches). The TS port produces the same output.
 
-### Hunger/energy visual axis — CONFIRMED present in Shoal's real state
+### Hunger/energy visual axis ï¿½ CONFIRMED present in Shoal's real state
 
 The directive required this be confirmed present-or-absent. **CONFIRMED
 PRESENT:** Shoal's Lua game logic (`entities.lua`) tracks `fed` and
 `hunger` for both fish and sharks. `data.yaml` has `hunger_rate`,
 `starve_limit`, `breed_fed_threshold`, `starvation_seconds`,
-`hunger_refund`. The state is real and tracked — only the visual mapping
+`hunger_refund`. The state is real and tracked ï¿½ only the visual mapping
 (lean vs. full silhouette) is missing. This is a real, easy Phase 2
 addition: the state already exists, only the visual mapping needs to be
 added to `shoal.config.ts` and the canvas rendering.
@@ -5038,13 +5107,13 @@ added to `shoal.config.ts` and the canvas rendering.
 ### Screens/consumers NOT wired this pass
 
 - **SlimeWorld** does not consume the new `renderTeardropFin`/
-  `renderRadialBurst`/`renderIrregularFragment` primitives — it only uses
+  `renderRadialBurst`/`renderIrregularFragment` primitives ï¿½ it only uses
   the relocated `renderPolygonPoints`. SlimeWorld's slime rendering is
   polygon-based (vertexCount/irregularity), not fin/burst/fragment-based.
   The relocation is the correct scope; adding new shape families to
   SlimeWorld would be a visual change, which is out of scope.
 - **Dissonance's game source** (`ts/src/games/dissonance/App.tsx` and
-  phases) was NOT modified — it loads SVGs from the asset directory, not
+  phases) was NOT modified ï¿½ it loads SVGs from the asset directory, not
   from the generator. The generator produces files; the game consumes
   them. No wiring change needed.
 - **`svgToCanvas` bridge** is implemented and tested via the test suite
@@ -5055,43 +5124,43 @@ added to `shoal.config.ts` and the canvas rendering.
 
 ### Files touched
 
-- `ts/src/engine/artGen/shapes.ts` — added 7 new functions
-- `ts/src/engine/artGen/types.ts` — added 3 new interfaces
-- `ts/src/games/dissonance/art/dissonance.config.ts` — NEW
-- `ts/src/games/dissonance/art/dissonanceGenerator.ts` — NEW
-- `ts/src/games/shoal/art/shoal.config.ts` — NEW
-- `ts/src/games/shoal/App.tsx` — wired canvas path generators
-- `ts/src/games/slimeworld/components/SlimeVisual.tsx` — relocated to artGen
-- `ts/tests/test_dissonance_zero_regression.ts` — NEW
-- `ts/tests/test_slimeworld_polygon_relocated.ts` — NEW
-- `ts/tests/test_shared_manifest_exact_count.ts` — NEW
-- `ts/tests/test_shoal_config.ts` — NEW
-- `ts/tests/test_no_regression_to_existing_floor.ts` — NEW
-- `ts/tests/_dissonance_svg_baseline_manifest.txt` — NEW (STOP-rule baseline)
+- `ts/src/engine/artGen/shapes.ts` ï¿½ added 7 new functions
+- `ts/src/engine/artGen/types.ts` ï¿½ added 3 new interfaces
+- `ts/src/games/dissonance/art/dissonance.config.ts` ï¿½ NEW
+- `ts/src/games/dissonance/art/dissonanceGenerator.ts` ï¿½ NEW
+- `ts/src/games/shoal/art/shoal.config.ts` ï¿½ NEW
+- `ts/src/games/shoal/App.tsx` ï¿½ wired canvas path generators
+- `ts/src/games/slimeworld/components/SlimeVisual.tsx` ï¿½ relocated to artGen
+- `ts/tests/test_dissonance_zero_regression.ts` ï¿½ NEW
+- `ts/tests/test_slimeworld_polygon_relocated.ts` ï¿½ NEW
+- `ts/tests/test_shared_manifest_exact_count.ts` ï¿½ NEW
+- `ts/tests/test_shoal_config.ts` ï¿½ NEW
+- `ts/tests/test_no_regression_to_existing_floor.ts` ï¿½ NEW
+- `ts/tests/_dissonance_svg_baseline_manifest.txt` ï¿½ NEW (STOP-rule baseline)
 
 ### Not touched (read-only, verified)
 
-- `scripts/generate_dissonance_art.py` — the original Python generator,
+- `scripts/generate_dissonance_art.py` ï¿½ the original Python generator,
   unchanged. Still works as the original source of truth.
-- All 106 committed SVG files in `ts/public/assets/dissonance/` —
+- All 106 committed SVG files in `ts/public/assets/dissonance/` ï¿½
   byte-identical, verified by the zero-regression test.
-- `ts/tests/test_artgen_dissonance_equiv.ts` — pre-existing card test,
+- `ts/tests/test_artgen_dissonance_equiv.ts` ï¿½ pre-existing card test,
   still passing.
-- `ts/tests/test_artgen_seeded_random.ts` — pre-existing seeded-random
+- `ts/tests/test_artgen_seeded_random.ts` ï¿½ pre-existing seeded-random
   test, still passing.
-- `ts/tests/test_slime_visual_geometry.tsx` — pre-existing SlimeWorld
+- `ts/tests/test_slime_visual_geometry.tsx` ï¿½ pre-existing SlimeWorld
   geometry test, still passing.
 
 ---
 
-## Shoal Visual Enrichment + Performance — COMPLETED
+## Shoal Visual Enrichment + Performance ï¿½ COMPLETED
 
 *August 12 2026 | Traces to the Visual Re-Haul directive (shoal.config.ts,
 canvasTeardropFinPath/canvasRadialBurstPath/canvasIrregularFragmentPath,
 all real and shipped) and the confirmed-real hunger/energy state in
 Shoal'"'"'s Lua layer.*
 
-### §0 Profiling baseline (all 4 STOP-rule items, measured before code)
+### ï¿½0 Profiling baseline (all 4 STOP-rule items, measured before code)
 
 1. **Render loop call pattern:** No caching. Every frame, every entity:
    fresh `canvasTeardropFinPath`/`canvasRadialBurstPath`/
@@ -5108,7 +5177,7 @@ Shoal'"'"'s Lua layer.*
 ### What was built
 
 - **Path caching** (`pathCache.ts`): Path2D cache keyed by
-  (species, ageStage, hungerBand). Position/rotation NOT cached —
+  (species, ageStage, hungerBand). Position/rotation NOT cached ï¿½
   applied as transforms. 200k+ hits / ~20 misses after warmup.
   **Draw time: 0.4ms** (was ~80-110 fresh calls/frame).
 - **Hunger visual mapping** (`shoal.config.ts`): lean-vs-full
@@ -5122,7 +5191,7 @@ Shoal'"'"'s Lua layer.*
   via `?` key, auto-disabled in production. FPS/tick/draw/entity
   counts/custom stats.
 
-### Layered canvas split — NOT implemented (real finding)
+### Layered canvas split ï¿½ NOT implemented (real finding)
 
 Post-caching draw time is 0.4ms. Splitting algae/chunks onto a
 background canvas would save ~0.1ms at significant complexity cost.
@@ -5140,9 +5209,9 @@ finding per the directive'"'"'s "don'"'"'t implement for its own sake" rule.
 
 Caching freed ~3-7ms of frame budget, funding the hunger visual
 mapping without making framerate worse. The FPS bottleneck is the
-Lua simulation tick — out of scope for this rendering-layer phase.
+Lua simulation tick ï¿½ out of scope for this rendering-layer phase.
 
 ### Tests
 
 8 new test anchors (66 tests), all passing. Full suite: **590 passed,
-0 failed** (71 test files, all green — zero regressions).
+0 failed** (71 test files, all green ï¿½ zero regressions).
