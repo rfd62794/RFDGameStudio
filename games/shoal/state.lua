@@ -34,11 +34,25 @@ end
 -- Full period: 2^31 = 2,147,483,648 draws (multiplier 1103515245 is 1 mod 4,
 -- increment 12345 is odd/coprime with 2^31). At ~56M draws/hour (60fps),
 -- the period lasts ~38 hours of continuous gameplay.
+-- Uses split-multiplication to keep intermediate values within 2^53, ensuring
+-- identical results across Lua VMs that use IEEE 754 doubles (fengari) and
+-- native 64-bit integers (wasmoon). Without this, s * 1103515245 can exceed
+-- 2^53 (~9e15), causing silent precision loss in double-only runtimes.
+local MOD = 2147483648   -- 2^31
+local MULT = 1103515245
+local INC = 12345
+local MULT_HI = math.floor(MULT / 65536)   -- 16842
+local MULT_LO = MULT % 65536               -- 19173
+
 function make_prng(seed)
     local s = seed or os.time()
     return function()
-        s = (s * 1103515245 + 12345) % 2147483648
-        return s / 2147483648
+        -- (s * MULT + INC) % MOD, split to avoid >2^53 intermediates:
+        -- s * MULT = s * MULT_HI * 65536 + s * MULT_LO
+        -- s * MULT_HI < 2^31 * 2^15 = 2^46 < 2^53 ✓
+        -- s * MULT_LO < 2^31 * 2^16 = 2^47 < 2^53 ✓
+        s = ((s * MULT_HI % MOD) * 65536 + s * MULT_LO + INC) % MOD
+        return s / MOD
     end
 end
 
