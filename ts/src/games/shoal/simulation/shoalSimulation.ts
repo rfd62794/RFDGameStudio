@@ -343,7 +343,7 @@ function buildRenderState(st:ShoalState):RenderState{
 // â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface ShoalSimulation {
-  initGame(seed?: number): RenderState;
+  initGame(seed?: number, spawn?: { initialFish?: number; initialSharks?: number; initialAlgaeHubs?: number }): RenderState;
   tickGame(dt: number, input: InputState | null): RenderState;
   getState(): ShoalState | null;
 }
@@ -352,9 +352,12 @@ export function createShoalSimulation(): ShoalSimulation {
   let st: ShoalState | null = null;
 
   return {
-    initGame(seed?: number): RenderState {
+    initGame(seed?: number, spawn?: { initialFish?: number; initialSharks?: number; initialAlgaeHubs?: number }): RenderState {
       const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
-      st = initGameState(resolvedSeed, CONFIG.spawn.initial_fish, CONFIG.spawn.initial_sharks, CONFIG.spawn.initial_algae_hubs);
+      const initialFish = spawn?.initialFish ?? CONFIG.spawn.initial_fish;
+      const initialSharks = spawn?.initialSharks ?? CONFIG.spawn.initial_sharks;
+      const initialAlgaeHubs = spawn?.initialAlgaeHubs ?? CONFIG.spawn.initial_algae_hubs;
+      st = initGameState(resolvedSeed, initialFish, initialSharks, initialAlgaeHubs);
       return buildRenderState(st);
     },
     tickGame(dt: number, input: InputState | null): RenderState {
