@@ -176,8 +176,7 @@ describe('test_shoal_standalone_build_fresh', () => {
 
   it('dist-shoal contains the TS-native tickGame execution path', () => {
     const distDir = resolve(tsRoot, 'dist-shoal/assets');
-    const files = execSync('dir /b', { cwd: distDir, encoding: 'utf-8' });
-    const jsFiles = files.split(/\r?\n/).filter((f) => f.endsWith('.js'));
+    const jsFiles = readdirSync(distDir).filter((f) => f.endsWith('.js'));
     let foundTickGame = false;
     for (const f of jsFiles) {
       const js = readFileSync(resolve(distDir, f), 'utf-8');
@@ -192,39 +191,21 @@ describe('test_shoal_standalone_build_fresh', () => {
 
 describe('test_shoal_standalone_no_lua_execution', () => {
   it('Shoal built JS contains tick_game only as raw Lua source string, not as executable call', () => {
-    // The standalone entry imports games/shoal/*.lua?raw — these become
-    // string constants in the bundle. The actual game loop runs through
-    // shoalSim.tickGame(), not call(session, 'tick_game', ...).
-    //
-    // Verification: 'function tick_game' appears as Lua source text
-    // (string constant), while 'tickGame' appears as the TS-native
-    // execution path.
     const distDir = resolve(tsRoot, 'dist-shoal/assets');
-    const files = execSync('dir /b', { cwd: distDir, encoding: 'utf-8' });
-    const jsFiles = files.split(/\r?\n/).filter((f) => f.endsWith('.js'));
+    const jsFiles = readdirSync(distDir).filter((f) => f.endsWith('.js'));
     let luaSourceCount = 0;
     let tsNativeCount = 0;
     for (const f of jsFiles) {
       const js = readFileSync(resolve(distDir, f), 'utf-8');
-      // 'function tick_game' is Lua source bundled as raw string
       if (js.includes('function tick_game')) luaSourceCount++;
-      // 'tickGame' is the TS-native execution path
       if (js.includes('tickGame')) tsNativeCount++;
     }
     expect(tsNativeCount).toBeGreaterThan(0);
-    // Lua source is present as string constants (from ?raw imports)
-    // but the execution path is TS-native
   });
 
   it('Shoal built JS does not contain call(session tick_game) execution pattern', () => {
-    // The old execution path was call(session, 'tick_game', dt, input)
-    // After migration, this should not appear as executable code.
-    // The string 'tick_game' may appear in Lua source strings, but
-    // not as a function call argument to an executor.
     const distDir = resolve(tsRoot, 'dist-shoal/assets');
-    const files = execSync('dir /b', { cwd: distDir, encoding: 'utf-8' });
-    const jsFiles = files.split(/\r?\n/).filter((f) => f.endsWith('.js'));
-    // The key indicator: 'tickGame' (TS-native) must be present
+    const jsFiles = readdirSync(distDir).filter((f) => f.endsWith('.js'));
     let foundTsNative = false;
     for (const f of jsFiles) {
       const js = readFileSync(resolve(distDir, f), 'utf-8');
@@ -255,10 +236,7 @@ describe('test_planetofgreed_standalone_builds', () => {
 
   it('dist-planetofgreed has JS asset with game code', () => {
     const assetsDir = resolve(tsRoot, 'dist-planetofgreed/assets');
-    const files = execSync('dir /b', { cwd: assetsDir, encoding: 'utf-8' });
-    const jsFile = files
-      .split(/\r?\n/)
-      .find((f) => f.startsWith('index-') && f.endsWith('.js'));
+    const jsFile = findJsAsset(assetsDir);
     expect(jsFile).toBeDefined();
     const js = readFileSync(resolve(assetsDir, jsFile!), 'utf-8');
     expect(js).toContain('planetofgreed');
@@ -267,10 +245,7 @@ describe('test_planetofgreed_standalone_builds', () => {
 
   it('dist-planetofgreed has CSS asset', () => {
     const assetsDir = resolve(tsRoot, 'dist-planetofgreed/assets');
-    const files = execSync('dir /b', { cwd: assetsDir, encoding: 'utf-8' });
-    const cssFile = files
-      .split(/\r?\n/)
-      .find((f) => f.startsWith('index-') && f.endsWith('.css'));
+    const cssFile = findCssAsset(assetsDir);
     expect(cssFile).toBeDefined();
     const css = readFileSync(resolve(assetsDir, cssFile!), 'utf-8');
     expect(css.length).toBeGreaterThan(10000); // Tailwind output
