@@ -207,8 +207,8 @@ describe('TEMPORARY wasmoon benchmark', () => {
       spawn['initial_fish'] = 60;
       spawn['initial_sharks'] = 8;
       spawn['initial_algae_hubs'] = 6;
-      lua.global.set('SHOAL_DATA', data);
-      await lua.doString('init_game(SHOAL_DATA)');
+      spawn['seed'] = 42;
+      await lua.doString(`SHOAL_DATA = ${jsToLua(data)}\ninit_game(SHOAL_DATA)`);
 
       // Warm up
       const tickFn = lua.global.get('tick_game') as (...args: unknown[]) => unknown;
@@ -217,7 +217,7 @@ describe('TEMPORARY wasmoon benchmark', () => {
       }
 
       // Measure via os.clock() inside Lua (same approach as fengari baseline)
-      const result = await lua.doString(`
+      const luaResult = await lua.doString(`
         local n = 200
         local start = os.clock()
         for _ = 1, n do
@@ -259,8 +259,8 @@ describe('TEMPORARY wasmoon benchmark', () => {
       spawn['initial_fish'] = 83;
       spawn['initial_sharks'] = 19;
       spawn['initial_algae_hubs'] = 6;
-      lua.global.set('SHOAL_DATA', data);
-      await lua.doString('init_game(SHOAL_DATA)');
+      spawn['seed'] = 42;
+      await lua.doString(`SHOAL_DATA = ${jsToLua(data)}\ninit_game(SHOAL_DATA)`);
 
       // Warm up
       const tickFn = lua.global.get('tick_game') as (...args: unknown[]) => unknown;
