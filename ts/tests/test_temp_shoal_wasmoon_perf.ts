@@ -85,8 +85,12 @@ end
   for (let i = 0; i < warmupTicks; i++) {
     await tickFn(0.05, {});
   }
+  // Use performance.now() around the Lua-side batch for reliable wall-clock timing
+  const luaWallStart = performance.now();
   const luaElapsed = await benchFn(ticks, 0.05);
-  const luaOnlyMs = (luaElapsed / ticks) * 1000;
+  const luaWallEnd = performance.now();
+  const luaOnlyMs = (luaWallEnd - luaWallStart) / ticks;
+  const luaOsClockMs = (luaElapsed / ticks) * 1000;
 
   // ── Real interop measurement: JS calls tick_game per tick ──────────────
   // Re-init again for fair comparison
@@ -104,6 +108,7 @@ end
   return {
     scenario,
     luaOnlyMs,
+    luaOsClockMs,
     realInteropMs,
     fishCount: stats.fish_count as number,
     sharkCount: stats.shark_count as number,
@@ -185,7 +190,7 @@ describe('Shoal Wasmoon Performance Benchmark', () => {
   it('test_wasmoon_perf_default_vs_fengari_baseline', async () => {
     const wasmoonResult = await benchmarkWasmoon('default', 60, 8, 6);
     console.log('\n=== DEFAULT LOAD (60 fish, 8 sharks, 6 algae hubs) ===');
-    console.log(`Wasmoon: ${wasmoonResult.luaOnlyMs.toFixed(3)} ms/tick (Lua-only), ${wasmoonResult.realInteropMs.toFixed(3)} ms/tick (real interop)`);
+    console.log(`Wasmoon: ${wasmoonResult.luaOnlyMs.toFixed(3)} ms/tick (Lua wall), ${wasmoonResult.luaOsClockMs?.toFixed(3)} ms/tick (os.clock), ${wasmoonResult.realInteropMs.toFixed(3)} ms/tick (real interop)`);
     console.log(`  Entities: ${wasmoonResult.fishCount} fish, ${wasmoonResult.sharkCount} sharks, ${wasmoonResult.algaeCount} algae nodules`);
     console.log(`Fengari baseline: 27.379 ms/tick (real interop)`);
     console.log(`Speedup: ${(27.379 / wasmoonResult.realInteropMs).toFixed(2)}x faster`);
@@ -197,7 +202,7 @@ describe('Shoal Wasmoon Performance Benchmark', () => {
   it('test_wasmoon_perf_high_load_vs_fengari_baseline', async () => {
     const wasmoonResult = await benchmarkWasmoon('high_load', 83, 19, 6);
     console.log('\n=== HIGH LOAD (83 fish, 19 sharks, 6 algae hubs) ===');
-    console.log(`Wasmoon: ${wasmoonResult.luaOnlyMs.toFixed(3)} ms/tick (Lua-only), ${wasmoonResult.realInteropMs.toFixed(3)} ms/tick (real interop)`);
+    console.log(`Wasmoon: ${wasmoonResult.luaOnlyMs.toFixed(3)} ms/tick (Lua wall), ${wasmoonResult.luaOsClockMs?.toFixed(3)} ms/tick (os.clock), ${wasmoonResult.realInteropMs.toFixed(3)} ms/tick (real interop)`);
     console.log(`  Entities: ${wasmoonResult.fishCount} fish, ${wasmoonResult.sharkCount} sharks, ${wasmoonResult.algaeCount} algae nodules`);
     console.log(`Fengari baseline: 34.560 ms/tick (real interop)`);
     console.log(`Speedup: ${(34.560 / wasmoonResult.realInteropMs).toFixed(2)}x faster`);
