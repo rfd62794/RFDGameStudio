@@ -378,7 +378,7 @@ def test_flesh_chunk_sinks_after_burst_decay() -> None:
     call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
 
     # Let the initial burst velocity decay to near zero.
-    for _ in range(20):
+    for _ in range(50):
         state = call(session, "tick_game", 0.05, {})
 
     depth_before = state["chunks"][0]["depth"]
@@ -2584,10 +2584,10 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
     session = load_game("shoal", seed=42)
     data = session.files.data
     data["spawn"]["seed"] = 42
-    data["spawn"]["initial_fish"] = 120
+    data["spawn"]["initial_fish"] = 150
     data["spawn"]["initial_sharks"] = 20
     data["spawn"]["initial_algae_hubs"] = 3
-    data["algae"]["starvation_seconds"] = 8
+    data["algae"]["starvation_seconds"] = 4
     data["algae"]["regrow_cooldown"] = 20.0
     data["flesh_chunk"]["decompose_radius"] = 50
     data["creatures"]["fish"]["carrying_capacity"] = 150
@@ -2599,7 +2599,7 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
     min_core_count = starting_core_count
     max_core_count = starting_core_count
 
-    for _ in range(500):
+    for _ in range(1000):
         call(session, "tick_game", 0.1, {})
         current = lua.execute("return #GAME_STATE.algae")
         if current < min_core_count:

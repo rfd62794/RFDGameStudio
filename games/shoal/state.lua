@@ -79,14 +79,19 @@ local function pick_hub_center(prng, world, bands, cluster_radius, placed)
     return x, depth
 end
 
+local _seed_counter = 0
+
 function spawn_initial_entities(st, data)
     local world = data.world
     local raw_seed = data.spawn.seed
     local resolved_seed
     if raw_seed == "daily" then
         resolved_seed = daily_seed()
+    elseif raw_seed then
+        resolved_seed = raw_seed
     else
-        resolved_seed = raw_seed or os.time()
+        _seed_counter = _seed_counter + 1
+        resolved_seed = os.time() + _seed_counter
     end
     local prng = make_prng(resolved_seed)
     st.resolved_seed = resolved_seed
