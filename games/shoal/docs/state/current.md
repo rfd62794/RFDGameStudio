@@ -2,6 +2,13 @@
 
 *Last updated: August 15 2026*
 
+> **Consolidated investigation record:**
+> [`investigation_complete_findings.md`](./investigation_complete_findings.md)
+> — the authoritative six-stage arc from initial framerate concern
+> through closed verdict. Supersedes scattered partial numbers across
+> individual directive reports. Read that document first for the full
+> picture; the sections below are the working state that produced it.
+
 ## Visual Enrichment + Performance — COMPLETED
 
 ### §0 Profiling baseline (captured before any optimization code)
