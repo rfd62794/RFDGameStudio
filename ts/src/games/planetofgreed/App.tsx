@@ -17,7 +17,7 @@ import DailyEventModal from '../../engine/shared/components/DailyEventModal';
 import CombatResolutionView from '../../engine/shared/components/CombatResolutionView';
 import AnnualReportView from './components/AnnualReportView';
 import AlertQueue from '../../engine/shared/components/AlertQueue';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import './index.css';
 
 import { 
