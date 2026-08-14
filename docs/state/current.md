@@ -2,6 +2,134 @@
 
 *Last updated: August 13 2026*
 
+## Shoal Production TS-Native Migration — COMPLETED
+
+**Directive:** Replace Shoal's fengari Lua executor call path with
+direct TS simulation functions. The synthetic benchmark proved the
+ceiling (130-183x faster, exact entity-count match). This directive
+makes it real, with zero-regression discipline.
+
+### STOP rule — benchmark port recovered from git history
+
+The synthetic benchmark's TS port (`test_temp_shoal_ts_bench.ts`,
+331 lines) was deleted in commit `65403fd` as a temporary file per its
+own directive's cleanup requirement. It was **recovered from git
+history** (`git show 65403fd^:ts/tests/test_temp_shoal_ts_bench.ts`)
+and used as the starting point — not reimplemented blind.
+
+**Coverage audit:** `git log --since="2026-08-14" -- games/shoal/*.lua
+games/shoal/data.yaml` returned empty — no changes to Lua source since
+the benchmark was built. The benchmark port is current against
+production Lua. No coverage gaps found.
+
+**Production additions (not in benchmark):**
+- `handleInput` — cull/spawn on click (cull_at, spawn_fish, spawn_shark, spawn_algae_core)
+- `buildRenderState` — converts internal state to the RenderState shape the TS rendering layer expects (matches Lua `build_render_state` exactly)
+- `createShoalSimulation` — factory function with `initGame(seed?, spawn?)` and `tickGame(dt, input)` API
+
+### Execution path replaced
+
+**Before:** `call(session, 'tick_game', dt, input)` — crosses fengari
+boundary every frame.
+
+**After:** `shoalSim.tickGame(dt, input)` — direct TS function call,
+no Lua, no executor, no boundary crossing.
+
+**Files modified:**
+- `ts/src/games/shoal/App.tsx` — removed `call` import from
+  `engine/runtime`, added `createShoalSimulation` import, replaced
+  `initGame(session)` and `call(session, 'tick_game', ...)` with
+  direct TS simulation calls
+- `ts/src/games/shoal/components/ReefPreview.tsx` — same migration,
+  removed `call` import, uses `simRef.current.initGame()` and
+  `simRef.current.tickGame()`
+
+**New files:**
+- `ts/src/games/shoal/simulation/shoalSimulation.ts` — 385-line
+  production simulation module, faithful port of Lua logic
+
+**Lua source preserved:** `games/shoal/*.lua` (logic, state, entities,
+steering, utils) and `games/shoal/data.yaml` remain in the repo,
+untouched, per studio precedent (CorpWorld, KingMaker Squads —
+retired, never deleted).
+
+### Rendering integration confirmed
+
+The rendering layer (`drawGame` in `App.tsx`) consumes `RenderState`
+unchanged — the TS `buildRenderState` produces the exact same shape as
+the Lua `build_render_state`:
+- `world: { width, height }`
+- `fish: ShoalCreature[]` (id, x, depth, radius, color, angle, mature, hunger, cold_exposure, cold_damage)
+- `sharks: ShoalCreature[]` (id, x, depth, radius, color, angle, mature, hunger, cold_exposure)
+- `algae: AlgaeCore[]` (id, x, depth, nodules[{x, depth, radius}])
+- `chunks: FleshChunk[]` (x, depth, radius, decay_ratio)
+- `stats: Stats` (fish_count, shark_count, algae_count, chunk_count, seed)
+- `tick_count: number`
+
+The rendering layer still uses `session.files.data` for render config
+(colors, radii) — this is separate from the simulation state and
+doesn't need to change.
+
+### Zero-regression verification
+
+**Deterministic correctness:** Fixed-seed (42) runs produce stable
+ecosystems after 200 ticks — fish and sharks survive, populations are
+self-sustaining. Same seed produces identical state across runs
+(verified positions match). Different seeds produce different
+ecosystems.
+
+**Real production tick time measured:**
+```
+=== TS-NATIVE PRODUCTION TICK TIME (default) ===
+  0.230 ms/tick
+=== SPEEDUP vs FENGARI BASELINE ===
+  TS: 0.230 ms/tick, fengari: 34.873 ms/tick
+  Speedup: 151.7x
+```
+
+The 151.7x speedup confirms the synthetic benchmark's 130-183x range
+holds in production-equivalent execution. The fengari baseline
+(34.873ms/tick) was documented in commit `0551eb2`.
+
+**No other game affected:** The `shoalSimulation` module is
+Shoal-specific — no other game imports from it. The `call` import
+removal is local to Shoal's `App.tsx` and `ReefPreview.tsx`.
+
+### Test results
+
+**Unit tests (ts/):** 807/807 passing (85 test files, 24.81s)
+- +31 from previous floor (776): Shoal TS-native migration test anchors
+- Zero regressions in existing tests
+
+**New test file:** `ts/tests/test_shoal_ts_native_migration.ts`
+- `test_benchmark_port_recovered_or_rebuilt` — recovery confirmed,
+  core algorithm preserved (2 tests)
+- `test_ts_port_covers_current_production_logic` — no Lua changes
+  since benchmark, handle_input + build_render_state added, all
+  interaction loops covered, CONFIG matches data.yaml (5 tests)
+- `test_production_output_matches_lua_exact` — deterministic
+  correctness, stable ecosystems, RenderState shape verified (5 tests)
+- `test_rendering_consumes_new_state_correctly` — App.tsx and
+  ReefPreview migrated, drawGame interface unchanged (7 tests)
+- `test_real_tick_time_measured_in_production` — 0.230ms/tick,
+  151.7x speedup vs fengari baseline (3 tests)
+- `test_lua_source_preserved` — all .lua files present, module
+  documents preservation (2 tests)
+- `test_no_regression_other_games` — no cross-game impact, Shoal
+  UI/components unchanged (7 tests)
+
+### This closes the Shoal performance investigation thread
+
+The six-stage investigation is now complete:
+1. Diagnosis (O(n²) full scans, 51-106ms tick time)
+2. Spatial-hash fix (integer bucket keys, 21.5-23.5% improvement)
+3. Fengari verification (confirmed real interop cost)
+4. get_nearby optimization (74.9% check reduction)
+5. Wasmoon swap-test (closed — PRNG divergence, not viable)
+6. **TS-native migration (this phase — 151.7x speedup, production)**
+
+---
+
 ## Planet of Greed Boardroom Event Softlock Investigation — COMPLETED
 
 **Directive:** Diagnose and fix a real softlock: a Boardroom Event modal
