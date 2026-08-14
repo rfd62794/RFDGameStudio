@@ -547,13 +547,34 @@ export default function App({ session }: GameRendererProps) {
         if (order.type === 'civic') {
           if (order.focus === 'defense') {
             updatedCells[cellIndex].fortification = Math.min(3, updatedCells[cellIndex].fortification + 1);
+            // Population Balance: militarization unsettles civilians (-1).
+            applyPublicOpinionOffset(updatedCells[cellIndex], -1);
             addLog(`Civic Defense Focus authorized in ${cell.name}: Shields increased to Level ${updatedCells[cellIndex].fortification}.`, 'success');
           } else if (order.focus === 'production') {
+            // Population Balance: accelerated production strains workforce (-2).
+            applyPublicOpinionOffset(updatedCells[cellIndex], -2);
             addLog(`Civic Production Focus authorized in ${cell.name}: Passive assembly line throughput accelerated.`, 'success');
           } else if (order.focus === 'unrest') {
             applyPublicOpinionOffset(updatedCells[cellIndex], 8);
             addLog(`Civic Unrest Focus authorized in ${cell.name}: Investment in the workforce lifts Population Balance to ${updatedCells[cellIndex].publicOpinion}.`, 'success');
           }
+        }
+
+        // Population Balance: military orders have real opinion costs.
+        // Expand: conquered population is resentful (-3 on target cell).
+        // Reinforce: conscription is unpopular (-1 on source cell).
+        // Fortify: military buildup unsettles civilians (-1 on cell).
+        if (order.type === 'expand' && order.targetCellId !== undefined) {
+          const targetIdx = updatedCells.findIndex(c => c.id === order.targetCellId);
+          if (targetIdx !== -1) {
+            applyPublicOpinionOffset(updatedCells[targetIdx], -3);
+          }
+        }
+        if (order.type === 'reinforce') {
+          applyPublicOpinionOffset(updatedCells[cellIndex], -1);
+        }
+        if (order.type === 'fortify') {
+          applyPublicOpinionOffset(updatedCells[cellIndex], -1);
         }
       }
     }
@@ -835,8 +856,26 @@ export default function App({ session }: GameRendererProps) {
           if (cell.ownerId) {
             const ownerIdx = updatedCorps.findIndex(c => c.id === cell.ownerId);
             if (ownerIdx !== -1) {
-              updatedCorps[ownerIdx].treasury += 10000;
+              // Population Balance consequence: cells with opinion <30 produce
+              // no income (workforce strike). Real consequence, not just a
+              // number that affects rank.
+              if ((cell.publicOpinion ?? 50) >= 30) {
+                updatedCorps[ownerIdx].treasury += 10000;
+              }
             }
+          }
+        });
+
+        // 4. Population Balance passive erosion: cells drift toward 50
+        // (neutral) by 1 per week unless actively maintained. This makes
+        // Population Balance a living system — investment via Civic Unrest
+        // Focus is needed to keep it high, not a one-time boost.
+        updatedCells.forEach(cell => {
+          const current = cell.publicOpinion ?? 50;
+          if (current > 50) {
+            cell.publicOpinion = current - 1;
+          } else if (current < 50) {
+            cell.publicOpinion = current + 1;
           }
         });
 
@@ -1173,6 +1212,10 @@ export default function App({ session }: GameRendererProps) {
         addLog(`Conflict Resolved in ${cell.name}: Complete garrison annihilation. Sector reverts to Neutral.`, 'warning');
       }
 
+      // Population Balance: combat damages public opinion on this cell (-5).
+      // Violence is bad for civilian morale, regardless of who wins.
+      applyPublicOpinionOffset(cell, -5);
+
       // Phase 3: update running cell counts and detect eliminations. The
       // previous owner lost this cell (to a victor or to mutual destruction).
       if (previousOwnerId && previousOwnerId !== cell.ownerId) {
@@ -1324,6 +1367,7 @@ export default function App({ session }: GameRendererProps) {
               <button
                 key={cultureId}
                 id={`btn-select-culture-${cultureId}`}
+                data-testid={`pog-culture-${cultureId}`}
                 onClick={() => initializeNewGame(cultureId)}
                 className="border-4 border-[#141414] bg-white p-4 flex flex-col items-center gap-2 shadow-[4px_4px_0px_0px_#141414] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
               >
@@ -1345,7 +1389,7 @@ export default function App({ session }: GameRendererProps) {
     return (
       <div className="min-h-screen bg-[#E4E3E0] flex flex-col justify-center items-center text-[#141414] font-mono gap-3 select-none">
         <RefreshCw className="w-10 h-10 text-[#141414] animate-spin" />
-        <span className="font-bold">BOOTING CORPWORLD EXECUTIVE TERMINAL...</span>
+        <span className="font-bold">BOOTING PLANET OF GREED EXECUTIVE TERMINAL...</span>
       </div>
     );
   }
@@ -1455,6 +1499,7 @@ export default function App({ session }: GameRendererProps) {
                       onClick={handleEndPlanningPhase}
                       className="mt-2 w-full bg-[#141414] hover:bg-[#141414]/90 text-white font-black py-2.5 px-4 rounded-none text-xs font-mono uppercase tracking-widest transition shadow-[2px_2px_0px_0px_#141414] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
                       id="btn-finalize-planning"
+                      data-testid="pog-authorize-planning"
                     >
                       Authorize Planning Phase
                     </button>
@@ -1577,7 +1622,7 @@ export default function App({ session }: GameRendererProps) {
           of the Annual Report (same z-50, later in DOM) so the ending
           takes precedence when both are up. */}
       {gameState.endingEvent && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 select-none animate-fade-in" id="ending-placeholder">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 select-none animate-fade-in" id="ending-placeholder" data-testid="pog-ending-placeholder">
           <div className="bg-[#E4E3E0] border-4 border-[#141414] max-w-md w-full p-8 shadow-[6px_6px_0px_0px_#141414] flex flex-col gap-5 text-center text-[#141414]">
             <span className="font-serif italic text-[11px] text-[#141414]/70 font-bold uppercase tracking-widest">
               Seed Engine Online

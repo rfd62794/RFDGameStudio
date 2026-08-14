@@ -118,6 +118,10 @@ export default function AnnualReportView({
                 <span className="text-[#141414]/60">Liquid Financial Valuation:</span>
                 <span className="font-black text-emerald-700">${playerCorp.treasury.toLocaleString()}</span>
               </div>
+              <div className="flex justify-between items-center py-1.5 border-b border-[#141414]/10" data-testid="pog-fragment-count">
+                <span className="text-[#141414]/60">Fragments Held:</span>
+                <span className="font-black text-amber-700">{playerCorp.fragments?.length ?? 0} / 6</span>
+              </div>
             </div>
           </div>
 
@@ -159,6 +163,9 @@ export default function AnnualReportView({
                       </span>
                       <span title="Military Units">
                         🟢 {gCount}
+                      </span>
+                      <span title="Fragments Held" className="font-bold text-amber-700" data-testid={`pog-scoreboard-fragments-${corp.id}`}>
+                        🔶 {corp.fragments?.length ?? 0}
                       </span>
                       <span title="Financial Treasury" className="text-emerald-700 font-black w-16 text-right">
                         ${Math.round(corp.treasury / 1000)}k

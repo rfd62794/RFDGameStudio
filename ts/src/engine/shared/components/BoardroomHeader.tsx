@@ -1,6 +1,6 @@
 import React from 'react';
 import type { GameDate, Corporation, MapCell } from '../componentTypes';
-import { Play, Pause, FastForward, Briefcase, Calendar, Flag, HelpCircle } from 'lucide-react';
+import { Play, Pause, FastForward, Briefcase, Calendar, Flag, HelpCircle, Award } from 'lucide-react';
 
 interface BoardroomHeaderProps {
   date: GameDate;
@@ -60,8 +60,7 @@ export default function BoardroomHeader({
         <div className="border-2 border-[#141414] bg-white/60 px-3 py-1.5 shadow-[2px_2px_0px_0px_#141414] shrink-0">
           <span className="font-serif italic text-[10px] uppercase tracking-widest text-[#141414]/60 block mb-0.5">COMM-NET INTEL</span>
           <h1 className="text-xl font-sans font-black tracking-tighter uppercase leading-none text-[#141414] flex items-baseline gap-1.5">
-            CORP<span className="font-mono font-light text-[#141414]/80">WORLD</span>
-            <span className="text-[8px] bg-[#141414] text-[#E4E3E0] font-mono px-1 py-0.2 font-bold tracking-wider">v2.0-MVP</span>
+            PLANET OF <span className="font-mono font-light text-[#141414]/80">GREED</span>
           </h1>
         </div>
         
@@ -206,11 +205,11 @@ export default function BoardroomHeader({
               <span className="w-2.5 h-2.5 inline-block" style={{ backgroundColor: playerCorp.color }}></span>
               {playerCorp.name}
             </span>
-            <span className="bg-[#141414] text-white font-mono px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider">
-              RANK #{playerRank} / 5
+            <span className="bg-[#141414] text-white font-mono px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider" data-testid="rank-display">
+              RANK #{playerRank} / {corporations.length}
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-[9px]">
+          <div className="grid grid-cols-3 gap-2 text-[9px]">
             <div className="flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <div>
@@ -225,6 +224,13 @@ export default function BoardroomHeader({
                 <span className="font-black text-[#141414] text-xs">
                   {controlledCellsCount}/{totalCellsCount} <span className="text-[9px] font-normal opacity-60">({sharePercentage}%)</span>
                 </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5" data-testid="fragment-counter">
+              <Award className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <div>
+                <span className="text-[#141414]/50 font-serif italic block text-[7.5px] uppercase leading-none">FRAGMENTS</span>
+                <span className="font-black text-amber-700 text-xs">{playerCorp.fragments?.length ?? 0}/6</span>
               </div>
             </div>
           </div>
