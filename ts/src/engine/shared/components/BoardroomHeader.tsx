@@ -162,8 +162,8 @@ export default function BoardroomHeader({
           onClick={() => onSetSpeed(2)}
           className={`px-2 py-0.5 text-xs font-mono border transition cursor-pointer ${
             simulationSpeed === 2 && isSimulating
-              ? 'bg-[#141414] text-[#E4E3E0] font-black border-[#141414]'
-              : 'border-transparent text-[#141414]/70 hover:text-[#141414]'
+              ? 'bg-amber-600 text-[#1a1a2e] font-black border-amber-400'
+              : 'border-transparent text-amber-100/50 hover:text-amber-100'
           }`}
           title="Fast Speed"
           id="btn-speed-2x"
@@ -174,8 +174,8 @@ export default function BoardroomHeader({
           onClick={() => onSetSpeed(4)}
           className={`px-2 py-0.5 text-xs font-mono border transition cursor-pointer ${
             simulationSpeed === 4 && isSimulating
-              ? 'bg-[#141414] text-[#E4E3E0] font-black border-[#141414]'
-              : 'border-transparent text-[#141414]/70 hover:text-[#141414]'
+              ? 'bg-amber-600 text-[#1a1a2e] font-black border-amber-400'
+              : 'border-transparent text-amber-100/50 hover:text-amber-100'
           }`}
           title="Turbo Speed"
           id="btn-speed-4x"
@@ -183,12 +183,12 @@ export default function BoardroomHeader({
           4x
         </button>
 
-        <div className="h-5 w-[1px] bg-[#141414]/40"></div>
+        <div className="h-5 w-[1px] bg-amber-700/40"></div>
 
         <button
           onClick={onNextDay}
           disabled={isSimulating}
-          className="p-1 text-[#141414]/70 hover:text-[#141414] disabled:opacity-30 transition cursor-pointer"
+          className="p-1 text-amber-100/50 hover:text-amber-100 disabled:opacity-30 transition cursor-pointer"
           title="Manual Advance 1 Day"
           id="btn-next-day"
         >
@@ -196,54 +196,54 @@ export default function BoardroomHeader({
         </button>
       </div>
 
-      {/* Football Manager-style Corporation Standings & Status Bar */}
+      {/* Corporation Standings & Status Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 justify-end">
         {/* Live Standings Panel */}
-        <div className="bg-white border-2 border-[#141414] p-2 flex flex-col gap-1 shadow-[2px_2px_0px_0px_#141414] font-mono text-[9px] min-w-[280px]">
-          <div className="flex justify-between items-center border-b border-[#141414]/10 pb-0.5">
-            <span className="flex items-center gap-1 font-black text-[11px] uppercase" style={{ color: playerCorp.color }}>
+        <div className="bg-[#0f0f1a] border border-amber-600/40 p-2 flex flex-col gap-1 font-mono text-[9px] min-w-[280px]">
+          <div className="flex justify-between items-center border-b border-amber-700/30 pb-0.5">
+            <span className="flex items-center gap-1 font-bold text-[11px] uppercase" style={{ color: playerCorp.color }}>
               <span className="w-2.5 h-2.5 inline-block" style={{ backgroundColor: playerCorp.color }}></span>
               {playerCorp.name}
             </span>
-            <span className="bg-[#141414] text-white font-mono px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider" data-testid="rank-display">
+            <span className="bg-amber-600 text-[#1a1a2e] font-mono px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider" data-testid="rank-display">
               RANK #{playerRank} / {corporations.length}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-[9px]">
             <div className="flex items-center gap-1.5">
-              <Briefcase className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <Briefcase className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <div>
-                <span className="text-[#141414]/50 font-serif italic block text-[7.5px] uppercase leading-none">TREASURY</span>
-                <span className="font-black text-emerald-700 text-xs">${playerCorp.treasury.toLocaleString()}</span>
+                <span className="text-amber-100/50 font-serif italic block text-[7.5px] uppercase leading-none">TREASURY</span>
+                <span className="font-black text-emerald-400 text-xs">${playerCorp.treasury.toLocaleString()}</span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <Flag className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+              <Flag className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               <div>
-                <span className="text-[#141414]/50 font-serif italic block text-[7.5px] uppercase leading-none">MARKET SHARE</span>
-                <span className="font-black text-[#141414] text-xs">
+                <span className="text-amber-100/50 font-serif italic block text-[7.5px] uppercase leading-none">MARKET SHARE</span>
+                <span className="font-black text-amber-100 text-xs">
                   {controlledCellsCount}/{totalCellsCount} <span className="text-[9px] font-normal opacity-60">({sharePercentage}%)</span>
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1.5" data-testid="fragment-counter">
-              <Award className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <div>
-                <span className="text-[#141414]/50 font-serif italic block text-[7.5px] uppercase leading-none">FRAGMENTS</span>
-                <span className="font-black text-amber-700 text-xs">{playerCorp.fragments?.length ?? 0}/6</span>
+                <span className="text-amber-100/50 font-serif italic block text-[7.5px] uppercase leading-none">FRAGMENTS</span>
+                <span className="font-black text-amber-400 text-xs">{playerCorp.fragments?.length ?? 0}/6</span>
               </div>
             </div>
           </div>
-          <div className="text-[7.5px] border-t border-[#141414]/10 pt-1 flex items-center gap-1 font-mono text-[#141414]/75 overflow-hidden">
-            <span className="font-black uppercase shrink-0 text-[#141414]/40 text-[7px]">Rivals:</span>
+          <div className="text-[7.5px] border-t border-amber-700/30 pt-1 flex items-center gap-1 font-mono text-amber-100/70 overflow-hidden">
+            <span className="font-bold uppercase shrink-0 text-amber-100/40 text-[7px]">Rivals:</span>
             <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none">
               {sortedCorps.map((c) => (
                 <span 
                   key={c.id} 
                   className={`px-1 py-0.2 border flex items-center gap-0.5 text-[7px] ${
                     c.isPlayer 
-                      ? 'border-[#141414] bg-[#141414] text-white font-bold' 
-                      : 'border-[#141414]/20 bg-[#E4E3E0]/30 text-[#141414]/90'
+                      ? 'border-amber-400 bg-amber-600 text-[#1a1a2e] font-bold' 
+                      : 'border-amber-800/40 bg-[#1a1a2e]/50 text-amber-100/80'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 shrink-0" style={{ backgroundColor: c.color }}></span>
@@ -259,7 +259,7 @@ export default function BoardroomHeader({
         <div className="flex gap-2 shrink-0 md:flex-col xl:flex-row justify-center">
           <button
             onClick={showHelp}
-            className="p-2 bg-white hover:bg-[#D4D3D0] text-[#141414] border-2 border-[#141414] transition cursor-pointer shadow-[2px_2px_0px_0px_#141414]"
+            className="p-2 bg-[#0f0f1a] hover:bg-[#1a1a2e] text-amber-200 border border-amber-600/40 transition cursor-pointer"
             title="Instructional Dossier"
             id="btn-help"
           >
@@ -267,7 +267,7 @@ export default function BoardroomHeader({
           </button>
           <button
             onClick={onResetGame}
-            className="px-2.5 py-1 text-xs font-mono bg-red-400 hover:bg-red-500 text-[#141414] border-2 border-[#141414] transition cursor-pointer font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#141414]"
+            className="px-2.5 py-1 text-xs font-mono bg-red-700 hover:bg-red-600 text-amber-50 border border-red-500/60 transition cursor-pointer font-bold uppercase tracking-wider"
             title="Restart Campaign"
             id="btn-reset"
           >

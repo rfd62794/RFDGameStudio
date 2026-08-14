@@ -241,7 +241,7 @@ export default function GuidedWalkthrough({
           <div className="flex items-center gap-1.5">
             <AlertTriangle className="w-3 h-3 shrink-0" />
             <span>
-              {rivalNeighbors.length} rival neighbor{s: rivalNeighbors.length > 1 ? 's' : ''}:
+              {rivalNeighbors.length} rival neighbor{rivalNeighbors.length > 1 ? 's' : ''}:
               {' '}
               {rivalNeighbors.map(n => {
                 const corp = corporations.find(c => c.id === n.ownerId);
