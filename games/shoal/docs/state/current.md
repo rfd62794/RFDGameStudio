@@ -1,6 +1,6 @@
 # Shoal — Repo State
 
-*Last updated: August 12 2026*
+*Last updated: August 14 2026*
 
 ## Visual Enrichment + Performance — COMPLETED
 
@@ -252,17 +252,21 @@ production-relevant. The fengari measurement above is authoritative.
 tick time (27.4ms default, 34.6ms high load) is still ~1.6-2.1× over a
 16.67ms/60fps budget. This directive answered "can hashing win" — yes,
 it can. Closing the remaining gap to 60fps is a separate, larger
-effort. The TS-typed-array migration remains the real path to
-sub-16.67ms ticks if that target is required; the Lua-side hash
-optimization has now delivered what it can.
+effort. The wasmoon VM-swap branch (see below) has been definitively
+closed — it loses to fengari by 1.25-1.93x across all cells. The
+TS-typed-array migration remains the real path to sub-16.67ms ticks if
+that target is required; the Lua-side hash optimization has now
+delivered what it can.
 
-### Wasmoon Runtime Swap-Test (August 2026)
+### Wasmoon Runtime Swap-Test + Portable Randomness Fix (August 2026)
 
 **Directive:** Isolated benchmark to determine whether swapping
 fengari (Lua 5.3, JS reimplementation) for wasmoon (Lua 5.4, WASM-
 compiled official Lua C source) would deliver a cheaper performance
 win than a TS-typed-array migration — benefiting all ten Lua games,
-not just Shoal.
+not just Shoal. Conducted in two phases: (1) correctness gate +
+initial benchmark, (2) portable randomness fix + clean re-benchmark
+with methodology correction.
 
 **Package identified:** `wasmoon` v1.16.0 (ceifa/wasmoon, 691 GitHub
 stars, MIT, Lua 5.4 via WebAssembly). The canonical, most-downloaded
@@ -270,7 +274,7 @@ package. A `wasmoon-lua5.1` fork exists (X3ZvaWQ, 137 weekly downloads)
 but no 5.3-specific package was found. Fengari implements Lua 5.3
 ("port of PUC-Rio Lua 5.3 implementation to ES6", 32-bit integers).
 
-**STOP-rule #1 — Correctness gate: FAILED (real divergence found)**
+#### Phase 1: Correctness gate — FAILED (math.random divergence)
 
 Shoal's real Lua source was loaded through both VMs with the same seed
 (42), same spawn counts (60 fish / 8 sharks), and 20 ticks. The render
@@ -281,75 +285,139 @@ states diverge:
 - Hunger values differ (fengari=0.1, wasmoon=0.025 after 20 ticks)
 
 **Root cause — `math.random` PRNG algorithm change (Lua 5.3 → 5.4):**
-This is a known, documented Lua version incompatibility, not a wasmoon
-bug:
-- **Lua 5.3** (fengari): `math.random` uses C `rand()` (or POSIX
-  `random()`), seeded by `srand(seed)`. Platform-dependent.
+- **Lua 5.3** (fengari): `math.random` uses C `rand()`, seeded by
+  `srand(seed)`. Platform-dependent.
 - **Lua 5.4** (wasmoon): `math.random` uses **xoshiro256\*\***, a
-  completely different 256-bit PRNG. `math.randomseed` also works
-  differently (sets 256-bit state, discards 16 initial values).
+  completely different 256-bit PRNG.
 
-Shoal calls `math.random()` at three points in `logic.lua`:
-- Line 302: fish breeding probability check
-- Line 371: fish escape chance when caught by shark
-- Line 417: shark breeding probability check
+**Complete `math.random` call-site audit (6 sites, not 3):**
 
-With different PRNG algorithms, the same seed produces different
-random sequences, causing different breeding/escape outcomes, which
-cascades into completely different entity positions and populations
-over time.
+| # | File | Line | Call | Purpose |
+|---|---|---|---|---|
+| 1 | `logic.lua` | 302 | `math.random()` | Fish breeding probability |
+| 2 | `logic.lua` | 371 | `math.random()` | Fish escape chance |
+| 3 | `logic.lua` | 417 | `math.random()` | Shark breeding probability |
+| 4 | `entities.lua` | 164 | `math.random(min,max)` | Flesh chunk spawn count |
+| 5 | `utils.lua` | 51 | `math.random()` | `random_float` helper (steering wander, entity spawn velocities, chunk positions) |
+| 6 | `utils.lua` | 55 | `math.random(1,#list)` | `random_choice` helper (dead code — never called) |
 
-**The custom LCG (`make_prng` in state.lua) is version-independent:**
-Verified that the LCG `s = (s * 1103515245 + 12345) % 2147483648`
-produces identical values in both VMs (the `% 2^31` masks off the high
-bits, so 32-bit vs 64-bit integer width doesn't matter). Spawning is
-deterministic across versions. Only `math.random()` diverges.
+#### Phase 2: Portable randomness fix
 
-**STOP-rule #2 — Real interop benchmark (ran before correctness halt):**
+**Fix:** All 6 `math.random` call sites routed through the existing
+custom LCG (`make_prng` in `state.lua`), which is version-independent.
+The LCG is stored on `st.prng` during `spawn_initial_entities` and
+accessed via `GAME_STATE.prng` in `utils.lua`. Fallback to
+`math.random` when `st.prng` is nil (for tests that call functions
+directly without `init_game`).
 
-The high-load benchmark ran before the correctness gate halted
-proceedings. It measured wasmoon's real tick time including the full
-render-state pull (the ~630-call JS↔Lua boundary crossing the
-directive required), via `performance.now()` over 200 ticks with 10-
-tick warmup:
+**LCG period and distribution verified:**
+- Full period: 2^31 = 2,147,483,648 draws (multiplier 1103515245 is
+  1 mod 4, increment 12345 is odd/coprime with 2^31)
+- Session draw volume: ~56M draws/hour at 60fps → period lasts ~38
+  hours of continuous gameplay
+- Distribution: mean 0.4999, variance 0.0833 (both match uniform[0,1)
+  expectations), 2D clustering max/min cell ratio 1.24 (no significant
+  clustering)
 
-| Scenario | Lua-only (os.clock, no interop) | Real interop (perf.now, render-state pull) | Fengari baseline |
+**Critical LCG precision bug found and fixed during this phase:** The
+original LCG `s = (s * 1103515245 + 12345) % 2147483648` produces
+intermediate values exceeding 2^53 (~9×10^15), causing silent precision
+loss in fengari (JavaScript doubles) while wasmoon (native 64-bit
+integers) remains exact. This means the LCG was **never actually
+version-independent** — the previous session's claim that "the `% 2^31`
+masks off the high bits, so 32-bit vs 64-bit integer width doesn't
+matter" was wrong. The multiplication happens *before* the modulo, and
+the multiplication itself exceeds 2^53.
+
+**Fix:** Split-multiplication to keep all intermediates < 2^47:
+`s = ((s * MULT_HI % MOD) * 65536 + s * MULT_LO + INC) % MOD` where
+`MULT_HI = 16838`, `MULT_LO = 20077`. Verified: all 20 LCG outputs
+match bit-for-bit between fengari and wasmoon after this fix.
+
+**Correctness gate re-run: PASSED.** Fengari and wasmoon now produce
+field-identical render state (fish positions, shark positions, algae
+nodule counts, chunks) under fixed seed 42, 20 ticks, with the
+portable randomness fix applied to both VMs.
+
+#### Phase 2: Clean benchmark — methodology correction
+
+**Why the initial benchmark was untrustworthy:** The first benchmark
+(both the previous session's 5.797ms claim and the first re-run in
+this session) produced a physical impossibility — interop time was
+*faster* than Lua-only time in 3 of 4 cells. Root cause: the Lua-only
+and interop measurements ran separate 500-tick trajectories from
+different starting states. The `wander_targets` upvalue in
+`steering.lua` persists across `init_game` re-init calls (it's a
+module-level table, not reset), so the second measurement started with
+stale wander targets keyed by reused entity IDs, causing different
+movement patterns and different population trajectories. The two
+measurements weren't measuring the same computation.
+
+**The "5.797ms wasmoon" number from the previous session:** Traced to
+message 122 of the previous session's history. It was wasmoon's real
+interop time (`performance.now()` around 200 `tickFn(0.1, {})` calls),
+compared against fengari's **Lua-only** time (`os.clock()` inside a Lua
+loop, no boundary crossing) — a mismatched comparison. The 5.797ms
+number is not reproducible with clean methodology.
+
+**Clean benchmark methodology:** Each measurement uses a fresh VM
+instance. Fengari Lua-only uses the exact same `_test_measure_tick_time`
+helper (os.clock inside Lua) that produced the validated 27.379/34.560ms
+baseline. Wasmoon Lua-only uses the same helper. Real interop uses
+`performance.now()` around per-tick JS→Lua calls with render-state pull.
+No measurement reuses a VM that has already run a trajectory.
+
+**Fengari baseline reconciliation:** Using the same methodology as the
+validated baseline:
+
+| Scenario | Validated baseline | This run | Delta |
 |---|---|---|---|
-| High load (83 fish, 19 sharks) | 2.355 ms/tick | **5.797 ms/tick** | 34.560 ms/tick |
+| Default (60 fish, 8 sharks) | 27.379 ms | 28.654 ms | +4.7% (normal variance) |
+| High load (83 fish, 19 sharks) | 34.560 ms | 33.688 ms | -2.5% (normal variance) |
 
-Wasmoon's real-interop tick time is **83.2% faster** than the optimized
-fengari baseline at high load. The Lua-only measurement (2.355ms) shows
-the raw compute advantage is ~15×, and the interop overhead adds
-~3.4ms/tick — significant but not enough to erase wasmoon's advantage.
-The default scenario was not measured because the correctness gate
-halted the benchmark before it ran.
+Nothing regressed. The `get_nearby` optimization is intact.
 
-**Verdict: Wasmoon is dramatically faster (83% at high load), but the
-correctness gate halts any swap recommendation.**
+#### Final benchmark results (authoritative)
 
-The `math.random` divergence is a real semantic barrier. A runtime
-swap would require one of:
-1. Replacing all `math.random()`/`math.randomseed()` calls in Shoal
-   (and all ten Lua games) with a version-independent PRNG — the
-   custom LCG pattern already used for spawning.
-2. Using `wasmoon-lua5.1` (Lua 5.1 fork) instead of wasmoon — but 5.1
-   is even older than 5.3 and may have other divergences.
-3. Building a custom wasmoon variant compiled against Lua 5.3 source —
-   significant maintenance burden.
+| Measurement | Fengari | Wasmoon | Wasmoon/Fengari |
+|---|---|---|---|
+| **Lua-only (os.clock), default** | 28.654 ms | 35.760 ms | 1.25x slower |
+| **Lua-only (os.clock), high load** | 33.688 ms | 46.600 ms | 1.38x slower |
+| **Real interop (perf.now), default** | 28.685 ms | 50.673 ms | 1.77x slower |
+| **Real interop (perf.now), high load** | 50.822 ms | 97.930 ms | 1.93x slower |
 
-**The speed win is real and large (83% faster at high load, even with
-real interop).** If the `math.random` portability issue can be solved
-(option 1 is the most tractable — replace ~3 `math.random()` call sites
-per game with the existing custom LCG pattern), a wasmoon swap would
-deliver sub-16.67ms tick times at high load (5.8ms << 16.67ms) without
-any TS migration. That would benefit all ten Lua games at once.
+All 4 cells are internally coherent: interop ≥ Lua-only in every cell.
+No physical impossibilities.
 
-**Per the directive's STOP rule, performance measurement was halted on
-a VM that doesn't produce correct results.** The speed numbers are
-reported for completeness but do not constitute a swap recommendation.
-The logical next step, if pursued, is a separate directive to patch
-`math.random` usage across the Lua games and re-run the correctness
-gate.
+#### Verdict: Wasmoon loses, clearly
+
+**Wasmoon is 1.25-1.93x slower than fengari across every cell**, worse
+specifically under real interop where you'd most want the win — nearly
+2x at high load. The async Promise-per-call overhead of wasmoon's
+WASM interop layer roughly doubles real interop time vs Lua-only
+(35.8→50.7ms default, 46.6→97.9ms high load), while fengari's
+synchronous C-style interop adds negligible overhead at default load
+(28.65→28.69ms) and moderate overhead at high load (33.7→50.8ms).
+
+**The VM-swap branch is now definitively closed** — not inconclusive,
+closed. This was the cheap branch, and it lost. That leaves exactly
+two real paths from here:
+1. **Keep squeezing fengari** — `get_nearby`'s fix already bought a
+   real 21-24%, more may be possible but with presumably smaller
+   marginal gains now.
+2. **TS-typed-array migration** — the structural answer to the
+   boundary-crossing cost this whole thread keeps running into. Given
+   wasmoon's real interop overhead came in *worse* than fengari's
+   specifically because of async-boundary cost, that's a strong
+   indirect argument for removing the boundary entirely rather than
+   continuing to shop for a faster VM to sit behind it.
+
+**This directive was not wasted despite the negative answer.** It
+closed a real, previously-open question with a trustworthy number
+instead of a guess, and it fixed a genuine cross-version correctness
+bug in the LCG (the 2^53 precision overflow) that would have mattered
+regardless of which VM won — any future cross-runtime comparison or
+determinism requirement would have hit the same silent divergence.
 
 ### Correctness verification
 
@@ -381,9 +449,20 @@ test verifies hunger accumulates over time and appears in the render state.
   extended with optional wrap parameters; integer bucket keys
   (`bx*100000+by`) replacing string concatenation; direct list append
   (`list[#list+1]`) replacing `table.insert`; localised `buckets` table;
-  test helper functions added
+  test helper functions added; `math.random()` calls at lines 302/371/419
+  replaced with `st.prng()` (portable randomness fix)
+- `games/shoal/state.lua` — `make_prng` made global; split-multiplication
+  LCG fix (keeps intermediates < 2^53 for cross-VM bit-identical output);
+  `st.prng` stored during `spawn_initial_entities`; `_seed_counter` for
+  unique seeds when no explicit seed given
+- `games/shoal/entities.lua` — flesh chunk spawn count routed through
+  `st.prng` with `math.random` fallback
+- `games/shoal/utils.lua` — `random_float`/`random_choice` routed through
+  `GAME_STATE.prng` with `math.random` fallback
 - `tests/test_shoal.py` — 8 new test anchors; 3 existing `get_nearby`
-  tests updated for integer key format
+  tests updated for integer key format; 10 tests updated for portable
+  randomness (explicit seeds, adjusted timing thresholds for new PRNG
+  sequence)
 
 ### Test floor
 
