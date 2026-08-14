@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { MapCell, Corporation, WeeklyOrder, UnitGroup } from '../types';
 import { getDefaultAction, sortRegionsByThreat, getThreatLevel } from '../defaultAction';
 import { REGION_FLAVOR_PREFIXES } from '../flavorText';
-import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye, AlertTriangle } from 'lucide-react';
+import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye, AlertTriangle, Swords, Send } from 'lucide-react';
 
 interface GuidedWalkthroughProps {
   allCells: MapCell[];
@@ -168,7 +168,10 @@ export default function GuidedWalkthrough({
       case 'reinforce': return `Reinforce (${order.reinforceType})`;
       case 'expand': {
         const target = allCells.find(c => c.id === order.targetCellId);
-        return `Expand to ${target?.name ?? 'neighbor'}`;
+        if (!target) return 'Expand';
+        if (target.ownerId === playerCorp.id) return `Reinforce ${target.name}`;
+        if (target.ownerId && target.ownerId !== playerCorp.id) return `Attack ${target.name}`;
+        return `Expand to ${target.name}`;
       }
       case 'scan': return 'Deep Scan';
       case 'civic': return `Civic: ${order.focus}`;
@@ -176,12 +179,17 @@ export default function GuidedWalkthrough({
     }
   };
 
-  const actionIcon = (type: string) => {
-    switch (type) {
+  const actionIcon = (order: WeeklyOrder) => {
+    switch (order.type) {
       case 'hold': return <Check className="w-4 h-4" />;
       case 'fortify': return <Shield className="w-4 h-4" />;
       case 'reinforce': return <Users className="w-4 h-4" />;
-      case 'expand': return <ArrowRight className="w-4 h-4" />;
+      case 'expand': {
+        const target = allCells.find(c => c.id === order.targetCellId);
+        if (target?.ownerId === playerCorp.id) return <Send className="w-4 h-4" />;
+        if (target?.ownerId && target?.ownerId !== playerCorp.id) return <Swords className="w-4 h-4" />;
+        return <ArrowRight className="w-4 h-4" />;
+      }
       case 'scan': return <Eye className="w-4 h-4" />;
       case 'civic': return <Hammer className="w-4 h-4" />;
       default: return <Check className="w-4 h-4" />;
@@ -194,6 +202,7 @@ export default function GuidedWalkthrough({
     .filter(Boolean) as MapCell[];
   const rivalNeighbors = neighborCells.filter(n => n.ownerId && n.ownerId !== playerCorp.id);
   const neutralNeighbors = neighborCells.filter(n => !n.ownerId);
+  const ownNeighbors = neighborCells.filter(n => n.ownerId === playerCorp.id);
 
   return (
     <div className="bg-[#1a1a2e] border-2 border-amber-600/40 p-4 text-amber-50 flex flex-col h-full gap-3 select-none" data-testid="pog-guided-walkthrough">
@@ -267,7 +276,7 @@ export default function GuidedWalkthrough({
               Recommended Directive
             </span>
             <div className="flex items-center gap-2 text-amber-100">
-              {actionIcon(activeOrder.type)}
+              {actionIcon(activeOrder)}
               <span className="font-bold text-sm uppercase tracking-tight" data-testid="pog-default-action">
                 {actionLabel(activeOrder)}
               </span>
@@ -276,7 +285,12 @@ export default function GuidedWalkthrough({
               {activeOrder.type === 'hold' && 'Garrison holds position. Passive production continues.'}
               {activeOrder.type === 'fortify' && 'Reinforce sector shields. Cost: $20,000.'}
               {activeOrder.type === 'reinforce' && `Speed-recruit a ${activeOrder.type === 'reinforce' ? activeOrder.reinforceType : ''} unit. Cost: $30,000.`}
-              {activeOrder.type === 'expand' && 'Deploy expeditionary forces to an unclaimed neighbor.'}
+              {activeOrder.type === 'expand' && (() => {
+                const target = allCells.find(c => c.id === activeOrder.targetCellId);
+                if (target?.ownerId === playerCorp.id) return 'Send units to reinforce a friendly sector. Arrives in 4 days.';
+                if (target?.ownerId && target?.ownerId !== playerCorp.id) return 'Deploy expeditionary forces to assault a rival sector. Triggers combat at month-end.';
+                return 'Deploy expeditionary forces to claim an unclaimed neighbor.';
+              })()}
               {activeOrder.type === 'civic' && `Civic ${activeOrder.focus} focus. Cost: $10,000.`}
               {activeOrder.type === 'scan' && 'Deep orbital scan of an unscouted neighbor. Cost: $5,000.'}
             </p>
@@ -367,13 +381,12 @@ export default function GuidedWalkthrough({
             </div>
           </button>
 
-          {/* Expand */}
+          {/* Expand to neutral neighbor */}
           {neutralNeighbors.length > 0 && garrison >= 2 && (
             <button
               onClick={() => {
                 const target = neutralNeighbors[0];
                 const units: UnitGroup = { circle: 0, square: 0, triangle: 0 };
-                // Send 1 of the most available type
                 if (currentCell.units.circle > 0) units.circle = 1;
                 else if (currentCell.units.square > 0) units.square = 1;
                 else if (currentCell.units.triangle > 0) units.triangle = 1;
@@ -386,6 +399,50 @@ export default function GuidedWalkthrough({
               <div>
                 <span className="font-bold text-xs text-amber-100 uppercase block">Expand to {neutralNeighbors[0].name}</span>
                 <span className="text-[9px] text-amber-100/50">Deploy 1 unit to claim neutral neighbor</span>
+              </div>
+            </button>
+          )}
+
+          {/* Attack rival neighbor */}
+          {rivalNeighbors.length > 0 && garrison >= 2 && (
+            <button
+              onClick={() => {
+                const target = rivalNeighbors[0];
+                const units: UnitGroup = { circle: 0, square: 0, triangle: 0 };
+                if (currentCell.units.circle > 0) units.circle = 1;
+                else if (currentCell.units.square > 0) units.square = 1;
+                else if (currentCell.units.triangle > 0) units.triangle = 1;
+                handleSelectCustomAction({ type: 'expand', targetCellId: target.id, unitsSent: units });
+              }}
+              className="w-full p-2.5 border border-red-800/40 bg-red-950/20 hover:bg-red-900/30 text-left flex items-center gap-2.5 transition cursor-pointer"
+              data-testid="pog-action-attack"
+            >
+              <Swords className="w-4 h-4 text-red-400 shrink-0" />
+              <div>
+                <span className="font-bold text-xs text-red-200 uppercase block">Attack {rivalNeighbors[0].name}</span>
+                <span className="text-[9px] text-red-200/50">Deploy units to assault rival territory (triggers combat)</span>
+              </div>
+            </button>
+          )}
+
+          {/* Redistribute to own neighbor */}
+          {ownNeighbors.length > 0 && garrison >= 2 && (
+            <button
+              onClick={() => {
+                const target = ownNeighbors[0];
+                const units: UnitGroup = { circle: 0, square: 0, triangle: 0 };
+                if (currentCell.units.circle > 0) units.circle = 1;
+                else if (currentCell.units.square > 0) units.square = 1;
+                else if (currentCell.units.triangle > 0) units.triangle = 1;
+                handleSelectCustomAction({ type: 'expand', targetCellId: target.id, unitsSent: units });
+              }}
+              className="w-full p-2.5 border border-sky-800/40 bg-sky-950/20 hover:bg-sky-900/30 text-left flex items-center gap-2.5 transition cursor-pointer"
+              data-testid="pog-action-redistribute"
+            >
+              <Send className="w-4 h-4 text-sky-400 shrink-0" />
+              <div>
+                <span className="font-bold text-xs text-sky-200 uppercase block">Reinforce {ownNeighbors[0].name}</span>
+                <span className="text-[9px] text-sky-200/50">Send 1 unit to friendly sector (arrives in 4 days)</span>
               </div>
             </button>
           )}

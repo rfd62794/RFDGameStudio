@@ -101,6 +101,99 @@ function findNeutralNeighbor(cell: MapCell, allCells: MapCell[]): MapCell | null
 }
 
 /**
+ * Find the first neighbor owned by the player's wheel-opposite rival.
+ * This is the highest-priority attack target — the "Fault Line" rival.
+ */
+function findOppositeRivalNeighbor(
+  cell: MapCell,
+  allCells: MapCell[],
+  corporations: Corporation[],
+  playerCorp: Corporation
+): MapCell | null {
+  const oppositeCulture = getOpposite(playerCorp.cultureId);
+  const oppositeCorp = corporations.find(
+    c => c.cultureId === oppositeCulture && c.id !== playerCorp.id
+  );
+  if (!oppositeCorp) return null;
+
+  for (const nid of cell.neighbors) {
+    const neighbor = allCells.find(c => c.id === nid);
+    if (neighbor && neighbor.ownerId === oppositeCorp.id) {
+      return neighbor;
+    }
+  }
+  return null;
+}
+
+/**
+ * Find the first neighbor owned by any rival (not the player, not neutral).
+ */
+function findRivalNeighbor(
+  cell: MapCell,
+  allCells: MapCell[],
+  playerCorp: Corporation
+): MapCell | null {
+  for (const nid of cell.neighbors) {
+    const neighbor = allCells.find(c => c.id === nid);
+    if (neighbor && neighbor.ownerId && neighbor.ownerId !== playerCorp.id) {
+      return neighbor;
+    }
+  }
+  return null;
+}
+
+/**
+ * Find the first neighbor owned by the player (for redistribution).
+ */
+function findOwnNeighbor(
+  cell: MapCell,
+  allCells: MapCell[],
+  playerCorp: Corporation
+): MapCell | null {
+  for (const nid of cell.neighbors) {
+    const neighbor = allCells.find(c => c.id === nid);
+    if (neighbor && neighbor.ownerId === playerCorp.id) {
+      return neighbor;
+    }
+  }
+  return null;
+}
+
+/**
+ * Check whether a cell is "safe" — no rival adjacency, decent fortification,
+ * and a garrison strong enough to spare units. Used for redistribution
+ * candidates.
+ */
+function isSafeCell(
+  cell: MapCell,
+  allCells: MapCell[],
+  corporations: Corporation[],
+  playerCorp: Corporation
+): boolean {
+  if (isRivalNeighbor(cell, allCells, playerCorp)) return false;
+  if (cell.fortification < 1) return false;
+  const garrison = cell.units.circle + cell.units.square + cell.units.triangle;
+  if (garrison < 3) return false; // need at least 3 to spare 1-2
+  return true;
+}
+
+/**
+ * Find a contested own-cell that could receive redistributed units.
+ * Searches the player's owned cells for one with rival adjacency.
+ */
+function findContestedOwnCell(
+  allCells: MapCell[],
+  corporations: Corporation[],
+  playerCorp: Corporation
+): MapCell | null {
+  for (const c of allCells) {
+    if (c.ownerId !== playerCorp.id) continue;
+    if (isRivalNeighbor(c, allCells, playerCorp)) return c;
+  }
+  return null;
+}
+
+/**
  * Pick the two most available unit types from a cell's garrison
  * for an Expand order. Returns a UnitGroup with at most 1 of each
  * of the two most plentiful types.
@@ -122,17 +215,45 @@ function pickExpandUnits(cell: MapCell): UnitGroup {
  * Compute the sensible default action for a Region based on its
  * real state. Rules in priority order:
  *
- * 1. Adjacent to wheel-opposite rival AND fortification < 2 → Fortify
- *    (highest threat — the "Fault Line" rival is at the door)
- * 2. Adjacent to any rival AND garrison < 3 → Reinforce
- *    (moderate threat — need more bodies)
- * 3. Garrison >= 4 AND has neutral neighbor → Expand
- *    (safe and strong — push outward)
- * 4. Public opinion < 40 → Civic Unrest
+ * AGGRESSIVE RULES (attack the rival, press the wheel):
+ * 1. Strong garrison (>=4) + wheel-opposite rival adjacent → Attack rival
+ *    (the "Fault Line" rival is at the door — press the advantage)
+ * 2. Strong garrison (>=4) + any rival adjacent → Attack rival
+ *    (strong enough to push — take the fight to them)
+ *
+ * DEFENSIVE RULES (survive the rival's pressure):
+ * 3. Opposite rival adjacent + low fort (<2) + can afford → Fortify
+ *    (highest threat, not strong enough to attack — shore up defenses)
+ * 4. Any rival adjacent + low garrison (<3) + can afford → Reinforce
+ *    (moderate threat — need more bodies before fighting)
+ *
+ * EXPANSION RULES (grow when safe):
+ * 5. Garrison >= 4 + neutral neighbor → Expand
+ *    (safe and strong — push outward into neutral territory)
+ *
+ * REDISTRIBUTION RULES (move units from safe to contested):
+ * 6. Safe cell (no rival adjacency, fort >= 1, garrison >= 3) +
+ *    contested own-cell exists → Redistribute to contested cell
+ *    (spare units from quiet sectors toward the front line)
+ *
+ * STABILIZATION RULES (internal maintenance):
+ * 7. Public opinion < 40 + can afford → Civic Unrest
  *    (population is restive — invest before it strikes)
- * 5. Fortification < 2 AND treasury >= $20k → Fortify
+ * 8. Fortification < 2 + can afford → Fortify
  *    (general defense — shore up weak positions)
- * 6. Else → Hold (safe default)
+ *
+ * 9. Else → Hold (safe default)
+ *
+ * Design rationale: The wheel-locked rival is the game's central tension.
+ * The original heuristic was entirely defensive — it never recommended
+ * attacking, even when the player had a strong garrison adjacent to a
+ * weak rival. This undercut "The Wheel Is Fate" pillar. The new rules
+ * prioritize attacking the wheel-opposite rival first (Rule 1), then
+ * any rival (Rule 2), when the garrison is strong enough to press the
+ * advantage. Only when the garrison is NOT strong enough do the
+ * defensive rules (3, 4) kick in. Redistribution (Rule 6) moves units
+ * from safe sectors toward contested ones, using the existing Expand
+ * mechanic (Expand to an own-owned cell merges units into the garrison).
  */
 export function getDefaultAction(
   cell: MapCell,
@@ -143,7 +264,31 @@ export function getDefaultAction(
   const garrison = cell.units.circle + cell.units.square + cell.units.triangle;
   const opinion = cell.publicOpinion ?? 50;
 
-  // Rule 1: Opposite rival adjacent + low fort → Fortify
+  // Rule 1: Strong garrison + wheel-opposite rival adjacent → Attack
+  if (garrison >= 4) {
+    const target = findOppositeRivalNeighbor(cell, allCells, corporations, playerCorp);
+    if (target) {
+      const unitsSent = pickExpandUnits(cell);
+      const totalSent = unitsSent.circle + unitsSent.square + unitsSent.triangle;
+      if (totalSent > 0) {
+        return { type: 'expand', targetCellId: target.id, unitsSent };
+      }
+    }
+  }
+
+  // Rule 2: Strong garrison + any rival adjacent → Attack
+  if (garrison >= 4) {
+    const target = findRivalNeighbor(cell, allCells, playerCorp);
+    if (target) {
+      const unitsSent = pickExpandUnits(cell);
+      const totalSent = unitsSent.circle + unitsSent.square + unitsSent.triangle;
+      if (totalSent > 0) {
+        return { type: 'expand', targetCellId: target.id, unitsSent };
+      }
+    }
+  }
+
+  // Rule 3: Opposite rival adjacent + low fort → Fortify
   if (
     isOppositeRivalNeighbor(cell, allCells, corporations, playerCorp) &&
     cell.fortification < 2 &&
@@ -152,7 +297,7 @@ export function getDefaultAction(
     return { type: 'fortify' };
   }
 
-  // Rule 2: Any rival adjacent + low garrison → Reinforce
+  // Rule 4: Any rival adjacent + low garrison → Reinforce
   if (
     isRivalNeighbor(cell, allCells, playerCorp) &&
     garrison < 3 &&
@@ -161,7 +306,7 @@ export function getDefaultAction(
     return { type: 'reinforce', reinforceType: cell.preferredProduction };
   }
 
-  // Rule 3: Strong garrison + neutral neighbor → Expand
+  // Rule 5: Strong garrison + neutral neighbor → Expand
   if (garrison >= 4) {
     const target = findNeutralNeighbor(cell, allCells);
     if (target) {
@@ -173,17 +318,29 @@ export function getDefaultAction(
     }
   }
 
-  // Rule 4: Low public opinion → Civic Unrest
+  // Rule 6: Safe cell + contested own-cell exists → Redistribute
+  if (isSafeCell(cell, allCells, corporations, playerCorp)) {
+    const target = findContestedOwnCell(allCells, corporations, playerCorp);
+    if (target && target.id !== cell.id) {
+      const unitsSent = pickExpandUnits(cell);
+      const totalSent = unitsSent.circle + unitsSent.square + unitsSent.triangle;
+      if (totalSent > 0) {
+        return { type: 'expand', targetCellId: target.id, unitsSent };
+      }
+    }
+  }
+
+  // Rule 7: Low public opinion → Civic Unrest
   if (opinion < 40 && playerCorp.treasury >= COST_CIVIC_UNREST) {
     return { type: 'civic', focus: 'unrest' };
   }
 
-  // Rule 5: Low fortification + can afford → Fortify
+  // Rule 8: Low fortification + can afford → Fortify
   if (cell.fortification < 2 && playerCorp.treasury >= COST_FORTIFY) {
     return { type: 'fortify' };
   }
 
-  // Rule 6: Safe default
+  // Rule 9: Safe default
   return { type: 'hold' };
 }
 
