@@ -1,14 +1,6 @@
-export interface Part {
-  id: string;
-  slot: string;
-  name: string;
-  accuracy: number;
-  endurance: number;
-  power: number;
-  speed: number;
-  description?: string;
-  price?: number;
-}
+export type { Part, PartSlot } from '../../engine/shared/partSlots';
+
+import type { Part } from '../../engine/shared/partSlots';
 
 export interface Chimera {
   parts: Record<string, Part>;

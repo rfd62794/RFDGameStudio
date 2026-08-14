@@ -5,6 +5,7 @@ import type {
   BrewResult,
   CombinationType,
 } from './types';
+import { getRelation as sharedGetRelation } from '../../engine/shared/wheelRelation';
 
 export const ELEMENT_ORDER: ElementType[] = ['fire', 'air', 'water', 'earth'];
 
@@ -48,13 +49,7 @@ export function getElementForResidueTag(tag: ResidueTag): ElementType {
 }
 
 export function getRelation(el1: ElementType, el2: ElementType): CombinationType {
-  if (el1 === el2) return 'same';
-  const idx1 = ELEMENT_ORDER.indexOf(el1);
-  const idx2 = ELEMENT_ORDER.indexOf(el2);
-  if (idx1 === -1 || idx2 === -1) return 'single';
-  const diff = Math.abs(idx1 - idx2);
-  if (diff === 2) return 'opposed';
-  return 'adjacent';
+  return sharedGetRelation(el1, el2, ELEMENT_ORDER) as CombinationType;
 }
 
 /**

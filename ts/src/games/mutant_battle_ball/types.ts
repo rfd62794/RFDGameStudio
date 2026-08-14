@@ -1,25 +1,8 @@
-export type PartSlot = 'head' | 'chest' | 'left_arm' | 'right_arm' | 'left_leg' | 'right_leg';
+export type { Part, PartSlot } from '../../engine/shared/partSlots';
+import type { PartsBySlot } from '../../engine/shared/partSlots';
 
-export interface Part {
-  id: string;
-  name: string;
-  slot: PartSlot;
-  accuracy: number;
-  endurance: number;
-  power: number;
-  speed: number;
-  price: number;
-  description?: string;
-}
-
-export interface MutantParts {
-  head:       Part | null;
-  chest:      Part | null;
-  left_arm:   Part | null;
-  right_arm:  Part | null;
-  left_leg:   Part | null;
-  right_leg:  Part | null;
-}
+/** Alias for the shared PartsBySlot, preserving MBB's existing API name. */
+export type MutantParts = PartsBySlot;
 
 export interface Mutant {
   id: string;
