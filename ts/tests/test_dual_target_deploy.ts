@@ -34,16 +34,15 @@ function findCssAsset(dir: string): string | undefined {
 
 describe('test_git_state_clean_both_games', () => {
   it('Working tree is clean — no uncommitted or partially applied changes', () => {
-    // Note: this test file itself may be uncommitted if auto-commit
-    // hasn't run yet. We check that no source files are dirty.
+    // Note: this test file itself and docs may be uncommitted if
+    // auto-commit hasn't run yet. We check that no source files are dirty.
     const status = gitStatus();
-    // Filter out test files and tmp files that may be pending commit
     const dirty = status.split('\n').filter((l) => {
       const trimmed = l.trim();
       if (!trimmed) return false;
-      // Allow test files and tmp files to be uncommitted
       if (trimmed.includes('tests/test_dual_target_deploy')) return false;
       if (trimmed.includes('tmp/')) return false;
+      if (trimmed.includes('docs/state/current.md')) return false;
       return true;
     });
     expect(dirty).toEqual([]);
@@ -239,8 +238,12 @@ describe('test_planetofgreed_standalone_builds', () => {
     const jsFile = findJsAsset(assetsDir);
     expect(jsFile).toBeDefined();
     const js = readFileSync(resolve(assetsDir, jsFile!), 'utf-8');
+    // 'planetofgreed' survives minification (used as gameId string)
     expect(js).toContain('planetofgreed');
-    expect(js).toContain('OpeningSequence');
+    // 'OpeningSequence' is minified away, but the game's UI text survives
+    // (string literals in JSX are not minified)
+    expect(js).toContain('BOOTING PLANET');
+    expect(js).toContain('Planet of Greed');
   });
 
   it('dist-planetofgreed has CSS asset', () => {
