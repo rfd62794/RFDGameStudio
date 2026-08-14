@@ -1,6 +1,91 @@
 # RFDGameStudio — Project State
 
-*Last updated: August 11 2026*
+*Last updated: August 13 2026*
+
+## Planet of Greed Conversion + CorpWorld/KingMaker Retirement — COMPLETED
+
+**Directive:** Convert Planet of Greed from `examples/planetofgreed/`
+to `ts/src/games/planetofgreed/` (live, registered, TS-native per
+ADR-013). Retire CorpWorld and KingMaker Squads (matching SlimeBreeder
+precedent: source preserved, explicitly absent from registry). Extract
+the shared 254-line combat resolver and 5 byte-identical components to
+`ts/src/engine/shared/` as part of the conversion.
+
+### STOP rule findings (confirmed before any change)
+
+1. **Registry status:** CorpWorld and KingMaker Squads were both
+   **live in the registry** (not already absent). Planet of Greed was
+   absent. Retirement required active removal.
+2. **SlimeBreeder precedent:** config.ts preserved in
+   `ts/src/games/{slug}/`, NOT imported in registry.ts, two tests
+   confirm both absence and source preservation
+   (`test_registry_slimebreeder_slimegarden_absent` +
+   `test_slimebreeder_slimegarden_source_intact`).
+3. **KingMaker Squads:** Has substantial real implemented code in
+   `examples/kingmaker-squads/` (50+ source files including combat
+   engine, city generation, AI opponent, tests). This is shipped code,
+   not a designed-but-never-built concept.
+
+### What was built
+
+**Planet of Greed conversion** (`ts/src/games/planetofgreed/`):
+- `config.ts` — registered with `status: 'dev'`, `component: React.lazy`
+- `App.tsx` — converted from examples/, imports from shared modules
+- `types.ts` — re-exports shared types, adds CultureId/Corporation extension
+- `wheelTopology.ts`, `fragmentSystem.ts`, `endingSystem.ts` — copied verbatim
+- `aiDecisions.ts` — mulberry32 duplicate replaced with artGen import
+- `utils/mapGenerator.ts` — copied verbatim
+- `components/AnnualReportView.tsx`, `components/WeeklyOrdersPanel.tsx` — copied verbatim (diverged from CorpWorld)
+- `index.css` — copied verbatim
+
+**Shared module extraction** (`ts/src/engine/shared/`):
+- `combat/` — 254-line RPS combat resolver (`resolveCellCombat.ts` +
+  `types.ts`), extracted from the byte-identical CorpWorld/Planet of Greed copy
+- `components/` — 5 shared React components (AlertQueue, BoardroomHeader,
+  CombatResolutionView, DailyEventModal, PlanetMap), imports updated to
+  use `componentTypes.ts`
+- `componentTypes.ts` — shared type definitions for the component interface
+  (Point, GameDate, Corporation, MapCell, UnitTransit, GameEvent, etc.)
+
+**mulberry32 duplication resolved:** Planet of Greed's `aiDecisions.ts`
+now imports `mulberry32` from `engine/artGen/seededRandom` (which
+re-exports from `engine/shared/seededRandom`). The local `makeSeededRng`
+function was replaced with `export const makeSeededRng = mulberry32`.
+This resolves the cross-project import constraint that prevented
+consolidation in the Shared Module Foundations directive.
+
+**Registry changes:**
+- Planet of Greed added (live, `status: 'dev'`)
+- CorpWorld removed from registry (retired, source preserved)
+- KingMaker Squads removed from registry (retired, source preserved)
+- Both have README.md reference notes explaining why they're preserved
+
+**Retirement tests** (matching SlimeBreeder precedent):
+- `test_registry_corpworld_kingmaker_absent` — confirms both absent
+- `test_corpworld_kingmaker_source_intact` — confirms config.ts preserved
+- `test_corpworld_untouched` — confirms examples/corpworld/ not modified
+
+### Test results
+
+- `ts/` full suite: **630/630 passing** (was 608 pre-change; +22 new tests)
+- Planet of Greed converted tests: 11/11 passing (wheelTopology 3,
+  fragmentSystem 3, endingSystem 3, aiDecisions 2)
+- Shared combat tests: 8/8 passing (RPS counters, combat scenarios,
+  CorpWorld untouched)
+- Registry directive tests: 7/7 passing (Planet of Greed present,
+  CorpWorld/KingMaker absent, all source intact)
+- `examples/planetofgreed/` original tests: 11/11 still passing (untouched)
+- `examples/` directory: zero git changes (CorpWorld + Planet of Greed
+  original source completely preserved)
+
+### What was NOT done
+
+- CorpWorld's own `examples/corpworld/src/utils/combat.ts` was NOT
+  modified — it stays as a complete, self-contained reference artifact
+- KingMaker Squads' `examples/kingmaker-squads/` was NOT modified —
+  preserved as-is with all 50+ source files
+
+---
 
 ## Shared Module Foundations — COMPLETED
 
