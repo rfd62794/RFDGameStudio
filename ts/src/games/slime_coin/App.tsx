@@ -3,6 +3,7 @@ import { GameShell } from '../../components';
 import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { MoreGamesByMe } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
@@ -55,6 +56,7 @@ export default function App({ session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const [showTitle, setShowTitle] = useState(true);
   
   const [renderState, setRenderState] = useState<SlimeCoinRenderState | null>(null);
   const [input, setInput] = useState<SlimeCoinInput>({ fire: false, side: 'right' });
@@ -150,8 +152,55 @@ export default function App({ session }: GameRendererProps) {
     setRenderState(null);
   }, [call, session, setState]);
   
+  if (showTitle) {
+    return (
+      <GameShell
+        gameLabel="SLIME COIN"
+        gameId="slime_coin"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="slime_coin"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <TitleScreen
+          title="SlimeCoin"
+          tagline="Real-time coin pusher"
+          pitch="Real-time coin pusher with shooter, two-layer board, and chip synergies."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
   if (!isInitialized || !state) {
-    return <div className="sc-loading">Loading SlimeCoin…</div>;
+    return (
+      <GameShell
+        gameLabel="SLIME COIN"
+        gameId="slime_coin"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="slime_coin"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <div className="sc-loading">Loading SlimeCoin…</div>
+      </GameShell>
+    );
   }
   
   return (

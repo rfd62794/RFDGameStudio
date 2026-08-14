@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { GameShell, TabManager } from '../../components';
 import { Badge, ErrorBox, MoreGamesByMe } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
@@ -70,6 +71,7 @@ export default function App({ session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const [showTitle, setShowTitle] = useState(true);
   const [activeTab, setActiveTab] = useState('roster');
 
   const [matchState, setMatchState] = useState<MatchState | null>(null);
@@ -122,8 +124,53 @@ export default function App({ session }: GameRendererProps) {
     setMatchState(null);
   }, [state, setState]);
 
+  if (showTitle) {
+    return (
+      <GameShell
+        gameLabel="MUTANT BATTLE BALL"
+        gameId="mutant_battle_ball"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="mutant_battle_ball"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <TitleScreen
+          title="Mutant Battle Ball"
+          tagline="Assemble. Squad up. Reach the end zone."
+          pitch="Assemble mutants from parts. Field a 2v2 squad. Reach the end zone. Salvage the fallen."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
   if (!isInitialized || !state) return (
-    <div className="mbb-loading">Loading Mutant Battle Ball…</div>
+    <GameShell
+      gameLabel="MUTANT BATTLE BALL"
+      gameId="mutant_battle_ball"
+      mode={mode}
+      arcadeBaseUrl={arcadeBaseUrl}
+      footer={
+        <MoreGamesByMe
+          mode={mode}
+          currentGameId="mutant_battle_ball"
+          games={STANDALONE_BUILD_GAMES}
+          onSelectGame={navigateTo}
+          arcadeBaseUrl={arcadeBaseUrl}
+        />
+      }
+    >
+      <div className="mbb-loading">Loading Mutant Battle Ball…</div>
+    </GameShell>
   );
 
   const opponent = (() => {

@@ -12,6 +12,7 @@ import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
 import { GameShell } from '../../components';
 import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
 import { resolveViewport, buildBoundsMap, type LayoutNode } from '../../engine/ui_resolver';
 import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
 
@@ -142,6 +143,7 @@ function buildRace(session: GameSession, playerHorses: Horse[], horseId?: string
 export default function App({ session }: GameRendererProps) {
   const [error, setError] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const [showTitle, setShowTitle] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('stable');
   const [isRacingActive, setIsRacingActive] = useState(false);
   const [pendingBets, setPendingBets] = useState<Bet[]>([]);
@@ -464,15 +466,36 @@ export default function App({ session }: GameRendererProps) {
     ? { ...rawSlots, content: { ...rawSlots['content'], bounds: fullBounds } }
     : rawSlots;
 
+  if (showTitle) {
+    return (
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <TitleScreen
+          title="Derby Sim"
+          tagline="Race · Breed · Bet"
+          pitch="Race, breed, and bet on horses. Win/Place/Show betting, genetics system, career tracking."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
   if (error || luaError) {
     return (
-      <div style={{ padding: '2rem' }}>
-        <ErrorBox message={`Startup error: ${error ?? luaError}`} />
-      </div>
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <div style={{ padding: '2rem' }}>
+          <ErrorBox message={`Startup error: ${error ?? luaError}`} />
+        </div>
+      </GameShell>
     );
   }
   if (!gameState) {
-    return <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading game state…</div>;
+    return (
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading game state…</div>
+      </GameShell>
+    );
   }
 
   const schemaErr = (() => {
@@ -482,15 +505,17 @@ export default function App({ session }: GameRendererProps) {
 
   if (isRacingActive && gameState.current_race) {
     return (
-      <RaceTrack
-        race={gameState.current_race}
-        bets={pendingBets}
-        onRaceFinish={handleCloseRaceTrack}
-        onClose={() => {
-          setIsRacingActive(false);
-          setActiveTab('stable');
-        }}
-      />
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <RaceTrack
+          race={gameState.current_race}
+          bets={pendingBets}
+          onRaceFinish={handleCloseRaceTrack}
+          onClose={() => {
+            setIsRacingActive(false);
+            setActiveTab('stable');
+          }}
+        />
+      </GameShell>
     );
   }
 

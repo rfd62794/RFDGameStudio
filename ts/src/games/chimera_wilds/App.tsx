@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { MoreGamesByMe } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Part, Chimera, EncounterResult, ChimeraWildsGameState } from './types';
@@ -39,6 +40,7 @@ export default function App({ session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const [showTitle, setShowTitle] = useState(true);
 
   const handleEncounter = useCallback(() => {
     if (!state) return;
@@ -73,8 +75,55 @@ export default function App({ session }: GameRendererProps) {
     } : prev);
   }, [state, call, session, setState]);
 
+  if (showTitle) {
+    return (
+      <GameShell
+        gameLabel="CHIMERA WILDS"
+        gameId="chimera_wilds"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="chimera_wilds"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <TitleScreen
+          title="Chimera Wilds"
+          tagline="One-roll D20 encounters"
+          pitch="Face a single randomly-assembled six-part enemy in a one-roll D20 encounter."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
   if (!isInitialized || !state) {
-    return <div className="cw-loading">Loading Chimera Wilds…</div>;
+    return (
+      <GameShell
+        gameLabel="CHIMERA WILDS"
+        gameId="chimera_wilds"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="chimera_wilds"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <div className="cw-loading">Loading Chimera Wilds…</div>
+      </GameShell>
+    );
   }
 
   return (

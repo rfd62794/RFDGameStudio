@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Dices,
   Compass,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { GameShell } from '../../components';
 import { Badge, Button, Card, EmptyState, ErrorBox, MoreGamesByMe, Panel } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
@@ -82,6 +83,7 @@ export default function App({ session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const [showTitle, setShowTitle] = useState(true);
   const data = session.files.data as Record<string, unknown>;
   const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
 
@@ -136,8 +138,57 @@ export default function App({ session }: GameRendererProps) {
     } : prev);
   }, [state, canCraft, call, data, setState]);
 
+  if (showTitle) {
+    return (
+      <GameShell
+        gameLabel="SCRAPCRAWL"
+        gameId="scrapcrawl"
+        phase="PHASE A.1"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <TitleScreen
+          title="ScrapCrawl"
+          tagline="Room navigation · scrap economy · D20 combat"
+          pitch="Room navigation, scrap economy, craft, and D20 combat with win-only proficiency."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
   if (!isInitialized || !state) {
-    return <EmptyState message="Loading ScrapCrawl…" />;
+    return (
+      <GameShell
+        gameLabel="SCRAPCRAWL"
+        gameId="scrapcrawl"
+        phase="PHASE A.1"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <EmptyState message="Loading ScrapCrawl…" />
+      </GameShell>
+    );
   }
 
   const { player, currentRoom, lastResult, combatHistory } = state;

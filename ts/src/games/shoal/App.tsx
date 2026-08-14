@@ -129,7 +129,17 @@ export default function App({ session }: GameRendererProps) {
   };
 
   if (screen === 'title') {
-    return <TitleScreen session={session} onStart={handleStart} />;
+    return (
+      <GameShell
+        gameLabel="SHOAL"
+        gameId="shoal"
+        phase="2.0"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+      >
+        <TitleScreen session={session} onStart={handleStart} />
+      </GameShell>
+    );
   }
 
   return (
