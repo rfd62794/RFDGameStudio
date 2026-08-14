@@ -310,6 +310,28 @@ describe('Shoal TS-Native Benchmark with Entity Tracking', () => {
     expect(nearbyFish.some(f => f.id === fish.id && f.alive)).toBe(true);
   });
 
+  it('test_ts_2000tick_default', () => {
+    const st = initGame(42, 60, 8, 6);
+    for (let i = 0; i < WARMUP; i++) tickGame(st, DT);
+    const start = performance.now();
+    for (let i = 0; i < TICKS_2000; i++) tickGame(st, DT);
+    const ms = (performance.now() - start) / TICKS_2000;
+    console.log(`\n=== TS-NATIVE 2000-TICK DEFAULT ===`);
+    console.log(`  ${ms.toFixed(3)} ms/tick — ${countAlive(st.fish)} fish, ${countAlive(st.sharks)} sharks`);
+    expect(ms).toBeGreaterThan(0);
+  });
+
+  it('test_ts_2000tick_high_load', () => {
+    const st = initGame(42, 83, 19, 6);
+    for (let i = 0; i < WARMUP; i++) tickGame(st, DT);
+    const start = performance.now();
+    for (let i = 0; i < TICKS_2000; i++) tickGame(st, DT);
+    const ms = (performance.now() - start) / TICKS_2000;
+    console.log(`\n=== TS-NATIVE 2000-TICK HIGH LOAD ===`);
+    console.log(`  ${ms.toFixed(3)} ms/tick — ${countAlive(st.fish)} fish, ${countAlive(st.sharks)} sharks`);
+    expect(ms).toBeGreaterThan(0);
+  });
+
   it('test_ts_200tick_with_entity_counts', () => {
     // THE KEY TEST: 50 warmup + 200 measured ticks, with entity count tracking
     // Compare against fengari at the same point (50 warmup + 200 ticks)
@@ -356,27 +378,5 @@ describe('Shoal TS-Native Benchmark with Entity Tracking', () => {
 
     expect(msD).toBeGreaterThan(0);
     expect(msH).toBeGreaterThan(0);
-  });
-
-  it('test_ts_2000tick_default', () => {
-    const st = initGame(42, 60, 8, 6);
-    for (let i = 0; i < WARMUP; i++) tickGame(st, DT);
-    const start = performance.now();
-    for (let i = 0; i < TICKS_2000; i++) tickGame(st, DT);
-    const ms = (performance.now() - start) / TICKS_2000;
-    console.log(`\n=== TS-NATIVE 2000-TICK DEFAULT ===`);
-    console.log(`  ${ms.toFixed(3)} ms/tick — ${countAlive(st.fish)} fish, ${countAlive(st.sharks)} sharks`);
-    expect(ms).toBeGreaterThan(0);
-  });
-
-  it('test_ts_2000tick_high_load', () => {
-    const st = initGame(42, 83, 19, 6);
-    for (let i = 0; i < WARMUP; i++) tickGame(st, DT);
-    const start = performance.now();
-    for (let i = 0; i < TICKS_2000; i++) tickGame(st, DT);
-    const ms = (performance.now() - start) / TICKS_2000;
-    console.log(`\n=== TS-NATIVE 2000-TICK HIGH LOAD ===`);
-    console.log(`  ${ms.toFixed(3)} ms/tick — ${countAlive(st.fish)} fish, ${countAlive(st.sharks)} sharks`);
-    expect(ms).toBeGreaterThan(0);
   });
 });
