@@ -13,6 +13,7 @@
     "build:mutant_battle_ball": "vite build --config vite.mutant_battle_ball.config.ts",
     "build:scrapcrawl": "vite build --config vite.scrapcrawl.config.ts",
     "build:slime_coin": "vite build --config vite.slime_coin.config.ts",
+    "build:planetofgreed": "vite build --config vite.planetofgreed.config.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"

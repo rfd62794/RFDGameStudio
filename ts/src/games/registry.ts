@@ -60,4 +60,5 @@ export const STANDALONE_BUILD_GAMES = [
   { id: 'mutant_battle_ball', label: 'Mutant Battle Ball' },
   { id: 'scrapcrawl', label: 'ScrapCrawl' },
   { id: 'slime_coin', label: 'Slime Coin' },
+  { id: 'planetofgreed', label: 'Planet of Greed' },
 ];
