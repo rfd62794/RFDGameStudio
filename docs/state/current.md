@@ -2,6 +2,141 @@
 
 *Last updated: August 13 2026*
 
+## Planet of Greed Merge & Polish — COMPLETED
+
+**Directive:** Close the gap between "tests pass" and "actually playable"
+using the studio's real E2E test infrastructure (Playwright + pytest,
+matching the SlimeWorld/Dissonance L3 pattern). Fix real UI gaps found
+during playthrough, define Population Balance triggers, and honestly
+assess visual consistency.
+
+### STOP rule — verification pattern confirmed
+
+The `technical:agent_verification_patterns_july2026` reference describes
+a real, recurring pattern in this studio's history: code can be genuinely
+correct, genuinely tested, and still completely inert because nothing
+actually calls it or nothing actually renders it. Confirmed at least
+three separate times (`generateProceduralCity()`, district generation,
+terrain display type). A passing test suite is not the same claim as
+"a person can open this game and play it correctly."
+
+### Real playthrough findings (first-class, not footnotes)
+
+**Gaps found and fixed:**
+
+1. **CORPWORLD branding in header** — BoardroomHeader displayed
+   "CORP WORLD v2.0-MVP" and the loading screen said "BOOTING CORPWORLD
+   EXECUTIVE TERMINAL...". Both inherited from CorpWorld and never
+   updated during conversion. **Fixed:** Header now shows "PLANET OF
+   GREED", loading text updated.
+
+2. **RANK #X / 5** — Header showed rank out of 5, but there are 6
+   corporations. Off-by-one bug inherited from CorpWorld. **Fixed:**
+   Now uses `corporations.length` dynamically (shows /6).
+
+3. **No Fragment counter in UI** — Fragments were only visible in log
+   messages (text in the intel feed) and the ending placeholder screen.
+   No persistent counter during normal gameplay. **Fixed:** Added
+   Fragment counter to BoardroomHeader (shows "FRAGMENTS X/6" next to
+   Treasury and Market Share) and to AnnualReportView scoreboard.
+
+**What works (verified in real browser):**
+- Game loads without JS errors (0 page errors across all E2E tests)
+- Culture selection renders 6 buttons, clicking creates a new game
+- Planning phase button is clickable, simulation advances
+- Event modals appear and can be dismissed
+- Rank display is visible and shows correct format ("RANK #1 / 6")
+- Fragment counter is visible and shows correct initial value ("1/6")
+- No CORPWORLD branding remaining in the UI
+
+### Population Balance triggers — design decision
+
+**Context:** The `publicOpinion` field (Population Balance) was
+initialized to 50 on every cell but had only one trigger: the Civic
+Unrest Focus order (+8). No passive erosion, no consequences for
+military actions, no income effect. The directive asked for real
+triggers consistent with the existing Civic Directive system.
+
+**Real formula (confirmed before defining triggers):**
+`computeRank` uses `territory * 10 + avgPublicOpinion` — so
+publicOpinion directly affects rank. A corp with 5 cells has a
+territory score of 50; a +8 opinion boost on one cell adds ~1.6 to
+the avg (8/5), which is a real but not overwhelming shift.
+
+**Chosen trigger set (implemented in App.tsx):**
+
+| Trigger | Effect | Rationale |
+|---|---|---|
+| Civic Unrest Focus order | +8 | Direct investment in workforce welfare (existing) |
+| Civic Production Focus order | -2 | Accelerated production strains workforce (new) |
+| Civic Defense Focus order | -1 | Militarization unsettles civilians (new) |
+| Expand order | -3 on target cell | Conquered population is resentful (new) |
+| Reinforce order | -1 on source cell | Conscription is unpopular (new) |
+| Fortify order | -1 on cell | Military buildup unsettles civilians (new) |
+| Combat resolution | -5 on cell | Violence damages opinion regardless of winner (new) |
+| Passive erosion (weekly) | ±1 toward 50 | Regression to mean unless actively maintained (new) |
+| Low opinion threshold (<30) | No income that week | Workforce strike — real consequence (new) |
+
+**Design principle:** Population Balance is a living system that
+requires active maintenance. Without investment, it erodes toward
+neutral (50). Aggressive actions (expansion, combat, militarization)
+lower it. The player must balance military expansion with domestic
+investment — a real tradeoff, not a static number.
+
+### UI/visual consistency assessment
+
+**Finding:** Planet of Greed inherited CorpWorld's UI wholesale. After
+the fixes above, the header now correctly says "PLANET OF GREED"
+instead of "CORPWORLD". The visual style (neo-brutalist, thick black
+borders, hard shadows, #E4E3E0 background, #141414 text) is coherent
+with the corporate-greed tone and does NOT need to adopt the Cyber-Ops
+Arcade visual identity used elsewhere. The game's own tone (corporate
+greed, not cyber-ops) genuinely warrants its own distinct visual
+identity, and the inherited CorpWorld style works for this tone.
+
+**Recommendation:** Keep the current visual identity. The CorpWorld
+inheritance is actually a good fit for Planet of Greed's corporate
+boardroom theme. The branding fix (CORPWORLD → PLANET OF GREED) was
+the only real issue.
+
+### Culture stat asymmetry — explicitly deferred, restated
+
+**Real reason, unchanged from Design.md v0.2:** Six symmetric Houses
+under-sell a real choice, but resolving this means real balance work
+with real risk of introducing exploits (the same class of risk
+Dissonance's Balance Checker was built to catch). It deserves its own
+dedicated pass, not a bolt-on inside a polish op. **Stat values were
+not touched this phase.**
+
+### Test results
+
+**Unit tests (ts/):** 642/642 passing (80 test files, 21.38s)
+- +12 from previous floor (630): Population Balance trigger tests
+- Zero regressions in existing tests
+
+**E2E tests (Playwright + pytest):** 4/4 passing (152.70s)
+- `test_e2e_house_selection_to_combat` — loads game, selects culture,
+  authorizes planning, advances 30s of 4x simulation, verifies 0 JS errors
+- `test_e2e_rank_display_updates` — verifies rank display shows "/6"
+- `test_e2e_fragment_transfer_visible` — verifies fragment counter shows "1/6"
+- `test_e2e_ending_trigger_fires` — runs 90s simulation, verifies no errors
+  (ending not reached in timeout — expected, requires eliminating all 5 AI)
+
+**Population Balance trigger tests:** 12/12 passing
+- Verifies all 9 trigger values are present in source
+- Verifies computeRank formula, clamping, initialization, low-opinion threshold
+
+### Files modified this phase
+
+- `ts/src/engine/shared/components/BoardroomHeader.tsx` — CORPWORLD → PLANET OF GREED, RANK /5 → /6, added Fragment counter
+- `ts/src/engine/shared/componentTypes.ts` — added optional rank/fragments/cultureId to Corporation
+- `ts/src/games/planetofgreed/App.tsx` — loading text fix, data-testid attributes, Population Balance triggers (civic/fortify/reinforce/expand effects, combat penalty, passive erosion, low-opinion income penalty)
+- `ts/src/games/planetofgreed/components/AnnualReportView.tsx` — added Fragment display to player stats and scoreboard
+- `ts/tests/test_population_balance_triggers.ts` — 12 structural tests for trigger set
+- `tests/e2e/test_planetofgreed_e2e.py` — 4 E2E tests following studio Playwright pattern
+
+---
+
 ## Planet of Greed Conversion + CorpWorld/KingMaker Retirement — COMPLETED
 
 **Directive:** Convert Planet of Greed from `examples/planetofgreed/`
