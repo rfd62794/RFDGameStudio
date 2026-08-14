@@ -161,7 +161,9 @@ function kill_creature(st, creature)
         st.stats.shark_count = st.stats.shark_count - 1
     end
     local data = st.data
-    spawn_flesh_chunks(st, creature.x, creature.depth, math.random(data.flesh_chunk.min_spawn, data.flesh_chunk.max_spawn))
+    local min_spawn = data.flesh_chunk.min_spawn
+    local max_spawn = data.flesh_chunk.max_spawn
+    spawn_flesh_chunks(st, creature.x, creature.depth, math.floor(st.prng() * (max_spawn - min_spawn + 1)) + min_spawn)
 end
 
 function update_algae_core(core, st, dt)

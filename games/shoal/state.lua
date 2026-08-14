@@ -31,7 +31,10 @@ end
 -- no seed is given, falls back to os.time() — matches the previous
 -- non-deterministic behavior; a run only becomes reproducible-by-seed when a
 -- seed is explicitly provided.
-local function make_prng(seed)
+-- Full period: 2^31 = 2,147,483,648 draws (multiplier 1103515245 is 1 mod 4,
+-- increment 12345 is odd/coprime with 2^31). At ~56M draws/hour (60fps),
+-- the period lasts ~38 hours of continuous gameplay.
+function make_prng(seed)
     local s = seed or os.time()
     return function()
         s = (s * 1103515245 + 12345) % 2147483648
@@ -87,6 +90,7 @@ function spawn_initial_entities(st, data)
     end
     local prng = make_prng(resolved_seed)
     st.resolved_seed = resolved_seed
+    st.prng = prng
 
     local hub_count = data.spawn.initial_algae_hubs
     local cluster_radius = data.spawn.cluster_radius
