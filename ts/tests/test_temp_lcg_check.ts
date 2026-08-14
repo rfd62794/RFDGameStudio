@@ -35,17 +35,10 @@ describe('TEMP LCG divergence check', () => {
       lua.global.close();
     }
 
-    // Fengari (Lua 5.3, 32-bit integers)
-    const session = loadGame('shoal', 42);
-    const fengariResult = call(session, '_test_lcg', 42, 10);
-    // Fengari doesn't have _test_lcg, so run inline
-    const fengariLCG = call(session, 'string', 'dump')[0]; // placeholder
-    // Actually, let's just run the LCG via fengari's call mechanism
-    // We need to define a function. Let's use doString equivalent.
-    // The fengari executor doesn't expose doString directly, but we can
-    // call a function that we define via the executor.
-    // Actually, the LuaExecutor class has a method to run strings.
-    // Let's just check the integer width via a known function.
+    // Fengari (Lua 5.3, 32-bit integers per fengari docs:
+    // "In Fengari, integers are 32bit while numbers are doubles")
+    // We can't easily run raw Lua via the fengari executor (it only exposes
+    // named game functions), so we simulate the 32-bit arithmetic in JS.
 
     console.log('\n=== LCG DIVERGENCE CHECK (seed=42, 10 iterations) ===');
     console.log('  wasmoon LCG values:', wasmoonResult);
@@ -53,27 +46,15 @@ describe('TEMP LCG divergence check', () => {
     console.log('  wasmoon 42 * 1103515245:', wasmoonMul);
 
     // Fengari's integer width: 32-bit (confirmed from fengari docs)
-    // "In Fengari, integers are 32bit while numbers are doubles"
-    // So fengari would compute 42 * 1103515245 as:
-    //   32-bit: (42 * 1103515245) mod 2^32 = 46347640290 mod 4294967296
-    //   = 46347640290 - 10*4294967296 = 46347640290 - 42949672960 = 3479673330
-    //   But 3479673330 > 2^31-1 (2147483647), so as a SIGNED 32-bit int it wraps to:
-    //   3479673330 - 4294967296 = -815293966
-    const fengariMul32bit = ((42 * 1103515245) | 0); // JS 32-bit signed multiply
+    const fengariMul32bit = Math.imul(42, 1103515245);
     console.log('  fengari 42 * 1103515245 (32-bit signed):', fengariMul32bit);
 
-    // The LCG: s = (s * 1103515245 + 12345) % 2147483648
-    // In fengari (32-bit), s * 1103515245 overflows and wraps to 32-bit signed.
-    // Then + 12345, then % 2147483648 (which is 2^31, positive in both).
-    // Let's simulate fengari's 32-bit LCG:
+    // Simulate fengari's 32-bit LCG:
     let s = 42;
     const fengariVals: number[] = [];
     for (let i = 0; i < 10; i++) {
-      // 32-bit signed multiply (matches fengari's integer arithmetic)
       s = Math.imul(s, 1103515245);
-      s = (s + 12345) | 0; // 32-bit signed add
-      // % 2147483648 — in Lua, this is mathematical modulo on integers
-      // For negative numbers, Lua's % always returns non-negative when divisor is positive
+      s = (s + 12345) | 0;
       s = ((s % 2147483648) + 2147483648) % 2147483648;
       fengariVals.push(s);
     }
