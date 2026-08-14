@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { call } from '../../engine/runtime';
 import { useGameLoop } from '../../hooks';
 import { GameShell } from '../../components';
 import { Button, MoreGamesByMe } from '../../ui/components';
@@ -10,6 +9,7 @@ import type { RenderState, Stats, ToolMode, FleshChunk, ShoalCreature } from './
 import { MECHANICS_COPY } from './mechanicsCopy';
 import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
+import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
   canvasTeardropFinPath,
   canvasRadialBurstPath,
@@ -94,9 +94,12 @@ const TOOL_LABELS: Record<ToolMode, string> = {
   cull: 'Cull',
 };
 
-function initGame(session: GameRendererProps['session']): RenderState {
-  const data = session.files.data as Record<string, unknown>;
-  return call(session, 'init_game', data)[0] as RenderState;
+// TS-native simulation — replaces the fengari Lua executor call path.
+// The Lua source files remain in games/shoal/*.lua as reference.
+const shoalSim = createShoalSimulation();
+
+function initGame(): RenderState {
+  return shoalSim.initGame();
 }
 
 export default function App({ session }: GameRendererProps) {
@@ -239,8 +242,8 @@ function ShoalCanvas({
     window.addEventListener('resize', handleResize);
     handleResize();
 
-    // Initialize Lua game
-    renderStateRef.current = initGame(session);
+    // Initialize TS-native simulation (replaces Lua executor)
+    renderStateRef.current = initGame();
     stateRef.current.initialized = true;
     onStats(renderStateRef.current.stats);
     if (canvasRef.current) {
@@ -305,7 +308,7 @@ function ShoalCanvas({
 
     const profiler = profilerRef.current;
     profiler.beginTick();
-    const rs = call(session, 'tick_game', dt, input)[0] as RenderState;
+    const rs = shoalSim.tickGame(dt, input);
     profiler.endTick();
 
     renderStateRef.current = rs;
