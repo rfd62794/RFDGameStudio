@@ -13,10 +13,18 @@
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
+import { pathToFileURL } from 'url';
 import { resolve } from 'path';
 import yaml from 'js-yaml';
 import { loadGame, call as fengariCall } from '../src/engine/runtime';
 import { LuaFactory } from 'wasmoon';
+
+// Wasmoon's WASM file — pass explicitly because jsdom sets document/location
+// globals that make wasmoon think it's in a browser and try to fetch the WASM
+// via HTTP. Pointing it at the local file directly avoids that.
+const WASM_PATH = pathToFileURL(
+  resolve(__dirname, '..', 'node_modules', 'wasmoon', 'dist', 'glue.wasm')
+).href;
 
 // ── Load Shoal's real Lua source and data ────────────────────────────────────
 
@@ -73,7 +81,7 @@ async function runWasmoon(
   ticks: number,
   seed: number = 42
 ): Promise<unknown> {
-  const factory = new LuaFactory();
+  const factory = new LuaFactory(WASM_PATH);
   const lua = await factory.createEngine();
 
   try {
@@ -159,7 +167,7 @@ describe('TEMPORARY wasmoon benchmark', () => {
     expect(wasmoonSer).toBe(fengariSer);
 
     // Now benchmark: measure tick time including real render-state pull
-    const factory = new LuaFactory();
+    const factory = new LuaFactory(WASM_PATH);
     const lua = await factory.createEngine();
     try {
       await lua.doString(`math.randomseed(42)`);
@@ -211,7 +219,7 @@ describe('TEMPORARY wasmoon benchmark', () => {
   }, 120000);
 
   it('test_wasmoon_high_load_tick_time', async () => {
-    const factory = new LuaFactory();
+    const factory = new LuaFactory(WASM_PATH);
     const lua = await factory.createEngine();
     try {
       await lua.doString(`math.randomseed(42)`);
@@ -260,3 +268,4 @@ describe('TEMPORARY wasmoon benchmark', () => {
     }
   }, 120000);
 });
+
