@@ -6401,4 +6401,123 @@ Lua simulation tick � out of scope for this rendering-layer phase.
 ### Tests
 
 8 new test anchors (66 tests), all passing. Full suite: **590 passed,
-0 failed** (71 test files, all green � zero regressions).
+0 failed** (71 test files, all green — zero regressions).
+
+---
+
+## Studio-Wide GameShell + TitleScreen Compliance Audit — August 2026
+
+### Background
+
+Two independent GameShell misses were confirmed in this studio's
+history: Brewfield (original, produced the locked rule in the
+SharedMarquee directive) and Planet of Greed (recent, caught only
+because it was explicitly checked). This audit checked every other
+registered game for real compliance rather than assuming the rule
+held everywhere it wasn't specifically tested.
+
+### Registry enumerated (16 games)
+
+Confirmed directly from `ts/src/games/registry.ts`:
+dissonance, slimeworld, shoal, voiddrift, horse_racing, slither_rogue,
+mutant_battle_ball, slime_coin, chimera_wilds, scrapcrawl, ledger,
+trinity_siege, 7_days_to_fry, antsim_redux, facility_escape,
+planetofgreed.
+
+### Compliance table (grep-confirmed, not assumed)
+
+#### Registry games with App.tsx (10 games)
+
+| Game | GameShell | TitleScreen | mode/arcadeBaseUrl | Status |
+|---|---|---|---|---|
+| dissonance | ALL states wrapped (single GameShell) | TitlePhase (custom) | N/A (not standalone) | Compliant |
+| slimeworld | ALL states wrapped (opening + hub) | Opening beat | Yes | Compliant |
+| shoal | ALL states wrapped (title + game) | Custom TitleScreen | Yes | **Fixed this pass** (title screen was bypassing GameShell via MenuShell) |
+| horse_racing | ALL states wrapped (title + error + loading + race + game) | Shared TitleScreen | N/A | **Fixed this pass** (3 early returns were bypassing GameShell, no title screen) |
+| slither_rogue | ALL states wrapped (menu + game) | MainMenu (inside GameShell) | N/A | Compliant |
+| mutant_battle_ball | ALL states wrapped (title + loading + game) | Shared TitleScreen | Yes | **Fixed this pass** (loading state was bypassing GameShell, no title screen) |
+| slime_coin | ALL states wrapped (title + loading + game) | Shared TitleScreen | Yes | **Fixed this pass** (loading state was bypassing GameShell, no title screen) |
+| chimera_wilds | ALL states wrapped (title + loading + game) | Shared TitleScreen | Yes | **Fixed this pass** (loading state was bypassing GameShell, no title screen) |
+| scrapcrawl | ALL states wrapped (title + loading + game) | Shared TitleScreen | Yes | **Fixed this pass** (loading state was bypassing GameShell, no title screen) |
+| planetofgreed | ALL 5 states wrapped | Shared TitleScreen | Yes | Compliant (fixed prior pass) |
+
+#### Not in registry but has App.tsx (1 game)
+
+| Game | GameShell | TitleScreen | Status |
+|---|---|---|---|
+| brewfield | ALL states wrapped (loading/intro/game_over/game) | IntroScreen | **Not in GAME_REGISTRY** (registry gap, not GameShell gap) |
+
+#### Registry games without App.tsx (6 games, all external embeds)
+
+| Game | GameShell | TitleScreen | Notes |
+|---|---|---|---|
+| voiddrift | N/A — GameLoader provides back button for iframe | N/A | External itch.io embed |
+| ledger | N/A — GameLoader provides back button | N/A | External same-origin embed |
+| trinity_siege | N/A — GameLoader provides back button | N/A | External embed |
+| 7_days_to_fry | N/A — GameLoader provides back button | N/A | External embed |
+| antsim_redux | N/A — GameLoader provides back button | N/A | External embed |
+| facility_escape | N/A — GameLoader provides back button | N/A | External embed |
+
+### Gaps found and fixed (6 games)
+
+**GameShell loading/error state gaps (6 games):**
+All 6 games had early returns (loading states, error states, or
+sub-screen states) that bypassed GameShell, meaning the back-to-arcade
+button was not present during those states. Fixed by wrapping every
+early-return state in GameShell:
+
+1. **shoal**: title screen returned MenuShell (no back-to-arcade
+   button) — wrapped in GameShell
+2. **horse_racing**: error state, loading state, and RaceTrack all
+   returned bare divs/components — wrapped in GameShell
+3. **mutant_battle_ball**: loading state returned bare div — wrapped
+   in GameShell
+4. **slime_coin**: loading state returned bare div — wrapped in
+   GameShell
+5. **chimera_wilds**: loading state returned bare div — wrapped in
+   GameShell
+6. **scrapcrawl**: loading state returned EmptyState — wrapped in
+   GameShell
+
+**TitleScreen gaps (5 games):**
+All 5 games had no title screen — they went straight from loading into
+gameplay. Added the shared TitleScreen component with a "New Game"
+button, using Dissonance's confirmed-correct pattern (title phase
+before game entry) as the template:
+
+1. **horse_racing**: added TitleScreen ("Derby Sim", "Race - Breed - Bet")
+2. **mutant_battle_ball**: added TitleScreen ("Mutant Battle Ball",
+   "Assemble. Squad up. Reach the end zone.")
+3. **slime_coin**: added TitleScreen ("SlimeCoin", "Real-time coin pusher")
+4. **chimera_wilds**: added TitleScreen ("Chimera Wilds",
+   "One-roll D20 encounters")
+5. **scrapcrawl**: added TitleScreen ("ScrapCrawl",
+   "Room navigation - scrap economy - D20 combat")
+
+### Existing regression test
+
+`ts/tests/test_gameshell.tsx` tests the GameShell component itself
+(6 tests: renders label, phase badge, statusArea, footer, back button
+click calls navigateHome, display font class). This is a
+component-level test, not per-game usage. The audit confirmed no
+per-game GameShell compliance test existed — the existing
+`test_arcade.ts` tests render game components and interact with them,
+which indirectly tests GameShell usage. The 6 failing tests in
+`test_arcade.ts` (scrapcrawl + chimera_wilds button interaction tests)
+were updated to click "New Game" to dismiss the new title screens
+before interacting with game buttons.
+
+### Test results
+
+Full suite: **832 passed, 1 failed** (833 total). The 1 failure is
+the expected git-cleanliness check in `test_dual_target_deploy.ts`
+(uncommitted changes at time of test run). All 32 `test_arcade.ts`
+tests pass, all 26 `test_dual_target_deploy.ts` tests pass
+individually, all 6 `test_gameshell.tsx` tests pass.
+
+### Registry gap (not fixed this pass)
+
+**brewfield** has a fully compliant App.tsx with GameShell wrapping
+all states and an IntroScreen, but is NOT in `GAME_REGISTRY`. This is
+a registry configuration gap, not a GameShell compliance gap. Reported
+here for visibility; not fixed this pass per directive scope. � zero regressions).
