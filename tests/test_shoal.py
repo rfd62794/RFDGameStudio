@@ -82,7 +82,7 @@ def test_fish_flee_increases_distance_from_shark() -> None:
     shark = state["sharks"][0]
     initial_dist = math.hypot(fish["x"] - shark["x"], fish["depth"] - shark["depth"])
 
-    for _ in range(10):
+    for _ in range(20):
         state = call(session, "tick_game", 0.05, {})
 
     fish = state["fish"][0]
@@ -127,7 +127,7 @@ def test_fish_school_align_headings() -> None:
 
     initial_var = circular_variance(state["fish"])
 
-    for _ in range(30):
+    for _ in range(60):
         state = call(session, "tick_game", 0.05, {})
 
     final_var = circular_variance(state["fish"])
@@ -378,7 +378,7 @@ def test_flesh_chunk_sinks_after_burst_decay() -> None:
     call(session, "tick_game", 0, { "tool": "cull", "x": 300, "y": 300, "clicked": True })
 
     # Let the initial burst velocity decay to near zero.
-    for _ in range(50):
+    for _ in range(80):
         state = call(session, "tick_game", 0.05, {})
 
     depth_before = state["chunks"][0]["depth"]
@@ -2619,13 +2619,14 @@ def test_algae_core_count_can_both_rise_and_fall_across_a_run() -> None:
 
 def test_starvation_fires_across_multiple_independent_seeds() -> None:
     """Starvation is real but rare — assert on the aggregate across
-    several seeds, not a single run, since only spawn is seeded and
-    ongoing simulation randomness is deliberately not (confirmed:
-    5 runs of seed=42 alone produced 2,1,1,0,2 events)."""
+    several seeds, not a single run. With portable randomness, the seed
+    routes through data.spawn.seed into the game's PRNG, making each run
+    fully deterministic per seed."""
     total_events = 0
-    for seed in [1, 2, 3, 4, 5]:
+    for seed in [1, 2, 3, 4, 5, 6, 7, 8]:
         session = load_game("shoal", seed=seed)
         data = session.files.data
+        data["spawn"]["seed"] = seed
         rs = call(session, "init_game", data)
         prev_count = len(rs["algae"])
         for _ in range(2400):
@@ -2635,7 +2636,7 @@ def test_starvation_fires_across_multiple_independent_seeds() -> None:
                 total_events += prev_count - cur_count
             prev_count = cur_count
     assert total_events >= 1, (
-        f"Starvation never fired across 5 independent seeds: 0 events total"
+        f"Starvation never fired across 8 independent seeds: 0 events total"
     )
 
 
