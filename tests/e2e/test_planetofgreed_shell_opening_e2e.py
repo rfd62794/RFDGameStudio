@@ -104,9 +104,9 @@ def test_e2e_titlescreen_renders_before_culture_selection(vite_server: str) -> N
             title_screen = page.locator(".title-screen")
             expect(title_screen).to_be_visible(timeout=5000)
 
-            # Should contain the game title
+            # Should contain the game title (case-insensitive — GameShell renders uppercase)
             body_text = page.inner_text("body")
-            assert "Planet of Greed" in body_text, "Title screen should show game title"
+            assert "planet of greed" in body_text.lower(), "Title screen should show game title"
 
             # Should have New Campaign button
             new_campaign_btn = page.locator("text=New Campaign")

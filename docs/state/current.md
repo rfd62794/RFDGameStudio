@@ -2,6 +2,151 @@
 
 *Last updated: August 13 2026*
 
+## Planet of Greed Shell Compliance + Opening Sequence — COMPLETED
+
+**Directive:** Close two real gaps the Merge & Polish Op v2 completion
+report never addressed: the studio's locked GameShell rule (every
+ported game must wrap its ENTIRE render output in the shared
+GameShell component — the only place the back-to-lobby button lives),
+and the missing first-time onboarding beat (Dissonance's Title→Opening
+phase, KingMaker's 5-beat new-game-only Opening Sequence).
+
+### STOP rule — real compliance state reported before any change
+
+**GameShell: NOT WRAPPED AT ALL.** Zero references to `GameShell` in
+Planet of Greed's entire source tree before this phase. Every render
+state (loading, culture selection, main game, ending) rendered raw
+`<div>`s with no shell wrapper. There was NO back-to-lobby button
+anywhere. This was the exact Brewfield class of miss the directive
+warned about — a player with no way to leave the game once they've
+entered it.
+
+**TitleScreen: NOT USED.** Zero references to `TitleScreen`. The game
+went straight from a loading screen to six culture buttons with no
+title screen, no context for what Genesis Ore is, no explanation of
+the wheel-locked rival.
+
+**Existing regression test:** `test_gameshell.tsx` tests the GameShell
+component itself (renders title, phase, status, footer, back button
+navigation), NOT per-game compliance. No per-game compliance test
+existed. A new per-game compliance test was added this phase
+(`test_planetofgreed_shell_opening.ts`).
+
+**KingMaker's new-game-only mechanism (confirmed from source):**
+`handleStartNewCampaign` sets `showOpeningSequence=true`,
+`handleContinueCampaign` sets it to `false`. Simple boolean flag,
+checked at render time. Dissonance uses the same pattern:
+`handleNewRun` sets phase to `'opening'`, `handleContinue` skips to
+`'run'`. PoG matches this exact mechanism.
+
+### GameShell compliance — fixed
+
+Every render state is now wrapped in `<GameShell>`:
+- **Title screen** — wrapped, back button present
+- **Opening sequence** — wrapped, back button present
+- **Culture selection** — wrapped, back button present
+- **Loading state** — wrapped, back button present
+- **Main game** — wrapped, back button present
+- **Ending screen** — rendered inside the main game's GameShell
+
+The back-to-lobby button (`.game-shell-back`) is now present on every
+screen state. A player can leave the game at any point.
+
+### TitleScreen — added
+
+Added the shared `TitleScreen` component before culture selection,
+matching its real existing usage in Shoal and Dissonance. The title
+screen shows:
+- Title: "Planet of Greed"
+- Tagline: "Six Houses. One Engine. One winner."
+- Pitch: "Genesis Ore runs through the planet's crust. Six Houses
+  race to finish the Seed Engine first. Your rival is already chosen
+  — by the wheel, not by chance."
+- Menu items: "New Campaign" (triggers opening sequence) and
+  "Continue" (loads saved game, skips opening)
+
+### Opening Sequence — 4 beats, new-game-only
+
+**Beat count: 4.** Justified against real precedents:
+- KingMaker: 5 beats (text, camera zoom, cast intro, return, goal)
+- Dissonance: 1 beat (single opening pack screen)
+- PoG needs 4 because the player needs to understand three distinct
+  things before an informed House choice: the Ore (what they're
+  fighting over), the Houses (who they're choosing between), and the
+  stakes (what winning actually means). The rival placement is a
+  sub-beat of the House introduction.
+
+**The 4 beats:**
+1. **The Ore** — Genesis Ore's hidden power, the Seed Engine, Signal's
+   presence (signal anomaly in background telemetry)
+2. **The Houses** — all six Houses with their real descriptions from
+   `flavorText.ts` (true believers, cynical exploiters, suspicious
+   Houses)
+3. **The Rival** — the wheel-locked rival placement. The player learns
+   BEFORE picking a House that their rival is determined by their
+   choice, not discovered after. "Ember opposite Tundra. Marsh
+   opposite Crystal. Gale opposite Tide. This is not a suggestion —
+   it is a lock."
+4. **The Stakes** — what winning actually means. "Reaching Rank 1
+   doesn't end the game quietly. It completes the Engine. It fires.
+   And the thing that wakes up afterward puts humanity under arrest —
+   starting with you."
+
+**New-game-only trigger:** `showOpeningSequence` is set to `true` only
+by `handleTitleNewGame` (the "New Campaign" button). It is set to
+`false` by:
+- `handleTitleContinue` (the "Continue" button)
+- The localStorage resume path (loading a saved game)
+- `handleRequestNewGame` (reset — goes straight to culture selection,
+  not through the opening again)
+
+A skip button is always available during the opening, matching
+KingMaker's pattern.
+
+**Content source:** All content is grounded in locked Design.md v0.2
+narrative and the flavor text from the prior directive. No new
+invention. The opening uses `HOUSE_DESCRIPTIONS` from `flavorText.ts`
+directly — the same descriptions that appear on the culture selection
+buttons.
+
+### Test results
+
+**Unit tests (ts/):** 717/717 passing (82 test files, 22.07s)
+- +33 from previous floor (684): shell compliance + opening sequence
+  test anchors
+- Zero regressions in existing tests
+
+**E2E tests (Playwright + pytest):** 6/6 passing (49.31s)
+- `test_e2e_gameshell_back_button_present_on_title` — back button
+  visible on title screen
+- `test_e2e_titlescreen_renders_before_culture_selection` — title
+  screen with real content before culture selection
+- `test_e2e_opening_sequence_fires_on_new_game` — opening fires on
+  New Campaign, shows Genesis Ore content
+- `test_e2e_opening_sequence_not_on_resume` — opening does NOT fire
+  on resume/reload, goes straight to game
+- `test_e2e_opening_sequence_all_beats_and_skip` — all 4 beats
+  render with correct content, advancing works, reaches culture
+  selection
+- `test_e2e_gameshell_back_button_on_all_screens` — back button
+  present on title, opening, culture selection, and main game
+
+### Files created/modified this phase
+
+**New files:**
+- `ts/src/games/planetofgreed/components/OpeningSequence.tsx` — 4-beat
+  opening sequence with skip button
+- `ts/tests/test_planetofgreed_shell_opening.ts` — 33 test anchors
+  for shell compliance + opening sequence
+- `tests/e2e/test_planetofgreed_shell_opening_e2e.py` — 6 E2E tests
+
+**Modified files:**
+- `ts/src/games/planetofgreed/App.tsx` — GameShell wrap on all render
+  states, TitleScreen integration, OpeningSequence integration,
+  new-game-only trigger mechanism, dark theme on culture selection
+
+---
+
 ## Planet of Greed Merge & Polish Op v2 — COMPLETED
 
 **Directive:** Guided per-Region walkthrough (replacing the free-form
