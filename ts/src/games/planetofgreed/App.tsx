@@ -214,7 +214,7 @@ const EVENTS_TEMPLATES = [
         effectText: "Store iridium for local shield reinforcements. Cost: -$10,000. Adds +1 Fortification level.",
         action: (state: GameState, cellId: number) => ({
           log: `Fortified strategic iridium vaults. Spent $10,000 on shield alloy reinforcers.`,
-          stateUpdates: { treasuryOffset: -10000, fortificationOffset: 1, publicOpinionOffset: 3 }
+          stateUpdates: { fortificationOffset: 1, publicOpinionOffset: 3 }
         })
       }
     ]
@@ -229,7 +229,7 @@ const EVENTS_TEMPLATES = [
         effectText: "Spend $10,000 to recover secure crates. Adds +1 Circle and +1 Square unit to local garrison.",
         action: (state: GameState, cellId: number) => ({
           log: `Secured drop pod crates. Recovered advanced combat components: +1 Circle and +1 Square added to garrison.`,
-          stateUpdates: { treasuryOffset: -10000, unitsBonus: { circle: 1, square: 1, triangle: 0 }, publicOpinionOffset: 0 }
+          stateUpdates: { unitsBonus: { circle: 1, square: 1, triangle: 0 }, publicOpinionOffset: 0 }
         })
       },
       {
@@ -238,7 +238,7 @@ const EVENTS_TEMPLATES = [
         effectText: "Spend $2,000 to detonate coordinates, denying assets to rivals. Adds +1 Fortification from scrap.",
         action: (state: GameState, cellId: number) => ({
           log: `Detonated capsule remotely. Recycled titanium shielding scrap into sector fortification (+1 Fortification).`,
-          stateUpdates: { treasuryOffset: -2000, fortificationOffset: 1, publicOpinionOffset: 0 }
+          stateUpdates: { fortificationOffset: 1, publicOpinionOffset: 0 }
         })
       },
       {
@@ -262,7 +262,7 @@ const EVENTS_TEMPLATES = [
         effectText: "Deploy satellite Faraday cages. Cost: -$15,000. Telemetry stays online.",
         action: (state: GameState, cellId: number) => ({
           log: `Faraday shields activated. Maintained complete telemetry feed.`,
-          stateUpdates: { treasuryOffset: -15000, publicOpinionOffset: 2 }
+          stateUpdates: { publicOpinionOffset: 2 }
         })
       },
       {

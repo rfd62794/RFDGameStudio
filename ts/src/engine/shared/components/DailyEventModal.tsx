@@ -58,15 +58,18 @@ export default function DailyEventModal({
             <span className="font-serif italic text-[11px] text-[#141414]/70 font-bold uppercase tracking-wider block">RESOLUTIONS MATRIX</span>
             
             {event.choices.map((choice, idx) => {
-              // Check if player can afford this choice
-              const canAffordCash = playerCorp.treasury >= choice.cost;
+              // Check if player can afford this choice.
+              // A $0-cost option is ALWAYS affordable regardless of balance —
+              // a free option can never be gated by Treasury, or the player
+              // can softlock with no way to resolve the event.
+              const canAffordCash = choice.cost === 0 || playerCorp.treasury >= choice.cost;
               const meetsUnitCost = !choice.unitsCost || (
                 cell &&
                 cell.units.circle >= (choice.unitsCost.circle || 0) &&
                 cell.units.square >= (choice.unitsCost.square || 0) &&
                 cell.units.triangle >= (choice.unitsCost.triangle || 0)
               );
-              
+
               const isAvailable = canAffordCash && meetsUnitCost;
 
               return (
