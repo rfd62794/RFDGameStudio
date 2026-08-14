@@ -256,6 +256,101 @@ effort. The TS-typed-array migration remains the real path to
 sub-16.67ms ticks if that target is required; the Lua-side hash
 optimization has now delivered what it can.
 
+### Wasmoon Runtime Swap-Test (August 2026)
+
+**Directive:** Isolated benchmark to determine whether swapping
+fengari (Lua 5.3, JS reimplementation) for wasmoon (Lua 5.4, WASM-
+compiled official Lua C source) would deliver a cheaper performance
+win than a TS-typed-array migration — benefiting all ten Lua games,
+not just Shoal.
+
+**Package identified:** `wasmoon` v1.16.0 (ceifa/wasmoon, 691 GitHub
+stars, MIT, Lua 5.4 via WebAssembly). The canonical, most-downloaded
+package. A `wasmoon-lua5.1` fork exists (X3ZvaWQ, 137 weekly downloads)
+but no 5.3-specific package was found. Fengari implements Lua 5.3
+("port of PUC-Rio Lua 5.3 implementation to ES6", 32-bit integers).
+
+**STOP-rule #1 — Correctness gate: FAILED (real divergence found)**
+
+Shoal's real Lua source was loaded through both VMs with the same seed
+(42), same spawn counts (60 fish / 8 sharks), and 20 ticks. The render
+states diverge:
+- Fish positions completely different (e.g. fish_55: fengari x=460.9,
+  wasmoon x=762.8)
+- Algae nodule counts differ (fengari=43, wasmoon=41)
+- Hunger values differ (fengari=0.1, wasmoon=0.025 after 20 ticks)
+
+**Root cause — `math.random` PRNG algorithm change (Lua 5.3 → 5.4):**
+This is a known, documented Lua version incompatibility, not a wasmoon
+bug:
+- **Lua 5.3** (fengari): `math.random` uses C `rand()` (or POSIX
+  `random()`), seeded by `srand(seed)`. Platform-dependent.
+- **Lua 5.4** (wasmoon): `math.random` uses **xoshiro256\*\***, a
+  completely different 256-bit PRNG. `math.randomseed` also works
+  differently (sets 256-bit state, discards 16 initial values).
+
+Shoal calls `math.random()` at three points in `logic.lua`:
+- Line 302: fish breeding probability check
+- Line 371: fish escape chance when caught by shark
+- Line 417: shark breeding probability check
+
+With different PRNG algorithms, the same seed produces different
+random sequences, causing different breeding/escape outcomes, which
+cascades into completely different entity positions and populations
+over time.
+
+**The custom LCG (`make_prng` in state.lua) is version-independent:**
+Verified that the LCG `s = (s * 1103515245 + 12345) % 2147483648`
+produces identical values in both VMs (the `% 2^31` masks off the high
+bits, so 32-bit vs 64-bit integer width doesn't matter). Spawning is
+deterministic across versions. Only `math.random()` diverges.
+
+**STOP-rule #2 — Real interop benchmark (ran before correctness halt):**
+
+The high-load benchmark ran before the correctness gate halted
+proceedings. It measured wasmoon's real tick time including the full
+render-state pull (the ~630-call JS↔Lua boundary crossing the
+directive required), via `performance.now()` over 200 ticks with 10-
+tick warmup:
+
+| Scenario | Lua-only (os.clock, no interop) | Real interop (perf.now, render-state pull) | Fengari baseline |
+|---|---|---|---|
+| High load (83 fish, 19 sharks) | 2.355 ms/tick | **5.797 ms/tick** | 34.560 ms/tick |
+
+Wasmoon's real-interop tick time is **83.2% faster** than the optimized
+fengari baseline at high load. The Lua-only measurement (2.355ms) shows
+the raw compute advantage is ~15×, and the interop overhead adds
+~3.4ms/tick — significant but not enough to erase wasmoon's advantage.
+The default scenario was not measured because the correctness gate
+halted the benchmark before it ran.
+
+**Verdict: Wasmoon is dramatically faster (83% at high load), but the
+correctness gate halts any swap recommendation.**
+
+The `math.random` divergence is a real semantic barrier. A runtime
+swap would require one of:
+1. Replacing all `math.random()`/`math.randomseed()` calls in Shoal
+   (and all ten Lua games) with a version-independent PRNG — the
+   custom LCG pattern already used for spawning.
+2. Using `wasmoon-lua5.1` (Lua 5.1 fork) instead of wasmoon — but 5.1
+   is even older than 5.3 and may have other divergences.
+3. Building a custom wasmoon variant compiled against Lua 5.3 source —
+   significant maintenance burden.
+
+**The speed win is real and large (83% faster at high load, even with
+real interop).** If the `math.random` portability issue can be solved
+(option 1 is the most tractable — replace ~3 `math.random()` call sites
+per game with the existing custom LCG pattern), a wasmoon swap would
+deliver sub-16.67ms tick times at high load (5.8ms << 16.67ms) without
+any TS migration. That would benefit all ten Lua games at once.
+
+**Per the directive's STOP rule, performance measurement was halted on
+a VM that doesn't produce correct results.** The speed numbers are
+reported for completeness but do not constitute a swap recommendation.
+The logical next step, if pursued, is a separate directive to patch
+`math.random` usage across the Lua games and re-run the correctness
+gate.
+
 ### Correctness verification
 
 Eight equivalence tests verify that the hash-based lookups produce
