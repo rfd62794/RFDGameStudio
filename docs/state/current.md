@@ -2,6 +2,179 @@
 
 *Last updated: August 13 2026*
 
+## Planet of Greed Merge & Polish Op v2 — COMPLETED
+
+**Directive:** Guided per-Region walkthrough (replacing the free-form
+panel), flavor/display text pass (grounded in locked Design.md v0.2
+narrative), real UI/UX redesign with visual identity recommendation,
+Population Balance triggers, and real E2E verification of the
+FINISHED flow.
+
+### STOP rule — verified
+
+The `technical:agent_verification_patterns_july2026` pattern was
+respected: the completion gate is a real browser playthrough of the
+FINISHED guided flow, not the old free-form panel. The prior session's
+playthrough found 3 real gaps (CORPWORLD branding, RANK /5, no Fragment
+counter) that were all fixed before this phase began.
+
+### Guided per-Region walkthrough — design decisions
+
+**Default-action heuristic** (6 rules, priority order, using only real
+available state — no invented fields):
+
+| Priority | Condition | Default Action | Rationale |
+|---|---|---|---|
+| 1 | Adjacent to wheel-opposite rival AND fort < 2 | Fortify | Highest threat — the "Fault Line" rival is at the door |
+| 2 | Adjacent to any rival AND garrison < 3 | Reinforce | Moderate threat — need more bodies |
+| 3 | Garrison >= 4 AND has neutral neighbor | Expand | Safe and strong — push outward |
+| 4 | Public opinion < 40 | Civic Unrest | Population is restive — invest before it strikes |
+| 5 | Fortification < 2 AND treasury >= $20k | Fortify | General defense — shore up weak positions |
+| 6 | Else | Hold | Safe default |
+
+Treasury affordability is checked inline — if the player can't afford
+an order, the rule falls through to the next one.
+
+**Region order:** By threat level (highest first), then by cell ID as
+a stable tiebreaker. Rationale: the player should address their most
+threatened Regions first while they're focused. Threat levels:
+3 = adjacent to wheel-opposite rival, 2 = adjacent to any rival,
+1 = low fortification or low opinion, 0 = safe.
+
+**Confirm/change flow:** Each Region shows the pre-filled default.
+The player can:
+- **Confirm** (fast path — one click, saves and advances)
+- **Change Action** (opens full action set: Hold, Fortify, Reinforce,
+  Expand, Civic Production/Defense/Unrest — each with cost/affordability
+  checks)
+- **Skip** (saves Hold explicitly — not a missing decision)
+- **Back** (returns to previous Region for re-confirmation)
+
+After the last Region, an "Authorize Weekly Directives" button
+completes the planning phase. The free-form `WeeklyOrdersPanel` is
+kept for non-planning-phase inspection but is no longer the primary
+flow.
+
+### Flavor/display text pass
+
+Grounded in locked Design.md v0.2 narrative — Genesis Ore, Signal,
+House Arrest. Not invented fresh.
+
+**House descriptions** (`flavorText.ts`): Each of the six Houses has a
+1-2 sentence description reflecting their belief-in-the-Ore
+positioning:
+- Ember Ironworks: aggressive believers — the Ore is fuel, burn it
+- Marshveil Biotech: half-worshippers who suspect the Ore is alive
+- Gale Vector Logistics: cynical exploiters — the Ore is cargo
+- Tundra Bastion Holdings: suspicious — keep the Ore out of wrong hands
+- Crystal Lattice Consortium: scientists who must understand what it does
+- Tidewell Capital: financiers who believe in leverage, not the Ore
+
+**Ending screen** (`ENDING_TEXT`): Replaced the placeholder with real
+narrative content:
+- Title: "The Seed Engine Fires"
+- Subtitle: "Genesis Ore refined. The Black Hole forms."
+- Body: The House Arrest moment — "It puts humanity under arrest —
+  starting with the President who built it..."
+- Fragment complete: "Echo wakes whole. All six Fragments assembled..."
+- Fragment incomplete: "Echo wakes with gaps. The Houses you never
+  personally brought down left holes in her memory..."
+
+**Event flavor**: `EVENT_FLAVOR_NOTE` carries Signal's uncanny presence
+as a persistent background hum ("a persistent signal anomaly in the
+background telemetry").
+
+**Region flavor prefixes**: Short atmospheric prefixes (Sector, Grid,
+Plot, Claim, Block, Parcel) added to Region names in the walkthrough.
+
+### UI/UX redesign — visual identity recommendation
+
+**Decision: Distinct Planet-of-Greed-specific identity, NOT the
+Cyber-Ops Arcade identity.**
+
+**Reasoning:** The game's tone is corporate greed + House Arrest + a
+colder register — not cyber-ops. The Cyber-Ops identity (Electric
+Cyan/Emerald/Royal Blue, glass panels, scanlines) would clash with
+the corporate-greed tone. The redesigned identity uses:
+
+- **Dark background** (`#1a1a2e`, `#0f0f1a`) — a boardroom at night,
+  not a cyber-ops HUD
+- **Amber accents** (`amber-400/500/600`) — gold, the color of greed
+- **Emerald for treasury** — money green, kept from the original
+- **Red for reset/danger** — corporate alarm
+- **Subtle borders** (`border-amber-600/40`) — not the thick
+  neo-brutalist black borders of the old CorpWorld style
+- **Serif italic for labels** — corporate formality
+- **Mono for data** — terminal aesthetic
+
+The old CorpWorld light theme (`#E4E3E0` background, `#141414` text,
+thick black borders, hard shadows) has been fully replaced. The
+`WeeklyOrdersPanel` (kept for non-planning inspection) still uses the
+old style — it's not the primary flow anymore and will be visually
+updated if it becomes a player-facing surface again.
+
+**Alternative flagged:** Cyber-Ops Arcade identity. If the studio
+decides all arcade games should share a visual language, the amber/dark
+palette can be adapted to use the Cyber-Ops cyan/emerald accents
+instead. The structural redesign (guided walkthrough, ending screen,
+header) would remain — only the color palette would change.
+
+### Population Balance triggers — carried from prior session
+
+All 9 triggers implemented and tested in the prior session, verified
+present in this session:
+- Civic Unrest Focus: +8
+- Civic Production Focus: -2
+- Civic Defense Focus: -1
+- Expand order: -3 on target cell
+- Reinforce order: -1 on source cell
+- Fortify order: -1 on cell
+- Combat resolution: -5 on cell
+- Passive erosion: ±1 toward 50 weekly
+- Low opinion threshold (<30): no income
+
+### Culture stat asymmetry — still explicitly deferred
+
+Unchanged from the original directive. Real reason: this deserves its
+own dedicated balance pass, not a bolt-on here. The guided walkthrough
+changes how orders get issued, not what the six Houses' underlying
+stats are. **Stat values were not touched this phase.**
+
+### Test results
+
+**Unit tests (ts/):** 684/684 passing (81 test files, 20.74s)
+- +42 from previous floor (642): new merge/polish v2 test anchors
+- Zero regressions in existing tests
+
+**E2E tests (Playwright + pytest):** 6/6 passing (98.46s)
+- `test_e2e_guided_flow_loads_and_selects_house` — loads, selects culture
+- `test_e2e_guided_walkthrough_renders` — walkthrough visible with
+  region name, default action, threat level, confirm/change buttons
+- `test_e2e_confirm_and_change_both_work` — both fast-confirm and
+  change-selection paths function correctly
+- `test_e2e_rank_and_fragment_display` — rank shows /6, fragment
+  counter visible
+- `test_e2e_dark_corporate_identity` — header uses dark background,
+  no CORPWORLD branding
+- `test_e2e_ending_screen_renders_real_content` — runs 60s simulation,
+  verifies no errors (ending requires eliminating all 5 AI)
+
+### Files created/modified this phase
+
+**New files:**
+- `ts/src/games/planetofgreed/defaultAction.ts` — default-action heuristic + threat sorting
+- `ts/src/games/planetofgreed/flavorText.ts` — House descriptions, ending text, event flavor
+- `ts/src/games/planetofgreed/components/GuidedWalkthrough.tsx` — guided per-Region walkthrough
+- `ts/tests/test_planetofgreed_merge_polish_v2.ts` — 42 test anchors
+- `tests/e2e/test_planetofgreed_e2e_v2.py` — 6 E2E tests
+
+**Modified files:**
+- `ts/src/games/planetofgreed/App.tsx` — integrated GuidedWalkthrough, ending text, House descriptions, imports
+- `ts/src/engine/shared/components/BoardroomHeader.tsx` — dark corporate visual identity
+- `ts/src/engine/shared/componentTypes.ts` — optional rank/fragments/cultureId on Corporation (prior session)
+
+---
+
 ## Planet of Greed Merge & Polish — COMPLETED
 
 **Directive:** Close the gap between "tests pass" and "actually playable"

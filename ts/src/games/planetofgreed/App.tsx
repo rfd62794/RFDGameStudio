@@ -20,7 +20,10 @@ import AlertQueue from '../../engine/shared/components/AlertQueue';
 import { AnimatePresence, motion } from 'framer-motion';
 import './index.css';
 import GuidedWalkthrough from './components/GuidedWalkthrough';
+import OpeningSequence from './components/OpeningSequence';
 import { HOUSE_DESCRIPTIONS, ENDING_TEXT, EVENT_FLAVOR_NOTE } from './flavorText';
+import { GameShell } from '../../components/GameShell';
+import { TitleScreen } from '../../ui/components/TitleScreen';
 
 import { 
   Briefcase, Activity, AlertTriangle, Play, Pause, Compass, 
@@ -286,6 +289,16 @@ export default function App({ session }: GameRendererProps) {
   // selection step -- see the render branch below.
   const [pendingCultureSelection, setPendingCultureSelection] = useState<boolean>(false);
 
+  // Title screen: shown on first load. Dismissed when the player chooses
+  // to start a new game or continue. Matches Dissonance's appPhase='title'.
+  const [showTitleScreen, setShowTitleScreen] = useState<boolean>(true);
+
+  // Opening sequence: fires ONLY on a genuinely new game, never on a
+  // resumed/returning session. Matches KingMaker's confirmed mechanism:
+  // handleStartNewCampaign sets showOpeningSequence=true, the continue
+  // path sets it to false. Cleared after completion or skip.
+  const [showOpeningSequence, setShowOpeningSequence] = useState<boolean>(false);
+
   // Load from local storage on startup if exists
   useEffect(() => {
     const saved = localStorage.getItem('corpworld_state');
@@ -296,13 +309,16 @@ export default function App({ session }: GameRendererProps) {
         setGameState(rehydrateState(parsed));
         setSelectedCellId(parsed.selectedCellId ?? null);
         setIsPlanningPhase(parsed.isPlanningPhase ?? true);
+        // Resuming an existing game: skip title and opening, go straight to game
+        setShowTitleScreen(false);
+        setShowOpeningSequence(false);
         return;
       } catch (e) {
         console.error('Failed to parse saved state', e);
       }
     }
-    // No saved game: require a real culture choice before starting one.
-    setPendingCultureSelection(true);
+    // No saved game: show title screen first, then culture selection
+    setShowTitleScreen(true);
   }, []);
 
   // Reset flow re-enters culture selection rather than assuming the
@@ -310,6 +326,30 @@ export default function App({ session }: GameRendererProps) {
   // very first game.
   const handleRequestNewGame = () => {
     setGameState(null);
+    setPendingCultureSelection(true);
+    setShowOpeningSequence(false);
+  };
+
+  // Title screen actions: "New Campaign" triggers the opening sequence
+  // (new-game-only), then proceeds to culture selection. "Continue"
+  // loads saved state (handled by the useEffect above).
+  const handleTitleNewGame = () => {
+    setShowTitleScreen(false);
+    setShowOpeningSequence(true);
+  };
+
+  const handleTitleContinue = () => {
+    setShowTitleScreen(false);
+    setShowOpeningSequence(false);
+    // If there's a saved game, the useEffect already loaded it.
+    // If not, fall through to culture selection.
+    if (!gameState) {
+      setPendingCultureSelection(true);
+    }
+  };
+
+  const handleOpeningComplete = () => {
+    setShowOpeningSequence(false);
     setPendingCultureSelection(true);
   };
 
@@ -1350,21 +1390,50 @@ export default function App({ session }: GameRendererProps) {
     advanceDay();
   };
 
+  // Title screen: shown on first load, before any game state exists.
+  // Matches Dissonance's TitlePhase and Shoal's TitleScreen usage.
+  if (showTitleScreen) {
+    return (
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+        <TitleScreen
+          title="Planet of Greed"
+          tagline="Six Houses. One Engine. One winner."
+          pitch="Genesis Ore runs through the planet's crust. Six Houses race to finish the Seed Engine first. Your rival is already chosen — by the wheel, not by chance."
+          menuItems={[
+            { id: 'new-game', label: 'New Campaign', variant: 'primary', onClick: handleTitleNewGame },
+            { id: 'continue', label: 'Continue', variant: 'secondary', onClick: handleTitleContinue, disabled: !gameState },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
+  // Opening sequence: fires ONLY on a genuinely new game, never on resume.
+  // Matches KingMaker's confirmed new-game-only mechanism.
+  if (showOpeningSequence) {
+    return (
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+        <OpeningSequence onComplete={handleOpeningComplete} />
+      </GameShell>
+    );
+  }
+
   // Minimal culture selection step: a real choice, not elaborate this
   // phase. Determines which of the six wheel slots (and therefore which
   // wheel-opposite rival) the player gets.
   if (pendingCultureSelection) {
     return (
-      <div className="min-h-screen bg-[#E4E3E0] text-[#141414] font-sans flex flex-col justify-center items-center gap-6 p-6 select-none">
-        <div className="text-center">
-          <h1 className="text-2xl font-black uppercase tracking-tight">Choose Your Culture</h1>
-          <p className="text-xs text-[#141414]/70 font-serif italic mt-1">
-            Six Cultures share the wheel. Your wheel-opposite rival starts as far from you as the map allows.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl w-full">
-          {CULTURE_WHEEL.map((cultureId) => {
-            const def = CULTURE_DEFINITIONS[cultureId];
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+        <div className="min-h-screen bg-[#1a1a2e] text-amber-50 font-sans flex flex-col justify-center items-center gap-6 p-6 select-none">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold uppercase tracking-tight text-amber-200">Choose Your House</h1>
+            <p className="text-xs text-amber-100/70 font-serif italic mt-1">
+              Six Houses share the wheel. Your wheel-opposite rival starts as far from you as the map allows.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl w-full">
+            {CULTURE_WHEEL.map((cultureId) => {
+              const def = CULTURE_DEFINITIONS[cultureId];
             return (
               <button
                 key={cultureId}
@@ -1384,16 +1453,19 @@ export default function App({ session }: GameRendererProps) {
             );
           })}
         </div>
-      </div>
+        </div>
+      </GameShell>
     );
   }
 
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-[#E4E3E0] flex flex-col justify-center items-center text-[#141414] font-mono gap-3 select-none">
-        <RefreshCw className="w-10 h-10 text-[#141414] animate-spin" />
-        <span className="font-bold">BOOTING PLANET OF GREED EXECUTIVE TERMINAL...</span>
-      </div>
+      <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+        <div className="min-h-screen bg-[#1a1a2e] flex flex-col justify-center items-center text-amber-100 font-mono gap-3 select-none">
+          <RefreshCw className="w-10 h-10 text-amber-400 animate-spin" />
+          <span className="font-bold">BOOTING PLANET OF GREED EXECUTIVE TERMINAL...</span>
+        </div>
+      </GameShell>
     );
   }
 
@@ -1407,8 +1479,9 @@ export default function App({ session }: GameRendererProps) {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#E4E3E0] text-[#141414] font-sans flex flex-col relative overflow-x-hidden">
-      
+    <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1">
+    <div className="min-h-screen bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
+
       {/* HEADER SECTION */}
       <BoardroomHeader
         date={gameState.date}
@@ -1745,5 +1818,6 @@ export default function App({ session }: GameRendererProps) {
       )}
 
     </div>
+    </GameShell>
   );
 }
