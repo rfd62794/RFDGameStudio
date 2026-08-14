@@ -1,4 +1,6 @@
 /**
+ * @vitest-environment node
+ *
  * TEMPORARY wasmoon correctness + benchmark harness.
  *
  * Gate 1 (correctness): Run Shoal's real Lua source through both fengari
@@ -64,6 +66,8 @@ function runFengari(fish: number, sharks: number, ticks: number, seed: number = 
   spawn['initial_fish'] = fish;
   spawn['initial_sharks'] = sharks;
   spawn['initial_algae_hubs'] = 6;
+  // Force a fixed seed for determinism (data.yaml has seed: null)
+  spawn['seed'] = seed;
 
   fengariCall(session, 'init_game', data);
   let lastState: unknown = null;
@@ -71,6 +75,31 @@ function runFengari(fish: number, sharks: number, ticks: number, seed: number = 
     lastState = fengariCall(session, 'tick_game', 0.1, {})[0];
   }
   return lastState;
+}
+
+// ── Helper: convert JS data to Lua table string (avoids wasmoon pushValue
+//    issues with null values in the data object) ─────────────────────────────
+
+function jsToLua(value: unknown, indent = ''): string {
+  if (value === null || value === undefined) return 'nil';
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'string') return `"${value.replace(/"/g, '\\"')}"`;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '{}';
+    const items = value.map(v => `${indent}  ${jsToLua(v, indent + '  ')}`);
+    return `{\n${items.join(',\n')}\n${indent}}`;
+  }
+  if (typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>);
+    if (entries.length === 0) return '{}';
+    const items = entries.map(([k, v]) => {
+      const key = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(k) ? k : `"${k}"`;
+      return `${indent}  ${key} = ${jsToLua(v, indent + '  ')}`;
+    });
+    return `{\n${items.join(',\n')}\n${indent}}`;
+  }
+  return 'nil';
 }
 
 // ── Helper: run Shoal through wasmoon ────────────────────────────────────────
@@ -90,16 +119,17 @@ async function runWasmoon(
     // Load Shoal's real Lua source
     await lua.doString(shoalLuaSource);
 
-    // Override spawn counts in data
+    // Override spawn counts in data and convert to Lua table string
     const data = JSON.parse(JSON.stringify(shoalData)) as Record<string, unknown>;
     const spawn = data['spawn'] as Record<string, unknown>;
     spawn['initial_fish'] = fish;
     spawn['initial_sharks'] = sharks;
     spawn['initial_algae_hubs'] = 6;
+    // Force a fixed seed for determinism (data.yaml has seed: null)
+    spawn['seed'] = seed;
 
-    // Push data as a global for init_game
-    lua.global.set('SHOAL_DATA', data);
-    await lua.doString('init_game(SHOAL_DATA)');
+    // Push data as a Lua table string (avoids wasmoon pushValue null issues)
+    await lua.doString(`SHOAL_DATA = ${jsToLua(data)}\ninit_game(SHOAL_DATA)`);
 
     let lastState: unknown = null;
     for (let i = 0; i < ticks; i++) {
