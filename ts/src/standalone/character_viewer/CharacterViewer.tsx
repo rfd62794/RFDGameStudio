@@ -180,9 +180,14 @@ const PRIMITIVE_PARAMS: Record<PrimitiveType, Array<{ key: string; label: string
     { key: 'irregularity', label: 'Irregularity', min: 0, max: 100, step: 1 },
     { key: 'radius', label: 'Radius', min: 5, max: 40, step: 1 },
   ],
+  sigmoidBulge: [
+    { key: 'widthStart', label: 'Width Start', min: 5, max: 30, step: 1 },
+    { key: 'widthEnd', label: 'Width End', min: 3, max: 20, step: 1 },
+    { key: 'bulgeFactor', label: 'Bulge', min: 0, max: 1, step: 0.05 },
+  ],
 };
 
-const PRIMITIVE_OPTIONS: PrimitiveType[] = ['polygon', 'radialBurst', 'teardropFin', 'irregularFragment'];
+const PRIMITIVE_OPTIONS: PrimitiveType[] = ['polygon', 'radialBurst', 'teardropFin', 'irregularFragment', 'sigmoidBulge'];
 
 const COLOR_PRESETS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6b7280', '#1e293b', '#37474f', '#558b2f', '#8d6e63', '#6d4c41'];
 
