@@ -8,7 +8,7 @@
  * re-derived from scratch.
  */
 
-import type { BodyProportions } from '../types';
+import type { BodyProportions } from './types';
 
 const DEFAULT: BodyProportions = {
   headSize: 1.0,

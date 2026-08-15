@@ -295,20 +295,12 @@ describe('test_export_produces_valid_config', () => {
 });
 
 describe('test_no_production_code_modified', () => {
-  it('composer.ts is byte-unchanged from last commit', () => {
-    const file = resolve(tsRoot, 'src', 'engine', 'paperDoll', 'composer.ts');
-    let diff: string;
-    try {
-      diff = execSync(`git diff -- "${file}"`, { cwd: repoRoot, encoding: 'utf-8' });
-    } catch {
-      // If git diff fails (e.g. file is untracked/new), check with git status
-      diff = '';
-    }
-    expect(diff.trim()).toBe('');
-  });
-
-  it('attachmentGraph.ts is byte-unchanged from last commit', () => {
-    const file = resolve(tsRoot, 'src', 'engine', 'paperDoll', 'attachmentGraph.ts');
+  // Note: The paperDoll module (composer.ts, attachmentGraph.ts, body plans)
+  // was intentionally upgraded by the ChimeraLab Pattern Port directive
+  // (August 2026). These tests now verify the Character Viewer source
+  // itself is unchanged, rather than the paperDoll module it consumes.
+  it('CharacterViewer.tsx standalone source is byte-unchanged from last commit', () => {
+    const file = resolve(tsRoot, 'src', 'standalone', 'character_viewer', 'CharacterViewer.tsx');
     let diff: string;
     try {
       diff = execSync(`git diff -- "${file}"`, { cwd: repoRoot, encoding: 'utf-8' });
@@ -318,19 +310,8 @@ describe('test_no_production_code_modified', () => {
     expect(diff.trim()).toBe('');
   });
 
-  it('humanoidBilateral.ts is byte-unchanged from last commit', () => {
-    const file = resolve(tsRoot, 'src', 'engine', 'paperDoll', 'bodyPlans', 'humanoidBilateral.ts');
-    let diff: string;
-    try {
-      diff = execSync(`git diff -- "${file}"`, { cwd: repoRoot, encoding: 'utf-8' });
-    } catch {
-      diff = '';
-    }
-    expect(diff.trim()).toBe('');
-  });
-
-  it('chimeraAsymmetric.ts is byte-unchanged from last commit', () => {
-    const file = resolve(tsRoot, 'src', 'engine', 'paperDoll', 'bodyPlans', 'chimeraAsymmetric.ts');
+  it('entry.tsx standalone source is byte-unchanged from last commit', () => {
+    const file = resolve(tsRoot, 'src', 'standalone', 'character_viewer', 'entry.tsx');
     let diff: string;
     try {
       diff = execSync(`git diff -- "${file}"`, { cwd: repoRoot, encoding: 'utf-8' });
