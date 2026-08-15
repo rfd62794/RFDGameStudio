@@ -102,9 +102,9 @@ export const humanoidBilateral: BodyPlan = {
     {
       slot: 'chest',
       primitive: 'polygon',
-      // radius 13: shoulders ~2x head width (standard human ratio)
-      // After torsoChest scaling (1.6x): effective radius = 20.8
-      baseParams: { vertexCount: 6, irregularity: 8, radius: 13 },
+      // radius 11: shoulders ~2x head width (standard human ratio)
+      // After torsoChest scaling (1.6x): effective radius = 17.6
+      baseParams: { vertexCount: 6, irregularity: 8, radius: 11 },
     },
     {
       slot: 'left_arm',
