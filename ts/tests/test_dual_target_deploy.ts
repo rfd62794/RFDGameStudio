@@ -34,12 +34,14 @@ function findCssAsset(dir: string): string | undefined {
 
 describe('test_git_state_clean_both_games', () => {
   it('Working tree is clean — no uncommitted or partially applied changes', () => {
-    // Note: this test file itself and docs may be uncommitted if
-    // auto-commit hasn't run yet. We check that no source files are dirty.
+    // Note: this test file itself, other test files, and docs may be
+    // uncommitted if auto-commit hasn't run yet. We check that no
+    // source files are dirty — test files and docs are excluded.
     const status = gitStatus();
     const dirty = status.split('\n').filter((l) => {
       const trimmed = l.trim();
       if (!trimmed) return false;
+      if (trimmed.includes('ts/tests/')) return false;
       if (trimmed.includes('tests/test_dual_target_deploy')) return false;
       if (trimmed.includes('tmp/')) return false;
       if (trimmed.includes('docs/state/current.md')) return false;
