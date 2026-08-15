@@ -435,6 +435,7 @@ export default function CharacterViewer() {
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
