@@ -49,15 +49,15 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
 
   const handleEquip = (mutantId: string, slot: PartSlot, newPart: Part) => {
     setState(prev => {
+      const targetMutant = prev.roster.find(m => m.id === mutantId);
+      const oldPart = targetMutant?.parts[slot] ?? null;
       const roster = prev.roster.map(m => {
         if (m.id !== mutantId) return m;
-        const oldPart = m.parts[slot];
         const parts = { ...m.parts, [slot]: newPart };
         return { ...m, parts };
       });
       // Remove the new part from inventory, add the old part back (if any)
       let partsInventory = prev.partsInventory.filter(id => id !== newPart.id);
-      const oldPart = prev.roster.find(m => m.id === mutantId)?.parts[slot];
       if (oldPart) partsInventory = [...partsInventory, oldPart.id];
       return { ...prev, roster, partsInventory };
     });
@@ -117,7 +117,7 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
                         key={part.id}
                         label={`Equip ${part.name}`}
                         onClick={() => handleEquip(selectedMutant.id, slot, part)}
-                        variant="default"
+                        variant="neutral"
                       />
                     ))}
                   </div>
