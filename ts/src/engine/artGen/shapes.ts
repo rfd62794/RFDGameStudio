@@ -15,6 +15,7 @@ import type {
   PolygonSpec,
   RadialBurstSpec,
   ShapeRenderSpec,
+  SigmoidBulgeSpec,
   SpikyStarSpec,
   TeardropFinSpec,
 } from './types';
@@ -363,6 +364,83 @@ export function renderIrregularFragment(spec: IrregularFragmentSpec): string {
   } = spec;
   const points = renderPolygonPoints({ vertexCount, irregularity, seed, radius, center });
   return `<polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`;
+}
+
+/**
+ * Render a sigmoid muscle bulge shape — a limb polygon with organic bulge.
+ *
+ * Ported from ChimeraLab's body_renderer.py::get_sigmoid_polygon.
+ * Generates a polygon for a limb with a sine-based "muscle bulge"
+ * peaking at t=0.5. The shape is drawn along the +x axis from (0,0)
+ * to (length, 0), with left and right edge points offset by the
+ * perpendicular vector. The caller wraps it in a <g> transform for
+ * positioning and rotation.
+ *
+ * Formula (from ChimeraLab):
+ *   baseWidth(t) = widthStart * (1-t) + widthEnd * t
+ *   bulge(t) = sin(t * π) * baseWidth * bulgeFactor
+ *   currentWidth = (baseWidth + bulge) * 0.5
+ *   leftPoint = center + perp * currentWidth
+ *   rightPoint = center - perp * currentWidth
+ *
+ * The polygon is closed by combining left points (forward) with
+ * right points (reversed).
+ */
+export function renderSigmoidBulge(spec: SigmoidBulgeSpec): string {
+  const {
+    widthStart,
+    widthEnd,
+    segments = 6,
+    bulgeFactor = 0.4,
+    fill,
+    stroke,
+    strokeWidth = 2,
+  } = spec;
+
+  // The shape is drawn from (0,0) to (length, 0) along the +x axis.
+  // The length is derived from the width parameters — a reasonable
+  // limb length is roughly 3x the average width.
+  const avgWidth = (widthStart + widthEnd) / 2;
+  const length = avgWidth * 3;
+
+  const dx = length;
+  const dy = 0;
+  const limbLength = Math.sqrt(dx * dx + dy * dy);
+  if (limbLength < 1) {
+    return `<circle cx="0" cy="0" r="${avgWidth}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+  }
+
+  // Normalized direction and perpendicular
+  const ux = dx / limbLength;
+  const uy = dy / limbLength;
+  const px = -uy; // perpendicular
+  const py = ux;
+
+  const pointsLeft: string[] = [];
+  const pointsRight: string[] = [];
+
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments; // 0.0 to 1.0
+
+    // Center on the bone axis
+    const cx = ux * limbLength * t;
+    const cy = uy * limbLength * t;
+
+    // Interpolate base width (linear taper)
+    const baseW = widthStart * (1 - t) + widthEnd * t;
+
+    // Sigmoid bulge: sine curve peaking at t=0.5
+    const bulge = Math.sin(t * Math.PI) * baseW * bulgeFactor;
+    const currentW = (baseW + bulge) * 0.5; // half-width for offset
+
+    // Left and right edge points
+    pointsLeft.push(`${(cx + px * currentW).toFixed(1)},${(cy + py * currentW).toFixed(1)}`);
+    pointsRight.push(`${(cx - px * currentW).toFixed(1)},${(cy - py * currentW).toFixed(1)}`);
+  }
+
+  // Combine: left points forward + right points reversed to close polygon
+  const allPoints = [...pointsLeft, ...pointsRight.reverse()].join(' ');
+  return `<polygon points="${allPoints}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`;
 }
 
 // ---------------------------------------------------------------------------
