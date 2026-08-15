@@ -111,21 +111,23 @@ export const humanoidBilateral: BodyPlan = {
       slot: 'left_arm',
       primitive: 'sigmoidBulge',
       // Arm as a tapered limb: wider at shoulder, narrower at wrist
-      // After Kleiber (0.855) + jointBuffer (1.3): widthStart ≈ 11.1
-      // After Kleiber (0.855) + limbEndTaper (0.55): widthEnd ≈ 3.8
-      baseParams: { widthStart: 10, widthEnd: 8, segments: 6, bulgeFactor: 0.4 },
+      // After Kleiber (0.855) + jointBuffer (1.3): widthStart ≈ 16.7
+      // After Kleiber (0.855) + limbEndTaper (0.55): widthEnd ≈ 4.2
+      // avgWidth ≈ 10.5, length = avgWidth * 3 ≈ 31.4
+      baseParams: { widthStart: 15, widthEnd: 9, segments: 6, bulgeFactor: 0.4 },
     },
     {
       slot: 'right_arm',
       primitive: 'sigmoidBulge',
-      baseParams: { widthStart: 10, widthEnd: 8, segments: 6, bulgeFactor: 0.4 },
+      baseParams: { widthStart: 15, widthEnd: 9, segments: 6, bulgeFactor: 0.4 },
     },
     {
       slot: 'left_leg',
       primitive: 'sigmoidBulge',
       // Leg as a tapered limb: wider at hip, narrower at ankle
-      // After Kleiber (1.319) + jointBuffer (1.3): widthStart ≈ 18.8
+      // After Kleiber (1.319) + jointBuffer (1.3): widthStart ≈ 18.9
       // After Kleiber (1.319) + limbEndTaper (0.55): widthEnd ≈ 7.3
+      // avgWidth ≈ 13.1, length = avgWidth * 3 ≈ 39.3
       baseParams: { widthStart: 11, widthEnd: 10, segments: 6, bulgeFactor: 0.35 },
     },
     {

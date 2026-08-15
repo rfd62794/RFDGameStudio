@@ -94,6 +94,11 @@ for (const part of composed) {
       coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
     }
   }
+  // From ellipse
+  for (const m of part.svg.matchAll(/<ellipse[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\srx="([^"]+)"[^>]*\sry="([^"]+)"/g)) {
+    const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), rx = parseFloat(m[3]!), ry = parseFloat(m[4]!);
+    coords.push([cx + rx, cy], [cx - rx, cy], [cx, cy + ry], [cx, cy - ry]);
+  }
 
   // Apply transform
   const transformMatch = part.svg.match(/translate\(([-\d.]+),([-\d.]+)\)\s*rotate\(([-\d.]+)/);
@@ -138,6 +143,11 @@ function getBounds(svg: string, partX: number, partY: number) {
   for (const m of svg.matchAll(/\sd="([^"]+)"/g)) {
     const nums = m[1].match(/-?\d+\.?\d*/g) || [];
     for (let i = 0; i + 1 < nums.length; i += 2) coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+  }
+  // From ellipse cx="x" cy="y" rx="r" ry="r"
+  for (const m of svg.matchAll(/<ellipse[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\srx="([^"]+)"[^>]*\sry="([^"]+)"/g)) {
+    const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), rx = parseFloat(m[3]!), ry = parseFloat(m[4]!);
+    coords.push([cx + rx, cy], [cx - rx, cy], [cx, cy + ry], [cx, cy - ry]);
   }
   const tm = svg.match(/translate\(([-\d.]+),([-\d.]+)\)\s*rotate\(([-\d.]+)/);
   if (!tm) return null;
