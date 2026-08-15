@@ -8410,3 +8410,193 @@ for realistic proportions, a sigmoid muscle bulge primitive for
 organic limbs, and posture-blend interpolation for continuous body
 plan morphing. All eight patterns are ported as patterns and math, not
 copied code — the Rust/Python source stays read-only, reference only.
+
+
+---
+
+## Paper Doll — Technique Study + Original Style Reference Pass — COMPLETED
+
+**Directive:** Two real, separate tasks: (1) study DiceBear's and
+boring-avatars' actual open-source generation code for portable
+procedural technique, and (2) a visual-language research pass across
+animal/monster reference material to inform new, original
+`SlotShapeMapping` presets.
+
+### STOP rule satisfied — licenses verified directly
+
+Both repos' LICENSE files were read directly from GitHub (not assumed):
+
+- **DiceBear:** MIT License, Copyright (c) 2026 Florian Körner
+  - Read from `https://raw.githubusercontent.com/dicebear/dicebear/10.x/LICENSE`
+  - Important distinction: the **code** is MIT, but **avatar styles**
+    carry their own licenses (many CC0 1.0, some may differ). Only code
+    patterns were ported, not style assets.
+- **boring-avatars:** MIT License, Copyright (c) 2021 boringdesigners
+  - Read from `https://raw.githubusercontent.com/boringdesigners/boring-avatars/master/LICENSE`
+
+### Hard boundary respected — zero third-party assets
+
+No SVG file, image asset, or any third-party creative work was
+downloaded, copied, embedded, or referenced by file from any site on
+the original reference list (svgrepo, svgsilh, vecteezy, icons8,
+thenounproject, tibbixel, svgheart, svgavatars.com, ilus.ai). Those
+sites were visual inspiration only — informing genuinely new, original
+shape parameters, never sourcing files.
+
+**Boundary check confirmed via git diff:** zero `.svg`, `.png`, `.jpg`,
+`.jpeg`, `.gif`, `.bmp`, `.webp`, or `.ico` files in the diff.
+
+### §1 Technique Study — DiceBear
+
+**Repo cloned:** `C:\Github\reference-repos\dicebear` (branch 10.x)
+
+**Architecture read in full:**
+- `src/js/core/src/Prng.ts` — key-based PRNG with `pick`, `weightedPick`,
+  `bool`, `float`, `integer`, `shuffle`, `getValue`
+- `src/js/core/src/Prng/Fnv1a.ts` — FNV-1a 32-bit hash
+- `src/js/core/src/Prng/Mulberry32.ts` — stateful PRNG (same algorithm
+  as artGen's mulberry32)
+- `src/js/core/src/StyleDefinition.ts` — the data schema for styles
+- `src/js/core/src/Renderer.ts` — the SVG renderer (579 lines)
+- `src/js/core/src/Resolver.ts` — variant/color/transform resolver
+- `src/js/core/src/Avatar.ts` — top-level entry point
+- Multiple style JSON definitions: `shape-grid`, `glass`, `notionists`,
+  `thumbs`
+
+**Real parametric-vs-template distinction:**
+
+**ALL DiceBear styles are template-swap based.** Styles are defined as
+JSON `StyleDefinition` objects with pre-made SVG element trees
+(variants exported from Figma). The PRNG picks which variant to use
+and applies transforms/colors, but the shapes themselves are NOT
+generated from math — they're pre-designed SVG paths.
+
+This is fundamentally different from artGen/paperDoll, which generates
+shapes from mathematical parameters (vertex count, irregularity,
+radius, etc.). The "parametric" aspect in DiceBear is limited to:
+- Transform values (rotate, scale, translate ranges)
+- Color selection from palettes
+- Variant selection (weighted pick from pre-made options)
+
+**Portable patterns ported from DiceBear (MIT, code only):**
+1. **FNV-1a 32-bit hash** (`fnv1aHash`) — more uniform distribution
+   than artGen's simple `hashString`
+2. **Key-based deterministic value** (`getDeterministicValue`) —
+   `Mulberry32(Fnv1a.hash(seed + ':' + key)).nextFloat()` —
+   call-order-independent, genuinely different from artGen's stateful
+   PRNG approach
+3. **Weighted pick** (`weightedPick`) — select from options with
+   weights, useful for body plan / preset selection
+
+### §1 Technique Study — boring-avatars
+
+**Repo cloned:** `C:\Github\reference-repos\boring-avatars`
+
+**All 6 styles read in full:**
+- `avatar-marble` — 3 elements with hardcoded SVG path strings (two
+  specific organic blob shapes), only transforms/colors vary
+- `avatar-bauhaus` — 4 geometric elements (rect, circle, line) with
+  seeded transforms — pure parametric
+- `avatar-beam` — face avatar with wrapper shape + eyes + mouth,
+  simple geometric shapes positioned by seed
+- `avatar-pixel` — 8x8 grid of 10px squares, 64 hardcoded `<rect>`
+  positions, only colors vary
+- `avatar-ring` — concentric semicircle paths + center circle, fixed
+  geometry, only colors vary
+- `avatar-sunset` — two horizontal bands with linear gradients, fixed
+  geometry, only colors vary
+
+**Real technique comparison to artGen/paperDoll:**
+
+boring-avatars is simpler than artGen/paperDoll — no polygon
+generation, no irregularity parameter, no seeded jitter on vertices.
+The `getDigit` approach (extracting multiple values from one hash by
+digit position) is a genuinely different pattern from artGen's
+`mulberry32` PRNG — simpler and deterministic without needing stateful
+RNG. The YIQ contrast formula is a portable utility for choosing
+readable overlay colors on arbitrary backgrounds.
+
+**Overall assessment:** boring-avatars confirms artGen/paperDoll's
+approach is already more sophisticated. artGen has real polygon
+generation with irregularity, multiple shape primitives, and paperDoll
+has the full attachment graph + FK solver + biological scaling. The
+portable patterns from boring-avatars are small utility upgrades, not
+fundamental technique changes.
+
+**Portable patterns ported from boring-avatars (MIT, code only):**
+1. **`getDigit`** — extract nth digit from a number for deterministic
+   multi-value extraction from one hash (simpler than maintaining PRNG
+   state)
+2. **`getBoolean`** — derive boolean from digit parity
+3. **`getUnit`** — signed unit value with digit-parity sign flip
+4. **`getContrastColor`** — YIQ luma formula for readable overlay
+   colors (black or white text on arbitrary background)
+
+### §2 Original Style Reference Pass
+
+**Method:** Visual-language analysis of creature archetype silhouettes
+and proportions — what design choices make something read as
+"insectoid" versus "mammalian" versus "assembled from mismatched
+parts" at a glance. This analysis produced new `SlotShapeMapping`
+preset *data* — numbers and shape-primitive choices — never a copied
+file.
+
+**Six new, original creature presets produced:**
+
+| Preset | Silhouette Analysis | Shape Choices | Proportion Choices |
+|---|---|---|---|
+| **Insectoid** | Angular, segmented, many-parted — exoskeleton build | radialBurst limbs (multi-jointed), high-vertex polygon head (compound eye facets), irregularFragment chest (chitinous plating) | Small head, wide shoulders, thin limbs, very low muscle bulge |
+| **Mammalian** | Rounded, bilaterally symmetric, visible muscle | sigmoidBulge limbs (organic muscle curves), smooth polygon head/chest (low irregularity) | Balanced proportions, moderate muscle bulge |
+| **Reptilian** | Elongated, low-slung, textured — splayed stance | teardropFin limbs (splayed legs), irregularFragment head (scaly snout), high-vertex polygon chest (scaled body) | Wide hips, thin limbs, low muscle bulge |
+| **Avian** | Beaked, winged, thin-legged — hollow-bone build | teardropFin arms (wing shapes), low-vertex polygon head (beak-like), thin teardropFin legs | Big head, slim everything, very low muscle bulge |
+| **Behemoth** | Massive, bulky, imposing — thick muscle and bone | sigmoidBulge limbs with high width (thick muscle), high-radius polygon chest (massive torso), irregularFragment head (thick-skulled) | Buff proportions, huge chest, massive limbs, very high muscle bulge |
+| **Wraith** | Ghostly, fragmented, asymmetric — decaying edges | irregularFragment for all parts with high irregularity (torn/dissolving edges) | Slim, tiny head, very low muscle bulge, asymmetric body plan |
+
+**Design reasoning traceable per preset:** Each preset has a
+`referenceCategory` field documenting which silhouette/archetype
+study informed its design choices.
+
+### Files changed
+
+**New files:**
+| File | Purpose |
+|---|---|
+| `ts/src/engine/paperDoll/techniqueUtils.ts` | Portable patterns from DiceBear + boring-avatars (getDigit, getBoolean, getUnit, getContrastColor, fnv1aHash, getDeterministicValue, weightedPick) |
+| `ts/src/engine/paperDoll/creaturePresets.ts` | 6 original creature archetype presets with traceable design reasoning |
+| `ts/tests/test_paper_doll_technique_study.ts` | 28 test anchors covering all 6 directive test targets |
+
+**Modified files:**
+| File | Change |
+|---|---|
+| `ts/src/engine/paperDoll/index.ts` | Exports new techniqueUtils + creaturePresets modules |
+
+### Test results
+
+**New test file:** `ts/tests/test_paper_doll_technique_study.ts`
+- 28 tests, all passing
+- Covers all 6 directive test anchors:
+  1. `test_dicebear_license_confirmed` (2 tests)
+  2. `test_boring_avatars_license_confirmed` (1 test)
+  3. `test_dicebear_styles_categorized` (3 tests)
+  4. `test_no_third_party_assets_present` (3 tests)
+  5. `test_new_presets_are_original` (11 tests)
+  6. `test_no_regression` (3 tests)
+- Plus: `test_portable_techniques_work` (5 tests) verifying the ported
+  utilities function correctly
+
+**Full TS floor:** 994/998 passing (94 test files, 26.03s)
+- +28 from previous floor (966 → 994): technique study tests
+- 4 failures, all pre-existing/unrelated:
+  - `test_dual_target_deploy.ts` (3) — git state checks, expected mid-work
+  - `test_shoal_ts_native_migration.ts` (1) — flaky performance test
+- Zero regressions
+
+### Completion criteria
+- [x] Real license terms confirmed for both DiceBear and boring-avatars
+- [x] Real parametric-vs-template distinction reported for DiceBear's styles
+- [x] boring-avatars' real technique reported, compared honestly against existing artGen/paperDoll approach
+- [x] Zero third-party asset files present anywhere in the change — confirmed via diff
+- [x] New, original presets produced from the style pass, with reasoning traceable to which reference category informed which choice
+- [x] All test anchors passing, raw output provided
+- [x] No regression to current floor
+- [x] `docs/state/current.md` updated with real findings
