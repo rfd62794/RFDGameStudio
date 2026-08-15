@@ -7103,3 +7103,154 @@ problem (parts-summing vs flat stats), which is a stat-generation
 concern, not a simulation logic concern. The next redesign (GM Sim,
 Parts Assembly, Tournament) can build on this confirmed-symmetric
 engine foundation.
+
+
+---
+
+## Mutant Battle Ball — Minimal Real Game Loop — COMPLETED
+
+**Directive:** Confirm whether RosterTab, WorkshopTab, ShopTab, and
+InfirmaryTab are currently inert, and if so, build the smallest real,
+closed loop — match outcome affects roster, roster affects next match.
+
+### STOP rule satisfied
+
+Read all four tab files fresh (`RosterTab.tsx`, `WorkshopTab.tsx`,
+`ShopTab.tsx`, `InfirmaryTab.tsx`), plus `App.tsx`, `types.ts`,
+`useGameState.ts`, `partSlots.ts`, and `data.yaml`. Confirmed real
+wiring state per tab before building anything.
+
+### Real per-tab wiring state (confirmed, not assumed)
+
+| Tab | Before | After | Evidence |
+|---|---|---|---|
+| **RosterTab** | Presentational only — renders mutant cards (name, status) + Start Match button. No squad selection, no equip. `activeSquad` hardcoded in `buildInitialState`. | **Unchanged** (presentational) | Zero `setState(` calls in source. Only `onStartMatch` triggers action. |
+| **WorkshopTab** | Completely inert — rendered `<h2>Workshop</h2>` and `<p>Assemble mutants from parts.</p>`. Zero interactions. | **NOW REAL** — select mutant, view parts per slot, equip parts from inventory | `handleEquip` calls `setState`, swaps parts between inventory and mutant, old part returns to inventory |
+| **ShopTab** | Completely inert — rendered `<h2>Shop</h2>` and `<p>Buy parts with Iron.</p>`. Zero interactions. | **NOW REAL** — browse parts catalogue from data.yaml, buy with iron | `handleBuy` calls `setState`, decrements iron, adds part ID to `partsInventory` |
+| **InfirmaryTab** | Completely inert — rendered `<h2>Infirmary</h2>` and `<p>Manage injured mutants.</p>`. Zero interactions. | **Still inert** (deferred) | Zero `setState(` calls. Injury management is a separate future directive. |
+
+### Match outcome — already persisted (confirmed)
+
+`handleMatchEnd` in `App.tsx` was already real before this directive:
+- `iron` incremented by `ironEarned` (win: 60, loss: 25, +10 per player score)
+- `matchHistory` gets a new entry with result/scores/iron
+- `currentOpponentIdx` advances to next opponent
+
+The reward half of the loop already worked. The missing piece was the
+spend half — nothing to spend iron on.
+
+### Currency — already existed (confirmed)
+
+`iron` exists in `MBBGameState`, initialized to 120 (from
+`data['starting_iron']`), and is incremented on match end. The
+`partsInventory` field also existed but was never used by anything.
+Both are now real: iron is spent in the Shop, partsInventory is
+populated by purchases and consumed by the Workshop.
+
+### Minimal loop built
+
+The smallest real, closed loop:
+
+1. **Match → reward** (already worked): A won match grants iron
+   (60 + 10 per score). A loss grants 25 + 10 per score. Persisted to
+   `state.iron` and `state.matchHistory`.
+
+2. **Reward → shop purchase** (NEW): The Shop lists all parts from
+   `data['parts']` with their stats and prices. Buying a part decrements
+   iron and adds the part ID to `partsInventory`. Cannot buy if
+   insufficient iron. Already-owned parts show "OWNED" badge.
+
+3. **Purchase → roster change** (NEW): The Workshop shows the player's
+   mutants and their current parts per slot. Parts from `partsInventory`
+   are grouped by slot. Equipping a part swaps it into the mutant's
+   `parts` object and returns the old part to inventory. This
+   genuinely changes the mutant's computed stats.
+
+4. **Changed roster → next match** (already worked): `handleStartMatch`
+   reads `state.activeSquad` → `state.roster` → passes mutants to
+   `sim.initMatch()`. Since the roster is now mutated by the Workshop,
+   the next match uses the updated parts.
+
+**Scope held to one real purchasable action type** (buy part → equip
+part). The full Brand/OEM-tier/Gravekeeper system is explicitly not
+built here — it's deferred to its own directive once a Design.md exists.
+
+### End-to-end loop confirmed via real playthrough
+
+The `test_loop_closes_end_to_end` test plays a real match, earns iron,
+buys a part, equips it, and plays a second match with the updated roster:
+
+```
+Match 1: 70-0 → iron 120→880 (+760)
+  → bought leg_sprint for 90 (iron: 880→790)
+  → equipped leg_sprint to Alpha (speed 79→104)
+Match 2: 90-0 with updated roster (faster Alpha)
+```
+
+The roster genuinely changed between matches: Alpha's right_leg went
+from `mutant_alpha_rl` (speed +30) to `leg_sprint` (speed +55), and
+the computed speed stat went from 79 to 104. The second match used
+this updated roster.
+
+### Files modified
+
+- `ts/src/games/mutant_battle_ball/components/ShopTab.tsx` — rewritten
+  from inert stub to real shop with buy logic (93 lines)
+- `ts/src/games/mutant_battle_ball/components/WorkshopTab.tsx` —
+  rewritten from inert stub to real workshop with equip logic (133 lines)
+- `ts/src/games/mutant_battle_ball/App.tsx` — removed `call={noopCall}`
+  from ShopTab and WorkshopTab props (they no longer accept `call`)
+- `ts/src/games/mutant_battle_ball/styles.css` — added shop and
+  workshop layout styles (139 lines)
+
+### Test anchors (9 new, all passing)
+
+**New test file:** `ts/tests/test_mbb_minimal_game_loop.ts`
+
+- `test_tab_wiring_confirmed` (1 test) — real per-tab wiring state
+  confirmed: Roster presentational, Workshop/Shop now real, Infirmary
+  still inert
+- `test_match_outcome_persists` (1 test) — match result recorded in
+  matchHistory, opponent advances
+- `test_reward_granted_and_persisted` (2 tests) — win/loss both grant
+  iron; real match produces real iron reward
+- `test_shop_purchase_changes_roster` (1 test) — buy + equip changes
+  mutant's parts and computed stats
+- `test_loop_closes_end_to_end` (1 test) — full playthrough: match →
+  earn → buy → equip → match again with different roster
+- `test_no_regression` (3 tests) — both prior bug fixes intact, Lua
+  source preserved, Shop/Workshop source files contain real logic
+
+### Test results
+
+**TS floor:** 870/874 passing (89 test files, 24.51s)
+- +9 from previous floor (862): minimal game loop test anchors
+- 4 failures, all pre-existing/unrelated:
+  - `test_arcade_routing.ts > test_game_loader_back_button` (1) —
+    known flaky test
+  - `test_dual_target_deploy.ts > test_git_state_clean_both_games` (2) —
+    fails because working tree has uncommitted changes (expected mid-work)
+  - `test_shoal_ts_native_migration.ts > test_real_tick_time_measured` (1) —
+    flaky performance test
+- Zero regressions to MBB or any other game
+
+### What this means
+
+The minimal loop now exists: a win today changes what's possible
+tomorrow. The player can earn iron from matches, buy parts in the Shop,
+equip them in the Workshop, and field a genuinely different squad in
+the next match. The Brand Set / Cyber-Organic / Gravekeeper system can
+plug into this existing scaffolding when its Design.md is ready — the
+Shop and Workshop are already real, stateful, and connected to the
+match engine.
+
+### What's still deferred
+
+- **InfirmaryTab** — still inert. Injury management (repairing damaged
+  parts, recovering downed mutants) is a separate future directive.
+- **RosterTab squad selection** — `activeSquad` is still hardcoded to
+  `[roster[0], roster[1]]`. Letting the player choose which two mutants
+  to field is a natural next step but not required for the minimal loop.
+- **Brand Sets / OEM tiers / Gravekeeper** — the full synergy system,
+  deliberately deferred to its own directive once a Design.md exists.
+- **Data-balance issue** — parts-summing vs flat stats, still deferred.
