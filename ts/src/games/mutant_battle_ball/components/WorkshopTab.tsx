@@ -1,14 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
-import type { MBBGameState, Mutant } from '../types';
-import type { Part, PartSlot } from '../../engine/shared/partSlots';
-import { PART_SLOTS } from '../../engine/shared/partSlots';
+import type { MBBGameState } from '../types';
+import type { Part, PartSlot } from '../../../engine/shared/partSlots';
+import { PART_SLOTS } from '../../../engine/shared/partSlots';
 
 interface WorkshopTabProps {
   state: MBBGameState;
   setState: (fn: (prev: MBBGameState) => MBBGameState) => void;
   session: unknown;
-  call: (fn: string, ...args: unknown[]) => unknown;
 }
 
 function extractPartsMap(session: unknown): Map<string, Part> {
@@ -31,7 +30,7 @@ function extractPartsMap(session: unknown): Map<string, Part> {
   return map;
 }
 
-export default function WorkshopTab({ state, setState, session, call }: WorkshopTabProps) {
+export default function WorkshopTab({ state, setState, session }: WorkshopTabProps) {
   const partsMap = useMemo(() => extractPartsMap(session), [session]);
   const [selectedMutantId, setSelectedMutantId] = useState<string | null>(
     state.roster[0]?.id ?? null

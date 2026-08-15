@@ -1,17 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
 import type { MBBGameState } from '../types';
-import type { Part } from '../../engine/shared/partSlots';
+import type { Part } from '../../../engine/shared/partSlots';
 
 interface ShopTabProps {
   state: MBBGameState;
   setState: (fn: (prev: MBBGameState) => MBBGameState) => void;
   session: unknown;
-  call: (fn: string, ...args: unknown[]) => unknown;
-}
-
-interface PartsCatalogue {
-  parts: Part[];
 }
 
 function extractPartsCatalogue(session: unknown): Part[] {
@@ -30,7 +25,7 @@ function extractPartsCatalogue(session: unknown): Part[] {
   }));
 }
 
-export default function ShopTab({ state, setState, session, call }: ShopTabProps) {
+export default function ShopTab({ state, setState, session }: ShopTabProps) {
   const catalogue = useMemo(() => extractPartsCatalogue(session), [session]);
   const [flash, setFlash] = useState<string | null>(null);
 
@@ -75,13 +70,13 @@ export default function ShopTab({ state, setState, session, call }: ShopTabProps
               {part.description && <div className="part-desc">{part.description}</div>}
               <div className="part-price">{part.price} Iron</div>
               {owned ? (
-                <Badge label="OWNED" variant="default" />
+                <Badge label="OWNED" variant="muted" />
               ) : (
                 <Button
                   label={`Buy (${part.price})`}
                   onClick={() => handleBuy(part)}
                   disabled={!affordable}
-                  variant={affordable ? 'primary' : 'default'}
+                  variant={affordable ? 'primary' : 'neutral'}
                 />
               )}
             </Card>

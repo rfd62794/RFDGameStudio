@@ -223,7 +223,7 @@ export default function App({ session }: GameRendererProps) {
         )}
         {activeTab === 'workshop' && (
           <WorkshopTab state={state} setState={setState}
-                       session={session} call={noopCall} />
+                       session={session} />
         )}
         {activeTab === 'match' && (
           <MatchCanvas
@@ -237,7 +237,7 @@ export default function App({ session }: GameRendererProps) {
         )}
         {activeTab === 'shop' && (
           <ShopTab state={state} setState={setState}
-                   session={session} call={noopCall} />
+                   session={session} />
         )}
         {activeTab === 'infirmary' && (
           <InfirmaryTab state={state} setState={setState} />
