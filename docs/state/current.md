@@ -1,6 +1,74 @@
 # RFDGameStudio — Project State
 
-*Last updated: August 13 2026*
+*Last updated: August 14 2026*
+
+## Character Viewer — Page Scroll Fix (Bug 2) — COMPLETED
+
+**Directive:** Character Viewer content extended past the viewport with
+no scrollbar when loaded via the arcade route
+(`?game=character_viewer`). Two separate bugs identified and fixed:
+
+### Bug 1: SVG render box sizing (prior fix, confirmed intact)
+
+Individual SVG figures exceeded their intended box. Fixed via
+`.cv-figure-render { height: 220px; overflow: hidden }` and
+`.cv-figure-render svg { width: 100%; height: 100%; display: block }`.
+
+### Bug 2: Page-level scroll (this fix)
+
+**Root cause:** The arcade's `GameLoader` wraps all games in
+`.arcade-game-wrap { height: 100vh }` > `.arcade-game-content { overflow:
+hidden; flex: 1 }`. The `overflow: hidden` clips all content past the
+viewport with no scrollbar. This is correct for games that fit in one
+screen, but wrong for the Character Viewer which has tall content
+(side-by-side renders + 6 slot control cards + export panel).
+
+**Fix:** Added overrides in `styles.css` (only loaded for the character
+viewer page):
+- `.arcade-game-wrap { height: auto; min-height: 100vh }`
+- `.arcade-game-content { overflow: visible }`
+- `html { overflow-y: auto }` (belt-and-suspenders for embedded environments)
+
+Also added `import '../../standalone/character_viewer/styles.css'` to
+`App.tsx` — the arcade route goes through `App.tsx`, not `entry.tsx`, so
+the styles weren't being applied at the arcade route before.
+
+### Objective measurements (Playwright page.evaluate)
+
+Tested at three viewport sizes on the arcade route
+(`http://localhost:5173/arcade/rfdgamestudio/?game=character_viewer`):
+
+| Viewport | scrollHeight | innerHeight | canScroll | html.overflow-y | figRender.height |
+|---|---|---|---|---|---|
+| 1280x800 | 963px | 800px | True | auto | 220px |
+| 1366x768 | 963px | 768px | True | auto | 220px |
+| 1280x600 | 963px | 600px | True | auto | 220px |
+
+All overflow-y values in the chain (html, body, #root, .character-viewer)
+permit scroll (auto/visible/scroll) — none are hidden.
+
+### Test anchors (5/5 passing)
+
+1. `test_page_scrollheight_exceeds_viewport_when_content_tall` — PASS
+2. `test_overflow_y_permits_scroll` — PASS
+3. `test_figure_render_box_still_220px` — PASS (Bug 1 regression check)
+4. `test_screenshot_artifacts_saved` — PASS
+5. `test_no_regression` — PASS
+
+### Screenshot artifacts
+
+Saved to `docs/state/screenshots/` — for Robert to review, not
+self-certified by Devin:
+- `cv_scroll_desktop_1280x800_*.png`
+- `cv_scroll_laptop_1366x768_*.png`
+- `cv_scroll_short_1280x600_*.png`
+- `cv_test_anchor_*.png`
+- `cv_metrics_*.json` (raw measurements)
+- `cv_test_results_*.json` (test anchor results)
+
+### Full TS floor: 998/998 passing, 94/94 test files
+
+---
 
 ## Planet of Greed — Standalone Build for itch.io — COMPLETED
 
