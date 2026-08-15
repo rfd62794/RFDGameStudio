@@ -65,3 +65,22 @@ export {
   lightenColor,
   darkenColor,
 } from './colorResolution';
+
+// Technique study (August 2026, from DiceBear + boring-avatars)
+export {
+  getDigit,
+  getBoolean,
+  getUnit,
+  getContrastColor,
+  fnv1aHash,
+  getDeterministicValue,
+  weightedPick,
+} from './techniqueUtils';
+
+// Original creature archetype presets (from style reference pass)
+export {
+  CREATURE_PRESETS,
+  CREATURE_PRESET_IDS,
+  getCreaturePreset,
+  type CreaturePreset,
+} from './creaturePresets';
