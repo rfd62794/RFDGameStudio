@@ -58,6 +58,10 @@ export default function GameSelector() {
         map[config.gameId] = 'External link';
         continue;
       }
+      if (config.status === 'tool') {
+        map[config.gameId] = 'Sandbox tool · TS-native';
+        continue;
+      }
       try {
         const files = loadGameFiles(config.gameId);
         map[config.gameId] = getRuntimeDetail(config.gameId, files.data);

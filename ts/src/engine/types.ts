@@ -130,7 +130,7 @@ export interface GameConfig {
   embedHeight?: number;     // absent → responsive full-bleed container (same-origin demos)
 }
 
-export type GameStatus = 'stable' | 'beta' | 'dev' | 'external';
+export type GameStatus = 'stable' | 'beta' | 'dev' | 'external' | 'tool';
 
 export class RuntimeError extends Error {
   constructor(message: string) {

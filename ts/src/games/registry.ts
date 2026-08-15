@@ -15,6 +15,7 @@ import sevenDaysToFryConfig from './7_days_to_fry/config';
 import antsimReduxConfig from './antsim_redux/config';
 import facilityEscapeConfig from './facility_escape/config';
 import { planetofgreedConfig } from './planetofgreed/config';
+import { characterViewerConfig } from './character_viewer/config';
 
 // Retired games (matching SlimeBreeder precedent): config.ts preserved in
 // their ts/src/games/{slug}/ directories, but NOT imported here. Source
@@ -44,6 +45,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   antsimReduxConfig,
   facilityEscapeConfig,
   planetofgreedConfig,
+  characterViewerConfig,
 ];
 
 /**
