@@ -7539,3 +7539,488 @@ by-side comparison, and exportable configs. The three reference presets
 design axes (Brand/Cyber-Organic/Quality) that the future styling
 system directive will formalize. The production `paperDoll` module is
 untouched — the viewer is purely additive.
+
+
+---
+
+## ChimeraLab Investigation — Local Clone (Investigation Only)
+
+**Directive:** Clone `rfd62794/ChimeraLab` (private, MIT, Robert's prior
+work, Python/Rust) to a separate reference location and read the real
+source before anything gets adapted into the TS-native studio.
+Investigation-only — nothing merged, ported, or copied into
+RFDGameStudio this phase. ADR-013 settled this studio's TS-native
+default; the goal is identifying portable *patterns* (math, data shape,
+UI/interaction approach), not code to copy-paste.
+
+### Local clone location
+
+```
+C:\Github\reference-repos\ChimeraLab\
+```
+
+Clearly separate from `C:\Github\RFDGameStudio\` — outside the studio's
+repo tree, so build/test tooling cannot pick it up by accident.
+Auth confirmed working (`gh auth status` → logged in as `rfd62794`
+with `repo` scope). Clone succeeded (the "error" output was just git's
+stderr progress reporting — `.git` directory confirmed present).
+
+### Repo shape (real, confirmed)
+
+A substantial Python+Rust project, 8 months old, with two halves:
+
+- **`chimera_labs/`** — Python layer (pygame visualizer, FK solver,
+  body renderer, color utils, animation controller, FBX parser)
+- **`turboshells-core/`** — Rust core via PyO3 (`Chimera` struct,
+  skeleton interpolation, muscle hull geometry, ragdoll physics,
+  genetics, simulation)
+
+The Python layer calls into Rust via PyO3 (`from turboshells_core
+import Chimera`). The Rust `Chimera` struct exposes `get_bones()`,
+`get_sockets()`, `get_body_contours()`, `get_bones_with_density()`,
+`set_posture()`, `reload_config()` to Python.
+
+---
+
+### §1 Six flagged files — read in full, reported individually
+
+#### 1. `chimera_labs/fk_solver.py` (12KB, 343 lines)
+
+**What it actually does:** A 2D forward-kinematics solver. Traverses a
+bone hierarchy from root, accumulating parent rotations, computing
+child world positions via `P_child = P_parent + (cos(angle), sin(angle))
+* bone_length`. Two solve modes: `solve()` (manifest-driven, string
+bone names) and `solve_from_physics()` (derives bone lengths from
+actual physics positions, then re-solves). Also contains
+`extract_bone_rotations_from_frame()` which converts 3D Mixamo Euler
+angles to 2D screen rotation (Z primary + X*0.5 for limbs).
+
+**Portable pattern — YES (the core FK math):** The fundamental
+formula — accumulate parent rotation, offset child by
+`(cos(accumulated_angle + rest_angle) * length, sin(...) * length)` —
+is language-agnostic and directly applicable to the Paper Doll
+module's Attachment Graph. The Paper Doll module currently does a
+simpler BFS position resolution without true rotation accumulation;
+this file shows the real, correct way to chain rotations through a
+hierarchy.
+
+**Portable pattern — the SkeletonManifest data shape:** A
+`BoneNode` (name, parent, length, rest_angle, mixamo_name) +
+ordered `hierarchy: List[(parent_name, child_name)]` is a clean,
+serializable schema. The Paper Doll module's `BodyPlan` uses a
+flat `attachmentNodes` list with `parentSlot`; the manifest's
+explicit ordered hierarchy + per-bone `rest_angle` is a more
+rigorous version of the same idea.
+
+**Not portable — the Mixamo/FBX-specific code:**
+`MIXAMO_TO_SOCKET`, `extract_bone_rotations_from_frame`,
+`extract_root_position_from_frame` are tightly bound to importing
+external mocap. Not relevant to procedural SVG composition.
+
+#### 2. `chimera_labs/skeleton_presets.py` (8KB, 253 lines)
+
+**What it actually does:** Defines two extreme-posture socket
+position presets — `BEAST_SOCKETS` (quadruped, horizontal spine) and
+`HUMANOID_SOCKETS` (biped, vertical spine) — as normalized (-1..1)
+2D coordinates for 17 named sockets. Plus `BONE_CONNECTIONS`
+(topology, same for both), and `get_interpolated_sockets(weight)`
+which LERPs between the two presets. Includes a standalone pygame
+debug visualizer with arrow-key posture adjustment.
+
+**Portable pattern — YES (the posture-blend concept):** The idea of
+defining two extreme body plans and LERP-interpolating a single
+`posture_weight` between them is directly portable. The Paper Doll
+module currently has two discrete body plans
+(`humanoidBilateral`, `chimeraAsymmetric`) with no interpolation. A
+future directive could add a `postureWeight` parameter to
+`CompositionInput` and LERP the `attachmentNodes` positions between
+two `BodyPlan` extremes — the math (`lerp_point`) is trivially
+portable to TS.
+
+**Portable pattern — normalized coordinates:** Sockets in -1..1
+range, scaled by a render `scale` factor at draw time. The Paper
+Doll module already uses pixel-space attachment offsets; the
+normalized approach would make the module resolution-independent.
+
+**Not portable — the pygame debug visualizer block** (lines 188-253)
+is pygame-specific, but the *concept* (arrow keys to morph posture
+in real time) is exactly what the just-built Character Viewer does
+in React.
+
+#### 3. `chimera_labs/proportion_presets.py` (3.8KB, 157 lines)
+
+**What it actually does:** A `BodyProportions` dataclass with 12
+float multipliers (head_size, neck_width, shoulder_width, chest_width,
+waist_width, hip_width, upper_arm_width, forearm_width, hand_size,
+thigh_width, calf_width, foot_size, muscle_bulge) all defaulting to
+1.0. Eight named presets: normal, baby_hands, big_head, tiny_head,
+long_legs, buff, slim, gorilla, chibi. Plus `get_preset(name)` and
+`get_next_preset(current)` for cycling.
+
+**Portable pattern — YES (the entire data shape):** This is purely a
+data-definition file with no pygame/Rust dependencies. The
+`BodyProportions` dataclass maps 1:1 to a TS interface, and the
+preset-cycling pattern is directly applicable. The Paper Doll module's
+`BodyPlan` has fixed attachment offsets; a future directive could add
+a `proportions: BodyProportions` field that scales per-region offsets
+at composition time. The 12 fields are a well-considered granularity
+(not too coarse, not too fine) — worth adopting as-is.
+
+**Not portable — nothing.** This file is 100% portable as a pattern.
+
+#### 4. `chimera_labs/body_renderer.py` (15.6KB, 387 lines)
+
+**What it actually does:** The main biological renderer. Three
+genuinely portable concepts:
+
+1. **`get_sigmoid_polygon(start, end, width_start, width_end,
+   segments=6)`** — generates a limb-shaped polygon with a sine-based
+   "muscle bulge" peaking at t=0.5 (40% of base width). Builds left
+   and right edge point lists along the bone axis, offset by the
+   perpendicular vector, then concatenates (right reversed) to close
+   the polygon. This is a more organic version of the Paper Doll
+   module's `teardropFin` primitive.
+
+2. **Painter's algorithm Z-ordering** — draws in 3 explicit layers:
+   Layer 1 = background limbs (left side, darkened 15%), Layer 2 =
+   foreground limbs (right side, full color), Layer 3 = torso (drawn
+   last to overlay shoulder/hip joints). The Paper Doll module's
+   composer currently uses a flat `layerOrder` array; this file shows
+   a real, side-aware depth scheme that produces visible 2.5D depth
+   from a 2D skeleton.
+
+3. **Stacked torso bands** — instead of one torso polygon, draws 5
+   trapezoidal bands between spine control points (hips → waist →
+   chest) with configurable widths (hips_w, waist_w, chest_w,
+   shoulder_w), plus circle "joint blending" at hips and shoulders to
+   hide seams. This is how the torso gets an hourglass/pear shape
+   rather than a single block.
+
+**Portable pattern — YES (all three concepts):** The sigmoid bulge
+math, the 3-layer painter's algorithm, and the stacked-band torso are
+all pure geometry translatable to SVG `<polygon>` generation. The
+Paper Doll module's composer could adopt the layering scheme (left
+limbs darkened → right limbs full → torso overlay) to add real depth
+to the currently-flat composition.
+
+**Not portable — the pygame.draw.polygon calls** and the
+`chimera.get_body_contours()` Rust bridge (the contours come from
+Rust `geometry.rs::calculate_muscle`). But the *shape math* in
+`get_sigmoid_polygon` is self-contained Python that ports directly.
+
+#### 5. `chimera_labs/color_utils.py` (8.7KB, 256 lines)
+
+**What it actually does:** Three genuinely portable systems:
+
+1. **`resolve_color(genetics, *keys, default)`** — walks a priority-
+   ordered list of color keys, returning the first defined. E.g.
+   `resolve_color(genetics, "arm_upper_color", "arm_color",
+   "body_base_color")` checks most-specific first, falls back to
+   body base. This is the real "hierarchical color resolution" the
+   Paper Doll module's current flat `colors: Record<slot, string>`
+   doesn't have.
+
+2. **`get_color_for_part(genetics, part_name)`** — a per-part
+   hierarchy lookup table: `"arm_upper": ["arm_upper_color",
+   "arm_color", "body_base_color"]`, `"finger": ["finger_color",
+   "extremity_color", "arm_color", "body_base_color"]`, etc. 13
+   part-name hierarchies. This is the real schema for the
+   Brand/Cyber-Organic/Quality-tier color layering the Paper Doll
+   module deferred.
+
+3. **3D gradient depth effect** — `calculate_shade_factor(normal,
+   light_dir)`, `apply_gradient(color, position, intensity)`,
+   `get_edge_shaded_color(base, edge_x, edge_y, intensity)` simulate
+   top-left lighting via dot-product of edge normals against a
+   `LIGHT_DIR = (-0.7, -0.7)` constant. Produces
+   highlight/midtone/shadow per edge.
+
+**Portable pattern — YES (all three):** The hierarchical color
+resolution is pure dict-walking logic — trivially portable to TS as
+a `resolveColor(genetics: Record<string, string>, ...keys: string[])`
+function. The 13-part hierarchy table is a data definition. The
+gradient math (dot product, lerp to white/black) is pure arithmetic.
+All three are directly relevant to the deferred Brand styling system.
+
+**Not portable — nothing.** This file has zero pygame/Rust
+dependencies. It's the most directly portable file in the repo.
+
+#### 6. `chimera_labs/visualizer.py` (7.8KB, 229 lines)
+
+**What it actually does:** Four pygame skeleton renderers of
+increasing fidelity: `draw_skeleton` (lines + joint circles),
+`draw_skeleton_with_thickness` (variable line width from DNA),
+`draw_skeleton_with_density` (region-aware thickness + bone-type
+coloring + DNA-sized joints), `draw_skeleton_with_genetics`
+(alternating primary/secondary bone colors + accent joints).
+
+**Portable pattern — YES (the concept, not the code):** This is the
+real precedent for the just-built Character Viewer. The progression
+from plain skeleton → thickness → density → genetics is a roadmap for
+the Paper Doll module's debug rendering. The bone-type color palette
+(`BONE_TYPE_COLORS: {0: spine, 1: arm, 2: leg, 3: head, 4: connector}`)
+is a portable data definition.
+
+**Not portable — all `pygame.draw.line/circle` calls.** But the
+*structure* (4 render modes, type-based coloring, DNA-driven
+thickness) ports to SVG `<line>`/`<circle>` generation directly.
+
+---
+
+### §2 fbx_parser.py / bone_mapping.py — guess confirmed
+
+**Guess was correct.** Both files solve importing external Mixamo
+mocap animation — a different problem than procedural SVG composition
+from parts data.
+
+- **`fbx_parser.py`** (16.8KB) — parses FBX ASCII format, extracts
+  skeleton hierarchy + animation keyframes into `AnimationClip` /
+  `AnimationKeyframe` dataclasses. Regex-based ASCII parsing of
+  Mixamo exports. Not relevant to the Paper Doll module.
+- **`bone_mapping.py`** (4.5KB) — maps Mixamo bone names
+  (`mixamorig:LeftUpLeg`) to the 17-socket index scheme. Pure bridge
+  between FBX import and the internal skeleton. Not relevant.
+
+**One nuance the guess missed:** `bone_mapping.py`'s reverse mapping
+(`SOCKET_TO_NAME`) and the `MIXAMO_TO_SOCKET` dict are referenced by
+`fk_solver.py`'s `extract_bone_rotations_from_frame`, so they're part
+of the animation-import pipeline, not standalone. Confirmed not
+relevant to procedural composition.
+
+---
+
+### §3 Broader pass — files the commit-message read missed
+
+Beyond the six flagged files, these are genuinely relevant:
+
+- **`chimera_labs/bone_manifest.py`** (11.5KB) — the
+  `SkeletonManifest` + `BoneNode` dataclass schema. This is the
+  "single source of truth" for skeleton structure that
+  `fk_solver.py` consumes. More relevant than `skeleton_presets.py`
+  for the data-shape question: it defines `BoneNode` (name, parent,
+  length, rest_angle, mixamo_name, physics_idx, kp, kd) and
+  `SkeletonManifest` (bones dict + ordered hierarchy list). The PD
+  module's `BodyPlan.attachmentNodes` is a simpler version of this.
+  **Portable: YES (data shape).**
+
+- **`chimera_labs/core/skeleton_state.py`** (2.2KB) — a
+  `SkeletonState` dataclass: pure-data shared buffer (positions +
+  velocities + frame metadata) written by drivers, read by
+  renderers. The "pure data, no logic" design philosophy is a
+  portable pattern for decoupling composition input from render
+  output. **Portable: YES (the pattern).**
+
+- **`chimera_labs/body_presets.py`** (1.1KB) — 4 render presets
+  (Humanoid, Average, Tank, Speedster) with 6 numeric params
+  (spine_width, limb_width, joint_size, taper, eye_size,
+  claw_length). Distinct from `proportion_presets.py` (which is
+  about body shape multipliers) — these are render-time thickness/
+  feature params. **Portable: YES (data definition).**
+
+- **`chimera_labs/feature_renderer.py`** (3.9KB) — `draw_hand`,
+  `draw_claw_fan`, `draw_face`, `draw_mouth`. The face positioning
+  math (eye placement along head bone via `eye_height_ratio`,
+  perpendicular offset for spacing) is portable geometry. The hand
+  (palm circle + 3 fingers at spread angles) is a more detailed
+  version of the PD module's `radialBurst` primitive.
+  **Portable: YES (the positioning math).**
+
+- **`chimera_labs/body_parts.py`** (11.5KB) — `draw_band` with
+  gradient (left=highlight, right=shadow), the SRP body-part
+  functions. The gradient-band concept overlaps with
+  `color_utils.py`'s gradient system. **Portable: YES (concept).**
+
+- **`turboshells-core/src/skeleton.rs`** (34KB) — the Rust
+  `Chimera` struct + `get_body_contours()` hull generation. The
+  contour generation (lines 552+) builds chain nodes with
+  per-station radii, applies biological scaling
+  (`thickness * len.powf(0.75)` — Kleiber's Law), joint buffers
+  (1.3x at elbows/knees), taper rules (0.55x at limb ends), and
+  torso hourglass shaping (hips 1.5x → waist 1.0x → chest 1.6x →
+  neck 0.6x → head 1.2x). **Portable: YES (the biological scaling
+  formulas and joint-buffer/taper rules — pure math, translatable
+  to TS).**
+
+- **`turboshells-core/src/geometry.rs`** (19.5KB) —
+  `calculate_muscle(start, end, thickness, taper, bone_type,
+  color_seed)` generates 4-point trapezoid muscle hulls. The
+  perpendicular-offset math is the same as the PD module's
+  `teardropFin` but with explicit taper control.
+  **Portable: YES (the taper-trapezoid concept).**
+
+**Not relevant (confirmed):** `animation_controller.py`,
+`skeleton_controller.py`, `physics_renderer.py`,
+`behavior_controller.py`, `input_controller.py`,
+`animation_viewport.py`, `render_test.py` — all solve physics
+simulation / animation playback / input handling, which are
+out-of-scope for the PD module's procedural SVG composition.
+
+---
+
+### §4 Real data flow: fk_solver → body_renderer → visualizer
+
+Traced through `chimera_labs/main.py` (the LabMode class). The actual
+flow is **not** fk_solver → body_renderer → visualizer as the
+directive guessed. The real flow is:
+
+```
+main.py::LabMode.draw()
+  └─ draw_chimera(screen, chimera, preset, genetics)   [body_renderer.py]
+       ├─ chimera.get_bones()          → Rust skeleton.rs  [bones list]
+       ├─ chimera.get_body_contours()  → Rust skeleton.rs  [hull polygons]
+       ├─ get_color_for_part(genetics, "torso"/"head"/...)  [color_utils.py]
+       ├─ Painter's algorithm: draw left limbs (darkened) → right limbs → torso
+       ├─ draw_band() for stacked torso bands             [body_parts.py]
+       ├─ draw_face(), draw_mouth()                       [feature_renderer.py]
+       └─ draw_hand(), draw_foot()                        [feature_renderer.py]
+```
+
+**`fk_solver.py` is NOT in the main render path.** It's used in the
+*animation* path (`animation_controller.py` → `fk_solver.solve()` →
+apply rotations to physics skeleton), which is a separate pipeline
+from the posture-morph rendering in LabMode. The posture-morph render
+path goes directly: `Chimera.set_posture(weight)` → Rust
+`get_interpolated_sockets()` → `get_bones()` / `get_body_contours()`
+→ Python `draw_chimera()`.
+
+**`visualizer.py` is also NOT in the main LabMode render path.**
+`main.py` imports `draw_skeleton` etc. but calls `draw_chimera()`
+(body_renderer) for the actual display. `visualizer.py`'s functions
+are debug/alternative renderers (skeleton-only views).
+
+The real data flow for the posture-morph system is:
+**Rust posture interpolation → Rust hull generation → Python
+painter's-algorithm rendering with hierarchical color resolution.**
+
+This is a meaningful correction to the directive's guess: the FK
+solver and visualizer are ancillary (animation import + debug
+rendering), not the core composition pipeline.
+
+---
+
+### §5 What the six-file guess got right vs wrong
+
+**Got right (5 of 6):**
+- `fk_solver.py` — real FK math, genuinely more rigorous than the
+  PD module's Attachment Graph. ✓
+- `skeleton_presets.py` — real body plan presets, directly relevant
+  to Body Plan presets. ✓
+- `proportion_presets.py` — real proportion/scale system. ✓
+- `body_renderer.py` — real Z-order depth sorting + biological
+  scaling. ✓
+- `color_utils.py` — real hierarchical color resolution, more
+  capable than the PD module's flat lookup. ✓
+
+**Got right but undersold:**
+- `visualizer.py` — correctly identified as "real precedent for the
+  Character Viewer," but it's actually 4 renderers of increasing
+  fidelity (a progression roadmap), not just one visualizer.
+
+**Got wrong:**
+- The data flow guess (fk_solver → body_renderer → visualizer) is
+  not the real flow. `fk_solver` is in the animation pipeline,
+  `visualizer` is debug-only, and the real render path is
+  Rust-posture → Rust-hulls → Python-painter's-algorithm. The
+  directive's guess treated three files as a linear pipeline when
+  they're actually three separate concerns (animation FK, debug
+  rendering, production rendering).
+
+**Missed entirely (broader pass found):**
+- `bone_manifest.py` — the actual single-source-of-truth skeleton
+  schema (more relevant than `skeleton_presets.py` for data shape)
+- `core/skeleton_state.py` — the pure-data shared buffer pattern
+- `body_presets.py` — render-time thickness/feature params (distinct
+  from proportion presets)
+- `feature_renderer.py` — face/hand positioning math
+- `turboshells-core/src/skeleton.rs::get_body_contours()` — the
+  biological scaling formulas (Kleiber's Law `len.powf(0.75)`, joint
+  buffers, taper rules, torso hourglass multipliers)
+
+---
+
+### §6 Portable patterns — ranked by actionable value
+
+1. **Hierarchical color resolution** (`color_utils.py`) — the
+   `resolve_color(genetics, ...keys)` pattern + 13-part hierarchy
+   table. Directly addresses the deferred Brand/Cyber-Organic/
+   Quality-tier color layering. Zero porting friction.
+
+2. **BodyProportions data shape** (`proportion_presets.py`) — 12
+   float multipliers + 8 named presets. Maps 1:1 to a TS interface.
+   Adds per-region scaling to the PD module's fixed attachment
+   offsets.
+
+3. **Posture-blend interpolation** (`skeleton_presets.py`) — LERP
+   between two extreme BodyPlans via a single `postureWeight`. The
+   PD module has two discrete plans; this adds a continuous spectrum
+   between them.
+
+4. **Painter's algorithm Z-ordering** (`body_renderer.py`) — 3-layer
+   side-aware depth (left darkened → right full → torso overlay).
+   Adds real 2.5D depth to the PD module's currently-flat
+   `layerOrder`.
+
+5. **Sigmoid muscle bulge** (`body_renderer.py::get_sigmoid_polygon`)
+   — sine-based limb polygon generation. A more organic version of
+   the PD module's `teardropFin` primitive.
+
+6. **Biological scaling + joint buffers + taper rules**
+   (`skeleton.rs::get_body_contours`) — `thickness * len.powf(0.75)`,
+   1.3x at joints, 0.55x at limb ends, torso hourglass multipliers.
+   Pure math, portable to TS.
+
+7. **SkeletonManifest data shape** (`bone_manifest.py`) —
+   `BoneNode(name, parent, length, rest_angle)` + ordered hierarchy.
+   A more rigorous version of the PD module's `attachmentNodes`.
+
+8. **True FK rotation accumulation** (`fk_solver.py`) — accumulate
+   parent rotation, offset child by `(cos(rest+accumulated) * len,
+   sin(...) * len)`. The PD module's Attachment Graph does position
+   resolution without true rotation chaining.
+
+**Not portable / not relevant:** FBX parsing, Mixamo bone mapping,
+pygame draw calls, PyO3 Rust bridge, physics ragdoll, animation
+playback, input handling.
+
+---
+
+### §7 Completion criteria
+
+- [x] Real auth/clone confirmed working, repo present locally at
+      `C:\Github\reference-repos\ChimeraLab\`
+- [x] All six flagged files read in full and reported on individually
+- [x] `fbx_parser.py`/`bone_mapping.py` guess confirmed correct
+      (both solve Mixamo mocap import, not relevant)
+- [x] Broader pass across `chimera_labs/` and `turboshells-core/`
+      completed (6 additional relevant files found)
+- [x] Real data flow traced: Rust posture interpolation → Rust hull
+      generation → Python painter's-algorithm rendering (NOT
+      fk_solver → body_renderer → visualizer as guessed)
+- [x] Zero changes to RFDGameStudio's actual source (investigation
+      only — clone is outside the studio tree)
+- [x] `docs/state/current.md` updated with findings and clone
+      location (this entry)
+
+### §8 What this means for the studio
+
+ChimeraLab solves several pieces the Paper Doll module either built
+simpler versions of or deferred entirely. The most actionable
+findings for a future directive:
+
+- The **hierarchical color resolution** pattern
+  (`resolve_color` + 13-part hierarchy) is the real schema for the
+  deferred Brand/Cyber-Organic/Quality-tier color system — it's
+  pure data-walking logic with zero porting friction.
+- The **BodyProportions** data shape (12 multipliers + 8 presets) is
+  a well-considered granularity for per-region body scaling that the
+  PD module currently lacks.
+- The **posture-blend** concept (LERP between two extreme BodyPlans)
+  would add a continuous spectrum to the PD module's two discrete
+  plans.
+- The **painter's algorithm** Z-ordering and **biological scaling
+  formulas** would add real depth and organic shape to the PD
+  module's currently-flat, primitive-based composition.
+
+No code was copied. No changes to RFDGameStudio. The clone lives at
+`C:\Github\reference-repos\ChimeraLab\` for future reference when a
+directive formalizes any of these patterns into the TS-native studio.
