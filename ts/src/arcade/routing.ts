@@ -7,6 +7,15 @@ export function navigateTo(gameId: string): void {
   window.location.href = `${base}?game=${gameId}`;
 }
 
+export function getPageId(): string | null {
+  return new URLSearchParams(window.location.search).get('page');
+}
+
+export function navigateToPage(pageId: string): void {
+  const base = window.location.href.split('?')[0];
+  window.location.href = `${base}?page=${pageId}`;
+}
+
 export function navigateHome(mode: 'arcade' | 'standalone' = 'arcade', arcadeBaseUrl?: string): void {
   if (mode === 'standalone' && arcadeBaseUrl) {
     window.open(arcadeBaseUrl, '_blank', 'noopener,noreferrer');

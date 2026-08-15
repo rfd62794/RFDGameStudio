@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { GAME_REGISTRY } from '../games/registry';
 import { loadGameFiles } from '../engine/loader';
 import { navigateTo } from './routing';
+import { navigateToPage } from './routing';
 
 const PYGAME_GAMES = new Set(['horse_racing', 'slither_rogue']);
 
@@ -85,7 +86,17 @@ export default function GameSelector() {
       </header>
 
       <main className="arcade-main">
-        <h2 className="arcade-section-title">SELECT A GAME</h2>
+        <div className="arcade-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h2 className="arcade-section-title" style={{ margin: 0 }}>SELECT A GAME</h2>
+          <button
+            className="arcade-status-link"
+            onClick={() => navigateToPage('status')}
+            data-testid="studio-status-link"
+            style={{ background: 'none', border: '1px solid var(--accent)', color: 'var(--accent)', padding: '0.4rem 0.8rem', borderRadius: '0.25rem', cursor: 'pointer', font: 'inherit', fontSize: '0.8125rem' }}
+          >
+            Studio Status →
+          </button>
+        </div>
         <div className="arcade-grid">
           {GAME_REGISTRY.map(config => (
             <button
