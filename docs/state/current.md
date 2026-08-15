@@ -2,6 +2,105 @@
 
 *Last updated: August 14 2026*
 
+## Paper Doll — Recognizability Investigation + Humanoid Grounding — COMPLETED
+
+**Directive:** The figure still reads as "just abstract shapes" despite
+the frame bug being fixed and biological scaling formulas having been
+ported. Investigate whether the math is actually wired in, then ground
+the humanoid baseline using real proportion reference.
+
+### §1 Investigation: Biological scaling was mostly inert
+
+**Real evidence (programmatic, not visual):** Of 10 `BIOLOGICAL_SCALING`
+constants defined in `types.ts`, only 3 were actually referenced in
+`composer.ts` before this fix:
+
+| Constant | Before | After |
+|---|---|---|
+| `kleiberExponent` (0.75) | NOT REFERENCED | REFERENCED |
+| `jointBuffer` (1.3) | NOT REFERENCED | REFERENCED |
+| `limbEndTaper` (0.55) | NOT REFERENCED | REFERENCED |
+| `torsoChest` (1.6) | REFERENCED | REFERENCED |
+| `torsoHead` (1.2) | REFERENCED but UNREACHABLE | REFERENCED + REACHABLE |
+| `torsoHips/Waist/Neck` | NOT REFERENCED | NOT REFERENCED (no hip/waist/neck slots in 6-slot system) |
+| `bulgeFactor/Segments` | REFERENCED (defaults) | REFERENCED (defaults) |
+
+**Root cause of "abstract" appearance:** The head was 3.2x too large
+(`headHeight/totalHeight = 0.415`, standard human: ~0.13). The chest
+dominated the figure at 57.8 units wide after 1.6x scaling. Limbs got
+zero biological scaling.
+
+**Fixes applied to `composer.ts`:**
+1. Fixed head region check: `att.region === 'head'` now included
+   alongside `'torso'`/`'spine'` so `torsoHead` multiplier is reachable
+2. Implemented Kleiber's Law for limbs: `scale *= (limbLength/refLen)^0.75`
+   using the node's parent-relative offset magnitude (not absolute position)
+3. Applied joint buffer + limb taper: `scale *= (jointBuffer + limbEndTaper) / 2`
+
+### §2 Humanoid Grounding: Proportion corrections
+
+**Reference:** Standard human proportions confirmed from Wikipedia
+(Body proportions), JAMA Vitruvian Man study (63K+ body scans), and
+Penn State proportionality constants (Drillis & Contini 1966).
+
+**Changes to `humanoidBilateral.ts` with traceable reasoning:**
+
+| Parameter | Before | After | Reasoning |
+|---|---|---|---|
+| head radius | 14 | 7 | Head was 41.5% of body height (standard: 13%). After torsoHead (1.2x): 8.4 effective |
+| head offset y | -22 | -30 | Create neck space, raise head for proper head-to-body ratio |
+| chest radius | 18 | 11 | Chest was 57.8 units wide (too dominant). After torsoChest (1.6x): 17.6 effective |
+| chest offset y | 50 | 48 | Slight raise for better center of figure |
+| arm offset x | ±18 | ±16 | Shoulders slightly narrower (chestWidth/headHeight ≈ 2.0) |
+| arm offset y | -5 | -3 | Arms hang from shoulder line, not above chest center |
+| arm angle | ±0.3 | ±0.35 | Slightly more outward for natural hang |
+| arm scale | 0.5 | 0.65 | Compensate for Kleiber shrink (arm offset < ref length) |
+| leg offset x | ±10 | ±8 | Narrower stance |
+| leg offset y | 20 | 28 | Lower for hip joint position |
+| leg scale | 0.55 | 0.50 | Compensate for Kleiber expansion (leg offset > ref length) |
+| head vertices | 8 | 7 | Slightly rounder, less irregular |
+| head irregularity | 15 | 8 | Less jitter for more recognizable head shape |
+| chest irregularity | 10 | 8 | Less jitter for more recognizable torso |
+
+**Real proportion ratios after fix (programmatic measurement):**
+
+| Ratio | Before | After | Standard human | Status |
+|---|---|---|---|---|
+| headHeight/totalHeight | 0.415 | 0.207 | ~0.13 | Stylized range (game: 0.15-0.25) |
+| chestWidth/headHeight | 2.079 | 2.152 | ~2.0 | Close |
+| armLength/legLength | 0.920 | 0.846 | ~0.83 | Nearly exact |
+| armLength/totalHeight | 0.551 | 0.479 | ~0.44 | Close |
+| legLength/totalHeight | 0.599 | 0.566 | ~0.53 | Close |
+
+### §3 Test anchors: 14/14 passing
+
+1. `test_biological_scaling_actually_invoked` — 3 tests: confirms
+   kleiberExponent, jointBuffer, limbEndTaper all referenced in
+   composer.ts source, and head region check includes 'head'
+2. `test_scaling_output_matches_formula` — 3 tests: confirms chest
+   radius, head radius, and limb scale match formula predictions
+   within tolerance
+3. `test_humanoid_proportions_within_real_ratio_bounds` — 3 tests:
+   confirms head/body, shoulder/head, arm/leg ratios within
+   standard human ranges
+4. `test_no_third_party_assets_present` — 2 tests: confirms zero
+   downloaded/embedded reference files via git diff and directory scan
+5. `test_no_regression` — 3 tests: confirms composeFigure produces 6
+   parts, renderFigureSvg produces valid SVG, MBB/Chimera Wilds
+   PaperDoll imports intact
+
+### Full TS floor: 1012/1012 passing, 95/95 test files
+
+### Files changed
+
+- `ts/src/engine/paperDoll/composer.ts` — wired biological scaling
+- `ts/src/engine/paperDoll/bodyPlans/humanoidBilateral.ts` — proportion fix
+- `ts/tests/test_paper_doll.ts` — updated expected positions
+- `ts/tests/test_paper_doll_chimeralab_port.ts` — updated expected positions
+- `ts/tests/test_paper_doll_recognizability.ts` — new test file (14 tests)
+
+---
+
 ## Character Viewer — Page Scroll Fix (Bug 2) — COMPLETED
 
 **Directive:** Character Viewer content extended past the viewport with

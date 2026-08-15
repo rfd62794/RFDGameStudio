@@ -104,7 +104,7 @@ describe('test_skeleton_manifest_shape_replaces_flat_nodes', () => {
     const rootResolved = resolved.find(r => r.slot === 'chest');
     expect(rootResolved).toBeDefined();
     expect(rootResolved!.x).toBe(50); // root offset.x
-    expect(rootResolved!.y).toBe(50); // root offset.y
+    expect(rootResolved!.y).toBe(48); // root offset.y (adjusted for humanoid grounding)
   });
 });
 

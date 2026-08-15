@@ -64,7 +64,7 @@ describe('test_attachment_graph_resolution', () => {
     const root = attachments.find(a => a.slot === 'chest');
     expect(root).toBeDefined();
     expect(root!.x).toBe(50);
-    expect(root!.y).toBe(50);
+    expect(root!.y).toBe(48);
     expect(root!.angle).toBe(0);
   });
 
@@ -72,10 +72,10 @@ describe('test_attachment_graph_resolution', () => {
     const attachments = resolveAttachments(humanoidBilateral);
     const head = attachments.find(a => a.slot === 'head');
     expect(head).toBeDefined();
-    // Head offset is {0, -22} from chest at {50, 50} with angle 0
-    // So head should be at {50, 28}
+    // Head offset is {0, -30} from chest at {50, 48} with angle 0
+    // So head should be at {50, 18}
     expect(head!.x).toBeCloseTo(50, 1);
-    expect(head!.y).toBeCloseTo(28, 1);
+    expect(head!.y).toBeCloseTo(18, 1);
     expect(head!.angle).toBeCloseTo(0, 2);
   });
 
