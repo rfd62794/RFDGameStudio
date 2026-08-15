@@ -1,0 +1,267 @@
+/* Character Viewer — dev-only shape iteration tool */
+
+.character-viewer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #0f1117;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+.cv-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.cv-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #f87171;
+}
+
+.cv-subtitle {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0.25rem 0 0;
+}
+
+/* Side-by-side comparison */
+.cv-comparison {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.cv-figure-panel {
+  flex: 0 0 320px;
+  background: #1a1d27;
+  border: 2px solid #2a3040;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.cv-figure-panel.active {
+  border-color: #3b82f6;
+}
+
+.cv-figure-label {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.cv-figure-render {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cv-figure-render svg {
+  background: #0f1117;
+  border-radius: 4px;
+}
+
+/* Controls */
+.cv-controls {
+  background: #1a1d27;
+  border: 1px solid #2a3040;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.cv-controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cv-controls-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #f87171;
+}
+
+.cv-control-group {
+  margin-bottom: 1rem;
+}
+
+.cv-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 0.4rem;
+}
+
+.cv-btn-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cv-preset-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cv-btn {
+  padding: 0.4rem 0.8rem;
+  background: #2a3040;
+  color: #e0e0e0;
+  border: 1px solid #4a5070;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.cv-btn:hover {
+  background: #3a4060;
+}
+
+.cv-btn.selected {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.cv-preset-btn {
+  padding: 0.5rem 1rem;
+  background: #2a3040;
+  color: #e0e0e0;
+  border: 1px solid #4a5070;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.cv-preset-btn:hover {
+  background: #3a4060;
+  border-color: #3b82f6;
+}
+
+/* Per-slot controls */
+.cv-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.cv-slot-control {
+  background: #0f1117;
+  border: 1px solid #2a3040;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.cv-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.cv-slot-name {
+  font-weight: bold;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+}
+
+.cv-select {
+  padding: 0.25rem 0.5rem;
+  background: #2a3040;
+  color: #e0e0e0;
+  border: 1px solid #4a5070;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.cv-params {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.cv-param {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cv-param-label {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+.cv-param input[type="range"] {
+  width: 100%;
+  accent-color: #3b82f6;
+}
+
+.cv-color-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cv-color-picker {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #4a5070;
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.cv-color-swatches {
+  display: flex;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.cv-swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #4a5070;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cv-swatch:hover {
+  border-color: #3b82f6;
+}
+
+/* Export */
+.cv-export {
+  margin-top: 1.5rem;
+  border-top: 1px solid #2a3040;
+  padding-top: 1rem;
+}
+
+.cv-export h3 {
+  font-size: 1rem;
+  color: #f87171;
+  margin: 0 0 0.5rem;
+}
+
+.cv-export-code {
+  background: #0f1117;
+  border: 1px solid #2a3040;
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  color: #a5d6ff;
+  max-height: 400px;
+  overflow-y: auto;
+}
