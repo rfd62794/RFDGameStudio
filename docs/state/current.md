@@ -7254,3 +7254,151 @@ match engine.
 - **Brand Sets / OEM tiers / Gravekeeper** — the full synergy system,
   deliberately deferred to its own directive once a Design.md exists.
 - **Data-balance issue** — parts-summing vs flat stats, still deferred.
+
+
+---
+
+## Paper Doll / Composite Character Rendering Module — COMPLETED
+
+**Directive:** Build a shared engine module that composes independent
+body-part shapes into one correctly-layered figure, for two real,
+already-proven consumers (Mutant Battle Ball and Chimera Wilds) which
+already share the exact same six-slot Part/PartSlot system.
+
+### Design review — Path A taken
+
+The original design plan claimed to extend `artGen`'s "existing
+`resolveColor(semanticKey, configMap)` resolver" and plug into
+"tonight's real Brand/Cyber-Organic/Quality design." Investigation
+confirmed both claims were false — `artGen` has no semantic-key
+resolver (it uses `ArtGenConfig<TEntity>` callbacks), and no
+Brand/Cyber-Organic/Quality system exists anywhere in the repo.
+
+**Path A was chosen:** build the composition layer first against real
+infrastructure (`artGen` shape primitives, shared `Part`/`PartSlot`
+types, `mulberry32`), defer the Brand/Cyber-Organic/Quality styling to
+a separate directive once that system's Design.md exists. This avoids
+the "infrastructure built before the thing it serves is settled"
+pattern the plan itself warned against.
+
+### What was built
+
+**New module:** `ts/src/engine/paperDoll/`
+
+| File | Purpose |
+|---|---|
+| `types.ts` | AttachmentNode, BodyPlan, SlotShapeMapping, ResolvedAttachment, ComposedPart, CompositionInput |
+| `attachmentGraph.ts` | Resolves a BodyPlan's parent-child graph into absolute per-slot positions/angles (BFS from root, rotates offsets by parent angle) |
+| `composer.ts` | The real composition function: BodyPlan + parts + colors → ordered, positioned, styled SVG shapes. Consumes artGen's `renderPolygonPoints`, `renderTeardropFin`, `renderRadialBurst`, `renderIrregularFragment` directly |
+| `bodyPlans/humanoidBilateral.ts` | MBB's real 6-slot bilateral humanoid graph (chest root, head above, arms/legs to sides) |
+| `bodyPlans/chimeraAsymmetric.ts` | Chimera Wilds' asymmetric creature graph (head offset right, arms at different heights, splayed legs, rougher shape primitives) |
+| `PaperDoll.tsx` | React component wrapping the composer for game consumption |
+| `index.ts` | Barrel export |
+
+### Real infrastructure consumed (not duplicated)
+
+- `artGen` shape primitives: `renderPolygonPoints`, `renderTeardropFin`,
+  `renderRadialBurst`, `renderIrregularFragment` — imported directly
+  from `../artGen/index`
+- `artGen`'s `mulberry32` re-export pattern (from `shared/seededRandom`)
+  — used by the shape primitives for deterministic jitter
+- Shared `PartSlot` type from `../shared/partSlots` — the module does
+  not redefine `PartSlot`, it consumes the existing shared type
+- `ArtGenConfig.colorFor` callback pattern — the `PaperDoll` component
+  accepts a `color` prop and builds the per-slot color record, matching
+  artGen's existing per-entity config approach (not a non-existent
+  semantic-key resolver)
+
+### Real consumer wiring
+
+**Mutant Battle Ball:**
+- `RosterTab.tsx` — each mutant card now renders a `PaperDoll` figure
+  with `humanoidBilateral` body plan, sized 64px, colored by the
+  mutant's color
+- `WorkshopTab.tsx` — the equip panel header now renders a `PaperDoll`
+  figure of the selected mutant, sized 80px, updating live as parts are
+  equipped
+
+**Chimera Wilds:**
+- `App.tsx` — the encounter view now renders a `PaperDoll` figure of
+  the current chimera with `chimeraAsymmetric` body plan, sized 120px,
+  in red, above the existing parts list
+
+### Architecture decisions
+
+**Attachment Graph (not a fixed rig):** Each body-part slot is a node
+in a parent-child graph with a data-defined offset and angle relative
+to its parent. One root slot (chest) anchors the figure; every other
+slot's position is computed from its parent. This makes the module
+reusable — a different `BodyPlan` wires the same slots into a different
+arrangement without changing the resolution logic.
+
+**Explicit z-order:** Layer order is a named property of the Body Plan
+(`renderOrder: PartSlot[]`), not inferred from slot order. Head renders
+over torso, arms over torso, legs behind — structural, not cosmetic.
+
+**Body Plans as data:** New body plans are authored as data entries
+(`BodyPlan` objects), not engineered as code. The two real presets
+(`humanoidBilateral`, `chimeraAsymmetric`) demonstrate the pattern.
+Future presets (quadruped, insectoid, etc.) would be new data files,
+not new engine code.
+
+### What was NOT built (deferred)
+
+- **Brand/Cyber-Organic/Quality styling** — `PartVisualState` (brand,
+  lean, quality tier), semantic key resolution, wear/tear rendering.
+  These wait for the Brand system's own Design.md and directive.
+- **Animation** — this is static composition (a "current state" render),
+  not a rigged/animated character system.
+- **Any body plan beyond the two real consumers' needs** — quadruped,
+  insectoid, etc. are explicitly future data entries.
+
+### Test anchors (27 new, all passing)
+
+**New test file:** `ts/tests/test_paper_doll.ts`
+
+- `test_attachment_graph_resolution` (6 tests) — root resolves to
+  offset, children resolve relative to parent, all 6 slots resolved for
+  both plans, chimera head is asymmetric, zOrder assigned from
+  renderOrder
+- `test_layer_composition` (3 tests) — parts ordered back-to-front,
+  each part contains SVG `<g>` with transform, `renderFigureSvg`
+  produces complete SVG document
+- `test_shape_generation` (7 tests) — polygon/teardropFin/
+  irregularFragment/radialBurst primitives produce correct SVG
+  elements, colors appear in output, deterministic seed produces
+  identical output, different seeds produce different output
+- `test_both_body_plans_produce_valid_figures` (3 tests) — humanoid
+  produces 6-part figure with polygon+teardropFin, chimera produces
+  6-part figure with irregularFragment+radialBurst, the two plans
+  produce visually different figures
+- `test_real_consumer_wiring` (5 tests) — MBB RosterTab/WorkshopTab
+  import PaperDoll with humanoidBilateral, Chimera Wilds imports
+  PaperDoll with chimeraAsymmetric, composer consumes artGen primitives
+  (not duplicating), module uses shared PartSlot type (not redefining)
+- `test_no_regression` (3 tests) — pure rendering layer (no stat
+  modification), both body plans use the same 6 slots, no cross-game
+  imports (engine-level module)
+
+### Test results
+
+**TS floor:** 897/901 passing (90 test files, 22.95s)
+- +27 from previous floor (870): Paper Doll module test anchors
+- 4 failures, all pre-existing/unrelated:
+  - `test_arcade_routing.ts > test_game_loader_back_button` (1) —
+    known flaky test
+  - `test_dual_target_deploy.ts > test_git_state_clean_both_games` (2) —
+    fails because working tree has uncommitted changes (expected mid-work)
+  - `test_shoal_ts_native_migration.ts > test_real_tick_time_measured` (1) —
+    flaky performance test
+- Zero regressions
+
+### What this means
+
+No game in this studio previously rendered an assembled character on
+screen. Now two games do: Mutant Battle Ball shows composed mutant
+figures in roster cards and the workshop, and Chimera Wilds shows a
+composed chimera figure in the encounter view. The composition engine
+is reusable — new body plans are data, not code — and the Brand/
+Cyber-Organic/Quality styling system can plug into the existing
+`PaperDoll` component's color prop once that system's Design.md exists.

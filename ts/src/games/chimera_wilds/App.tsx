@@ -5,6 +5,8 @@ import { navigateTo } from '../../arcade/routing';
 import { MoreGamesByMe } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
+import { PaperDoll } from '../../engine/paperDoll/PaperDoll';
+import { chimeraAsymmetric } from '../../engine/paperDoll';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Part, Chimera, EncounterResult, ChimeraWildsGameState } from './types';
 import './styles.css';
@@ -151,6 +153,12 @@ export default function App({ session }: GameRendererProps) {
           <h2>Current Chimera</h2>
           {state.currentChimera ? (
             <>
+              <PaperDoll
+                bodyPlan={chimeraAsymmetric}
+                parts={state.currentChimera.parts}
+                color="#ef4444"
+                size={120}
+              />
               <ul className="cw-parts">
                 {Object.entries(state.currentChimera.parts).map(([slot, part]) => (
                   <li key={slot}>

@@ -154,12 +154,28 @@
 
 .mutant-card {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.75rem;
   background: #2a3040;
   border-radius: 4px;
   border: 1px solid #4a5070;
+}
+
+.mutant-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.paper-doll {
+  flex-shrink: 0;
+}
+
+.equip-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .mutant-name {

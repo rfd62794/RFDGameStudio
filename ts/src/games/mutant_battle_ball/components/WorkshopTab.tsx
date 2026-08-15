@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
+import { PaperDoll } from '../../../engine/paperDoll/PaperDoll';
+import { humanoidBilateral } from '../../../engine/paperDoll';
 import type { MBBGameState } from '../types';
 import type { Part, PartSlot } from '../../../engine/shared/partSlots';
 import { PART_SLOTS } from '../../../engine/shared/partSlots';
@@ -94,7 +96,16 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
 
         {selectedMutant && (
           <div className="equip-panel">
-            <h3>{selectedMutant.name}'s Parts</h3>
+            <div className="equip-header">
+              <PaperDoll
+                bodyPlan={humanoidBilateral}
+                parts={selectedMutant.parts}
+                color={selectedMutant.color}
+                size={80}
+                seed={selectedMutant.id.charCodeAt(0)}
+              />
+              <h3>{selectedMutant.name}'s Parts</h3>
+            </div>
             {PART_SLOTS.map(slot => {
               const equipped = selectedMutant.parts[slot];
               const available = inventoryBySlot[slot] ?? [];
