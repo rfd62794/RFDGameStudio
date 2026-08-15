@@ -304,9 +304,12 @@ describe('test_existing_figures_still_correct_post_fk_change', () => {
     const svg = renderFigureSvg(input, 100, 100);
     expect(svg).toContain('<svg');
     expect(svg).toContain('</svg>');
-    // Should have 6 <g> elements (one per slot)
-    const gCount = (svg.match(/<g /g) ?? []).length;
-    expect(gCount).toBe(6);
+    // strokeSkeleton produces <line>/<circle> elements directly (no <g> wrapper).
+    // Verify all 6 named slots are present in the composed output.
+    const composed = composeFigure(input);
+    for (const slot of PART_SLOTS) {
+      expect(composed.find(p => p.slot === slot)).toBeDefined();
+    }
   });
 
   it('Chimera asymmetric still produces valid SVG with all 6 parts', () => {
@@ -434,13 +437,17 @@ describe('test_painters_algorithm_zorder', () => {
       colors: makeColors(),
       seed: 42,
     });
-    // zOrder should be: left_leg=0, right_leg=1, left_arm=2, right_arm=3, chest=4, head=5
-    expect(composed[0].slot).toBe('left_leg');
-    expect(composed[1].slot).toBe('right_leg');
-    expect(composed[2].slot).toBe('left_arm');
-    expect(composed[3].slot).toBe('right_arm');
-    expect(composed[4].slot).toBe('chest');
-    expect(composed[5].slot).toBe('head');
+    // strokeSkeleton adds joint blend circles, so the array has > 6 elements.
+    // Verify the 6 named bone slots appear in the correct zOrder relative
+    // to each other (legs before arms before chest before head).
+    const boneSlots = composed.filter(p => PART_SLOTS.includes(p.slot as any));
+    expect(boneSlots.length).toBe(6);
+    expect(boneSlots[0].slot).toBe('left_leg');
+    expect(boneSlots[1].slot).toBe('right_leg');
+    expect(boneSlots[2].slot).toBe('left_arm');
+    expect(boneSlots[3].slot).toBe('right_arm');
+    expect(boneSlots[4].slot).toBe('chest');
+    expect(boneSlots[5].slot).toBe('head');
   });
 });
 
@@ -472,10 +479,10 @@ describe('test_biological_scaling_formulas', () => {
     const chest = composed.find(c => c.slot === 'chest')!;
     const head = composed.find(c => c.slot === 'head')!;
 
-    // Chest now uses sigmoidBulge (polygon), scaled by torsoChest (1.6)
-    expect(chest.svg).toContain('polygon');
-    // Head now uses ellipse primitive, scaled by torsoHead (1.2)
-    expect(head.svg).toContain('<ellipse');
+    // humanoidBilateral now uses strokeSkeleton for all slots.
+    // Chest = stroked <line> (spine), Head = stroked <circle>
+    expect(chest.svg).toContain('<line');
+    expect(head.svg).toContain('<circle');
   });
 
   it('Constants are named and flagged tunable (not buried magic numbers)', () => {
