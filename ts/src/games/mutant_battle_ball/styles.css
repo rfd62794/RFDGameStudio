@@ -186,3 +186,139 @@
 .start-match-btn:hover {
   background: #059669;
 }
+
+/* Shop */
+.shop-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.shop-flash {
+  color: #34d399;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+.shop-hint {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1rem;
+}
+.parts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.part-card {
+  padding: 0.75rem;
+  background: #2a3040;
+  border-radius: 4px;
+  border: 1px solid #4a5070;
+}
+.part-name {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+.part-slot {
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: capitalize;
+  margin-bottom: 0.5rem;
+}
+.part-stats {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+}
+.part-desc {
+  font-size: 0.8rem;
+  color: #777;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+.part-price {
+  color: #fbbf24;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Workshop */
+.workshop-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.workshop-flash {
+  color: #34d399;
+  font-size: 0.9rem;
+}
+.workshop-layout {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.mutant-selector {
+  min-width: 180px;
+}
+.mutant-select-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #2a3040;
+  border-radius: 4px;
+  border: 1px solid #4a5070;
+}
+.mutant-select-card.selected {
+  border-color: #3b82f6;
+}
+.mutant-select-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.mutant-status-badge {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: capitalize;
+}
+.equip-panel {
+  flex: 1;
+}
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #3a4060;
+}
+.slot-label {
+  min-width: 80px;
+  text-transform: capitalize;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+.slot-equipped {
+  min-width: 120px;
+}
+.empty-slot {
+  color: #555;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+.slot-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.no-parts {
+  color: #555;
+  font-size: 0.8rem;
+  font-style: italic;
+}
