@@ -314,31 +314,37 @@ describe('test_both_body_plans_produce_valid_figures', () => {
 });
 
 describe('test_real_consumer_wiring', () => {
-  it('MBB RosterTab imports and uses PaperDoll with humanoidBilateral', () => {
+  it('MBB RosterTab imports and uses PaperDoll (Chimera Paper Doll Studio port)', () => {
     const rosterSource = readFileSync(
       resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'components', 'RosterTab.tsx'),
       'utf-8'
     );
     expect(rosterSource).toContain('PaperDoll');
-    expect(rosterSource).toContain('humanoidBilateral');
+    // Post-port: consumers use the new Chimera-based PaperDoll, not the old
+    // procedural bodyPlan/humanoidBilateral pattern
+    expect(rosterSource).not.toContain('humanoidBilateral');
+    expect(rosterSource).not.toContain('bodyPlan');
   });
 
-  it('MBB WorkshopTab imports and uses PaperDoll with humanoidBilateral', () => {
+  it('MBB WorkshopTab imports and uses PaperDoll (Chimera Paper Doll Studio port)', () => {
     const workshopSource = readFileSync(
       resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'components', 'WorkshopTab.tsx'),
       'utf-8'
     );
     expect(workshopSource).toContain('PaperDoll');
-    expect(workshopSource).toContain('humanoidBilateral');
+    expect(workshopSource).not.toContain('humanoidBilateral');
+    expect(workshopSource).not.toContain('bodyPlan');
   });
 
-  it('Chimera Wilds App imports and uses PaperDoll with chimeraAsymmetric', () => {
+  it('Chimera Wilds App imports and uses PaperDoll (Chimera Paper Doll Studio port)', () => {
     const chimeraSource = readFileSync(
       resolve(repoRoot, 'ts', 'src', 'games', 'chimera_wilds', 'App.tsx'),
       'utf-8'
     );
     expect(chimeraSource).toContain('PaperDoll');
-    expect(chimeraSource).toContain('chimeraAsymmetric');
+    // Post-port: Chimera Wilds uses archetype="quadruped" instead of chimeraAsymmetric
+    expect(chimeraSource).not.toContain('chimeraAsymmetric');
+    expect(chimeraSource).not.toContain('bodyPlan');
   });
 
   it('PaperDoll module consumes artGen primitives — not duplicating shape logic', () => {

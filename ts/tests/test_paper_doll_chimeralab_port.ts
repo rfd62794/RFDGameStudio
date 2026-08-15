@@ -660,13 +660,16 @@ describe('test_character_viewer_still_works', () => {
 // ── No regression ────────────────────────────────────────────────────
 
 describe('test_no_regression', () => {
-  it('PaperDoll React component still works', () => {
+  it('PaperDoll React component still works (Chimera Paper Doll Studio port)', () => {
     const paperDollSource = readFileSync(
       resolve(tsRoot, 'src', 'engine', 'paperDoll', 'PaperDoll.tsx'),
       'utf-8',
     );
-    expect(paperDollSource).toContain('renderFigureSvg');
-    expect(paperDollSource).toContain('BodyPlan');
+    // Post-port: PaperDoll uses the Chimera SvgCreatureRenderer, not the
+    // procedural renderFigureSvg. The procedural composer is still exported
+    // from the index for POC consumers.
+    expect(paperDollSource).toContain('SvgCreatureRenderer');
+    expect(paperDollSource).toContain('partsToCreatureConfig');
   });
 
   it('Existing paperDoll tests still pass (test_paper_doll.ts exists)', () => {
