@@ -119,7 +119,7 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
           <div className="equip-panel">
             <div className="equip-header">
               <PaperDoll
-                parts={selectedMutant.parts as unknown as Record<string, { id: string; name: string; slot: PartSlot } | null>}
+                parts={selectedMutant.parts}
                 color={selectedMutant.color}
                 size={80}
                 seed={selectedMutant.id.charCodeAt(0)}

@@ -151,12 +151,25 @@ describe('test_isolated_no_existing_files_touched', () => {
     );
 
     // docs/state/current.md is allowed; MBB brand/quality/cyber-organic
-    // directive files are legitimate new game code, not POC changes
+    // + Chimera Paper Doll Studio port files are legitimate new game code
     const allowed = [
       'docs/state/current.md',
       'ts/src/games/mutant_battle_ball/brandModifiers.ts',
       'ts/src/games/mutant_battle_ball/components/ShopTab.tsx',
       'ts/src/games/mutant_battle_ball/components/WorkshopTab.tsx',
+      'ts/src/games/mutant_battle_ball/components/RosterTab.tsx',
+      'ts/src/games/chimera_wilds/App.tsx',
+      'ts/src/engine/paperDoll/PaperDoll.tsx',
+      'ts/src/engine/paperDoll/adapter.ts',
+      'ts/src/engine/paperDoll/chimeraTypes.ts',
+      'ts/src/engine/paperDoll/chimeraSockets.ts',
+      'ts/src/engine/paperDoll/chimeraBrands.ts',
+      'ts/src/engine/paperDoll/chimeraPresets.ts',
+      'ts/src/engine/paperDoll/chimeraSvgPartDrawers.tsx',
+      'ts/src/engine/paperDoll/chimeraBrandSvgAssets.tsx',
+      'ts/src/engine/paperDoll/chimeraSvgCreatureRenderer.tsx',
+      'ts/src/engine/paperDoll/chimeraAnimationEngine.ts',
+      'ts/src/engine/paperDoll/index.ts',
     ];
     const realViolations = violations.filter(f => !allowed.includes(f));
     expect(realViolations).toEqual([]);

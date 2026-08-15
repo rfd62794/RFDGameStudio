@@ -635,14 +635,13 @@ export const UpperArmSvg: React.FC<PartProps> = ({
   selected,
   isRightSide,
   malfunctionActive,
-  facing = 'side_right',
+  facing: _facing3 = 'side_right',
 }) => {
   const { primary, secondary, accent, glow, base } = getPartColors(brand, cyberOrganic);
   const L = LIMB_STANDARDS.upperArmLength;
   const flip = isRightSide ? -1 : 1;
   const isAvian = archetype === 'avian_raptor';
   const isQuad = archetype === 'quadruped';
-  const isBack = facing === 'back';
 
   return (
     <g className={`transition-all duration-150 ${selected ? 'filter drop-shadow-[0_0_8px_#38bdf8]' : ''}`}>
@@ -744,7 +743,7 @@ export const ForearmSvg: React.FC<PartProps> = ({
   selected,
   isRightSide,
   malfunctionActive,
-  facing = 'side_right',
+  facing: _facing = 'side_right',
 }) => {
   const { primary, secondary, accent, glow, base } = getPartColors(brand, cyberOrganic);
   const L = LIMB_STANDARDS.forearmLength;
@@ -883,7 +882,7 @@ export const ThighSvg: React.FC<PartProps> = ({
   selected,
   isRightSide,
   malfunctionActive,
-  facing = 'side_right',
+  facing: _facing2 = 'side_right',
 }) => {
   const { primary, secondary, accent, glow, base } = getPartColors(brand, cyberOrganic);
   const L = LIMB_STANDARDS.thighLength;
@@ -1117,11 +1116,10 @@ export const TailSvg: React.FC<PartProps> = ({
   archetype = 'avian_raptor',
   selected,
   malfunctionActive,
-  facing = 'side_right',
+  facing: _facing4 = 'side_right',
 }) => {
   const { primary, secondary, accent, glow, base } = getPartColors(brand, cyberOrganic);
   const isAvian = archetype === 'avian_raptor';
-  const isBack = facing === 'back';
 
   return (
     <g className={`transition-all duration-150 ${selected ? 'filter drop-shadow-[0_0_8px_#38bdf8]' : ''}`}>

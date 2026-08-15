@@ -30,14 +30,14 @@
  */
 
 import React, { useMemo } from 'react';
-import type { Part } from '../shared/partSlots';
+import type { Part, PartsBySlot } from '../shared/partSlots';
 import { partsToCreatureConfig, getDefaultPose } from './adapter';
 import type { BodyArchetype, FacingDirection, AnimationType } from './chimeraTypes';
 import { SvgCreatureRenderer } from './chimeraSvgCreatureRenderer';
 
 interface PaperDollProps {
-  /** MBB-style parts: Record<slot, Part | null> */
-  parts: Record<string, Part | null>;
+  /** MBB-style parts: PartsBySlot or Record<slot, Part | null> */
+  parts: PartsBySlot | Record<string, Part | null>;
   /** Kept for backward compat — Chimera system derives colors from Brand */
   color?: string;
   size?: number;

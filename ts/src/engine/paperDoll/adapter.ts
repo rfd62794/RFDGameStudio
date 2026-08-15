@@ -13,7 +13,7 @@
  * MBB's types are authoritative, the Chimera types are rendering-internal.
  */
 
-import type { Part, BrandId, QualityTier, PartSlot } from '../shared/partSlots';
+import type { Part, BrandId, QualityTier, PartSlot, PartsBySlot } from '../shared/partSlots';
 import type {
   Brand as ChimeraBrand,
   QualityTier as ChimeraQualityTier,
@@ -119,7 +119,7 @@ export function partToCreaturePart(part: Part): CreaturePart {
 export function partsToCreatureConfig(
   id: string,
   name: string,
-  parts: Record<string, Part | null>,
+  parts: PartsBySlot | Record<string, Part | null>,
   archetype?: BodyArchetype,
 ): CreatureConfig {
   const slots: Record<SlotType, CreaturePart> = {
