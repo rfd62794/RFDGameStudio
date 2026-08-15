@@ -1,47 +1,42 @@
-/* Character Viewer — dev-only shape iteration tool
- *
- * Layout: two figure panels side-by-side on top, controls below.
- * The page scrolls naturally — controls are not in a scroll container.
- */
+/* Character Viewer — dev-only shape iteration tool */
 
 .character-viewer {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1rem;
   font-family: system-ui, -apple-system, sans-serif;
   background: #0f1117;
   color: #e0e0e0;
   min-height: 100vh;
-  box-sizing: border-box;
 }
 
 .cv-header {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .cv-header h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: #f87171;
 }
 
 .cv-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #888;
-  margin: 0.2rem 0 0;
+  margin: 0.25rem 0 0;
 }
 
-/* Two figure panels side by side */
+/* Side-by-side comparison */
 .cv-comparison {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
 }
 
 .cv-figure-panel {
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 0 0 320px;
   background: #1a1d27;
   border: 2px solid #2a3040;
   border-radius: 8px;
@@ -68,14 +63,11 @@
 }
 
 .cv-figure-render svg {
-  width: 100%;
-  height: auto;
-  max-height: 350px;
   background: #0f1117;
   border-radius: 4px;
 }
 
-/* Controls panel below */
+/* Controls */
 .cv-controls {
   background: #1a1d27;
   border: 1px solid #2a3040;
@@ -92,19 +84,19 @@
 
 .cv-controls-header h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: #f87171;
 }
 
 .cv-control-group {
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .cv-label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #aaa;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
 }
 
 .cv-btn-row {
@@ -119,13 +111,13 @@
 }
 
 .cv-btn {
-  padding: 0.35rem 0.7rem;
+  padding: 0.4rem 0.8rem;
   background: #2a3040;
   color: #e0e0e0;
   border: 1px solid #4a5070;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .cv-btn:hover {
@@ -138,13 +130,13 @@
 }
 
 .cv-preset-btn {
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 1rem;
   background: #2a3040;
   color: #e0e0e0;
   border: 1px solid #4a5070;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .cv-preset-btn:hover {
@@ -152,57 +144,57 @@
   border-color: #3b82f6;
 }
 
-/* Per-slot controls — responsive grid of panels */
+/* Per-slot controls */
 .cv-slots {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
 .cv-slot-control {
   background: #0f1117;
   border: 1px solid #2a3040;
   border-radius: 6px;
-  padding: 0.5rem;
+  padding: 0.75rem;
 }
 
 .cv-slot-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .cv-slot-name {
   font-weight: bold;
   text-transform: capitalize;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .cv-select {
-  padding: 0.2rem 0.4rem;
+  padding: 0.25rem 0.5rem;
   background: #2a3040;
   color: #e0e0e0;
   border: 1px solid #4a5070;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
 }
 
 .cv-params {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  margin-bottom: 0.4rem;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .cv-param {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .cv-param-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: #aaa;
 }
 
@@ -214,13 +206,13 @@
 .cv-color-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .cv-color-picker {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   border: 1px solid #4a5070;
   border-radius: 4px;
   cursor: pointer;
@@ -230,13 +222,13 @@
 
 .cv-color-swatches {
   display: flex;
-  gap: 0.15rem;
+  gap: 0.2rem;
   flex-wrap: wrap;
 }
 
 .cv-swatch {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 1px solid #4a5070;
   border-radius: 3px;
   cursor: pointer;
@@ -249,27 +241,27 @@
 
 /* Export */
 .cv-export {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   border-top: 1px solid #2a3040;
-  padding-top: 0.75rem;
+  padding-top: 1rem;
 }
 
 .cv-export h3 {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #f87171;
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.5rem;
 }
 
 .cv-export-code {
   background: #0f1117;
   border: 1px solid #2a3040;
   border-radius: 4px;
-  padding: 0.5rem;
+  padding: 0.75rem;
   font-family: 'Fira Code', monospace;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   overflow-x: auto;
   white-space: pre-wrap;
   color: #a5d6ff;
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
 }

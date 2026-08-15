@@ -1,17 +1,15 @@
 /**
  * Character Viewer — Paper Doll Shape Iteration Tool
  *
- * A dev-only surface for iterating on the Paper Doll module's actual
- * shapes at real size, side by side, with live controls. Consumes the
- * real, unmodified paperDoll module exactly as MBB and Chimera Wilds
- * do — via renderFigureSvg with a CompositionInput.
+ * Rebuilt using MBB's real Workshop/Roster layout pattern and the
+ * shared ui/components library (Panel, Card, Button, Badge).
+ *
+ * Layout mirrors WorkshopTab.tsx:
+ *   - workshop-layout: flex row
+ *   - left sidebar: preset selector cards (like mutant-selector)
+ *   - right detail: render area + per-slot controls (like equip-panel)
  *
  * Access: http://localhost:5173/src/standalone/character_viewer/index.html
- *
- * Three reference-informed presets:
- *   - Bionicle: clean, distinct-silhouette proportions (Brand axis)
- *   - Giger: organic/mechanical blending (Cyber/Organic axis)
- *   - Frankenstein: deliberate asymmetry, visible mismatch (Quality axis)
  */
 
 import { useState, useMemo, useCallback } from 'react';
@@ -28,6 +26,7 @@ import type {
 } from '../../engine/paperDoll';
 import type { PartSlot } from '../../engine/shared/partSlots';
 import { PART_SLOTS } from '../../engine/shared/partSlots';
+import { Panel, Card, Button, Badge } from '../../ui/components';
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -55,12 +54,6 @@ function makeDummyParts(): Record<string, PartForComposition | null> {
 const DUMMY_PARTS = makeDummyParts();
 
 // ── Reference presets ────────────────────────────────────────────────
-//
-// Three presets reflecting the three real visual reference axes:
-//   - Bionicle: clean polygons, distinct silhouette, uniform color
-//   - Giger: teardropFin (mechanical) + irregularFragment (organic),
-//     dark metallic palette
-//   - Frankenstein: mixed primitives, high irregularity, mismatched colors
 
 function makeShapeMapping(slot: PartSlot, primitive: PrimitiveType, params: Record<string, number>): SlotShapeMapping {
   return { slot, primitive, baseParams: params };
@@ -79,12 +72,9 @@ const BIONICLE_PRESET: ViewerConfig = {
     right_leg: makeShapeMapping('right_leg', 'teardropFin', { scale: 0.6, angularity: 30 }),
   },
   colors: {
-    head: '#1e88e5',
-    chest: '#1e88e5',
-    left_arm: '#1e88e5',
-    right_arm: '#1e88e5',
-    left_leg: '#1e88e5',
-    right_leg: '#1e88e5',
+    head: '#1e88e5', chest: '#1e88e5',
+    left_arm: '#1e88e5', right_arm: '#1e88e5',
+    left_leg: '#1e88e5', right_leg: '#1e88e5',
   },
   seed: 100,
 };
@@ -102,12 +92,9 @@ const GIGER_PRESET: ViewerConfig = {
     right_leg: makeShapeMapping('right_leg', 'irregularFragment', { vertexCount: 8, irregularity: 40, radius: 18 }),
   },
   colors: {
-    head: '#37474f',
-    chest: '#263238',
-    left_arm: '#455a64',
-    right_arm: '#455a64',
-    left_leg: '#37474f',
-    right_leg: '#37474f',
+    head: '#37474f', chest: '#263238',
+    left_arm: '#455a64', right_arm: '#455a64',
+    left_leg: '#37474f', right_leg: '#37474f',
   },
   seed: 200,
 };
@@ -125,30 +112,24 @@ const FRANKENSTEIN_PRESET: ViewerConfig = {
     right_leg: makeShapeMapping('right_leg', 'polygon', { vertexCount: 5, irregularity: 60, radius: 17 }),
   },
   colors: {
-    head: '#558b2f',
-    chest: '#8d6e63',
-    left_arm: '#6d4c41',
-    right_arm: '#558b2f',
-    left_leg: '#8d6e63',
-    right_leg: '#6d4c41',
+    head: '#558b2f', chest: '#8d6e63',
+    left_arm: '#6d4c41', right_arm: '#558b2f',
+    left_leg: '#8d6e63', right_leg: '#6d4c41',
   },
   seed: 300,
 };
 
 const PRESETS = [BIONICLE_PRESET, GIGER_PRESET, FRANKENSTEIN_PRESET];
 
-// ── Helper: build a real BodyPlan from a base + shape overrides ──────
+// ── Helpers ──────────────────────────────────────────────────────────
 
 function buildBodyPlan(config: ViewerConfig): BodyPlan {
   const base = config.bodyPlanId === 'humanoid_bilateral' ? humanoidBilateral : chimeraAsymmetric;
-  // Clone the base plan, replacing shapeMappings with the overrides
   return {
     ...base,
     shapeMappings: PART_SLOTS.map(slot => config.shapeOverrides[slot] ?? base.shapeMappings.find(sm => sm.slot === slot)!),
   };
 }
-
-// ── Helper: build a CompositionInput from a ViewerConfig ─────────────
 
 function buildCompositionInput(config: ViewerConfig): CompositionInput {
   return {
@@ -159,7 +140,7 @@ function buildCompositionInput(config: ViewerConfig): CompositionInput {
   };
 }
 
-// ── Primitive param definitions (for live controls) ──────────────────
+// ── Primitive param definitions ──────────────────────────────────────
 
 const PRIMITIVE_PARAMS: Record<PrimitiveType, Array<{ key: string; label: string; min: number; max: number; step: number }>> = {
   polygon: [
@@ -192,6 +173,11 @@ const PRIMITIVE_OPTIONS: PrimitiveType[] = ['polygon', 'radialBurst', 'teardropF
 const COLOR_PRESETS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6b7280', '#1e293b', '#37474f', '#558b2f', '#8d6e63', '#6d4c41'];
 
 // ── Main Component ───────────────────────────────────────────────────
+//
+// Layout mirrors MBB's WorkshopTab:
+//   .cv-workshop-layout (flex row)
+//     .cv-sidebar (preset selector — like .mutant-selector)
+//     .cv-detail (render + controls — like .equip-panel)
 
 export default function CharacterViewer() {
   const [leftConfig, setLeftConfig] = useState<ViewerConfig>(BIONICLE_PRESET);
@@ -205,18 +191,12 @@ export default function CharacterViewer() {
   const leftSvg = useMemo(() => renderFigureSvg(buildCompositionInput(leftConfig), 400, 400), [leftConfig]);
   const rightSvg = useMemo(() => renderFigureSvg(buildCompositionInput(rightConfig), 400, 400), [rightConfig]);
 
-  // ── Config update helpers ──
-
   const updateShapeOverride = useCallback((slot: PartSlot, primitive: PrimitiveType, params?: Record<string, number>) => {
     setActiveConfig(prev => ({
       ...prev,
       shapeOverrides: {
         ...prev.shapeOverrides,
-        [slot]: {
-          slot,
-          primitive,
-          baseParams: params ?? prev.shapeOverrides[slot]?.baseParams ?? {},
-        },
+        [slot]: { slot, primitive, baseParams: params ?? prev.shapeOverrides[slot]?.baseParams ?? {} },
       },
     }));
   }, [setActiveConfig]);
@@ -229,20 +209,14 @@ export default function CharacterViewer() {
         ...prev,
         shapeOverrides: {
           ...prev.shapeOverrides,
-          [slot]: {
-            ...existing,
-            baseParams: { ...existing.baseParams, [paramKey]: value },
-          },
+          [slot]: { ...existing, baseParams: { ...existing.baseParams, [paramKey]: value } },
         },
       };
     });
   }, [setActiveConfig]);
 
   const updateColor = useCallback((slot: PartSlot, color: string) => {
-    setActiveConfig(prev => ({
-      ...prev,
-      colors: { ...prev.colors, [slot]: color },
-    }));
+    setActiveConfig(prev => ({ ...prev, colors: { ...prev.colors, [slot]: color } }));
   }, [setActiveConfig]);
 
   const updateBodyPlan = useCallback((planId: 'humanoid_bilateral' | 'chimera_asymmetric') => {
@@ -256,8 +230,6 @@ export default function CharacterViewer() {
   const loadPreset = useCallback((preset: ViewerConfig) => {
     setActiveConfig(() => ({ ...preset }));
   }, [setActiveConfig]);
-
-  // ── Export ──
 
   const exportConfig = useMemo(() => {
     const config = activeConfig;
@@ -273,76 +245,56 @@ export default function CharacterViewer() {
 
   return (
     <div className="character-viewer">
-      <header className="cv-header">
-        <h1>Character Viewer</h1>
-        <p className="cv-subtitle">Paper Doll Shape Iteration Tool — dev-only</p>
-      </header>
+      <h2>Character Viewer</h2>
+      <p className="cv-subtitle">Paper Doll Shape Iteration Tool — dev-only</p>
 
-      {/* Side-by-side figure panels */}
-      <div className="cv-comparison">
-        <div
-          className={`cv-figure-panel ${activePanel === 'left' ? 'active' : ''}`}
-          onClick={() => setActivePanel('left')}
-        >
-          <div className="cv-figure-label">Left — {leftConfig.label}</div>
-          <div className="cv-figure-render" dangerouslySetInnerHTML={{ __html: leftSvg }} />
-        </div>
-        <div
-          className={`cv-figure-panel ${activePanel === 'right' ? 'active' : ''}`}
-          onClick={() => setActivePanel('right')}
-        >
-          <div className="cv-figure-label">Right — {rightConfig.label}</div>
-          <div className="cv-figure-render" dangerouslySetInnerHTML={{ __html: rightSvg }} />
-        </div>
-      </div>
+      <div className="cv-workshop-layout">
+        {/* Sidebar: preset + panel selection (mirrors .mutant-selector) */}
+        <div className="cv-sidebar">
+          <h3>Presets</h3>
+          {PRESETS.map(preset => (
+            <Card
+              key={preset.id}
+              className={`cv-preset-card ${activeConfig.id === preset.id ? 'selected' : ''}`}
+              onClick={() => loadPreset(preset)}
+            >
+              <span className="cv-preset-name">{preset.label}</span>
+            </Card>
+          ))}
 
-      {/* Controls below */}
-      <div className="cv-controls">
-        <div className="cv-controls-header">
-          <h2>Controls — {activePanel} panel</h2>
-          <button className="cv-btn" onClick={() => setShowExport(!showExport)}>
-            {showExport ? 'Hide Export' : 'Show Export'}
-          </button>
-        </div>
-
-        {/* Preset selector */}
-        <div className="cv-control-group">
-          <label className="cv-label">Preset (reference axes)</label>
-          <div className="cv-preset-row">
-            {PRESETS.map(preset => (
-              <button
-                key={preset.id}
-                className="cv-preset-btn"
-                onClick={() => loadPreset(preset)}
-              >
-                {preset.label}
-              </button>
-            ))}
+          <h3>Panel</h3>
+          <div className="cv-panel-toggle">
+            <Button
+              label="Left"
+              onClick={() => setActivePanel('left')}
+              variant={activePanel === 'left' ? 'primary' : 'neutral'}
+              size="sm"
+            />
+            <Button
+              label="Right"
+              onClick={() => setActivePanel('right')}
+              variant={activePanel === 'right' ? 'primary' : 'neutral'}
+              size="sm"
+            />
           </div>
-        </div>
 
-        {/* Body Plan selector */}
-        <div className="cv-control-group">
-          <label className="cv-label">Body Plan</label>
-          <div className="cv-btn-row">
-            <button
-              className={`cv-btn ${activeConfig.bodyPlanId === 'humanoid_bilateral' ? 'selected' : ''}`}
+          <h3>Body Plan</h3>
+          <div className="cv-panel-toggle">
+            <Button
+              label="Humanoid"
               onClick={() => updateBodyPlan('humanoid_bilateral')}
-            >
-              humanoid_bilateral
-            </button>
-            <button
-              className={`cv-btn ${activeConfig.bodyPlanId === 'chimera_asymmetric' ? 'selected' : ''}`}
+              variant={activeConfig.bodyPlanId === 'humanoid_bilateral' ? 'primary' : 'neutral'}
+              size="sm"
+            />
+            <Button
+              label="Chimera"
               onClick={() => updateBodyPlan('chimera_asymmetric')}
-            >
-              chimera_asymmetric
-            </button>
+              variant={activeConfig.bodyPlanId === 'chimera_asymmetric' ? 'primary' : 'neutral'}
+              size="sm"
+            />
           </div>
-        </div>
 
-        {/* Seed control */}
-        <div className="cv-control-group">
-          <label className="cv-label">Seed: {activeConfig.seed}</label>
+          <h3>Seed: {activeConfig.seed}</h3>
           <input
             type="range"
             min={0}
@@ -350,90 +302,117 @@ export default function CharacterViewer() {
             step={1}
             value={activeConfig.seed}
             onChange={e => updateSeed(Number(e.target.value))}
+            className="cv-seed-slider"
           />
         </div>
 
-        {/* Per-slot controls */}
-        <div className="cv-slots">
-          {PART_SLOTS.map(slot => {
-            const override = activeConfig.shapeOverrides[slot];
-            const primitive = override?.primitive ?? 'polygon';
-            const params = override?.baseParams ?? {};
-            const color = activeConfig.colors[slot] ?? '#888';
-            const paramDefs = PRIMITIVE_PARAMS[primitive];
+        {/* Detail: render area + controls (mirrors .equip-panel) */}
+        <div className="cv-detail">
+          {/* Side-by-side render panels */}
+          <div className="cv-comparison">
+            <Panel className={`cv-figure-panel ${activePanel === 'left' ? 'selected' : ''}`} padding="sm">
+              <div className="cv-figure-label">
+                <Badge label="Left" variant={activePanel === 'left' ? 'accent' : 'muted'} />
+                {' '}{leftConfig.label}
+              </div>
+              <div className="cv-figure-render" onClick={() => setActivePanel('left')} dangerouslySetInnerHTML={{ __html: leftSvg }} />
+            </Panel>
+            <Panel className={`cv-figure-panel ${activePanel === 'right' ? 'selected' : ''}`} padding="sm">
+              <div className="cv-figure-label">
+                <Badge label="Right" variant={activePanel === 'right' ? 'accent' : 'muted'} />
+                {' '}{rightConfig.label}
+              </div>
+              <div className="cv-figure-render" onClick={() => setActivePanel('right')} dangerouslySetInnerHTML={{ __html: rightSvg }} />
+            </Panel>
+          </div>
 
-            return (
-              <div key={slot} className="cv-slot-control">
-                <div className="cv-slot-header">
-                  <span className="cv-slot-name">{slot.replace('_', ' ')}</span>
-                  <select
-                    value={primitive}
-                    onChange={e => updateShapeOverride(slot, e.target.value as PrimitiveType)}
-                    className="cv-select"
-                  >
-                    {PRIMITIVE_OPTIONS.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                </div>
+          {/* Per-slot controls */}
+          <div className="cv-slots">
+            {PART_SLOTS.map(slot => {
+              const override = activeConfig.shapeOverrides[slot];
+              const primitive = override?.primitive ?? 'polygon';
+              const params = override?.baseParams ?? {};
+              const color = activeConfig.colors[slot] ?? '#888';
+              const paramDefs = PRIMITIVE_PARAMS[primitive];
 
-                {/* Shape params */}
-                <div className="cv-params">
-                  {paramDefs.map(pd => (
-                    <div key={pd.key} className="cv-param">
-                      <label className="cv-param-label">
-                        {pd.label}: {params[pd.key]?.toFixed(pd.step < 1 ? 2 : 0) ?? '—'}
-                      </label>
-                      <input
-                        type="range"
-                        min={pd.min}
-                        max={pd.max}
-                        step={pd.step}
-                        value={params[pd.key] ?? 0}
-                        onChange={e => updateShapeParam(slot, pd.key, Number(e.target.value))}
-                      />
-                    </div>
-                  ))}
-                </div>
+              return (
+                <Card key={slot} className="cv-slot-control" padding="sm">
+                  <div className="cv-slot-header">
+                    <span className="cv-slot-name">{slot.replace('_', ' ')}</span>
+                    <select
+                      value={primitive}
+                      onChange={e => updateShapeOverride(slot, e.target.value as PrimitiveType)}
+                      className="cv-select"
+                    >
+                      {PRIMITIVE_OPTIONS.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* Color control */}
-                <div className="cv-color-row">
-                  <label className="cv-param-label">Color</label>
-                  <input
-                    type="color"
-                    value={color}
-                    onChange={e => updateColor(slot, e.target.value)}
-                    className="cv-color-picker"
-                  />
-                  <div className="cv-color-swatches">
-                    {COLOR_PRESETS.map(c => (
-                      <button
-                        key={c}
-                        className="cv-swatch"
-                        style={{ background: c }}
-                        onClick={() => updateColor(slot, c)}
-                      />
+                  <div className="cv-params">
+                    {paramDefs.map(pd => (
+                      <div key={pd.key} className="cv-param">
+                        <label className="cv-param-label">
+                          {pd.label}: {params[pd.key]?.toFixed(pd.step < 1 ? 2 : 0) ?? '—'}
+                        </label>
+                        <input
+                          type="range"
+                          min={pd.min}
+                          max={pd.max}
+                          step={pd.step}
+                          value={params[pd.key] ?? 0}
+                          onChange={e => updateShapeParam(slot, pd.key, Number(e.target.value))}
+                        />
+                      </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
 
-        {/* Export */}
-        {showExport && (
-          <div className="cv-export">
-            <h3>Exported Config (SlotShapeMapping set)</h3>
-            <pre className="cv-export-code">{exportConfig}</pre>
-            <button
-              className="cv-btn"
-              onClick={() => navigator.clipboard.writeText(exportConfig)}
-            >
-              Copy to clipboard
-            </button>
+                  <div className="cv-color-row">
+                    <label className="cv-param-label">Color</label>
+                    <input
+                      type="color"
+                      value={color}
+                      onChange={e => updateColor(slot, e.target.value)}
+                      className="cv-color-picker"
+                    />
+                    <div className="cv-color-swatches">
+                      {COLOR_PRESETS.map(c => (
+                        <button
+                          key={c}
+                          className="cv-swatch"
+                          style={{ background: c }}
+                          onClick={() => updateColor(slot, c)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
-        )}
+
+          {/* Export */}
+          <div className="cv-export-area">
+            <Button
+              label={showExport ? 'Hide Export' : 'Show Export'}
+              onClick={() => setShowExport(!showExport)}
+              variant="neutral"
+            />
+            {showExport && (
+              <Panel padding="sm" className="cv-export-panel">
+                <h3>Exported Config (SlotShapeMapping set)</h3>
+                <pre className="cv-export-code">{exportConfig}</pre>
+                <Button
+                  label="Copy to clipboard"
+                  onClick={() => navigator.clipboard.writeText(exportConfig)}
+                  variant="primary"
+                  size="sm"
+                />
+              </Panel>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
