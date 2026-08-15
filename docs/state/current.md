@@ -9048,3 +9048,99 @@ study informed its design choices.
 - [x] All test anchors passing, raw output provided
 - [x] No regression to current floor
 - [x] `docs/state/current.md` updated with real findings
+
+---
+
+## ADR-014 Verification + Status Board as Arcade Page (ADR-015 + ADR-016)
+
+**Date:** August 15, 2026
+**Directive:** RFDGameStudio_StatusBoard_Directive.md + sub-directive (ADR-016)
+**Status:** Complete
+
+### §0 Verification (completed before any new code)
+
+**Test floor (real, not assumed):** 1032 passed / 23 failed / 1055 total
+- 23 pre-existing failures: paper_doll (21), character_viewer_arcade_entry (1),
+  arcade_registry_directive (1) — all unrelated to this directive
+- The "994/998" number from a prior current.md entry was stale
+
+**Four files verified:**
+1. `docs/adr/ADR-014-shared-engine-modules-default.md` — internally consistent,
+   all factual claims verified against real repo (Shoal artGen imports, SlimeWorld
+   artGen imports, artGen/ and engine/shared/ directories exist)
+2. `docs/sdd/RFDGameStudio_SDD_v0_4.md` — internally consistent, ADR ledger
+   accurate (14 ADRs confirmed), §5.3 artGen correction matches real file state
+3. `README.md` — consistent with ADR-014, stale sections flagged in-place
+4. `docs/state/StatusBoard.md` — **2 inconsistencies found** (both corrected by
+   regeneration later in this directive):
+   - Line 59: referenced "SDD v0.3 §7" (should be v0.4)
+   - Line 91: artGen described as "Built, not yet consumed" (factually wrong —
+     both Shoal and SlimeWorld actively consume it, per ADR-014)
+
+### New files created
+
+| File | What it is |
+|---|---|
+| `ts/src/status/types.ts` | `ProjectEntry`, `ProjectCategory`, `ProjectStatus` types |
+| `ts/src/status/board.data.ts` | `STATUS_BOARD: ProjectEntry[]` — 18 entries, single source of truth |
+| `ts/src/status/generateMarkdown.ts` | Pure function: `STATUS_BOARD` ? markdown string |
+| `ts/src/status/index.ts` | Barrel export |
+| `ts/src/pages/StatusBoardPage.tsx` | Arcade page built from ADR-008 components only (TabBar, Card, Badge) |
+| `ts/tools/generate-status-board.ts` | Script: runs generateMarkdown(), writes docs/state/StatusBoard.md |
+| `ts/tests/test_status_board.ts` | 10 tests covering data integrity, markdown generation, page rendering, routing |
+| `docs/adr/ADR-015-status-board-as-arcade-page.md` | ADR: status board as structured data + arcade page |
+| `docs/adr/ADR-016-verification-dated-staleness-claims.md` | ADR: verification-dated staleness claims (sub-directive) |
+
+### Modified files
+
+| File | Change |
+|---|---|
+| `ts/src/arcade/routing.ts` | Added `getPageId()`, `navigateToPage()` — same URLSearchParams style as existing `?game=` |
+| `ts/src/arcade/index.ts` | Exports new routing functions |
+| `ts/src/main.tsx` | Root checks `page` param before `game` — `?page=status` renders StatusBoardPage, `?game=` unaffected |
+| `ts/src/arcade/GameSelector.tsx` | Added visible "Studio Status ?" link (data-testid: studio-status-link) |
+| `docs/state/StatusBoard.md` | Regenerated as generated output — now has generated-file header, correct artGen status, SDD v0.4 reference |
+
+### Test results
+
+**New test file:** `ts/tests/test_status_board.ts` — 10 tests, all passing
+
+1. `status_board_all_entries_have_required_fields` ?
+2. `status_board_no_duplicate_ids` ?
+3. `status_board_retired_entries_have_supersededBy` ? (SlimeBreeder exception asserted explicitly)
+4. `generateMarkdown_produces_all_category_headers` ?
+5. `generateMarkdown_row_count_matches_entry_count` ?
+6. `StatusBoardPage_renders_without_crashing_given_real_data` ?
+7. `StatusBoardPage_category_tab_filters_correctly` ?
+8. `StatusBoardPage_renders_lastUpdated_per_entry` ?
+9. `getPageId_reads_page_query_param` ?
+10. `Root_renders_StatusBoardPage_when_page_param_is_status` ? (confirms `?game=` links unaffected)
+
+**Full TS floor:** 1042 passed / 23 failed / 1065 total (99 test files, 23.30s)
+- +10 from verified floor (1032 ? 1042)
+- 23 failures unchanged (same pre-existing paper_doll/character_viewer/registry failures)
+- Zero regressions
+
+### Manual verification
+
+- `?page=status` returns 200, page renders with all 18 entries, category tabs filter correctly
+- `?game=shoal` returns 200, unaffected by new page routing
+- Arcade root returns 200, "Studio Status ?" link visible in selector
+- Browser preview confirmed (screenshots available via preview)
+
+### Sub-directive (ADR-016)
+
+- AGENTS.md confirmed correct (Part A — both prior errors fixed: SDD v0.4 cited,
+  artGen described as "Built AND consumed" with verification details)
+- ADR-016 written: verification-dated staleness claims rule, generalizing
+  Status Board's `lastUpdated` discipline to all staleness-prone claims in the repo
+
+### Completion criteria
+- [x] §0 verification (4 files) completed and reported first
+- [x] `npx vitest run` — 1042 passed (floor + 10), exact count reported
+- [x] `scripts/generate-status-board.ts` run, `docs/state/StatusBoard.md` shows generated-file header
+- [x] Manual: `?page=status` renders, category tabs work, lastUpdated visible per entry
+- [x] Manual: `?game=` links still work unaffected
+- [x] `docs/adr/ADR-015-status-board-as-arcade-page.md` written, real content
+- [x] `docs/adr/ADR-016-verification-dated-staleness-claims.md` written (sub-directive)
+- [x] `docs/state/current.md` updated
