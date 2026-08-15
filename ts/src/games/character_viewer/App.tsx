@@ -1,6 +1,7 @@
 import React from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import CharacterViewer from '../../standalone/character_viewer/CharacterViewer';
+import '../../standalone/character_viewer/styles.css';
 
 /**
  * Arcade wrapper for the Character Viewer.

@@ -23,7 +23,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-URL = "http://localhost:5173/arcade/rfdgamestudio/src/standalone/character_viewer/index.html"
+URL = "http://localhost:5173/arcade/rfdgamestudio/?game=character_viewer"
 REPO_ROOT = Path(__file__).resolve().parent
 SCREENSHOT_DIR = REPO_ROOT / "docs" / "state" / "screenshots"
 CSS_PATH = REPO_ROOT / "ts" / "src" / "standalone" / "character_viewer" / "styles.css"

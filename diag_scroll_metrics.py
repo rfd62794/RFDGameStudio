@@ -19,7 +19,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-URL = "http://localhost:5173/arcade/rfdgamestudio/src/standalone/character_viewer/index.html"
+URL = "http://localhost:5173/arcade/rfdgamestudio/?game=character_viewer"
 SCRIPT_DIR = Path(__file__).resolve().parent
 SCREENSHOT_DIR = SCRIPT_DIR / "docs" / "state" / "screenshots"
 
