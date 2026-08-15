@@ -2,6 +2,103 @@
 
 *Last updated: August 14 2026*
 
+## Paper Doll — Full Technique Comparison: Side-by-Side POC Batch — COMPLETED (POC)
+
+**Directive:** Nine real, distinct approaches compared side by side,
+plus a 10th flat-vs-shaded comparison check. Nothing wired into
+production. Robert looks at all of them together and picks real
+winners before anything gets built for real.
+
+### §0 Context — ChimeraLab shading confirmed never ported
+
+Searched for `calculateShadeFactor`, `shadeFactor`, `edgeLight`,
+`edge_light` across the entire repo (both .ts and .py files).
+**Zero matches.** ChimeraLab's gradient/shading system was never
+ported or wired into anything here. Every technique uses flat color
+only. The 10th comparison (flat vs shaded) is valid — flat color
+may be doing real damage to every technique equally.
+
+### §1 Build — 10 techniques, each its own file
+
+**Smooth-procedural-vector family (techniques 1-7):**
+
+| # | Technique | Key technique | File |
+|---|---|---|---|
+| 1 | Bézier curve paths | Cubic `C` commands via Catmull-Rom conversion | `technique_bezier.ts` |
+| 2 | Goo/metaball SVG filter | `feGaussianBlur` + `feColorMatrix` threshold | `technique_metaball.ts` |
+| 3 | Stroke-based skeleton | Thick stroked paths, `stroke-linecap="round"` | `technique_stroke.ts` |
+| 4 | Noise-perturbed outline | Fractal value noise + quadratic `Q` Bézier | `technique_noise.ts` |
+| 5 | Superellipse/squircle | Real `\|x/a\|^n + \|y/b\|^n = 1` formula | `technique_squircle.ts` |
+| 6 | SDF + smooth-min | Circle/capsule SDFs combined via polynomial `smin` | `technique_sdf.ts` |
+| 7 | Procedural canvas | Canvas 2D radial gradients, blend-mode compositing | `technique_canvas.ts` |
+
+**Strategic forks (techniques 8-9) — different philosophy:**
+
+| # | Technique | Real commitment | File |
+|---|---|---|---|
+| 8 | True paper-doll asset swap | Asset-authoring for every part/variant | `technique_paperdoll.ts` |
+| 9 | Pixel-art grid (32×32) | Aesthetic-direction change (blocky/graphic) | `technique_pixelart.ts` |
+
+**Comparison check (technique 10):**
+
+| # | Technique | Finding | File |
+|---|---|---|---|
+| 10 | Flat vs shaded | ChimeraLab shading never ported; flat color damages all techniques equally | `technique_shading.ts` |
+
+**URL for Robert to open:** http://localhost:5200/
+- All 10 techniques rendered side by side on one page
+- Blue borders = smooth-procedural-vector family
+- Amber borders = strategic forks (clearly flagged)
+- Cost notes section explains the real commitment for each fork
+- Page explicitly states no winner is declared
+
+### §2 Test Anchors: 19/19 passing
+
+1. `test_all_nine_techniques_present` — 11 tests: each technique
+   produces real output with its expected SVG element type (path,
+   filter, line, rect, canvas, ellipse, etc.)
+2. `test_isolated_no_existing_files_touched` — 2 tests: zero changes
+   to artGen/paperDoll/composer/consumers, all files in
+   technique_comparison directory
+3. `test_same_seed_used_where_applicable` — 2 tests: seed 42 used
+   in both bezier and noise techniques, shared RNG algorithm
+4. `test_page_loads_all_sections` — 4 tests: HTML structure correct,
+   entry imports all 10 techniques, strategic forks labeled, no
+   winner declared
+
+### Full TS floor: 1052/1055 passing
+
+3 failures are pre-existing (flaky arcade routing test + 2 commit-hash
+lookups in dual_target_deploy that go too far back in git history).
+Zero new failures from this POC.
+
+### Files created (all new, zero existing production files modified)
+
+- `ts/src/standalone/technique_comparison/shared.ts` — shared RNG + noise
+- `ts/src/standalone/technique_comparison/technique_bezier.ts`
+- `ts/src/standalone/technique_comparison/technique_metaball.ts`
+- `ts/src/standalone/technique_comparison/technique_stroke.ts`
+- `ts/src/standalone/technique_comparison/technique_noise.ts`
+- `ts/src/standalone/technique_comparison/technique_squircle.ts`
+- `ts/src/standalone/technique_comparison/technique_sdf.ts`
+- `ts/src/standalone/technique_comparison/technique_canvas.ts`
+- `ts/src/standalone/technique_comparison/technique_paperdoll.ts`
+- `ts/src/standalone/technique_comparison/technique_pixelart.ts`
+- `ts/src/standalone/technique_comparison/technique_shading.ts`
+- `ts/src/standalone/technique_comparison/entry.ts` — comparison page
+- `ts/src/standalone/technique_comparison/index.html`
+- `ts/vite.technique_comparison.config.ts` — dev server config
+- `ts/tests/test_technique_comparison.ts` — 19 test anchors
+- `ts/tests/test_dual_target_deploy.ts` — updated exclusion filter
+
+### Next step
+
+Robert opens http://localhost:5200/ and compares all 10 techniques
+side by side. His call which direction(s) to pursue. No winner
+declared by this POC.
+
+---
+
 ## Paper Doll — Bézier Curve Primitive: Isolated Proof of Concept — COMPLETED (POC)
 
 **Directive:** Every artGen primitive so far (polygon, radialBurst,

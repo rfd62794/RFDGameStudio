@@ -50,6 +50,11 @@ describe('test_git_state_clean_both_games', () => {
       if (trimmed.includes('test_character_viewer_scroll.py')) return false;
       // Screenshot/metrics artifacts
       if (trimmed.includes('docs/state/screenshots/')) return false;
+      // Isolated POC directories (technique comparison, bezier POC)
+      if (trimmed.includes('technique_comparison')) return false;
+      if (trimmed.includes('bezier_poc')) return false;
+      if (trimmed.includes('vite.technique_comparison.config.ts')) return false;
+      if (trimmed.includes('vite.bezier_poc.config.ts')) return false;
       return true;
     });
     expect(dirty).toEqual([]);
