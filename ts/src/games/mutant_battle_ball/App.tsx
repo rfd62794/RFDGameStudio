@@ -1,12 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { GameShell, TabManager } from '../../components';
-import { Badge, ErrorBox, MoreGamesByMe } from '../../ui/components';
+import { Badge, MoreGamesByMe } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
-import { useLuaCall, useGameState } from '../../hooks';
+import { useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { MBBGameState, MatchState, MutantParts, Part } from './types';
+import { createMbbSimulation } from './simulation/mbbSimulation';
+import type { MbbSimulation } from './simulation/mbbSimulation';
 import RosterTab     from './components/RosterTab';
 import WorkshopTab   from './components/WorkshopTab';
 import ShopTab       from './components/ShopTab';
@@ -67,7 +69,6 @@ function buildInitialState(session: unknown): MBBGameState {
 
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
-  const { call, error } = useLuaCall(session);
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
@@ -76,6 +77,12 @@ export default function App({ session }: GameRendererProps) {
 
   const [matchState, setMatchState] = useState<MatchState | null>(null);
   const [inMatch, setInMatch] = useState(false);
+
+  // TS-native simulation — replaces the fengari Lua executor call path
+  // for init_match/tick_match/resume_match/call_timeout. The Lua source
+  // files remain in games/mutant_battle_ball/*.lua as reference, per
+  // studio precedent (CorpWorld, KingMaker Squads, Shoal).
+  const simRef = useRef<MbbSimulation>(createMbbSimulation());
 
   const handleStartMatch = useCallback(() => {
     if (!state) return;
@@ -90,10 +97,14 @@ export default function App({ session }: GameRendererProps) {
     if (squadMutants.length < 2) return;
 
     const opponentMutants = (opponent['mutants'] as Array<Record<string, unknown>>) ?? [];
-    call('init_match', squadMutants, opponentMutants, data);
+    simRef.current.initMatch(
+      squadMutants as unknown as Parameters<MbbSimulation['initMatch']>[0],
+      opponentMutants as unknown as Parameters<MbbSimulation['initMatch']>[1],
+      data as Parameters<MbbSimulation['initMatch']>[2],
+    );
     setInMatch(true);
     setActiveTab('match');
-  }, [state, session, call]);
+  }, [state, session]);
 
   const handleMatchEnd = useCallback((finalState: MatchState) => {
     if (!state) return;
@@ -179,6 +190,11 @@ export default function App({ session }: GameRendererProps) {
     return opponents?.[state.currentOpponentIdx] ?? opponents?.[0];
   })();
 
+  // No-op stub for tabs that still accept a `call` prop but never invoke it
+  // (RosterTab, WorkshopTab, ShopTab). MatchCanvas receives the simulation
+  // directly instead.
+  const noopCall = (_fn: string, ..._args: unknown[]): unknown => undefined;
+
   return (
     <GameShell
       gameLabel="MUTANT BATTLE BALL"
@@ -186,7 +202,6 @@ export default function App({ session }: GameRendererProps) {
       statusArea={
         <div className="mbb-header">
           <Badge label={`⚙ ${state.iron} IRON`} variant="accent" />
-          {error && <ErrorBox message={error} />}
         </div>
       }
       footer={
@@ -202,18 +217,18 @@ export default function App({ session }: GameRendererProps) {
       <TabManager tabs={TABS} active={activeTab} onChange={setActiveTab}>
         {activeTab === 'roster' && (
           <RosterTab state={state} setState={setState}
-                     session={session} call={call}
+                     session={session} call={noopCall}
                      opponent={opponent}
                      onStartMatch={handleStartMatch} />
         )}
         {activeTab === 'workshop' && (
           <WorkshopTab state={state} setState={setState}
-                       session={session} call={call} />
+                       session={session} call={noopCall} />
         )}
         {activeTab === 'match' && (
           <MatchCanvas
             session={session}
-            call={call}
+            sim={simRef.current}
             isActive={inMatch}
             state={state}
             setState={setState}
@@ -222,7 +237,7 @@ export default function App({ session }: GameRendererProps) {
         )}
         {activeTab === 'shop' && (
           <ShopTab state={state} setState={setState}
-                   session={session} call={call} />
+                   session={session} call={noopCall} />
         )}
         {activeTab === 'infirmary' && (
           <InfirmaryTab state={state} setState={setState} />

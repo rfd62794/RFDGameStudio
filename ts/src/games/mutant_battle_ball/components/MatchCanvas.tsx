@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useGameLoop } from '../../../hooks';
 import { Modal } from '../../../ui/components';
-import type { MatchState, MatchAgent } from '../types';
+import type { MatchState } from '../types';
+import type { MbbSimulation } from '../simulation/mbbSimulation';
 
 const COURT_W = 700;
 const COURT_H = 400;
@@ -15,7 +16,7 @@ function toScreen(gx: number, gy: number): [number, number] {
 
 interface MatchCanvasProps {
   session: unknown;
-  call: (fn: string, ...args: unknown[]) => unknown;
+  sim: MbbSimulation;
   isActive: boolean;
   state: unknown;
   setState: (fn: (prev: unknown) => unknown) => void;
@@ -23,7 +24,7 @@ interface MatchCanvasProps {
 }
 
 export default function MatchCanvas(
-  { session, call, isActive, state, setState, onMatchEnd }: MatchCanvasProps
+  { session, sim, isActive, state, setState, onMatchEnd }: MatchCanvasProps
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [matchState, setMatchState] = useState<MatchState | null>(null);
@@ -33,34 +34,10 @@ export default function MatchCanvas(
 
   const tick = useCallback((dt: number) => {
     if (!isActive) return;
-    const raw = call('tick_match', dt) as Record<string, unknown> | null;
-    if (!raw) return;
-
-    const ms: MatchState = {
-      agents: (raw['agents'] as Array<Record<string, unknown>>)?.map(a => ({
-        id:        a['id'] as string,
-        name:      a['name'] as string,
-        team:      a['team'] as 'player' | 'opponent',
-        color:     a['color'] as string,
-        x:         a['x'] as number,
-        y:         a['y'] as number,
-        role:      a['role'] as MatchAgent['role'],
-        status:    a['status'] as MatchAgent['status'],
-        hasBall:   a['has_ball'] as boolean,
-        health:    a['health'] as number,
-        maxHealth: a['max_health'] as number,
-      })) ?? [],
-      ballX:          raw['ball_x'] as number,
-      ballY:          raw['ball_y'] as number,
-      possession:     raw['possession'] as 'player' | 'opponent',
-      scorePlayer:    raw['score_player'] as number,
-      scoreOpponent:  raw['score_opponent'] as number,
-      timeRemaining:  raw['time_remaining'] as number,
-      timeoutsLeft:   raw['timeouts_left'] as number,
-      state:          raw['state'] as MatchState['state'],
-      events:         (raw['events'] as Array<Record<string, unknown>>) ?? [],
-    };
-
+    // TS-native simulation call — replaces the fengari Lua executor
+    // `call('tick_match', dt)` path. The simulation returns a MatchState
+    // directly (no snake_case→camelCase mapping needed).
+    const ms = sim.tickMatch(dt);
     matchStateRef.current = ms;
     setMatchState(ms);
 
@@ -73,7 +50,7 @@ export default function MatchCanvas(
         onMatchEnd(ms);
       }
     }
-  }, [isActive, call, onMatchEnd]);
+  }, [isActive, sim, onMatchEnd]);
 
   useGameLoop(tick, { paused: !isActive || showSubModal });
 
@@ -187,7 +164,7 @@ export default function MatchCanvas(
         <Modal title="Mutant Down" showClose={false}>
           <p>Choose a bench replacement or continue without substitution.</p>
           <button onClick={() => {
-            call('resume_match');
+            sim.resumeMatch();
             setShowSubModal(false);
             setDownAgentId(null);
           }}>Continue Without Sub</button>
@@ -199,7 +176,7 @@ export default function MatchCanvas(
           className="timeout-btn"
           disabled={!matchState || matchState.timeoutsLeft <= 0}
           onClick={() => {
-            call('call_timeout');
+            sim.callTimeout();
             setShowSubModal(true);
           }}
         >
