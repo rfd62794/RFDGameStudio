@@ -5,6 +5,41 @@ Studio-wide summary: [`/CHANGELOG.md`](../../../CHANGELOG.md)
 
 ---
 
+## Paper Doll — Chimera Paper Doll Studio Production Port — COMPLETED
+
+**Date:** August 15 2026
+
+Replaced the procedural composer/body-plan rendering approach with
+Chimera Paper Doll Studio's hand-authored, socket-contracted, facing-
+aware SVG system. The procedural composer files are preserved for POC
+consumers (Character Viewer, Technique Showcase) but production
+rendering now goes through the Chimera system.
+
+### Files added
+
+- `chimeraTypes.ts` — CreatureConfig, Brand, QualityTier, SlotType, BodyArchetype, FacingDirection, AnimationType, CreaturePose
+- `chimeraSockets.ts` — SOCKET_DEFINITIONS (4 archetypes), LIMB_STANDARDS, verifySocketContract
+- `chimeraBrands.ts` — 6 Brands with metadata, QUALITY_TIERS, getDominantBrand
+- `chimeraPresets.ts` — 6 preset creatures
+- `chimeraSvgPartDrawers.tsx` — getPartColors, SocketCollar, quality tier overlays
+- `chimeraBrandSvgAssets.tsx` — 51KB hand-authored per-Brand SVG shapes with facing-aware geometry
+- `chimeraSvgCreatureRenderer.tsx` — main renderer with facing-aware draw stack and occlusion
+- `chimeraAnimationEngine.ts` — brand-specific motion signatures, 10 animation types
+- `adapter.ts` — single bridge between MBB canonical types and Chimera rendering-internal types
+
+### Files modified
+
+- `PaperDoll.tsx` — replaced procedural composer wrapper with SvgCreatureRenderer wrapper
+- `index.ts` — exports both new Chimera system and old procedural composer (for POC consumers)
+
+### ADR
+
+ADR-021 written locking collision/rendering decoupling — collision
+stays on position/radius, rendering complexity must not leak into
+gameplay collision. See `docs/adr/ADR-021-collision-rendering-decoupling.md`.
+
+---
+
 ## Paper Doll — Full Technique Comparison: Side-by-Side POC Batch — COMPLETED (POC)
 
 **Date:** August 14 2026

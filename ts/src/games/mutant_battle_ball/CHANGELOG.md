@@ -6,6 +6,100 @@ Roadmap: [`/ROADMAP.md`](../../../ROADMAP.md)
 
 ---
 
+## Mutant Battle Ball — Chimera Paper Doll Studio: Production Port — COMPLETED
+
+**Date:** August 15 2026
+**Directive:** Replace MBB's procedural Paper Doll rendering
+(`ts/src/engine/paperDoll/` composer/body-plan/SDF system) with Chimera
+Paper Doll Studio's hand-authored, socket-contracted, facing-aware SVG
+system. This is a deliberate replacement, not an addition alongside.
+
+### STOP rule satisfied
+
+Read the real current state of both systems before touching anything:
+
+**Existing paperDoll consumers (9 files):**
+- Production: MBB RosterTab, MBB WorkshopTab, Chimera Wilds App — used `PaperDoll` component + `humanoidBilateral`/`chimeraAsymmetric` body plans
+- POC: Character Viewer, Technique Showcase — used `renderFigureSvg`/`composeFigure` directly
+- Isolated: Technique Comparison — imported nothing from paperDoll
+
+**Collision logic confirmed abstract:** `mbbSimulation.ts` uses
+`distance(ag.x, ag.y, carrier.x, carrier.y)` compared to `tackleR` (6.0)
+and `blockR` (7.0) — pure position/radius checks. No rendered shape data
+feeds into collision. No import of `paperDoll` or any rendering module
+exists in `mbbSimulation.ts`.
+
+**Chimera Paper Doll Studio structure:**
+- `types/creature.ts` — `CreatureConfig`, `Brand`, `QualityTier`, `SlotType`, `BodyArchetype`, `FacingDirection`, `AnimationType`, `CreaturePose`
+- `rendering/sockets.ts` — `SOCKET_DEFINITIONS` (4 archetypes, fixed coordinates), `LIMB_STANDARDS`, `verifySocketContract`
+- `data/brands.ts` — 6 Brands with real metadata (colors, stat affinities, motion signatures), `QUALITY_TIERS` with multipliers
+- `data/presets.ts` — 6 preset creatures
+- `rendering/svgPartDrawers.tsx` — `getPartColors`, `SocketCollar`, quality tier overlays (Refurbished/Malfunctioning/BrandNew)
+- `rendering/brandSvgAssets.tsx` — 51KB of hand-authored per-Brand SVG shapes (heads, chests, arms, legs, tails) with facing-aware geometry
+- `rendering/SvgCreatureRenderer.tsx` — main renderer with facing-aware draw stack, occlusion, socket hierarchy
+- `rendering/animationEngine.ts` — brand-specific motion signatures, 10 animation types
+
+### Implementation
+
+**8 Chimera files ported** into `ts/src/engine/paperDoll/` with `chimera` prefix:
+- `chimeraTypes.ts`, `chimeraSockets.ts`, `chimeraBrands.ts`, `chimeraPresets.ts`
+- `chimeraSvgPartDrawers.tsx`, `chimeraBrandSvgAssets.tsx`, `chimeraSvgCreatureRenderer.tsx`, `chimeraAnimationEngine.ts`
+- All import paths fixed from `../types/creature` → `./chimeraTypes`, etc.
+
+**`adapter.ts` created** — single bridge between MBB's canonical types and Chimera's rendering-internal types:
+- `toChimeraBrand`/`toBrandId` — maps `trueflame` ↔ `Trueflame` (6 brands)
+- `toChimeraQuality` — maps `brand_new` → `Brand New` (3 tiers)
+- `toChimeraSlot`/`toPartSlot` — maps `left_arm` ↔ `leftArm` (6 slots)
+- `partToCreaturePart` — converts MBB `Part` to Chimera `CreaturePart`
+- `partsToCreatureConfig` — converts `PartsBySlot` to `CreatureConfig` for rendering
+- `getDefaultPose` — derives animation pose from creature config
+- MBB's types are canonical; Chimera's types are rendering-internal. No duplicate type systems.
+
+**`PaperDoll.tsx` replaced** — new component wraps `SvgCreatureRenderer`:
+- Accepts `PartsBySlot | Record<string, Part | null>` (broad enough for MBB + Chimera Wilds)
+- New props: `archetype`, `facing`, `animation`, `animationT`, `showSockets`
+- `color` prop kept for backward compat (Chimera system derives colors from Brand + Cyber/Organic lean per-part)
+
+**`index.ts` updated** — exports both new Chimera system AND old procedural composer:
+- New: `PaperDoll`, `SvgCreatureRenderer`, `partsToCreatureConfig`, `calculatePose`, `SOCKET_DEFINITIONS`, `CHIMERA_BRANDS`, `PRESET_CREATURES`, all Chimera types
+- Old (preserved for POC consumers): `renderFigureSvg`, `composeFigure`, `humanoidBilateral`, `chimeraAsymmetric`, `PROPORTION_PRESETS`
+
+**3 production consumers updated:**
+- MBB `RosterTab.tsx` — removed `humanoidBilateral`/`bodyPlan`, imports `PaperDoll` from index
+- MBB `WorkshopTab.tsx` — removed `humanoidBilateral`/`bodyPlan`/`as unknown as` cast, imports `PaperDoll` from index
+- Chimera Wilds `App.tsx` — removed `chimeraAsymmetric`/`bodyPlan`, uses `archetype="quadruped"`
+
+**ADR-021 written** — locks collision/rendering decoupling decision:
+- Collision operates on position/radius only, not rendered shape geometry
+- Protects Brand stat-modifier system from accidental visual-geometry side effects
+- Confirmed by direct code read of `resolveTackle`/`resolveBlock` in `mbbSimulation.ts`
+- Future directives wanting collision to respond to visual geometry must explicitly supersede this ADR
+
+### Test anchors
+
+40 tests in `test_chimera_paper_doll_port.ts`, all passing:
+
+- `test_existing_consumers_still_work` (5 tests): RosterTab/WorkshopTab/Chimera Wilds import PaperDoll from new path, no old bodyPlan pattern, POC consumers still have procedural exports
+- `test_data_model_reconciled` (8 tests): Brand/Quality/Slot mappings correct and reversible, `partToCreaturePart`/`partsToCreatureConfig` convert correctly, defaults work, no duplicate type systems
+- `test_collision_confirmed_abstract` (4 tests): no rendering import in mbbSimulation, tackle/block use position/radius, constants are fixed numbers
+- `test_collision_still_abstract_post_port` (3 tests): no rendering import added, mbbSimulation.ts not in changed files, stat modifiers still from brandModifiers.ts
+- `test_adr_written` (5 tests): ADR-021 exists, states decoupling decision, references real code (tackleR/blockR), protects Brand stat-modifier system, has Confirmation section
+- `test_no_regression` (15 tests): PaperDoll/SvgCreatureRenderer/calculatePose exported, SOCKET_DEFINITIONS has 4 archetypes with correct coordinates, CHIMERA_BRANDS has 6 brands, CHIMERA_QUALITY_TIERS has 3 tiers, PRESET_CREATURES has presets, procedural exports still work for POC
+
+### Existing tests updated for new patterns
+
+- `test_paper_doll.ts` — 3 consumer wiring tests updated: drop `humanoidBilateral`/`chimeraAsymmetric`/`bodyPlan` expectations, add negative assertions confirming procedural pattern removal
+- `test_paper_doll_chimeralab_port.ts` — PaperDoll component test updated: drop `renderFigureSvg`/`BodyPlan` expectations, assert `SvgCreatureRenderer`/`partsToCreatureConfig` usage
+- `test_bezier_poc.ts` + `test_technique_comparison.ts` — isolation test allowed lists expanded to include new Chimera paperDoll files
+
+### No regression
+
+Full vitest suite: 1175/1178 passing. 3 failures are pre-existing
+(`test_dual_target_deploy.ts` commit hash lookups for `13cbb7e`/`6b7ba1e`/
+`b4640e8` — too far back in git history, unrelated to this work).
+
+---
+
 ## Mutant Battle Ball — Brand / Quality Tier / Cyber-Organic: Real Mechanics — COMPLETED
 
 **Date:** August 15 2026
