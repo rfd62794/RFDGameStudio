@@ -7402,3 +7402,140 @@ composed chimera figure in the encounter view. The composition engine
 is reusable — new body plans are data, not code — and the Brand/
 Cyber-Organic/Quality styling system can plug into the existing
 `PaperDoll` component's color prop once that system's Design.md exists.
+
+
+---
+
+## Character Viewer (Paper Doll Shape Iteration Tool) — COMPLETED
+
+**Directive:** Build a dev-only tool for iterating on the Paper Doll
+module's actual shapes at real size, side by side, with live controls.
+
+### STOP rule satisfied
+
+Read the real, current `paperDoll` module API fresh before building
+any UI against it — `types.ts`, `composer.ts`, `index.ts`, and both
+body plan files. Confirmed the real public API: `renderFigureSvg` takes
+a `CompositionInput` (bodyPlan + parts + colors + seed) and returns an
+SVG string. The viewer consumes this exact API — no forked logic.
+
+### Studio dev-tool convention confirmed
+
+No existing `dev/` directory. The studio's established convention for
+standalone surfaces is `ts/src/standalone/{name}/` with `entry.tsx` +
+`index.html` (9 existing standalone game surfaces). The character
+viewer follows this pattern at `ts/src/standalone/character_viewer/`.
+
+### What was built
+
+**New standalone surface:** `ts/src/standalone/character_viewer/`
+
+| File | Purpose |
+|---|---|
+| `index.html` | HTML entry point |
+| `entry.tsx` | React root — mounts CharacterViewer |
+| `CharacterViewer.tsx` | The viewer itself — live controls, side-by-side, export, presets |
+| `styles.css` | Viewer-specific styles |
+
+### Real controls (not a static gallery)
+
+- **Body Plan selector** — switch between `humanoidBilateral` and
+  `chimeraAsymmetric` live, no reload
+- **Per-slot shape override** — for each of the six real slots, a live
+  dropdown to swap the primitive (`polygon`/`radialBurst`/`teardropFin`/
+  `irregularFragment`) and range sliders to adjust each primitive's
+  real params (vertexCount, irregularity, radius, scale, angularity,
+  armCount)
+- **Color/Brand swatch controls** — per-slot color picker + 12 preset
+  color swatches, so per-element silhouette work can start now without
+  waiting on the full Brand styling system
+- **Side-by-side comparison** — two configurations rendered
+  simultaneously at 300px each (not the 64-120px production sizes),
+  with click-to-select which panel is active for editing
+- **Seed control** — range slider 0-999 for deterministic shape jitter
+- **Export/save** — the current active config is exportable as a real
+  JSON `SlotShapeMapping` set, copyable to clipboard, usable as a real
+  Body Plan or Brand preset later
+
+### Three reference-informed presets
+
+Pre-loaded starting configurations reflecting the three real visual
+reference axes from the directive:
+
+1. **Bionicle (Brand/silhouette)** — clean polygons, distinct
+   silhouette, uniform blue. `humanoidBilateral` body plan, low
+   irregularity, teardropFin limbs with moderate angularity.
+2. **Giger (Cyber/Organic)** — organic/mechanical blending, dark
+   metallic palette. `humanoidBilateral` body plan, high angularity
+   teardropFin (mechanical) + irregularFragment (organic) parts, dark
+   grey/charcoal colors.
+3. **Frankenstein (Quality/asymmetry)** — deliberate asymmetry,
+   visible mismatch. `chimeraAsymmetric` body plan, mixed primitives
+   (radialBurst arm + teardropFin arm, different leg primitives),
+   high irregularity, mismatched earth-tone colors.
+
+### Production paperDoll module confirmed unmodified
+
+Git diff confirmed empty for all four production source files:
+- `ts/src/engine/paperDoll/composer.ts` — byte-unchanged
+- `ts/src/engine/paperDoll/attachmentGraph.ts` — byte-unchanged
+- `ts/src/engine/paperDoll/bodyPlans/humanoidBilateral.ts` — byte-unchanged
+- `ts/src/engine/paperDoll/bodyPlans/chimeraAsymmetric.ts` — byte-unchanged
+
+The viewer consumes the real module exactly as MBB and Chimera Wilds
+do — via `renderFigureSvg` with a `CompositionInput`. No special
+internal API, no forked composition logic.
+
+### Access path
+
+During dev:
+```
+http://localhost:5173/src/standalone/character_viewer/index.html
+```
+
+### Test anchors (16 new, all passing)
+
+**New test file:** `ts/tests/test_character_viewer.ts`
+
+- `test_viewer_consumes_real_module` (2 tests) — viewer source imports
+  from real paperDoll module (not forked), renders via real
+  `renderFigureSvg` producing valid SVG
+- `test_body_plan_switch_live` (1 test) — switching body plan produces
+  different render without reload
+- `test_per_slot_override_live` (2 tests) — changing a slot's primitive
+  updates the render, changing a slot's params updates the render
+- `test_side_by_side_renders_distinct_configs` (2 tests) — two configs
+  render simultaneously at 300px and are different, viewer source has
+  two figure panels
+- `test_export_produces_valid_config` (2 tests) — exported config is a
+  valid SlotShapeMapping set usable to build a real BodyPlan and render,
+  viewer source has export functionality
+- `test_no_production_code_modified` (4 tests) — composer.ts,
+  attachmentGraph.ts, humanoidBilateral.ts, chimeraAsymmetric.ts all
+  confirmed byte-unchanged via git diff
+- `test_no_regression` (3 tests) — three reference presets exist in
+  viewer source, viewer is standalone (not imported by any game),
+  PaperDoll React component still works in MBB and Chimera Wilds
+
+### Test results
+
+**TS floor:** 913/917 passing (91 test files, 28.84s)
+- +16 from previous floor (897): Character Viewer test anchors
+- 4 failures, all pre-existing/unrelated:
+  - `test_arcade_routing.ts > test_game_loader_back_button` (1) —
+    known flaky test
+  - `test_dual_target_deploy.ts > test_git_state_clean_both_games` (2) —
+    fails because working tree has uncommitted changes (expected mid-work)
+  - `test_shoal_ts_native_migration.ts > test_real_tick_time_measured` (1) —
+    flaky performance test
+- Zero regressions
+
+### What this means
+
+Shape decisions can now be seen and tuned at legible size (300px) in
+real time, with live controls for every primitive and parameter, side-
+by-side comparison, and exportable configs. The three reference presets
+(Bionicle/Giger/Frankenstein) give real starting points for the three
+design axes (Brand/Cyber-Organic/Quality) that the future styling
+system directive will formalize. The production `paperDoll` module is
+untouched — the viewer is purely additive.
