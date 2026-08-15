@@ -1,31 +1,28 @@
 /* Character Viewer — dev-only shape iteration tool
  *
- * Layout: render area on the left, controls on the right.
- * Both fill the viewport height; controls scroll independently.
+ * Layout: two figure panels side-by-side on top, controls below.
+ * The page scrolls naturally — controls are not in a scroll container.
  */
 
 .character-viewer {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
   font-family: system-ui, -apple-system, sans-serif;
   background: #0f1117;
   color: #e0e0e0;
-  overflow: hidden;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .cv-header {
   text-align: center;
-  padding: 0.5rem 1rem;
-  flex: 0 0 auto;
-  border-bottom: 1px solid #2a3040;
+  margin-bottom: 1rem;
 }
 
 .cv-header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   color: #f87171;
 }
 
@@ -35,23 +32,11 @@
   margin: 0.2rem 0 0;
 }
 
-/* Main split: render area | controls, side by side, fill remaining height */
-.cv-main {
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* Render area: two figure panels side by side */
+/* Two figure panels side by side */
 .cv-comparison {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-  align-items: stretch;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .cv-figure-panel {
@@ -60,11 +45,9 @@
   background: #1a1d27;
   border: 2px solid #2a3040;
   border-radius: 8px;
-  padding: 0.5rem;
+  padding: 0.75rem;
   cursor: pointer;
   transition: border-color 0.15s;
-  display: flex;
-  flex-direction: column;
 }
 
 .cv-figure-panel.active {
@@ -72,72 +55,66 @@
 }
 
 .cv-figure-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #aaa;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   text-align: center;
-  flex: 0 0 auto;
 }
 
 .cv-figure-render {
-  flex: 1 1 auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 0;
 }
 
-/* SVG fills the available panel space */
 .cv-figure-render svg {
   width: 100%;
-  height: 100%;
+  height: auto;
+  max-height: 350px;
   background: #0f1117;
   border-radius: 4px;
 }
 
-/* Controls: fixed-width sidebar, scrolls independently */
+/* Controls panel below */
 .cv-controls {
-  flex: 0 0 420px;
   background: #1a1d27;
-  border-left: 1px solid #2a3040;
-  padding: 0.75rem;
-  overflow-y: auto;
-  min-height: 0;
+  border: 1px solid #2a3040;
+  border-radius: 8px;
+  padding: 1rem;
 }
 
 .cv-controls-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-  flex: 0 0 auto;
+  margin-bottom: 1rem;
 }
 
 .cv-controls-header h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #f87171;
 }
 
 .cv-control-group {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .cv-label {
   display: block;
   font-size: 0.8rem;
   color: #aaa;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
 }
 
 .cv-btn-row {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .cv-preset-row {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
@@ -175,11 +152,11 @@
   border-color: #3b82f6;
 }
 
-/* Per-slot controls — single column in the sidebar */
+/* Per-slot controls — responsive grid of panels */
 .cv-slots {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
 }
 
 .cv-slot-control {
