@@ -1,57 +1,105 @@
-/* Character Viewer — dev-only shape iteration tool */
+/* Character Viewer — dev-only shape iteration tool
+ *
+ * Layout mirrors MBB's WorkshopTab pattern:
+ *   .cv-workshop-layout (flex row, like .workshop-layout)
+ *     .cv-sidebar (preset selector, like .mutant-selector)
+ *     .cv-detail (render + controls, like .equip-panel)
+ *
+ * Uses shared ui/components: Panel (.bet-panel), Card (.card-base),
+ * Button (.btn-*), Badge (.badge-*).
+ * Only viewer-specific layout classes are defined here — the shared
+ * component styling comes from base.css via index.css import.
+ */
 
 .character-viewer {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 1rem;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0f1117;
-  color: #e0e0e0;
-  min-height: 100vh;
-}
-
-.cv-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.cv-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #f87171;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .cv-subtitle {
+  color: var(--text-muted, #888);
   font-size: 0.85rem;
-  color: #888;
-  margin: 0.25rem 0 0;
+  margin: 0.25rem 0 1rem;
 }
 
-/* Side-by-side comparison */
-.cv-comparison {
+/* ── Workshop layout: sidebar | detail (mirrors MBB .workshop-layout) ── */
+
+.cv-workshop-layout {
   display: flex;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Sidebar: preset/panel/body-plan/seed selectors (mirrors .mutant-selector) */
+.cv-sidebar {
+  min-width: 200px;
+  flex-shrink: 0;
+}
+
+.cv-sidebar h3 {
+  font-size: 0.9rem;
+  margin: 1rem 0 0.5rem;
+  color: var(--text-muted, #aaa);
+}
+
+.cv-sidebar h3:first-child {
+  margin-top: 0;
+}
+
+/* Preset cards (mirrors .mutant-select-card) */
+.cv-preset-card {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.cv-preset-card.selected {
+  border-color: #3b82f6;
+}
+
+.cv-preset-name {
+  font-size: 0.85rem;
+}
+
+.cv-panel-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cv-seed-slider {
+  width: 100%;
+  accent-color: #3b82f6;
+}
+
+/* ── Detail panel (mirrors .equip-panel) ── */
+
+.cv-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Side-by-side figure panels */
+.cv-comparison {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .cv-figure-panel {
-  flex: 0 0 320px;
-  background: #1a1d27;
-  border: 2px solid #2a3040;
-  border-radius: 8px;
-  padding: 0.75rem;
+  flex: 1 1 0;
+  min-width: 0;
   cursor: pointer;
-  transition: border-color 0.15s;
 }
 
-.cv-figure-panel.active {
+.cv-figure-panel.selected {
   border-color: #3b82f6;
 }
 
 .cv-figure-label {
   font-size: 0.85rem;
-  color: #aaa;
   margin-bottom: 0.5rem;
   text-align: center;
 }
@@ -63,139 +111,63 @@
 }
 
 .cv-figure-render svg {
-  background: #0f1117;
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  background: var(--bg, #0f1117);
   border-radius: 4px;
 }
 
-/* Controls */
-.cv-controls {
-  background: #1a1d27;
-  border: 1px solid #2a3040;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.cv-controls-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.cv-controls-header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #f87171;
-}
-
-.cv-control-group {
-  margin-bottom: 1rem;
-}
-
-.cv-label {
-  display: block;
-  font-size: 0.85rem;
-  color: #aaa;
-  margin-bottom: 0.4rem;
-}
-
-.cv-btn-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.cv-preset-row {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.cv-btn {
-  padding: 0.4rem 0.8rem;
-  background: #2a3040;
-  color: #e0e0e0;
-  border: 1px solid #4a5070;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.cv-btn:hover {
-  background: #3a4060;
-}
-
-.cv-btn.selected {
-  background: #3b82f6;
-  border-color: #3b82f6;
-}
-
-.cv-preset-btn {
-  padding: 0.5rem 1rem;
-  background: #2a3040;
-  color: #e0e0e0;
-  border: 1px solid #4a5070;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.cv-preset-btn:hover {
-  background: #3a4060;
-  border-color: #3b82f6;
-}
-
-/* Per-slot controls */
+/* Per-slot controls grid */
 .cv-slots {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 }
 
 .cv-slot-control {
-  background: #0f1117;
-  border: 1px solid #2a3040;
-  border-radius: 6px;
-  padding: 0.75rem;
+  /* Uses .card-base from shared Card component */
 }
 
 .cv-slot-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .cv-slot-name {
   font-weight: bold;
   text-transform: capitalize;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .cv-select {
-  padding: 0.25rem 0.5rem;
-  background: #2a3040;
-  color: #e0e0e0;
-  border: 1px solid #4a5070;
+  padding: 0.2rem 0.4rem;
+  background: var(--surface, #2a3040);
+  color: var(--text, #e0e0e0);
+  border: 1px solid var(--border, #4a5070);
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .cv-params {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 0.5rem;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
 }
 
 .cv-param {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 .cv-param-label {
-  font-size: 0.75rem;
-  color: #aaa;
+  font-size: 0.7rem;
+  color: var(--text-muted, #aaa);
 }
 
 .cv-param input[type="range"] {
@@ -206,14 +178,14 @@
 .cv-color-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
 }
 
 .cv-color-picker {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #4a5070;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border, #4a5070);
   border-radius: 4px;
   cursor: pointer;
   background: none;
@@ -222,14 +194,14 @@
 
 .cv-color-swatches {
   display: flex;
-  gap: 0.2rem;
+  gap: 0.15rem;
   flex-wrap: wrap;
 }
 
 .cv-swatch {
-  width: 18px;
-  height: 18px;
-  border: 1px solid #4a5070;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border, #4a5070);
   border-radius: 3px;
   cursor: pointer;
   padding: 0;
@@ -239,29 +211,31 @@
   border-color: #3b82f6;
 }
 
-/* Export */
-.cv-export {
-  margin-top: 1.5rem;
-  border-top: 1px solid #2a3040;
-  padding-top: 1rem;
+/* Export area */
+.cv-export-area {
+  margin-top: 1rem;
 }
 
-.cv-export h3 {
-  font-size: 1rem;
-  color: #f87171;
+.cv-export-panel {
+  margin-top: 0.75rem;
+}
+
+.cv-export-panel h3 {
+  font-size: 0.9rem;
   margin: 0 0 0.5rem;
 }
 
 .cv-export-code {
-  background: #0f1117;
-  border: 1px solid #2a3040;
+  background: var(--bg, #0f1117);
+  border: 1px solid var(--border, #2a3040);
   border-radius: 4px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   overflow-x: auto;
   white-space: pre-wrap;
   color: #a5d6ff;
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
+  margin-bottom: 0.5rem;
 }

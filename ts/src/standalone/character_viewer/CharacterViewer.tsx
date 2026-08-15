@@ -336,7 +336,7 @@ export default function CharacterViewer() {
               const paramDefs = PRIMITIVE_PARAMS[primitive];
 
               return (
-                <Card key={slot} className="cv-slot-control" padding="sm">
+                <Card key={slot} className="cv-slot-control">
                   <div className="cv-slot-header">
                     <span className="cv-slot-name">{slot.replace('_', ' ')}</span>
                     <select
