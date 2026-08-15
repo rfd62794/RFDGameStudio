@@ -1,16 +1,6 @@
 import React from 'react';
-import { Brand, QualityTier } from './chimeraTypes';
+import { Brand } from './chimeraTypes';
 import { BRANDS } from './chimeraBrands';
-
-interface PartDrawProps {
-  brand: Brand;
-  quality: QualityTier;
-  cyberOrganic: number; // 0 to 100
-  archetype?: string;
-  isRightSide?: boolean;
-  filterId?: string;
-  selected?: boolean;
-}
 
 // Helper to interpolate colors or choose styling
 export function getPartColors(brand: Brand, cyberOrganic: number) {

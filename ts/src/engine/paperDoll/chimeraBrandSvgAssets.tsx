@@ -34,7 +34,6 @@ export const HeadSvg: React.FC<PartProps> = ({
   const isAvian = archetype === 'avian_raptor';
   const isQuad = archetype === 'quadruped';
   const isBack = facing === 'back';
-  const isFront = facing === 'front';
 
   return (
     <g className={`transition-all duration-150 ${selected ? 'filter drop-shadow-[0_0_8px_#38bdf8]' : ''}`}>

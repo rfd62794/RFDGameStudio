@@ -57,7 +57,7 @@ interface PaperDollProps {
 
 export function PaperDoll({
   parts,
-  color,
+  color: _color,
   size = 80,
   seed = 0,
   className,

@@ -1,4 +1,4 @@
-import { BodyArchetype, BodySockets, SocketPoint } from './chimeraTypes';
+import { BodyArchetype, BodySockets } from './chimeraTypes';
 
 /**
  * SOCKET CONTRACT STANDARD

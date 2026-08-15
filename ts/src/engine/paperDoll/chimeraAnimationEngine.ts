@@ -132,12 +132,10 @@ export function calculatePose(
   const sin = Math.sin(rad);
   const cos = Math.cos(rad);
   const sin2 = Math.sin(rad * 2);
-  const cos2 = Math.cos(rad * 2);
 
   // Biomorphic asynchronous phase lag for natural drag
   const lagRad = (effectiveT - brandParams.phaseLag) * Math.PI * 2;
   const sinLag = Math.sin(lagRad);
-  const cosLag = Math.cos(lagRad);
 
   let angles: PoseAngles = {
     chestX: 0,
