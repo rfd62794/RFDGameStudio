@@ -8024,3 +8024,156 @@ findings for a future directive:
 No code was copied. No changes to RFDGameStudio. The clone lives at
 `C:\Github\reference-repos\ChimeraLab\` for future reference when a
 directive formalizes any of these patterns into the TS-native studio.
+
+
+---
+
+## Character Viewer — Real Arcade Entry — COMPLETED
+
+**Directive:** Promote the Character Viewer from a dev-only standalone
+surface to a real, reachable arcade entry. A deliberate scope change
+— the viewer remains fully intact at its original dev-only path, and
+this addition is purely about making it reachable through the arcade
+UI.
+
+### STOP rule satisfied
+
+Read the real, current `registry.ts` schema and routing before adding
+anything. Confirmed:
+
+- **`GameConfig`** interface: `gameId`, `label`, `description?`,
+  `color?`, `status?: GameStatus`, `component?` (lazy-loaded),
+  `externalUrl?`, `embedUrl?`, `embedWidth?`, `embedHeight?`
+- **`GameStatus`** was `'stable' | 'beta' | 'dev' | 'external'`
+- **VoidRift precedent:** uses `status: 'external'` for an itch.io
+  embed — that's for external hosted games, not internal TS-native
+  components
+- **GameLoader routing:** TS-native games with `cfg.component` but no
+  yaml files get a stub session and render the component directly
+- **GameSelector:** renders all `GAME_REGISTRY` entries as cards,
+  with status badges and detail strings
+
+### Category decision — reported honestly
+
+The existing `GameStatus` values (`stable`/`beta`/`dev`/`external`)
+do not honestly describe a non-competitive sandbox tool:
+
+- `stable`/`beta`/`dev` imply competitive games in progress
+- `external` is for itch.io embeds (VoidRift's precedent)
+
+**A new `'tool'` status was added** to `GameStatus` for non-competitive
+sandbox/design tools. This closes the real gap the directive
+identified rather than forcing Character Viewer into a "game" shape
+it doesn't fit. The CSS badge style (`.arcade-status--tool`) was added
+to `base.css` (yellow, same as beta — visually distinct from
+stable/green, dev/muted, external/accent).
+
+### What was built
+
+**New files:**
+
+| File | Purpose |
+|---|---|
+| `ts/src/games/character_viewer/config.ts` | Registry config — `characterViewerConfig` with `status: 'tool'` |
+| `ts/src/games/character_viewer/App.tsx` | Thin wrapper — imports real `CharacterViewer` from standalone surface, bridges `GameRendererProps` contract |
+
+**Modified files:**
+
+| File | Change |
+|---|---|
+| `ts/src/engine/types.ts` | Added `'tool'` to `GameStatus` union |
+| `ts/src/games/registry.ts` | Imported + registered `characterViewerConfig` |
+| `ts/src/ui/base.css` | Added `.arcade-status--tool` badge style |
+| `ts/src/arcade/GameSelector.tsx` | Added `status === 'tool'` detail string ("Sandbox tool · TS-native") |
+| `ts/tests/test_arcade_registry_directive.ts` | Added `character_viewer` to `EXPECTED_ORDER` |
+
+### Honest, non-competitive presentation
+
+- **Label:** "Character Viewer"
+- **Description:** "Assemble and preview creature designs — live
+  shape controls, side-by-side comparison, and exportable configs. A
+  sandbox tool, not a competitive game."
+- **Status badge:** `TOOL` (yellow)
+- **Detail string:** "Sandbox tool · TS-native"
+- **No `externalUrl` or `embedUrl`** — it's a real TS-native component
+
+### Routing confirmed
+
+GameLoader's existing TS-native path works: `findGame('character_viewer')`
+→ `cfg.component` is the lazy-loaded wrapper → stub session created →
+`<CharacterViewerApp session={...} />` rendered → wrapper renders
+`<CharacterViewer />` from the standalone surface. No new routing
+code needed — the existing infrastructure handles it.
+
+### Original dev-only path confirmed still working
+
+The standalone surface at `ts/src/standalone/character_viewer/` is
+untouched — `index.html`, `entry.tsx`, `CharacterViewer.tsx`, and
+`styles.css` are all byte-unchanged. Both paths reach the same real
+tool:
+- **Arcade:** click "Character Viewer" card in the arcade grid
+- **Dev-only:** `http://localhost:5173/src/standalone/character_viewer/index.html`
+
+### paperDoll module confirmed unmodified
+
+Git diff confirmed empty for all five production source files:
+- `composer.ts` — byte-unchanged
+- `attachmentGraph.ts` — byte-unchanged
+- `bodyPlans/humanoidBilateral.ts` — byte-unchanged
+- `bodyPlans/chimeraAsymmetric.ts` — byte-unchanged
+- `PaperDoll.tsx` — byte-unchanged
+
+### Test anchors (22 new, all passing)
+
+**New test file:** `ts/tests/test_character_viewer_arcade_entry.ts`
+
+- `test_registry_schema_confirmed` (3 tests) — GameStatus type
+  includes `tool`, category decision is distinct from all existing
+  statuses, CSS badge style exists
+- `test_character_viewer_registered` (5 tests) — config file exists,
+  entry present in GAME_REGISTRY, has real component, description is
+  honest/non-competitive, no externalUrl/embedUrl
+- `test_arcade_click_loads_viewer` (4 tests) — GameLoader can route
+  via findGame, App.tsx imports real CharacterViewer from standalone,
+  GameSelector has tool-status detail string, registry imports/
+  exports the config
+- `test_dev_only_path_still_works` (2 tests) — standalone surface
+  files untouched and present, still imports from real paperDoll
+- `test_paperDoll_module_unmodified` (5 tests) — all five paperDoll
+  source files confirmed byte-unchanged via git diff
+- `test_no_regression` (3 tests) — all 16 pre-existing entries still
+  present, existing game statuses unaffected, MBB and Chimera Wilds
+  still reference PaperDoll
+
+### Test results
+
+**TS floor:** 935/939 passing (92 test files, 25.49s)
+- +22 from previous floor (913): Character Viewer arcade entry tests
+- 4 failures, all pre-existing/unrelated:
+  - `test_arcade_routing.ts > test_game_loader_back_button` (1) —
+    known flaky test
+  - `test_dual_target_deploy.ts > test_git_state_clean_both_games` (2) —
+    fails because working tree has uncommitted changes (expected mid-work)
+  - `test_shoal_ts_native_migration.ts > test_real_tick_time_measured` (1) —
+    flaky performance test
+- Zero regressions (the registry order test that initially failed was
+  fixed by adding `character_viewer` to `EXPECTED_ORDER`)
+
+### Access paths
+
+Both paths reach the same real tool:
+
+1. **Arcade (new):** Click "Character Viewer" card in the arcade grid
+   — reachable the same way as any other game
+2. **Dev-only (unchanged):**
+   `http://localhost:5173/src/standalone/character_viewer/index.html`
+
+### What this means
+
+The Character Viewer is now reachable through the arcade UI as a
+first-class entry — a tool, presented honestly as one, sitting where
+people can actually find it. The `'tool'` status category is a real,
+small schema addition that honestly distinguishes non-competitive
+sandbox tools from scored games, available for future tools that
+need the same distinction. The underlying `paperDoll` module and the
+viewer's real functionality are completely untouched.
