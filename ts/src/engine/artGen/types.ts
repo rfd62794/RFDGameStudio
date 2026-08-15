@@ -122,3 +122,22 @@ export interface IrregularFragmentSpec {
   stroke: string;
   strokeWidth?: number;
 }
+
+/**
+ * Specification for a sigmoid muscle bulge shape (limb with organic bulge).
+ *
+ * Ported from ChimeraLab's body_renderer.py::get_sigmoid_polygon.
+ * Generates a polygon for a limb with a sine-based "muscle bulge"
+ * peaking at t=0.5 (40% of base width). The shape is drawn from
+ * start to end along the bone axis, with left and right edge points
+ * offset by the perpendicular vector.
+ */
+export interface SigmoidBulgeSpec {
+  widthStart: number;    // width at the start (proximal joint)
+  widthEnd: number;      // width at the end (distal joint)
+  segments?: number;     // default 6 — number of segments along the length
+  bulgeFactor?: number;  // default 0.4 — fraction of base width for bulge peak
+  fill: string;
+  stroke: string;
+  strokeWidth?: number;
+}
