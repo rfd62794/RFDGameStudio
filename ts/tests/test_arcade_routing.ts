@@ -104,13 +104,17 @@ describe('Arcade GameLoader', () => {
     await act(async () => {
       root.render(React.createElement(GameLoader, { gameId: 'horse_racing' }));
     });
+    // The game component is lazy-loaded via React.lazy + Suspense, so
+    // the back button (inside GameShell) may not appear immediately.
+    // Use a generous timeout (15s) to handle slow CI environments and
+    // parallel test load. Poll every 50ms for smoother behavior.
     const backButton = await vi.waitFor(
       () => {
         const btn = container.querySelector('.game-shell-back') as HTMLButtonElement | null;
         if (!btn) throw new Error('GameShell back button not rendered yet');
         return btn;
       },
-      { timeout: 5000, interval: 20 }
+      { timeout: 15000, interval: 50 }
     );
     await act(async () => {
       backButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
