@@ -95,9 +95,9 @@ export const humanoidBilateral: BodyPlan = {
     {
       slot: 'head',
       primitive: 'polygon',
-      // radius 8: head is ~1/7.5 of body height (standard human ratio)
-      // After torsoHead scaling (1.2x): effective radius = 9.6
-      baseParams: { vertexCount: 7, irregularity: 8, radius: 8 },
+      // radius 7: head is ~1/5 of body height (stylized human ratio)
+      // After torsoHead scaling (1.2x): effective radius = 8.4
+      baseParams: { vertexCount: 7, irregularity: 8, radius: 7 },
     },
     {
       slot: 'chest',
@@ -109,24 +109,26 @@ export const humanoidBilateral: BodyPlan = {
     {
       slot: 'left_arm',
       primitive: 'teardropFin',
-      // scale 0.52: arm length ~3.5 head heights (standard human)
-      baseParams: { scale: 0.52, angularity: 25 },
+      // scale 0.65: after Kleiber (0.855) + joint/taper (0.925) = 0.514 effective
+      // Arm length ~3.5 head heights (standard human)
+      baseParams: { scale: 0.65, angularity: 25 },
     },
     {
       slot: 'right_arm',
       primitive: 'teardropFin',
-      baseParams: { scale: 0.52, angularity: 25 },
+      baseParams: { scale: 0.65, angularity: 25 },
     },
     {
       slot: 'left_leg',
       primitive: 'teardropFin',
-      // scale 0.62: leg length ~4 head heights (standard human)
-      baseParams: { scale: 0.62, angularity: 18 },
+      // scale 0.50: after Kleiber (1.319) + joint/taper (0.925) = 0.610 effective
+      // Leg length ~4 head heights (standard human)
+      baseParams: { scale: 0.50, angularity: 18 },
     },
     {
       slot: 'right_leg',
       primitive: 'teardropFin',
-      baseParams: { scale: 0.62, angularity: 18 },
+      baseParams: { scale: 0.50, angularity: 18 },
     },
   ],
 };
