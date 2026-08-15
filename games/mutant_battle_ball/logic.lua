@@ -307,7 +307,11 @@ function tick_match(dt)
       local reset_carrier = nil
       for _, ag in ipairs(st.agents) do
         ag.has_ball = false
-        if ag.team == st.possession and ag.status == "active" and not reset_carrier then
+        -- A stunned agent is still in the play (it recovers); only a downed
+        -- agent is out. Requiring "active" here meant that if the whole
+        -- conceding team was stunned at the moment of the score the ball was
+        -- assigned to no one and permanently lost, stalling the match.
+        if ag.team == st.possession and ag.status ~= "down" and not reset_carrier then
           ag.has_ball = true
           reset_carrier = ag
         end
@@ -321,6 +325,12 @@ function tick_match(dt)
   end
 
   -- Collision detection: blocks and tackles
+  -- Re-fetch the carrier: the scoring block above may have switched
+  -- possession and reset positions, leaving the earlier `carrier` local
+  -- pointing at the previous (now-tackler) agent. Operating on that stale
+  -- reference caused a self-tackle that flipped possession straight back to
+  -- the scoring team every tick — the conceding team never got a real drive.
+  carrier = get_carrier(st.agents)
   if carrier then
     for _, ag in ipairs(st.agents) do
       if ag.status == "active" and ag.role == "tackler" then
@@ -363,6 +373,9 @@ function tick_match(dt)
               assign_roles(st.agents, st.possession)
               table.insert(st.events, { type="tackle_success",
                 tackler_id=ag.id, carrier_id=carrier.id, possession=st.possession })
+              -- Ball has moved; stop iterating so we don't tackle the now-
+              -- stale carrier reference again this tick.
+              break
             end
           else
             -- Failed tackle — stun tackler briefly

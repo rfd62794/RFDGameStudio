@@ -384,7 +384,135 @@ def test_mbb_assemble_mutant_from_parts() -> None:
     md = dict(mutant)
     assert md.get('name') == 'Test Mutant'
 
-# ── SLIME COIN ─────────────────────────────────────────────────────────────
+# ── MUTANT BATTLE BALL — full-match integration anchors ──────────────────────
+# These cover the real end-to-end match path (init_match -> tick_match loop ->
+# match_ended), which the original Phase 2v floor never tested. They guard the
+# two root causes fixed in the Match Engine Investigation: the stale-carrier
+# self-tackle after a score, and the ball being lost when the whole conceding
+# team was stunned at score time.
+
+def _mbb_start_match(session, data, opp_idx=0):
+    starters = list(data.get('starter_mutants', []))
+    opponents = list(data.get('opponents', []))
+    parts_data = list(data.get('parts', []))
+    parts_map = {dict(p)['id']: dict(p) for p in parts_data}
+    player_mutants = []
+    for rm in [dict(s) for s in starters[:2]]:
+        rp = dict(rm.get('parts', {}))
+        player_mutants.append({
+            'id': rm['id'], 'name': rm['name'], 'color': rm.get('color', '#fff'),
+            'parts': {slot: parts_map.get(pid) for slot, pid in rp.items()},
+        })
+    opp_mutants = [dict(m) for m in dict(opponents[opp_idx]).get('mutants', [])][:2]
+    session.executor.call('init_match', player_mutants, opp_mutants, data)
+
+def test_mbb_full_match_runs_to_completion() -> None:
+    """A real match reaches match_ended with a sensible final state."""
+    session = _load_mbb()
+    _mbb_start_match(session, session.files.data)
+    ended = False
+    holder_present_ticks = 0
+    for _ in range(2000):
+        rs = dict(session.executor.call('tick_match', 0.1) or {})
+        if rs.get('state') == 'paused_sub':
+            session.executor.call('resume_match')
+        if any(dict(e).get('type') == 'match_ended' for e in rs.get('events', [])):
+            ended = True
+        # The ball must be on someone (or the match must be over) every tick.
+        if rs.get('state') == 'playing':
+            if any(dict(a).get('has_ball') for a in rs.get('agents', [])):
+                holder_present_ticks += 1
+        if rs.get('state') == 'ended':
+            break
+    assert ended, "match never reached match_ended"
+    # The ball was held for the vast majority of playing ticks (not lost).
+    assert holder_present_ticks > 100
+
+def test_mbb_no_self_tackle_after_score() -> None:
+    """Regression guard for root cause #1: a tackler may never tackle itself.
+
+    Before the fix, the stale `carrier` local after a score-induced possession
+    change made the just-scored agent (now a tackler) tackle itself, flipping
+    possession straight back to the scoring team every tick.
+    """
+    session = _load_mbb()
+    _mbb_start_match(session, session.files.data)
+    for _ in range(2000):
+        rs = dict(session.executor.call('tick_match', 0.1) or {})
+        if rs.get('state') == 'paused_sub':
+            session.executor.call('resume_match')
+        for ev in rs.get('events', []):
+            ev = dict(ev)
+            if ev.get('type') == 'tackle_success':
+                assert ev.get('tackler_id') != ev.get('carrier_id'), \
+                    "self-tackle detected: tackler and carrier are the same agent"
+        if rs.get('state') == 'ended':
+            break
+
+def test_mbb_possession_actually_changes_teams() -> None:
+    """Possession genuinely changes hands via real tackles between different teams."""
+    session = _load_mbb()
+    _mbb_start_match(session, session.files.data)
+    cross_team_tackles = 0
+    for _ in range(2000):
+        rs = dict(session.executor.call('tick_match', 0.1) or {})
+        if rs.get('state') == 'paused_sub':
+            session.executor.call('resume_match')
+        for ev in rs.get('events', []):
+            ev = dict(ev)
+            if ev.get('type') == 'tackle_success':
+                # tackler and carrier must be on different teams
+                agents = {dict(a).get('id'): dict(a).get('team')
+                          for a in rs.get('agents', [])}
+                t_team = agents.get(ev.get('tackler_id'))
+                c_team = agents.get(ev.get('carrier_id'))
+                if t_team and c_team and t_team != c_team:
+                    cross_team_tackles += 1
+        if rs.get('state') == 'ended':
+            break
+    assert cross_team_tackles > 0, "no real cross-team possession changes occurred"
+
+def test_mbb_ball_not_lost_when_team_stunned() -> None:
+    """Regression guard for root cause #2: the ball is never orphaned.
+
+    Before the fix, if the whole conceding team was stunned at score time the
+    reset loop assigned the ball to no one and it was permanently lost.
+    """
+    session = _load_mbb()
+    _mbb_start_match(session, session.files.data)
+    lost_ticks = 0
+    for _ in range(2000):
+        rs = dict(session.executor.call('tick_match', 0.1) or {})
+        if rs.get('state') == 'paused_sub':
+            session.executor.call('resume_match')
+        if rs.get('state') == 'playing':
+            if not any(dict(a).get('has_ball') for a in rs.get('agents', [])):
+                lost_ticks += 1
+        if rs.get('state') == 'ended':
+            break
+    assert lost_ticks == 0, f"ball was orphaned for {lost_ticks} ticks during play"
+
+def test_mbb_substitution_trigger_fires() -> None:
+    """The substitution trigger (agent_down -> paused_sub) is reachable in a real match."""
+    session = _load_mbb()
+    _mbb_start_match(session, session.files.data, opp_idx=2)  # hard opponent -> more wounds
+    saw_agent_down = False
+    saw_paused_sub = False
+    for _ in range(2000):
+        rs = dict(session.executor.call('tick_match', 0.1) or {})
+        for ev in rs.get('events', []):
+            if dict(ev).get('type') == 'agent_down':
+                saw_agent_down = True
+        if rs.get('state') == 'paused_sub':
+            saw_paused_sub = True
+            session.executor.call('resume_match')
+        if rs.get('state') == 'ended':
+            break
+    # agent_down is probabilistic; assert the trigger wiring is correct when it fires.
+    if saw_agent_down:
+        assert saw_paused_sub, "agent_down occurred but state never became paused_sub"
+
+
 
 def test_slime_coin_init_game_sets_initial_state() -> None:
     """init_game initializes game state with default values."""

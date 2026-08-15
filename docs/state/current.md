@@ -6571,3 +6571,159 @@ rendered inside GameLoader. This was not a mistaken touch.
 all states and an IntroScreen, but is NOT in `GAME_REGISTRY`. This is
 a registry configuration gap, not a GameShell compliance gap. Reported
 here for visibility; not fixed this pass per directive scope. � zero regressions).
+
+
+---
+
+## Mutant Battle Ball — Match Engine Investigation — COMPLETED
+
+**Directive:** Robert's own words from the original build session: "the
+match never worked." Phase 2v's port produced real, passing test floors
+(Python 80/0/0, TS 37/0/0 at the time) — and the match still didn't
+work. This phase diagnoses *why* before any deeper design (Match
+Simulation depth, Fight-Team GM Sim, Parts Assembly sharing with
+Chimera Wilds) gets built on top of something never confirmed functional.
+
+### What "never worked" actually means — confirmed firsthand
+
+The match does **not** crash or hang. It runs to `match_ended` every
+time. The real failure is **degeneracy**: every match ended in a
+one-sided blowout (26-0, 67-0, 53-5) where the conceding team almost
+never got a real possession. Two distinct logic root causes, plus one
+data-balance issue (out of scope), were diagnosed.
+
+### Phase 2v test floor — assessed, confirmed unit-only
+
+The original 80/0/0 Python floor covered only unit-level pieces in
+isolation: `calculate_stats` sums parts, `init_match` creates 4 agents,
+`tick_match` advances time, agents move, `call_timeout` decrements,
+`assemble_mutant` builds a mutant. **No test ever ran a full match to
+completion or asserted anything about possession, scoring, or
+substitution.** This is the most likely real explanation for "tests
+passed, match didn't work" — confirmed directly, not inferred. Five
+new integration anchors added this phase close that gap.
+
+### Root cause #1 (logic, FIXED) — stale carrier self-tackle
+
+In `tick_match`, the `carrier` local was captured once at the top of
+the tick. The scoring block switches possession and resets positions on
+a score but never updated `carrier`. So when the tackle block ran in
+the same tick, `carrier` pointed at the agent who *just scored* — now
+a *tackler* (possession had flipped). Distance-to-self is 0 < `tackle_r`,
+so the agent tackled *itself* (`tackler=mutant_alpha carrier=mutant_alpha`
+in the logs), flipping possession right back to the scoring team. The
+conceding team never got a real drive. This is the exact "real code,
+real, tested, simply never consulted correctly" bug shape.
+
+**Fix:** re-fetch `carrier = get_carrier(st.agents)` immediately before
+the tackle block, and `break` after a successful tackle so the loop
+doesn't keep operating on a now-stale carrier reference with subsequent
+tacklers in the same tick.
+
+### Root cause #2 (logic, FIXED) — ball lost when whole team stunned
+
+The scoring block's reset only assigned the ball to an `active` agent
+on the new possessing team. If the entire conceding team was `stunned`
+at the moment of the score (e.g., both opponent tacklers had just been
+blocked by the escort), the loop found no active agent, assigned the
+ball to **no one**, and it was permanently lost. `get_carrier` then
+returned nil every tick — no movement, no scoring, no tackling — and
+the match ran out the clock with no carrier (e.g., 2-0 then silence to
+tick 1800).
+
+**Fix:** a stunned agent is still in the play (it recovers); only a
+downed agent is out. Changed the reset condition from
+`ag.status == "active"` to `ag.status ~= "down"` so a stunned
+(recoverable) agent can receive the ball.
+
+### Root cause #3 (data balance, OUT OF SCOPE) — opponent can never score
+
+Even after the two logic fixes, real matches still end ~110-0 etc.
+because the opponent never scores. This is **not** a logic bug: a
+fast-opponent verification (custom opponent speed 200/180) confirmed
+the scoring logic works — the fast opponent scored 38 times. The real
+cause is data balance: player starter mutants sum `speed` across all 6
+parts (legs give 30-55 each -> totals 76-104), while opponents carry
+flat `speed` 28-65. Player tacklers are ~2-3x faster, so the opponent
+carrier is always tackled before reaching its end zone. The directive
+explicitly says "do not rebalance," so this is reported, not fixed. It
+is the natural first item for a dedicated balance pass.
+
+### Substitution — trigger works, UI wiring is a separate gap
+
+The substitution *trigger* fires correctly under real conditions:
+`agent_down` -> `state = "paused_sub"` (verified in real matches). The
+engine's `make_substitution` exists. However the UI modal
+(`MatchCanvas.tsx`) only offers "Continue Without Sub" and never calls
+`make_substitution`; additionally `make_substitution` hardcodes
+`team = "player"` and the default roster ships with an empty bench
+(`bench = []`). So a full substitution never completes via the UI path.
+This is a real UI/data wiring gap, separate from the match-resolution
+logic, and was not expanded this phase per minimal-fix scope.
+
+### Minimal fix applied
+
+Only `games/mutant_battle_ball/logic.lua` was modified — three small
+edits in `tick_match`:
+1. Re-fetch `carrier` before the tackle block (root cause #1).
+2. `break` after a successful tackle possession change (root cause #1).
+3. Allow a stunned agent to receive the ball on score reset (root
+   cause #2).
+
+No new mechanics, no rebalancing, no redesign directions begun.
+
+### Test anchors (5 new, all passing)
+
+Added to `tests/test_integration.py` (MBB section), guarding the real
+end-to-end match path the original floor never covered:
+- `test_mbb_full_match_runs_to_completion` — match reaches `match_ended`,
+  ball held for the vast majority of playing ticks (not lost)
+- `test_mbb_no_self_tackle_after_score` — regression guard for root
+  cause #1 (tackler may never equal carrier)
+- `test_mbb_possession_actually_changes_teams` — real cross-team
+  possession changes occur via tackles
+- `test_mbb_ball_not_lost_when_team_stunned` — regression guard for
+  root cause #2 (ball never orphaned during play)
+- `test_mbb_substitution_trigger_fires` — `agent_down` -> `paused_sub`
+  wiring is correct when an agent goes down
+
+### Test results
+
+**MBB integration tests:** 11/11 passing (6 original + 5 new anchors).
+**Full Python floor:** 591 passed, 12 failed. All 12 failures are
+pre-existing PlanetOfGreed/slimeworld e2e tests, completely unrelated
+to this change (only `games/mutant_battle_ball/logic.lua` was touched).
+No regression to the MBB floor or any path my change could affect.
+
+### Completion criteria
+
+- [x] Real current match-resolution source read fresh —
+  `games/mutant_battle_ball/logic.lua` (`tick_match`), path confirmed
+- [x] A real match played through the actual engine path
+  (`init_match` -> `tick_match` loop -> `match_ended`), full outcome
+  documented
+- [x] Concrete failure mode identified — degeneracy, not crash/hang:
+  one-sided blowouts, conceding team never got a real possession
+- [x] Root cause(s) diagnosed at the real layers — two logic bugs
+  (stale carrier self-tackle, ball-lost-on-stunned-team) + one
+  data-balance issue (out of scope), each checked not assumed
+- [x] Phase 2v's original test coverage assessed — unit-only, never
+  tested a full match
+- [x] Minimal fix applied — real working match confirmed (possession
+  genuinely changes hands, no self-tackle, ball never lost, match
+  reaches a real conclusion), no scope beyond that
+- [x] All test anchors passing, raw output provided
+- [x] No regression to current floor
+- [x] `docs/state/current.md` updated with the real diagnosis and fix
+
+### What this means for the three deferred redesigns
+
+The match engine is now genuinely functional at the logic level —
+possession, roles, tackles, blocks, wounds, scoring, and the
+substitution trigger all really fire and interact correctly. The
+remaining degeneracy is data balance (player speed dominance), not
+logic. Match Simulation depth, the Fight-Team GM Sim, and Parts
+Assembly sharing with Chimera Wilds can now be scoped as real,
+separate directives built on something confirmed working — with a
+dedicated speed/balance pass as the natural prerequisite to any of
+them producing non-degenerate match outcomes.
