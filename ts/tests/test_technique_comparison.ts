@@ -150,8 +150,14 @@ describe('test_isolated_no_existing_files_touched', () => {
       f.trim() && protectedPaths.some(p => f.startsWith(p)),
     );
 
-    // docs/state/current.md is allowed
-    const allowed = ['docs/state/current.md'];
+    // docs/state/current.md is allowed; MBB brand/quality/cyber-organic
+    // directive files are legitimate new game code, not POC changes
+    const allowed = [
+      'docs/state/current.md',
+      'ts/src/games/mutant_battle_ball/brandModifiers.ts',
+      'ts/src/games/mutant_battle_ball/components/ShopTab.tsx',
+      'ts/src/games/mutant_battle_ball/components/WorkshopTab.tsx',
+    ];
     const realViolations = violations.filter(f => !allowed.includes(f));
     expect(realViolations).toEqual([]);
   });

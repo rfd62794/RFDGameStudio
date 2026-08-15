@@ -20,7 +20,7 @@ import type { Part, BrandId, QualityTier } from '../../engine/shared/partSlots';
 export const BRAND_SIGNATURES: Record<BrandId, {
   label: string;
   signature: string;
-  statKey: keyof Pick<Part, 'accuracy' | 'endurance' | 'power' | 'speed'> | 'all';
+  statKey: 'accuracy' | 'endurance' | 'power' | 'speed' | 'all' | 'momentum';
   modifier: number;
 }> = {
   trueflame:   { label: 'Trueflame',   signature: 'Power',      statKey: 'power',        modifier: 0.15 },

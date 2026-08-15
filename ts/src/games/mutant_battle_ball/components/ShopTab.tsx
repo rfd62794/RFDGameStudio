@@ -77,7 +77,7 @@ export default function ShopTab({ state, setState, session }: ShopTabProps) {
                 <div className="part-quality">
                   <Badge
                     label={QUALITY_LABELS[part.qualityTier]}
-                    variant={part.qualityTier === 'malfunctioning' ? 'default' : 'muted'}
+                    variant={part.qualityTier === 'malfunctioning' ? 'red' : 'muted'}
                   />
                 </div>
               )}

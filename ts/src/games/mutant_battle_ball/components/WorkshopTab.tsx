@@ -121,7 +121,7 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
             <div className="equip-header">
               <PaperDoll
                 bodyPlan={humanoidBilateral}
-                parts={selectedMutant.parts}
+                parts={selectedMutant.parts as unknown as Record<string, { id: string; name: string; slot: PartSlot } | null>}
                 color={selectedMutant.color}
                 size={80}
                 seed={selectedMutant.id.charCodeAt(0)}
@@ -149,7 +149,7 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
                         {equipped.qualityTier && equipped.qualityTier !== 'brand_new' && (
                           <Badge
                             label={QUALITY_LABELS[equipped.qualityTier]}
-                            variant={equipped.qualityTier === 'malfunctioning' ? 'default' : 'muted'}
+                            variant={equipped.qualityTier === 'malfunctioning' ? 'red' : 'muted'}
                           />
                         )}
                         {equipped.qualityTier === 'brand_new' && (
