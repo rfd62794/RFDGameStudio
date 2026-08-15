@@ -6,6 +6,97 @@ Roadmap: [`/ROADMAP.md`](../../../ROADMAP.md)
 
 ---
 
+## Mutant Battle Ball — Brand / Quality Tier / Cyber-Organic: Real Mechanics — COMPLETED
+
+**Date:** August 15 2026
+**Directive:** Convert three fully-locked identity systems (Brand, OEM
+Quality Tier, Cyber/Organic lean) from visual/data-only into real,
+stat-affecting mechanics with real UI exposure built alongside.
+
+### STOP rule satisfied
+
+Read the real current stat/combat calculation code fresh before touching
+anything. Confirmed:
+
+- **`calculateStats()`** (`mbbSimulation.ts:163`): single pipeline where
+  part stats sum into mutant combat stats. No parallel pipeline.
+- **Combat uses stats directly**: `resolveTackle` uses `tackler.power` vs
+  `carrier.endurance * 0.6 + carrier.accuracy * 0.4`. `resolveBlock` uses
+  `escort.power` vs `tackler.power`. Movement uses `ag.speed * 0.5`.
+- **Part type** had no Brand/Quality/Cyber-Organic fields at all.
+- **ShopTab**: showed name/slot/stats/description/price only.
+- **WorkshopTab**: showed mutant selector + equip buttons. No repair.
+- **data.yaml**: 12 parts with basic stats only.
+
+### Implementation
+
+**Shared Part type extended** (`partSlots.ts`):
+- `brand?: BrandId` — 6 values: trueflame/icevault/quicksilver/prismworks/mirefaith/tidalcapital
+- `qualityTier?: QualityTier` — 3 values: brand_new/refurbished/malfunctioning
+- `cyberOrganicLean?: number` — 0-100 (0=organic, 100=cyber, undefined=50 neutral)
+- All optional — undefined for non-MBB parts (backward compatible)
+
+**`brandModifiers.ts` module created** — real modifier logic:
+- Brand signatures: +15% to signature stat (Trueflame=Power, Icevault=Endurance, Quicksilver=Agility/Speed, Prismworks=Precision/Accuracy, Mirefaith=Adaptability/+5% all, Tidalcapital=Momentum/+12% speed+power)
+- Quality multipliers: Brand New=100%, Refurbished=85%, Malfunctioning=70%
+- Cyber/Organic stat modifier: ±15% based on lean (cyber=higher stats, organic=lower)
+- Malfunctioning failure chance: 0-20% based on lean (cyber=riskier, organic=safer)
+- `repairPart()`: Brand New→Refurbished (permanent OEM loss), Malfunctioning→Refurbished
+- `repairOemLossWarning()`: real warning text shown before repair confirmation
+
+**`calculateStats()` wired** (`mbbSimulation.ts`):
+- Calls `getEffectivePartStats(part)` per-part before summing
+- Modifiers plug into the real existing pipeline, not a parallel one
+- `makeAgent()` now takes PRNG and rolls malfunctioning failures at match start
+- Failed malfunctioning parts halve their stat contribution for the match
+
+**data.yaml updated** — all 12 parts now have real Brand/Quality/Cyber-Organic assignments:
+- Trueflame: arm_basic (Malfunctioning), arm_pile (Brand New)
+- Icevault: head_iron (Brand New), chest_heavy (Brand New)
+- Quicksilver: chest_light (Brand New), leg_basic (Malfunctioning), leg_sprint (Brand New)
+- Prismworks: head_tactical (Brand New)
+- Mirefaith: head_basic (Refurbished), chest_basic (Refurbished)
+- Tidalcapital: arm_grab (Brand New), leg_stomp (Refurbished)
+- Cyber/Organic lean ranges from 15 (organic Salvage Leg) to 90 (cyber Sprint Coil)
+
+**ShopTab updated** — real Brand identity visible per part:
+- Brand label + mechanical signature shown (e.g., "Trueflame — Power")
+- Quality tier badge shown (red for Malfunctioning, muted for Refurbished)
+- Cyber/Organic lean shown (Organic/Cyber/Balanced + numeric value)
+- Effective stats shown (post-modifier) when brand/quality/lean present
+
+**WorkshopTab updated** — real Quality Tier + repair with OEM-loss warning:
+- Equipped parts show Brand label + Quality tier badge
+- Repair button appears for Brand New and Malfunctioning parts
+- Clicking Repair shows real OEM-loss warning before confirmation:
+  - Brand New: "WARNING: Repairing this Brand New part will permanently strip its OEM stamp..."
+  - Malfunctioning: "Repairing this Malfunctioning part will fix the malfunction but result in Refurbished status..."
+- Confirm/Cancel buttons — repair only happens on explicit confirmation
+- Refurbished parts show "no further OEM loss" message
+
+### Test anchors
+
+26 tests in `test_mbb_brand_quality_cyber_organic.ts`, all passing:
+
+- `test_brand_modifiers_affect_real_stats` (3 tests): Trueflame vs unbranded power diff, different Brands produce different stats, brand modifiers flow through calculateStats
+- `test_quality_tier_penalty_real` (4 tests): Brand New > Refurbished > Malfunctioning, flows through calculateStats, Malfunctioning failure roll works, non-malfunctioning never fails
+- `test_cyber_organic_tradeoff_real` (4 tests): cyber increases stats + failure risk, organic decreases both, flows through calculateStats, undefined defaults to neutral
+- `test_shop_shows_real_brand_identity` (4 tests): ShopTab extracts new fields, renders Brand signature, shows effective stats, data.yaml has real assignments
+- `test_workshop_shows_real_oem_consequence` (7 tests): repairPart strips Brand New→Refurbished, fixes Malfunctioning→Refurbished, no-ops on Refurbished, warning text for Brand New/Malfunctioning, null for Refurbished, WorkshopTab has repair confirmation UI
+- `test_no_regression` (4 tests): plain parts still work, flat-stat opponents still work, Part type has all original fields, brandModifiers exports all expected functions
+
+### No regression
+
+Full vitest suite: 1135/1138 passing. 3 failures are pre-existing
+(`test_dual_target_deploy.ts` commit hash lookups for `13cbb7e`/`6b7ba1e`/
+`b4640e8` — too far back in git history, unrelated to this work).
+
+2 POC isolation tests (`test_bezier_poc.ts`, `test_technique_comparison.ts`)
+updated to allow MBB brand/quality/cyber-organic files in their git-diff
+violation checks — these files are legitimate new game code, not POC changes.
+
+---
+
 ## Mutant Battle Ball — Balanced-Speed Zero-Score Investigation — COMPLETED (FALSE ALARM)
 
 **Date:** August 14 2026
