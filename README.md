@@ -39,8 +39,11 @@ pip install -r requirements.txt
 ```bash
 pip install -r requirements.txt
 pytest tests/
-# Expected: 15 passed, 0 failed, 0 skipped
 ```
+
+> **Note:** the expected test count below is stale — see the flagged
+> README refresh in `docs/state/StatusBoard.md`. Do not trust "15 passed"
+> as current; check `docs/state/current.md`'s tail for the real floor.
 
 ### Load a game (Python)
 
@@ -82,6 +85,12 @@ Every runtime exposes the same three functions:
 
 ## Directory Structure
 
+> **Note:** this section predates significant studio growth (94 TS test
+> files / 994+ tests as of the latest `docs/state/current.md` entry, vs.
+> the snapshot below) — real, needs a dedicated refresh pass, not patched
+> here. Structure shown is the June 2026 baseline, still substantially
+> accurate for the Python core, not for the TS side.
+
 ```
 RFDGameStudio/
   games/
@@ -102,8 +111,8 @@ RFDGameStudio/
     test_executor.py  — tests 8–12 (executor: clamp, generate_horse_name, error handling)
     test_runtime.py   — tests 13–15 (runtime integration)
   docs/
-    adr/              — ADR-001 … ADR-005 (locked)
-    sdd/              — System Design Document (v0.3 current; v0.1, v0.2 archived)
+    adr/              — ADR-001 … ADR-014 (locked)
+    sdd/              — System Design Document (v0.4 current; v0.1–v0.3 archived)
     directives/       — Phase directives
     state/
       current.md      — live phase status
@@ -119,6 +128,12 @@ RFDGameStudio/
 
 ## Phase Roadmap
 
+> **Note:** stale — Phase 2 (TypeScript Runtime) and Phase 3 (Claude MCP
+> Integration / `RFDStudioMCP`) are confirmed complete elsewhere in this
+> project's history but not verified against primary source in this pass.
+> Left as-is rather than guessed at. Needs direct confirmation, not a
+> patch riding on an unrelated change.
+
 | Phase | Title | Status |
 |---|---|---|
 | **1** | Python Runtime Core | ✅ **Certified** — 15/0/0 |
@@ -131,21 +146,30 @@ RFDGameStudio/
 
 ## Architectural Decisions
 
-Five locked ADRs govern the studio. See [`docs/adr/`](docs/adr/) for full records.
+**Fourteen ADRs govern the studio** (this line was stale at "five" — see
+[`docs/adr/`](docs/adr/) for the complete, current set). Key ones:
 
 | ADR | Decision |
 |---|---|
 | [ADR-001](docs/adr/ADR-001.md) | Three-file format is the canonical game definition |
 | [ADR-002](docs/adr/ADR-002.md) | Lua is the logic layer across all runtimes |
-| [ADR-003](docs/adr/ADR-003.md) | Python is the Phase 1 runtime target |
-| [ADR-004](docs/adr/ADR-004.md) | Claude is a first-class participant |
-| [ADR-005](docs/adr/ADR-005.md) | Component systems are named patterns, not shared binaries |
+| [ADR-005](docs/adr/ADR-005.md) | Component systems as named patterns — **superseded, see ADR-009 and ADR-014** |
+| [ADR-009](docs/adr/ADR-009.md) | Shared Lua utility primitives are permitted (supersedes ADR-005 for utilities) |
+| [ADR-011](docs/adr/ADR-011.md) | Logic-layer modularization by real SRP threshold |
+| [ADR-014](docs/adr/ADR-014-shared-engine-modules-default.md) | Shared engine modules are the default in both runtimes, not the exception |
 
 ---
 
 ## Component Systems
 
-Eight proven primitives extracted from prior projects. Each game implements the ones it needs in its own `logic.lua` — no shared binary, no import.
+Eight proven primitives extracted from prior projects. **As of ADR-014
+(August 15, 2026), shared engine modules are the studio's default
+posture in both runtimes** — check `engine/primitives/` + `engine/systems/`
+(Lua) or `ts/src/engine/shared/` (TypeScript) before writing new game
+logic, and contribute back when a genuinely general capability is
+recognized with a real second use already known or likely. This replaces
+the line previously here ("no shared binary, no import") — see ADR-014
+for the full decision and what changed.
 
 | System | What It Does |
 |---|---|
@@ -174,4 +198,4 @@ MIT — see [`LICENSE`](LICENSE).
 
 ---
 
-*RFD IT Services Ltd. | June 2026*
+*RFD IT Services Ltd. | June 2026 | Component Systems and ADR sections updated August 15, 2026 — remainder of this README (Phase Roadmap, Directory Structure, Quick Start test count) is confirmed stale and flagged in place rather than guessed at. Needs its own dedicated refresh pass.*
