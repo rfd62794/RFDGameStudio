@@ -63,7 +63,7 @@ describe('test_git_state_clean_both_games', () => {
   it('Shoal TS-native migration commits are all present', () => {
     // Use a wide range — commits accumulate over time and these
     // migration commits may be far back in history.
-    const log = gitLog('log --oneline -60');
+    const log = gitLog('log --oneline -100');
     // The final migration commit
     expect(log).toContain('dacca69');
     // The simulation module commit
@@ -72,7 +72,7 @@ describe('test_git_state_clean_both_games', () => {
 
   it('Planet of Greed full thread commits are present', () => {
     // Use a wide range — PoG commits span a large range of history.
-    const log = gitLog('log --oneline -60');
+    const log = gitLog('log --oneline -100');
     // Softlock fix
     expect(log).toContain('13cbb7e');
     // Attack capability fix

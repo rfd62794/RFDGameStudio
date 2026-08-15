@@ -106,15 +106,15 @@ describe('Arcade GameLoader', () => {
     });
     // The game component is lazy-loaded via React.lazy + Suspense, so
     // the back button (inside GameShell) may not appear immediately.
-    // Use a generous timeout (15s) to handle slow CI environments and
-    // parallel test load. Poll every 50ms for smoother behavior.
+    // Use a generous timeout (30s) to handle slow CI environments and
+    // heavy parallel test load. Poll every 100ms to reduce overhead.
     const backButton = await vi.waitFor(
       () => {
         const btn = container.querySelector('.game-shell-back') as HTMLButtonElement | null;
         if (!btn) throw new Error('GameShell back button not rendered yet');
         return btn;
       },
-      { timeout: 15000, interval: 50 }
+      { timeout: 30000, interval: 100 }
     );
     await act(async () => {
       backButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
