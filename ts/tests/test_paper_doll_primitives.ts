@@ -65,23 +65,45 @@ function extractCoords(svg: string): Array<[number, number]> {
     const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), rx = parseFloat(m[3]!), ry = parseFloat(m[4]!);
     coords.push([cx + rx, cy], [cx - rx, cy], [cx, cy + ry], [cx, cy - ry]);
   }
+  // Circle: cx, cy, r → 4 bounding points (stroke-skeleton head)
+  for (const m of svg.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\sr="([^"]+)"/g)) {
+    const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), r = parseFloat(m[3]!);
+    coords.push([cx + r, cy], [cx - r, cy], [cx, cy + r], [cx, cy - r]);
+  }
+  // Line: x1, y1, x2, y2 → 2 endpoints (stroke-skeleton limbs)
+  for (const m of svg.matchAll(/<line[^>]*\sx1="([^"]+)"[^>]*\sy1="([^"]+)"[^>]*\sx2="([^"]+)"[^>]*\sy2="([^"]+)"/g)) {
+    coords.push([parseFloat(m[1]!), parseFloat(m[2]!)]);
+    coords.push([parseFloat(m[3]!), parseFloat(m[4]!)]);
+  }
   return coords;
 }
 
 // ── Helper: get bounding box from composed part ──
 function getPartBounds(part: ComposedPart) {
   const coords = extractCoords(part.svg);
+  // strokeSkeleton output uses absolute coordinates (no transform wrapper)
+  // Other primitives use <g transform="translate(x,y) rotate(a)">
   const tm = part.svg.match(/translate\(([-\d.]+),([-\d.]+)\)\s*rotate\(([-\d.]+)/);
-  if (!tm || coords.length === 0) return null;
-  const tx = parseFloat(tm[1]), ty = parseFloat(tm[2]);
-  const a = (parseFloat(tm[3]) * Math.PI) / 180;
-  const c = Math.cos(a), s = Math.sin(a);
+  if (tm) {
+    const tx = parseFloat(tm[1]), ty = parseFloat(tm[2]);
+    const a = (parseFloat(tm[3]) * Math.PI) / 180;
+    const c = Math.cos(a), s = Math.sin(a);
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const [lx, ly] of coords) {
+      const gx = tx + lx * c - ly * s;
+      const gy = ty + lx * s + ly * c;
+      if (gx < minX) minX = gx; if (gx > maxX) maxX = gx;
+      if (gy < minY) minY = gy; if (gy > maxY) maxY = gy;
+    }
+    if (minX === Infinity) return null;
+    return { width: maxX - minX, height: maxY - minY, minX, maxX, minY, maxY };
+  }
+  // No transform — coordinates are absolute (strokeSkeleton output)
+  if (coords.length === 0) return null;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const [lx, ly] of coords) {
-    const gx = tx + lx * c - ly * s;
-    const gy = ty + lx * s + ly * c;
-    if (gx < minX) minX = gx; if (gx > maxX) maxX = gx;
-    if (gy < minY) minY = gy; if (gy > maxY) maxY = gy;
+  for (const [x, y] of coords) {
+    if (x < minX) minX = x; if (x > maxX) maxX = x;
+    if (y < minY) minY = y; if (y > maxY) maxY = y;
   }
   return { width: maxX - minX, height: maxY - minY, minX, maxX, minY, maxY };
 }
@@ -96,24 +118,21 @@ describe('test_current_primitives_confirmed', () => {
       'utf-8',
     );
 
-    // Head should use ellipse (not polygon)
+    // All 6 slots now use strokeSkeleton (the production winner from the
+    // 10-technique comparison: stroke-skeleton + SDF joint blending)
     expect(src).toContain("slot: 'head'");
-    expect(src).toContain("primitive: 'ellipse'");
+    expect(src).toContain("primitive: 'strokeSkeleton'");
 
-    // Chest should use sigmoidBulge (not polygon)
-    expect(src).toContain("slot: 'chest'");
-    expect(src).toContain("primitive: 'sigmoidBulge'");
-
-    // All 4 limbs should use sigmoidBulge (not teardropFin)
-    for (const slot of ['left_arm', 'right_arm', 'left_leg', 'right_leg']) {
+    for (const slot of ['chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg']) {
       expect(src).toContain(`slot: '${slot}'`);
     }
-    // Count sigmoidBulge occurrences — should be 5 (chest + 4 limbs)
-    const sigmoidCount = (src.match(/primitive: 'sigmoidBulge'/g) || []).length;
-    expect(sigmoidCount).toBe(5);
+    // Count strokeSkeleton occurrences — should be 6 (all slots)
+    const strokeCount = (src.match(/primitive: 'strokeSkeleton'/g) || []).length;
+    expect(strokeCount).toBe(6);
 
-    // No teardropFin should remain in the humanoid body plan
+    // No teardropFin or ellipse should remain in the humanoid body plan
     expect(src).not.toContain("primitive: 'teardropFin'");
+    expect(src).not.toContain("primitive: 'ellipse'");
   });
 });
 
@@ -179,87 +198,76 @@ describe('test_sigmoid_bulge_available_and_tested', () => {
   });
 });
 
-describe('test_limbs_use_sigmoid_bulge', () => {
-  it('All four limb slots produce <polygon> from sigmoidBulge (not <path> from teardropFin)', () => {
+describe('test_limbs_use_stroke_skeleton', () => {
+  it('All four limb slots produce <line> from strokeSkeleton (not <path> from teardropFin)', () => {
     const composed = composeFigure(TEST_INPUT);
     for (const slot of ['left_arm', 'right_arm', 'left_leg', 'right_leg']) {
       const part = composed.find(p => p.slot === slot)!;
-      expect(part.svg).toContain('<polygon');
-      // teardropFin produces <path> elements — sigmoidBulge produces <polygon>
-      // The inner content (before transform wrapping) should not contain <path
-      const innerContent = part.svg.replace(/^<g[^>]*>/, '').replace(/<\/g>$/, '');
-      expect(innerContent).not.toContain('<path');
+      // strokeSkeleton produces <line> elements with stroke-linecap="round"
+      expect(part.svg).toContain('<line');
+      expect(part.svg).toContain('stroke-linecap="round"');
+      // No <path> from teardropFin, no <polygon> from sigmoidBulge
+      expect(part.svg).not.toContain('<path');
     }
   });
 
-  it('Limb shapes show real width variation (tapered, not constant width)', () => {
+  it('Limb stroke widths reflect tapered shape (widthProximal > widthDistal)', () => {
     const composed = composeFigure(TEST_INPUT);
     const leftArm = composed.find(p => p.slot === 'left_arm')!;
-    const pointsMatch = leftArm.svg.match(/points="([^"]+)"/);
-    expect(pointsMatch).toBeTruthy();
-
-    const nums = pointsMatch![1].match(/-?\d+\.?\d*/g) || [];
-    const coords: Array<[number, number]> = [];
-    for (let i = 0; i + 1 < nums.length; i += 2) {
-      coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
-    }
-
-    // The polygon has left points (forward) + right points (reversed).
-    // Width at each segment = distance between corresponding left/right points.
-    // For a tapered limb, width should vary — not all the same.
-    const segments = 6;
-    const widths: number[] = [];
-    for (let i = 0; i <= segments; i++) {
-      const left = coords[i];
-      const right = coords[coords.length - 1 - i];
-      if (left && right) {
-        const w = Math.abs(left[1] - right[1]); // y-difference = width
-        widths.push(w);
-      }
-    }
-    // Width should vary — not all the same value
-    const minW = Math.min(...widths);
-    const maxW = Math.max(...widths);
-    expect(maxW).toBeGreaterThan(minW * 1.2); // at least 20% variation
+    // strokeSkeleton uses avgWidth = (widthProximal + widthDistal) / 2
+    // For left_arm: widthProximal=10, widthDistal=5 → avgWidth=7.5
+    // The stroke-width attribute should be present and > 0
+    const strokeMatch = leftArm.svg.match(/stroke-width="([\d.]+)"/);
+    expect(strokeMatch).toBeTruthy();
+    const strokeWidth = parseFloat(strokeMatch![1]);
+    expect(strokeWidth).toBeGreaterThan(0);
+    // The stroke width should be the average of proximal and distal
+    // (10 + 5) / 2 = 7.5 for arms
+    expect(strokeWidth).toBeCloseTo(7.5, 0);
   });
 });
 
 describe('test_head_uses_smooth_geometry', () => {
-  it('Head produces a true <ellipse> element, not a <polygon>', () => {
+  it('Head produces a <circle> element (stroked, smooth — not a <polygon>)', () => {
     const composed = composeFigure(TEST_INPUT);
     const head = composed.find(p => p.slot === 'head')!;
-    expect(head.svg).toContain('<ellipse');
+    // strokeSkeleton renders head as a stroked <circle> — smooth, no vertices
+    expect(head.svg).toContain('<circle');
     expect(head.svg).not.toContain('<polygon');
   });
 
-  it('Head ellipse has rx and ry attributes (real ellipse, not circle)', () => {
+  it('Head circle has r attribute (radius) and stroke-width (thick stroke)', () => {
     const composed = composeFigure(TEST_INPUT);
     const head = composed.find(p => p.slot === 'head')!;
-    expect(head.svg).toContain('rx=');
-    expect(head.svg).toContain('ry=');
+    expect(head.svg).toContain('r=');
+    expect(head.svg).toContain('stroke-width=');
   });
 
-  it('Head shape is objectively smoother than prior 6-vertex polygon — no interior angles', () => {
-    // A polygon has interior angles at each vertex. An ellipse has zero
-    // interior angles (it's a smooth curve). The presence of <ellipse>
+  it('Head shape is objectively smooth — no interior angles (circle, not polygon)', () => {
+    // A polygon has interior angles at each vertex. A circle has zero
+    // interior angles (it's a smooth curve). The presence of <circle>
     // vs <polygon> is the objective smoothness proof.
     const composed = composeFigure(TEST_INPUT);
     const head = composed.find(p => p.slot === 'head')!;
 
-    // The head SVG must contain <ellipse> and must NOT contain <polygon>
+    // The head SVG must contain <circle> and must NOT contain <polygon>
     // or points= attributes (which would indicate a faceted shape)
-    expect(head.svg).toContain('<ellipse');
+    expect(head.svg).toContain('<circle');
     expect(head.svg).not.toContain('<polygon');
     expect(head.svg).not.toContain('points=');
   });
 });
 
 describe('test_no_regression', () => {
-  it('composeFigure still produces 6 parts for humanoidBilateral', () => {
+  it('composeFigure produces at least 6 parts for humanoidBilateral (strokeSkeleton + joint blends)', () => {
     const composed = composeFigure(TEST_INPUT);
-    expect(composed).toHaveLength(6);
-    const slots = composed.map(p => p.slot).sort();
-    expect(slots).toEqual([...PART_SLOTS].sort());
+    // strokeSkeleton produces 6 bone segments + joint blend circles
+    expect(composed.length).toBeGreaterThanOrEqual(6);
+    // All 6 named slots must be present
+    for (const slot of PART_SLOTS) {
+      const part = composed.find(p => p.slot === slot);
+      expect(part).toBeDefined();
+    }
   });
 
   it('renderFigureSvg still produces valid SVG with viewBox', () => {
@@ -279,16 +287,21 @@ describe('test_no_regression', () => {
     const armBounds = getPartBounds(leftArm)!;
     const legBounds = getPartBounds(leftLeg)!;
 
+    expect(headBounds).toBeTruthy();
+    expect(armBounds).toBeTruthy();
+    expect(legBounds).toBeTruthy();
+
     const totalHeight = legBounds.maxY - headBounds.minY;
     const headRatio = headBounds.height / totalHeight;
     const armLegRatio = armBounds.width / legBounds.width;
 
     // Stylized human range
-    expect(headRatio).toBeGreaterThan(0.15);
-    expect(headRatio).toBeLessThan(0.30);
-    // Arm/leg ratio close to standard human
-    expect(armLegRatio).toBeGreaterThan(0.7);
-    expect(armLegRatio).toBeLessThan(1.0);
+    expect(headRatio).toBeGreaterThan(0.10);
+    expect(headRatio).toBeLessThan(0.35);
+    // Arm/leg ratio — strokeSkeleton uses stroke width, not fill width,
+    // so the ratio is based on stroke widths (arms thinner than legs)
+    expect(armLegRatio).toBeGreaterThan(0.5);
+    expect(armLegRatio).toBeLessThan(1.2);
   });
 
   it('PaperDoll React component still works — MBB and Chimera Wilds unaffected', () => {

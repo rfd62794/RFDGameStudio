@@ -164,7 +164,7 @@ describe('test_layer_composition', () => {
 });
 
 describe('test_shape_generation', () => {
-  it('Ellipse primitive produces <ellipse> elements (head)', () => {
+  it('Stroke-skeleton head produces a <circle> element (stroked, not filled ellipse)', () => {
     const input: CompositionInput = {
       bodyPlan: humanoidBilateral,
       parts: makeFullParts(),
@@ -173,11 +173,11 @@ describe('test_shape_generation', () => {
     };
     const composed = composeFigure(input);
     const head = composed.find(c => c.slot === 'head')!;
-    // humanoidBilateral maps head to 'ellipse'
-    expect(head.svg).toContain('<ellipse');
+    // humanoidBilateral now uses strokeSkeleton: head = stroked <circle>
+    expect(head.svg).toContain('<circle');
   });
 
-  it('SigmoidBulge primitive produces <polygon> elements (limbs)', () => {
+  it('Stroke-skeleton limbs produce <line> elements (thick stroked, not polygon)', () => {
     const input: CompositionInput = {
       bodyPlan: humanoidBilateral,
       parts: makeFullParts(),
@@ -186,8 +186,8 @@ describe('test_shape_generation', () => {
     };
     const composed = composeFigure(input);
     const arm = composed.find(c => c.slot === 'left_arm')!;
-    // humanoidBilateral maps arms to 'sigmoidBulge'
-    expect(arm.svg).toContain('<polygon');
+    // humanoidBilateral now uses strokeSkeleton: limbs = stroked <line>
+    expect(arm.svg).toContain('<line');
   });
 
   it('IrregularFragment primitive produces <polygon> elements (for chimera)', () => {
@@ -263,7 +263,7 @@ describe('test_shape_generation', () => {
 });
 
 describe('test_both_body_plans_produce_valid_figures', () => {
-  it('humanoidBilateral produces a 6-part figure with correct shape types', () => {
+  it('humanoidBilateral produces a figure with correct stroke-skeleton shape types', () => {
     const input: CompositionInput = {
       bodyPlan: humanoidBilateral,
       parts: makeFullParts(),
@@ -271,14 +271,15 @@ describe('test_both_body_plans_produce_valid_figures', () => {
       seed: 42,
     };
     const composed = composeFigure(input);
-    expect(composed.length).toBe(6);
+    // strokeSkeleton produces 6 bone segments + joint blend circles
+    expect(composed.length).toBeGreaterThanOrEqual(6);
 
-    // Verify shape types match the body plan's mappings
+    // Verify shape types match the body plan's strokeSkeleton mappings
     const head = composed.find(c => c.slot === 'head')!;
-    expect(head.svg).toContain('<ellipse'); // ellipse primitive
+    expect(head.svg).toContain('<circle'); // stroked circle (stroke-skeleton head)
 
     const arm = composed.find(c => c.slot === 'left_arm')!;
-    expect(arm.svg).toContain('<polygon'); // sigmoidBulge primitive
+    expect(arm.svg).toContain('<line'); // stroked line (stroke-skeleton limb)
   });
 
   it('chimeraAsymmetric produces a 6-part figure with correct shape types', () => {
