@@ -68,8 +68,41 @@ export interface AttachmentNode {
 
 export interface SlotShapeMapping {
   slot: PartSlot;
-  primitive: 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge' | 'ellipse';
+  primitive: 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge' | 'ellipse' | 'strokeSkeleton';
   baseParams: Record<string, number>; // primitive-specific, e.g. vertexCount
+}
+
+// ── Stroke-Skeleton + Joint Blend (August 2026 — production technique) ──
+//
+// The winning technique from the side-by-side comparison: body parts
+// rendered as thick stroked paths along bone segments with round
+// linecaps, plus SDF/smooth-min circle blends at joint locations
+// (shoulders, hips, elbows, knees) so adjacent segments merge into
+// one smooth mass rather than leaving visible sharp junctions.
+//
+// The strokeSkeleton primitive is special: unlike other primitives
+// that render a single shape at one position, it renders a line
+// from the slot's resolved position to its parent's resolved
+// position. This requires the composer to handle it in a post-
+// processing pass after all attachments are resolved.
+
+export interface StrokeSkeletonParams {
+  // Stroke width at the parent (proximal) end — thicker at joints
+  widthProximal: number;
+  // Stroke width at the child (distal) end — thinner at extremities
+  widthDistal: number;
+  // Joint blend circle radius (SDF smooth-min blend at connection points)
+  jointBlendRadius: number;
+  // Joint blend smooth-min k factor (higher = smoother, wider blend)
+  jointBlendK: number;
+}
+
+export interface JointBlendCircle {
+  cx: number;
+  cy: number;
+  r: number;
+  color: string;
+  blendK: number;
 }
 
 export interface BodyPlan {

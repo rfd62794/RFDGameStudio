@@ -17,9 +17,13 @@
  * and region fields for true FK rotation accumulation (#3), painter's
  * algorithm Z-ordering (#5), and biological scaling (#6).
  *
- * The offset fields are retained (length=0) for backward compatibility
- * — existing consumers that pass CompositionInput without the new
- * optional fields get the same visual result as before.
+ * RENDERING TECHNIQUE (August 2026 — production winner):
+ * Uses the strokeSkeleton primitive — thick stroked paths along each
+ * bone segment with round linecaps, plus SDF/smooth-min joint blend
+ * circles at shoulders/hips. This replaces the old ellipse/sigmoidBulge
+ * fill-primitive approach. The stroke IS the body — no fill-shape math.
+ * Joint blend circles merge adjacent stroke segments into one smooth
+ * mass at connection points, eliminating visible sharp line junctions.
  */
 
 import type { BodyPlan } from '../types';
@@ -92,48 +96,44 @@ export const humanoidBilateral: BodyPlan = {
   // Back-to-front: legs behind, then arms, then torso, then head on top
   renderOrder: ['left_leg', 'right_leg', 'left_arm', 'right_arm', 'chest', 'head'],
   shapeMappings: [
+    // Stroke-skeleton rendering: each part is a stroked line from
+    // its parent's position to its own position. widthProximal =
+    // stroke width at the joint (thicker), widthDistal = stroke
+    // width at the extremity (thinner). jointBlendRadius = radius
+    // of the SDF smooth-min blend circle at the connection point.
     {
       slot: 'head',
-      primitive: 'ellipse',
-      // rx 7, ry 8: slightly taller than wide (human head is oval)
-      // After torsoHead scaling (1.2x): effective rx=8.4, ry=9.6
-      baseParams: { rx: 7, ry: 8 },
+      primitive: 'strokeSkeleton',
+      // Head: stroked circle, widthProximal = radius, widthDistal = stroke width
+      baseParams: { widthProximal: 10, widthDistal: 6, jointBlendRadius: 7, jointBlendK: 4 },
     },
     {
       slot: 'chest',
-      primitive: 'sigmoidBulge',
-      // Chest as a wide, short sigmoid bulge — shoulders wider than waist
-      // widthStart (shoulders) > widthEnd (waist) creates torso taper
-      // After torsoChest scaling (1.6x): effective 28.8 → 14.4
-      baseParams: { widthStart: 18, widthEnd: 9, segments: 8, bulgeFactor: 0.3 },
+      primitive: 'strokeSkeleton',
+      // Torso: thick stroked vertical line (spine), wider at shoulders
+      baseParams: { widthProximal: 20, widthDistal: 14, jointBlendRadius: 12, jointBlendK: 5 },
     },
     {
       slot: 'left_arm',
-      primitive: 'sigmoidBulge',
-      // Arm as a tapered limb: wider at shoulder, narrower at wrist
-      // After Kleiber (0.855) + jointBuffer (1.3): widthStart ≈ 16.7
-      // After Kleiber (0.855) + limbEndTaper (0.55): widthEnd ≈ 4.2
-      // avgWidth ≈ 10.5, length = avgWidth * 3 ≈ 31.4
-      baseParams: { widthStart: 15, widthEnd: 9, segments: 6, bulgeFactor: 0.4 },
+      primitive: 'strokeSkeleton',
+      // Arm: stroked line from shoulder to hand, tapered
+      baseParams: { widthProximal: 10, widthDistal: 5, jointBlendRadius: 6, jointBlendK: 4 },
     },
     {
       slot: 'right_arm',
-      primitive: 'sigmoidBulge',
-      baseParams: { widthStart: 15, widthEnd: 9, segments: 6, bulgeFactor: 0.4 },
+      primitive: 'strokeSkeleton',
+      baseParams: { widthProximal: 10, widthDistal: 5, jointBlendRadius: 6, jointBlendK: 4 },
     },
     {
       slot: 'left_leg',
-      primitive: 'sigmoidBulge',
-      // Leg as a tapered limb: wider at hip, narrower at ankle
-      // After Kleiber (1.319) + jointBuffer (1.3): widthStart ≈ 18.9
-      // After Kleiber (1.319) + limbEndTaper (0.55): widthEnd ≈ 7.3
-      // avgWidth ≈ 13.1, length = avgWidth * 3 ≈ 39.3
-      baseParams: { widthStart: 11, widthEnd: 10, segments: 6, bulgeFactor: 0.35 },
+      primitive: 'strokeSkeleton',
+      // Leg: stroked line from hip to foot, tapered
+      baseParams: { widthProximal: 12, widthDistal: 6, jointBlendRadius: 7, jointBlendK: 4 },
     },
     {
       slot: 'right_leg',
-      primitive: 'sigmoidBulge',
-      baseParams: { widthStart: 11, widthEnd: 10, segments: 6, bulgeFactor: 0.35 },
+      primitive: 'strokeSkeleton',
+      baseParams: { widthProximal: 12, widthDistal: 6, jointBlendRadius: 7, jointBlendK: 4 },
     },
   ],
 };

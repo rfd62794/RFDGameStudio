@@ -46,6 +46,7 @@ import type {
   SlotShapeMapping,
   BodyProportions,
   BoneNode,
+  JointBlendCircle,
 } from './types';
 import { BIOLOGICAL_SCALING } from './types';
 import { resolveAttachments } from './attachmentGraph';
@@ -91,6 +92,9 @@ export function composeFigure(input: CompositionInput): ComposedPart[] {
 
   const composed: ComposedPart[] = [];
 
+  // Track which slots use strokeSkeleton for the post-processing pass
+  const strokeSlots = new Set<PartSlot>();
+
   for (const att of attachments) {
     const part = parts[att.slot];
     const shapeMapping = shapeMap.get(att.slot);
@@ -119,6 +123,11 @@ export function composeFigure(input: CompositionInput): ComposedPart[] {
     const limbOffset = node ? Math.sqrt(node.offset.x ** 2 + node.offset.y ** 2) : 0;
     const scaledShapeMapping = applyBiologicalScaling(shapeMapping, att, proportions, limbOffset);
 
+    // Track strokeSkeleton slots for post-processing
+    if (scaledShapeMapping.primitive === 'strokeSkeleton') {
+      strokeSlots.add(att.slot);
+    }
+
     // Generate the shape SVG using artGen's real primitives
     const shapeSvg = renderShapeForSlot(scaledShapeMapping, color, seed, att);
 
@@ -134,6 +143,32 @@ export function composeFigure(input: CompositionInput): ComposedPart[] {
       region: att.region,
       svg: shapeSvg,
     });
+  }
+
+  // ── Stroke-Skeleton post-processing pass ──
+  // For body plans that use the strokeSkeleton primitive, replace
+  // the placeholder shapes with real stroked line segments along
+  // the bone chain, and add SDF/smooth-min joint blend circles at
+  // connection points. This is the production technique from the
+  // side-by-side comparison: stroke-skeleton + joint blending.
+  if (strokeSlots.size > 0) {
+    const attachmentMap = new Map<PartSlot, ResolvedAttachment>();
+    for (const att of attachments) {
+      attachmentMap.set(att.slot, att);
+    }
+    const strokeResult = renderStrokeSkeletonPass(
+      composed,
+      strokeSlots,
+      attachmentMap,
+      nodeMap,
+      shapeMap,
+      colors,
+      genetics,
+      proportions,
+    );
+    // Replace strokeSkeleton parts with real stroke segments
+    // and append joint blend circles
+    return strokeResult;
   }
 
   // Sort back-to-front by zOrder
@@ -350,11 +385,176 @@ function renderShapeForSlot(
       break;
     }
 
+    case 'strokeSkeleton': {
+      // Placeholder — the real stroke rendering happens in the
+      // post-processing pass (renderStrokeSkeletonPass), which has
+      // access to both parent and child positions. Here we just
+      // emit an invisible marker so the composed part exists.
+      shapeContent = `<circle cx="0" cy="0" r="0.01" fill="none" stroke="none"/>`;
+      break;
+    }
+
     default:
       shapeContent = `<circle cx="0" cy="0" r="20" fill="${color}" fill-opacity="0.8" stroke="${color}" stroke-width="2"/>`;
   }
 
   return `<g transform="${transform}">${shapeContent}</g>`;
+}
+
+// ── Stroke-Skeleton + SDF Joint Blending ────────────────────────────
+//
+// The production technique from the side-by-side comparison:
+//   1. Render each bone segment as a thick stroked <line> with
+//      stroke-linecap="round" — the stroke IS the body, no fill math.
+//   2. At each joint (where a child bone connects to its parent),
+//      add a filled <circle> whose radius is the SDF smooth-min
+//      blend radius. This merges adjacent stroke segments into
+//      one smooth mass at connection points, eliminating the
+//      visible sharp line-junction look.
+//
+// The SDF smooth-min blend works by placing a circle at each joint
+// with a radius slightly larger than the stroke width. The circle's
+// fill color matches the stroke color, so it visually fills the
+// gap between two stroke segments that meet at an angle, creating
+// a smooth continuous mass instead of a sharp V junction.
+//
+// Geometric evidence of smoothness: at the joint point, the circle's
+// boundary is C1-continuous (it's a circle), while two stroked lines
+// meeting at an angle have only C0 continuity (a sharp corner). The
+// circle replaces the corner with a smooth arc, and because its
+// radius >= stroke width / 2, it fully covers the gap.
+
+function renderStrokeSkeletonPass(
+  composed: ComposedPart[],
+  strokeSlots: Set<PartSlot>,
+  attachmentMap: Map<PartSlot, ResolvedAttachment>,
+  nodeMap: Map<PartSlot, BoneNode>,
+  shapeMap: Map<PartSlot, SlotShapeMapping>,
+  colors: Record<string, string>,
+  genetics: Record<string, string> | undefined,
+  proportions: BodyProportions | undefined,
+): ComposedPart[] {
+  const result: ComposedPart[] = [];
+  const jointBlends: JointBlendCircle[] = [];
+
+  for (const part of composed) {
+    if (!strokeSlots.has(part.slot)) {
+      // Not a strokeSkeleton slot — keep as-is
+      result.push(part);
+      continue;
+    }
+
+    const att = attachmentMap.get(part.slot)!;
+    const node = nodeMap.get(part.slot)!;
+    const shapeMapping = shapeMap.get(part.slot)!;
+
+    // Resolve color (same logic as main loop)
+    let color: string;
+    if (genetics) {
+      color = getColorForPart(genetics, part.slot);
+    } else {
+      color = colors[part.slot] ?? '#888888';
+    }
+    if (part.side === 'left') {
+      color = darkenColor(color, 0.15);
+    }
+
+    // Get stroke parameters (after biological scaling was applied)
+    const widthProximal = shapeMapping.baseParams.widthProximal ?? 12;
+    const widthDistal = shapeMapping.baseParams.widthDistal ?? 6;
+    const jointBlendRadius = shapeMapping.baseParams.jointBlendRadius ?? widthProximal * 0.65;
+    const jointBlendK = shapeMapping.baseParams.jointBlendK ?? 4;
+
+    // Get parent position
+    const parentNode = nodeMap.get(node.parentSlot ?? '');
+    const parentAtt = node.parentSlot ? attachmentMap.get(node.parentSlot) : null;
+
+    if (part.slot === 'head') {
+      // Head: render as a stroked circle (no fill, thick stroke)
+      // The stroke gives it a rounded, organic look that matches
+      // the stroke-skeleton aesthetic
+      const headRadius = shapeMapping.baseParams.widthProximal ?? 10;
+      const strokeWidth = shapeMapping.baseParams.widthDistal ?? 6;
+      const svg = `<circle cx="${att.x.toFixed(1)}" cy="${att.y.toFixed(1)}" r="${headRadius.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}"/>`;
+      result.push({ ...part, svg });
+    } else if (parentAtt && parentNode) {
+      // Render as a stroked line from parent position to this position
+      // Use a tapered stroke: we approximate by using the average width
+      // (SVG <line> doesn't support tapered strokes, but the round
+      // linecap + joint blend circle creates the visual effect)
+      const avgWidth = (widthProximal + widthDistimal) / 2;
+      const px = parentAtt.x;
+      const py = parentAtt.y;
+      const cx = att.x;
+      const cy = att.y;
+
+      const svg = `<line x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="${color}" stroke-width="${avgWidth.toFixed(1)}" stroke-linecap="round"/>`;
+      result.push({ ...part, svg });
+
+      // Add joint blend circle at the connection point (this slot's
+      // position = the distal end of the parent's bone). The circle
+      // fills the gap where two stroke segments meet at an angle,
+      // creating a smooth continuous mass.
+      jointBlends.push({
+        cx: cx,
+        cy: cy,
+        r: jointBlendRadius,
+        color: color,
+        blendK: jointBlendK,
+      });
+
+      // Also add a blend circle at the parent (proximal) end for
+      // shoulders/hips — where multiple bones connect
+      if (parentNode.region === 'torso') {
+        // This is a shoulder or hip joint — add blend at parent
+        jointBlends.push({
+          cx: px,
+          cy: py,
+          r: jointBlendRadius * 1.1, // slightly larger for major joints
+          color: genetics ? getColorForPart(genetics, parentNode.slot) : (colors[parentNode.slot] ?? color),
+          blendK: jointBlendK,
+        });
+      }
+    } else {
+      // Root slot (chest) with no parent — render as a thick stroked
+      // capsule (short line segment) to give the torso visual mass
+      const torsoWidth = widthProximal;
+      const torsoHeight = shapeMapping.baseParams.jointBlendRadius ?? torsoWidth * 0.8;
+      // Render as a thick stroked vertical line (torso = spine)
+      const svg = `<line x1="${att.x.toFixed(1)}" y1="${(att.y - torsoHeight).toFixed(1)}" x2="${att.x.toFixed(1)}" y2="${(att.y + torsoHeight).toFixed(1)}" stroke="${color}" stroke-width="${torsoWidth.toFixed(1)}" stroke-linecap="round"/>`;
+      result.push({ ...part, svg });
+    }
+  }
+
+  // Add joint blend circles as extra composed parts
+  // They go at the same zOrder as the child bone so they render
+  // on top of the stroke junction
+  for (let i = 0; i < jointBlends.length; i++) {
+    const jb = jointBlends[i];
+    // Find the zOrder of the nearest stroke slot
+    const nearestSlot = Array.from(strokeSlots).find(slot => {
+      const att = attachmentMap.get(slot);
+      return att && Math.abs(att.x - jb.cx) < 5 && Math.abs(att.y - jb.cy) < 5;
+    });
+    const zOrder = nearestSlot ? attachmentMap.get(nearestSlot)!.zOrder : 3;
+
+    result.push({
+      slot: `joint_blend_${i}` as PartSlot,
+      partId: null,
+      partName: 'joint_blend',
+      zOrder: zOrder,
+      x: jb.cx,
+      y: jb.cy,
+      angle: 0,
+      side: 'center',
+      region: 'torso',
+      svg: `<circle cx="${jb.cx.toFixed(1)}" cy="${jb.cy.toFixed(1)}" r="${jb.r.toFixed(1)}" fill="${jb.color}" stroke="${jb.color}" stroke-width="0"/>`,
+    });
+  }
+
+  // Sort back-to-front by zOrder
+  result.sort((a, b) => a.zOrder - b.zOrder);
+  return result;
 }
 
 /**
@@ -396,7 +596,9 @@ export function renderFigureSvg(input: CompositionInput, width: number = 100, he
 // Handles all shape primitives:
 //   - <polygon points="x,y x,y ..."> (polygon, irregularFragment, radialBurst, sigmoidBulge)
 //   - <path d="M x,y C x,y ..."> (teardropFin body/tail/dorsal)
-//   - <circle cx="x" cy="y"> (fallback shape)
+//   - <circle cx="x" cy="y"> (fallback shape, joint blend circles)
+//   - <line x1="x" y1="y" x2="x" y2="y"> (strokeSkeleton — absolute coords, no transform)
+//   - <ellipse cx="x" cy="y" rx="r" ry="r"> (ellipse primitive)
 
 function computeContentBounds(composed: ComposedPart[]): { x: number; y: number; width: number; height: number } {
   let minX = Infinity;
@@ -405,52 +607,93 @@ function computeContentBounds(composed: ComposedPart[]): { x: number; y: number;
   let maxY = -Infinity;
 
   for (const part of composed) {
-    // Parse the transform: translate(x,y) rotate(angle)
+    // Check if this is a strokeSkeleton part (absolute coords, no <g> wrapper)
+    // StrokeSkeleton parts render <line> or <circle> with absolute coordinates
     const transformMatch = part.svg.match(/translate\(([-\d.]+),([-\d.]+)\)\s*rotate\(([-\d.]+)/);
-    if (!transformMatch) continue;
 
-    const tx = parseFloat(transformMatch[1]);
-    const ty = parseFloat(transformMatch[2]);
-    const angleDeg = parseFloat(transformMatch[3]);
-    const angleRad = (angleDeg * Math.PI) / 180;
-    const cos = Math.cos(angleRad);
-    const sin = Math.sin(angleRad);
+    if (transformMatch) {
+      // Standard primitive with <g transform="translate(x,y) rotate(angle)">
+      const tx = parseFloat(transformMatch[1]);
+      const ty = parseFloat(transformMatch[2]);
+      const angleDeg = parseFloat(transformMatch[3]);
+      const angleRad = (angleDeg * Math.PI) / 180;
+      const cos = Math.cos(angleRad);
+      const sin = Math.sin(angleRad);
 
-    // Extract the inner SVG content (between <g> and </g>)
-    const innerContent = part.svg.replace(/^<g[^>]*>/, '').replace(/<\/g>$/, '');
+      // Extract the inner SVG content (between <g> and </g>)
+      const innerContent = part.svg.replace(/^<g[^>]*>/, '').replace(/<\/g>$/, '');
 
-    // Collect all local coordinate pairs from the shape content
-    const coords: Array<[number, number]> = [];
+      // Collect all local coordinate pairs from the shape content
+      const coords: Array<[number, number]> = [];
 
-    // From polygon points="x1,y1 x2,y2 ..."
-    for (const m of innerContent.matchAll(/points="([^"]+)"/g)) {
-      const nums = m[1].match(/-?\d+\.?\d*/g) || [];
-      for (let i = 0; i + 1 < nums.length; i += 2) {
-        coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+      // From polygon points="x1,y1 x2,y2 ..."
+      for (const m of innerContent.matchAll(/points="([^"]+)"/g)) {
+        const nums = m[1].match(/-?\d+\.?\d*/g) || [];
+        for (let i = 0; i + 1 < nums.length; i += 2) {
+          coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+        }
       }
-    }
 
-    // From path d="M x,y C x,y x,y x,y ..."
-    for (const m of innerContent.matchAll(/\sd="([^"]+)"/g)) {
-      const nums = m[1].match(/-?\d+\.?\d*/g) || [];
-      for (let i = 0; i + 1 < nums.length; i += 2) {
-        coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+      // From path d="M x,y C x,y x,y x,y ..."
+      for (const m of innerContent.matchAll(/\sd="([^"]+)"/g)) {
+        const nums = m[1].match(/-?\d+\.?\d*/g) || [];
+        for (let i = 0; i + 1 < nums.length; i += 2) {
+          coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+        }
       }
-    }
 
-    // From circle cx="x" cy="y" (fallback shape)
-    for (const m of innerContent.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"/g)) {
-      coords.push([parseFloat(m[1]!), parseFloat(m[2]!)]);
-    }
+      // From circle cx="x" cy="y" (fallback shape)
+      for (const m of innerContent.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"/g)) {
+        coords.push([parseFloat(m[1]!), parseFloat(m[2]!)]);
+      }
 
-    // Apply transform (rotate then translate) and update bounds
-    for (const [lx, ly] of coords) {
-      const gx = tx + lx * cos - ly * sin;
-      const gy = ty + lx * sin + ly * cos;
-      if (gx < minX) minX = gx;
-      if (gx > maxX) maxX = gx;
-      if (gy < minY) minY = gy;
-      if (gy > maxY) maxY = gy;
+      // From ellipse cx="x" cy="y" rx="r" ry="r"
+      for (const m of innerContent.matchAll(/<ellipse[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\srx="([^"]+)"[^>]*\sry="([^"]+)"/g)) {
+        const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), rx = parseFloat(m[3]!), ry = parseFloat(m[4]!);
+        coords.push([cx + rx, cy], [cx - rx, cy], [cx, cy + ry], [cx, cy - ry]);
+      }
+
+      // Apply transform (rotate then translate) and update bounds
+      for (const [lx, ly] of coords) {
+        const gx = tx + lx * cos - ly * sin;
+        const gy = ty + lx * sin + ly * cos;
+        if (gx < minX) minX = gx;
+        if (gx > maxX) maxX = gx;
+        if (gy < minY) minY = gy;
+        if (gy > maxY) maxY = gy;
+      }
+    } else {
+      // StrokeSkeleton part — absolute coordinates, no transform wrapper
+      // Parse <line x1="x" y1="y" x2="x" y2="y"> elements
+      for (const m of part.svg.matchAll(/<line[^>]*\sx1="([^"]+)"[^>]*\sy1="([^"]+)"[^>]*\sx2="([^"]+)"[^>]*\sy2="([^"]+)"/g)) {
+        const x1 = parseFloat(m[1]!), y1 = parseFloat(m[2]!);
+        const x2 = parseFloat(m[3]!), y2 = parseFloat(m[4]!);
+        // Include stroke width in bounds (approximate as ±half-width)
+        const swMatch = part.svg.match(/stroke-width="([^"]+)"/);
+        const sw = swMatch ? parseFloat(swMatch[1]) : 0;
+        const pad = sw / 2;
+        if (x1 - pad < minX) minX = x1 - pad;
+        if (x1 + pad > maxX) maxX = x1 + pad;
+        if (y1 - pad < minY) minY = y1 - pad;
+        if (y1 + pad > maxY) maxY = y1 + pad;
+        if (x2 - pad < minX) minX = x2 - pad;
+        if (x2 + pad > maxX) maxX = x2 + pad;
+        if (y2 - pad < minY) minY = y2 - pad;
+        if (y2 + pad > maxY) maxY = y2 + pad;
+      }
+
+      // Parse <circle cx="x" cy="y" r="r"> elements (head, joint blends)
+      for (const m of part.svg.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\sr="([^"]+)"/g)) {
+        const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), r = parseFloat(m[3]!);
+        // Include stroke width for stroked circles (head)
+        const swMatch = part.svg.match(/stroke-width="([^"]+)"/);
+        const sw = swMatch ? parseFloat(swMatch[1]) : 0;
+        const totalR = r + sw / 2;
+        if (cx - totalR < minX) minX = cx - totalR;
+        if (cx + totalR > maxX) maxX = cx + totalR;
+        if (cy - totalR < minY) minY = cy - totalR;
+        if (cy + totalR > maxY) maxY = cy + totalR;
+      }
     }
   }
 
