@@ -472,12 +472,10 @@ describe('test_biological_scaling_formulas', () => {
     const chest = composed.find(c => c.slot === 'chest')!;
     const head = composed.find(c => c.slot === 'head')!;
 
-    // Chest radius should be scaled by torsoChest (1.6)
-    // Original radius is 18, scaled = 18 * 1.6 = 28.8
+    // Chest now uses sigmoidBulge (polygon), scaled by torsoChest (1.6)
     expect(chest.svg).toContain('polygon');
-    // Head radius should be scaled by torsoHead (1.2)
-    // Original radius is 14, scaled = 14 * 1.2 = 16.8
-    expect(head.svg).toContain('polygon');
+    // Head now uses ellipse primitive, scaled by torsoHead (1.2)
+    expect(head.svg).toContain('<ellipse');
   });
 
   it('Constants are named and flagged tunable (not buried magic numbers)', () => {

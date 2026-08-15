@@ -63,6 +63,11 @@ function getPartBounds(part: ComposedPart): { width: number; height: number; min
       coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
     }
   }
+  // From ellipse cx="x" cy="y" rx="r" ry="r"
+  for (const m of part.svg.matchAll(/<ellipse[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"[^>]*\srx="([^"]+)"[^>]*\sry="([^"]+)"/g)) {
+    const cx = parseFloat(m[1]!), cy = parseFloat(m[2]!), rx = parseFloat(m[3]!), ry = parseFloat(m[4]!);
+    coords.push([cx + rx, cy], [cx - rx, cy], [cx, cy + ry], [cx, cy - ry]);
+  }
   // Apply transform
   const tm = part.svg.match(/translate\(([-\d.]+),([-\d.]+)\)\s*rotate\(([-\d.]+)/);
   if (!tm) return null;
@@ -139,36 +144,39 @@ describe('test_scaling_output_matches_formula', () => {
     const head = composed.find(p => p.slot === 'head')!;
     const bounds = getPartBounds(head)!;
 
-    // Base radius: 7, after torsoHead: 7 * 1.2 = 8.4
-    // Diameter ≈ 16.8
-    const expectedRadius = 7 * BIOLOGICAL_SCALING.torsoHead;
-    const expectedDiameter = expectedRadius * 2;
+    // Head now uses ellipse primitive: rx=7, ry=8
+    // After torsoHead scaling (1.2x): rx=8.4, ry=9.6
+    // Width = 2 * rx = 16.8, Height = 2 * ry = 19.2
+    const expectedRx = 7 * BIOLOGICAL_SCALING.torsoHead;
+    const expectedWidth = expectedRx * 2;
 
-    expect(bounds.width).toBeGreaterThan(expectedDiameter * 0.8);
-    expect(bounds.width).toBeLessThan(expectedDiameter * 1.3);
+    // Ellipse is exact (no jitter) — tight tolerance
+    expect(bounds.width).toBeGreaterThan(expectedWidth * 0.95);
+    expect(bounds.width).toBeLessThan(expectedWidth * 1.05);
   });
 
-  it('limb scale after Kleiber + joint/taper matches formula prediction', () => {
+  it('limb width after Kleiber + joint/taper matches formula prediction', () => {
     const composed = composeFigure(TEST_INPUT);
     const leftArm = composed.find(p => p.slot === 'left_arm')!;
 
-    // Base scale: 0.65
-    // Arm offset: (-16, -3), length = sqrt(256 + 9) = sqrt(265) ≈ 16.28
+    // Arm now uses sigmoidBulge: widthStart=15, widthEnd=9
+    // Arm offset: (-16, -3), length = sqrt(256 + 9) ≈ 16.28
     // Kleiber: (16.28/20)^0.75 ≈ 0.855
-    // Joint+Taper: (1.3 + 0.55)/2 = 0.925
-    // Expected scale: 0.65 * 0.855 * 0.925 ≈ 0.514
+    // widthStart gets jointBuffer (1.3): 15 * 0.855 * 1.3 ≈ 16.67
+    // widthEnd gets limbEndTaper (0.55): 9 * 0.855 * 0.55 ≈ 4.23
+    // avgWidth = (16.67 + 4.23) / 2 ≈ 10.45
+    // length = avgWidth * 3 ≈ 31.35
     const armOffsetLen = Math.sqrt(16 ** 2 + 3 ** 2);
     const kleiber = Math.pow(armOffsetLen / 20, BIOLOGICAL_SCALING.kleiberExponent);
-    const jointTaper = (BIOLOGICAL_SCALING.jointBuffer + BIOLOGICAL_SCALING.limbEndTaper) / 2;
-    const expectedScale = 0.65 * kleiber * jointTaper;
-
-    // teardropFin width ≈ 60.8 * scale (bodyLen + tailLen)
-    const expectedWidth = 60.8 * expectedScale;
+    const expectedWidthStart = 15 * kleiber * BIOLOGICAL_SCALING.jointBuffer;
+    const expectedWidthEnd = 9 * kleiber * BIOLOGICAL_SCALING.limbEndTaper;
+    const expectedAvgWidth = (expectedWidthStart + expectedWidthEnd) / 2;
+    const expectedLength = expectedAvgWidth * 3;
     const bounds = getPartBounds(leftArm)!;
 
-    // Allow 30% tolerance for shape jitter and rotation effects
-    expect(bounds.width).toBeGreaterThan(expectedWidth * 0.7);
-    expect(bounds.width).toBeLessThan(expectedWidth * 1.3);
+    // Allow 20% tolerance for rotation effects
+    expect(bounds.width).toBeGreaterThan(expectedLength * 0.8);
+    expect(bounds.width).toBeLessThan(expectedLength * 1.2);
   });
 });
 

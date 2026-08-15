@@ -158,7 +158,7 @@ describe('test_layer_composition', () => {
 });
 
 describe('test_shape_generation', () => {
-  it('Polygon primitive produces <polygon> elements', () => {
+  it('Ellipse primitive produces <ellipse> elements (head)', () => {
     const input: CompositionInput = {
       bodyPlan: humanoidBilateral,
       parts: makeFullParts(),
@@ -167,11 +167,11 @@ describe('test_shape_generation', () => {
     };
     const composed = composeFigure(input);
     const head = composed.find(c => c.slot === 'head')!;
-    // humanoidBilateral maps head to 'polygon'
-    expect(head.svg).toContain('<polygon');
+    // humanoidBilateral maps head to 'ellipse'
+    expect(head.svg).toContain('<ellipse');
   });
 
-  it('TeardropFin primitive produces <path> elements (body+tail)', () => {
+  it('SigmoidBulge primitive produces <polygon> elements (limbs)', () => {
     const input: CompositionInput = {
       bodyPlan: humanoidBilateral,
       parts: makeFullParts(),
@@ -180,8 +180,8 @@ describe('test_shape_generation', () => {
     };
     const composed = composeFigure(input);
     const arm = composed.find(c => c.slot === 'left_arm')!;
-    // humanoidBilateral maps arms to 'teardropFin'
-    expect(arm.svg).toContain('<path');
+    // humanoidBilateral maps arms to 'sigmoidBulge'
+    expect(arm.svg).toContain('<polygon');
   });
 
   it('IrregularFragment primitive produces <polygon> elements (for chimera)', () => {
@@ -234,15 +234,18 @@ describe('test_shape_generation', () => {
     expect(svg1).toBe(svg2);
   });
 
-  it('Different seeds produce different output (shape jitter varies)', () => {
+  it('Different seeds produce different output for chimera (jitter varies)', () => {
+    // Note: humanoidBilateral now uses ellipse (head) and sigmoidBulge (limbs),
+    // which are deterministic — no seed-based jitter. The chimera body plan
+    // still uses polygon/radialBurst which have seed-based jitter.
     const input1: CompositionInput = {
-      bodyPlan: humanoidBilateral,
+      bodyPlan: chimeraAsymmetric,
       parts: makeFullParts(),
       colors: makeFullColors(),
       seed: 1,
     };
     const input2: CompositionInput = {
-      bodyPlan: humanoidBilateral,
+      bodyPlan: chimeraAsymmetric,
       parts: makeFullParts(),
       colors: makeFullColors(),
       seed: 999,
@@ -266,10 +269,10 @@ describe('test_both_body_plans_produce_valid_figures', () => {
 
     // Verify shape types match the body plan's mappings
     const head = composed.find(c => c.slot === 'head')!;
-    expect(head.svg).toContain('<polygon'); // polygon primitive
+    expect(head.svg).toContain('<ellipse'); // ellipse primitive
 
     const arm = composed.find(c => c.slot === 'left_arm')!;
-    expect(arm.svg).toContain('<path'); // teardropFin primitive
+    expect(arm.svg).toContain('<polygon'); // sigmoidBulge primitive
   });
 
   it('chimeraAsymmetric produces a 6-part figure with correct shape types', () => {
