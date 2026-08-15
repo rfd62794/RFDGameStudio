@@ -5,7 +5,7 @@ export default defineConfig({
   root: 'src/standalone/technique_showcase',
   plugins: [react() as any],
   server: {
-    port: 5173,
+    port: 5220,
     open: true,
   },
 });
