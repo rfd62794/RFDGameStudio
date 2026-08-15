@@ -45,6 +45,13 @@ describe('test_git_state_clean_both_games', () => {
       if (trimmed.includes('tests/test_dual_target_deploy')) return false;
       if (trimmed.includes('tmp/')) return false;
       if (trimmed.includes('docs/state/current.md')) return false;
+      if (trimmed.includes('games/shoal/docs/state/current.md')) return false;
+      if (trimmed.includes('antsim-redux/docs/state/current.md')) return false;
+      // New four-doc architecture files (ADR-017)
+      if (trimmed.includes('CHANGELOG.md')) return false;
+      if (trimmed.includes('ROADMAP.md')) return false;
+      if (trimmed.includes('docs/status.md')) return false;
+      if (trimmed.includes('docs/adr/ADR-0')) return false;
       // Diagnostic scripts and test anchors at repo root
       if (trimmed.includes('diag_')) return false;
       if (trimmed.includes('test_character_viewer_scroll.py')) return false;

@@ -67,8 +67,8 @@ describe('test_profiling_baseline_captured', () => {
     expect(appSource).toContain('profiler.drawOverlay');
   });
 
-  it('profiling baseline numbers are documented in docs/state/current.md', () => {
-    const docsPath = resolve(repoRoot, 'games', 'shoal', 'docs', 'state', 'current.md');
+  it('profiling baseline numbers are documented in games/shoal/CHANGELOG.md', () => {
+    const docsPath = resolve(repoRoot, 'games', 'shoal', 'CHANGELOG.md');
     expect(existsSync(docsPath)).toBe(true);
     const docs = readFileSync(docsPath, 'utf-8');
     expect(docs).toContain('FPS');

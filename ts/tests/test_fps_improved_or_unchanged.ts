@@ -34,7 +34,7 @@ const repoRoot = resolve(dirname(__filename), '..', '..');
  * Note: A true runtime FPS comparison requires a browser environment.
  * This test verifies the infrastructure and documented measurements.
  * The real FPS measurement was done manually in the browser preview
- * and is recorded in docs/state/current.md.
+ * and is recorded in games/shoal/CHANGELOG.md.
  */
 describe('test_fps_improved_or_unchanged', () => {
   it('RenderProfiler can be instantiated and measures FPS', () => {
@@ -92,8 +92,8 @@ describe('test_fps_improved_or_unchanged', () => {
     setProfilingEnabled(true);
   });
 
-  it('docs/state/current.md records real before/after FPS and timing numbers', () => {
-    const docsPath = resolve(repoRoot, 'games', 'shoal', 'docs', 'state', 'current.md');
+  it('games/shoal/CHANGELOG.md records real before/after FPS and timing numbers', () => {
+    const docsPath = resolve(repoRoot, 'games', 'shoal', 'CHANGELOG.md');
     expect(existsSync(docsPath)).toBe(true);
     const docs = readFileSync(docsPath, 'utf-8');
     // Must contain the baseline FPS range
