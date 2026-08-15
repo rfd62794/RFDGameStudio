@@ -1,7 +1,14 @@
-/* Character Viewer — dev-only shape iteration tool */
+/* Character Viewer — dev-only shape iteration tool
+ *
+ * Layout: render area dominates the top, controls below.
+ * Side-by-side comparison panels are responsive — the SVG fills
+ * the available panel width, not a fixed pixel size.
+ * Per-slot controls use a responsive grid that wraps on narrow
+ * viewports.
+ */
 
 .character-viewer {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
   font-family: system-ui, -apple-system, sans-serif;
@@ -12,7 +19,7 @@
 
 .cv-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .cv-header h1 {
@@ -30,13 +37,15 @@
 /* Side-by-side comparison */
 .cv-comparison {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
   justify-content: center;
 }
 
 .cv-figure-panel {
-  flex: 0 0 320px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 480px;
   background: #1a1d27;
   border: 2px solid #2a3040;
   border-radius: 8px;
@@ -62,7 +71,11 @@
   align-items: center;
 }
 
+/* SVG fills the container width — responsive, not fixed pixel size */
 .cv-figure-render svg {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
   background: #0f1117;
   border-radius: 4px;
 }
@@ -144,18 +157,18 @@
   border-color: #3b82f6;
 }
 
-/* Per-slot controls */
+/* Per-slot controls — responsive grid */
 .cv-slots {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
 }
 
 .cv-slot-control {
   background: #0f1117;
   border: 1px solid #2a3040;
   border-radius: 6px;
-  padding: 0.75rem;
+  padding: 0.6rem;
 }
 
 .cv-slot-header {
@@ -264,4 +277,14 @@
   color: #a5d6ff;
   max-height: 400px;
   overflow-y: auto;
+}
+
+/* Responsive: stack panels vertically on narrow screens */
+@media (max-width: 720px) {
+  .cv-comparison {
+    flex-direction: column;
+  }
+  .cv-figure-panel {
+    max-width: none;
+  }
 }

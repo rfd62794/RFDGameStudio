@@ -31,7 +31,7 @@ import { PART_SLOTS } from '../../engine/shared/partSlots';
 
 // ── Types ────────────────────────────────────────────────────────────
 
-type PrimitiveType = 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment';
+type PrimitiveType = 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge';
 
 interface ViewerConfig {
   id: string;
@@ -197,8 +197,8 @@ export default function CharacterViewer() {
   const activeConfig = activePanel === 'left' ? leftConfig : rightConfig;
   const setActiveConfig = activePanel === 'left' ? setLeftConfig : setRightConfig;
 
-  const leftSvg = useMemo(() => renderFigureSvg(buildCompositionInput(leftConfig), 300, 300), [leftConfig]);
-  const rightSvg = useMemo(() => renderFigureSvg(buildCompositionInput(rightConfig), 300, 300), [rightConfig]);
+  const leftSvg = useMemo(() => renderFigureSvg(buildCompositionInput(leftConfig), 400, 400), [leftConfig]);
+  const rightSvg = useMemo(() => renderFigureSvg(buildCompositionInput(rightConfig), 400, 400), [rightConfig]);
 
   // ── Config update helpers ──
 
