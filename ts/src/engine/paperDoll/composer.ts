@@ -482,7 +482,7 @@ function renderStrokeSkeletonPass(
       // Use a tapered stroke: we approximate by using the average width
       // (SVG <line> doesn't support tapered strokes, but the round
       // linecap + joint blend circle creates the visual effect)
-      const avgWidth = (widthProximal + widthDistimal) / 2;
+      const avgWidth = (widthProximal + widthDistal) / 2;
       const px = parentAtt.x;
       const py = parentAtt.y;
       const cx = att.x;
