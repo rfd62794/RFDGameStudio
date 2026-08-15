@@ -9057,24 +9057,24 @@ study informed its design choices.
 **Directive:** RFDGameStudio_StatusBoard_Directive.md + sub-directive (ADR-016)
 **Status:** Complete
 
-### §0 Verification (completed before any new code)
+### ï¿½0 Verification (completed before any new code)
 
 **Test floor (real, not assumed):** 1032 passed / 23 failed / 1055 total
 - 23 pre-existing failures: paper_doll (21), character_viewer_arcade_entry (1),
-  arcade_registry_directive (1) — all unrelated to this directive
+  arcade_registry_directive (1) ï¿½ all unrelated to this directive
 - The "994/998" number from a prior current.md entry was stale
 
 **Four files verified:**
-1. `docs/adr/ADR-014-shared-engine-modules-default.md` — internally consistent,
+1. `docs/adr/ADR-014-shared-engine-modules-default.md` ï¿½ internally consistent,
    all factual claims verified against real repo (Shoal artGen imports, SlimeWorld
    artGen imports, artGen/ and engine/shared/ directories exist)
-2. `docs/sdd/RFDGameStudio_SDD_v0_4.md` — internally consistent, ADR ledger
-   accurate (14 ADRs confirmed), §5.3 artGen correction matches real file state
-3. `README.md` — consistent with ADR-014, stale sections flagged in-place
-4. `docs/state/StatusBoard.md` — **2 inconsistencies found** (both corrected by
+2. `docs/sdd/RFDGameStudio_SDD_v0_4.md` ï¿½ internally consistent, ADR ledger
+   accurate (14 ADRs confirmed), ï¿½5.3 artGen correction matches real file state
+3. `README.md` ï¿½ consistent with ADR-014, stale sections flagged in-place
+4. `docs/state/StatusBoard.md` ï¿½ **2 inconsistencies found** (both corrected by
    regeneration later in this directive):
-   - Line 59: referenced "SDD v0.3 §7" (should be v0.4)
-   - Line 91: artGen described as "Built, not yet consumed" (factually wrong —
+   - Line 59: referenced "SDD v0.3 ï¿½7" (should be v0.4)
+   - Line 91: artGen described as "Built, not yet consumed" (factually wrong ï¿½
      both Shoal and SlimeWorld actively consume it, per ADR-014)
 
 ### New files created
@@ -9082,7 +9082,7 @@ study informed its design choices.
 | File | What it is |
 |---|---|
 | `ts/src/status/types.ts` | `ProjectEntry`, `ProjectCategory`, `ProjectStatus` types |
-| `ts/src/status/board.data.ts` | `STATUS_BOARD: ProjectEntry[]` — 18 entries, single source of truth |
+| `ts/src/status/board.data.ts` | `STATUS_BOARD: ProjectEntry[]` ï¿½ 18 entries, single source of truth |
 | `ts/src/status/generateMarkdown.ts` | Pure function: `STATUS_BOARD` ? markdown string |
 | `ts/src/status/index.ts` | Barrel export |
 | `ts/src/pages/StatusBoardPage.tsx` | Arcade page built from ADR-008 components only (TabBar, Card, Badge) |
@@ -9095,15 +9095,15 @@ study informed its design choices.
 
 | File | Change |
 |---|---|
-| `ts/src/arcade/routing.ts` | Added `getPageId()`, `navigateToPage()` — same URLSearchParams style as existing `?game=` |
+| `ts/src/arcade/routing.ts` | Added `getPageId()`, `navigateToPage()` ï¿½ same URLSearchParams style as existing `?game=` |
 | `ts/src/arcade/index.ts` | Exports new routing functions |
-| `ts/src/main.tsx` | Root checks `page` param before `game` — `?page=status` renders StatusBoardPage, `?game=` unaffected |
+| `ts/src/main.tsx` | Root checks `page` param before `game` ï¿½ `?page=status` renders StatusBoardPage, `?game=` unaffected |
 | `ts/src/arcade/GameSelector.tsx` | Added visible "Studio Status ?" link (data-testid: studio-status-link) |
-| `docs/state/StatusBoard.md` | Regenerated as generated output — now has generated-file header, correct artGen status, SDD v0.4 reference |
+| `docs/state/StatusBoard.md` | Regenerated as generated output ï¿½ now has generated-file header, correct artGen status, SDD v0.4 reference |
 
 ### Test results
 
-**New test file:** `ts/tests/test_status_board.ts` — 10 tests, all passing
+**New test file:** `ts/tests/test_status_board.ts` ï¿½ 10 tests, all passing
 
 1. `status_board_all_entries_have_required_fields` ?
 2. `status_board_no_duplicate_ids` ?
@@ -9130,17 +9130,93 @@ study informed its design choices.
 
 ### Sub-directive (ADR-016)
 
-- AGENTS.md confirmed correct (Part A — both prior errors fixed: SDD v0.4 cited,
+- AGENTS.md confirmed correct (Part A ï¿½ both prior errors fixed: SDD v0.4 cited,
   artGen described as "Built AND consumed" with verification details)
 - ADR-016 written: verification-dated staleness claims rule, generalizing
   Status Board's `lastUpdated` discipline to all staleness-prone claims in the repo
 
 ### Completion criteria
-- [x] §0 verification (4 files) completed and reported first
-- [x] `npx vitest run` — 1042 passed (floor + 10), exact count reported
+- [x] ï¿½0 verification (4 files) completed and reported first
+- [x] `npx vitest run` ï¿½ 1042 passed (floor + 10), exact count reported
 - [x] `scripts/generate-status-board.ts` run, `docs/state/StatusBoard.md` shows generated-file header
 - [x] Manual: `?page=status` renders, category tabs work, lastUpdated visible per entry
 - [x] Manual: `?game=` links still work unaffected
 - [x] `docs/adr/ADR-015-status-board-as-arcade-page.md` written, real content
 - [x] `docs/adr/ADR-016-verification-dated-staleness-claims.md` written (sub-directive)
 - [x] `docs/state/current.md` updated
+
+---
+
+## Interactive Status Board â€” Site Pages (Hugo) â€” COMPLETED
+
+**Directive:** Build a new, sibling Status Board page on rfditservices.com
+using the real existing "Games, Engines, and Systems" hub/card/detail-page
+pattern â€” not a new pattern invented for this task. Content pre-verified
+from the August 2026 studio session.
+
+### STOP rule â€” existing pattern confirmed
+
+Read the real implementation directly before building:
+- `RFD_IT_Services_Site/themes/portfolio/layouts/projects/list.html` â€”
+  hub page with cards grouped by `category` frontmatter
+- `RFD_IT_Services_Site/themes/portfolio/layouts/projects/single.html` â€”
+  detail page template (hero, problem, approach, highlights, body, links)
+- `RFD_IT_Services_Site/content/projects/games-engines-systems.md` â€”
+  the real "Games, Engines, and Systems" hub page (type: system,
+  category: Games/Engines/Systems)
+- `RFD_IT_Services_Site/content/projects/legacy-projects.md` â€”
+  the real sibling page with sorting-by-category pattern
+
+### Placement
+
+Sibling to `games-engines-systems.md` and `legacy-projects.md` in
+`content/projects/` â€” same `type: system`, same
+`category: Games/Engines/Systems`. All 6 pages (1 hub + 5 detail) appear
+as cards in the projects list under "Games/Engines/Systems".
+
+### Build pipeline (same pattern as sync_games.py)
+
+1. **Data** (source of truth): `ts/src/status/site-pages.data.ts`
+2. **Generator** (pure function): `ts/src/status/generateSitePages.ts`
+3. **Tool script**: `ts/tools/generate-site-status-pages.ts` â†’ writes
+   Hugo markdown to `docs/site-status-pages/` (staging dir)
+4. **Sync script**: `RFD_IT_Services_Site/scripts/site/sync_status_pages.py`
+   â†’ ports staging files to `content/projects/`
+
+### Real new page locations
+
+**In RFDGameStudio (source):**
+- `ts/src/status/site-pages.types.ts` â€” type definitions
+- `ts/src/status/site-pages.data.ts` â€” structured data (5 projects + hub)
+- `ts/src/status/generateSitePages.ts` â€” pure generator function
+- `ts/tools/generate-site-status-pages.ts` â€” generation tool script
+- `docs/site-status-pages/` â€” staging directory (6 generated .md files)
+- `ts/tests/test_site_status_pages.ts` â€” 17 test anchors (5 describe blocks)
+
+**In RFD_IT_Services_Site (ported via sync):**
+- `content/projects/studio-status.md` â€” hub page
+- `content/projects/studio-status-shoal.md` â€” Shoal detail
+- `content/projects/studio-status-planet-of-greed.md` â€” Planet of Greed detail
+- `content/projects/studio-status-mutant-battle-ball.md` â€” Mutant Battle Ball detail
+- `content/projects/studio-status-facility-escape.md` â€” Facility Escape detail
+- `content/projects/studio-status-infrastructure.md` â€” Studio Infrastructure detail
+- `scripts/site/sync_status_pages.py` â€” sync script (ports staging â†’ content)
+
+### Test results
+
+**TS floor:** 1060/1083 passing (100 test files, 46.21s)
+- +17 from previous floor (1043): site status page test anchors
+- 23 failures, all pre-existing/unrelated (paper doll primitives,
+  character viewer registry count)
+- Zero regressions
+
+### Completion criteria
+
+- [x] Real existing pattern confirmed and reused, not duplicated
+- [x] Real placement confirmed and reported (sibling in content/projects/)
+- [x] All 5 project cards present, clickable, correctly linked
+- [x] Dedicated breakdown pages use the real, full content from Â§1
+- [x] Real navigation both directions confirmed working
+- [x] All test anchors passing, raw output provided
+- [x] No regression to current floor
+- [x] `docs/state/current.md` updated with the real new page locations
