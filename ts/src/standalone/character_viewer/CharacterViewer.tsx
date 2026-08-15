@@ -278,26 +278,27 @@ export default function CharacterViewer() {
         <p className="cv-subtitle">Paper Doll Shape Iteration Tool — dev-only</p>
       </header>
 
-      {/* Side-by-side comparison */}
-      <div className="cv-comparison">
-        <div
-          className={`cv-figure-panel ${activePanel === 'left' ? 'active' : ''}`}
-          onClick={() => setActivePanel('left')}
-        >
-          <div className="cv-figure-label">Left — {leftConfig.label}</div>
-          <div className="cv-figure-render" dangerouslySetInnerHTML={{ __html: leftSvg }} />
+      <div className="cv-main">
+        {/* Side-by-side comparison */}
+        <div className="cv-comparison">
+          <div
+            className={`cv-figure-panel ${activePanel === 'left' ? 'active' : ''}`}
+            onClick={() => setActivePanel('left')}
+          >
+            <div className="cv-figure-label">Left — {leftConfig.label}</div>
+            <div className="cv-figure-render" dangerouslySetInnerHTML={{ __html: leftSvg }} />
+          </div>
+          <div
+            className={`cv-figure-panel ${activePanel === 'right' ? 'active' : ''}`}
+            onClick={() => setActivePanel('right')}
+          >
+            <div className="cv-figure-label">Right — {rightConfig.label}</div>
+            <div className="cv-figure-render" dangerouslySetInnerHTML={{ __html: rightSvg }} />
+          </div>
         </div>
-        <div
-          className={`cv-figure-panel ${activePanel === 'right' ? 'active' : ''}`}
-          onClick={() => setActivePanel('right')}
-        >
-          <div className="cv-figure-label">Right — {rightConfig.label}</div>
-          <div className="cv-figure-render" dangerouslySetInnerHTML={{ __html: rightSvg }} />
-        </div>
-      </div>
 
-      {/* Controls for the active panel */}
-      <div className="cv-controls">
+        {/* Controls for the active panel — scrolls independently */}
+        <div className="cv-controls">
         <div className="cv-controls-header">
           <h2>Controls — {activePanel} panel</h2>
           <button className="cv-btn" onClick={() => setShowExport(!showExport)}>
