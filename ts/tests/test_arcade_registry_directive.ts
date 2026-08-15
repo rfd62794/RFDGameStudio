@@ -21,6 +21,7 @@ const EXPECTED_ORDER = [
   'facility_escape',
   'planetofgreed',
   'character_viewer',
+  'technique_showcase',
 ];
 
 describe('Arcade Registry Directive — July 2026', () => {
