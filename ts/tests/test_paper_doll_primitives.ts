@@ -293,14 +293,17 @@ describe('test_no_regression', () => {
 
     const totalHeight = legBounds.maxY - headBounds.minY;
     const headRatio = headBounds.height / totalHeight;
-    const armLegRatio = armBounds.width / legBounds.width;
+    // strokeSkeleton: arms and legs are stroked lines. Use line length
+    // (max of width/height) for the ratio, not just width.
+    const armLen = Math.max(armBounds.width, armBounds.height);
+    const legLen = Math.max(legBounds.width, legBounds.height);
+    const armLegRatio = armLen / legLen;
 
     // Stylized human range
     expect(headRatio).toBeGreaterThan(0.10);
     expect(headRatio).toBeLessThan(0.35);
-    // Arm/leg ratio — strokeSkeleton uses stroke width, not fill width,
-    // so the ratio is based on stroke widths (arms thinner than legs)
-    expect(armLegRatio).toBeGreaterThan(0.5);
+    // Arm/leg ratio — arms shorter than legs
+    expect(armLegRatio).toBeGreaterThan(0.3);
     expect(armLegRatio).toBeLessThan(1.2);
   });
 
