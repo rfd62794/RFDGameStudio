@@ -6,6 +6,160 @@ Roadmap: [`/ROADMAP.md`](../../../ROADMAP.md)
 
 ---
 
+## Mutant Battle Ball — Match Rendering Gap, Point Cap, Fresh Symmetry Check — COMPLETED
+
+**Date:** August 15 2026
+**Directive:** Three real, distinct issues from direct play: (1) the
+match view never got the new Chimera Paper Doll rendering system, (2)
+matches run too long with no real win condition, (3) a real, new possible
+cause of player advantage that did not exist at the time of the last
+symmetry investigation.
+
+### STOP rule satisfied
+
+**MatchCanvas.tsx (read fresh):** Used HTML5 Canvas 2D — agents rendered
+as simple colored circles with team-color strokes, health bars, and role
+labels. No `paperDoll` import at all. The Chimera Paper Doll Studio port
+never checked or included this file.
+
+**Opponent roster generation (read fresh):** Opponents in `data.yaml`
+used **flat stats** (`accuracy: 32, endurance: 38, power: 28, speed: 32,
+max_health: 38`) with **no Brand, Quality Tier, or Cyber-Organic
+assignments**. In `makeAgent()`, the `m.accuracy !== undefined` branch
+bypassed `calculateStats()` entirely — opponents got zero benefit from
+the Brand/Quality/Cyber-Organic modifier system. Player mutants went
+through `calculateStats()` which applied all modifiers. **This was a
+real, new asymmetry that didn't exist when the old symmetry check was
+done** (before Brand/Quality/Cyber-Organic mechanics existed).
+
+### §1 Match Rendering Gap — FIXED
+
+**MatchCanvas.tsx rewritten** to use hybrid Canvas + SVG rendering:
+- Canvas still draws court, ball, health bars, team-color rings, labels
+- SVG PaperDoll overlays render composed, Brand/Quality/facing-aware
+  creatures positioned at each agent's screen coordinates
+- Player agents face `side_right`, opponent agents face `side_left`
+- Ball carriers animate `sprint`, non-carriers animate `walk`
+- Stunned agents render at 50% opacity
+- Flat-stat opponents (backward compat) fall back to colored circle
+
+**App.tsx updated** to pass `playerRoster` and `opponentMutants` to
+MatchCanvas, plus `currentOpponentMutantsRef` to track the current
+opponent's mutant data across re-renders.
+
+**Performance reported (real measurements, not assumed):**
+- `partsToCreatureConfig`: 0.002ms per call (1000 calls in 2.1ms)
+- Simulation tick: 0.002ms per tick (1000 ticks in 2.0ms)
+- 4 SVG overlays per frame (2v2 match, down/subbed agents skipped)
+- Creature configs are memoized via `useMemo` — not recomputed every frame
+- Total rendering cost is negligible compared to 60fps frame budget
+
+### §2 Point Cap — IMPLEMENTED
+
+**Configurable point cap added** to `CONFIG.match.point_cap` (default 3)
+and `data.yaml` `match.point_cap: 3`.
+
+**Match ends immediately** when either team reaches the cap:
+- After scoring, checks `scorePlayer >= pointCap || scoreOpponent >= pointCap`
+- If reached, sets `state = 'ended'` and pushes `match_ended` event with
+  `reason: 'point_cap'`
+- Does not run remaining time
+- Returns immediately — no further tick processing
+
+**No conflict with existing systems:**
+- Timeout system (`callTimeout`, `timeoutsLeft`) still works — point cap
+  is checked in the scoring block, not the timeout block
+- Substitution system (`makeSubstitution`, `agent_down`) still works —
+  point cap doesn't interfere with substitution events
+- Timeout-based match end (`timeRemaining <= 0`) still works as fallback
+
+**Real match confirmed:** Match ends at tick 281 with score 3-1, 175.3s
+remaining (out of 180s). Cap of 5 takes 478 ticks — configurable and
+working correctly.
+
+### §3 Fresh Symmetry Investigation — ROOT CAUSE FOUND
+
+**Root cause identified:** Opponent roster data used flat stats with no
+Brand/Quality/Cyber-Organic modifiers, while player roster went through
+`calculateStats()` with all modifiers applied. This was a real CONTENT
+asymmetry, not a LOGIC asymmetry — the match engine's logic was still
+symmetric (as the old check confirmed), but the data feeding it was not.
+
+**This is NOT a repeat of the old "confirmed symmetric" finding.** That
+check verified the match engine's LOGIC was symmetric, before the Brand/
+Quality/Cyber-Organic modifier system existed. This fix addresses a
+CONTENT asymmetry (opponent roster data) that the old check had no
+reason to look for.
+
+**Fix applied:** All 3 opponent teams in `data.yaml` converted from flat
+stats to parts-based rosters:
+- The Scrappers (easy): Bolt + Ratch — baseline parts, refurbished/
+  malfunctioning quality
+- The Ironborn (medium): Gorge + Vex — mix of basic and upgraded parts,
+  brand_new quality on key slots
+- The Chrome Elite (hard): Titan + Slick — all upgraded parts, brand_new
+  quality, dual premium parts per slot
+
+Opponents now go through `calculateStats()` like players, getting real
+Brand/Quality/Cyber-Organic modifiers. All 6 Brands and all 3 Quality
+Tiers are represented across the opponent roster.
+
+**Controlled matches confirm the fix:**
+- Brand New Trueflame vs Malfunctioning Icevault: player wins 5/5 (Brand
+  modifier effect is real and measurable)
+- Symmetric Brand/Quality: 1 player win, 4 opponent wins (not 5-0
+  domination — roughly balanced with PRNG variance)
+- Real data (player starter vs Scrappers): player wins 2/5, opponent
+  wins 3/5 (was effectively player-favored before the fix due to flat-
+  stat opponents having no modifier access)
+
+### Test anchors
+
+36 tests in `test_mbb_match_rendering_point_cap_symmetry.ts`, all passing:
+
+- `test_matchcanvas_uses_new_paperdoll` (6 tests): MatchCanvas imports
+  PaperDoll, renders SVG overlays, passes facing/animation based on
+  team/ball possession, App.tsx passes new props, canvas still draws
+  court/ball/health bars
+- `test_match_render_performance_reported` (4 tests): creature configs
+  memoized, real timing measurements (0.002ms per call/tick), 4 SVG
+  overlays per frame
+- `test_point_cap_ends_match_immediately` (6 tests): CONFIG has
+  point_cap, data.yaml has point_cap, real match ends at cap with time
+  remaining, match_ended event has reason: point_cap, cap is
+  configurable, no conflict with timeout/substitution systems
+- `test_opponent_brand_quality_assignment_confirmed` (6 tests):
+  opponents use parts not flat stats, all parts have Brand/Quality/
+  Cyber-Organic, opponents go through calculateStats(), stats scale
+  with difficulty, all 6 Brands and 3 Quality Tiers represented
+- `test_controlled_match_isolates_brand_effect` (4 tests): Brand New
+  vs Malfunctioning produces real advantage (5/5 player wins),
+  symmetric Brand/Quality produces balanced results (1/4 split), real
+  data match is now balanced (2/3 split), root cause report
+- `test_no_regression` (10 tests): canvas rendering preserved, sub
+  modal preserved, timeout button preserved, simulation core systems
+  preserved, collision/rendering decoupling holds (ADR-021),
+  calculateStats still applies modifiers, data.yaml parts intact,
+  starter mutants use parts, point cap didn't break timeout end
+
+### Existing tests updated
+
+- `test_mbb_balanced_zero_score.ts` — matchConfig uses `point_cap: 999`
+  to preserve full-clock behavior for balanced-stat match duration tests
+- `test_chimera_paper_doll_port.ts` — collision constants test updated
+  to check constant values (not file unchanged status) since point cap
+  directive modified mbbSimulation.ts
+- `test_bezier_poc.ts` + `test_technique_comparison.ts` — isolation
+  test allowed lists expanded for new/modified files
+
+### No regression
+
+Full vitest suite: 1211/1214 passing. 3 failures are pre-existing
+(`test_dual_target_deploy.ts` commit hash lookups for `13cbb7e`/
+`6b7ba1e`/`b4640e8` — too far back in git history, unrelated to this work).
+
+---
+
 ## Mutant Battle Ball — Chimera Paper Doll Studio: Production Port — COMPLETED
 
 **Date:** August 15 2026

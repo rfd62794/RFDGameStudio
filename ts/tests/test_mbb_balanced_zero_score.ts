@@ -40,7 +40,10 @@ import type { Mutant, MutantParts } from '../src/games/mutant_battle_ball/types'
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
 
-const matchConfig = { match: { ...CONFIG.match } };
+// Use a high point cap so this test still runs the full clock (the point
+// cap directive defaults to 3, but this test was written to verify full-
+// duration match behavior with balanced stats)
+const matchConfig = { match: { ...CONFIG.match, point_cap: 999 } };
 
 // GENUINELY balanced mutant — identical flat stats on both sides
 function makeBalancedMutant(id: string, name: string, team: 'player' | 'opponent'): Mutant & Record<string, unknown> {

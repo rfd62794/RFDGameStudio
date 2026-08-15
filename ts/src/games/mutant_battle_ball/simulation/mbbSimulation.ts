@@ -33,6 +33,7 @@ export const CONFIG = {
     carrier_speed_mult: 0.85,
     tackle_stun_time: 1.2,
     end_zone_depth: 10,
+    point_cap: 3,
   },
   // Steering tuning — MBB-specific, not Shoal's reef-sim numbers.
   // maxSpeed derives from each agent's speed stat (speed * 0.5, matching
@@ -436,6 +437,16 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
     }
 
     if (scored) {
+      // Point cap check: if either team reaches the cap, match ends
+      // immediately. Does not run remaining time. This is a real win
+      // condition, not just a time-based end.
+      const pointCap = m.point_cap ?? CONFIG.match.point_cap;
+      if (st.scorePlayer >= pointCap || st.scoreOpponent >= pointCap) {
+        st.state = 'ended';
+        st.events.push({ type: 'match_ended', score_player: st.scorePlayer, score_opponent: st.scoreOpponent, reason: 'point_cap' });
+        return buildMatchRenderState(st);
+      }
+
       // Reset positions, switch possession to conceding team
       st.possession = st.possession === 'player' ? 'opponent' : 'player';
       let resetCarrier: Agent | null = null;

@@ -306,18 +306,20 @@ describe('test_collision_still_abstract_post_port', () => {
   });
 
   it('the port did not modify collision constants in mbbSimulation.ts', () => {
-    // Check git diff — the simulation file should not have been touched
-    // by this port (only rendering files and consumer UI files were changed)
-    let diff: string;
-    try {
-      diff = execSync('git diff --name-only HEAD', { cwd: repoRoot, encoding: 'utf-8' });
-    } catch {
-      diff = '';
-    }
-    const changedFiles = diff.split('\n').filter(f => f.trim());
-    // mbbSimulation.ts should NOT be in the changed files (collision logic untouched)
-    const simChanged = changedFiles.filter(f => f.includes('mbbSimulation'));
-    expect(simChanged).toEqual([]);
+    // The Chimera Paper Doll Studio port itself should not have touched
+    // collision constants. A later directive (point cap) did modify
+    // mbbSimulation.ts, but only to add point_cap — not to change collision.
+    // Verify collision constants are still the original values.
+    const simSrc = readFileSync(
+      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
+      'utf-8',
+    );
+    // Collision constants must still be the original values
+    expect(simSrc).toContain('tackle_range: 6.0');
+    expect(simSrc).toContain('block_range: 7.0');
+    // No rendering import was added
+    expect(simSrc).not.toContain('paperDoll');
+    expect(simSrc).not.toContain('SvgCreatureRenderer');
   });
 
   it('Brand stat modifiers still come from brandModifiers.ts, not visual geometry', () => {

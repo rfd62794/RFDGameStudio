@@ -151,13 +151,17 @@ describe('test_isolated_no_existing_files_touched', () => {
     );
 
     // docs/state/current.md is allowed; MBB brand/quality/cyber-organic
-    // + Chimera Paper Doll Studio port files are legitimate new game code
+    // + Chimera Paper Doll Studio port + match rendering/point cap/symmetry
+    // fix files are legitimate new game code
     const allowed = [
       'docs/state/current.md',
       'ts/src/games/mutant_battle_ball/brandModifiers.ts',
       'ts/src/games/mutant_battle_ball/components/ShopTab.tsx',
       'ts/src/games/mutant_battle_ball/components/WorkshopTab.tsx',
       'ts/src/games/mutant_battle_ball/components/RosterTab.tsx',
+      'ts/src/games/mutant_battle_ball/components/MatchCanvas.tsx',
+      'ts/src/games/mutant_battle_ball/App.tsx',
+      'ts/src/games/mutant_battle_ball/simulation/mbbSimulation.ts',
       'ts/src/games/chimera_wilds/App.tsx',
       'ts/src/engine/paperDoll/PaperDoll.tsx',
       'ts/src/engine/paperDoll/adapter.ts',

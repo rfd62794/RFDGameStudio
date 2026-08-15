@@ -83,6 +83,7 @@ export default function App({ session }: GameRendererProps) {
 
   const [matchState, setMatchState] = useState<MatchState | null>(null);
   const [inMatch, setInMatch] = useState(false);
+  const currentOpponentMutantsRef = useRef<Array<Record<string, unknown>>>([]);
 
   // TS-native simulation — replaces the fengari Lua executor call path
   // for init_match/tick_match/resume_match/call_timeout. The Lua source
@@ -103,6 +104,7 @@ export default function App({ session }: GameRendererProps) {
     if (squadMutants.length < 2) return;
 
     const opponentMutants = (opponent['mutants'] as Array<Record<string, unknown>>) ?? [];
+    currentOpponentMutantsRef.current = opponentMutants;
     simRef.current.initMatch(
       squadMutants as unknown as Parameters<MbbSimulation['initMatch']>[0],
       opponentMutants as unknown as Parameters<MbbSimulation['initMatch']>[1],
@@ -239,6 +241,8 @@ export default function App({ session }: GameRendererProps) {
             state={state}
             setState={setState}
             onMatchEnd={handleMatchEnd}
+            playerRoster={state.roster}
+            opponentMutants={currentOpponentMutantsRef.current}
           />
         )}
         {activeTab === 'shop' && (
