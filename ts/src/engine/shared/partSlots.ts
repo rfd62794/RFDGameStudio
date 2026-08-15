@@ -20,6 +20,12 @@
 
 export type PartSlot = 'head' | 'chest' | 'left_arm' | 'right_arm' | 'left_leg' | 'right_leg';
 
+/** MBB-specific Brand identities with real mechanical signatures. */
+export type BrandId = 'trueflame' | 'icevault' | 'quicksilver' | 'prismworks' | 'mirefaith' | 'tidalcapital';
+
+/** MBB-specific Quality Tier — affects stat multiplier + Malfunctioning instability. */
+export type QualityTier = 'brand_new' | 'refurbished' | 'malfunctioning';
+
 export interface Part {
   id: string;
   name: string;
@@ -30,6 +36,12 @@ export interface Part {
   speed: number;
   price: number;
   description?: string;
+  /** MBB-only: Brand identity (Trueflame/Icevault/etc.). Undefined for non-MBB parts. */
+  brand?: BrandId;
+  /** MBB-only: Quality tier. Undefined = treated as brand_new. */
+  qualityTier?: QualityTier;
+  /** MBB-only: Cyber/Organic lean, 0-100 (0=organic, 100=cyber). Undefined = 50 (neutral). */
+  cyberOrganicLean?: number;
 }
 
 /** Record of all 6 slots to a Part or null (for empty slot assemblies). */

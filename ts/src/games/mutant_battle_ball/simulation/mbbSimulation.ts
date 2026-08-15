@@ -18,6 +18,7 @@
 
 import type { Part, PartSlot, PartsBySlot } from '../../../engine/shared/partSlots';
 import type { Mutant, MatchAgent, MatchState } from '../types';
+import { getEffectivePartStats, rollMalfunctioningFailure } from '../brandModifiers';
 
 // ── Config (from data.yaml match block) ──────────────────────────────
 
@@ -167,17 +168,19 @@ export function calculateStats(mutant: { parts?: PartsBySlot | Record<string, Pa
     for (const slot of PART_SLOTS) {
       const part = (parts as Record<string, Part | null>)[slot];
       if (part) {
-        acc += part.accuracy || 0;
-        end += part.endurance || 0;
-        pow += part.power || 0;
-        spd += part.speed || 0;
+        // Apply Brand / Quality Tier / Cyber-Organic modifiers per-part
+        const effective = getEffectivePartStats(part);
+        acc += effective.accuracy;
+        end += effective.endurance;
+        pow += effective.power;
+        spd += effective.speed;
       }
     }
   }
   return { accuracy: acc, endurance: end, power: pow, speed: spd, maxHealth: Math.max(20, end) };
 }
 
-function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'opponent', idx: number, hasBall: boolean, courtH: number): Agent {
+function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'opponent', idx: number, hasBall: boolean, courtH: number, prng: () => number): Agent {
   const m = mutant as Record<string, unknown>;
   let stats: { accuracy: number; endurance: number; power: number; speed: number; maxHealth: number };
   if (m.accuracy !== undefined) {
@@ -191,6 +194,32 @@ function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'o
     };
   } else {
     stats = calculateStats({ parts: m.parts as PartsBySlot });
+    // Malfunctioning failure roll: per Malfunctioning part, roll at match
+    // start. If failed, that part's contribution is halved for the match.
+    // This is the "live-risk state" — it works, but badly.
+    const parts = m.parts as PartsBySlot | undefined;
+    if (parts) {
+      let malfunctionPenalty = 0;
+      for (const slot of PART_SLOTS) {
+        const part = (parts as Record<string, Part | null>)[slot];
+        if (part && rollMalfunctioningFailure(part, prng)) {
+          // Each failed malfunctioning part halves its effective stat
+          // contribution. We approximate by reducing total stats by 1/6
+          // per failed part (6 slots).
+          malfunctionPenalty += 1 / PART_SLOTS.length;
+        }
+      }
+      if (malfunctionPenalty > 0) {
+        const mult = 1 - malfunctionPenalty * 0.5;
+        stats = {
+          accuracy: stats.accuracy * mult,
+          endurance: stats.endurance * mult,
+          power: stats.power * mult,
+          speed: stats.speed * mult,
+          maxHealth: stats.maxHealth * mult,
+        };
+      }
+    }
   }
   return {
     id: (m.id as string) || `${team}_${idx}`,
@@ -540,10 +569,10 @@ export function createMbbSimulation(): MbbSimulation {
       const prng = makePrng(resolvedSeed);
 
       const agents: Agent[] = [
-        makeAgent(playerMutants[0], 'player', 1, true, courtH),
-        makeAgent(playerMutants[1], 'player', 2, false, courtH),
-        makeAgent(opponentMutants[0], 'opponent', 1, false, courtH),
-        makeAgent(opponentMutants[1], 'opponent', 2, false, courtH),
+        makeAgent(playerMutants[0], 'player', 1, true, courtH, prng),
+        makeAgent(playerMutants[1], 'player', 2, false, courtH, prng),
+        makeAgent(opponentMutants[0], 'opponent', 1, false, courtH, prng),
+        makeAgent(opponentMutants[1], 'opponent', 2, false, courtH, prng),
       ];
 
       st = {

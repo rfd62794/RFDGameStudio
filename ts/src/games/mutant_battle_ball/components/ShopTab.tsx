@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
 import type { MBBGameState } from '../types';
-import type { Part } from '../../../engine/shared/partSlots';
+import type { Part, BrandId, QualityTier } from '../../../engine/shared/partSlots';
+import { BRAND_SIGNATURES, QUALITY_LABELS, getEffectivePartStats } from '../brandModifiers';
 
 interface ShopTabProps {
   state: MBBGameState;
@@ -22,6 +23,9 @@ function extractPartsCatalogue(session: unknown): Part[] {
     speed: p['speed'] as number,
     price: p['price'] as number,
     description: p['description'] as string | undefined,
+    brand: p['brand'] as BrandId | undefined,
+    qualityTier: p['qualityTier'] as QualityTier | undefined,
+    cyberOrganicLean: p['cyberOrganicLean'] as number | undefined,
   }));
 }
 
@@ -61,11 +65,54 @@ export default function ShopTab({ state, setState, session }: ShopTabProps) {
             <Card key={part.id} className="part-card">
               <div className="part-name">{part.name}</div>
               <div className="part-slot">Slot: {part.slot}</div>
+              {part.brand && (
+                <div className="part-brand">
+                  <Badge label={BRAND_SIGNATURES[part.brand].label} variant="accent" />
+                  <span className="part-brand-sig">
+                    {BRAND_SIGNATURES[part.brand].signature}
+                  </span>
+                </div>
+              )}
+              {part.qualityTier && part.qualityTier !== 'brand_new' && (
+                <div className="part-quality">
+                  <Badge
+                    label={QUALITY_LABELS[part.qualityTier]}
+                    variant={part.qualityTier === 'malfunctioning' ? 'default' : 'muted'}
+                  />
+                </div>
+              )}
+              {part.cyberOrganicLean !== undefined && (
+                <div className="part-cyber-organic">
+                  <span className="lean-label">
+                    {part.cyberOrganicLean < 40 ? 'Organic' :
+                     part.cyberOrganicLean > 60 ? 'Cyber' : 'Balanced'}
+                  </span>
+                  <span className="lean-value">({part.cyberOrganicLean})</span>
+                </div>
+              )}
               <div className="part-stats">
-                <span>ACC {part.accuracy}</span>
-                <span>END {part.endurance}</span>
-                <span>PWR {part.power}</span>
-                <span>SPD {part.speed}</span>
+                {(() => {
+                  const eff = getEffectivePartStats(part);
+                  const showEffective = part.brand !== undefined || part.qualityTier !== undefined || part.cyberOrganicLean !== undefined;
+                  if (showEffective) {
+                    return (
+                      <>
+                        <span>ACC {eff.accuracy.toFixed(0)}</span>
+                        <span>END {eff.endurance.toFixed(0)}</span>
+                        <span>PWR {eff.power.toFixed(0)}</span>
+                        <span>SPD {eff.speed.toFixed(0)}</span>
+                      </>
+                    );
+                  }
+                  return (
+                    <>
+                      <span>ACC {part.accuracy}</span>
+                      <span>END {part.endurance}</span>
+                      <span>PWR {part.power}</span>
+                      <span>SPD {part.speed}</span>
+                    </>
+                  );
+                })()}
               </div>
               {part.description && <div className="part-desc">{part.description}</div>}
               <div className="part-price">{part.price} Iron</div>

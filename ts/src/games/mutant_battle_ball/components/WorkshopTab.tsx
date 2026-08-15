@@ -3,8 +3,9 @@ import { Button, Card, Badge } from '../../../ui/components';
 import { PaperDoll } from '../../../engine/paperDoll/PaperDoll';
 import { humanoidBilateral } from '../../../engine/paperDoll';
 import type { MBBGameState } from '../types';
-import type { Part, PartSlot } from '../../../engine/shared/partSlots';
+import type { Part, PartSlot, BrandId, QualityTier } from '../../../engine/shared/partSlots';
 import { PART_SLOTS } from '../../../engine/shared/partSlots';
+import { BRAND_SIGNATURES, QUALITY_LABELS, repairPart, repairOemLossWarning } from '../brandModifiers';
 
 interface WorkshopTabProps {
   state: MBBGameState;
@@ -27,6 +28,9 @@ function extractPartsMap(session: unknown): Map<string, Part> {
       speed: p['speed'] as number,
       price: p['price'] as number,
       description: p['description'] as string | undefined,
+      brand: p['brand'] as BrandId | undefined,
+      qualityTier: p['qualityTier'] as QualityTier | undefined,
+      cyberOrganicLean: p['cyberOrganicLean'] as number | undefined,
     });
   }
   return map;
@@ -38,6 +42,7 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
     state.roster[0]?.id ?? null
   );
   const [flash, setFlash] = useState<string | null>(null);
+  const [repairConfirmSlot, setRepairConfirmSlot] = useState<PartSlot | null>(null);
 
   const selectedMutant = state.roster.find(m => m.id === selectedMutantId) ?? null;
 
@@ -65,6 +70,23 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
     });
     setFlash(`Equipped ${newPart.name} to ${selectedMutant?.name ?? 'mutant'}.`);
     setTimeout(() => setFlash(null), 2000);
+  };
+
+  const handleRepair = (mutantId: string, slot: PartSlot) => {
+    setState(prev => {
+      const roster = prev.roster.map(m => {
+        if (m.id !== mutantId) return m;
+        const equipped = m.parts[slot];
+        if (!equipped) return m;
+        const repaired = repairPart(equipped);
+        const parts = { ...m.parts, [slot]: repaired };
+        return { ...m, parts };
+      });
+      return { ...prev, roster };
+    });
+    setRepairConfirmSlot(null);
+    setFlash(`Repaired part — OEM stamp permanently lost.`);
+    setTimeout(() => setFlash(null), 3000);
   };
 
   return (
@@ -109,12 +131,31 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
             {PART_SLOTS.map(slot => {
               const equipped = selectedMutant.parts[slot];
               const available = inventoryBySlot[slot] ?? [];
+              const canRepair = equipped && (equipped.qualityTier === 'malfunctioning' || equipped.qualityTier === 'brand_new');
+              const oemWarning = equipped ? repairOemLossWarning(equipped) : null;
+              const showingConfirm = repairConfirmSlot === slot;
               return (
                 <div key={slot} className="slot-row">
                   <div className="slot-label">{slot.replace('_', ' ')}</div>
                   <div className="slot-equipped">
                     {equipped ? (
-                      <Badge label={equipped.name} variant="accent" />
+                      <>
+                        <Badge label={equipped.name} variant="accent" />
+                        {equipped.brand && (
+                          <span className="equipped-brand">
+                            {BRAND_SIGNATURES[equipped.brand].label}
+                          </span>
+                        )}
+                        {equipped.qualityTier && equipped.qualityTier !== 'brand_new' && (
+                          <Badge
+                            label={QUALITY_LABELS[equipped.qualityTier]}
+                            variant={equipped.qualityTier === 'malfunctioning' ? 'default' : 'muted'}
+                          />
+                        )}
+                        {equipped.qualityTier === 'brand_new' && (
+                          <Badge label="Brand New" variant="accent" />
+                        )}
+                      </>
                     ) : (
                       <span className="empty-slot">empty</span>
                     )}
@@ -131,6 +172,38 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
                         variant="neutral"
                       />
                     ))}
+                    {canRepair && !showingConfirm && (
+                      <Button
+                        label="Repair"
+                        onClick={() => setRepairConfirmSlot(slot)}
+                        variant="neutral"
+                      />
+                    )}
+                    {showingConfirm && oemWarning && (
+                      <div className="repair-confirm">
+                        <div className="repair-warning">{oemWarning}</div>
+                        <Button
+                          label="Confirm Repair"
+                          onClick={() => handleRepair(selectedMutant.id, slot)}
+                          variant="primary"
+                        />
+                        <Button
+                          label="Cancel"
+                          onClick={() => setRepairConfirmSlot(null)}
+                          variant="neutral"
+                        />
+                      </div>
+                    )}
+                    {showingConfirm && !oemWarning && (
+                      <div className="repair-confirm">
+                        <div className="repair-warning">This part is already Refurbished — no further OEM loss.</div>
+                        <Button
+                          label="Cancel"
+                          onClick={() => setRepairConfirmSlot(null)}
+                          variant="neutral"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               );

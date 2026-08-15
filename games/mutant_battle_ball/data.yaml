@@ -44,6 +44,9 @@ parts:
     speed: 5
     price: 40
     description: "A dented but functional head. Gets the job done."
+    brand: mirefaith
+    qualityTier: refurbished
+    cyberOrganicLean: 30
 
   - id: head_tactical
     name: Tactical Visor
@@ -54,6 +57,9 @@ parts:
     speed: 5
     price: 90
     description: "Enhanced optics for precision decision-making."
+    brand: prismworks
+    qualityTier: brand_new
+    cyberOrganicLean: 75
 
   - id: head_iron
     name: Iron Dome
@@ -64,6 +70,9 @@ parts:
     speed: 5
     price: 70
     description: "Reinforced skull. Won't win on brains but won't lose one either."
+    brand: icevault
+    qualityTier: brand_new
+    cyberOrganicLean: 40
 
   - id: chest_basic
     name: Ribcage Plating
@@ -73,6 +82,9 @@ parts:
     power: 8
     speed: 5
     price: 45
+    brand: mirefaith
+    qualityTier: refurbished
+    cyberOrganicLean: 25
 
   - id: chest_heavy
     name: Blast Shield Torso
@@ -83,6 +95,9 @@ parts:
     speed: 0
     price: 110
     description: "Absorbs punishment. Slows you down."
+    brand: icevault
+    qualityTier: brand_new
+    cyberOrganicLean: 60
 
   - id: chest_light
     name: Carbon Mesh
@@ -93,6 +108,9 @@ parts:
     speed: 8
     price: 75
     description: "Light. Doesn't absorb much. But you'll run."
+    brand: quicksilver
+    qualityTier: brand_new
+    cyberOrganicLean: 80
 
   - id: arm_basic
     name: Scrap Arm
@@ -102,6 +120,9 @@ parts:
     power: 30
     speed: 3
     price: 35
+    brand: trueflame
+    qualityTier: malfunctioning
+    cyberOrganicLean: 20
 
   - id: arm_pile
     name: Pile Driver
@@ -112,6 +133,9 @@ parts:
     speed: 0
     price: 80
     description: "One hit. That's all you need."
+    brand: trueflame
+    qualityTier: brand_new
+    cyberOrganicLean: 70
 
   - id: arm_grab
     name: Grapple Claw
@@ -121,6 +145,9 @@ parts:
     power: 40
     speed: 3
     price: 70
+    brand: tidalcapital
+    qualityTier: brand_new
+    cyberOrganicLean: 55
 
   - id: leg_basic
     name: Salvage Leg
@@ -130,6 +157,9 @@ parts:
     power: 5
     speed: 30
     price: 35
+    brand: quicksilver
+    qualityTier: malfunctioning
+    cyberOrganicLean: 15
 
   - id: leg_sprint
     name: Sprint Coil
@@ -140,6 +170,9 @@ parts:
     speed: 55
     price: 90
     description: "Built for pursuit. Falls apart under pressure."
+    brand: quicksilver
+    qualityTier: brand_new
+    cyberOrganicLean: 90
 
   - id: leg_stomp
     name: Stomp Boot
@@ -149,6 +182,9 @@ parts:
     power: 12
     speed: 35
     price: 60
+    brand: tidalcapital
+    qualityTier: refurbished
+    cyberOrganicLean: 45
 
 starter_mutants:
   - id: mutant_alpha

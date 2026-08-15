@@ -7,6 +7,7 @@ import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { MBBGameState, MatchState, MutantParts, Part } from './types';
+import type { BrandId, QualityTier } from '../../engine/shared/partSlots';
 import { createMbbSimulation } from './simulation/mbbSimulation';
 import type { MbbSimulation } from './simulation/mbbSimulation';
 import RosterTab     from './components/RosterTab';
@@ -33,7 +34,12 @@ function buildInitialState(session: unknown): MBBGameState {
 
   const partsMap: Record<string, unknown> = {};
   for (const p of (partsData ?? [])) {
-    partsMap[p['id'] as string] = p;
+    partsMap[p['id'] as string] = {
+      ...p,
+      brand: p['brand'] as BrandId | undefined,
+      qualityTier: p['qualityTier'] as QualityTier | undefined,
+      cyberOrganicLean: p['cyberOrganicLean'] as number | undefined,
+    };
   }
 
   const roster = (starters ?? []).map(m => {
