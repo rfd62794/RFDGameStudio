@@ -1,5 +1,5 @@
 /**
- * Chimera Asymmetric Body Plan
+ * Chimera Asymmetric Body Plan (upgraded with BoneNode schema)
  *
  * Real, second target — for Chimera Wilds' randomly-assembled, less-
  * uniform six-part figures. Same six slots as humanoid_bilateral, but
@@ -11,6 +11,10 @@
  *   - Legs are splayed wider (creature stance)
  *   - Rougher shape primitives (irregularFragment, radialBurst) instead
  *     of the cleaner polygon/teardropFin used for humanoids
+ *
+ * Upgraded to the BoneNode schema (#1) with length, restAngle, side,
+ * and region fields for true FK rotation accumulation (#3), painter's
+ * algorithm Z-ordering (#5), and biological scaling (#6).
  *
  * The underlying composition engine is identical — only the data
  * (BodyPlan) changes. This is the real reuse pattern.
@@ -25,38 +29,62 @@ export const chimeraAsymmetric: BodyPlan = {
     {
       slot: 'chest',
       parentSlot: null,
+      length: 0,
+      restAngle: 0,
       offset: { x: 50, y: 52 },
       angle: 0,
+      side: 'center',
+      region: 'torso',
     },
     {
       slot: 'head',
       parentSlot: 'chest',
+      length: 0,
+      restAngle: 0,
       offset: { x: 8, y: -20 }, // offset right — predator lean
       angle: 0.25,
+      side: 'center',
+      region: 'head',
     },
     {
       slot: 'left_arm',
       parentSlot: 'chest',
+      length: 0,
+      restAngle: 0,
       offset: { x: -20, y: -8 },
       angle: -0.5, // wider outward angle
+      side: 'left',
+      region: 'arm',
     },
     {
       slot: 'right_arm',
       parentSlot: 'chest',
+      length: 0,
+      restAngle: 0,
       offset: { x: 16, y: 2 }, // lower than left — asymmetric
       angle: 0.6,
+      side: 'right',
+      region: 'arm',
     },
     {
       slot: 'left_leg',
       parentSlot: 'chest',
+      length: 0,
+      restAngle: 0,
       offset: { x: -14, y: 22 },
       angle: -0.35, // splayed wider
+      side: 'left',
+      region: 'leg',
     },
     {
       slot: 'right_leg',
       parentSlot: 'chest',
+      length: 0,
+      restAngle: 0,
       offset: { x: 14, y: 22 },
       angle: 0.35,
+      side: 'right',
+      region: 'leg',
     },
   ],
   // Back-to-front: legs behind, then arms, then torso, then head
