@@ -2,6 +2,82 @@
 
 *Last updated: August 14 2026*
 
+## Paper Doll — Bézier Curve Primitive: Isolated Proof of Concept — COMPLETED (POC)
+
+**Directive:** Every artGen primitive so far (polygon, radialBurst,
+teardropFin, irregularFragment, sigmoidBulge) generates point lists
+connected by straight line segments. This POC tests whether genuine
+cubic Bézier `<path>` curves — a fundamentally different draw technique
+— look organic enough to pursue as a real primitive.
+
+**This is a POC, not a production change.** Nothing is wired into
+artGen, composer, paperDoll, or any existing consumer. One isolated
+file, one shape, for Robert to judge in the browser.
+
+### §1 Build: Real cubic Bézier curves via Catmull-Rom conversion
+
+**Technique:** Catmull-Rom spline → cubic Bézier conversion.
+1. Place N anchor points around a circle with seed-driven radius jitter
+2. For each pair of adjacent anchors, compute two control points:
+   - `cp1 = anchor[i] + (anchor[i+1] - anchor[i-1]) * tension`
+   - `cp2 = anchor[i+1] - (anchor[i+2] - anchor[i]) * tension`
+3. Emit `M anchor[0] C cp1 cp2 anchor[1] C cp1 cp2 anchor[2] ... Z`
+
+**Parameters (all seed-driven and parametric):**
+- `seed` — deterministic RNG for anchor jitter (same algorithm as artGen's mulberry32)
+- `anchorCount` — number of anchor points (4-16)
+- `baseRadius` — base circle radius
+- `jitterAmount` — 0-0.5, how much radius varies per anchor
+- `tension` — 0-0.5, smoothness (0.05 = sharp, 0.1667 = standard Catmull-Rom, 0.35 = loose)
+
+**Real output (seed=42, 8 anchors, tension=0.1667):**
+```
+M61.82,0.00 C61.45,14.30 52.07,30.71 41.77,41.77 C31.46,52.83 14.40,65.87 0.00,66.34 ...
+```
+Command types: `M, C, C, C, C, C, C, C, C, Z` — 8 real cubic Bézier
+commands, zero `L` (straight line) commands.
+
+**URL for Robert to open:** http://localhost:5199/
+- Shows three shapes side-by-side at different tensions (0.05, 0.167, 0.35)
+- Interactive sliders for seed, anchor count, tension, jitter, radius
+- Raw path data shown in a `<details>` element for objective inspection
+
+### §2 Test Anchors: 11/11 passing
+
+1. `test_real_bezier_commands_used` — 3 tests:
+   - Path data contains real `C` commands, zero `L` commands
+   - Each segment has two control points (cp1 + cp2) — cubic, not quadratic
+   - Control points differ from anchor points — curves are genuinely curved
+2. `test_seed_determinism` — 3 tests:
+   - Same seed produces identical path data
+   - Different seeds produce different path data
+   - Same seed with different tension produces different output (parametric)
+3. `test_isolated_no_existing_files_touched` — 2 tests:
+   - Zero changes to artGen, paperDoll, or any existing consumer
+   - POC files exist only in `bezier_poc/` directory
+4. `test_page_loads_and_renders` — 3 tests:
+   - HTML page has correct structure with `<div id="root">` and entry.ts
+   - Entry point imports and calls `generateBezierBlob`
+   - Generated SVG contains `<path>` with `d` attribute
+
+### Full TS floor: 1036/1036 passing, 97/97 test files
+
+### Files created (all new, zero existing files modified)
+
+- `ts/src/standalone/bezier_poc/bezier_blob.ts` — Bézier curve generator
+- `ts/src/standalone/bezier_poc/entry.ts` — interactive page entry point
+- `ts/src/standalone/bezier_poc/index.html` — minimal HTML page
+- `ts/vite.bezier_poc.config.ts` — vite config for dev server
+- `ts/tests/test_bezier_poc.ts` — 11 test anchors
+
+### Next step
+
+Robert opens http://localhost:5199/ and judges whether genuine Bézier
+curves look organic enough to pursue. If yes, a real directive to build
+a curve-based primitive into `artGen` for real. If no, throw this away.
+
+---
+
 ## Paper Doll — Recognizable Primitives: Sigmoid Limbs + Real Head Ellipse — COMPLETED
 
 **Directive:** Correct proportions on the wrong shapes still look wrong.
