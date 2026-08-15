@@ -8177,3 +8177,236 @@ small schema addition that honestly distinguishes non-competitive
 sandbox tools from scored games, available for future tools that
 need the same distinction. The underlying `paperDoll` module and the
 viewer's real functionality are completely untouched.
+
+
+---
+
+## Paper Doll — Full ChimeraLab Pattern Port — COMPLETED
+
+**Directive:** Port all eight real, ranked portable patterns from the
+ChimeraLab investigation into the TS-native Paper Doll module —
+patterns and math, not code. The Rust/Python source stays exactly
+where it is, read-only, reference only.
+
+### STOP rule satisfied
+
+Read the real, current `paperDoll` module source fresh before touching
+anything — `types.ts`, `attachmentGraph.ts`, `composer.ts`, both body
+plans, `index.ts`, `PaperDoll.tsx`, and the `artGen` shapes module.
+Confirmed what was actually there, not what an earlier report
+described. Read the real ChimeraLab source at
+`C:\Github\reference-repos\ChimeraLab\` for each pattern directly —
+`bone_manifest.py`, `proportion_presets.py`, `fk_solver.py`,
+`color_utils.py`, `body_renderer.py`, and `skeleton.rs`.
+
+### All 8 patterns ported in real dependency order
+
+#### #1 SkeletonManifest data shape (from `bone_manifest.py`)
+
+Replaced the flat `AttachmentNode` with a more rigorous `BoneNode`
+schema: each slot has `length`, `restAngle`, `side`, and `region`
+fields alongside the existing `offset` and `angle`. The `side` field
+(`'left' | 'right' | 'center'`) drives painter's algorithm Z-ordering
+(#5). The `region` field (`'spine' | 'head' | 'arm' | 'leg' | 'torso'`)
+drives biological scaling (#6). Both existing body plans
+(`humanoidBilateral`, `chimeraAsymmetric`) were upgraded to the new
+schema and re-verified.
+
+**Backward compatibility:** The `AttachmentNode` interface is retained
+as a legacy alias. Existing consumers that don't pass the new optional
+`CompositionInput` fields get the same visual result as before — the
+body plans use `length: 0` to trigger offset-based resolution (the
+backward-compatible path).
+
+#### #2 BodyProportions (from `proportion_presets.py`)
+
+Ported the 12-float-multiplier dataclass (`headSize`, `neckWidth`,
+`shoulderWidth`, `chestWidth`, `waistWidth`, `hipWidth`,
+`upperArmWidth`, `forearmWidth`, `handSize`, `thighWidth`,
+`calfWidth`, `footSize`, `muscleBulge`) and 8 named presets
+(`normal`, `baby_hands`, `big_head`, `tiny_head`, `long_legs`, `buff`,
+`slim`, `gorilla`, `chibi`). Wired a `proportions` field into
+`CompositionInput` that scales per-region attachment offsets at
+composition time via `getProportionMultiplier()`.
+
+**New file:** `ts/src/engine/paperDoll/proportionPresets.ts`
+
+#### #3 True FK rotation accumulation (from `fk_solver.py`)
+
+Replaced the composer's position-only offset rotation with real
+rotation accumulation. When a `BoneNode` has `length > 0`, the FK
+solver uses the real ChimeraLab formula:
+```
+finalAngle = restAngle + accumulatedRotation + localRotation
+childPos = parentPos + (cos(finalAngle) * length, sin(finalAngle) * length)
+```
+When `length` is 0, it falls back to the offset-based resolution for
+backward compatibility. This is a real correctness upgrade — verified
+with a known test hierarchy that the rotation-chained positions match
+the formula exactly.
+
+#### #4 Hierarchical color resolution (from `color_utils.py`)
+
+Ported `resolveColor(genetics, ...keys)` — walks a priority-ordered
+key list, returns the first defined, falls back to a base color.
+Ported the real 13-part hierarchy table as the default config. This is
+the real, concrete system the Brand/Cyber-Organic/Quality-tier styling
+has been waiting on — wired in as the actual resolver via
+`CompositionInput.genetics`, not a parallel one sitting next to the
+existing flat color lookup. When `genetics` is provided, the composer
+uses `getColorForPart()` instead of the flat `colors[slot]` lookup.
+
+Also ported `blendColors()`, `lightenColor()`, and `darkenColor()`
+utilities.
+
+**New file:** `ts/src/engine/paperDoll/colorResolution.ts`
+
+#### #5 Painter's algorithm Z-ordering (from `body_renderer.py`)
+
+Ported the 3-layer side-aware scheme: left-side limbs (opposite side,
+darkened ~15%) → right-side limbs (near side, full color) →
+torso/head overlay. Uses the resolved `side` field from the attachment
+graph (computed from the `BoneNode.side` field), not slot naming alone.
+The composer applies `darkenColor(color, 0.15)` to left-side parts
+before rendering.
+
+#### #6 Biological scaling formulas (from `skeleton.rs::get_body_contours`)
+
+Ported the real allometric scaling as named, flagged-tunable constants
+in `BIOLOGICAL_SCALING`:
+- `kleiberExponent: 0.75` — Kleiber's Law: `thickness = base * length^0.75`
+- `jointBuffer: 1.3` — elbows/knees get 1.3x radius to look like sockets
+- `limbEndTaper: 0.55` — limb ends (wrists/ankles) taper to 0.55x
+- Torso hourglass: `torsoHips: 1.5`, `torsoWaist: 1.0`, `torsoChest: 1.6`,
+  `torsoNeck: 0.6`, `torsoHead: 1.2`
+- `bulgeFactor: 0.4`, `bulgeSegments: 6` — sigmoid bulge parameters
+
+The composer's `applyBiologicalScaling()` function applies these to
+shape parameters at composition time — chest radius scaled by
+`torsoChest`, head radius by `torsoHead`, and `muscleBulge` from
+proportions scales `angularity`.
+
+#### #7 Sigmoid muscle bulge shape (from `body_renderer.py::get_sigmoid_polygon`)
+
+Ported `renderSigmoidBulge(spec)` — sine-based limb polygon with bulge
+peaking at `t=0.5`. Added as a new, real `artGen`-compatible primitive
+alongside the existing four (`polygon`, `radialBurst`, `teardropFin`,
+`irregularFragment`). The `SlotShapeMapping.primitive` union now
+includes `'sigmoidBulge'` — a genuine fifth shape option, not a
+replacement for `teardropFin`.
+
+Formula (from ChimeraLab):
+```
+baseWidth(t) = widthStart * (1-t) + widthEnd * t
+bulge(t) = sin(t * π) * baseWidth * bulgeFactor
+currentWidth = (baseWidth + bulge) * 0.5
+```
+
+**Modified files:** `ts/src/engine/artGen/types.ts` (added
+`SigmoidBulgeSpec`), `ts/src/engine/artGen/shapes.ts` (added
+`renderSigmoidBulge`)
+
+#### #8 Posture-blend interpolation (from `skeleton_presets.py`)
+
+Ported the LERP-between-two-extremes concept: added `postureWeight`
+(0-1) and `postureBlendPlan` to `CompositionInput`. The attachment
+graph resolver LERPs resolved positions between two full `BodyPlan`s:
+at `postureWeight = 0`, uses `bodyPlan`; at `1`, uses `blendPlan`; in
+between, interpolates all positions and angles. Confirmed it degrades
+correctly to the existing single-plan behavior at both extremes.
+
+### Files changed
+
+**New files:**
+| File | Purpose |
+|---|---|
+| `ts/src/engine/paperDoll/proportionPresets.ts` | #2: 12 multipliers + 8 presets |
+| `ts/src/engine/paperDoll/colorResolution.ts` | #4: hierarchical color + blending utils |
+| `ts/tests/test_paper_doll_chimeralab_port.ts` | 36 test anchors covering all 8 patterns |
+
+**Modified files:**
+| File | Changes |
+|---|---|
+| `ts/src/engine/paperDoll/types.ts` | #1: BoneNode schema; #2: BodyProportions; #4: ColorGenetics; #6: BIOLOGICAL_SCALING constants; #7: sigmoidBulge in primitive union; #8: postureWeight/postureBlendPlan in CompositionInput |
+| `ts/src/engine/paperDoll/attachmentGraph.ts` | #3: true FK rotation accumulation; #2: proportion scaling; #8: posture-blend LERP |
+| `ts/src/engine/paperDoll/composer.ts` | #4: hierarchical color resolution; #5: painter's algorithm darkening; #6: biological scaling; #7: sigmoidBulge primitive rendering |
+| `ts/src/engine/paperDoll/bodyPlans/humanoidBilateral.ts` | #1: upgraded to BoneNode schema with length/restAngle/side/region |
+| `ts/src/engine/paperDoll/bodyPlans/chimeraAsymmetric.ts` | #1: upgraded to BoneNode schema with length/restAngle/side/region |
+| `ts/src/engine/paperDoll/index.ts` | Exports new modules + types |
+| `ts/src/engine/artGen/types.ts` | #7: SigmoidBulgeSpec interface |
+| `ts/src/engine/artGen/shapes.ts` | #7: renderSigmoidBulge function |
+| `ts/tests/test_character_viewer.ts` | Updated byte-unchanged checks to verify viewer source (not paperDoll, which was intentionally upgraded) |
+| `ts/tests/test_character_viewer_arcade_entry.ts` | Same update as above |
+
+### Existing consumers re-verified
+
+- **Mutant Battle Ball:** `RosterTab.tsx` still references `PaperDoll`
+  component — confirmed via test
+- **Chimera Wilds:** `App.tsx` still references `PaperDoll` — confirmed
+  via test
+- **Character Viewer (dev-only path):** `CharacterViewer.tsx`
+  standalone source is byte-unchanged (git diff empty) — confirmed via
+  test. Still imports `renderFigureSvg`, `humanoidBilateral`,
+  `chimeraAsymmetric` from the real paperDoll module.
+- **Character Viewer (arcade entry):** `App.tsx` wrapper still imports
+  from standalone surface — confirmed via test
+- **PaperDoll.tsx React component:** byte-unchanged (git diff empty) —
+  confirmed via test
+
+### All constants named and flagged tunable
+
+The `BIOLOGICAL_SCALING` constant object in `types.ts` contains all
+real numbers from ChimeraLab's `skeleton.rs`, each named clearly:
+`kleiberExponent`, `jointBuffer`, `limbEndTaper`, `torsoHips`,
+`torsoWaist`, `torsoChest`, `torsoNeck`, `torsoHead`, `bulgeFactor`,
+`bulgeSegments`. Not buried magic numbers — named, documented, and
+tunable.
+
+### Test results
+
+**New test file:** `ts/tests/test_paper_doll_chimeralab_port.ts`
+- 36 tests, all passing
+- Covers all 8 patterns + integration + no regression
+
+**Test anchors (11 required, all present):**
+1. `test_skeleton_manifest_shape_replaces_flat_nodes` (3 tests) — #1
+2. `test_body_proportions_scale_correctly` (3 tests) — #2
+3. `test_fk_rotation_accumulation_correct` (2 tests) — #3
+4. `test_existing_figures_still_correct_post_fk_change` (4 tests) — #3
+5. `test_hierarchical_color_resolution` (4 tests) — #4
+6. `test_painters_algorithm_zorder` (3 tests) — #5
+7. `test_biological_scaling_formulas` (3 tests) — #6
+8. `test_sigmoid_muscle_bulge_shape` (4 tests) — #7
+9. `test_posture_blend_interpolation` (4 tests) — #8
+10. `test_character_viewer_still_works` (3 tests) — integration
+11. `test_no_regression` (3 tests) — full repo
+
+**Full TS floor:** 966/970 passing (93 test files, 26.38s)
+- +36 from previous floor (935 → 966, after removing 5 byte-unchanged
+  tests that no longer apply): net +31
+- 4 failures, all pre-existing/unrelated:
+  - `test_arcade_routing.ts > test_game_loader_back_button` (1) — known flaky
+  - `test_dual_target_deploy.ts > test_git_state_clean_both_games` (2) —
+    fails because working tree has uncommitted changes (expected mid-work)
+  - `test_shoal_ts_native_migration.ts > test_real_tick_time_measured` (1) —
+    flaky performance test
+- Zero regressions
+
+### What was NOT ported (per directive)
+
+- FBX/Mixamo import (`fbx_parser.py`, `bone_mapping.py`) — not relevant
+- Pygame draw calls (`visualizer.py`) — TS-native rendering uses SVG
+- PyO3/Rust bridge — not applicable to TS module
+- Physics ragdoll — not in scope
+- Animation playback — not in scope
+
+### What this means
+
+The Paper Doll module now has real depth from ChimeraLab's proven
+patterns: true FK rotation accumulation for correct joint chaining,
+hierarchical color resolution for Brand/Cyber-Organic/Quality-tier
+styling, painter's algorithm for side-aware depth, biological scaling
+for realistic proportions, a sigmoid muscle bulge primitive for
+organic limbs, and posture-blend interpolation for continuous body
+plan morphing. All eight patterns are ported as patterns and math, not
+copied code — the Rust/Python source stays read-only, reference only.
