@@ -15,6 +15,7 @@
   padding: 1rem;
   max-width: 1200px;
   margin: 0 auto;
+  overflow-y: auto;
 }
 
 .cv-subtitle {
@@ -108,12 +109,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 250px;
 }
 
 .cv-figure-render svg {
-  width: 100%;
+  max-width: 100%;
+  max-height: 250px;
+  width: auto;
   height: auto;
-  max-height: 300px;
   background: var(--bg, #0f1117);
   border-radius: 4px;
 }
