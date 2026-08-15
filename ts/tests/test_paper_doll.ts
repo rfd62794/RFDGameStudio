@@ -121,14 +121,16 @@ describe('test_layer_composition', () => {
       seed: 42,
     };
     const composed = composeFigure(input);
-    expect(composed.length).toBe(6);
+    // strokeSkeleton produces 6 bone segments + joint blend circles
+    // Must have at least 6 parts (the bone segments)
+    expect(composed.length).toBeGreaterThanOrEqual(6);
     // Verify zOrder is ascending
     for (let i = 1; i < composed.length; i++) {
       expect(composed[i].zOrder).toBeGreaterThanOrEqual(composed[i - 1].zOrder);
     }
   });
 
-  it('Each composed part contains an SVG <g> element with transform', () => {
+  it('Each composed bone segment contains SVG stroke elements (line or circle)', () => {
     const input: CompositionInput = {
       bodyPlan: humanoidBilateral,
       parts: makeFullParts(),
@@ -136,9 +138,13 @@ describe('test_layer_composition', () => {
       seed: 42,
     };
     const composed = composeFigure(input);
-    for (const part of composed) {
-      expect(part.svg).toContain('<g transform=');
-      expect(part.svg).toContain('</g>');
+    // The 6 named slots should render as <line> or <circle> (strokeSkeleton)
+    const boneSlots = ['head', 'chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'];
+    for (const slot of boneSlots) {
+      const part = composed.find(c => c.slot === slot);
+      expect(part).toBeDefined();
+      // strokeSkeleton renders <line> (limbs/torso) or <circle> (head)
+      expect(part!.svg.includes('<line') || part!.svg.includes('<circle')).toBe(true);
     }
   });
 
