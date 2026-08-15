@@ -103,10 +103,11 @@ RFDGameStudio/
     test_runtime.py   — tests 13–15 (runtime integration)
   docs/
     adr/              — ADR-001 … ADR-005 (locked)
-    sdd/              — System Design Document v0.1
+    sdd/              — System Design Document (v0.3 current; v0.1, v0.2 archived)
     directives/       — Phase directives
     state/
       current.md      — live phase status
+      StatusBoard.md  — studio-wide status rollup (refreshed at checkpoints)
   examples/
     lua/              — canonical game files (source of truth for games/)
     horse-racing-&-breeding/   — original TypeScript prototype
