@@ -55,7 +55,7 @@ function EntryCard({ entry }: { entry: ProjectEntry }) {
         </p>
       )}
       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted, #888)' }} data-testid={`last-updated-${entry.id}`}>
-        Updated: {entry.lastUpdated}
+        Updated: {entry.lastUpdated}{entry.verificationMethod ? ` (${entry.verificationMethod})` : ''}
       </p>
     </Card>
   );

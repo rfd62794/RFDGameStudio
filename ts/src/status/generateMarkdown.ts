@@ -27,6 +27,13 @@ function escapePipe(text: string): string {
   return text.replace(/\|/g, '\\|');
 }
 
+function formatLastUpdated(entry: ProjectEntry): string {
+  if (entry.verificationMethod) {
+    return `${entry.lastUpdated} (${entry.verificationMethod})`;
+  }
+  return entry.lastUpdated;
+}
+
 function renderCategorySection(category: ProjectCategory, entries: ProjectEntry[]): string {
   if (entries.length === 0) return '';
 
@@ -41,7 +48,7 @@ function renderCategorySection(category: ProjectCategory, entries: ProjectEntry[
     lines.push('|---|---|---|---|---|');
     for (const e of entries) {
       lines.push(
-        `| **${escapePipe(e.name)}** | ${STATUS_LABELS[e.status]} | ${escapePipe(e.supersededBy ?? '—')} | ${escapePipe(e.currentState)} | ${e.lastUpdated} |`,
+        `| **${escapePipe(e.name)}** | ${STATUS_LABELS[e.status]} | ${escapePipe(e.supersededBy ?? '—')} | ${escapePipe(e.currentState)} | ${formatLastUpdated(e)} |`,
       );
     }
   } else {
@@ -50,7 +57,7 @@ function renderCategorySection(category: ProjectCategory, entries: ProjectEntry[
     lines.push('|---|---|---|---|---|');
     for (const e of entries) {
       lines.push(
-        `| **${escapePipe(e.name)}** | ${STATUS_LABELS[e.status]} | ${escapePipe(e.currentState)} | ${escapePipe(e.nextAction ?? '—')} | ${e.lastUpdated} |`,
+        `| **${escapePipe(e.name)}** | ${STATUS_LABELS[e.status]} | ${escapePipe(e.currentState)} | ${escapePipe(e.nextAction ?? '—')} | ${formatLastUpdated(e)} |`,
       );
     }
   }
@@ -66,7 +73,7 @@ function renderCategorySection(category: ProjectCategory, entries: ProjectEntry[
 export function generateMarkdown(entries: ProjectEntry[]): string {
   const sections: string[] = [];
 
-  sections.push('<!-- GENERATED FILE — edit ts/src/status/board.data.ts, then run scripts/generate-status-board.ts -->');
+  sections.push('<!-- GENERATED FILE — edit ts/src/status/board.data.ts, then run ts/tools/generate-status-board.ts -->');
   sections.push('');
   sections.push('# RFD Game Studio — Status Board');
   sections.push('');

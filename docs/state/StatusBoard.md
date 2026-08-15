@@ -1,4 +1,4 @@
-<!-- GENERATED FILE — edit ts/src/status/board.data.ts, then run scripts/generate-status-board.ts -->
+<!-- GENERATED FILE — edit ts/src/status/board.data.ts, then run ts/tools/generate-status-board.ts -->
 
 # RFD Game Studio — Status Board
 
@@ -43,7 +43,7 @@ no recent enough confirmation to state its current state.
 
 | Game | Status | Current State | Next Real Action | Last Updated |
 |---|---|---|---|---|
-| **VoidDrift** | Status Unconfirmed | Rust/Bevy/Android. Act 1 of a locked 3-game narrative trilogy (VoidDrift -> Dissonance Depths -> SlimeWorld). | Verify whether the previously-flagged OpeningCompleteEvent blocking bug is still open. | 2026-08-15 |
+| **VoidDrift** | Status Unconfirmed | Rust/Bevy/Android. Act 1 of a locked 3-game narrative trilogy (VoidDrift -> Dissonance Depths -> SlimeWorld). | Verify whether the previously-flagged OpeningCompleteEvent blocking bug is still open. | 2026-08-15 (research/inference) |
 | **VoidDrift Redux (web)** | Active | Phase 6 (tap-to-dispatch). Separate exploratory thread from native VoidDrift. | Pending fragment natural-drift correction. | 2026-08-15 |
 | **House of Kings: Collab** | Active | Firebase/Firestore. Phases 0-10 + full security remediation arc complete. | Direct status check — architecturally isolated, easy to lose track of. | 2026-08-15 |
 | **AntSim Redux** | Shipped/Deliberately Paused | Phase 5, 90-test floor. Closed via named engine-death-pattern acknowledgment. | — | 2026-08-15 |
@@ -55,10 +55,10 @@ no recent enough confirmation to state its current state.
 | Game | Status | Current State | Next Real Action | Last Updated |
 |---|---|---|---|---|
 | **Succession** | Active | Persuasion-sim redesign, mid-development. | — | 2026-08-15 |
-| **SlimeGarden** | Status Unconfirmed | Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). | Direct status check needed. | 2026-08-15 |
-| **Trinity Siege/Combat** | Status Unconfirmed | Bevy vs. egui architecture question left unresolved. | Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now. | 2026-08-15 |
-| **7 Days to Fry** | Status Unconfirmed | Imported alongside KingMaker Squads (now retired). No status since. | Direct status check needed. | 2026-08-15 |
-| **TurboShells** | Status Unconfirmed | Named as a genuine cross-language-origin Lua exception (with VoidDrift). No recent confirmation. | Direct status check needed. | 2026-08-15 |
+| **SlimeGarden** | Status Unconfirmed | Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). | Direct status check needed. | 2026-08-15 (research/inference) |
+| **Trinity Siege/Combat** | Status Unconfirmed | Bevy vs. egui architecture question left unresolved. | Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now. | 2026-08-15 (research/inference) |
+| **7 Days to Fry** | Status Unconfirmed | Imported alongside KingMaker Squads (now retired). No status since. | Direct status check needed. | 2026-08-15 (research/inference) |
+| **TurboShells** | Status Unconfirmed | Named as a genuine cross-language-origin Lua exception (with VoidDrift). No recent confirmation. | Direct status check needed. | 2026-08-15 (research/inference) |
 
 ---
 

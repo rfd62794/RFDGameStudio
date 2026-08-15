@@ -60,6 +60,18 @@ describe('Status Board data integrity', () => {
       }
     }
   });
+
+  it('status_board_unconfirmed_entries_have_verificationMethod', () => {
+    // ADR-016 self-test: every status_unconfirmed entry must carry a
+    // verificationMethod, so a reader knows whether the "unconfirmed"
+    // claim was checked against the live repo or inferred from history.
+    const unconfirmed = STATUS_BOARD.filter(e => e.status === 'status_unconfirmed');
+    expect(unconfirmed.length).toBeGreaterThan(0);
+    for (const entry of unconfirmed) {
+      expect(entry.verificationMethod).toBeTruthy();
+      expect(['direct file read', 'research/inference', 'narrated agent report']).toContain(entry.verificationMethod);
+    }
+  });
 });
 
 describe('generateMarkdown', () => {

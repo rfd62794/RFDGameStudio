@@ -12,6 +12,18 @@ export type ProjectStatus =
   | 'status_unconfirmed'
   | 'retired';
 
+/**
+ * Per ADR-016: any "still open / unconfirmed" claim must carry a
+ * verification method so a reader knows whether it was checked against
+ * the live repo or inferred. Required on status_unconfirmed entries;
+ * optional on others (a shipped_mature game's state isn't a staleness
+ * claim in the same sense).
+ */
+export type VerificationMethod =
+  | 'direct file read'
+  | 'research/inference'
+  | 'narrated agent report';
+
 export interface ProjectEntry {
   id: string;
   name: string;
@@ -22,4 +34,5 @@ export interface ProjectEntry {
   supersededBy?: string;     // retired entries only
   link?: string;             // itch.io / arcade route, if live
   lastUpdated: string;       // ISO date — makes staleness visible in the UI itself, not just in a doc's prose
+  verificationMethod?: VerificationMethod;  // required on status_unconfirmed per ADR-016
 }
