@@ -195,6 +195,13 @@ function buildInput(config: TechniqueConfig): CompositionInput {
 
 const styles = `
   html { overflow-y: auto; }
+  /* Arcade wrapper override: when loaded via ?game=technique_showcase,
+     the arcade's GameLoader wraps this component in .arcade-game-wrap
+     (height: 100vh) > .arcade-game-content (overflow: hidden). That
+     clips all content past the viewport with no scrollbar. Override
+     both so the page scrolls naturally. */
+  .arcade-game-wrap { height: auto; min-height: 100vh; }
+  .arcade-game-content { overflow: visible; }
   body { background: #0f1117; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
   .ts-page { padding: 1rem; max-width: 1400px; margin: 0 auto; }
   .ts-title { font-size: 1.3rem; margin: 0; }
