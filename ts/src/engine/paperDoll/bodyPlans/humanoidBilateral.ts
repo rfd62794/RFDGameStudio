@@ -33,7 +33,7 @@ export const humanoidBilateral: BodyPlan = {
       parentSlot: null,
       length: 0, // root — uses offset positioning
       restAngle: 0,
-      offset: { x: 50, y: 50 },
+      offset: { x: 50, y: 48 },
       angle: 0,
       side: 'center',
       region: 'torso',
@@ -43,7 +43,7 @@ export const humanoidBilateral: BodyPlan = {
       parentSlot: 'chest',
       length: 0, // uses offset positioning
       restAngle: 0,
-      offset: { x: 0, y: -22 },
+      offset: { x: 0, y: -30 }, // raised to create neck space
       angle: 0,
       side: 'center',
       region: 'head',
@@ -53,8 +53,8 @@ export const humanoidBilateral: BodyPlan = {
       parentSlot: 'chest',
       length: 0,
       restAngle: 0,
-      offset: { x: -18, y: -5 },
-      angle: -0.3, // slight outward angle
+      offset: { x: -16, y: -3 }, // shoulders slightly narrower, hang from shoulder line
+      angle: -0.35, // slightly more outward angle for natural hang
       side: 'left',
       region: 'arm',
     },
@@ -63,8 +63,8 @@ export const humanoidBilateral: BodyPlan = {
       parentSlot: 'chest',
       length: 0,
       restAngle: 0,
-      offset: { x: 18, y: -5 },
-      angle: 0.3,
+      offset: { x: 16, y: -3 },
+      angle: 0.35,
       side: 'right',
       region: 'arm',
     },
@@ -73,8 +73,8 @@ export const humanoidBilateral: BodyPlan = {
       parentSlot: 'chest',
       length: 0,
       restAngle: 0,
-      offset: { x: -10, y: 20 },
-      angle: -0.15,
+      offset: { x: -8, y: 28 }, // lower for hip joint, narrower stance
+      angle: -0.12,
       side: 'left',
       region: 'leg',
     },
@@ -83,8 +83,8 @@ export const humanoidBilateral: BodyPlan = {
       parentSlot: 'chest',
       length: 0,
       restAngle: 0,
-      offset: { x: 10, y: 20 },
-      angle: 0.15,
+      offset: { x: 8, y: 28 },
+      angle: 0.12,
       side: 'right',
       region: 'leg',
     },
@@ -95,32 +95,38 @@ export const humanoidBilateral: BodyPlan = {
     {
       slot: 'head',
       primitive: 'polygon',
-      baseParams: { vertexCount: 8, irregularity: 15, radius: 14 },
+      // radius 8: head is ~1/7.5 of body height (standard human ratio)
+      // After torsoHead scaling (1.2x): effective radius = 9.6
+      baseParams: { vertexCount: 7, irregularity: 8, radius: 8 },
     },
     {
       slot: 'chest',
       primitive: 'polygon',
-      baseParams: { vertexCount: 6, irregularity: 10, radius: 18 },
+      // radius 13: shoulders ~2x head width (standard human ratio)
+      // After torsoChest scaling (1.6x): effective radius = 20.8
+      baseParams: { vertexCount: 6, irregularity: 8, radius: 13 },
     },
     {
       slot: 'left_arm',
       primitive: 'teardropFin',
-      baseParams: { scale: 0.5, angularity: 20 },
+      // scale 0.52: arm length ~3.5 head heights (standard human)
+      baseParams: { scale: 0.52, angularity: 25 },
     },
     {
       slot: 'right_arm',
       primitive: 'teardropFin',
-      baseParams: { scale: 0.5, angularity: 20 },
+      baseParams: { scale: 0.52, angularity: 25 },
     },
     {
       slot: 'left_leg',
       primitive: 'teardropFin',
-      baseParams: { scale: 0.55, angularity: 15 },
+      // scale 0.62: leg length ~4 head heights (standard human)
+      baseParams: { scale: 0.62, angularity: 18 },
     },
     {
       slot: 'right_leg',
       primitive: 'teardropFin',
-      baseParams: { scale: 0.55, angularity: 15 },
+      baseParams: { scale: 0.62, angularity: 18 },
     },
   ],
 };

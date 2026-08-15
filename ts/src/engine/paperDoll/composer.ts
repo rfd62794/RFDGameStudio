@@ -44,6 +44,7 @@ import type {
   ResolvedAttachment,
   SlotShapeMapping,
   BodyProportions,
+  BoneNode,
 } from './types';
 import { BIOLOGICAL_SCALING } from './types';
 import { resolveAttachments } from './attachmentGraph';
@@ -81,6 +82,12 @@ export function composeFigure(input: CompositionInput): ComposedPart[] {
     shapeMap.set(sm.slot, sm);
   }
 
+  // Build node map for parent-relative offset lookup (biological scaling)
+  const nodeMap = new Map<PartSlot, BoneNode>();
+  for (const node of bodyPlan.nodes) {
+    nodeMap.set(node.slot, node);
+  }
+
   const composed: ComposedPart[] = [];
 
   for (const att of attachments) {
@@ -105,7 +112,11 @@ export function composeFigure(input: CompositionInput): ComposedPart[] {
     }
 
     // #6: Biological scaling — adjust shape params based on region
-    const scaledShapeMapping = applyBiologicalScaling(shapeMapping, att, proportions);
+    // Pass the node's parent-relative offset so Kleiber's Law uses
+    // actual limb length, not absolute position from origin.
+    const node = nodeMap.get(att.slot);
+    const limbOffset = node ? Math.sqrt(node.offset.x ** 2 + node.offset.y ** 2) : 0;
+    const scaledShapeMapping = applyBiologicalScaling(shapeMapping, att, proportions, limbOffset);
 
     // Generate the shape SVG using artGen's real primitives
     const shapeSvg = renderShapeForSlot(scaledShapeMapping, color, seed, att);
@@ -142,19 +153,18 @@ function applyBiologicalScaling(
   shapeMapping: SlotShapeMapping,
   att: ResolvedAttachment,
   proportions?: BodyProportions,
+  limbLength?: number,
 ): SlotShapeMapping {
   const params = { ...shapeMapping.baseParams };
 
-  // Apply biological scaling to radius-based primitives
+  // ── Torso hourglass multipliers ──
+  // Applied to radius-based primitives (polygon, irregularFragment) for
+  // slots in the torso/head/spine regions. The head slot has region
+  // 'head' but still needs the torsoHead multiplier — include it
+  // alongside 'torso' and 'spine'.
   if ('radius' in params) {
     const baseRadius = params.radius;
-    // Kleiber's Law: thickness scales with length^0.75
-    // For the Paper Doll module, "length" is approximated by the
-    // distance from the parent (which is the resolved position offset
-    // from center). We use the base radius as the reference and apply
-    // the torso hourglass multipliers for torso/head regions.
-    if (att.region === 'torso' || att.region === 'spine') {
-      // Torso hourglass multipliers
+    if (att.region === 'torso' || att.region === 'spine' || att.region === 'head') {
       switch (att.slot) {
         case 'chest':
           params.radius = baseRadius * BIOLOGICAL_SCALING.torsoChest;
@@ -163,13 +173,31 @@ function applyBiologicalScaling(
           params.radius = baseRadius * BIOLOGICAL_SCALING.torsoHead;
           break;
         default:
-          // Keep base radius for other torso parts
           break;
       }
     }
   }
 
-  // Apply muscle bulge from proportions
+  // ── Kleiber's Law for limb thickness ──
+  // thickness = base * length^kleiberExponent
+  // For teardropFin limbs, "length" is the parent-relative offset
+  // magnitude (the actual limb length), and "thickness" maps to scale.
+  // We normalize against a reference length of 20 units so that a
+  // standard humanoid limb gets multiplier ≈ 1.0. The joint buffer
+  // (1.3x at joints) and limb taper (0.55x at ends) are averaged to
+  // produce a net thickness multiplier that makes limbs look jointed.
+  if ((att.region === 'arm' || att.region === 'leg') && 'scale' in params && limbLength) {
+    const referenceLength = 20; // standard humanoid limb offset
+    const kleiberMultiplier = Math.pow(
+      limbLength / referenceLength,
+      BIOLOGICAL_SCALING.kleiberExponent,
+    );
+    const jointAndTaper =
+      (BIOLOGICAL_SCALING.jointBuffer + BIOLOGICAL_SCALING.limbEndTaper) / 2;
+    params.scale = params.scale * kleiberMultiplier * jointAndTaper;
+  }
+
+  // ── Apply muscle bulge from proportions ──
   if (proportions && 'angularity' in params) {
     // Higher muscleBulge = more angular (more pronounced curves)
     params.angularity = params.angularity * proportions.muscleBulge;
