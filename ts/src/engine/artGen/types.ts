@@ -141,3 +141,20 @@ export interface SigmoidBulgeSpec {
   stroke: string;
   strokeWidth?: number;
 }
+
+/**
+ * Specification for a true ellipse shape.
+ *
+ * Generates a smooth <ellipse> SVG element — not a polygon approximation.
+ * Used for heads, joints, and other shapes that need to read as round,
+ * not faceted. The ellipse is centered at (cx, cy) with radii rx and ry.
+ */
+export interface EllipseSpec {
+  cx: number;       // center x
+  cy: number;       // center y
+  rx: number;       // horizontal radius
+  ry: number;       // vertical radius
+  fill: string;
+  stroke: string;
+  strokeWidth?: number;
+}

@@ -94,41 +94,44 @@ export const humanoidBilateral: BodyPlan = {
   shapeMappings: [
     {
       slot: 'head',
-      primitive: 'polygon',
-      // radius 7: head is ~1/5 of body height (stylized human ratio)
-      // After torsoHead scaling (1.2x): effective radius = 8.4
-      baseParams: { vertexCount: 7, irregularity: 8, radius: 7 },
+      primitive: 'ellipse',
+      // rx 7, ry 8: slightly taller than wide (human head is oval)
+      // After torsoHead scaling (1.2x): effective rx=8.4, ry=9.6
+      baseParams: { rx: 7, ry: 8 },
     },
     {
       slot: 'chest',
-      primitive: 'polygon',
-      // radius 11: shoulders ~2x head width (standard human ratio)
-      // After torsoChest scaling (1.6x): effective radius = 17.6
-      baseParams: { vertexCount: 6, irregularity: 8, radius: 11 },
+      primitive: 'sigmoidBulge',
+      // Chest as a wide, short sigmoid bulge — shoulders wider than waist
+      // widthStart (shoulders) > widthEnd (waist) creates torso taper
+      // After torsoChest scaling (1.6x): effective 28.8 → 14.4
+      baseParams: { widthStart: 18, widthEnd: 9, segments: 8, bulgeFactor: 0.3 },
     },
     {
       slot: 'left_arm',
-      primitive: 'teardropFin',
-      // scale 0.65: after Kleiber (0.855) + joint/taper (0.925) = 0.514 effective
-      // Arm length ~3.5 head heights (standard human)
-      baseParams: { scale: 0.65, angularity: 25 },
+      primitive: 'sigmoidBulge',
+      // Arm as a tapered limb: wider at shoulder, narrower at wrist
+      // After Kleiber (0.855) + jointBuffer (1.3): widthStart ≈ 11.1
+      // After Kleiber (0.855) + limbEndTaper (0.55): widthEnd ≈ 3.8
+      baseParams: { widthStart: 10, widthEnd: 8, segments: 6, bulgeFactor: 0.4 },
     },
     {
       slot: 'right_arm',
-      primitive: 'teardropFin',
-      baseParams: { scale: 0.65, angularity: 25 },
+      primitive: 'sigmoidBulge',
+      baseParams: { widthStart: 10, widthEnd: 8, segments: 6, bulgeFactor: 0.4 },
     },
     {
       slot: 'left_leg',
-      primitive: 'teardropFin',
-      // scale 0.50: after Kleiber (1.319) + joint/taper (0.925) = 0.610 effective
-      // Leg length ~4 head heights (standard human)
-      baseParams: { scale: 0.50, angularity: 18 },
+      primitive: 'sigmoidBulge',
+      // Leg as a tapered limb: wider at hip, narrower at ankle
+      // After Kleiber (1.319) + jointBuffer (1.3): widthStart ≈ 18.8
+      // After Kleiber (1.319) + limbEndTaper (0.55): widthEnd ≈ 7.3
+      baseParams: { widthStart: 11, widthEnd: 10, segments: 6, bulgeFactor: 0.35 },
     },
     {
       slot: 'right_leg',
-      primitive: 'teardropFin',
-      baseParams: { scale: 0.50, angularity: 18 },
+      primitive: 'sigmoidBulge',
+      baseParams: { widthStart: 11, widthEnd: 10, segments: 6, bulgeFactor: 0.35 },
     },
   ],
 };

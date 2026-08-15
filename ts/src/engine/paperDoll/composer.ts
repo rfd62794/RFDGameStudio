@@ -36,6 +36,7 @@ import {
   renderRadialBurst,
   renderIrregularFragment,
   renderSigmoidBulge,
+  renderEllipse,
 } from '../artGen/index';
 import type { PartSlot } from '../shared/partSlots';
 import type {
@@ -158,10 +159,9 @@ function applyBiologicalScaling(
   const params = { ...shapeMapping.baseParams };
 
   // ── Torso hourglass multipliers ──
-  // Applied to radius-based primitives (polygon, irregularFragment) for
-  // slots in the torso/head/spine regions. The head slot has region
-  // 'head' but still needs the torsoHead multiplier — include it
-  // alongside 'torso' and 'spine'.
+  // Applied to radius-based primitives (polygon, irregularFragment,
+  // ellipse) for slots in the torso/head/spine regions. The head slot
+  // has region 'head' but still needs the torsoHead multiplier.
   if ('radius' in params) {
     const baseRadius = params.radius;
     if (att.region === 'torso' || att.region === 'spine' || att.region === 'head') {
@@ -178,23 +178,55 @@ function applyBiologicalScaling(
     }
   }
 
+  // Ellipse primitive: apply hourglass multipliers to rx/ry
+  if ('rx' in params) {
+    const baseRx = params.rx;
+    const baseRy = params.ry ?? baseRx;
+    if (att.region === 'torso' || att.region === 'spine' || att.region === 'head') {
+      switch (att.slot) {
+        case 'chest':
+          params.rx = baseRx * BIOLOGICAL_SCALING.torsoChest;
+          params.ry = baseRy * BIOLOGICAL_SCALING.torsoChest;
+          break;
+        case 'head':
+          params.rx = baseRx * BIOLOGICAL_SCALING.torsoHead;
+          params.ry = baseRy * BIOLOGICAL_SCALING.torsoHead;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
   // ── Kleiber's Law for limb thickness ──
   // thickness = base * length^kleiberExponent
   // For teardropFin limbs, "length" is the parent-relative offset
   // magnitude (the actual limb length), and "thickness" maps to scale.
+  // For sigmoidBulge limbs, thickness maps to widthStart/widthEnd.
   // We normalize against a reference length of 20 units so that a
   // standard humanoid limb gets multiplier ≈ 1.0. The joint buffer
-  // (1.3x at joints) and limb taper (0.55x at ends) are averaged to
-  // produce a net thickness multiplier that makes limbs look jointed.
-  if ((att.region === 'arm' || att.region === 'leg') && 'scale' in params && limbLength) {
+  // (1.3x at joints) and limb taper (0.55x at ends) are applied:
+  // widthStart gets the joint buffer (proximal = thicker at joint),
+  // widthEnd gets the limb taper (distal = thinner at extremity).
+  if ((att.region === 'arm' || att.region === 'leg') && limbLength) {
     const referenceLength = 20; // standard humanoid limb offset
     const kleiberMultiplier = Math.pow(
       limbLength / referenceLength,
       BIOLOGICAL_SCALING.kleiberExponent,
     );
-    const jointAndTaper =
-      (BIOLOGICAL_SCALING.jointBuffer + BIOLOGICAL_SCALING.limbEndTaper) / 2;
-    params.scale = params.scale * kleiberMultiplier * jointAndTaper;
+
+    if ('scale' in params) {
+      // teardropFin: single scale parameter
+      const jointAndTaper =
+        (BIOLOGICAL_SCALING.jointBuffer + BIOLOGICAL_SCALING.limbEndTaper) / 2;
+      params.scale = params.scale * kleiberMultiplier * jointAndTaper;
+    }
+
+    if ('widthStart' in params && 'widthEnd' in params) {
+      // sigmoidBulge: widthStart gets joint buffer, widthEnd gets taper
+      params.widthStart = params.widthStart * kleiberMultiplier * BIOLOGICAL_SCALING.jointBuffer;
+      params.widthEnd = params.widthEnd * kleiberMultiplier * BIOLOGICAL_SCALING.limbEndTaper;
+    }
   }
 
   // ── Apply muscle bulge from proportions ──
@@ -295,6 +327,22 @@ function renderShapeForSlot(
         widthEnd,
         segments,
         bulgeFactor,
+        fill: color,
+        stroke: color,
+        strokeWidth: 2,
+      });
+      break;
+    }
+
+    case 'ellipse': {
+      // True ellipse primitive — smooth <ellipse>, not polygon approximation
+      const rx = shapeMapping.baseParams.rx ?? shapeMapping.baseParams.radius ?? 15;
+      const ry = shapeMapping.baseParams.ry ?? shapeMapping.baseParams.radius ?? 15;
+      shapeContent = renderEllipse({
+        cx: 0,
+        cy: 0,
+        rx,
+        ry,
         fill: color,
         stroke: color,
         strokeWidth: 2,

@@ -10,6 +10,7 @@
 import type {
   BorderSpec,
   BorderStyle,
+  EllipseSpec,
   GradientBackgroundSpec,
   IrregularFragmentSpec,
   PolygonSpec,
@@ -441,6 +442,19 @@ export function renderSigmoidBulge(spec: SigmoidBulgeSpec): string {
   // Combine: left points forward + right points reversed to close polygon
   const allPoints = [...pointsLeft, ...pointsRight.reverse()].join(' ');
   return `<polygon points="${allPoints}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`;
+}
+
+/**
+ * Render a true ellipse — a smooth <ellipse> SVG element, not a polygon
+ * approximation. Used for heads, joints, and other shapes that need to
+ * read as genuinely round, not faceted.
+ *
+ * The ellipse is centered at (cx, cy) with radii rx (horizontal) and
+ * ry (vertical). A circle is the special case where rx === ry.
+ */
+export function renderEllipse(spec: EllipseSpec): string {
+  const { cx, cy, rx, ry, fill, stroke, strokeWidth = 2 } = spec;
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
 }
 
 // ---------------------------------------------------------------------------

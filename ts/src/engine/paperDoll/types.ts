@@ -68,7 +68,7 @@ export interface AttachmentNode {
 
 export interface SlotShapeMapping {
   slot: PartSlot;
-  primitive: 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge';
+  primitive: 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge' | 'ellipse';
   baseParams: Record<string, number>; // primitive-specific, e.g. vertexCount
 }
 
