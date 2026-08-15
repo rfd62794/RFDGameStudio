@@ -84,3 +84,44 @@ export {
   getCreaturePreset,
   type CreaturePreset,
 } from './creaturePresets';
+
+// ── Chimera Paper Doll Studio port (August 2026) ────────────────────
+//
+// Hand-authored, socket-contracted, facing-aware rendering system.
+// This is the production rendering path for MBB and Chimera Wilds.
+// The procedural composer above remains for POC consumers (Character
+// Viewer, Technique Showcase) but production goes through here.
+//
+// See ADR-021 for the collision/rendering decoupling decision.
+export { PaperDoll } from './PaperDoll';
+export {
+  partsToCreatureConfig,
+  partToCreaturePart,
+  toChimeraBrand,
+  toBrandId,
+  toChimeraQuality,
+  toChimeraSlot,
+  toPartSlot,
+  getDefaultPose,
+} from './adapter';
+export { SvgCreatureRenderer } from './chimeraSvgCreatureRenderer';
+export { calculatePose } from './chimeraAnimationEngine';
+export { SOCKET_DEFINITIONS, LIMB_STANDARDS, verifySocketContract } from './chimeraSockets';
+export { BRANDS as CHIMERA_BRANDS, QUALITY_TIERS as CHIMERA_QUALITY_TIERS } from './chimeraBrands';
+export { PRESET_CREATURES } from './chimeraPresets';
+export type {
+  Brand as ChimeraBrand,
+  QualityTier as ChimeraQualityTier,
+  SlotType as ChimeraSlotType,
+  BodyArchetype,
+  FacingDirection,
+  AnimationType,
+  CreaturePart,
+  CreatureConfig,
+  SocketPoint,
+  BodySockets,
+  BoneTransform,
+  CreaturePose,
+  BrandMotionSignature,
+  BrandMetadata,
+} from './chimeraTypes';

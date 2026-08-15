@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Card } from '../../../ui/components';
-import { PaperDoll } from '../../../engine/paperDoll/PaperDoll';
-import { humanoidBilateral } from '../../../engine/paperDoll';
+import { PaperDoll } from '../../../engine/paperDoll';
 import type { MBBGameState } from '../types';
 
 interface RosterTabProps {
@@ -21,7 +20,6 @@ export default function RosterTab({ state, setState, session, call, opponent, on
         {state.roster.map(mutant => (
           <Card key={mutant.id} className="mutant-card">
             <PaperDoll
-              bodyPlan={humanoidBilateral}
               parts={mutant.parts}
               color={mutant.color}
               size={64}

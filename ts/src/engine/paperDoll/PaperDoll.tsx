@@ -1,13 +1,16 @@
 /**
- * PaperDoll React Component
+ * PaperDoll React Component — Chimera Paper Doll Studio port
  *
- * Wraps the composer for easy game consumption. Renders an SVG figure
- * from a BodyPlan + parts + colors. Games pass their mutant/chimera's
- * parts and a color scheme, and get a composed figure.
+ * Renders a creature figure using the hand-authored, socket-contracted,
+ * facing-aware SVG system from Chimera Paper Doll Studio.
+ *
+ * This replaces the previous procedural composer/body-plan approach.
+ * The old procedural files are preserved for POC consumers (Character
+ * Viewer, Technique Showcase) but production rendering goes through
+ * this component.
  *
  * Usage in MBB:
  *   <PaperDoll
- *     bodyPlan={humanoidBilateral}
  *     parts={mutant.parts}
  *     color={mutant.color}
  *     size={80}
@@ -15,66 +18,79 @@
  *
  * Usage in Chimera Wilds:
  *   <PaperDoll
- *     bodyPlan={chimeraAsymmetric}
  *     parts={chimera.parts}
  *     color="#ef4444"
  *     size={120}
+ *     archetype="quadruped"
  *   />
+ *
+ * The `color` prop is kept for backward compatibility but is now
+ * optional — the Chimera system derives colors from Brand + Cyber/Organic
+ * lean per-part, which is richer than the old single-color approach.
  */
 
 import React, { useMemo } from 'react';
-import type { PartSlot } from '../shared/partSlots';
-import { renderFigureSvg } from './composer';
-import type { BodyPlan, PartForComposition } from './types';
+import type { Part } from '../shared/partSlots';
+import { partsToCreatureConfig, getDefaultPose } from './adapter';
+import type { BodyArchetype, FacingDirection, AnimationType } from './chimeraTypes';
+import { SvgCreatureRenderer } from './chimeraSvgCreatureRenderer';
 
 interface PaperDollProps {
-  bodyPlan: BodyPlan;
-  parts: Record<string, { id: string; name: string; slot: PartSlot } | null>;
-  color: string;
+  /** MBB-style parts: Record<slot, Part | null> */
+  parts: Record<string, Part | null>;
+  /** Kept for backward compat — Chimera system derives colors from Brand */
+  color?: string;
   size?: number;
   seed?: number;
   className?: string;
+  /** Body archetype — defaults to 'humanoid' */
+  archetype?: BodyArchetype;
+  /** Facing direction — defaults to 'side_right' */
+  facing?: FacingDirection;
+  /** Animation type — defaults to 'idle' */
+  animation?: AnimationType;
+  /** Animation time (0-1) — defaults to 0 */
+  animationT?: number;
+  /** Show socket debug overlay */
+  showSockets?: boolean;
 }
 
 export function PaperDoll({
-  bodyPlan,
   parts,
   color,
   size = 80,
   seed = 0,
   className,
+  archetype = 'humanoid',
+  facing = 'side_right',
+  animation = 'idle',
+  animationT = 0,
+  showSockets = false,
 }: PaperDollProps): React.ReactElement {
-  const svg = useMemo(() => {
-    // Build colors record — all slots use the mutant's color, with
-    // slight opacity variation for visual depth. The Brand/Cyber-Organic/
-    // Quality styling system (deferred) will replace this with richer
-    // per-part color resolution.
-    const colors: Record<string, string> = {};
-    for (const node of bodyPlan.nodes) {
-      colors[node.slot] = color;
-    }
+  const creature = useMemo(
+    () => partsToCreatureConfig(`doll_${seed}`, 'Creature', parts, archetype),
+    [parts, archetype, seed],
+  );
 
-    // Convert parts to the composer's expected format
-    const compositionParts: Record<string, PartForComposition | null> = {};
-    for (const node of bodyPlan.nodes) {
-      const part = parts[node.slot];
-      compositionParts[node.slot] = part
-        ? { id: part.id, name: part.name, slot: part.slot }
-        : null;
-    }
-
-    return renderFigureSvg(
-      { bodyPlan, parts: compositionParts, colors, seed },
-      size,
-      size,
-    );
-  }, [bodyPlan, parts, color, seed, size]);
+  const pose = useMemo(
+    () => getDefaultPose(creature, animation, animationT, facing),
+    [creature, animation, animationT, facing],
+  );
 
   return (
     <div
       className={className ?? 'paper-doll'}
       style={{ width: size, height: size }}
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
+    >
+      <SvgCreatureRenderer
+        creature={creature}
+        pose={pose}
+        selectedSlot={null}
+        facing={facing}
+        showSockets={showSockets}
+        viewBox="0 0 400 480"
+        className="w-full h-full"
+      />
+    </div>
   );
 }

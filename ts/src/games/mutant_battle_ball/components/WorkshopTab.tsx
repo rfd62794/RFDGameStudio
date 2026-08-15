@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
-import { PaperDoll } from '../../../engine/paperDoll/PaperDoll';
-import { humanoidBilateral } from '../../../engine/paperDoll';
+import { PaperDoll } from '../../../engine/paperDoll';
 import type { MBBGameState } from '../types';
 import type { Part, PartSlot, BrandId, QualityTier } from '../../../engine/shared/partSlots';
 import { PART_SLOTS } from '../../../engine/shared/partSlots';
@@ -120,7 +119,6 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
           <div className="equip-panel">
             <div className="equip-header">
               <PaperDoll
-                bodyPlan={humanoidBilateral}
                 parts={selectedMutant.parts as unknown as Record<string, { id: string; name: string; slot: PartSlot } | null>}
                 color={selectedMutant.color}
                 size={80}
