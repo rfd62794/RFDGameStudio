@@ -2,6 +2,114 @@
 
 *Last updated: August 14 2026*
 
+## Paper Doll — Recognizable Primitives: Sigmoid Limbs + Real Head Ellipse — COMPLETED
+
+**Directive:** Correct proportions on the wrong shapes still look wrong.
+The sigmoid muscle bulge primitive was built and tested but never wired
+into the live preset. The head used a faceted 6-vertex polygon. This
+phase fixes primitive selection only — proportions/biological scaling
+from the prior directive are confirmed correct and untouched.
+
+### §1 Investigation: Real primitive selection confirmed
+
+**Real current SlotShapeMapping (read fresh, before any change):**
+
+| Slot | Primitive before | Primitive after |
+|---|---|---|
+| head | `polygon` (7 vertices, irregularity 8) | `ellipse` (true SVG ellipse) |
+| chest | `polygon` (6 vertices, irregularity 8) | `sigmoidBulge` (tapered torso) |
+| left_arm | `teardropFin` (scale 0.65) | `sigmoidBulge` (widthStart 15, widthEnd 9) |
+| right_arm | `teardropFin` (scale 0.65) | `sigmoidBulge` (widthStart 15, widthEnd 9) |
+| left_leg | `teardropFin` (scale 0.50) | `sigmoidBulge` (widthStart 11, widthEnd 10) |
+| right_leg | `teardropFin` (scale 0.50) | `sigmoidBulge` (widthStart 11, widthEnd 10) |
+
+**renderSigmoidBulge confirmed:** Takes `widthStart`, `widthEnd`,
+`segments`, `bulgeFactor`, `fill`, `stroke`, `strokeWidth`. Generates
+a tapered polygon along +x axis with sine-based muscle bulge peaking
+at t=0.5. Length = avgWidth * 3. Confirmed present, callable, and
+producing real tapered output (width varies along length).
+
+**No true ellipse primitive existed** in artGen before this work. The
+`renderShape` function had hardcoded `<ellipse>` for the 'eye' icon,
+but no reusable `renderEllipse` function. The only rounded option was
+high-vertex polygon approximation.
+
+### §2 Fix: New ellipse primitive + sigmoid limbs + tapered chest
+
+**New `renderEllipse` primitive added to artGen:**
+- `EllipseSpec` type added to `artGen/types.ts`
+- `renderEllipse()` function added to `artGen/shapes.ts`
+- Generates a true `<ellipse>` SVG element (not polygon approximation)
+- Used for heads, joints, and other shapes that need to read as round
+
+**Sigmoid bulge wired into all 4 limb slots:**
+- Switched from `teardropFin` to `sigmoidBulge` for arms and legs
+- Biological scaling updated to handle `widthStart`/`widthEnd` params:
+  - `widthStart` gets `kleiberMultiplier * jointBuffer` (thick at joint)
+  - `widthEnd` gets `kleiberMultiplier * limbEndTaper` (thin at extremity)
+- Arms: widthStart=15, widthEnd=9 (tapered from shoulder to wrist)
+- Legs: widthStart=11, widthEnd=10 (tapered from hip to ankle)
+
+**Chest reassessed — sigmoid bulge with wide/short aspect ratio:**
+- Switched from `polygon` to `sigmoidBulge`
+- widthStart=18 (shoulders), widthEnd=9 (waist) creates torso taper
+- bulgeFactor=0.3 for subtle chest curve (less than limbs)
+- segments=8 for smoother torso outline
+
+**Head switched to true ellipse:**
+- `rx=7, ry=8` (slightly taller than wide — human head is oval)
+- After torsoHead scaling (1.2x): effective rx=8.4, ry=9.6
+- True `<ellipse>` element — zero interior angles, objectively smooth
+
+### Real proportion ratios after primitive switch (unchanged from prior directive):
+
+| Ratio | Value | Standard human | Status |
+|---|---|---|---|
+| headHeight/totalHeight | 0.249 | ~0.13 | Stylized range |
+| chestWidth/headHeight | 2.109 | ~2.0 | Close |
+| armLength/legLength | 0.813 | ~0.83 | Nearly exact |
+| armLength/totalHeight | 0.430 | ~0.44 | Nearly exact |
+| legLength/totalHeight | 0.528 | ~0.53 | Nearly exact |
+
+### §3 Test anchors: 13/13 passing
+
+1. `test_current_primitives_confirmed` — 1 test: confirms all 6 slots
+   use the correct primitives (ellipse for head, sigmoidBulge for
+   chest + 4 limbs, zero teardropFin remaining)
+2. `test_sigmoid_bulge_available_and_tested` — 3 tests: confirms
+   renderSigmoidBulge and renderEllipse are exported and callable,
+   and sigmoid bulge produces real tapered shape (width varies)
+3. `test_limbs_use_sigmoidBulge` — 2 tests: confirms all 4 limbs
+   produce `<polygon>` (not `<path>`), and limb width varies along
+   length (tapered, not constant)
+4. `test_head_uses_smooth_geometry` — 3 tests: confirms head produces
+   `<ellipse>` (not `<polygon>`), has rx/ry attributes, and has zero
+   interior angles (no `points=` attribute)
+5. `test_no_regression` — 4 tests: confirms 6 parts still produced,
+   valid SVG with viewBox, proportions within human bounds, and
+   MBB/Chimera Wilds PaperDoll imports intact
+
+### Full TS floor: 1025/1025 passing, 96/96 test files
+
+### Files changed
+
+- `ts/src/engine/artGen/types.ts` — added `EllipseSpec` interface
+- `ts/src/engine/artGen/shapes.ts` — added `renderEllipse()` function
+- `ts/src/engine/paperDoll/types.ts` — added 'ellipse' to primitive union
+- `ts/src/engine/paperDoll/composer.ts` — added ellipse case, wired
+  biological scaling for sigmoidBulge widthStart/widthEnd params
+- `ts/src/engine/paperDoll/bodyPlans/humanoidBilateral.ts` — switched
+  all 6 slots to new primitives
+- `ts/src/standalone/character_viewer/CharacterViewer.tsx` — added
+  ellipse to PrimitiveType, PRIMITIVE_PARAMS, PRIMITIVE_OPTIONS
+- `ts/tests/test_paper_doll.ts` — updated shape type assertions
+- `ts/tests/test_paper_doll_chimeralab_port.ts` — updated head assertion
+- `ts/tests/test_paper_doll_recognizability.ts` — updated head/limb
+  formula predictions for new primitives
+- `ts/tests/test_paper_doll_primitives.ts` — new test file (13 tests)
+
+---
+
 ## Paper Doll — Recognizability Investigation + Humanoid Grounding — COMPLETED
 
 **Directive:** The figure still reads as "just abstract shapes" despite
