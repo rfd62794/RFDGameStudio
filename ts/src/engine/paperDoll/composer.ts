@@ -287,15 +287,113 @@ function renderShapeForSlot(
  * This is the convenience wrapper — it calls composeFigure and
  * concatenates the results into one SVG string with a viewBox.
  *
+ * The viewBox is computed from the actual content bounding box, not
+ * set to `0 0 width height`. This is critical: body plans are designed
+ * in a 100×100 coordinate space (chest at 50,50, head at 50,28, etc.).
+ * If the viewBox were `0 0 300 300` (matching a 300×300 display size),
+ * the content would appear as a tiny cluster in the top-left corner.
+ * Instead, the viewBox fits the actual content, and width/height only
+ * control the display size. `preserveAspectRatio="xMidYMid meet"`
+ * centers the content in the display area.
+ *
  * @param input The composition input
- * @param width SVG width (default 100)
- * @param height SVG height (default 100)
+ * @param width SVG display width (default 100)
+ * @param height SVG display height (default 100)
  * @returns Complete SVG string
  */
 export function renderFigureSvg(input: CompositionInput, width: number = 100, height: number = 100): string {
   const composed = composeFigure(input);
   const parts = composed.map(c => c.svg).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${parts}</svg>`;
+  const bounds = computeContentBounds(composed);
+  const viewBox = `${bounds.x.toFixed(1)} ${bounds.y.toFixed(1)} ${bounds.width.toFixed(1)} ${bounds.height.toFixed(1)}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${parts}</svg>`;
+}
+
+// ── Content bounding box computation ────────────────────────────────
+//
+// Computes the actual bounding box of the composed SVG content by
+// parsing coordinate pairs from each part's shape SVG and applying
+// the part's transform (translate + rotate). This ensures the viewBox
+// always fits the content regardless of body plan, shape parameters,
+// or proportions scaling.
+//
+// Handles all shape primitives:
+//   - <polygon points="x,y x,y ..."> (polygon, irregularFragment, radialBurst, sigmoidBulge)
+//   - <path d="M x,y C x,y ..."> (teardropFin body/tail/dorsal)
+//   - <circle cx="x" cy="y"> (fallback shape)
+
+function computeContentBounds(composed: ComposedPart[]): { x: number; y: number; width: number; height: number } {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const part of composed) {
+    // Parse the transform: translate(x,y) rotate(angle)
+    const transformMatch = part.svg.match(/translate\(([-\d.]+),([-\d.]+)\)\s*rotate\(([-\d.]+)/);
+    if (!transformMatch) continue;
+
+    const tx = parseFloat(transformMatch[1]);
+    const ty = parseFloat(transformMatch[2]);
+    const angleDeg = parseFloat(transformMatch[3]);
+    const angleRad = (angleDeg * Math.PI) / 180;
+    const cos = Math.cos(angleRad);
+    const sin = Math.sin(angleRad);
+
+    // Extract the inner SVG content (between <g> and </g>)
+    const innerContent = part.svg.replace(/^<g[^>]*>/, '').replace(/<\/g>$/, '');
+
+    // Collect all local coordinate pairs from the shape content
+    const coords: Array<[number, number]> = [];
+
+    // From polygon points="x1,y1 x2,y2 ..."
+    for (const m of innerContent.matchAll(/points="([^"]+)"/g)) {
+      const nums = m[1].match(/-?\d+\.?\d*/g) || [];
+      for (let i = 0; i + 1 < nums.length; i += 2) {
+        coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+      }
+    }
+
+    // From path d="M x,y C x,y x,y x,y ..."
+    for (const m of innerContent.matchAll(/\sd="([^"]+)"/g)) {
+      const nums = m[1].match(/-?\d+\.?\d*/g) || [];
+      for (let i = 0; i + 1 < nums.length; i += 2) {
+        coords.push([parseFloat(nums[i]!), parseFloat(nums[i + 1]!)]);
+      }
+    }
+
+    // From circle cx="x" cy="y" (fallback shape)
+    for (const m of innerContent.matchAll(/<circle[^>]*\scx="([^"]+)"[^>]*\scy="([^"]+)"/g)) {
+      coords.push([parseFloat(m[1]!), parseFloat(m[2]!)]);
+    }
+
+    // Apply transform (rotate then translate) and update bounds
+    for (const [lx, ly] of coords) {
+      const gx = tx + lx * cos - ly * sin;
+      const gy = ty + lx * sin + ly * cos;
+      if (gx < minX) minX = gx;
+      if (gx > maxX) maxX = gx;
+      if (gy < minY) minY = gy;
+      if (gy > maxY) maxY = gy;
+    }
+  }
+
+  // Fallback if no coordinates were found
+  if (minX === Infinity || maxX === -Infinity) {
+    return { x: 0, y: 0, width: 100, height: 100 };
+  }
+
+  // Add padding (10% of the largest dimension, minimum 5 units)
+  const contentWidth = maxX - minX;
+  const contentHeight = maxY - minY;
+  const padding = Math.max(Math.max(contentWidth, contentHeight) * 0.1, 5);
+
+  return {
+    x: minX - padding,
+    y: minY - padding,
+    width: contentWidth + 2 * padding,
+    height: contentHeight + 2 * padding,
+  };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
