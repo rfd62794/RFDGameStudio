@@ -6959,3 +6959,147 @@ separate directives:
 4. **Parts Assembly sharing with Chimera Wilds** — the shared
    `Part`/`PartSlot`/`PartsBySlot` types are already in
    `engine/shared/partSlots.ts`; the TS simulation uses them directly.
+
+
+---
+
+## Mutant Battle Ball — Balanced-Speed Zero-Score Investigation — COMPLETED (FALSE ALARM)
+
+**Directive:** Diagnose why the opponent scored 0 with speeds balanced at
+50 vs 50 (a different claim than the deferred data-balance issue).
+
+### STOP rule satisfied
+
+Read the real, current `mbbSimulation.ts` fresh — specifically the
+Carrier evasion force, the Tackler pursuit force, the `forceInterpose`
+Escort behavior, and how the opponent team's own moves get decided.
+Ran real, controlled matches with genuinely balanced stats and logged
+per-tick state (positions, possession, events) rather than only the
+final score.
+
+### Real finding: FALSE ALARM — the prior directive's "balanced" fixture was not balanced
+
+**The "opponent scores 0 with balanced stats" finding from the prior
+TS-Native Migration directive was a false alarm caused by the test
+fixture, not a logic bug in the simulation.**
+
+The prior directive's "balanced" test used:
+- `makePlayerMutant(speedSum=50)` — sums parts across 6 slots, producing:
+  - **power=85, endurance=85, accuracy=65, speed=48, maxHealth=85**
+- `makeOpponentMutant(speed=50)` — flat stats, producing:
+  - **power=30, endurance=35, accuracy=30, speed=50, maxHealth=35**
+
+These are NOT balanced stats. The player had **2.8x more power** (85 vs
+30) and **2.4x more endurance** (85 vs 35). The player won 52-0 because
+of this massive stat advantage — the player wins almost every tackle
+(power 85 vs 30) and resists almost every tackle (endurance 85 vs 35).
+
+### Confirmation: genuinely balanced stats produce symmetric scoring
+
+With GENUINELY identical inputs on both sides (both teams: accuracy=40,
+endurance=40, power=40, speed=50, max_health=40):
+
+| Seed | Player | Opponent | Winner |
+|---|---|---|---|
+| 1 | 27 | 26 | Player (by 1) |
+| 42 | 24 | **29** | **Opponent** |
+| 100 | 27 | 26 | Player (by 1) |
+| 777 | 26 | 27 | Opponent (by 1) |
+| 2024 | 23 | **30** | **Opponent** |
+
+The opponent wins 2 of 5 matches. Scores are within 1-7 points every
+time. The simulation is **symmetric when given symmetric inputs**.
+
+### Per-tick trace evidence
+
+A full per-tick trace of seed 42 (1801 ticks) was captured. The opponent
+had possession for 930 ticks (52% of the match) and scored 29 times.
+The first opponent score was traced tick-by-tick: the opponent carrier
+moved from x=50.1 to x=10.5 over 22 ticks, reaching the end zone and
+scoring. The carrier's x progression was smooth and monotonic:
+`50.1→48.1→46.1→44.2→42.3→40.4→38.5→36.5→34.6→32.6→30.7→28.7→26.8→
+24.9→23→21.2→19.3→17.5→15.7→14→12.2→10.5` → scored.
+
+### Force-weight analysis (all symmetric across teams)
+
+| Parameter | Value | Team-dependent? |
+|---|---|---|
+| carrier_seek_weight | 1.0 | No (role-based) |
+| carrier_flee_weight | 1.2 | No (role-based) |
+| carrier_flee_radius | 20 | No (role-based) |
+| tackler_pursue_weight | 1.0 | No (role-based) |
+| escort_interpose_weight | 1.0 | No (role-based) |
+| escort_arrive_radius | 8 | No (role-based) |
+| max_force_ratio | 2.0 | No (role-based) |
+| drag | 0.92 | No (global) |
+| carrier_speed_mult | 0.85 | No (role-based) |
+
+All force weights depend only on the agent's **role** (carrier/tackler/
+escort), not on which **team** the agent belongs to. A player carrier
+gets the same seek weight, flee weight, and flee radius as an opponent
+carrier. A player tackler gets the same pursue weight as an opponent
+tackler. The only team-dependent behavior is the carrier's goal
+direction: player seeks x=95 (right end zone), opponent seeks x=5 (left
+end zone). This is correct asymmetry — each team seeks toward its own
+end zone.
+
+Source code verification: `computeAgentForces` does not branch on
+`ag.team` for force calculation. The only team-related check is
+`st.possession` for the carrier's goal direction.
+
+### No fix applied — no logic bug existed
+
+**The simulation code was NOT modified.** No logic asymmetry was found.
+The simulation is symmetric when given symmetric inputs. The "issue"
+was in the test fixture, not the simulation code.
+
+### Data-balance issue still deferred
+
+The prior fixture's massive stat asymmetry (power 85 vs 30, endurance
+85 vs 35) is actually a MORE EXTREME version of the already-deferred
+data-balance issue — it shows that the parts-summing approach
+(`calculateStats` sums stats across 6 part slots) produces stats that
+can be 2-3x higher than flat stats for the same "speed" input value.
+This is the data-balance issue, and it remains explicitly deferred,
+untouched.
+
+### Test anchors (10 new, all passing)
+
+**New test file:** `ts/tests/test_mbb_balanced_zero_score.ts`
+
+- `test_balanced_stats_confirmed_symmetric` (2 tests):
+  - Both teams' inputs are genuinely identical (not approximately similar)
+  - Prior directive's "balanced" fixture was NOT balanced (player had 2.8x power)
+- `test_real_match_logged_per_tick` (1 test) — full per-tick state
+  captured, both teams score, both teams have substantial possession
+- `test_scoring_opportunity_traced` (1 test) — real opponent scoring
+  chance traced tick-by-tick, carrier reaches end zone
+- `test_force_weights_reported` (1 test) — all force weights reported,
+  confirmed team-agnostic (role-based only), source code verified
+- `test_symmetric_opportunity_post_fix` (1 test) — 5 seeds, both teams
+  score in every match, margins <30%, opponent wins at least one
+- `test_no_regression` (3 tests) — both prior bug fixes intact, Lua
+  source preserved, TS simulation source unchanged (no fix applied)
+- `test_data_balance_still_deferred` (1 test) — data-balance issue
+  confirmed still present, still deferred
+
+### Test results
+
+**TS floor:** 862/865 passing (88 test files, 25.95s)
+- +10 from previous floor (852): balanced zero-score investigation anchors
+- 3 failures, all pre-existing/unrelated:
+  - `test_dual_target_deploy.ts > test_git_state_clean_both_games` (2) —
+    fails because working tree has uncommitted changes (expected mid-work)
+  - `test_shoal_ts_native_migration.ts > test_real_tick_time_measured` (1) —
+    flaky performance test (speedup measurement varies with system load)
+- Zero regressions
+
+### What this means
+
+The simulation engine is confirmed symmetric. The "opponent can never
+score under any stats" fear was unfounded — it was a test fixture
+artefact. The real issue remains the already-deferred data-balance
+problem (parts-summing vs flat stats), which is a stat-generation
+concern, not a simulation logic concern. The next redesign (GM Sim,
+Parts Assembly, Tournament) can build on this confirmed-symmetric
+engine foundation.
