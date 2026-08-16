@@ -198,7 +198,7 @@ export default function App({ session }: GameRendererProps) {
           />
         }
       >
-        <div className="sc-loading">Loading SlimeCoin…</div>
+        <div className="game-loading sc-loading">Loading SlimeCoin…</div>
       </GameShell>
     );
   }

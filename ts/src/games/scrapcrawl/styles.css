@@ -3,6 +3,7 @@
    the ScrapCrawl signature background, chosen to match the original
    examples/scrapcrawl near-black canvas (#07090d) while staying inside the
    token system via the --sc-surface override below. */
+@import url('../../ui/base.css');
 
 .sc-loading {
   padding: 2rem;

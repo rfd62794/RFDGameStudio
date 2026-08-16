@@ -269,6 +269,15 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
 
 /* ── Loading/error states ─────────────────────────────── */
 
+.game-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  font-size: 24px;
+  color: var(--muted);
+}
+
 .arcade-game-wrap {
   display: flex;
   flex-direction: column;

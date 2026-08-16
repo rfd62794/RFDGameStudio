@@ -1,11 +1,7 @@
 /* styles.css — SlimeCoin game styles */
+@import url('../../ui/base.css');
 
 .sc-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100svh;
-  font-size: 24px;
   color: #a855f7;
 }
 

@@ -122,7 +122,7 @@ export default function App({ session }: GameRendererProps) {
           />
         }
       >
-        <div className="cw-loading">Loading Chimera Wilds…</div>
+        <div className="game-loading cw-loading">Loading Chimera Wilds…</div>
       </GameShell>
     );
   }

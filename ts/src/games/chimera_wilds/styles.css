@@ -1,11 +1,6 @@
 @import url('../../ui/base.css');
 
 .cw-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100svh;
-  font-size: 24px;
   color: var(--accent, #14b8a6);
 }
 
