@@ -40,6 +40,10 @@ export interface MatchState {
   agents: MatchAgent[];
   ballX: number;
   ballY: number;
+  ballState: 'held' | 'loose' | 'in_flight';
+  ballHeight: number;
+  ballVelocityX: number;
+  ballVelocityY: number;
   possession: 'player' | 'opponent';
   scorePlayer: number;
   scoreOpponent: number;
