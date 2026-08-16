@@ -46,6 +46,11 @@ export function computeAgentForces(ag: Agent, st: MbbState): [number, number] {
     if (carrier) {
       const [px, py] = forceSeek(ag.x, ag.y, carrier.x, carrier.y, sw.tackler_pursue_weight, maxForce);
       fx += px; fy += py;
+    } else {
+      // No carrier (ball is loose or in flight) — seek the ball itself
+      // so tacklers don't stand still while the ball is on the ground.
+      const [px, py] = forceSeek(ag.x, ag.y, st.ball.pos.x, st.ball.pos.y, sw.tackler_pursue_weight, maxForce);
+      fx += px; fy += py;
     }
   } else if (ag.role === 'escort') {
     // Interpose between carrier and nearest tackler to the carrier
@@ -60,6 +65,11 @@ export function computeAgentForces(ag: Agent, st: MbbState): [number, number] {
         const [sx, sy] = forceArrive(ag.x, ag.y, ag.vx, ag.vy, carrier.x, carrier.y, sw.escort_interpose_weight, maxSpeed, maxForce, sw.escort_arrive_radius, 0);
         fx += sx; fy += sy;
       }
+    } else {
+      // No carrier (ball is loose or in flight) — seek the ball to
+      // support pickup instead of standing still.
+      const [sx, sy] = forceSeek(ag.x, ag.y, st.ball.pos.x, st.ball.pos.y, sw.escort_interpose_weight, maxForce);
+      fx += sx; fy += sy;
     }
   }
 
