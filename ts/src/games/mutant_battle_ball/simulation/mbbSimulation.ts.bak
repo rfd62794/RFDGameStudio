@@ -19,8 +19,6 @@
 import type { Part, PartSlot, PartsBySlot } from '../../../engine/shared/partSlots';
 import type { Mutant, MatchAgent, MatchState } from '../types';
 import { getEffectivePartStats, rollMalfunctioningFailure } from '../brandModifiers';
-import type { Ball } from '../../../engine/shared/sportsSim';
-import { BallSystem } from '../../../engine/shared/sportsSim';
 
 // ── Config (from data.yaml match block) ──────────────────────────────
 
@@ -136,6 +134,7 @@ interface Agent {
   endurance: number;
   health: number;
   maxHealth: number;
+  hasBall: boolean;
   role: 'carrier' | 'escort' | 'tackler' | 'inactive';
   status: 'active' | 'stunned' | 'down' | 'subbed';
   stunTimer: number;
@@ -148,7 +147,8 @@ interface MatchConfig {
 
 interface MbbState {
   agents: Agent[];
-  ball: Ball;
+  ballX: number;
+  ballY: number;
   possession: 'player' | 'opponent';
   scorePlayer: number;
   scoreOpponent: number;
@@ -181,7 +181,7 @@ export function calculateStats(mutant: { parts?: PartsBySlot | Record<string, Pa
   return { accuracy: acc, endurance: end, power: pow, speed: spd, maxHealth: Math.max(20, end) };
 }
 
-function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'opponent', idx: number, courtH: number, prng: () => number): Agent {
+function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'opponent', idx: number, hasBall: boolean, courtH: number, prng: () => number): Agent {
   const m = mutant as Record<string, unknown>;
   let stats: { accuracy: number; endurance: number; power: number; speed: number; maxHealth: number };
   if (m.accuracy !== undefined) {
@@ -236,20 +236,21 @@ function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'o
     endurance: stats.endurance,
     health: stats.maxHealth,
     maxHealth: stats.maxHealth,
-    role: 'escort',
+    hasBall,
+    role: hasBall ? 'carrier' : 'escort',
     status: 'active',
     stunTimer: 0,
     mutantId: (m.id as string) || `${team}_${idx}`,
   };
 }
 
-function assignRoles(agents: Agent[], possession: 'player' | 'opponent', ball: Ball): void {
+function assignRoles(agents: Agent[], possession: 'player' | 'opponent'): void {
   let carrierSet = false;
   for (const ag of agents) {
     if (ag.status !== 'active') {
       ag.role = 'inactive';
     } else if (ag.team === possession) {
-      if (!carrierSet && ball.state === 'held' && ball.carrierId === ag.id) {
+      if (!carrierSet && ag.hasBall) {
         ag.role = 'carrier';
         carrierSet = true;
       } else {
@@ -261,10 +262,9 @@ function assignRoles(agents: Agent[], possession: 'player' | 'opponent', ball: B
   }
 }
 
-function getCarrier(agents: Agent[], ball: Ball): Agent | null {
-  if (ball.state !== 'held' || !ball.carrierId) return null;
+function getCarrier(agents: Agent[]): Agent | null {
   for (const ag of agents) {
-    if (ag.id === ball.carrierId && ag.status === 'active') return ag;
+    if (ag.hasBall && ag.status === 'active') return ag;
   }
   return null;
 }
