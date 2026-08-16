@@ -458,6 +458,11 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
 
   // Cooldown: don't dispose if recently disposed (prevents spam)
   if (carrier.disposalCooldownTicks > 0) return null;
+
+  // Don't dispose if close to the end zone — prioritize scoring
+  const inEndZone = (st.possession === 'player' && carrier.x > courtW - ezDepth * 2) ||
+                    (st.possession === 'opponent' && carrier.x < ezDepth * 2);
+  if (inEndZone) return null;
   const m = st.config.match;
   const courtW = m.court_width, courtH = m.court_height, ezDepth = m.end_zone_depth;
 
@@ -516,9 +521,9 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
 
   // 4. Strategic kick: occasionally kick downfield if no pressure and
   // no open handball target. This creates positional flow.
-  // Low frequency (2% per tick ≈ 0.4 kicks/sec at 20 tps) — disposals
+  // Low frequency (1% per tick ≈ 0.2 kicks/sec at 20 tps) — disposals
   // are strategic, not constant. The carrier primarily runs with the ball.
-  if (!tacklerPressure && st.prng() < 0.02) {
+  if (!tacklerPressure && st.prng() < 0.01) {
     // Kick toward opponent end zone, offset toward center
     const targetX = st.possession === 'player'
       ? Math.min(courtW - ezDepth / 2, carrier.x + 30 + st.prng() * 15)
@@ -662,8 +667,8 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
       }
       if (result) {
         syncPlayerToAgent(player, carrier);
-        // Set cooldown — 30 ticks (1.5s) before another disposal
-        carrier.disposalCooldownTicks = 30;
+        // Set cooldown — 100 ticks (5s) before another disposal
+        carrier.disposalCooldownTicks = 100;
         st.events.push({
           type: result.event.type,
           agent_id: carrier.id,

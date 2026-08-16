@@ -371,7 +371,10 @@ describe('test_no_regression', () => {
         }
       }
       if (ms.state === 'playing' || ms.state === 'paused_sub') {
-        if (!ms.agents.some(a => a.hasBall)) ballOrphaned++;
+        // With disposal system, ball can be in_flight or briefly loose.
+        const ballState = sim.getState()?.ball.state;
+        const looseTicks = sim.getState()?.ball.looseTicks ?? 0;
+        if (!ms.agents.some(a => a.hasBall) && ballState === 'loose' && looseTicks > 60) ballOrphaned++;
       }
       if (ms.state === 'paused_sub') sim.resumeMatch();
       if (ms.state === 'ended') break;

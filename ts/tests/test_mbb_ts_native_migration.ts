@@ -180,12 +180,18 @@ describe('test_gamerules_matches_fixed_lua_behavior', () => {
       if (ms.state === 'playing' || ms.state === 'paused_sub') {
         totalPlayingTicks++;
         const hasCarrier = ms.agents.some(a => a.hasBall);
-        if (!hasCarrier) ballOrphanedTicks++;
+        // With the disposal system, the ball can be in_flight (no carrier)
+        // or briefly loose (between disposal and pickup). These are
+        // legitimate states, not orphaned. Only count as orphaned if the
+        // ball is loose for an extended period (no recovery).
+        const ballState = sim.getState()?.ball.state;
+        const looseTicks = sim.getState()?.ball.looseTicks ?? 0;
+        if (!hasCarrier && ballState === 'loose' && looseTicks > 60) ballOrphanedTicks++;
       }
       if (ms.state === 'paused_sub') sim.resumeMatch();
       if (ms.state === 'ended') break;
     }
-    // Ball should never be orphaned during active play (stunned-agent fix)
+    // Ball should never be truly orphaned (loose for >3 seconds) during play
     expect(ballOrphanedTicks).toBe(0);
   });
 
@@ -390,7 +396,11 @@ describe('test_ball_never_permanently_lost', () => {
       for (let i = 0; i < 2500; i++) {
         const ms = sim.tickMatch(0.1);
         if (ms.state === 'playing' || ms.state === 'paused_sub') {
-          if (!ms.agents.some(a => a.hasBall)) orphanedTicks++;
+          // With disposal system, ball can be in_flight or briefly loose.
+          // Only count as orphaned if loose for extended period.
+          const ballState = sim.getState()?.ball.state;
+          const looseTicks = sim.getState()?.ball.looseTicks ?? 0;
+          if (!ms.agents.some(a => a.hasBall) && ballState === 'loose' && looseTicks > 60) orphanedTicks++;
         }
         if (ms.state === 'paused_sub') sim.resumeMatch();
         if (ms.state === 'ended') break;
