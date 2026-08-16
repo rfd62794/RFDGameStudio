@@ -16,6 +16,8 @@ import antsimReduxConfig from './antsim_redux/config';
 import facilityEscapeConfig from './facility_escape/config';
 import { planetofgreedConfig } from './planetofgreed/config';
 import { gladiatorArenaConfig } from './gladiator_arena/config';
+import voiddriftReduxConfig from './voiddrift_redux/config';
+import successionConfig from './succession/config';
 import { characterViewerConfig } from './character_viewer/config';
 import { techniqueShowcaseConfig } from './technique_showcase/config';
 
@@ -48,6 +50,8 @@ export const GAME_REGISTRY: GameConfig[] = [
   facilityEscapeConfig,
   planetofgreedConfig,
   gladiatorArenaConfig,
+  voiddriftReduxConfig,
+  successionConfig,
   characterViewerConfig,
   techniqueShowcaseConfig,
 ];
@@ -68,4 +72,6 @@ export const STANDALONE_BUILD_GAMES = [
   { id: 'slime_coin', label: 'Slime Coin' },
   { id: 'planetofgreed', label: 'Planet of Greed' },
   { id: 'gladiator_arena', label: 'Gladiator Arena' },
+  { id: 'voiddrift_redux', label: 'VoidDrift Redux' },
+  { id: 'succession', label: 'Succession' },
 ];
