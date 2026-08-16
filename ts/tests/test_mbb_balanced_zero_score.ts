@@ -197,11 +197,14 @@ describe('test_real_match_logged_per_tick', () => {
     // Verify we captured a full match
     expect(tickLogs.length).toBeGreaterThan(1000);
 
-    // Both teams should have had possession at some point
+    // Both teams should have had possession at some point. With the
+    // CombatSystem four-tier severity ladder (Part B), more loose-ball
+    // situations reduce sustained possession time. Threshold lowered
+    // from 100 to 50 to reflect this conscious departure.
     const playerPossTicks = tickLogs.filter(l => l.possession === 'player').length;
     const oppPossTicks = tickLogs.filter(l => l.possession === 'opponent').length;
-    expect(playerPossTicks).toBeGreaterThan(100);
-    expect(oppPossTicks).toBeGreaterThan(100);
+    expect(playerPossTicks).toBeGreaterThan(50);
+    expect(oppPossTicks).toBeGreaterThan(50);
 
     // Both teams should have scored
     const final = tickLogs[tickLogs.length - 1];

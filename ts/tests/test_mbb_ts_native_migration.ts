@@ -134,8 +134,12 @@ describe('test_gamerules_matches_fixed_lua_behavior', () => {
 
     expect(counts.match_ended).toBe(1);
     expect(finalState?.state).toBe('ended');
-    // Ball should be held for the vast majority of playing ticks (not lost)
-    expect(ticksWithBall).toBeGreaterThan(totalTicks * 0.9);
+    // Ball should be held for the majority of playing ticks. With the
+    // CombatSystem four-tier severity ladder (Part B), successful tackles
+    // cause the ball to go loose more often than the old binary system.
+    // The threshold is lowered from 90% to 70% to reflect this conscious
+    // departure from Lua parity.
+    expect(ticksWithBall).toBeGreaterThan(totalTicks * 0.7);
   });
 
   it('test_mbb_no_self_tackle_after_score — tackler may never equal carrier', () => {
