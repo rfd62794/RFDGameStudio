@@ -218,7 +218,7 @@ export function calculateStats(mutant: { parts?: PartsBySlot | Record<string, Pa
   return { accuracy: acc, endurance: end, power: pow, speed: spd, maxHealth: Math.max(20, end) };
 }
 
-function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'opponent', idx: number, courtH: number, prng: () => number): Agent {
+function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'opponent', idx: number, courtH: number, prng: () => number, teamSize: number = 2): Agent {
   const m = mutant as Record<string, unknown>;
   let stats: { accuracy: number; endurance: number; power: number; speed: number; maxHealth: number };
   if (m.accuracy !== undefined) {
@@ -269,7 +269,9 @@ function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'o
     team,
     color: (m.color as string) || '#ffffff',
     x: team === 'player' ? 30 : 70,
-    y: courtH * (idx === 1 ? 0.35 : 0.65),
+    // Spread agents vertically across the court. For 2v2: 0.33 and 0.67.
+    // For 6v6: evenly distributed at 1/7, 3/7, 5/7, 5/7, 3/7, 1/7 (mirrored).
+    y: courtH * ((idx + 0.5) / (teamSize + 1)),
     vx: 0, vy: 0,
     speed: stats.speed,
     power: stats.power,
@@ -604,6 +606,8 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
   // ── In-flight ball physics + interception ───────────────────────
   // When the ball is in_flight (from a kick or handball), update its
   // physics and evaluate interception/mark contests every tick.
+  // Agents still move while the ball is in flight — they chase the
+  // ball's predicted landing position.
   if (st.ball.state === 'in_flight') {
     // Update ball physics
     st.ball.pos.x += st.ball.velocity.x * dt;
@@ -612,11 +616,13 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
     st.ball.zVelocity -= 9.81 * dt;
     st.ball.hangTimeRemaining = Math.max(0, st.ball.hangTimeRemaining - 1);
 
-    // Wall bouncing (keep ball in court)
-    if (st.ball.pos.x < 0) { st.ball.pos.x = 0; st.ball.velocity.x *= -0.65; }
-    if (st.ball.pos.x > courtW) { st.ball.pos.x = courtW; st.ball.velocity.x *= -0.65; }
-    if (st.ball.pos.y < 0) { st.ball.pos.y = 0; st.ball.velocity.y *= -0.65; }
-    if (st.ball.pos.y > courtH) { st.ball.pos.y = courtH; st.ball.velocity.y *= -0.65; }
+    // Wall bouncing (keep ball in court, but clamp away from corners
+    // to prevent the ball getting trapped in a corner)
+    const wallMargin = 5;
+    if (st.ball.pos.x < wallMargin) { st.ball.pos.x = wallMargin; st.ball.velocity.x *= -0.65; }
+    if (st.ball.pos.x > courtW - wallMargin) { st.ball.pos.x = courtW - wallMargin; st.ball.velocity.x *= -0.65; }
+    if (st.ball.pos.y < wallMargin) { st.ball.pos.y = wallMargin; st.ball.velocity.y *= -0.65; }
+    if (st.ball.pos.y > courtH - wallMargin) { st.ball.pos.y = courtH - wallMargin; st.ball.velocity.y *= -0.65; }
 
     // Ball landed or hang time expired → goes loose
     if (st.ball.height <= 0 || st.ball.hangTimeRemaining <= 0) {
@@ -655,8 +661,34 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
       }
     }
 
-    // Skip disposal/scoring/tackle logic while ball is in flight
-    // (the ball isn't held by anyone)
+    // Agents move while ball is in flight — they chase the ball's
+    // current position (to intercept or pick up after it lands).
+    // Temporarily set all agents to chase the ball by giving them a
+    // loose-ball seek target.
+    for (const ag of st.agents) {
+      if (ag.status === 'stunned') {
+        ag.stunTimer -= dt;
+        if (ag.stunTimer <= 0) ag.status = 'active';
+      } else if (ag.status === 'active') {
+        // All agents seek the ball while it's in flight
+        const maxSpeed = ag.speed * 0.5;
+        const maxForce = maxSpeed * CONFIG.steering.max_force_ratio;
+        const [fx, fy] = forceSeek(ag.x, ag.y, st.ball.pos.x, st.ball.pos.y, 1.0, maxForce);
+        ag.vx += fx * dt;
+        ag.vy += fy * dt;
+        // Clamp speed
+        const sp = Math.hypot(ag.vx, ag.vy);
+        if (sp > maxSpeed) { ag.vx = ag.vx / sp * maxSpeed; ag.vy = ag.vy / sp * maxSpeed; }
+        ag.x += ag.vx * dt;
+        ag.y += ag.vy * dt;
+        // Clamp to court
+        ag.x = Math.max(2, Math.min(courtW - 2, ag.x));
+        ag.y = Math.max(2, Math.min(courtH - 2, ag.y));
+        if (ag.markProtectionTicks > 0) ag.markProtectionTicks--;
+        if (ag.disposalCooldownTicks > 0) ag.disposalCooldownTicks--;
+      }
+    }
+
     // Check if any agent went down — pause for substitution
     for (const ev of st.events) {
       if (ev.type === 'agent_down') { st.state = 'paused_sub'; break; }
@@ -757,6 +789,10 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
       // The both-down soft-lock is now structurally impossible.
       st.possession = st.possession === 'player' ? 'opponent' : 'player';
       let resetCarrier: Agent | null = null;
+      // Count active agents per team for vertical spreading
+      const playerAgents = st.agents.filter(a => a.team === 'player');
+      const opponentAgents = st.agents.filter(a => a.team === 'opponent');
+      let playerIdx = 0, opponentIdx = 0;
       for (const ag of st.agents) {
         // A stunned agent is still in the play (it recovers); only a
         // downed agent is out. Requiring "active" here meant that if the
@@ -766,8 +802,11 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
         if (ag.team === st.possession && ag.status !== 'down' && !resetCarrier) {
           resetCarrier = ag;
         }
+        // Spread agents vertically across the court, each at a distinct Y
+        const teamList = ag.team === 'player' ? playerAgents : opponentAgents;
+        const idxInTeam = ag.team === 'player' ? playerIdx++ : opponentIdx++;
         ag.x = ag.team === 'player' ? 30 : 70;
-        ag.y = courtH * (st.prng() * 0.4 + 0.3);
+        ag.y = courtH * ((idxInTeam + 0.5) / teamList.length);
         ag.vx = 0; ag.vy = 0;
       }
       st.ball.pos.x = 50;
@@ -951,15 +990,15 @@ export function createMbbSimulation(): MbbSimulation {
       // Build agents for configurable roster size (2v2 or 6v6)
       const agents: Agent[] = [];
       for (let i = 0; i < teamSize; i++) {
-        agents.push(makeAgent(playerMutants[i], 'player', i + 1, courtH, prng));
+        agents.push(makeAgent(playerMutants[i], 'player', i + 1, courtH, prng, teamSize));
       }
       for (let i = 0; i < teamSize; i++) {
-        agents.push(makeAgent(opponentMutants[i], 'opponent', i + 1, courtH, prng));
+        agents.push(makeAgent(opponentMutants[i], 'opponent', i + 1, courtH, prng, teamSize));
       }
 
       // Create ball and assign to first player agent (initial carrier)
       const ball: Ball = {
-        pos: { x: 30, y: courtH * 0.35 },
+        pos: { x: agents[0].x, y: agents[0].y },
         velocity: { x: 0, y: 0 },
         height: 1.0,
         zVelocity: 0,
