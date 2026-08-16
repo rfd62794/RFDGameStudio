@@ -24,6 +24,8 @@ export type VerificationMethod =
   | 'research/inference'
   | 'narrated agent report';
 
+export type CapabilityStatus = 'Y' | 'N' | 'Shared' | 'Partial' | '—';
+
 export interface ProjectEntry {
   id: string;
   name: string;
@@ -35,4 +37,13 @@ export interface ProjectEntry {
   link?: string;             // itch.io / arcade route, if live
   lastUpdated: string;       // ISO date — makes staleness visible in the UI itself, not just in a doc's prose
   verificationMethod?: VerificationMethod;  // required on status_unconfirmed per ADR-016
+
+  // Cross-project capability tracking (per §3 of StatusBoard expansion).
+  // Populated from real, direct grep-confirmed audits — not assumed.
+  capabilities?: {
+    mainMenu?: CapabilityStatus;       // Uses shared TitleScreen, local equivalent, or nothing
+    tutorial?: CapabilityStatus;       // Has onboarding/tutorial mechanism (post-Pattern-1: Shared = uses OnboardingGate)
+    graphicalUpgrade?: string;         // Date of last meaningful visual pass, or '—'
+    soundEffects?: CapabilityStatus;   // Y/N/Partial
+  };
 }
