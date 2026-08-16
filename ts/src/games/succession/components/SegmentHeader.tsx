@@ -9,7 +9,6 @@ interface SegmentHeaderProps {
 
 export const SegmentHeader: React.FC<SegmentHeaderProps> = ({ segment }) => {
   const timeLabel = SEGMENT_LABELS[segment] || 'Hour of Judgment';
-  const remaining = TOTAL_SEGMENTS - segment;
 
   return (
     <header className="border-b border-stone-800 bg-stone-900/80 backdrop-blur-sm sticky top-0 z-20 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">

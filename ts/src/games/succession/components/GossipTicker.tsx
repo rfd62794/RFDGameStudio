@@ -1,5 +1,5 @@
 import React from 'react';
-import { Radio, AlertOctagon, MessageSquare, Scale, FileCheck, Search, Sparkles, Gavel } from 'lucide-react';
+import { Radio, AlertOctagon, MessageSquare, Scale, FileCheck, Search, Gavel } from 'lucide-react';
 import { TickerEntry } from '../types/gameState';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIMANTS } from '../data/claimants';

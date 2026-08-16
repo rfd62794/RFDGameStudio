@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Drone, HaulerFSMState, MiningFSMState } from '../types';
-import { Activity, ShieldCheck, Zap, ArrowRight, Anchor, Cpu } from 'lucide-react';
+import { Activity, Zap, Anchor } from 'lucide-react';
 
 interface FSMInspectorProps {
   miningDrones: Drone[];

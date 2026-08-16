@@ -1,12 +1,9 @@
 import {
   Asteroid,
-  BoundaryTelemetry,
   ConversionProcess,
   DispatchLog,
   Drone,
   Fragment,
-  HaulerFSMState,
-  MiningFSMState,
   ResourceType,
   Scout,
   SimulationConfig,

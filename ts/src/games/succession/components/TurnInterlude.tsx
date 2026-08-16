@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, MessageSquareQuote, Scale, FileCheck, Search, AlertOctagon, Users, ShieldAlert, Sparkles, Gavel } from 'lucide-react';
-import { TickerEntry, GameState } from '../types/gameState';
+import { GameState } from '../types/gameState';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIMANTS } from '../data/claimants';
 import { SEGMENT_LABELS } from '../data/segmentLabels';

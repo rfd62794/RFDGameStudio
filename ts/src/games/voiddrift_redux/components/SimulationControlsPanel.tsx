@@ -1,6 +1,6 @@
 import React from 'react';
 import { SimulationConfig, SimulationStats } from '../types';
-import { Settings, Play, Pause, FastForward, RotateCcw, Cpu, Anchor, Zap } from 'lucide-react';
+import { Settings, Play, Pause, RotateCcw, Anchor, Zap } from 'lucide-react';
 
 interface SimulationControlsPanelProps {
   config: SimulationConfig;

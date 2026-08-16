@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Crown, Sparkles, Shield, Coins, ScrollText, ArrowRight, Check, AlertCircle, Award } from 'lucide-react';
 import { PlayerOriginId } from '../engine/types';
-import { PLAYER_ORIGINS, PlayerOrigin } from '../data/origins';
+import { PLAYER_ORIGINS } from '../data/origins';
 
 interface TitleScreenProps {
   onBegin: (originId: PlayerOriginId) => void;

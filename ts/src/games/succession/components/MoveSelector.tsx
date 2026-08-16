@@ -35,7 +35,7 @@ export const MoveSelector: React.FC<MoveSelectorProps> = ({
   onPresentEvidence,
   onScout,
 }) => {
-  const [whisperThemeId, setWhisperThemeId] = useState<string | null>(null);
+  const [_whisperThemeId, setWhisperThemeId] = useState<string | null>(null);
 
   const selectedFigureMeta = selectedFigure
     ? COURT_FIGURES[selectedFigure.id]

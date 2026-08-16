@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Asteroid, Drone, Fragment, Scout, SimulationConfig, Vector2D } from '../types';
+import { Asteroid, Drone, Fragment, Scout, SimulationConfig } from '../types';
 import { VoidDriftEngine } from '../simulation/engine';
-import { Eye, Layers, Radar, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { Eye, Layers, Radar, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface OrbitalCanvasProps {
   engine: VoidDriftEngine;

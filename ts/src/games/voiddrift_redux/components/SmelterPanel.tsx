@@ -1,6 +1,6 @@
 import React from 'react';
-import { ConversionProcess, ResourceType, SimulationStats } from '../types';
-import { Flame, Database, ArrowRight, Layers, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { SimulationStats } from '../types';
+import { Flame, Database, ArrowRight, CheckCircle2, Clock, Sparkles } from 'lucide-react';
 
 interface SmelterPanelProps {
   stats: SimulationStats;

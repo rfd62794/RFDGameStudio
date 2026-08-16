@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import { GameState } from './types/gameState';
 import { FigureId, PlayerOriginId, IndictmentTriad } from './engine/types';

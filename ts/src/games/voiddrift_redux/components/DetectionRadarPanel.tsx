@@ -1,6 +1,6 @@
 import React from 'react';
 import { Asteroid, Drone } from '../types';
-import { Radar, Anchor, Zap, ShieldAlert, Crosshair } from 'lucide-react';
+import { Radar, Anchor, Zap, Crosshair } from 'lucide-react';
 
 interface DetectionRadarPanelProps {
   asteroids: Asteroid[];

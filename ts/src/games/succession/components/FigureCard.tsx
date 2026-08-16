@@ -3,7 +3,7 @@ import { Crown, Sparkles, Shield, AlertTriangle, MessageSquare, Compass } from '
 import { FigureState, FigureId } from '../engine/types';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIM_THEMES } from '../data/claimThemes';
-import { getFigureQualitativeStanding, FavorTier } from '../utils/favorTiers';
+import { getFigureQualitativeStanding } from '../utils/favorTiers';
 
 interface FigureCardProps {
   figure: FigureState;

@@ -14,7 +14,7 @@ import {
   HelpCircle,
   CheckCircle2,
   Lock,
-  Flame,
+
   Radio,
   Check,
   Activity,

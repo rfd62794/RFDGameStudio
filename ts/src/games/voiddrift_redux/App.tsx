@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import { VoidDriftEngine } from './simulation/engine';
 import { Header } from './components/Header';

@@ -11,9 +11,6 @@ import {
   BookOpen,
   Scroll,
   Quote,
-  Flame,
-  Building,
-  Swords,
   Coins,
 } from 'lucide-react';
 import { GameState } from '../types/gameState';

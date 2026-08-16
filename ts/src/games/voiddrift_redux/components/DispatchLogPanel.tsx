@@ -1,6 +1,6 @@
 import React from 'react';
 import { DispatchLog } from '../types';
-import { Terminal, ShieldCheck, Zap, Anchor, Radar, ArrowRight } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 
 interface DispatchLogPanelProps {
   logs: DispatchLog[];
