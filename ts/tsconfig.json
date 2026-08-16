@@ -17,5 +17,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "tests", "tools", "vite.standalone.factory.ts"]
+  "include": ["src", "tests", "tools", "vite.standalone.factory.ts"],
+  "exclude": ["src/games/*/server", "src/games/*/functions"]
 }

@@ -19,19 +19,27 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@google-cloud/monitoring": "^6.0.0",
+    "@google/genai": "^2.17.1",
     "@tailwindcss/vite": "^4.1.14",
     "@types/canvas-confetti": "^1.9.0",
     "@vitejs/plugin-react": "^4.3.4",
     "canvas-confetti": "^1.9.4",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "fengari-web": "^0.1.4",
+    "firebase": "^12.17.1",
+    "firebase-admin": "^14.2.0",
     "framer-motion": "^12.42.0",
     "js-yaml": "^4.1.0",
     "lucide-react": "^0.469.0",
+    "motion": "^13.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^4.1.14"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^26.0.0",
     "@types/react": "^18.3.18",

@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "houses": {
+      "title": "Houses",
+      "description": "Kingdom houses",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "createdAt"]
+    },
+    "houses/players": {
+      "title": "House Players",
+      "description": "Players in a house",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "joinedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["displayName", "joinedAt"]
+    },
+    "houses/players/task": {
+      "title": "Player Current Task",
+      "description": "Current task state",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["idle", "in_progress", "ready_to_collect"] },
+        "startTime": { "type": "string", "format": "date-time", "nullable": true },
+        "duration": { "type": "number" },
+        "result": { "type": "object", "nullable": true }
+      },
+      "required": ["status", "duration"]
+    }
+  }
+}

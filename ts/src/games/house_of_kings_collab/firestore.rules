@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /health_check/{doc} {
+      allow read: if true;
+    }
+
+    match /kingdoms/{kingdomId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /houses/{houseId} {
+        allow read: if true;
+        allow write: if false;
+
+        match /players/{userId} {
+          allow read: if true;
+          allow write: if false;
+
+          match /workers/{workerId} {
+            allow read: if true;
+            allow write: if false;
+          }
+
+          match /{document=**} {
+            allow read: if true;
+            allow write: if false;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+
