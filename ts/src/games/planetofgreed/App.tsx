@@ -535,7 +535,11 @@ export default function App({ session }: GameRendererProps) {
     }
 
     if (playerCorp.treasury < totalOrderCost) {
-      addLog(`Operational block: Cumulative weekly orders require $${totalOrderCost.toLocaleString()} but treasury holds only $${playerCorp.treasury.toLocaleString()}.`, 'error');
+      const errorMsg = `Operational block: Cumulative weekly orders require $${totalOrderCost.toLocaleString()} but treasury holds only $${playerCorp.treasury.toLocaleString()}.`;
+      const lastLog = gameState.logs[gameState.logs.length - 1];
+      if (!lastLog || lastLog.message !== errorMsg) {
+        addLog(errorMsg, 'error');
+      }
       return;
     }
 
@@ -1520,7 +1524,7 @@ export default function App({ session }: GameRendererProps) {
 
   return (
     <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
-    <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
+    <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden overflow-y-auto">
 
       {/* HEADER SECTION */}
       <BoardroomHeader
