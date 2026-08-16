@@ -67,7 +67,8 @@ const distPath = path.join(process.cwd(), 'dist');
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
 }
-app.get('/*', (_req, res) => {
+// Express 5 catch-all: named wildcard syntax
+app.get('/{*path}', (_req, res) => {
   const indexPath = path.join(distPath, 'index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
