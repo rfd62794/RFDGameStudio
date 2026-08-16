@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, ReactNode } from 'react';
+import { useState, useCallback, ReactNode } from 'react';
 
 /**
  * Shared onboarding gate — extracted from SlimeWorld's tutorial mechanism
@@ -38,6 +38,7 @@ import { useState, useCallback, useEffect, ReactNode } from 'react';
 export interface BooleanGateResult {
   shouldShow: boolean;
   handleComplete: () => void;
+  trigger: () => void;
 }
 
 export interface IdTrackedGateResult {
@@ -77,7 +78,11 @@ function useBooleanGate(initialShow: boolean): BooleanGateResult {
     setShouldShow(false);
   }, []);
 
-  return { shouldShow, handleComplete };
+  const trigger = useCallback(() => {
+    setShouldShow(true);
+  }, []);
+
+  return { shouldShow, handleComplete, trigger };
 }
 
 function useIdTrackedGate(

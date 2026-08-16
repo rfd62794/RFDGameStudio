@@ -25,6 +25,7 @@ import OpeningSequence from './components/OpeningSequence';
 import { HOUSE_DESCRIPTIONS, ENDING_TEXT } from './flavorText';
 import { GameShell } from '../../components/GameShell';
 import { TitleScreen } from '../../ui/components/TitleScreen';
+import { useOnboardingGate } from '../../ui/components/OnboardingGate';
 
 import {
   Activity, Info, RefreshCw
@@ -298,10 +299,10 @@ export default function App({ session }: GameRendererProps) {
   const [showTitleScreen, setShowTitleScreen] = useState<boolean>(true);
 
   // Opening sequence: fires ONLY on a genuinely new game, never on a
-  // resumed/returning session. Matches KingMaker's confirmed mechanism:
-  // handleStartNewCampaign sets showOpeningSequence=true, the continue
-  // path sets it to false. Cleared after completion or skip.
-  const [showOpeningSequence, setShowOpeningSequence] = useState<boolean>(false);
+  // resumed/returning session. Uses the shared OnboardingGate hook
+  // (extracted from SlimeWorld's tutorial mechanism) in boolean mode.
+  const { shouldShow: showOpeningSequence, handleComplete: handleOpeningGateComplete, trigger: triggerOpeningSequence } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
 
   // Load from local storage on startup if exists
   useEffect(() => {
@@ -315,7 +316,7 @@ export default function App({ session }: GameRendererProps) {
         setIsPlanningPhase(parsed.isPlanningPhase ?? true);
         // Resuming an existing game: skip title and opening, go straight to game
         setShowTitleScreen(false);
-        setShowOpeningSequence(false);
+        // OnboardingGate manages its own state — no manual clear needed on resume.
         return;
       } catch (e) {
         console.error('Failed to parse saved state', e);
@@ -331,7 +332,7 @@ export default function App({ session }: GameRendererProps) {
   const handleRequestNewGame = () => {
     setGameState(null);
     setPendingCultureSelection(true);
-    setShowOpeningSequence(false);
+    // OnboardingGate manages its own state — no manual clear needed.
   };
 
   // Title screen actions: "New Campaign" triggers the opening sequence
@@ -339,12 +340,12 @@ export default function App({ session }: GameRendererProps) {
   // loads saved state (handled by the useEffect above).
   const handleTitleNewGame = () => {
     setShowTitleScreen(false);
-    setShowOpeningSequence(true);
+    triggerOpeningSequence();
   };
 
   const handleTitleContinue = () => {
     setShowTitleScreen(false);
-    setShowOpeningSequence(false);
+    // OnboardingGate manages its own state — no manual clear needed.
     // If there's a saved game, the useEffect already loaded it.
     // If not, fall through to culture selection.
     if (!gameState) {
@@ -353,7 +354,7 @@ export default function App({ session }: GameRendererProps) {
   };
 
   const handleOpeningComplete = () => {
-    setShowOpeningSequence(false);
+    handleOpeningGateComplete();
     setPendingCultureSelection(true);
   };
 
