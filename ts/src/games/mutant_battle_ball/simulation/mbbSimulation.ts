@@ -344,14 +344,14 @@ function computeAgentForces(ag: Agent, st: MbbState): [number, number] {
     }
   } else if (ag.role === 'tackler') {
     // Pursue the carrier (seek to carrier's current position)
-    const carrier = getCarrier(st.agents);
+    const carrier = getCarrier(st.agents, st.ball);
     if (carrier) {
       const [px, py] = forceSeek(ag.x, ag.y, carrier.x, carrier.y, sw.tackler_pursue_weight, maxForce);
       fx += px; fy += py;
     }
   } else if (ag.role === 'escort') {
     // Interpose between carrier and nearest tackler to the carrier
-    const carrier = getCarrier(st.agents);
+    const carrier = getCarrier(st.agents, st.ball);
     if (carrier) {
       const [nearestTackler] = nearestEnemy(carrier, st.agents);
       if (nearestTackler) {
@@ -406,8 +406,8 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
   const courtW = m.court_width, courtH = m.court_height;
   const tackleR = m.tackle_range, blockR = m.block_range, stunT = m.tackle_stun_time, ezDepth = m.end_zone_depth;
 
-  let carrier = getCarrier(st.agents);
-  assignRoles(st.agents, st.possession);
+  let carrier = getCarrier(st.agents, st.ball);
+  assignRoles(st.agents, st.possession, st.ball);
 
   // Agent movement + stun recovery
   for (const ag of st.agents) {
@@ -417,8 +417,9 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
     } else if (ag.status === 'active') {
       moveAgent(ag, st, dt);
       if (ag.role === 'carrier') {
-        st.ballX = ag.x;
-        st.ballY = ag.y;
+        // Ball tracks carrier position
+        st.ball.pos.x = ag.x;
+        st.ball.pos.y = ag.y;
       }
     }
   }
@@ -447,27 +448,81 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
         return buildMatchRenderState(st);
       }
 
-      // Reset positions, switch possession to conceding team
+      // Reset positions, switch possession to conceding team.
+      //
+      // STRUCTURAL FIX: The old code did a discrete "find a valid teammate"
+      // assignment that failed silently when both receiving-team agents
+      // were 'down', permanently orphaning the ball. Now the ball uses the
+      // sportsSim Ball entity: if a valid receiver exists, the ball is
+      // assigned directly (preserving gameplay feel); if BOTH receivers
+      // are down, the ball transitions to 'loose' via BallSystem.looseBall()
+      // and is recovered naturally via the continuous pickup check below.
+      // The both-down soft-lock is now structurally impossible.
       st.possession = st.possession === 'player' ? 'opponent' : 'player';
       let resetCarrier: Agent | null = null;
       for (const ag of st.agents) {
-        ag.hasBall = false;
-        // FIX (root cause #2): A stunned agent is still in the play (it
-        // recovers); only a downed agent is out. Requiring "active" here
-        // meant that if the whole conceding team was stunned at the moment
-        // of the score the ball was assigned to no one and permanently
-        // lost, stalling the match.
+        // A stunned agent is still in the play (it recovers); only a
+        // downed agent is out. Requiring "active" here meant that if the
+        // whole conceding team was stunned at the moment of the score the
+        // ball was assigned to no one and permanently lost, stalling the
+        // match.
         if (ag.team === st.possession && ag.status !== 'down' && !resetCarrier) {
-          ag.hasBall = true;
           resetCarrier = ag;
         }
         ag.x = ag.team === 'player' ? 30 : 70;
         ag.y = courtH * (st.prng() * 0.4 + 0.3);
         ag.vx = 0; ag.vy = 0;
       }
-      st.ballX = 50;
-      st.ballY = courtH / 2;
-      assignRoles(st.agents, st.possession);
+      st.ball.pos.x = 50;
+      st.ball.pos.y = courtH / 2;
+      if (resetCarrier) {
+        // Direct assignment — preserves original gameplay feel
+        st.ball.state = 'held';
+        st.ball.carrierId = resetCarrier.id;
+        st.ball.lastCarrierId = resetCarrier.id;
+        st.ball.velocity = { x: 0, y: 0 };
+        st.ball.height = 1.0;
+        st.ball.looseTicks = 0;
+        st.ball.pos.x = resetCarrier.x;
+        st.ball.pos.y = resetCarrier.y;
+      } else {
+        // Both receiving-team agents are down — ball goes loose.
+        // The continuous pickup check below will recover it once any
+        // active agent reaches it. This is the structural fix for the
+        // both-down soft-lock bug.
+        BallSystem.looseBall(st.ball, null, { x: 0, y: 0 });
+      }
+      assignRoles(st.agents, st.possession, st.ball);
+    }
+  }
+
+  // Continuous loose-ball pickup — checked every tick.
+  // Any active, non-downed agent within pickup radius can recover the ball.
+  // This is the structural replacement for the discrete assignment that
+  // could fail when both receiving-team agents were down.
+  if (st.ball.state === 'loose') {
+    const pickupRadius = 5.0; // MBB-specific pickup radius
+    let bestAgent: Agent | null = null;
+    let bestDist = Infinity;
+    for (const ag of st.agents) {
+      if (ag.status !== 'active' && ag.status !== 'stunned') continue;
+      if (ag.status === 'stunned') continue; // Stunned agents can't pick up
+      const d = distance(ag.x, ag.y, st.ball.pos.x, st.ball.pos.y);
+      if (d < pickupRadius && d < bestDist) {
+        bestDist = d;
+        bestAgent = ag;
+      }
+    }
+    if (bestAgent) {
+      st.ball.state = 'held';
+      st.ball.carrierId = bestAgent.id;
+      st.ball.lastCarrierId = bestAgent.id;
+      st.ball.velocity = { x: 0, y: 0 };
+      st.ball.height = 1.0;
+      st.ball.looseTicks = 0;
+      st.possession = bestAgent.team;
+      st.events.push({ type: 'ball_pickup', agent_id: bestAgent.id, team: bestAgent.team });
+      assignRoles(st.agents, st.possession, st.ball);
     }
   }
 
@@ -477,7 +532,7 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
   // `carrier` local pointing at the previous (now-tackler) agent.
   // Operating on that stale reference caused a self-tackle that flipped
   // possession straight back to the scoring team every tick.
-  carrier = getCarrier(st.agents);
+  carrier = getCarrier(st.agents, st.ball);
   if (carrier) {
     for (const ag of st.agents) {
       if (ag.status === 'active' && ag.role === 'tackler') {
@@ -509,10 +564,11 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
             if (outcome === 'wound') applyWound(carrier, 'limb_loss', st, st.prng);
             // Only change possession if carrier is still active
             if (carrier.status === 'active') {
-              carrier.hasBall = false;
-              ag.hasBall = true;
+              // Ball transitions to the tackler via Ball state machine
+              st.ball.carrierId = ag.id;
+              st.ball.lastCarrierId = carrier.id;
               st.possession = ag.team;
-              assignRoles(st.agents, st.possession);
+              assignRoles(st.agents, st.possession, st.ball);
               st.events.push({ type: 'tackle_success', tackler_id: ag.id, carrier_id: carrier.id, possession: st.possession });
               // FIX: Ball has moved; stop iterating so we don't tackle
               // the now-stale carrier reference again this tick.
@@ -544,10 +600,11 @@ function buildMatchRenderState(st: MbbState): MatchState {
     agents: st.agents.map(ag => ({
       id: ag.id, name: ag.name, team: ag.team, color: ag.color,
       x: ag.x, y: ag.y, role: ag.role, status: ag.status,
-      hasBall: ag.hasBall, health: ag.health, maxHealth: ag.maxHealth,
+      hasBall: st.ball.state === 'held' && st.ball.carrierId === ag.id,
+      health: ag.health, maxHealth: ag.maxHealth,
     })),
-    ballX: st.ballX,
-    ballY: st.ballY,
+    ballX: st.ball.pos.x,
+    ballY: st.ball.pos.y,
     possession: st.possession,
     scorePlayer: st.scorePlayer,
     scoreOpponent: st.scoreOpponent,
@@ -580,16 +637,31 @@ export function createMbbSimulation(): MbbSimulation {
       const prng = makePrng(resolvedSeed);
 
       const agents: Agent[] = [
-        makeAgent(playerMutants[0], 'player', 1, true, courtH, prng),
-        makeAgent(playerMutants[1], 'player', 2, false, courtH, prng),
-        makeAgent(opponentMutants[0], 'opponent', 1, false, courtH, prng),
-        makeAgent(opponentMutants[1], 'opponent', 2, false, courtH, prng),
+        makeAgent(playerMutants[0], 'player', 1, courtH, prng),
+        makeAgent(playerMutants[1], 'player', 2, courtH, prng),
+        makeAgent(opponentMutants[0], 'opponent', 1, courtH, prng),
+        makeAgent(opponentMutants[1], 'opponent', 2, courtH, prng),
       ];
+
+      // Create ball and assign to first player agent (initial carrier)
+      const ball: Ball = {
+        pos: { x: 30, y: courtH * 0.35 },
+        velocity: { x: 0, y: 0 },
+        height: 1.0,
+        zVelocity: 0,
+        state: 'held',
+        carrierId: agents[0].id,
+        lastCarrierId: agents[0].id,
+        lastPossessionTeam: null,
+        hangTimeRemaining: 0,
+        totalHangTime: 0,
+        bounceCount: 0,
+        looseTicks: 0,
+      };
 
       st = {
         agents,
-        ballX: 50,
-        ballY: courtH / 2,
+        ball,
         possession: 'player',
         scorePlayer: 0,
         scoreOpponent: 0,
@@ -600,6 +672,7 @@ export function createMbbSimulation(): MbbSimulation {
         config,
         prng,
       };
+      assignRoles(st.agents, st.possession, st.ball);
       return buildMatchRenderState(st);
     },
 
@@ -625,7 +698,7 @@ export function createMbbSimulation(): MbbSimulation {
       for (let i = 0; i < st.agents.length; i++) {
         const ag = st.agents[i];
         if (ag.id === downedAgentId) {
-          const hadBall = ag.hasBall;
+          const hadBall = st.ball.state === 'held' && st.ball.carrierId === ag.id;
           st.agents[i] = {
             id: benchMutant.id,
             name: benchMutant.name,
@@ -635,9 +708,13 @@ export function createMbbSimulation(): MbbSimulation {
             speed: stats.speed, power: stats.power,
             accuracy: stats.accuracy, endurance: stats.endurance,
             health: stats.maxHealth, maxHealth: stats.maxHealth,
-            hasBall: hadBall, role: ag.role, status: 'active',
+            role: ag.role, status: 'active',
             stunTimer: 0, mutantId: benchMutant.id,
           };
+          // Update ball carrier reference if the subbed agent had the ball
+          if (hadBall) {
+            st.ball.carrierId = benchMutant.id;
+          }
           st.state = 'playing';
           return true;
         }
