@@ -209,6 +209,7 @@ describe('test_no_regression', () => {
       'slime_coin', 'chimera_wilds', 'scrapcrawl',
       'ledger', 'trinity_siege', '7_days_to_fry',
       'antsim_redux', 'facility_escape', 'planetofgreed',
+      'gladiator_arena',
       'technique_showcase',
     ];
     for (const id of existingIds) {
