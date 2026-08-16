@@ -17,3 +17,10 @@ export {
   type ProgressNodeState,
 } from './ProgressIndicator';
 export { MoreGamesByMe, type MoreGamesByMeProps } from './MoreGamesByMe';
+export {
+  useOnboardingGate,
+  OnboardingGate,
+  type OnboardingGateOptions,
+  type BooleanGateResult,
+  type IdTrackedGateResult,
+} from './OnboardingGate';
