@@ -21,6 +21,8 @@ const EXPECTED_ORDER = [
   'facility_escape',
   'planetofgreed',
   'gladiator_arena',
+  'voiddrift_redux',
+  'succession',
   'character_viewer',
   'technique_showcase',
 ];

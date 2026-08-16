@@ -210,6 +210,8 @@ describe('test_no_regression', () => {
       'ledger', 'trinity_siege', '7_days_to_fry',
       'antsim_redux', 'facility_escape', 'planetofgreed',
       'gladiator_arena',
+      'voiddrift_redux',
+      'succession',
       'technique_showcase',
     ];
     for (const id of existingIds) {
