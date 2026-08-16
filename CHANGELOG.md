@@ -12,6 +12,131 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## MBB sportsSim Ball Integration — COMPLETED
+
+**Date:** August 15, 2026
+**Directive:** Wire MBB's ball-possession data model to the real
+`sportsSim/BallSystem.ts` API ported in the previous phase. Replace
+`Agent.hasBall: boolean` with the real `Ball` entity (`held`/`loose`/
+`in_flight` states, `carrierId`, `pos`, `velocity`). Fix the confirmed
+both-down soft-lock bug structurally — the ball transitions to `'loose'`
+via `BallSystem.looseBall()` when both receiving-team agents are down at
+score-reset, and is recovered naturally via continuous proximity-based
+pickup. No discrete assignment step that can fail.
+
+### STOP rule satisfied
+
+**Bug confirmed before fix:** A reproduction test
+(`test_mbb_sports_sim_ball_integration.ts`) directly manipulated game
+state to create the both-down scenario — player carrier deep in the end
+zone, both opponent agents `'down'`, then ticked the match. The score
+fired, possession switched to opponent, but no opponent agent had the
+ball (`hasBallAgents.length === 0`), and the ball was frozen at center
+(50, 30) with no carrier. The match would soft-lock from this point.
+
+**Bug confirmed fixed:** The same scenario post-fix shows the ball
+transitioning to `'loose'` state (`ball.state === 'loose'`,
+`ball.carrierId === null`). After reviving one opponent agent at the
+ball's position and ticking once, the ball is picked up
+(`ball.state === 'held'`, `ball.carrierId !== null`). No soft-lock.
+
+### What changed
+
+Only `ts/src/games/mutant_battle_ball/simulation/mbbSimulation.ts`:
+
+- **`Agent` interface:** Removed `hasBall: boolean` field. Possession
+  is now tracked solely via `Ball.carrierId` + `Ball.state === 'held'`.
+- **`MbbState` interface:** Replaced `ballX: number` / `ballY: number`
+  with `ball: Ball` (from `sportsSim/types.ts`).
+- **`getCarrier(agents, ball)`:** Now looks up `ball.carrierId` instead
+  of scanning for `ag.hasBall`.
+- **`assignRoles(agents, possession, ball)`:** Now checks
+  `ball.state === 'held' && ball.carrierId === ag.id` instead of
+  `ag.hasBall`.
+- **Score-reset block:** If a valid receiver exists, the ball is
+  assigned directly (preserving gameplay feel). If BOTH receiving-team
+  agents are down, `BallSystem.looseBall(st.ball, null, { x: 0, y: 0 })`
+  is called — the ball goes loose at center and is recovered naturally.
+- **Continuous loose-ball pickup:** Added to the tick loop. Any active
+  agent within 5.0 units of a loose ball picks it up. This is the
+  structural replacement for the discrete assignment that could fail.
+- **Tackle possession change:** `carrier.hasBall = false; ag.hasBall = true`
+  replaced with `st.ball.carrierId = ag.id` (Ball state machine).
+- **`buildMatchRenderState`:** `hasBall` is now a derived field
+  (`st.ball.state === 'held' && st.ball.carrierId === ag.id`), preserving
+  the public `MatchState` API. `ballX`/`ballY` derived from
+  `st.ball.pos.x`/`st.ball.pos.y`.
+- **`makeSubstitution`:** Uses `ball.carrierId` instead of `ag.hasBall`.
+
+### What did NOT change (verified via git diff)
+
+- **Steering functions:** `forceSeek`, `forceArrive`, `forceFlee`,
+  `forceInterpose` — byte-identical
+- **`computeAgentForces`:** byte-identical (only `getCarrier` calls
+  updated to pass `st.ball`)
+- **`moveAgent`:** byte-identical
+- **Combat resolution:** `resolveTackle`, `resolveBlock`, `applyWound`
+  — byte-identical
+- **Stat system:** `calculateStats`, `getEffectivePartStats`,
+  `rollMalfunctioningFailure` — byte-identical
+- **Config constants:** All steering/combat/match config values
+  unchanged
+- **`MatchState`/`MatchAgent` public API:** Unchanged — `hasBall`,
+  `ballX`, `ballY` still present as derived fields
+
+### Real sportsSim API used
+
+- `import type { Ball } from '../../../engine/shared/sportsSim'`
+- `import { BallSystem } from '../../../engine/shared/sportsSim'`
+- `BallSystem.looseBall(st.ball, null, { x: 0, y: 0 })` — the real
+  exported function, confirmed by reading `BallSystem.ts` line 121
+
+### Explicitly NOT in scope (real, separate, deferred future work)
+
+- **`UniversalDecisionSystem`** — MBB's own steering (seek/flee/
+  interpose) stays exactly as it is. Swapping positioning logic is a
+  real, much bigger change to MBB's actual feel and deserves its own
+  directive and tuning pass.
+- **`DisposalSystem`** — MBB currently has no disposal system at all
+  (carriers only run); adding one is real new content, not a bug fix.
+- **`CombatSystem`** — MBB's own `applyWound`/`resolveTackle`/
+  `resolveBlock` stay exactly as they are. They are real, tuned,
+  Lua-parity-verified, and not broken.
+- **Tiered goal scoring** — MBB's scoring stays exactly as it is.
+
+### Verification
+
+- **Bug reproduction test:** 7/7 tests pass
+  (`test_mbb_sports_sim_ball_integration.ts`) — confirms both the fix
+  and that steering/combat/stats are unchanged
+- **Full vitest:** 1241/1243 passing (2 pre-existing
+  `test_dual_target_deploy.ts` git-state failures, unrelated)
+- **tsc --noEmit:** 0 new errors in `mbbSimulation.ts` (4 pre-existing
+  errors unchanged: unused `MatchAgent` import, unused `normalize`/
+  `maxForce` locals, `PartsBySlot` conversion — all present before this
+  change)
+- **Git diff:** Confirms only ball-possession code changed; steering,
+  combat, and stats functions appear only as context lines, never as
+  added/removed lines
+
+### Test anchors
+
+7 tests in `test_mbb_sports_sim_ball_integration.ts`:
+- `test_both_down_softlock_fixed` (2): both-down scenario → ball goes
+  loose, recovered after revive; normal match flow still works
+- `test_steering_combat_stats_unchanged` (4): steering config, combat
+  config, `calculateStats`, match config — all unchanged
+- `test_real_sports_sim_api_used` (1): source file imports `Ball` type
+  and `BallSystem` from `sportsSim`, uses `BallSystem.looseBall()`,
+  `Agent` interface has no `hasBall`, `MbbState` has `ball: Ball`
+
+Also updated `test_sports_sim_engine_port.ts` anchor 5: renamed from
+`test_mbb_untouched` to `test_mbb_sports_sim_wiring` — now verifies MBB
+imports `Ball`/`BallSystem` from sportsSim while `DisposalSystem` and
+`UniversalDecisionSystem` remain deferred.
+
+---
+
 ## Sports Sim Engine Port — COMPLETED
 
 **Date:** August 15, 2026
