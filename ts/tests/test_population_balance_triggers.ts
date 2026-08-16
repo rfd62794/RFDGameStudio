@@ -29,9 +29,10 @@ const appSource = readFileSync(
 );
 
 describe('test_population_balance_triggers_defined', () => {
-  it('Civic Unrest Focus raises Population Balance by +8', () => {
-    // This is the existing trigger — direct investment in workforce welfare.
-    expect(appSource).toContain("applyPublicOpinionOffset(updatedCells[cellIndex], 8)");
+  it('Civic Unrest Focus raises Population Balance (default +8, Marsh +10 via House stats)', () => {
+    // The unrest boost is now per-House via getHouseStats().unrestBoost.
+    // Default is 8 (HOUSE_STATS default), Marsh gets 10.
+    expect(appSource).toContain("playerStats.unrestBoost");
     expect(appSource).toContain("Civic Unrest Focus");
   });
 
