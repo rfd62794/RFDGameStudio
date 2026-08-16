@@ -19,8 +19,10 @@
 import type { Part, PartSlot, PartsBySlot } from '../../../engine/shared/partSlots';
 import type { Mutant, MatchAgent, MatchState } from '../types';
 import { getEffectivePartStats, rollMalfunctioningFailure } from '../brandModifiers';
-import type { Ball } from '../../../engine/shared/sportsSim';
-import { BallSystem } from '../../../engine/shared/sportsSim';
+import type { Ball, PlayerStats, Vector2D, DisposalRules } from '../../../engine/shared/sportsSim';
+import { BallSystem, DisposalSystem } from '../../../engine/shared/sportsSim';
+import { mapToPlayerStats, averageCyberOrganicLean } from '../statsMapper';
+import { agentToPlayer, syncPlayerToAgent } from '../playerAdapter';
 
 // ── Config (from data.yaml match block) ──────────────────────────────
 
@@ -36,7 +38,19 @@ export const CONFIG = {
     tackle_stun_time: 1.2,
     end_zone_depth: 10,
     point_cap: 3,
+    team_size: 2 as 2 | 6, // Configurable roster size: 2v2 (default) or 6v6
   },
+  // Disposal config — wired to sportsSim's DisposalSystem.
+  // MBB-specific tuning: shorter carry limit than AFL's 15m because
+  // MBB's court is 100x60 (smaller than a real AFL ground).
+  disposal: {
+    allowedMethods: { kick: true, handball: true, touchBounce: true },
+    maxCarryDistanceWithoutTouch: 15.0, // AFL 15m anti-camping rule
+    carryPenaltyType: 'turnover_loose_ball' as const,
+    minKickDistanceForMark: 10.0,       // 10m minimum for a protected mark
+    markProtectionDurationTicks: 20,    // 1.0s protected disposal window
+    maxTackleHoldTicks: 20,             // 1.0s to dispose under tackle pressure
+  } as DisposalRules,
   // Steering tuning — MBB-specific, not Shoal's reef-sim numbers.
   // maxSpeed derives from each agent's speed stat (speed * 0.5, matching
   // the Lua base_spd formula). maxForce controls turn agility; set to
@@ -140,6 +154,25 @@ interface Agent {
   status: 'active' | 'stunned' | 'down' | 'subbed';
   stunTimer: number;
   mutantId: string;
+  // sportsSim integration fields — used by DisposalSystem and future
+  // UniversalDecisionSystem/CombatSystem integrations
+  playerStats: PlayerStats;              // Mapped from MBB's 4 stats + cyber-organic lean
+  distanceCarriedWithoutTouch: number;   // AFL 15m anti-camping tracker
+  tackledTicks: number;                  // Ticks under active tackle pressure
+  tackledByPlayerId: string | null;      // Who is tackling this agent
+  markProtectionTicks: number;           // Protected window after a clean mark
+  statsMatch: {                          // Per-match disposal/combat tracking
+    kicks: number;
+    handballs: number;
+    marks: number;
+    tackles: number;
+    hitsInflicted: number;
+    injuriesInflicted: number;
+    casualtiesCaused: number;
+    turnoversConceded: number;
+    goals: number;
+    distanceRun: number;
+  };
 }
 
 interface MatchConfig {
@@ -158,6 +191,7 @@ interface MbbState {
   events: Array<Record<string, unknown>>;
   config: MatchConfig;
   prng: () => number;
+  tickCount: number; // For DisposalSystem event IDs
 }
 
 // ── Game rules (faithful port from post-fix logic.lua) ───────────────
@@ -222,6 +256,10 @@ function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'o
       }
     }
   }
+  // Compute sportsSim PlayerStats from MBB stats + cyber-organic lean
+  const cyberLean = m.parts ? averageCyberOrganicLean(m.parts as Record<string, { cyberOrganicLean?: number } | null>) : undefined;
+  const playerStats = mapToPlayerStats(stats, cyberLean);
+
   return {
     id: (m.id as string) || `${team}_${idx}`,
     name: (m.name as string) || 'Unknown',
@@ -240,6 +278,17 @@ function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'o
     status: 'active',
     stunTimer: 0,
     mutantId: (m.id as string) || `${team}_${idx}`,
+    // sportsSim integration fields
+    playerStats,
+    distanceCarriedWithoutTouch: 0,
+    tackledTicks: 0,
+    tackledByPlayerId: null,
+    markProtectionTicks: 0,
+    statsMatch: {
+      kicks: 0, handballs: 0, marks: 0, tackles: 0,
+      hitsInflicted: 0, injuriesInflicted: 0, casualtiesCaused: 0,
+      turnoversConceded: 0, goals: 0, distanceRun: 0,
+    },
   };
 }
 
@@ -389,6 +438,100 @@ function moveAgent(ag: Agent, st: MbbState, dt: number): void {
   ag.y = clamp(ag.y + ag.vy * dt, 0, courtH);
 }
 
+// ── Disposal decision logic ──────────────────────────────────────────
+//
+// The carrier decides whether to dispose based on:
+// 1. Anti-camping pressure (approaching carry limit → must touch-bounce)
+// 2. Tackler threat (nearby tackler → consider handball to open teammate)
+// 3. Strategic kicking (open teammate ahead → kick downfield)
+// 4. Random disposal pressure (occasional kicks/handballs to create flow)
+
+interface DisposalDecision {
+  method: 'kick' | 'handball' | 'touch_bounce';
+  target: Vector2D;
+}
+
+function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
+  const rules = CONFIG.disposal;
+  const m = st.config.match;
+  const courtW = m.court_width, courtH = m.court_height, ezDepth = m.end_zone_depth;
+
+  // 1. Anti-camping: must touch-bounce if approaching carry limit
+  if (carrier.distanceCarriedWithoutTouch >= rules.maxCarryDistanceWithoutTouch * 0.85) {
+    // Touch-bounce to reset carry distance, unless very close to end zone
+    const inEndZone = (st.possession === 'player' && carrier.x > courtW - ezDepth) ||
+                      (st.possession === 'opponent' && carrier.x < ezDepth);
+    if (!inEndZone) {
+      return { method: 'touch_bounce', target: { x: carrier.x, y: carrier.y } };
+    }
+  }
+
+  // 2. Tackler threat: if a tackler is within 1.5x tackle range, consider disposal
+  let nearestEnemyDist = Infinity;
+  for (const en of st.agents) {
+    if (en.team !== carrier.team && en.status === 'active') {
+      const d = distance(carrier.x, carrier.y, en.x, en.y);
+      if (d < nearestEnemyDist) nearestEnemyDist = d;
+    }
+  }
+  const tacklerPressure = nearestEnemyDist < m.tackle_range * 1.5;
+
+  // 3. Find open teammate for a pass
+  const teammates = st.agents.filter(ag =>
+    ag.team === carrier.team && ag.id !== carrier.id && ag.status === 'active',
+  );
+
+  if (tacklerPressure && teammates.length > 0) {
+    // Under pressure — look for a handball target (short, fast)
+    let bestMate: Agent | null = null;
+    let bestScore = -Infinity;
+    for (const mate of teammates) {
+      const d = distance(carrier.x, carrier.y, mate.x, mate.y);
+      if (d > 18) continue; // Handball max range
+      // Prefer teammates who are ahead (toward opponent end zone) and open
+      const aheadBonus = st.possession === 'player'
+        ? (mate.x - carrier.x) * 0.5
+        : (carrier.x - mate.x) * 0.5;
+      // Check if any enemy is near the teammate (openness)
+      let nearestEnemyToMate = Infinity;
+      for (const en of st.agents) {
+        if (en.team !== carrier.team && en.status === 'active') {
+          const ed = distance(mate.x, mate.y, en.x, en.y);
+          if (ed < nearestEnemyToMate) nearestEnemyToMate = ed;
+        }
+      }
+      const openness = Math.min(nearestEnemyToMate, 10);
+      const score = aheadBonus + openness - d * 0.3;
+      if (score > bestScore) { bestScore = score; bestMate = mate; }
+    }
+    if (bestMate) {
+      return { method: 'handball', target: { x: bestMate.x, y: bestMate.y } };
+    }
+  }
+
+  // 4. Strategic kick: occasionally kick downfield if no pressure and
+  // no open handball target. This creates positional flow.
+  if (!tacklerPressure && st.prng() < 0.08) {
+    // Kick toward opponent end zone, offset toward center
+    const targetX = st.possession === 'player'
+      ? Math.min(courtW - ezDepth / 2, carrier.x + 30 + st.prng() * 15)
+      : Math.max(ezDepth / 2, carrier.x - 30 - st.prng() * 15);
+    const targetY = courtH * (0.3 + st.prng() * 0.4);
+    return { method: 'kick', target: { x: targetX, y: targetY } };
+  }
+
+  // 5. Under heavy pressure with no teammate — kick to space downfield
+  if (tacklerPressure && nearestEnemyDist < m.tackle_range * 0.8) {
+    const targetX = st.possession === 'player'
+      ? Math.min(courtW - 5, carrier.x + 25 + st.prng() * 10)
+      : Math.max(5, carrier.x - 25 - st.prng() * 10);
+    const targetY = courtH * (0.2 + st.prng() * 0.6);
+    return { method: 'kick', target: { x: targetX, y: targetY } };
+  }
+
+  return null; // Continue running with the ball
+}
+
 // ── Tick (faithful game-rules port with both fixes) ──────────────────
 
 function tickMatchInternal(st: MbbState, dt: number): MatchState {
@@ -408,6 +551,7 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
 
   let carrier = getCarrier(st.agents, st.ball);
   assignRoles(st.agents, st.possession, st.ball);
+  st.tickCount++;
 
   // Agent movement + stun recovery
   for (const ag of st.agents) {
@@ -415,11 +559,132 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
       ag.stunTimer -= dt;
       if (ag.stunTimer <= 0) ag.status = 'active';
     } else if (ag.status === 'active') {
+      const prevX = ag.x, prevY = ag.y;
       moveAgent(ag, st, dt);
+      // Track distance run for stats
+      const moved = distance(prevX, prevY, ag.x, ag.y);
+      ag.statsMatch.distanceRun += moved;
       if (ag.role === 'carrier') {
         // Ball tracks carrier position
         st.ball.pos.x = ag.x;
         st.ball.pos.y = ag.y;
+        // Accumulate carry distance for anti-camping rule
+        ag.distanceCarriedWithoutTouch += moved;
+      }
+      // Decrement mark protection ticks
+      if (ag.markProtectionTicks > 0) ag.markProtectionTicks--;
+    }
+  }
+
+  // ── In-flight ball physics + interception ───────────────────────
+  // When the ball is in_flight (from a kick or handball), update its
+  // physics and evaluate interception/mark contests every tick.
+  if (st.ball.state === 'in_flight') {
+    // Update ball physics using a lightweight inline version (MBB's
+    // court doesn't have a full CourtConfig, so we update manually)
+    st.ball.pos.x += st.ball.velocity.x * dt;
+    st.ball.pos.y += st.ball.velocity.y * dt;
+    st.ball.height += st.ball.zVelocity * dt;
+    st.ball.zVelocity -= 9.81 * dt;
+    st.ball.hangTimeRemaining = Math.max(0, st.ball.hangTimeRemaining - 1);
+
+    // Ball landed → goes loose
+    if (st.ball.height <= 0) {
+      st.ball.height = 0;
+      st.ball.zVelocity = 0;
+      st.ball.state = 'loose';
+      st.ball.velocity.x *= 0.65;
+      st.ball.velocity.y *= 0.65;
+      st.ball.bounceCount++;
+      st.events.push({ type: 'ball_bounced', pos: { x: st.ball.pos.x, y: st.ball.pos.y } });
+    } else {
+      // Evaluate in-flight interception/mark contests
+      const players = st.agents
+        .filter(ag => ag.status === 'active')
+        .map(ag => agentToPlayer(ag, ag.playerStats));
+      const contestResult = DisposalSystem.evaluateInFlightContests(
+        st.ball, players, CONFIG.disposal, st.tickCount,
+      );
+      if (contestResult.securedBy) {
+        // Sync the winner's state back to the underlying agent
+        const winnerAgent = st.agents.find(ag => ag.id === contestResult.securedBy!.id);
+        if (winnerAgent) {
+          syncPlayerToAgent(contestResult.securedBy, winnerAgent);
+          st.possession = winnerAgent.team;
+          assignRoles(st.agents, st.possession, st.ball);
+        }
+        if (contestResult.event) {
+          st.events.push({
+            type: contestResult.event.type,
+            agent_id: contestResult.event.primaryPlayerId,
+            team: contestResult.event.team === 'teamA' ? 'player' : 'opponent',
+            description: contestResult.event.description,
+            is_turnover: contestResult.event.isTurnover,
+          });
+        }
+      }
+    }
+
+    // Skip disposal/scoring/tackle logic while ball is in flight
+    // (the ball isn't held by anyone)
+    // Check if any agent went down — pause for substitution
+    for (const ev of st.events) {
+      if (ev.type === 'agent_down') { st.state = 'paused_sub'; break; }
+    }
+    return buildMatchRenderState(st);
+  }
+
+  // ── Carrier disposal decision ───────────────────────────────────
+  // The carrier decides whether to dispose (kick/handball) based on:
+  // 1. Anti-camping pressure (approaching 15m carry limit)
+  // 2. Nearby tackler threat (within tackle range)
+  // 3. Open teammate available for a pass
+  if (carrier && carrier.status === 'active' && st.ball.state === 'held') {
+    const disposalAction = decideDisposal(carrier, st);
+    if (disposalAction) {
+      const player = agentToPlayer(carrier, carrier.playerStats);
+      let result: { success: boolean; event: { description: string; type: string } } | null = null;
+      if (disposalAction.method === 'kick') {
+        result = DisposalSystem.executeKick(player, disposalAction.target, st.ball, CONFIG.disposal, st.tickCount);
+      } else if (disposalAction.method === 'handball') {
+        result = DisposalSystem.executeHandball(player, disposalAction.target, st.ball, CONFIG.disposal, st.tickCount);
+      } else if (disposalAction.method === 'touch_bounce') {
+        result = DisposalSystem.executeTouchBounce(player, st.ball, st.tickCount);
+      }
+      if (result) {
+        syncPlayerToAgent(player, carrier);
+        st.events.push({
+          type: result.event.type,
+          agent_id: carrier.id,
+          team: carrier.team,
+          description: result.event.description,
+        });
+        // Ball is now in_flight (kick/handball) or still held (touch_bounce)
+        // Re-fetch carrier since the ball may no longer be held
+        carrier = getCarrier(st.agents, st.ball);
+        assignRoles(st.agents, st.possession, st.ball);
+      }
+    }
+
+    // Anti-camping and holding-the-ball turnover checks
+    if (carrier && carrier.status === 'active' && st.ball.state === 'held') {
+      const player = agentToPlayer(carrier, carrier.playerStats);
+      const turnover = DisposalSystem.evaluateTurnoverRules(player, st.ball, CONFIG.disposal, st.tickCount);
+      if (turnover.turnover) {
+        syncPlayerToAgent(player, carrier);
+        if (turnover.event) {
+          st.events.push({
+            type: turnover.event.type,
+            agent_id: carrier.id,
+            team: carrier.team,
+            description: turnover.event.description,
+            is_turnover: true,
+          });
+        }
+        // Possession changes — ball is now loose
+        st.possession = st.possession === 'player' ? 'opponent' : 'player';
+        assignRoles(st.agents, st.possession, st.ball);
+        carrier = getCarrier(st.agents, st.ball);
       }
     }
   }
@@ -534,9 +799,18 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
   // possession straight back to the scoring team every tick.
   carrier = getCarrier(st.agents, st.ball);
   if (carrier) {
+    // Track tackle pressure on the carrier for holding-the-ball rule
+    let underTacklePressure = false;
     for (const ag of st.agents) {
       if (ag.status === 'active' && ag.role === 'tackler') {
         const d = distance(ag.x, ag.y, carrier.x, carrier.y);
+
+        // Track tackle pressure if tackler is within range
+        if (d < tackleR * 1.2) {
+          underTacklePressure = true;
+          carrier.tackledTicks++;
+          carrier.tackledByPlayerId = ag.id;
+        }
 
         // Escort intercept: check if any escort is near the tackler
         let intercepted = false;
@@ -581,6 +855,11 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
           }
         }
       }
+    }
+    // Reset tackle pressure if no tackler was pressing this tick
+    if (!underTacklePressure) {
+      carrier.tackledTicks = 0;
+      carrier.tackledByPlayerId = null;
     }
   }
 
@@ -633,15 +912,18 @@ export function createMbbSimulation(): MbbSimulation {
     initMatch(playerMutants: Mutant[], opponentMutants: Mutant[], config: MatchConfig, seed?: number): MatchState {
       const m = config.match || CONFIG.match;
       const courtH = m.court_height || CONFIG.match.court_height;
+      const teamSize = m.team_size || CONFIG.match.team_size;
       const resolvedSeed = seed ?? Math.floor(Math.random() * 2147483647);
       const prng = makePrng(resolvedSeed);
 
-      const agents: Agent[] = [
-        makeAgent(playerMutants[0], 'player', 1, courtH, prng),
-        makeAgent(playerMutants[1], 'player', 2, courtH, prng),
-        makeAgent(opponentMutants[0], 'opponent', 1, courtH, prng),
-        makeAgent(opponentMutants[1], 'opponent', 2, courtH, prng),
-      ];
+      // Build agents for configurable roster size (2v2 or 6v6)
+      const agents: Agent[] = [];
+      for (let i = 0; i < teamSize; i++) {
+        agents.push(makeAgent(playerMutants[i], 'player', i + 1, courtH, prng));
+      }
+      for (let i = 0; i < teamSize; i++) {
+        agents.push(makeAgent(opponentMutants[i], 'opponent', i + 1, courtH, prng));
+      }
 
       // Create ball and assign to first player agent (initial carrier)
       const ball: Ball = {
@@ -671,6 +953,7 @@ export function createMbbSimulation(): MbbSimulation {
         events: [],
         config,
         prng,
+        tickCount: 0,
       };
       assignRoles(st.agents, st.possession, st.ball);
       return buildMatchRenderState(st);
@@ -699,6 +982,8 @@ export function createMbbSimulation(): MbbSimulation {
         const ag = st.agents[i];
         if (ag.id === downedAgentId) {
           const hadBall = st.ball.state === 'held' && st.ball.carrierId === ag.id;
+          const cyberLean = benchMutant.parts ? averageCyberOrganicLean(benchMutant.parts as Record<string, { cyberOrganicLean?: number } | null>) : undefined;
+          const playerStats = mapToPlayerStats(stats, cyberLean);
           st.agents[i] = {
             id: benchMutant.id,
             name: benchMutant.name,
@@ -710,6 +995,12 @@ export function createMbbSimulation(): MbbSimulation {
             health: stats.maxHealth, maxHealth: stats.maxHealth,
             role: ag.role, status: 'active',
             stunTimer: 0, mutantId: benchMutant.id,
+            playerStats,
+            distanceCarriedWithoutTouch: 0,
+            tackledTicks: 0,
+            tackledByPlayerId: null,
+            markProtectionTicks: 0,
+            statsMatch: ag.statsMatch, // Preserve match stats from subbed agent
           };
           // Update ball carrier reference if the subbed agent had the ball
           if (hadBall) {
