@@ -1464,7 +1464,7 @@ export default function App({ session }: GameRendererProps) {
   if (pendingCultureSelection) {
     return (
       <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
-        <div className="min-h-screen bg-[#1a1a2e] text-amber-50 font-sans flex flex-col justify-center items-center gap-6 p-6 select-none">
+        <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col justify-center items-center gap-6 p-6 select-none">
           <div className="text-center">
             <h1 className="text-2xl font-bold uppercase tracking-tight text-amber-200">Choose Your House</h1>
             <p className="text-xs text-amber-100/70 font-serif italic mt-1">
@@ -1501,7 +1501,7 @@ export default function App({ session }: GameRendererProps) {
   if (!gameState) {
     return (
       <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
-        <div className="min-h-screen bg-[#1a1a2e] flex flex-col justify-center items-center text-amber-100 font-mono gap-3 select-none">
+        <div className="flex-1 bg-[#1a1a2e] flex flex-col justify-center items-center text-amber-100 font-mono gap-3 select-none">
           <RefreshCw className="w-10 h-10 text-amber-400 animate-spin" />
           <span className="font-bold">BOOTING PLANET OF GREED EXECUTIVE TERMINAL...</span>
         </div>
@@ -1520,7 +1520,7 @@ export default function App({ session }: GameRendererProps) {
 
   return (
     <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
-    <div className="min-h-screen bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
+    <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
 
       {/* HEADER SECTION */}
       <BoardroomHeader
@@ -1663,7 +1663,7 @@ export default function App({ session }: GameRendererProps) {
               </section>
 
               {/* Right Column (3/12): Action Queue & Realtime Boardroom Feed */}
-              <section className="lg:col-span-3 flex flex-col gap-3 h-[580px] overflow-hidden" id="boardroom-right-column">
+              <section className="lg:col-span-3 flex flex-col gap-3 h-full overflow-hidden" id="boardroom-right-column">
                 {/* 1. Alert Queue */}
                 <AlertQueue
                   hasPendingEvent={gameState.currentActiveEvent !== null}
