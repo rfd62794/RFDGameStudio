@@ -6,17 +6,15 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { ARENA_TIERS } from '../simulation/championLadder';
 import { sound } from '../utils/soundEffects';
-import { 
-  Shield, 
-  ShoppingBag, 
-  HeartPulse, 
-  Trophy, 
-  Coins, 
-  Users, 
-  Volume2, 
-  VolumeX, 
-  RotateCcw, 
-  Sparkles,
+import {
+  ShoppingBag,
+  HeartPulse,
+  Trophy,
+  Coins,
+  Users,
+  Volume2,
+  VolumeX,
+  RotateCcw,
   Swords,
   Activity
 } from 'lucide-react';

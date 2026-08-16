@@ -7,7 +7,7 @@
  */
 
 import { ActionScore, ActionType, Gladiator } from '../types';
-import { calculateCompatibility, getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
+import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 
 export interface DecisionContext {
   actor: Gladiator;
@@ -50,7 +50,6 @@ export function evaluateAgentDecision(context: DecisionContext): {
 
   const actorAnatomy = getGladiatorAnatomySummary(actor);
   const opponentAnatomy = getGladiatorAnatomySummary(opponent);
-  const compatibility = calculateCompatibility(actor);
 
   // Compute aggregate stats from active parts
   const totalPower = Object.values(actor.parts).reduce((sum, p) => sum + p.power, 0);

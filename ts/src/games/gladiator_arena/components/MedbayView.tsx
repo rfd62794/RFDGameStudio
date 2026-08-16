@@ -5,20 +5,18 @@
 
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { BodySlot, Gladiator } from '../types';
+import { BodySlot } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { calculateSurgeryCosts } from '../simulation/forgeEconomy';
 import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
-import { 
-  HeartPulse, 
-  Sparkles, 
-  HeartCrack, 
-  ShieldAlert, 
-  Coins, 
-  Bandage, 
-  Activity, 
-  CheckCircle2, 
-  Stethoscope 
+import {
+  HeartPulse,
+  Sparkles,
+  HeartCrack,
+  Coins,
+  Bandage,
+  Activity,
+  Stethoscope
 } from 'lucide-react';
 
 export const MedbayView: React.FC = () => {
@@ -73,7 +71,6 @@ export const MedbayView: React.FC = () => {
         {roster.map(g => {
           const sum = getGladiatorAnatomySummary(g);
           const hasScars = sum.totalScars > 0;
-          const isDamaged = sum.totalCurrentHp < sum.totalMaxHp;
           return (
             <button
               key={g.id}
@@ -85,7 +82,7 @@ export const MedbayView: React.FC = () => {
               }`}
             >
               <span>{g.name}</span>
-              {hasScars && <HeartCrack className="w-3 h-3 text-red-400" title="Sustained Scars" />}
+              {hasScars && <HeartCrack className="w-3 h-3 text-red-400" />}
               <span className="font-mono text-[10px] opacity-75">
                 ({sum.totalCurrentHp}/{sum.totalMaxHp} HP)
               </span>

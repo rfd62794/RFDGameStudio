@@ -62,7 +62,6 @@ export const ArenaCombatView: React.FC = () => {
 
   const latestLog = activeBout.logs[activeBout.logs.length - 1];
   const isVictory = activeBout.winner === 'player';
-  const isDefeat = activeBout.winner === 'enemy';
 
   const playerIsCyber = playerFighter ? (Object.values(playerFighter.parts) as BodyPart[]).some(p => p.cyberOrganicLean > 0.3) : false;
   const enemyIsCyber = enemyFighter ? (Object.values(enemyFighter.parts) as BodyPart[]).some(p => p.cyberOrganicLean > 0.3) : false;
@@ -73,7 +72,6 @@ export const ArenaCombatView: React.FC = () => {
   const [playerXOffset, setPlayerXOffset] = React.useState<number>(0);
   const [enemyXOffset, setEnemyXOffset] = React.useState<number>(0);
   const [contactSpark, setContactSpark] = React.useState<boolean>(false);
-  const [showCallout, setShowCallout] = React.useState<boolean>(false);
 
   useEffect(() => {
     if (!latestLog || latestLog.actorId === 'system') {
@@ -81,7 +79,6 @@ export const ArenaCombatView: React.FC = () => {
       setPlayerXOffset(0);
       setEnemyXOffset(0);
       setContactSpark(false);
-      setShowCallout(true);
       return;
     }
 
@@ -104,7 +101,6 @@ export const ArenaCombatView: React.FC = () => {
     // Phase 1: Windup
     setAnimPhase('windup');
     setContactSpark(false);
-    setShowCallout(false);
 
     if (isAttack && isPower) {
       if (isPlayerActor) setPlayerXOffset(-14);
@@ -126,7 +122,6 @@ export const ArenaCombatView: React.FC = () => {
     // Phase 3: Contact Frame reached (Defender reactions and impact sparks trigger strictly here)
     const timerContact = setTimeout(() => {
       setAnimPhase('contact');
-      setShowCallout(true);
       if (isAttack) {
         if (isHit) {
           setContactSpark(true);
@@ -134,8 +129,6 @@ export const ArenaCombatView: React.FC = () => {
           if (isPlayerActor) setEnemyXOffset(flinchDist);
           else setPlayerXOffset(-flinchDist);
         }
-      } else {
-        setShowCallout(true);
       }
     }, tContact);
 

@@ -6,7 +6,7 @@
  * cyber-organic malfunction rolls, crowd favor swings, and tag-team rotations.
  */
 
-import { ActionType, ArenaOpponent, BodySlot, BoutState, CombatLogEntry, Gladiator, SeverityLevel } from '../types';
+import { ArenaOpponent, BoutState, Gladiator } from '../types';
 import { evaluateAgentDecision } from './agentDecisionEngine';
 import {
   applyDamageToSlot,
@@ -294,7 +294,6 @@ export function executeNextCombatTurn(state: BoutState): BoutState {
   // Attack Actions: quick_attack, power_attack, charge
   let baseHitChance = 0.85;
   let damageMultiplier = 1.0;
-  let recoilRisk = 0;
   let actionName = 'Quick Attack';
 
   if (action === 'quick_attack') {
@@ -304,7 +303,6 @@ export function executeNextCombatTurn(state: BoutState): BoutState {
   } else if (action === 'power_attack') {
     baseHitChance = 0.70 + (actorStats.accuracy / 100);
     damageMultiplier = 1.30;
-    recoilRisk = 0.15; // Blood Bowl Failed Violence
     actionName = 'Power Attack';
   } else if (action === 'charge') {
     baseHitChance = 0.80 + (actorStats.speed / 120);

@@ -35,14 +35,13 @@ export const StickFighter: React.FC<StickFighterProps> = ({
   isPlayer = false,
   isCyber = false,
   accentColor,
-  isContactFrame = false,
+  isContactFrame: _isContactFrame = false,
   className = '',
 }) => {
   // Default accent colors based on faction & cybernetics
   const mainColor = accentColor || (isPlayer ? '#10b981' : '#ef4444');
   const limbColor = isCyber ? '#38bdf8' : (isPlayer ? '#34d399' : '#f87171');
   const weaponColor = isCyber ? '#06b6d4' : '#f59e0b';
-  const jointColor = isCyber ? '#0284c7' : '#d97706';
 
   const isFlipped = facing === 'left';
 

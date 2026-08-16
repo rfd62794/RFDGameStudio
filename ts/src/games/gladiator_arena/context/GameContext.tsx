@@ -9,7 +9,6 @@ import { ArenaOpponent, BodyPart, BodySlot, BoutState, Gladiator } from '../type
 import { STARTER_PARTS } from '../data/defaultParts';
 import { calculateSurgeryCosts, createNewFrameGladiator, generateShopInventory, getNextFrameCost, getPartScrapValue } from '../simulation/forgeEconomy';
 import { executeNextCombatTurn, initializeBout } from '../simulation/combatEngine';
-import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { ARENA_TIERS } from '../simulation/championLadder';
 import { sound } from '../utils/soundEffects';
 
@@ -224,7 +223,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sound.playParry();
   };
 
-  const unequipPart = (gladiatorId: string, slot: BodySlot) => {
+  const unequipPart = (_gladiatorId: string, _slot: BodySlot) => {
     // Cannot unequip without a replacement limb in Gladiator Arena,
     // but user can swap with items in inventory
   };

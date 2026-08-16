@@ -3,7 +3,7 @@
  * Inspired by Swords & Sandals ladder progression, Blood Bowl consequences, and How Many Dudes fallen state.
  */
 
-import { ArenaOpponent, ArenaTier, BodySlot, Gladiator } from '../types';
+import { ArenaTier, BodySlot, Gladiator } from '../types';
 import { SHOP_PART_CATALOG, STARTER_PARTS } from '../data/defaultParts';
 
 function createEnemyGladiator(

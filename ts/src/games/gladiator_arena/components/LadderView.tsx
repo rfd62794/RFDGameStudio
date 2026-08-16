@@ -4,23 +4,21 @@
 
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { ArenaOpponent, ArenaTier, Gladiator } from '../types';
+import { ArenaOpponent, Gladiator } from '../types';
 import { ARENA_TIERS } from '../simulation/championLadder';
 import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
-import { 
-  Trophy, 
-  Swords, 
-  ShieldAlert, 
-  Coins, 
-  Users, 
-  Lock, 
-  Check, 
-  AlertTriangle, 
-  Sparkles, 
-  Eye, 
-  Skull, 
-  Layers 
+import {
+  Trophy,
+  Swords,
+  Coins,
+  Users,
+  Lock,
+  Check,
+  AlertTriangle,
+  Sparkles,
+  Eye,
+  Skull
 } from 'lucide-react';
 
 export const LadderView: React.FC = () => {
@@ -252,7 +250,7 @@ export const LadderView: React.FC = () => {
                     </div>
 
                     {isSeverelyHurt && (
-                      <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" title="Severely Injured!" />
+                      <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
                     )}
                   </div>
                 );

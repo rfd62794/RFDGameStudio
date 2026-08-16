@@ -4,29 +4,26 @@
 
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { BodyPart, BodySlot, Gladiator } from '../types';
+import { BodySlot, Gladiator } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { CompatibilityInspector } from './CompatibilityInspector';
 import { calculateEffectiveStats } from '../simulation/combatEngine';
 import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { getPartScrapValue } from '../simulation/forgeEconomy';
-import { 
-  Users, 
-  Swords, 
-  Shield, 
-  Zap, 
-  Dna, 
-  Cpu, 
-  Crosshair, 
-  Flame, 
-  Trash2, 
-  ArrowRightLeft, 
-  Edit3, 
-  Check, 
-  Plus, 
+import {
+  Swords,
+  Shield,
+  Zap,
+  Dna,
+  Cpu,
+  Crosshair,
+  Flame,
+  Trash2,
+  ArrowRightLeft,
+  Edit3,
+  Check,
   Sparkles,
-  HeartCrack,
-  Activity
+  HeartCrack
 } from 'lucide-react';
 
 export const RosterView: React.FC = () => {

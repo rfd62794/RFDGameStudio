@@ -7,38 +7,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { 
-  BalanceReport, 
-  
-  runBalanceSimulation, 
-  
+import {
+  BalanceReport,
+  runBalanceSimulation,
   CareerProgressionReport,
   runCareerProgressionSimulation,
   runMultiArchetypeBenchmark
 } from '../simulation/balanceHarness';
-import { 
-  Activity, 
-  Play, 
-  RotateCw, 
-  CheckCircle2, 
-  
-  BarChart3, 
-  Shield, 
-  Zap, 
-  
-  Sparkles, 
-  ShoppingBag, 
-  Users, 
+import {
+  Activity,
+  Play,
+  RotateCw,
+  CheckCircle2,
+  BarChart3,
+  Shield,
+  Zap,
+  Sparkles,
+  ShoppingBag,
+  Users,
   X,
   Layers,
-  
-  
-  
   TrendingUp,
   Coins,
   HeartPulse,
-  Award,
-  Swords
+  Award
 } from 'lucide-react';
 
 interface BalanceReportViewProps {

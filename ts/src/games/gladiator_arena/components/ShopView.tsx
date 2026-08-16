@@ -5,22 +5,20 @@
 
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { BodyPart, BodySlot, Gladiator } from '../types';
+import { BodyPart } from '../types';
 import { previewEquipCompatibility, getNextFrameCost } from '../simulation/forgeEconomy';
-import { 
-  ShoppingBag, 
-  Coins, 
-  RotateCw, 
-  Zap, 
-  Dna, 
-  Cpu, 
-  Sparkles, 
-  AlertTriangle, 
-  ArrowRight, 
-  Plus, 
-  Shield, 
-  Swords, 
-  Check, 
+import {
+  ShoppingBag,
+  Coins,
+  RotateCw,
+  Zap,
+  Dna,
+  Cpu,
+  Sparkles,
+  AlertTriangle,
+  ArrowRight,
+  Plus,
+  Check,
   Layers
 } from 'lucide-react';
 
@@ -172,7 +170,6 @@ export const ShopView: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[640px] overflow-y-auto pr-1">
             {filteredParts.map(part => {
               const isSelected = selectedPart?.id === part.id;
-              const canAfford = gold >= part.cost;
 
               const isCyber = part.cyberOrganicLean > 0.3;
               const isBio = part.cyberOrganicLean < -0.3;
