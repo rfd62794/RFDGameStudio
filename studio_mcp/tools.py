@@ -815,6 +815,7 @@ def studio_deploy_arcade() -> dict:
 
         return {
             "copied_files": copied_files,
+            "standalone_builds": [gid for gid, _ in standalone_builds],
             "build": build_result,
             "deploy": deploy_result,
             "verification": verification,
