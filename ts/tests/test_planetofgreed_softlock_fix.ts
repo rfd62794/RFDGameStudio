@@ -80,8 +80,9 @@ describe('test_aggressive_heuristic_affordability_checked', () => {
     );
     // Attack rules return expand orders
     expect(defaultActionSource).toContain("type: 'expand'");
-    // The cost list in App.tsx does not include expand
-    expect(appSource).not.toMatch(/order\.type === 'expand'.*?totalOrderCost\s*\+=/);
+    // The cost list in App.tsx uses per-House expandCost (0 for most Houses,
+    // $5k for Tundra) — not a hardcoded expand cost line
+    expect(appSource).not.toMatch(/order\.type === 'expand'.*?totalOrderCost\s*\+= 30000|order\.type === 'expand'.*?totalOrderCost\s*\+= 20000|order\.type === 'expand'.*?totalOrderCost\s*\+= 10000/);
   });
 
   it('Redistribute orders (expand to own) are free — no Treasury cost', () => {
@@ -100,7 +101,7 @@ describe('test_aggressive_heuristic_affordability_checked', () => {
       resolve(repoRoot, 'ts/src/games/planetofgreed/defaultAction.ts'),
       'utf-8'
     );
-    expect(defaultActionSource).toContain('playerCorp.treasury >= COST_FORTIFY');
+    expect(defaultActionSource).toContain('playerCorp.treasury >= costFortify');
     expect(defaultActionSource).toContain('playerCorp.treasury >= COST_REINFORCE');
     expect(defaultActionSource).toContain('playerCorp.treasury >= COST_CIVIC_UNREST');
   });

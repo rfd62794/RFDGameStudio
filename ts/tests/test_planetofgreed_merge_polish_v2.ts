@@ -256,8 +256,8 @@ describe('test_confirm_and_change_both_work', () => {
 });
 
 describe('test_population_balance_triggers_defined', () => {
-  it('Civic Unrest Focus raises Population Balance by +8', () => {
-    expect(appSource).toContain("applyPublicOpinionOffset(updatedCells[cellIndex], 8)");
+  it('Civic Unrest Focus raises Population Balance (per-House via playerStats.unrestBoost)', () => {
+    expect(appSource).toContain("playerStats.unrestBoost");
   });
 
   it('Civic Production Focus lowers Population Balance by -2', () => {
