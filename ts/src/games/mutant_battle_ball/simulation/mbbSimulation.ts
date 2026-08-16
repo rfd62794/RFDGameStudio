@@ -157,7 +157,7 @@ interface Agent {
   stunTimer: number;
   mutantId: string;
   // sportsSim integration fields — used by DisposalSystem and future
-  // UniversalDecisionSystem/CombatSystem integrations
+  // decision-system/combat-system integrations
   playerStats: PlayerStats;              // Mapped from MBB's 4 stats + cyber-organic lean
   distanceCarriedWithoutTouch: number;   // AFL 15m anti-camping tracker
   tackledTicks: number;                  // Ticks under active tackle pressure
@@ -463,10 +463,12 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
   // Cooldown: don't dispose if recently disposed (prevents spam)
   if (carrier.disposalCooldownTicks > 0) return null;
 
-  // Don't dispose if close to the end zone — prioritize scoring
-  const inEndZone = (st.possession === 'player' && carrier.x > courtW - ezDepth * 2) ||
-                    (st.possession === 'opponent' && carrier.x < ezDepth * 2);
-  if (inEndZone) return null;
+  // Don't dispose if close to the end zone — prioritize scoring.
+  // Uses 3x end zone depth to give a wide "scoring range" where the
+  // carrier keeps running instead of disposing.
+  const inScoringRange = (st.possession === 'player' && carrier.x > courtW - ezDepth * 3) ||
+                         (st.possession === 'opponent' && carrier.x < ezDepth * 3);
+  if (inScoringRange) return null;
 
   // 1. Anti-camping: must touch-bounce if approaching carry limit
   if (carrier.distanceCarriedWithoutTouch >= rules.maxCarryDistanceWithoutTouch * 0.85) {

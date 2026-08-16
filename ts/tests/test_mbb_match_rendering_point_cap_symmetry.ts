@@ -294,6 +294,8 @@ describe('test_point_cap_ends_match_immediately', () => {
     while (!matchEnded && ticks < maxTicks) {
       const ms = sim.tickMatch(1 / 60);
       ticks++;
+      // Auto-resume from substitution pauses (test has no UI to sub)
+      if (ms.state === 'paused_sub') sim.resumeMatch();
       for (const ev of ms.events) {
         if (ev['type'] === 'match_ended') {
           matchEnded = true;
@@ -335,6 +337,8 @@ describe('test_point_cap_ends_match_immediately', () => {
     while (!capEvent && ticks < 10000) {
       const ms = sim.tickMatch(1 / 60);
       ticks++;
+      // Auto-resume from substitution pauses (test has no UI to sub)
+      if (ms.state === 'paused_sub') sim.resumeMatch();
       for (const ev of ms.events) {
         if (ev['type'] === 'match_ended' && ev['reason'] === 'point_cap') {
           capEvent = ev;

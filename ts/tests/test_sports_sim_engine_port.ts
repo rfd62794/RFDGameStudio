@@ -275,11 +275,11 @@ describe('test_mbb_sports_sim_wiring', () => {
     );
     if (existsSync(mbbSimPath)) {
       const simSrc = readFileSync(mbbSimPath, 'utf-8');
-      // Ball type and BallSystem are now imported (integration phase)
+      // Ball type, BallSystem, and DisposalSystem are now imported (integration phase)
       expect(simSrc).toContain('sportsSim');
       expect(simSrc).toContain('BallSystem');
-      // DisposalSystem and UniversalDecisionSystem are still deferred
-      expect(simSrc).not.toContain('DisposalSystem');
+      expect(simSrc).toContain('DisposalSystem');
+      // UniversalDecisionSystem is still deferred (next phase)
       expect(simSrc).not.toContain('UniversalDecisionSystem');
     }
   });
