@@ -4,7 +4,6 @@ import {
   clearCache,
   getCacheStats,
   resetCacheStats,
-  HUNGER_BANDS,
   type CreatureCacheKey,
 } from '../src/games/shoal/art/pathCache';
 

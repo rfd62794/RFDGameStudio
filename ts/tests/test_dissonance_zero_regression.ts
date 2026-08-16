@@ -6,7 +6,6 @@ import {
   generateCardSVG,
   generateRelicSVG,
   generateEnemySVG,
-  generateAllSVGs,
   buildIdManifest,
   loadDissonanceData,
 } from '../src/games/dissonance/art/dissonanceGenerator';

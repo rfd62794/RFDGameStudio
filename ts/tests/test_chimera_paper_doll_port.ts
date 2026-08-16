@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
 
 import type { Part, PartsBySlot, BrandId, QualityTier } from '../src/engine/shared/partSlots';
 import {
@@ -23,12 +22,6 @@ import {
   CHIMERA_BRANDS,
   CHIMERA_QUALITY_TIERS,
   PRESET_CREATURES,
-} from '../src/engine/paperDoll';
-import type {
-  CreatureConfig,
-  BodyArchetype,
-  FacingDirection,
-  AnimationType,
 } from '../src/engine/paperDoll';
 
 const __filename = fileURLToPath(import.meta.url);

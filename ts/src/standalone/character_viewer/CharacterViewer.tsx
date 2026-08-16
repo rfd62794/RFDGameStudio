@@ -30,7 +30,7 @@ import { Panel, Card, Button, Badge } from '../../ui/components';
 
 // ── Types ────────────────────────────────────────────────────────────
 
-type PrimitiveType = 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge' | 'ellipse';
+type PrimitiveType = 'polygon' | 'radialBurst' | 'teardropFin' | 'irregularFragment' | 'sigmoidBulge' | 'ellipse' | 'strokeSkeleton';
 
 interface ViewerConfig {
   id: string;
@@ -170,9 +170,12 @@ const PRIMITIVE_PARAMS: Record<PrimitiveType, Array<{ key: string; label: string
     { key: 'rx', label: 'Radius X', min: 3, max: 40, step: 1 },
     { key: 'ry', label: 'Radius Y', min: 3, max: 40, step: 1 },
   ],
+  strokeSkeleton: [
+    { key: 'strokeWidth', label: 'Stroke Width', min: 2, max: 20, step: 1 },
+  ],
 };
 
-const PRIMITIVE_OPTIONS: PrimitiveType[] = ['polygon', 'radialBurst', 'teardropFin', 'irregularFragment', 'sigmoidBulge', 'ellipse'];
+const PRIMITIVE_OPTIONS: PrimitiveType[] = ['polygon', 'radialBurst', 'teardropFin', 'irregularFragment', 'sigmoidBulge', 'ellipse', 'strokeSkeleton'];
 
 const COLOR_PRESETS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6b7280', '#1e293b', '#37474f', '#558b2f', '#8d6e63', '#6d4c41'];
 

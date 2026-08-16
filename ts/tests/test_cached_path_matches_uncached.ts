@@ -4,11 +4,9 @@ import {
   clearCache,
   getCacheStats,
   resetCacheStats,
-  HUNGER_BANDS,
   type CreatureCacheKey,
 } from '../src/games/shoal/art/pathCache';
-import { canvasTeardropFinPath } from '../src/engine/artGen/shapes';
-import { buildTeardropFinSpec, ageStageFromCreature } from '../src/games/shoal/art/shoal.config';
+import { buildTeardropFinSpec } from '../src/games/shoal/art/shoal.config';
 
 /**
  * test_cached_path_matches_uncached
@@ -24,7 +22,7 @@ import { buildTeardropFinSpec, ageStageFromCreature } from '../src/games/shoal/a
  */
 
 // Helper: render a Path2D to an offscreen canvas and return pixel data
-function renderPathToPixels(
+function _renderPathToPixels(
   drawFn: (ctx: CanvasRenderingContext2D) => void,
   size: number = 100
 ): Uint8ClampedArray {
