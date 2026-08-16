@@ -3,15 +3,12 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadGame, call } from '../src/engine/runtime';
 import {
-  stateToLua, slimeToLua, type LabState, type Slime, type SlimeColor,
+  stateToLua, type LabState, type Slime, type SlimeColor,
 } from '../src/games/slimeworld/types';
 
 const session = loadGame('slimeworld');
 const data = session.files.data as Record<string, unknown>;
 const regionLocks = data['region_locks'] as Array<Record<string, unknown>>;
-const colorTargets = data['color_targets'] as Array<Record<string, unknown>>;
-const shapeTargets = data['shape_targets'] as Array<Record<string, unknown>>;
-const accentTargets = data['accent_targets'] as Array<Record<string, unknown>>;
 
 const appSource = readFileSync(
   resolve(import.meta.dirname, '../src/games/slimeworld/App.tsx'),

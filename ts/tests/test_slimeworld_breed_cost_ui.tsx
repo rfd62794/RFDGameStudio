@@ -56,7 +56,7 @@ function makeState(slimes: Slime[], credits: number): LabState {
     regionUnlocks: {},
     shownTutorials: {},
     startingColor: color,
-  } as LabState;
+  } as unknown as LabState;
 }
 
 describe('SlimeWorld compounding breeding tax UI surfacing', () => {

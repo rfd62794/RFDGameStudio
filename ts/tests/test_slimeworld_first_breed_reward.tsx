@@ -73,7 +73,7 @@ function makeState(startingColor: SlimeColor, activeTargetRegent: string): LabSt
     regionUnlocks: {},
     shownTutorials: {},
     startingColor,
-  } as LabState;
+  } as unknown as LabState;
 }
 
 describe('SlimeWorld post-first-breed reward', () => {

@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { STATUS_BOARD } from '../src/status/board.data';
 import { generateMarkdown } from '../src/status/generateMarkdown';
-import type { ProjectEntry } from '../src/status/types';
 import { getPageId, navigateToPage, getGameId, navigateTo } from '../src/arcade/routing';
 import StatusBoardPage from '../src/pages/StatusBoardPage';
 

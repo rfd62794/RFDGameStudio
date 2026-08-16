@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadGame, call } from '../src/engine/runtime';
-import { stateToLua, type LabState, type Slime, type SlimeColor } from '../src/games/slimeworld/types';
+import { stateToLua, type LabState, type SlimeColor } from '../src/games/slimeworld/types';
 import { buildColorSpecs } from '../src/games/slimeworld/App';
 
 const session = loadGame('slimeworld');
