@@ -23,6 +23,7 @@ const EXPECTED_ORDER = [
   'gladiator_arena',
   'voiddrift_redux',
   'succession',
+  'house_of_kings_collab',
   'character_viewer',
   'technique_showcase',
 ];
