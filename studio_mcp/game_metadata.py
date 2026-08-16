@@ -45,6 +45,9 @@ GAME_PATHS: dict[str, list[str]] = {
     "kingmaker_squads": ["ts/src/games/kingmaker_squads", "examples/kingmaker-squads"],
     "antsim_redux": ["ts/src/games/antsim_redux", "examples/antsim-redux"],
     "facility_escape": ["ts/src/games/facility_escape", "examples/facility-escape"],
+    "house_of_kings_collab": ["ts/src/games/house_of_kings_collab"],
+    "voiddrift_redux": ["ts/src/games/voiddrift_redux"],
+    "succession": ["ts/src/games/succession"],
 }
 
 
