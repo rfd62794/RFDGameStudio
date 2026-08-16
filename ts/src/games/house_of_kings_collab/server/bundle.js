@@ -249694,7 +249694,7 @@ var distPath = import_path2.default.join(process.cwd(), "dist");
 if (import_fs2.default.existsSync(distPath)) {
   app.use(import_express7.default.static(distPath));
 }
-app.get("*", (_req, res) => {
+app.get("/*", (_req, res) => {
   const indexPath = import_path2.default.join(distPath, "index.html");
   if (import_fs2.default.existsSync(indexPath)) {
     res.sendFile(indexPath);
