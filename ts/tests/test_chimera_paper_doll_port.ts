@@ -34,6 +34,12 @@ import type {
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
 
+const mbbSimDir = resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation');
+function readMbbSimSources(): string {
+  const modules = ['mbbSimulation.ts', 'mbbConfig.ts', 'mbbMath.ts', 'mbbSteering.ts', 'mbbAgent.ts', 'mbbCombat.ts', 'mbbDisposal.ts', 'mbbRender.ts', 'mbbTick.ts'];
+  return modules.map(f => readFileSync(resolve(mbbSimDir, f), 'utf-8')).join('\n');
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function makePart(overrides: Partial<Part> & { id: string; slot: Part['slot'] }): Part {
@@ -244,10 +250,7 @@ describe('test_data_model_reconciled', () => {
 
 describe('test_collision_confirmed_abstract', () => {
   it('mbbSimulation.ts has no import of paperDoll or any rendering module', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     expect(simSrc).not.toContain('paperDoll');
     expect(simSrc).not.toContain('PaperDoll');
     expect(simSrc).not.toContain('SvgCreatureRenderer');
@@ -256,10 +259,7 @@ describe('test_collision_confirmed_abstract', () => {
   });
 
   it('resolveTackle uses position/radius, not rendered shape', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     // Must have distance-based tackle check
     expect(simSrc).toMatch(/distance\s*\(.*\.x.*\.y.*\.x.*\.y\)/);
     // Must have a fixed tackle radius
@@ -267,18 +267,12 @@ describe('test_collision_confirmed_abstract', () => {
   });
 
   it('resolveBlock uses position/radius, not rendered shape', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     expect(simSrc).toMatch(/blockR|block.*radius/i);
   });
 
   it('collision constants are fixed numbers, not derived from visual geometry', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     // The tackle/block radii must be literal numbers, not computed from parts
     expect(simSrc).toMatch(/6\.0|6\b/);
     expect(simSrc).toMatch(/7\.0|7\b/);
@@ -291,10 +285,7 @@ describe('test_collision_confirmed_abstract', () => {
 
 describe('test_collision_still_abstract_post_port', () => {
   it('the port did not add any rendering import to mbbSimulation.ts', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     // Double-check: no rendering imports were added by the port
     const importLines = simSrc.split('\n').filter(l => l.trim().startsWith('import'));
     for (const line of importLines) {
@@ -310,10 +301,7 @@ describe('test_collision_still_abstract_post_port', () => {
     // collision constants. A later directive (point cap) did modify
     // mbbSimulation.ts, but only to add point_cap — not to change collision.
     // Verify collision constants are still the original values.
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     // Collision constants must still be the original values
     expect(simSrc).toContain('tackle_range: 6.0');
     expect(simSrc).toContain('block_range: 7.0');
@@ -323,10 +311,7 @@ describe('test_collision_still_abstract_post_port', () => {
   });
 
   it('Brand stat modifiers still come from brandModifiers.ts, not visual geometry', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     // Stat modifiers must still come from brandModifiers, not from rendering
     expect(simSrc).toContain('brandModifiers');
     expect(simSrc).toContain('getEffectivePartStats');
