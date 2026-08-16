@@ -1572,7 +1572,7 @@ export default function App({ session }: GameRendererProps) {
       />
 
       {/* MAIN BOARDROOM CODESPACE WITH XCOM-STYLE TACTICAL TRANSITION */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div className="flex-1 flex flex-col relative">
         <AnimatePresence mode="wait">
           {gameState.currentCombatInView ? (
             /* SPECIAL LAYER: MONTH-END COMBAT EXECUTOR */
@@ -1630,7 +1630,7 @@ export default function App({ session }: GameRendererProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch overflow-hidden"
+              className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch"
             >
               {/* Left Column (4/12): Weekly Directives / Order controls */}
               <section className="lg:col-span-4 flex flex-col gap-4">

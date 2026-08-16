@@ -58,11 +58,12 @@ describe('test_treasury_negative_path_traced', () => {
   });
 
   it('Order processing checks affordability before deducting (not the cause)', () => {
-    // The order processing at line 525 checks:
-    // if (playerCorp.treasury < totalOrderCost) { block }
-    // This is NOT the cause — expand orders are free.
-    expect(appSource).toContain('playerCorp.treasury < totalOrderCost');
-    // Expand is not in the cost list
+    // The order processing now uses per-order cost checking with partial
+    // processing — unaffordable orders are downgraded to hold instead of
+    // blocking all orders. This is NOT the cause — expand orders are free.
+    expect(appSource).toContain('remainingBudget');
+    expect(appSource).toContain('downgraded to Hold');
+    // Expand cost is checked via orderCost helper, not a hardcoded block
     const costList = appSource.match(/if \(order\.type === 'reinforce'\).*?if \(order\.type === 'civic' && order\.focus === 'unrest'\)/s);
     expect(costList).toBeTruthy();
     expect(costList![0]).not.toContain("expand");
