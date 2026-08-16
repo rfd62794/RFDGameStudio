@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import {
   signInWithPopup,
-  signInAnonymously,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 import {
@@ -14,16 +11,12 @@ import {
   ShieldCheck,
   Crown,
   LogIn,
-  UserCheck,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
   TrendingUp,
   Clock,
   Lock,
-  Mail,
-  KeyRound,
-  UserPlus,
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -33,10 +26,6 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -46,61 +35,8 @@ export const LandingPage: React.FC<LandingPageProps> = () => {
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setError(
-        err.message || 'Google Sign-In was interrupted or blocked in this browser frame. Use Guest or Email Sign-In below.'
+        err.message || 'Google Sign-In was interrupted or blocked in this browser frame. Please try again.'
       );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGuestSignIn = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await signInAnonymously(auth);
-    } catch (err: any) {
-      console.error('Guest sign in error:', err);
-      if (
-        err.code === 'auth/admin-restricted-operation' ||
-        err.message?.includes('admin-restricted-operation')
-      ) {
-        setError(
-          'Anonymous guest sign-in is restricted in Firebase Console. Please use Email Sign-In below.'
-        );
-        setShowEmailForm(true);
-      } else {
-        setError(err.message || 'Guest Sign-In failed.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError('Please provide both email and password.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (err: any) {
-      console.error('Email auth error:', err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        setError('Account not found or password incorrect. You can switch to "Create New Account" below.');
-      } else if (err.code === 'auth/email-already-in-use') {
-        setError('An account with this email already exists. Switching to Sign In.');
-        setIsRegistering(false);
-      } else {
-        setError(err.message || 'Authentication failed.');
-      }
     } finally {
       setLoading(false);
     }
@@ -145,111 +81,25 @@ export const LandingPage: React.FC<LandingPageProps> = () => {
             </div>
           )}
 
-          {/* Action CTAs & Email Form */}
-          {!showEmailForm ? (
-            <div className="space-y-3 pt-2">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <button
-                  onClick={handleGuestSignIn}
-                  disabled={loading}
-                  className="px-6 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-amber-500/20 cursor-pointer disabled:opacity-50 text-sm sm:text-base"
-                >
-                  <UserCheck className="w-5 h-5" />
-                  <span>Enter Kingdom as Guest Lord</span>
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </button>
-
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                  className="px-6 py-4 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-semibold rounded-2xl transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 text-sm sm:text-base"
-                >
-                  <LogIn className="w-5 h-5 text-amber-400" />
-                  <span>Sign In with Google</span>
-                </button>
-
-                <button
-                  onClick={() => setShowEmailForm(true)}
-                  className="px-5 py-4 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-medium rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
-                >
-                  <Mail className="w-4 h-4 text-amber-400" />
-                  <span>Email Account</span>
-                </button>
-              </div>
-
-              <p className="text-xs text-slate-400 flex items-center gap-1.5 pt-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                Instant access available. Progress persists to Firebase Firestore.
-              </p>
+          {/* Action CTA — Google sign-in only */}
+          <div className="space-y-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="px-6 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-amber-500/20 cursor-pointer disabled:opacity-50 text-sm sm:text-base"
+              >
+                <LogIn className="w-5 h-5" />
+                <span>Sign In with Google</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </button>
             </div>
-          ) : (
-            <form onSubmit={handleEmailAuth} className="bg-slate-950/80 border border-slate-800 p-6 rounded-2xl max-w-md space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-amber-200 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-amber-400" />
-                  {isRegistering ? 'Register New Lord Account' : 'Lord Sign In'}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowEmailForm(false)}
-                  className="text-xs text-slate-400 hover:text-slate-200 underline"
-                >
-                  Cancel
-                </button>
-              </div>
 
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-slate-400 mb-1">Email Address</label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="lord@houseofkings.com"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-500"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 mb-1">Password</label>
-                  <div className="relative">
-                    <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-500"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer"
-                >
-                  {isRegistering ? <UserPlus className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
-                  <span>{isRegistering ? 'Create Lord Account' : 'Sign In as Lord'}</span>
-                </button>
-
-                <div className="text-center pt-2 border-t border-slate-900">
-                  <button
-                    type="button"
-                    onClick={() => setIsRegistering(!isRegistering)}
-                    className="text-xs text-amber-400 hover:text-amber-300 underline cursor-pointer"
-                  >
-                    {isRegistering ? 'Already have an account? Sign In' : 'Need an account? Register Here'}
-                  </button>
-                </div>
-              </div>
-            </form>
-          )}
+            <p className="text-xs text-slate-400 flex items-center gap-1.5 pt-1">
+              <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              A Google account is required. Progress persists to Firebase Firestore.
+            </p>
+          </div>
         </div>
       </div>
 

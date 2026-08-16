@@ -22,6 +22,13 @@ export async function verifyAuth(
   try {
     const auth = getAdminAuth();
     const decoded = await auth.verifyIdToken(idToken);
+    // Enforce Google account requirement — reject anonymous and other providers
+    const provider = decoded.firebase?.sign_in_provider;
+    if (provider !== 'google.com') {
+      return res.status(403).json({
+        error: 'A Google account is required to play. Please sign in with Google.',
+      });
+    }
     req.verifiedUid = decoded.uid; // The ONLY source of truth for identity
     req.verifiedEmail = decoded.email;
     req.idToken = idToken;

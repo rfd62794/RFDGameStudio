@@ -247435,6 +247435,12 @@ async function verifyAuth(req, res, next) {
   try {
     const auth = getAdminAuth();
     const decoded = await auth.verifyIdToken(idToken);
+    const provider = decoded.firebase?.sign_in_provider;
+    if (provider !== "google.com") {
+      return res.status(403).json({
+        error: "A Google account is required to play. Please sign in with Google."
+      });
+    }
     req.verifiedUid = decoded.uid;
     req.verifiedEmail = decoded.email;
     req.idToken = idToken;
