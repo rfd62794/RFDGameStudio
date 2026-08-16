@@ -46,25 +46,35 @@ export function mapToPlayerStats(
   const lean = cyberOrganicLean ?? 50;
   const organicRatio = 1 - (lean / 100); // MBB: 0=organic/100=cyber → sportsSim: 0=mech/1=organic
 
+  // Combat stat normalization: MBB's calculateStats sums across 6 parts,
+  // producing stats in the 300+ range. CombatSystem expects 0-100 (per
+  // types.ts comments and constants.ts player templates). We divide
+  // combat-relevant stats by PART_SLOTS.length (6) to get per-part
+  // averages in the expected range. Disposal stats (kickSkill, etc.) are
+  // left un-normalized because DisposalSystem was already calibrated for
+  // MBB's summed stats.
+  const combatNormalize = 6; // PART_SLOTS.length
+
   return {
     speed: mbbStats.speed,
-    strength: mbbStats.power,
-    toughness: mbbStats.endurance,
+    strength: mbbStats.power / combatNormalize,
+    toughness: mbbStats.endurance / combatNormalize,
 
     // Cyber-organic derived
-    cyberArmor: (lean / 100) * mbbStats.endurance, // More cyber = more armor, scaled by endurance
+    cyberArmor: ((lean / 100) * mbbStats.endurance) / combatNormalize,
     organicRatio,
 
-    // Accuracy-derived disposal skills
+    // Accuracy-derived disposal skills (NOT normalized — DisposalSystem
+    // was calibrated for MBB's summed stats)
     kickSkill: mbbStats.accuracy,
-    handballSkill: mbbStats.accuracy * 1.1, // Handball is slightly easier than kick
-    markingSkill: mbbStats.accuracy * 0.9,  // Marking is slightly harder (contested)
+    handballSkill: mbbStats.accuracy * 1.1,
+    markingSkill: mbbStats.accuracy * 0.9,
 
-    // Athleticism-derived
+    // Athleticism-derived (NOT normalized — used by DisposalSystem)
     jumpReach: mbbStats.speed * 0.5 + mbbStats.power * 0.3,
 
-    // Power-derived playstyle
-    aggression: mbbStats.power * 0.6 + 30, // Baseline 30 + power contribution
+    // Power-derived playstyle (normalized for CombatSystem)
+    aggression: (mbbStats.power * 0.6 + 30) / combatNormalize,
   };
 }
 
