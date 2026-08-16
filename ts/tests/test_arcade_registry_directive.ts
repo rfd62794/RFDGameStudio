@@ -20,6 +20,7 @@ const EXPECTED_ORDER = [
   'antsim_redux',
   'facility_escape',
   'planetofgreed',
+  'gladiator_arena',
   'character_viewer',
   'technique_showcase',
 ];
