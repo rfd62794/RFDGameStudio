@@ -7,7 +7,7 @@
  */
 
 import { ActionScore, ActionType, Gladiator } from '../types';
-import { calculateCompatibility, getGladiatorAnatomySummary } from '../../engine/shared/anatomy';
+import { calculateCompatibility, getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 
 export interface DecisionContext {
   actor: Gladiator;

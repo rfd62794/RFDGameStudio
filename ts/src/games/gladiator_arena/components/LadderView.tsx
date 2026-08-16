@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { ArenaOpponent, ArenaTier, Gladiator } from '../types';
 import { ARENA_TIERS } from '../simulation/championLadder';
-import { getGladiatorAnatomySummary } from '../../engine/shared/anatomy';
+import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { 
   Trophy, 

@@ -7,7 +7,7 @@
 
 import { BodyPart, BodySlot, CompatibilityReport, Gladiator } from '../types';
 import { SHOP_PART_CATALOG, STARTER_PARTS } from '../data/defaultParts';
-import { calculateCompatibility } from '../../engine/shared/anatomy';
+import { calculateCompatibility } from '../../../engine/shared/anatomy';
 
 /**
  * Calculates compounding cost for purchasing an additional Frame chassis

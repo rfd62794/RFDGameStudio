@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Gladiator } from '../types';
-import { calculateCompatibility } from '../../engine/shared/anatomy';
+import { calculateCompatibility } from '../../../engine/shared/anatomy';
 import { Dna, Zap, Cpu, AlertTriangle, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface CompatibilityInspectorProps {

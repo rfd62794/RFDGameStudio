@@ -229,7 +229,6 @@ export function applyDamageToSlot(
 
   const previousHp = targetPart.currentHp;
   const newPartHp = Math.max(0, previousHp - actualDamage);
-  const hpLost = previousHp - newPartHp;
 
   targetPart.currentHp = newPartHp;
 

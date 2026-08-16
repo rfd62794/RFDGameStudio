@@ -9,9 +9,9 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { 
   BalanceReport, 
-  TierBalanceSummary, 
+  
   runBalanceSimulation, 
-  buildTestGladiator,
+  
   CareerProgressionReport,
   runCareerProgressionSimulation,
   runMultiArchetypeBenchmark
@@ -21,19 +21,19 @@ import {
   Play, 
   RotateCw, 
   CheckCircle2, 
-  AlertTriangle, 
+  
   BarChart3, 
   Shield, 
   Zap, 
-  Flame, 
+  
   Sparkles, 
   ShoppingBag, 
   Users, 
   X,
   Layers,
-  ChevronRight,
-  TrendingDown,
-  Info,
+  
+  
+  
   TrendingUp,
   Coins,
   HeartPulse,

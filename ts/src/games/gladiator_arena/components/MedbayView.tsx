@@ -8,7 +8,7 @@ import { useGame } from '../context/GameContext';
 import { BodySlot, Gladiator } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { calculateSurgeryCosts } from '../simulation/forgeEconomy';
-import { getGladiatorAnatomySummary } from '../../engine/shared/anatomy';
+import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { 
   HeartPulse, 
   Sparkles, 

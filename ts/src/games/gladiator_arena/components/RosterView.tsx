@@ -8,7 +8,7 @@ import { BodyPart, BodySlot, Gladiator } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { CompatibilityInspector } from './CompatibilityInspector';
 import { calculateEffectiveStats } from '../simulation/combatEngine';
-import { getGladiatorAnatomySummary } from '../../engine/shared/anatomy';
+import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { getPartScrapValue } from '../simulation/forgeEconomy';
 import { 
   Users, 

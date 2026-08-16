@@ -14,7 +14,7 @@ import {
   getGladiatorAnatomySummary,
   rollHitSlot,
   rollMalfunction,
-} from '../../engine/shared/anatomy';
+} from '../../../engine/shared/anatomy';
 
 /**
  * Initializes a new Bout State for 1v1 Solo or Tag-Team Squad matches

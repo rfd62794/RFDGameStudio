@@ -4,9 +4,9 @@
  */
 
 import React from 'react';
-import { BodyPart, BodySlot, Gladiator } from '../types';
-import { calculatePartEfficiency } from '../../engine/shared/anatomy';
-import { Shield, Zap, Dna, Cpu, AlertTriangle, Sparkles, HeartCrack } from 'lucide-react';
+import { BodySlot, Gladiator } from '../types';
+import { calculatePartEfficiency } from '../../../engine/shared/anatomy';
+import { Zap, Dna, Cpu, HeartCrack } from 'lucide-react';
 
 interface AnatomyPaperDollProps {
   gladiator: Gladiator;

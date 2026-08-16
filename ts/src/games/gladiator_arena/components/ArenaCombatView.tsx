@@ -6,17 +6,17 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { BodyPart, Gladiator } from '../types';
+import { BodyPart } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { StickFighter, FighterPose } from './StickFighter';
-import { getGladiatorAnatomySummary } from '../../engine/shared/anatomy';
+import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { 
   Swords, 
   Shield, 
   Zap, 
   Flame, 
   HeartCrack, 
-  RotateCw, 
+  
   Play, 
   Pause, 
   FastForward, 
@@ -26,7 +26,7 @@ import {
   Coins, 
   Sparkles, 
   Users, 
-  Activity, 
+  
   ArrowLeft,
   MessageSquare
 } from 'lucide-react';

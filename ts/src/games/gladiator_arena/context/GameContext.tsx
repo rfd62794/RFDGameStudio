@@ -9,7 +9,7 @@ import { ArenaOpponent, BodyPart, BodySlot, BoutState, Gladiator } from '../type
 import { STARTER_PARTS } from '../data/defaultParts';
 import { calculateSurgeryCosts, createNewFrameGladiator, generateShopInventory, getNextFrameCost, getPartScrapValue } from '../simulation/forgeEconomy';
 import { executeNextCombatTurn, initializeBout } from '../simulation/combatEngine';
-import { getGladiatorAnatomySummary } from '../../engine/shared/anatomy';
+import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { ARENA_TIERS } from '../simulation/championLadder';
 import { sound } from '../utils/soundEffects';
 
