@@ -60,6 +60,8 @@ export interface OnboardingGateOptions {
   savedShownIds?: Record<string, boolean>;
 }
 
+export function useOnboardingGate(options: { mode: 'boolean'; initialShow?: boolean }): BooleanGateResult;
+export function useOnboardingGate(options: { mode: 'id-tracked'; allIds?: string[]; isResuming?: boolean; savedShownIds?: Record<string, boolean> }): IdTrackedGateResult;
 export function useOnboardingGate(options: OnboardingGateOptions): BooleanGateResult | IdTrackedGateResult {
   if (options.mode === 'boolean') {
     return useBooleanGate(options.initialShow ?? false);
@@ -129,11 +131,10 @@ function useIdTrackedGate(
  */
 interface OnboardingGateProps {
   active: boolean;
-  onComplete: () => void;
   children: ReactNode;
 }
 
-export function OnboardingGate({ active, onComplete, children }: OnboardingGateProps) {
+export function OnboardingGate({ active, children }: OnboardingGateProps) {
   if (!active) return null;
   return <>{children}</>;
 }
