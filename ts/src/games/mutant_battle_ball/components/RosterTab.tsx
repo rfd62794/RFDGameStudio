@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Card } from '../../../ui/components';
 import { PaperDoll } from '../../../engine/paperDoll';
 import type { MBBGameState } from '../types';
@@ -12,7 +11,7 @@ interface RosterTabProps {
   onStartMatch: () => void;
 }
 
-export default function RosterTab({ state, setState, session, call, opponent, onStartMatch }: RosterTabProps) {
+export default function RosterTab({ state, setState: _setState, session: _session, call: _call, opponent: _opponent, onStartMatch }: RosterTabProps) {
   return (
     <div className="roster-tab">
       <h2>Roster</h2>

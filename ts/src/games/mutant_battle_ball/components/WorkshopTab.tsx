@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
 import { PaperDoll } from '../../../engine/paperDoll';
 import type { MBBGameState } from '../types';

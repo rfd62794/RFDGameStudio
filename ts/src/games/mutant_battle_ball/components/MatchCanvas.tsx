@@ -60,8 +60,6 @@ interface MatchCanvasProps {
   session: unknown;
   sim: MbbSimulation;
   isActive: boolean;
-  state: unknown;
-  setState: (fn: (prev: unknown) => unknown) => void;
   onMatchEnd: (finalState: MatchState) => void;
   playerRoster: Mutant[];
   opponentMutants: Array<Record<string, unknown>>;

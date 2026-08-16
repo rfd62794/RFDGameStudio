@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Card, Badge } from '../../../ui/components';
 import type { MBBGameState } from '../types';
 import type { Part, BrandId, QualityTier } from '../../../engine/shared/partSlots';

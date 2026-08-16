@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { GameShell, TabManager } from '../../components';
 import { Badge, MoreGamesByMe } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
@@ -81,7 +81,6 @@ export default function App({ session }: GameRendererProps) {
   const [showTitle, setShowTitle] = useState(true);
   const [activeTab, setActiveTab] = useState('roster');
 
-  const [matchState, setMatchState] = useState<MatchState | null>(null);
   const [inMatch, setInMatch] = useState(false);
   const currentOpponentMutantsRef = useRef<Array<Record<string, unknown>>>([]);
 
@@ -108,7 +107,7 @@ export default function App({ session }: GameRendererProps) {
     simRef.current.initMatch(
       squadMutants as unknown as Parameters<MbbSimulation['initMatch']>[0],
       opponentMutants as unknown as Parameters<MbbSimulation['initMatch']>[1],
-      data as Parameters<MbbSimulation['initMatch']>[2],
+      data as unknown as Parameters<MbbSimulation['initMatch']>[2],
     );
     setInMatch(true);
     setActiveTab('match');
@@ -118,7 +117,6 @@ export default function App({ session }: GameRendererProps) {
     if (!state) return;
     const data = session.files.data as Record<string, unknown>;
     const opponents = data['opponents'] as Array<Record<string, unknown>>;
-    const opponent = opponents?.[state.currentOpponentIdx];
     const won = finalState.scorePlayer > finalState.scoreOpponent;
     const scoring = data['scoring'] as Record<string, number> ?? {};
     const ironEarned = (won ? (scoring['iron_per_win'] ?? 60) : (scoring['iron_per_loss'] ?? 25))
@@ -140,7 +138,6 @@ export default function App({ session }: GameRendererProps) {
       };
     });
     setInMatch(false);
-    setMatchState(null);
   }, [state, setState]);
 
   if (showTitle) {
@@ -203,6 +200,13 @@ export default function App({ session }: GameRendererProps) {
   // directly instead.
   const noopCall = (_fn: string, ..._args: unknown[]): unknown => undefined;
 
+  // Adapter: useGameState returns Dispatch<SetStateAction<MBBGameState | null>>,
+  // but child tabs expect (fn: (prev: MBBGameState) => MBBGameState) => void.
+  // This wrapper narrows the null away (state is guaranteed non-null here).
+  const setGameState = useCallback((fn: (prev: MBBGameState) => MBBGameState) => {
+    setState(prev => (prev ? fn(prev) : prev));
+  }, [setState]);
+
   return (
     <GameShell
       gameLabel="MUTANT BATTLE BALL"
@@ -224,13 +228,13 @@ export default function App({ session }: GameRendererProps) {
     >
       <TabManager tabs={TABS} active={activeTab} onChange={setActiveTab}>
         {activeTab === 'roster' && (
-          <RosterTab state={state} setState={setState}
+          <RosterTab state={state} setState={setGameState}
                      session={session} call={noopCall}
                      opponent={opponent}
                      onStartMatch={handleStartMatch} />
         )}
         {activeTab === 'workshop' && (
-          <WorkshopTab state={state} setState={setState}
+          <WorkshopTab state={state} setState={setGameState}
                        session={session} />
         )}
         {activeTab === 'match' && (
@@ -238,19 +242,17 @@ export default function App({ session }: GameRendererProps) {
             session={session}
             sim={simRef.current}
             isActive={inMatch}
-            state={state}
-            setState={setState}
             onMatchEnd={handleMatchEnd}
             playerRoster={state.roster}
             opponentMutants={currentOpponentMutantsRef.current}
           />
         )}
         {activeTab === 'shop' && (
-          <ShopTab state={state} setState={setState}
+          <ShopTab state={state} setState={setGameState}
                    session={session} />
         )}
         {activeTab === 'infirmary' && (
-          <InfirmaryTab state={state} setState={setState} />
+          <InfirmaryTab state={state} setState={setGameState} />
         )}
       </TabManager>
     </GameShell>
