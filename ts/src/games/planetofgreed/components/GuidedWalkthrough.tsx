@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { MapCell, Corporation, WeeklyOrder, UnitGroup } from '../types';
 import { getDefaultAction, sortRegionsByThreat, getThreatLevel } from '../defaultAction';
 import { REGION_FLAVOR_PREFIXES } from '../flavorText';
+import { getHouseStats } from '../houseStats';
 import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye, AlertTriangle, Swords, Send } from 'lucide-react';
 
 interface GuidedWalkthroughProps {
@@ -237,7 +238,7 @@ export default function GuidedWalkthrough({
           </div>
           <div className="flex flex-col items-end gap-0.5 text-[9px] font-mono">
             <span className="text-amber-100/50">Garrison: <span className="text-amber-200 font-bold">{garrison}</span></span>
-            <span className="text-amber-100/50">Fort: <span className="text-amber-200 font-bold">L{currentCell.fortification}/3</span></span>
+            <span className="text-amber-100/50">Fort: <span className="text-amber-200 font-bold">L{currentCell.fortification}/{getHouseStats(playerCorp.cultureId).fortifyMax}</span></span>
             <span className="text-amber-100/50">Opinion: <span className="text-amber-200 font-bold">{opinion}</span></span>
           </div>
         </div>
@@ -283,7 +284,7 @@ export default function GuidedWalkthrough({
             </div>
             <p className="text-[10px] text-amber-100/60 font-serif italic leading-relaxed">
               {activeOrder.type === 'hold' && 'Garrison holds position. Passive production continues.'}
-              {activeOrder.type === 'fortify' && 'Reinforce sector shields. Cost: $20,000.'}
+              {activeOrder.type === 'fortify' && `Reinforce sector shields. Cost: $${getHouseStats(playerCorp.cultureId).fortifyCost.toLocaleString()}.`}
               {activeOrder.type === 'reinforce' && `Speed-recruit a ${activeOrder.type === 'reinforce' ? activeOrder.reinforceType : ''} unit. Cost: $30,000.`}
               {activeOrder.type === 'expand' && (() => {
                 const target = allCells.find(c => c.id === activeOrder.targetCellId);
@@ -356,14 +357,14 @@ export default function GuidedWalkthrough({
           {/* Fortify */}
           <button
             onClick={() => handleSelectCustomAction({ type: 'fortify' })}
-            disabled={currentCell.fortification >= 3 || playerCorp.treasury < 20000}
+            disabled={currentCell.fortification >= getHouseStats(playerCorp.cultureId).fortifyMax || playerCorp.treasury < getHouseStats(playerCorp.cultureId).fortifyCost}
             className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             data-testid="pog-action-fortify"
           >
             <Shield className="w-4 h-4 text-sky-400 shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Fortify ($20k)</span>
-              <span className="text-[9px] text-amber-100/50">+1 Shield level. {currentCell.fortification >= 3 ? '(Max level)' : ''}</span>
+              <span className="font-bold text-xs text-amber-100 uppercase block">Fortify (${(getHouseStats(playerCorp.cultureId).fortifyCost / 1000)}k)</span>
+              <span className="text-[9px] text-amber-100/50">+1 Shield level. {currentCell.fortification >= getHouseStats(playerCorp.cultureId).fortifyMax ? '(Max level)' : ''}</span>
             </div>
           </button>
 

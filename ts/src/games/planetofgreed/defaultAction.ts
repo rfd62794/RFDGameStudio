@@ -1,5 +1,6 @@
 import { MapCell, Corporation, WeeklyOrder, UnitType, UnitGroup } from './types';
 import { getOpposite } from './wheelTopology';
+import { getHouseStats } from './houseStats';
 
 /**
  * Default-action heuristic for the guided per-Region walkthrough.
@@ -14,7 +15,6 @@ import { getOpposite } from './wheelTopology';
  *        Expand=free, Hold=free, Scan=$5k
  */
 
-const COST_FORTIFY = 20000;
 const COST_REINFORCE = 30000;
 const COST_CIVIC_UNREST = 10000;
 
@@ -223,6 +223,9 @@ export function getDefaultAction(
 ): WeeklyOrder {
   const garrison = cell.units.circle + cell.units.square + cell.units.triangle;
   const opinion = cell.publicOpinion ?? 50;
+  const stats = getHouseStats(playerCorp.cultureId);
+  const costFortify = stats.fortifyCost;
+  const fortifyMax = stats.fortifyMax;
 
   // Rule 1: Strong garrison + wheel-opposite rival adjacent → Attack
   if (garrison >= 4) {
@@ -251,8 +254,8 @@ export function getDefaultAction(
   // Rule 3: Opposite rival adjacent + low fort → Fortify
   if (
     isOppositeRivalNeighbor(cell, allCells, corporations, playerCorp) &&
-    cell.fortification < 2 &&
-    playerCorp.treasury >= COST_FORTIFY
+    cell.fortification < fortifyMax &&
+    playerCorp.treasury >= costFortify
   ) {
     return { type: 'fortify' };
   }
@@ -298,7 +301,7 @@ export function getDefaultAction(
   }
 
   // Rule 8: Low fortification + can afford → Fortify
-  if (cell.fortification < 2 && playerCorp.treasury >= COST_FORTIFY) {
+  if (cell.fortification < fortifyMax - 1 && playerCorp.treasury >= costFortify) {
     return { type: 'fortify' };
   }
 

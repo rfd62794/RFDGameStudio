@@ -9,6 +9,7 @@ import { resolveCellCombat } from '../../engine/shared/combat';
 import { selectWeightedNeighbor } from './aiDecisions';
 import { initializeFragments, onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
+import { getHouseStats } from './houseStats';
 
 import BoardroomHeader from '../../engine/shared/components/BoardroomHeader';
 import PlanetMap from '../../engine/shared/components/PlanetMap';
@@ -377,12 +378,17 @@ export default function App({ session }: GameRendererProps) {
     // cultureId. Pure initialization, before any game state exists.
     initializeFragments(freshCorps);
 
-    // Normalize Population Balance to a real, concrete 50 (neutral) on
-    // every cell, including capitals -- mapGenerator.ts's cell literals
-    // don't set this field (read-only this phase), so this is where the
-    // "defaults to 50" guarantee actually becomes real game state.
+    // Normalize Population Balance to a real, concrete value on every cell.
+    // Base opinion is per-House (Marsh 60, Crystal 45, default 50) — derived
+    // from narrative. Each cell is owned by a specific corp at init (capitals),
+    // so we use the owner's culture stats. Unowned cells get the default 50.
     freshCells.forEach(cell => {
-      cell.publicOpinion = 50;
+      if (cell.ownerId) {
+        const owner = freshCorps.find(c => c.id === cell.ownerId);
+        cell.publicOpinion = owner ? getHouseStats(owner.cultureId).baseOpinion : 50;
+      } else {
+        cell.publicOpinion = 50;
+      }
     });
 
     // Initial scouted cells for corporations:
@@ -513,12 +519,14 @@ export default function App({ session }: GameRendererProps) {
     let totalOrderCost = 0;
     const playerCorp = gameState.corporations.find(c => c.id === PLAYER_CORP_ID)!;
 
-    // Validate if player can afford these orders
+    // Validate if player can afford these orders (costs are per-House)
+    const playerStats = getHouseStats(playerCorp.cultureId);
     for (const cellId in gameState.playerOrders) {
       const cellOrders = gameState.playerOrders[Number(cellId)] || [];
       for (const order of cellOrders) {
+        if (order.type === 'expand') totalOrderCost += playerStats.expandCost;
         if (order.type === 'reinforce') totalOrderCost += 30000;
-        if (order.type === 'fortify') totalOrderCost += 20000;
+        if (order.type === 'fortify') totalOrderCost += playerStats.fortifyCost;
         if (order.type === 'scan') totalOrderCost += 5000;
         if (order.type === 'civic' && order.focus === 'defense') totalOrderCost += 10000;
         if (order.type === 'civic' && order.focus === 'unrest') totalOrderCost += 10000;
@@ -560,23 +568,31 @@ export default function App({ session }: GameRendererProps) {
         }
 
         if (order.type === 'expand' && order.targetCellId !== undefined && order.unitsSent) {
+          // Apply House stat: bonus units on Expand (Ember +1)
+          const bonusUnits = playerStats.expandBonusUnits;
+          const finalUnitsSent: UnitGroup = {
+            circle: order.unitsSent.circle + (bonusUnits > 0 && updatedCells[cellIndex].units.circle > order.unitsSent.circle ? Math.min(bonusUnits, updatedCells[cellIndex].units.circle - order.unitsSent.circle) : 0),
+            square: order.unitsSent.square + (bonusUnits > 0 && updatedCells[cellIndex].units.square > order.unitsSent.square ? Math.min(bonusUnits - (order.unitsSent.circle < updatedCells[cellIndex].units.circle ? 1 : 0), updatedCells[cellIndex].units.square - order.unitsSent.square) : 0),
+            triangle: order.unitsSent.triangle,
+          };
           // Deduct units from cell garrison
-          updatedCells[cellIndex].units.circle -= order.unitsSent.circle;
-          updatedCells[cellIndex].units.square -= order.unitsSent.square;
-          updatedCells[cellIndex].units.triangle -= order.unitsSent.triangle;
+          updatedCells[cellIndex].units.circle -= finalUnitsSent.circle;
+          updatedCells[cellIndex].units.square -= finalUnitsSent.square;
+          updatedCells[cellIndex].units.triangle -= finalUnitsSent.triangle;
 
-          // Register Transit (Takes 4 days)
+          // Register Transit (transit days are per-House: Gale 2, Tide 6, default 4)
+          const transitDays = playerStats.transitDays;
           const transitId = `transit-player-${cell.id}-${order.targetCellId}-${Date.now()}-${Math.random()}`;
           updatedTransits.push({
             id: transitId,
             corpId: PLAYER_CORP_ID,
             originCellId: cell.id,
             targetCellId: order.targetCellId,
-            units: order.unitsSent,
-            totalDays: 4,
-            daysLeft: 4
+            units: finalUnitsSent,
+            totalDays: transitDays,
+            daysLeft: transitDays
           });
-          addLog(`Expedition convoy authorized: Deploying ${order.unitsSent.circle + order.unitsSent.square + order.unitsSent.triangle} units from ${cell.name} to Sector ${updatedCells.find(c => c.id === order.targetCellId)?.name}.`, 'info');
+          addLog(`Expedition convoy authorized: Deploying ${finalUnitsSent.circle + finalUnitsSent.square + finalUnitsSent.triangle} units from ${cell.name} to Sector ${updatedCells.find(c => c.id === order.targetCellId)?.name}.`, 'info');
         }
 
         if (order.type === 'reinforce' && order.reinforceType) {
@@ -585,13 +601,13 @@ export default function App({ session }: GameRendererProps) {
         }
 
         if (order.type === 'fortify') {
-          updatedCells[cellIndex].fortification = Math.min(3, updatedCells[cellIndex].fortification + 1);
+          updatedCells[cellIndex].fortification = Math.min(playerStats.fortifyMax, updatedCells[cellIndex].fortification + 1);
           addLog(`Shield structures reinforced to Level ${updatedCells[cellIndex].fortification} in ${cell.name}.`, 'success');
         }
 
         if (order.type === 'civic') {
           if (order.focus === 'defense') {
-            updatedCells[cellIndex].fortification = Math.min(3, updatedCells[cellIndex].fortification + 1);
+            updatedCells[cellIndex].fortification = Math.min(playerStats.fortifyMax, updatedCells[cellIndex].fortification + 1);
             // Population Balance: militarization unsettles civilians (-1).
             applyPublicOpinionOffset(updatedCells[cellIndex], -1);
             addLog(`Civic Defense Focus authorized in ${cell.name}: Shields increased to Level ${updatedCells[cellIndex].fortification}.`, 'success');
@@ -600,7 +616,7 @@ export default function App({ session }: GameRendererProps) {
             applyPublicOpinionOffset(updatedCells[cellIndex], -2);
             addLog(`Civic Production Focus authorized in ${cell.name}: Passive assembly line throughput accelerated.`, 'success');
           } else if (order.focus === 'unrest') {
-            applyPublicOpinionOffset(updatedCells[cellIndex], 8);
+            applyPublicOpinionOffset(updatedCells[cellIndex], playerStats.unrestBoost);
             addLog(`Civic Unrest Focus authorized in ${cell.name}: Investment in the workforce lifts Population Balance to ${updatedCells[cellIndex].publicOpinion}.`, 'success');
           }
         }
@@ -656,6 +672,7 @@ export default function App({ session }: GameRendererProps) {
     for (const corp of corps) {
       if (corp.id === PLAYER_CORP_ID) continue; // Skip player
 
+      const aiStats = getHouseStats(corp.cultureId);
       const ownedCells = cells.filter(c => c.ownerId === corp.id);
       if (ownedCells.length === 0) continue; // Wiped out
 
@@ -665,7 +682,7 @@ export default function App({ session }: GameRendererProps) {
         // Random AI choice weights:
         // 40% chance Expand (if they have units)
         // 20% chance Reinforce (if treasury >= $30k)
-        // 20% chance Fortify (if treasury >= $20k and fortification < 3)
+        // 20% chance Fortify (if treasury >= fortifyCost and fortification < fortifyMax)
         // 20% chance Idle/Hold
         const roll = Math.random();
 
@@ -680,13 +697,14 @@ export default function App({ session }: GameRendererProps) {
           if (targetNeighId === null) continue; // no neighbors, skip this cell
           const targetCell = cells.find(c => c.id === targetNeighId)!;
 
-          // AI sends 1 or 2 units of random types
+          // AI sends 1 or 2 units of random types, + bonus units from House stats
+          const maxSend = 2 + aiStats.expandBonusUnits;
           const sendUnits: UnitGroup = { circle: 0, square: 0, triangle: 0 };
           let unitsAdded = 0;
 
           const unitTypes: UnitType[] = ['circle', 'square', 'triangle'];
           for (const type of unitTypes) {
-            if (cell.units[type] > 0 && unitsAdded < 2) {
+            if (cell.units[type] > 0 && unitsAdded < maxSend) {
               sendUnits[type] = 1;
               cell.units[type]--;
               unitsAdded++;
@@ -700,8 +718,8 @@ export default function App({ session }: GameRendererProps) {
               originCellId: cell.id,
               targetCellId: targetNeighId,
               units: sendUnits,
-              totalDays: 4,
-              daysLeft: 4
+              totalDays: aiStats.transitDays,
+              daysLeft: aiStats.transitDays
             });
             
             // AI also marks target cell as scouted
@@ -716,11 +734,11 @@ export default function App({ session }: GameRendererProps) {
           // Queue reinforcement to spawn at end of week
           const type: UnitType = ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)] as UnitType;
           cell.recruitmentQueue.push({ type, weeksLeft: 1 });
-        } else if (roll < 0.80 && corp.treasury >= 20000 && cell.fortification < 3) {
+        } else if (roll < 0.80 && corp.treasury >= aiStats.fortifyCost && cell.fortification < aiStats.fortifyMax) {
           // AI Fortify
-          corp.treasury -= 20000;
+          corp.treasury -= aiStats.fortifyCost;
           // Increment fortification at end of week
-          cell.fortification = Math.min(3, cell.fortification + 1);
+          cell.fortification = Math.min(aiStats.fortifyMax, cell.fortification + 1);
         } else {
           // AI Idle
           // Maintain garrison, progress passive production
@@ -896,7 +914,8 @@ export default function App({ session }: GameRendererProps) {
           }
         });
 
-        // 3. Collect Weekly Profit: each controlled cell generates $10,000 to owner
+        // 3. Collect Weekly Profit: each controlled cell generates income
+        // to owner (per-House: Tide $12k, default $10k)
         updatedCells.forEach(cell => {
           if (cell.ownerId) {
             const ownerIdx = updatedCorps.findIndex(c => c.id === cell.ownerId);
@@ -905,7 +924,8 @@ export default function App({ session }: GameRendererProps) {
               // no income (workforce strike). Real consequence, not just a
               // number that affects rank.
               if ((cell.publicOpinion ?? 50) >= 30) {
-                updatedCorps[ownerIdx].treasury += 10000;
+                const ownerStats = getHouseStats(updatedCorps[ownerIdx].cultureId);
+                updatedCorps[ownerIdx].treasury += ownerStats.incomePerCell;
               }
             }
           }
@@ -1062,6 +1082,19 @@ export default function App({ session }: GameRendererProps) {
       // time the report is about to be shown.
       if (yearTickReport || isCampaignOverWithElimination) {
         computeRank(updatedCorps, updatedCells);
+
+        // House stat: annual bonus units (Crystal +1 per owned cell).
+        // Applied at Annual Report — a research dividend, bounded and
+        // tied to a specific trigger, not a compounding multiplier.
+        for (const corp of updatedCorps) {
+          const stats = getHouseStats(corp.cultureId);
+          if (stats.annualBonusUnits > 0) {
+            const ownedCells = updatedCells.filter(c => c.ownerId === corp.id);
+            for (const cell of ownedCells) {
+              cell.units[cell.preferredProduction] += stats.annualBonusUnits;
+            }
+          }
+        }
       }
 
       // Phase 3: Rank-1 ending check at every Annual Report (not only the
@@ -1341,6 +1374,18 @@ export default function App({ session }: GameRendererProps) {
       // whenever the report is about to be shown, on top of any
       // displacement recompute already applied above.
       computeRank(updatedCorps, updatedCells);
+
+      // House stat: annual bonus units (same as advanceDay's Annual Report)
+      for (const corp of updatedCorps) {
+        const stats = getHouseStats(corp.cultureId);
+        if (stats.annualBonusUnits > 0) {
+          const ownedCells = updatedCells.filter(c => c.ownerId === corp.id);
+          for (const cell of ownedCells) {
+            cell.units[cell.preferredProduction] += stats.annualBonusUnits;
+          }
+        }
+      }
+
       // Phase 3: Rank-1 ending check, same as advanceDay's Annual Report
       // path. Only fires for the PLAYER reaching Rank 1. If it fires,
       // store the payload and halt cycling (campaignOver already true here,

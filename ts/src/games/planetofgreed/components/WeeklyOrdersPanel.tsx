@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MapCell, Corporation, WeeklyOrder, UnitGroup, UnitType } from '../types';
 import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye } from 'lucide-react';
+import { getHouseStats } from '../houseStats';
 
 interface WeeklyOrdersPanelProps {
   selectedCell: MapCell | null;
@@ -184,6 +185,7 @@ export default function WeeklyOrdersPanel({
 
   const handleAuthorizeSingleOrder = () => {
     setErrorMsg('');
+    const stats = getHouseStats(playerCorp.cultureId);
 
     if (orderType === 'reinforce') {
       if (playerCorp.treasury < 30000) {
@@ -198,12 +200,12 @@ export default function WeeklyOrdersPanel({
     }
 
     if (orderType === 'fortify') {
-      if (selectedCell.fortification >= 3) {
-        setErrorMsg('Fortification level is already at maximum (Level 3).');
+      if (selectedCell.fortification >= stats.fortifyMax) {
+        setErrorMsg(`Fortification level is already at maximum (Level ${stats.fortifyMax}).`);
         return;
       }
-      if (playerCorp.treasury < 20000) {
-        setErrorMsg('Insufficient corporate treasury. Fortification installation requires $20,000.');
+      if (playerCorp.treasury < stats.fortifyCost) {
+        setErrorMsg(`Insufficient corporate treasury. Fortification installation requires $${stats.fortifyCost.toLocaleString()}.`);
         return;
       }
       const order: WeeklyOrder = {
