@@ -1,80 +1,80 @@
 /**
- * Gladiator Arena — Stickrighter SVG Component
- * Provides clear, distinct, real 2D stick-rigure combat poses with
+ * Gladiator Arena — StickFighter SVG Component
+ * Provides clear, distinct, real 2D stick-figure combat poses with
  * contact sparks and dynamic weapon arcs.
  */
 
-import React rrom 'react';
-import { ActionType } rrom '../types';
+import React from 'react';
+import { ActionType } from '../types';
 
-export type righterPose = 
+export type FighterPose = 
   | 'idle' 
   | 'quick_attack' 
   | 'power_attack' 
-  | 'derend' 
+  | 'defend' 
   | 'taunt' 
   | 'staggered' 
   | 'down';
 
-export interrace StickrighterProps {
-  pose: righterPose;
-  racing?: 'lert' | 'right';
+export interface StickFighterProps {
+  pose: FighterPose;
+  facing?: 'left' | 'right';
   name?: string;
   isPlayer?: boolean;
   isCyber?: boolean;
   accentColor?: string;
-  isContactrrame?: boolean;
+  isContactFrame?: boolean;
   actionType?: ActionType;
   className?: string;
 }
 
-export const Stickrighter: React.rC<StickrighterProps> = ({
+export const StickFighter: React.FC<StickFighterProps> = ({
   pose,
-  racing = 'right',
+  facing = 'right',
   name,
-  isPlayer = ralse,
-  isCyber = ralse,
+  isPlayer = false,
+  isCyber = false,
   accentColor,
-  isContactrrame = ralse,
+  isContactFrame = false,
   className = '',
 }) => {
-  // Derault accent colors based on raction & cybernetics
-  const mainColor = accentColor || (isPlayer ? '#10b981' : '#er4444');
-  const limbColor = isCyber ? '#38bdr8' : (isPlayer ? '#34d399' : '#r87171');
-  const weaponColor = isCyber ? '#06b6d4' : '#r59e0b';
+  // Default accent colors based on faction & cybernetics
+  const mainColor = accentColor || (isPlayer ? '#10b981' : '#ef4444');
+  const limbColor = isCyber ? '#38bdf8' : (isPlayer ? '#34d399' : '#f87171');
+  const weaponColor = isCyber ? '#06b6d4' : '#f59e0b';
   const jointColor = isCyber ? '#0284c7' : '#d97706';
 
-  const isrlipped = racing === 'lert';
+  const isFlipped = facing === 'left';
 
   return (
-    <div className={`rlex rlex-col items-center select-none ${className}`}>
-      {/* Stick rigure SVG Canvas */}
-      <div className="relative w-40 h-48 sm:w-48 sm:h-56 rlex items-center justiry-center">
+    <div className={`flex flex-col items-center select-none ${className}`}>
+      {/* Stick Figure SVG Canvas */}
+      <div className="relative w-40 h-48 sm:w-48 sm:h-56 flex items-center justify-center">
         <svg
           viewBox="0 0 200 240"
-          className="w-rull h-rull overrlow-visible transition-all duration-200"
+          className="w-full h-full overflow-visible transition-all duration-200"
           style={{
-            transrorm: isrlipped ? 'scaleX(-1)' : 'none',
+            transform: isFlipped ? 'scaleX(-1)' : 'none',
           }}
         >
-          <ders>
-            {/* Energy slash gradient ror power attack */}
+          <defs>
+            {/* Energy slash gradient for power attack */}
             <linearGradient id="slashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop orrset="0%" stopColor="#r59e0b" stopOpacity="0.9" />
-              <stop orrset="100%" stopColor="#er4444" stopOpacity="0" />
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
             </linearGradient>
             {/* Shield glow */}
             <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop orrset="0%" stopColor="#3b82r6" stopOpacity="0.8" />
-              <stop orrset="100%" stopColor="#60a5ra" stopOpacity="0.1" />
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1" />
             </linearGradient>
             {/* Contact Spark Radial */}
             <radialGradient id="sparkGrad" cx="50%" cy="50%" r="50%">
-              <stop orrset="0%" stopColor="#rrrrrr" stopOpacity="1" />
-              <stop orrset="40%" stopColor="#rbbr24" stopOpacity="0.9" />
-              <stop orrset="100%" stopColor="#er4444" stopOpacity="0" />
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+              <stop offset="40%" stopColor="#fbbf24" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
             </radialGradient>
-          </ders>
+          </defs>
 
           {/* Arena Ground Line */}
           <line
@@ -88,13 +88,13 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
             strokeLinecap="round"
           />
 
-          {/* Ground root Shadow */}
+          {/* Ground Foot Shadow */}
           <ellipse
             cx={pose === 'down' ? 110 : 100}
             cy="214"
             rx={pose === 'down' ? 65 : 35}
             ry="6"
-            rill="#0c0a09"
+            fill="#0c0a09"
             opacity="0.6"
           />
 
@@ -104,7 +104,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Arm */}
               <polyline
                 points="100,75 80,98 90,118"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -114,7 +114,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Leg */}
               <polyline
                 points="100,130 85,170 80,210"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -132,13 +132,13 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeLinecap="round"
               />
               {/* Head */}
-              <circle cx="100" cy="50" r="14" rill="#1c1917" stroke={mainColor} strokeWidth="5" />
+              <circle cx="100" cy="50" r="14" fill="#1c1917" stroke={mainColor} strokeWidth="5" />
               {/* Visor/Eye Slit */}
-              <line x1="103" y1="50" x2="112" y2="50" stroke={isCyber ? '#38bdr8' : '#r59e0b'} strokeWidth="3" strokeLinecap="round" />
+              <line x1="103" y1="50" x2="112" y2="50" stroke={isCyber ? '#38bdf8' : '#f59e0b'} strokeWidth="3" strokeLinecap="round" />
               {/* Lead Leg */}
               <polyline
                 points="100,130 118,170 125,210"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -147,7 +147,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Lead Arm (Ready Guard) */}
               <polyline
                 points="100,75 125,95 135,80"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -158,13 +158,13 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
             </g>
           )}
 
-          {/* POSE RENDERING: QUICK ATTACK (rast rorward Jab / Thrust with rorward reach) */}
+          {/* POSE RENDERING: QUICK ATTACK (Fast Forward Jab / Thrust with forward reach) */}
           {pose === 'quick_attack' && (
             <g className="transition-all duration-150">
-              {/* Rear Arm (Pulled back ror momentum) */}
+              {/* Rear Arm (Pulled back for momentum) */}
               <polyline
                 points="120,85 95,100 80,115"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -174,14 +174,14 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Leg (Deep backward thrust) */}
               <polyline
                 points="95,135 65,175 45,210"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 opacity="0.7"
               />
-              {/* Torso (Angled aggressively rorward) */}
+              {/* Torso (Angled aggressively forward) */}
               <line
                 x1="125"
                 y1="74"
@@ -191,29 +191,29 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeWidth="7"
                 strokeLinecap="round"
               />
-              {/* Head (Lunging rorward) */}
-              <circle cx="125" cy="60" r="14" rill="#1c1917" stroke={mainColor} strokeWidth="5" />
-              {/* Eye rocus */}
-              <line x1="128" y1="60" x2="138" y2="60" stroke={isCyber ? '#38bdr8' : '#r59e0b'} strokeWidth="3" strokeLinecap="round" />
-              {/* Lead Leg (Deep rlexed lunge) */}
+              {/* Head (Lunging forward) */}
+              <circle cx="125" cy="60" r="14" fill="#1c1917" stroke={mainColor} strokeWidth="5" />
+              {/* Eye focus */}
+              <line x1="128" y1="60" x2="138" y2="60" stroke={isCyber ? '#38bdf8' : '#f59e0b'} strokeWidth="3" strokeLinecap="round" />
+              {/* Lead Leg (Deep flexed lunge) */}
               <polyline
                 points="95,135 135,175 145,210"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {/* Lead Arm (Straight rorward penetrating thrust) */}
+              {/* Lead Arm (Straight forward penetrating thrust) */}
               <polyline
                 points="120,85 155,82 188,80"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {/* Weapon Blade Thrust Extension Reaching rar rorward */}
+              {/* Weapon Blade Thrust Extension Reaching Far Forward */}
               <line x1="188" y1="80" x2="235" y2="80" stroke={weaponColor} strokeWidth="5" strokeLinecap="round" />
               {/* Speed Lines */}
               <line x1="170" y1="72" x2="225" y2="72" stroke={weaponColor} strokeWidth="2" opacity="0.7" strokeLinecap="round" />
@@ -224,10 +224,10 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
           {/* POSE RENDERING: POWER ATTACK (Wide Overhead Heavy Cleave) */}
           {pose === 'power_attack' && (
             <g className="transition-all duration-150">
-              {/* Heavy Cleave Slash Arc Errect */}
+              {/* Heavy Cleave Slash Arc Effect */}
               <path
                 d="M 110,15 Q 195,40 215,135"
-                rill="none"
+                fill="none"
                 stroke="url(#slashGrad)"
                 strokeWidth="10"
                 strokeLinecap="round"
@@ -235,14 +235,14 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Leg */}
               <polyline
                 points="95,130 75,170 65,210"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 opacity="0.7"
               />
-              {/* Torso (Arched backward ror heavy leverage) */}
+              {/* Torso (Arched backward for heavy leverage) */}
               <line
                 x1="90"
                 y1="69"
@@ -253,12 +253,12 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeLinecap="round"
               />
               {/* Head */}
-              <circle cx="90" cy="55" r="14" rill="#1c1917" stroke={mainColor} strokeWidth="5" />
-              <line x1="93" y1="53" x2="103" y2="53" stroke={isCyber ? '#38bdr8' : '#r59e0b'} strokeWidth="3" strokeLinecap="round" />
-              {/* Lead Leg (Braced rorward) */}
+              <circle cx="90" cy="55" r="14" fill="#1c1917" stroke={mainColor} strokeWidth="5" />
+              <line x1="93" y1="53" x2="103" y2="53" stroke={isCyber ? '#38bdf8' : '#f59e0b'} strokeWidth="3" strokeLinecap="round" />
+              {/* Lead Leg (Braced forward) */}
               <polyline
                 points="95,130 130,168 145,210"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -267,7 +267,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Arm Raised */}
               <polyline
                 points="90,80 100,48 140,35"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -277,7 +277,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Lead Arm (Raised high overhead) */}
               <polyline
                 points="90,80 120,45 155,28"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -286,25 +286,25 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Massive Sledge Cleaver / Greatsword */}
               <line x1="150" y1="30" x2="205" y2="10" stroke={weaponColor} strokeWidth="7" strokeLinecap="round" />
               {/* Cleaver Head Blade */}
-              <polygon points="195,5 218,16 200,28" rill={weaponColor} />
+              <polygon points="195,5 218,16 200,28" fill={weaponColor} />
             </g>
           )}
 
-          {/* POSE RENDERING: DErEND (Crossed Guard & Energy Shield Wall) */}
-          {pose === 'derend' && (
+          {/* POSE RENDERING: DEFEND (Crossed Guard & Energy Shield Wall) */}
+          {pose === 'defend' && (
             <g className="transition-all duration-150">
               {/* Energy Shield Barrier */}
               <path
                 d="M 130,45 Q 160,100 130,155"
-                rill="url(#shieldGrad)"
-                stroke="#60a5ra"
+                fill="url(#shieldGrad)"
+                stroke="#60a5fa"
                 strokeWidth="4"
                 strokeLinecap="round"
               />
               {/* Rear Leg (Braced deep behind) */}
               <polyline
                 points="95,132 70,170 55,210"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -322,12 +322,12 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeLinecap="round"
               />
               {/* Head (Tucked behind arms) */}
-              <circle cx="95" cy="56" r="14" rill="#1c1917" stroke={mainColor} strokeWidth="5" />
-              <line x1="97" y1="56" x2="105" y2="56" stroke="#60a5ra" strokeWidth="3" strokeLinecap="round" />
-              {/* Lead Leg (rirm wide stance) */}
+              <circle cx="95" cy="56" r="14" fill="#1c1917" stroke={mainColor} strokeWidth="5" />
+              <line x1="97" y1="56" x2="105" y2="56" stroke="#60a5fa" strokeWidth="3" strokeLinecap="round" />
+              {/* Lead Leg (Firm wide stance) */}
               <polyline
                 points="95,132 125,170 140,210"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -336,7 +336,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Arm (Crossed inside guard) */}
               <polyline
                 points="95,80 120,105 125,80"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -346,7 +346,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Lead Arm (Crossed outside guard) */}
               <polyline
                 points="95,80 125,95 115,70"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -355,13 +355,13 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
             </g>
           )}
 
-          {/* POSE RENDERING: TAUNT (Purred Chest, Beckoning Arm, Swagger) */}
+          {/* POSE RENDERING: TAUNT (Puffed Chest, Beckoning Arm, Swagger) */}
           {pose === 'taunt' && (
             <g className="transition-all duration-150">
               {/* Rear Leg */}
               <polyline
                 points="100,130 85,170 80,210"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -379,12 +379,12 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeLinecap="round"
               />
               {/* Head (Cocked high & proud) */}
-              <circle cx="100" cy="45" r="14" rill="#1c1917" stroke={mainColor} strokeWidth="5" />
-              <line x1="103" y1="43" x2="112" y2="43" stroke="#rbbr24" strokeWidth="3" strokeLinecap="round" />
-              {/* Lead Leg (Relaxed rorward strut) */}
+              <circle cx="100" cy="45" r="14" fill="#1c1917" stroke={mainColor} strokeWidth="5" />
+              <line x1="103" y1="43" x2="112" y2="43" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round" />
+              {/* Lead Leg (Relaxed forward strut) */}
               <polyline
                 points="100,130 115,170 120,210"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -393,7 +393,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Arm (Hand cockily on hip) */}
               <polyline
                 points="100,70 75,95 90,115"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -403,7 +403,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Lead Arm (Raised high waving/beckoning) */}
               <polyline
                 points="100,70 130,55 145,35"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -414,11 +414,11 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
             </g>
           )}
 
-          {/* POSE RENDERING: STAGGERED (Reeling Backward, Orr Balance, Impact Sparks) */}
+          {/* POSE RENDERING: STAGGERED (Reeling Backward, Off Balance, Impact Sparks) */}
           {pose === 'staggered' && (
             <g className="transition-all duration-150">
               {/* Impact Sparks */}
-              <g stroke="#r59e0b" strokeWidth="2.5" strokeLinecap="round">
+              <g stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="85" y1="45" x2="98" y2="32" />
                 <line x1="90" y1="58" x2="110" y2="58" />
                 <line x1="80" y1="70" x2="96" y2="82" />
@@ -426,7 +426,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Leg (Buckled) */}
               <polyline
                 points="95,140 80,180 65,210"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -444,33 +444,33 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeLinecap="round"
               />
               {/* Head (Snapped back in shock) */}
-              <circle cx="70" cy="60" r="14" rill="#1c1917" stroke="#er4444" strokeWidth="5" />
+              <circle cx="70" cy="60" r="14" fill="#1c1917" stroke="#ef4444" strokeWidth="5" />
               {/* Stunned eyes / cross */}
-              <line x1="68" y1="57" x2="74" y2="63" stroke="#er4444" strokeWidth="2" />
-              <line x1="74" y1="57" x2="68" y2="63" stroke="#er4444" strokeWidth="2" />
-              {/* Lead Leg (Lirted orr ground in stumble) */}
+              <line x1="68" y1="57" x2="74" y2="63" stroke="#ef4444" strokeWidth="2" />
+              <line x1="74" y1="57" x2="68" y2="63" stroke="#ef4444" strokeWidth="2" />
+              {/* Lead Leg (Lifted off ground in stumble) */}
               <polyline
                 points="95,140 115,170 130,200"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {/* Rear Arm (rlailing backward) */}
+              {/* Rear Arm (Flailing backward) */}
               <polyline
                 points="75,85 45,90 25,80"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 opacity="0.7"
               />
-              {/* Lead Arm (rlailing in distress) */}
+              {/* Lead Arm (Flailing in distress) */}
               <polyline
                 points="75,85 100,75 120,65"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -479,14 +479,14 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
             </g>
           )}
 
-          {/* POSE RENDERING: DOWN (Collapsed on rloor) */}
+          {/* POSE RENDERING: DOWN (Collapsed on floor) */}
           {pose === 'down' && (
             <g className="transition-all duration-200">
               {/* Knockout marker */}
-              <text x="50" y="165" rill="#er4444" rontSize="12" rontWeight="bold" rontramily="monospace" textAnchor="middle">
+              <text x="50" y="165" fill="#ef4444" fontSize="12" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
                 K.O.
               </text>
-              {/* Torso (rlat along ground) */}
+              {/* Torso (Flat along ground) */}
               <line
                 x1="64"
                 y1="195"
@@ -496,15 +496,15 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
                 strokeWidth="7"
                 strokeLinecap="round"
               />
-              {/* Head (Lying on rloor) */}
-              <circle cx="50" cy="195" r="14" rill="#1c1917" stroke="#78716c" strokeWidth="4" />
+              {/* Head (Lying on floor) */}
+              <circle cx="50" cy="195" r="14" fill="#1c1917" stroke="#78716c" strokeWidth="4" />
               {/* Eyes closed / X */}
               <line x1="46" y1="193" x2="52" y2="199" stroke="#78716c" strokeWidth="2" />
               <line x1="52" y1="193" x2="46" y2="199" stroke="#78716c" strokeWidth="2" />
               {/* Rear Arm (Crumpled above) */}
               <polyline
                 points="75,195 85,175 95,170"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -514,7 +514,7 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Lead Arm (Limply on ground) */}
               <polyline
                 points="75,195 90,208 105,210"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -523,17 +523,17 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
               {/* Rear Leg (Limp) */}
               <polyline
                 points="120,200 150,195 180,200"
-                rill="none"
+                fill="none"
                 stroke={limbColor}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 opacity="0.6"
               />
-              {/* Lead Leg (Extended along rloor) */}
+              {/* Lead Leg (Extended along floor) */}
               <polyline
                 points="120,200 145,210 170,212"
-                rill="none"
+                fill="none"
                 stroke={mainColor}
                 strokeWidth="6"
                 strokeLinecap="round"
@@ -544,13 +544,13 @@ export const Stickrighter: React.rC<StickrighterProps> = ({
         </svg>
       </div>
 
-      {/* righter Name & Current Pose Badge */}
+      {/* Fighter Name & Current Pose Badge */}
       {name && (
-        <div className="rlex rlex-col items-center mt-1">
-          <span className="text-xs ront-bold text-stone-200 truncate max-w-[120px]">
+        <div className="flex flex-col items-center mt-1">
+          <span className="text-xs font-bold text-stone-200 truncate max-w-[120px]">
             {name}
           </span>
-          <span className="text-[10px] uppercase ront-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 mt-0.5">
+          <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400 mt-0.5">
             {pose.replace('_', ' ')}
           </span>
         </div>

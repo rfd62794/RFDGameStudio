@@ -15,6 +15,7 @@ import sevenDaysToFryConfig from './7_days_to_fry/config';
 import antsimReduxConfig from './antsim_redux/config';
 import facilityEscapeConfig from './facility_escape/config';
 import { planetofgreedConfig } from './planetofgreed/config';
+import { gladiatorArenaConfig } from './gladiator_arena/config';
 import { characterViewerConfig } from './character_viewer/config';
 import { techniqueShowcaseConfig } from './technique_showcase/config';
 
@@ -46,6 +47,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   antsimReduxConfig,
   facilityEscapeConfig,
   planetofgreedConfig,
+  gladiatorArenaConfig,
   characterViewerConfig,
   techniqueShowcaseConfig,
 ];
@@ -65,4 +67,5 @@ export const STANDALONE_BUILD_GAMES = [
   { id: 'scrapcrawl', label: 'ScrapCrawl' },
   { id: 'slime_coin', label: 'Slime Coin' },
   { id: 'planetofgreed', label: 'Planet of Greed' },
+  { id: 'gladiator_arena', label: 'Gladiator Arena' },
 ];
