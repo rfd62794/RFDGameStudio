@@ -47,7 +47,7 @@ export const CONFIG = {
   // 4+ touch-bounces, killing all momentum).
   disposal: {
     allowedMethods: { kick: true, handball: true, touchBounce: true },
-    maxCarryDistanceWithoutTouch: 80.0, // MBB-tuned: 80 units (carrier can almost reach end zone without touching)
+    maxCarryDistanceWithoutTouch: Infinity, // MBB: no anti-camping limit (AFL rule doesn't fit MBB's small court)
     carryPenaltyType: 'turnover_loose_ball' as const,
     minKickDistanceForMark: 10.0,       // 10m minimum for a protected mark
     markProtectionDurationTicks: 20,    // 1.0s protected disposal window
@@ -478,10 +478,11 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
     }
   }
 
-  // 2. Tackler threat: only consider disposal under VERY heavy pressure
-  // (tackler within 0.7x tackle range — almost touching). This preserves
-  // the core "run and score" loop while adding disposals as a pressure-release
-  // valve rather than a constant disruption.
+  // 2. Tackler threat: only consider disposal when actually being tackled
+  // (tackledTicks > 0). This means the tackler is actively pressing the
+  // carrier, not just nearby. This preserves the core "run and score" loop
+  // while adding disposals as a pressure-release valve for real tackle
+  // situations.
   let nearestEnemyDist = Infinity;
   for (const en of st.agents) {
     if (en.team !== carrier.team && en.status === 'active') {
@@ -489,7 +490,7 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
       if (d < nearestEnemyDist) nearestEnemyDist = d;
     }
   }
-  const tacklerPressure = nearestEnemyDist < m.tackle_range * 0.7;
+  const tacklerPressure = carrier.tackledTicks > 0;
 
   // 3. Find open teammate for a pass
   const teammates = st.agents.filter(ag =>
@@ -602,16 +603,21 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
   // When the ball is in_flight (from a kick or handball), update its
   // physics and evaluate interception/mark contests every tick.
   if (st.ball.state === 'in_flight') {
-    // Update ball physics using a lightweight inline version (MBB's
-    // court doesn't have a full CourtConfig, so we update manually)
+    // Update ball physics
     st.ball.pos.x += st.ball.velocity.x * dt;
     st.ball.pos.y += st.ball.velocity.y * dt;
     st.ball.height += st.ball.zVelocity * dt;
     st.ball.zVelocity -= 9.81 * dt;
     st.ball.hangTimeRemaining = Math.max(0, st.ball.hangTimeRemaining - 1);
 
-    // Ball landed → goes loose
-    if (st.ball.height <= 0) {
+    // Wall bouncing (keep ball in court)
+    if (st.ball.pos.x < 0) { st.ball.pos.x = 0; st.ball.velocity.x *= -0.65; }
+    if (st.ball.pos.x > courtW) { st.ball.pos.x = courtW; st.ball.velocity.x *= -0.65; }
+    if (st.ball.pos.y < 0) { st.ball.pos.y = 0; st.ball.velocity.y *= -0.65; }
+    if (st.ball.pos.y > courtH) { st.ball.pos.y = courtH; st.ball.velocity.y *= -0.65; }
+
+    // Ball landed or hang time expired → goes loose
+    if (st.ball.height <= 0 || st.ball.hangTimeRemaining <= 0) {
       st.ball.height = 0;
       st.ball.zVelocity = 0;
       st.ball.state = 'loose';
