@@ -1,4 +1,4 @@
-import { PlayerOriginId, FigureId, ClaimantId } from '../engine/types';
+import { PlayerOriginId, FigureId } from '../engine/types';
 import { VerdictResult } from '../engine/verdict';
 import { COURT_FIGURES } from './courtFigures';
 import { PLAYER_ORIGINS } from './origins';

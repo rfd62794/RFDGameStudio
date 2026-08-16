@@ -11,6 +11,7 @@ import {
 } from '../src/games/succession/utils/gameOrchestration';
 import { SCOUTABLE_EVIDENCE } from '../src/games/succession/data/evidence';
 import { INDICTMENT_FAVOR_GAIN, RIVAL_SLANDER_PENALTY } from '../src/games/succession/data/gameConstants';
+import type { IndictmentTriad } from '../src/games/succession/engine/types';
 
 describe('Regicide Triad & Indictment Engine (ADR-014)', () => {
   describe('Pure Evaluation Logic', () => {
@@ -46,10 +47,10 @@ describe('Regicide Triad & Indictment Engine (ADR-014)', () => {
 
     it('rejects an indictment with even a single incorrect variable', () => {
       // Correct suspect & method for Chancellor, but wrong motive
-      const flawedTriad = {
+      const flawedTriad: IndictmentTriad = {
         suspect: COUNCIL_CASE_SOLUTIONS.chancellor.suspect,
         method: COUNCIL_CASE_SOLUTIONS.chancellor.method,
-        motive: 'bloodline_purity' as const,
+        motive: 'bloodline_purity' as unknown as IndictmentTriad['motive'],
       };
 
       const result = validateIndictmentForFigure('chancellor', flawedTriad);

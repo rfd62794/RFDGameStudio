@@ -1,5 +1,3 @@
-import { FigureId } from '../engine/types';
-
 export type PlayerOriginId = 'bastard_scion' | 'disgraced_knight' | 'merchant_banker';
 
 export interface PlayerOrigin {

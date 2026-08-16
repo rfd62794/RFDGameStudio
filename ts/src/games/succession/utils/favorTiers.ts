@@ -1,5 +1,4 @@
 import { FigureState, ClaimantId } from '../engine/types';
-import { CLAIMANTS } from '../data/claimants';
 
 export type FavorTier =
   | 'Uncommitted / Even'
@@ -45,7 +44,6 @@ export function getFigureQualitativeStanding(figure: FigureState): FigureQualita
 
   const top1 = claimantsList[0];
   const top2 = claimantsList[1];
-  const top3 = claimantsList[2];
 
   const leadMargin = top1.favor - top2.favor;
 
