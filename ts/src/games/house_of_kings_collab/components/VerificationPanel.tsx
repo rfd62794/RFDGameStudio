@@ -28,7 +28,6 @@ import {
   computePlayerActionsAllowance,
   isAggregateWarningActive,
   isPersonalWarningActive,
-  RESERVED_DAILY_BUDGET,
 } from '../lib/actionsAllocation';
 import { getCurrentRealmEvent } from '../lib/realmEvents';
 import {

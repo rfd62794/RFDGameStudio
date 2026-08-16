@@ -10,7 +10,7 @@ interface WorkerViewProps {
   onRefreshParent?: () => void;
 }
 
-export function WorkerView({ kingdomId, houseId, userId, onRefreshParent }: WorkerViewProps) {
+export function WorkerView({ kingdomId, houseId, userId: _userId, onRefreshParent }: WorkerViewProps) {
   const [workers, setWorkers] = useState<WorkerTask[]>([]);
   const [poolSize, setPoolSize] = useState<number>(5);
   const [kingdomLevel, setKingdomLevel] = useState<number>(1);
