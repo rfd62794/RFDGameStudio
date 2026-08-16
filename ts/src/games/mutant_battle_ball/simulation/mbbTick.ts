@@ -4,15 +4,14 @@
 // All function bodies are byte-identical to the original monolith.
 
 import type { MatchState } from '../types';
-import type { Ball } from '../../../engine/shared/sportsSim';
 import { BallSystem, DisposalSystem } from '../../../engine/shared/sportsSim';
 import { agentToPlayer, syncPlayerToAgent } from '../playerAdapter';
 import { CONFIG, Agent, MbbState } from './mbbConfig';
 import { distance } from './mbbMath';
 import { forceSeek } from './mbbSteering';
 import { assignRoles, getCarrier } from './mbbAgent';
-import { resolveTackle, resolveBlock, applyWound } from './mbbCombat';
-import { computeAgentForces, moveAgent, decideDisposal } from './mbbDisposal';
+import { executeTackle, executeBlock, updateStunRecovery } from './mbbCombat';
+import { moveAgent, decideDisposal } from './mbbDisposal';
 import { buildMatchRenderState } from './mbbRender';
 
 // ── Tick (faithful game-rules port with both fixes) ──────────────────
@@ -30,7 +29,7 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
 
   const m = st.config.match;
   const courtW = m.court_width, courtH = m.court_height;
-  const tackleR = m.tackle_range, blockR = m.block_range, stunT = m.tackle_stun_time, ezDepth = m.end_zone_depth;
+  const tackleR = m.tackle_range, blockR = m.block_range, ezDepth = m.end_zone_depth;
 
   let carrier = getCarrier(st.agents, st.ball);
   assignRoles(st.agents, st.possession, st.ball);
@@ -39,8 +38,7 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
   // Agent movement + stun recovery
   for (const ag of st.agents) {
     if (ag.status === 'stunned') {
-      ag.stunTimer -= dt;
-      if (ag.stunTimer <= 0) ag.status = 'active';
+      updateStunRecovery(ag, dt);
     } else if (ag.status === 'active') {
       const prevX = ag.x, prevY = ag.y;
       moveAgent(ag, st, dt);
@@ -58,6 +56,8 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
       if (ag.markProtectionTicks > 0) ag.markProtectionTicks--;
       // Decrement disposal cooldown
       if (ag.disposalCooldownTicks > 0) ag.disposalCooldownTicks--;
+      // Decrement combat cooldown
+      if (ag.combatCooldownTicks > 0) ag.combatCooldownTicks--;
     }
   }
 
@@ -125,8 +125,7 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
     // loose-ball seek target.
     for (const ag of st.agents) {
       if (ag.status === 'stunned') {
-        ag.stunTimer -= dt;
-        if (ag.stunTimer <= 0) ag.status = 'active';
+        updateStunRecovery(ag, dt);
       } else if (ag.status === 'active') {
         // All agents seek the ball while it's in flight
         const maxSpeed = ag.speed * 0.5;
@@ -144,6 +143,7 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
         ag.y = Math.max(2, Math.min(courtH - 2, ag.y));
         if (ag.markProtectionTicks > 0) ag.markProtectionTicks--;
         if (ag.disposalCooldownTicks > 0) ag.disposalCooldownTicks--;
+        if (ag.combatCooldownTicks > 0) ag.combatCooldownTicks--;
       }
     }
 
@@ -326,6 +326,11 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
   // `carrier` local pointing at the previous (now-tackler) agent.
   // Operating on that stale reference caused a self-tackle that flipped
   // possession straight back to the scoring team every tick.
+  //
+  // COMBAT REPLACEMENT: The old binary resolveTackle/resolveBlock is
+  // replaced by sportsSim's CombatSystem four-tier severity ladder
+  // (stunned → down → casualty → fatal) with failed-violence consequences.
+  // This is a conscious departure from Lua parity — see CHANGELOG.
   carrier = getCarrier(st.agents, st.ball);
   if (carrier) {
     // Track tackle pressure on the carrier for holding-the-ball rule
@@ -341,19 +346,25 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
           carrier.tackledByPlayerId = ag.id;
         }
 
-        // Escort intercept: check if any escort is near the tackler
+        // Escort intercept: check if any escort is near the tackler.
+        // Escort also respects combat cooldown.
         let intercepted = false;
         for (const esc of st.agents) {
-          if (esc.status === 'active' && esc.role === 'escort') {
+          if (esc.status === 'active' && esc.role === 'escort' && esc.combatCooldownTicks === 0) {
             const ed = distance(esc.x, esc.y, ag.x, ag.y);
             if (ed < blockR) {
-              const outcome = resolveBlock(esc, ag, st.prng);
-              if (outcome === 'block_success') {
-                ag.status = 'stunned';
-                ag.stunTimer = stunT;
-                st.events.push({ type: 'block', blocker_id: esc.id, tackler_id: ag.id });
+              const blockResult = executeBlock(esc, ag, st);
+              // Set combat cooldown on the escort after any attempt
+              esc.combatCooldownTicks = CONFIG.combatCooldownTicks;
+              if (blockResult.outcome === 'hit_success') {
+                // Tackler took severity damage — may be stunned, down, etc.
+                st.events.push({ type: 'block', blocker_id: esc.id, tackler_id: ag.id, severity: blockResult.severity });
+              } else if (blockResult.outcome === 'attacker_blunder') {
+                // Escort blundered — stunned, tackler proceeds
+                st.events.push({ type: 'block_fail', blocker_id: esc.id, tackler_id: ag.id });
               } else {
-                applyWound(esc, 'heavy', st, st.prng);
+                // Armor held — no damage to either
+                st.events.push({ type: 'block', blocker_id: esc.id, tackler_id: ag.id, severity: 'none' });
               }
               intercepted = true;
               break;
@@ -361,25 +372,24 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
           }
         }
 
-        if (!intercepted && d < tackleR) {
-          const outcome = resolveTackle(ag, carrier, st.prng);
-          if (outcome === 'possession_change' || outcome === 'wound') {
-            if (outcome === 'wound') applyWound(carrier, 'limb_loss', st, st.prng);
-            // Only change possession if carrier is still active
-            if (carrier.status === 'active') {
-              // Ball transitions to the tackler via Ball state machine
-              st.ball.carrierId = ag.id;
-              st.ball.lastCarrierId = carrier.id;
-              st.possession = ag.team;
-              assignRoles(st.agents, st.possession, st.ball);
-              st.events.push({ type: 'tackle_success', tackler_id: ag.id, carrier_id: carrier.id, possession: st.possession });
-              // FIX: Ball has moved; stop iterating so we don't tackle
-              // the now-stale carrier reference again this tick.
-              break;
-            }
+        // Tackle: only attempt if combat cooldown is clear
+        if (!intercepted && d < tackleR && ag.combatCooldownTicks === 0) {
+          const tackleResult = executeTackle(ag, carrier, st);
+          // Set combat cooldown on the tackler after any attempt
+          ag.combatCooldownTicks = CONFIG.combatCooldownTicks;
+          if (tackleResult.outcome === 'hit_success') {
+            // Carrier took severity damage — ball is loose with random
+            // scatter. Possession will be determined by the continuous
+            // pickup check below (fair contest, no directional bias).
+            st.events.push({ type: 'tackle_success', tackler_id: ag.id, carrier_id: carrier.id, severity: tackleResult.severity });
+            // FIX: Ball has moved; stop iterating so we don't tackle
+            // the now-stale carrier reference again this tick.
+            break;
+          } else if (tackleResult.outcome === 'attacker_blunder') {
+            // Tackler blundered — stunned, no possession change
+            st.events.push({ type: 'tackle_fail', tackler_id: ag.id, blunder: true });
           } else {
-            ag.status = 'stunned';
-            ag.stunTimer = stunT * 0.5;
+            // armor_held — carrier's armor absorbed the hit
             st.events.push({ type: 'tackle_fail', tackler_id: ag.id });
           }
         }

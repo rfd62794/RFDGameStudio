@@ -6,9 +6,9 @@
 import type { Part, PartsBySlot } from '../../../engine/shared/partSlots';
 import type { Mutant } from '../types';
 import { getEffectivePartStats, rollMalfunctioningFailure } from '../brandModifiers';
-import type { Ball, PlayerStats } from '../../../engine/shared/sportsSim';
+import type { Ball } from '../../../engine/shared/sportsSim';
 import { mapToPlayerStats, averageCyberOrganicLean } from '../statsMapper';
-import { CONFIG, PART_SLOTS, Agent } from './mbbConfig';
+import { PART_SLOTS, Agent } from './mbbConfig';
 import { dist2 } from './mbbMath';
 
 export function calculateStats(mutant: { parts?: PartsBySlot | Record<string, Part | null> }): { accuracy: number; endurance: number; power: number; speed: number; maxHealth: number } {
@@ -102,6 +102,7 @@ export function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'playe
     tackledByPlayerId: null,
     markProtectionTicks: 0,
     disposalCooldownTicks: 0,
+    combatCooldownTicks: 0,
     statsMatch: {
       kicks: 0, handballs: 0, marks: 0, tackles: 0,
       hitsInflicted: 0, injuriesInflicted: 0, casualtiesCaused: 0,

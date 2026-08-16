@@ -33,7 +33,7 @@ import type { Ball } from '../../../engine/shared/sportsSim';
 import { mapToPlayerStats, averageCyberOrganicLean } from '../statsMapper';
 
 import { CONFIG, PART_SLOTS, Agent, MbbState, MatchConfig } from './mbbConfig';
-import { makePrng, prngFloat, prngInt } from './mbbMath';
+import { makePrng, prngInt } from './mbbMath';
 import { calculateStats, makeAgent, assignRoles } from './mbbAgent';
 import { buildMatchRenderState } from './mbbRender';
 import { tickMatchInternal } from './mbbTick';
@@ -145,6 +145,7 @@ export function createMbbSimulation(): MbbSimulation {
             tackledByPlayerId: null,
             markProtectionTicks: 0,
             disposalCooldownTicks: 0,
+            combatCooldownTicks: 0,
             statsMatch: ag.statsMatch, // Preserve match stats from subbed agent
           };
           // Update ball carrier reference if the subbed agent had the ball

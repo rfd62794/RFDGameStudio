@@ -4,7 +4,7 @@
 //
 // All function bodies are byte-identical to the original monolith.
 
-import type { Ball, Vector2D } from '../../../engine/shared/sportsSim';
+import type { Vector2D } from '../../../engine/shared/sportsSim';
 import { CONFIG, Agent, MbbState } from './mbbConfig';
 import { clamp, distance, limitVector } from './mbbMath';
 import { forceSeek, forceArrive, forceFlee, forceInterpose } from './mbbSteering';

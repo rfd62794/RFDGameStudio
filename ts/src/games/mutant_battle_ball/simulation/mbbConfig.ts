@@ -4,8 +4,7 @@
 // All values are byte-identical to the original monolith.
 
 import type { PartSlot } from '../../../engine/shared/partSlots';
-import type { Ball, PlayerStats, DisposalRules } from '../../../engine/shared/sportsSim';
-import type { MatchState } from '../types';
+import type { Ball, PlayerStats, DisposalRules, CombatRules } from '../../../engine/shared/sportsSim';
 
 export const PART_SLOTS: PartSlot[] = ['head', 'chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'];
 
@@ -50,6 +49,35 @@ export const CONFIG = {
     escort_arrive_radius: 8,    // slow down near the blocking position
     drag: 0.92,                 // per-tick velocity retention (dt-scaled)
   },
+  // Combat config — wired to sportsSim's CombatSystem.
+  // MBB-specific severity table: Blood Bowl-inspired four-tier ladder.
+  // Stunned is most common (brief recovery), down is significant (out of
+  // the drive), casualty removes the mutant for the match, fatal is rare
+  // but permanent. Failed-violence consequences are real: a badly missed
+  // tackle stuns the attacker and causes a turnover.
+  combat: {
+    violenceAllowed: true,
+    canTargetNonCarriers: true,
+    armorMitigatesSeverity: true,
+    failedAttackPenalty: {
+      causesTurnover: true,       // Blood Bowl rule: failed violence = turnover
+      attackerStunChance: 1.0,    // Always stunned on blunder
+      attackerInjuryRoll: false,
+    },
+    severityTable: {
+      stunnedChance: 0.45,        // 45% — brief, recoverable (2.5s)
+      downChance: 0.30,           // 30% — out of the play (6s or sub)
+      casualtyChance: 0.18,       // 18% — removed for remainder of match
+      fatalChance: 0.07,          //  7% — permanent kill
+    },
+    foulDownedPlayers: false,     // Can't attack players already on ground
+  } as CombatRules,
+  // Combat cooldown — after any combat attempt (hit, armor, blunder),
+  // the attacker must wait this many ticks before attempting again.
+  // Without this, tacklers attack every tick, causing the carrier to
+  // be stunned/downed almost instantly. The old Lua system had an
+  // implicit cooldown via the 50% fail rate (tackler stunned on fail).
+  combatCooldownTicks: 60, // 3 seconds at 20 tps — prevents per-tick spam
 };
 
 export interface Agent {
@@ -79,6 +107,7 @@ export interface Agent {
   tackledByPlayerId: string | null;      // Who is tackling this agent
   markProtectionTicks: number;           // Protected window after a clean mark
   disposalCooldownTicks: number;         // Cooldown after disposing (prevents spam)
+  combatCooldownTicks: number;           // Cooldown after combat attempt (prevents per-tick spam)
   statsMatch: {                          // Per-match disposal/combat tracking
     kicks: number;
     handballs: number;
