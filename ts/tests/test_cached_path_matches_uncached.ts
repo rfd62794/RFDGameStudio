@@ -4,9 +4,9 @@ import {
   clearCache,
   getCacheStats,
   resetCacheStats,
+  HUNGER_BANDS,
   type CreatureCacheKey,
 } from '../src/games/shoal/art/pathCache';
-import { buildTeardropFinSpec } from '../src/games/shoal/art/shoal.config';
 
 /**
  * test_cached_path_matches_uncached

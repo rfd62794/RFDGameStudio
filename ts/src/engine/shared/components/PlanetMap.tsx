@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { MapCell, Corporation, UnitTransit, UnitGroup } from '../componentTypes';
-import { EyeOff } from 'lucide-react';
+import { EyeOff, Compass } from 'lucide-react';
 
 interface PlanetMapProps {
   cells: MapCell[];

@@ -11,11 +11,8 @@ import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
 import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
-  canvasRadialBurstPath,
-  canvasIrregularFragmentPath,
-} from '../../engine/artGen/shapes';
-import {
   getBatchColor,
+  ageStageFromCreature,
   FISH_MAX_HUNGER,
   SHARK_MAX_HUNGER,
 } from './art/shoal.config';

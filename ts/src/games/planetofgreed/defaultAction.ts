@@ -1,5 +1,5 @@
 import { MapCell, Corporation, WeeklyOrder, UnitType, UnitGroup } from './types';
-import { getOpposite, getAdjacent } from './wheelTopology';
+import { getOpposite } from './wheelTopology';
 
 /**
  * Default-action heuristic for the guided per-Region walkthrough.
