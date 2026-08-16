@@ -33,6 +33,14 @@ import type { Mutant, Part, MutantParts } from '../src/games/mutant_battle_ball/
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
 
+// Helper: read all MBB simulation module sources as a combined string
+// (the monolith was split into modules — tests check source content)
+const mbbSimDir = resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation');
+function readMbbSimSources(): string {
+  const modules = ['mbbSimulation.ts', 'mbbConfig.ts', 'mbbMath.ts', 'mbbSteering.ts', 'mbbAgent.ts', 'mbbCombat.ts', 'mbbDisposal.ts', 'mbbRender.ts', 'mbbTick.ts'];
+  return modules.map(f => readFileSync(resolve(mbbSimDir, f), 'utf-8')).join('\n');
+}
+
 // ── Test fixtures (real data shapes from data.yaml) ──────────────────
 
 function makePart(id: string, slot: string, stats: Partial<Part> = {}): Part {
@@ -487,10 +495,7 @@ describe('test_lua_source_preserved', () => {
 
 describe('test_no_regression_other_games', () => {
   it('MBB simulation module is MBB-specific — no cross-game imports', () => {
-    const simSource = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8'
-    );
+    const simSource = readMbbSimSources();
     // Should not import from other games
     expect(simSource).not.toContain('games/shoal');
     expect(simSource).not.toContain('games/slimeworld');
@@ -529,10 +534,7 @@ describe('test_no_regression_other_games', () => {
   });
 
   it('Steering forces are real, adapted from Shoal pattern but MBB-specific', () => {
-    const simSource = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8'
-    );
+    const simSource = readMbbSimSources();
     // Real steering forces (adapted from Shoal's pattern)
     expect(simSource).toContain('forceSeek');
     expect(simSource).toContain('forceArrive');
@@ -552,10 +554,7 @@ describe('test_no_regression_other_games', () => {
   });
 
   it('Both bug fixes are present in the TS port with their comments', () => {
-    const simSource = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8'
-    );
+    const simSource = readMbbSimSources();
     // Root cause #1: re-fetch carrier before tackle block
     expect(simSource).toContain('Re-fetch the carrier');
     expect(simSource).toContain('stale');

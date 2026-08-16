@@ -40,6 +40,13 @@ import type { Mutant, MutantParts } from '../src/games/mutant_battle_ball/types'
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
 
+// Helper: read all MBB simulation module sources as a combined string
+const mbbSimDir = resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation');
+function readMbbSimSources(): string {
+  const modules = ['mbbSimulation.ts', 'mbbConfig.ts', 'mbbMath.ts', 'mbbSteering.ts', 'mbbAgent.ts', 'mbbCombat.ts', 'mbbDisposal.ts', 'mbbRender.ts', 'mbbTick.ts'];
+  return modules.map(f => readFileSync(resolve(mbbSimDir, f), 'utf-8')).join('\n');
+}
+
 // Use a high point cap so this test still runs the full clock (the point
 // cap directive defaults to 3, but this test was written to verify full-
 // duration match behavior with balanced stats)
@@ -299,10 +306,7 @@ describe('test_force_weights_reported', () => {
 
     // Verify in the source code that force computation doesn't branch
     // on team identity
-    const simSource = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8'
-    );
+    const simSource = readMbbSimSources();
     // computeAgentForces should not check ag.team for force calculation
     // (it checks st.possession for the carrier's goal direction, which
     // is correct — player seeks right, opponent seeks left)
@@ -397,10 +401,7 @@ describe('test_no_regression', () => {
     // This investigation found NO logic bug. The simulation code was
     // NOT modified. This test confirms the simulation file still
     // contains the same force weights and structure.
-    const simSource = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8'
-    );
+    const simSource = readMbbSimSources();
     // Force weights unchanged
     expect(simSource).toContain('carrier_flee_weight: 1.2');
     expect(simSource).toContain('carrier_seek_weight: 1.0');
