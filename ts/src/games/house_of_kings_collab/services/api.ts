@@ -1,6 +1,11 @@
 import { auth } from '../lib/firebase';
 import { TaskTier, LegacyItem } from '../types';
 
+// Configurable API base URL for cross-origin deployment.
+// In dev (Vite middleware), this is empty so fetch(`${API_BASE}/api/...`) hits the same origin.
+// In standalone production builds, set VITE_HOK_API_BASE to the Cloud Run URL.
+const API_BASE = (import.meta.env.VITE_HOK_API_BASE as string) || '';
+
 export const TASK_TIERS = {
   quick: { seconds: 90, kingdomContribution: 5, baseGold: 10 },
   standard: { seconds: 240, kingdomContribution: 15, baseGold: 30 },
@@ -63,7 +68,7 @@ export async function assignTaskApi(
   specialTaskType = 'establish_wood'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/assignTask', {
+  const response = await fetch(`${API_BASE}/api/assignTask`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId, tier, force, isSpecialTask, specialTaskType }),
@@ -82,7 +87,7 @@ export async function collectTaskApi(
   options?: { forceLegacyDrop?: boolean }
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/collectTask', {
+  const response = await fetch(`${API_BASE}/api/collectTask`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId, forceLegacyDrop: options?.forceLegacyDrop }),
@@ -96,7 +101,7 @@ export async function purchaseMultiplierApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/purchaseMultiplier', {
+  const response = await fetch(`${API_BASE}/api/purchaseMultiplier`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),
@@ -110,7 +115,7 @@ export async function resetTaskApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/resetTask', {
+  const response = await fetch(`${API_BASE}/api/resetTask`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),
@@ -126,7 +131,7 @@ export async function adminResetTaskApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/resetTask', {
+  const response = await fetch(`${API_BASE}/api/admin/resetTask`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ targetUserId, kingdomId, houseId }),
@@ -141,7 +146,7 @@ export async function adminCompleteTaskApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/completeTask', {
+  const response = await fetch(`${API_BASE}/api/admin/completeTask`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ targetUserId, kingdomId, houseId }),
@@ -157,7 +162,7 @@ export async function adminCompleteWorkerApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/completeWorker', {
+  const response = await fetch(`${API_BASE}/api/admin/completeWorker`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ workerId, targetUserId, kingdomId, houseId }),
@@ -195,7 +200,7 @@ export async function adminSetPlayerStateApi(payload: {
   houseId?: string;
 }) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/setPlayerState', {
+  const response = await fetch(`${API_BASE}/api/admin/setPlayerState`, {
     method: 'POST',
     headers,
     body: JSON.stringify(payload),
@@ -209,7 +214,7 @@ export async function adminGetPlayersApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch(`/api/admin/players?kingdomId=${encodeURIComponent(kingdomId)}&houseId=${encodeURIComponent(houseId)}`, {
+  const response = await fetch(`${API_BASE}/api/admin/players?kingdomId=${encodeURIComponent(kingdomId)}&houseId=${encodeURIComponent(houseId)}`, {
     method: 'GET',
     headers,
   });
@@ -218,13 +223,13 @@ export async function adminGetPlayersApi(
 }
 
 export async function getKingdomApi(kingdomId = 'kingdom-mvp-0') {
-  const response = await fetch(`/api/kingdom?kingdomId=${encodeURIComponent(kingdomId)}`);
+  const response = await fetch(`${API_BASE}/api/kingdom?kingdomId=${encodeURIComponent(kingdomId)}`);
   return await parseJsonResponse(response, 'Failed to fetch Kingdom state');
 }
 
 export async function adminEvaluateKingdomApi(kingdomId = 'kingdom-mvp-0') {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/evaluateKingdom', {
+  const response = await fetch(`${API_BASE}/api/admin/evaluateKingdom`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId }),
@@ -238,7 +243,7 @@ export async function getWorkersApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch(`/api/workers?kingdomId=${encodeURIComponent(kingdomId)}&houseId=${encodeURIComponent(houseId)}`, {
+  const response = await fetch(`${API_BASE}/api/workers?kingdomId=${encodeURIComponent(kingdomId)}&houseId=${encodeURIComponent(houseId)}`, {
     method: 'GET',
     headers,
   });
@@ -253,7 +258,7 @@ export async function assignWorkerApi(
   taskType: 'food' | 'wood' | 'stone' = 'food'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/assignWorker', {
+  const response = await fetch(`${API_BASE}/api/assignWorker`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId, duration, taskType }),
@@ -268,7 +273,7 @@ export async function collectWorkerApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/collectWorker', {
+  const response = await fetch(`${API_BASE}/api/collectWorker`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ workerId, kingdomId, houseId }),
@@ -282,7 +287,7 @@ export async function upgradeCathedralApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/upgradeCathedral', {
+  const response = await fetch(`${API_BASE}/api/upgradeCathedral`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),
@@ -298,7 +303,7 @@ export async function upgradeChapelApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/upgradeChapel', {
+  const response = await fetch(`${API_BASE}/api/upgradeChapel`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),
@@ -312,7 +317,7 @@ export async function upgradeForgeApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/upgradeForge', {
+  const response = await fetch(`${API_BASE}/api/upgradeForge`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),
@@ -325,7 +330,7 @@ export async function getHouseApi(
   kingdomId = 'kingdom-mvp-0',
   houseId = 'house-of-kings-default'
 ) {
-  const response = await fetch(`/api/house?kingdomId=${encodeURIComponent(kingdomId)}&houseId=${encodeURIComponent(houseId)}`);
+  const response = await fetch(`${API_BASE}/api/house?kingdomId=${encodeURIComponent(kingdomId)}&houseId=${encodeURIComponent(houseId)}`);
   return await parseJsonResponse(response, 'Failed to fetch House status');
 }
 
@@ -336,7 +341,7 @@ export async function contributeFestivalApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/contributeFestival', {
+  const response = await fetch(`${API_BASE}/api/contributeFestival`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ food, wood, kingdomId, houseId }),
@@ -350,7 +355,7 @@ export async function adminEvaluateHouseFestivalApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/evaluateHouseFestival', {
+  const response = await fetch(`${API_BASE}/api/admin/evaluateHouseFestival`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),
@@ -361,7 +366,7 @@ export async function adminEvaluateHouseFestivalApi(
 
 export async function adminGetQuotaUsageApi() {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/admin/quotaUsage', {
+  const response = await fetch(`${API_BASE}/api/admin/quotaUsage`, {
     method: 'GET',
     headers,
   });
@@ -375,7 +380,7 @@ export async function selectHouseSpecializationApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/selectHouseSpecialization', {
+  const response = await fetch(`${API_BASE}/api/selectHouseSpecialization`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ specialization, kingdomId, houseId }),
@@ -389,7 +394,7 @@ export async function retireDescendantApi(
   houseId = 'house-of-kings-default'
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetch('/api/retireDescendant', {
+  const response = await fetch(`${API_BASE}/api/retireDescendant`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ kingdomId, houseId }),

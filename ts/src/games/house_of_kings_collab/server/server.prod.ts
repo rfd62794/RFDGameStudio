@@ -31,6 +31,28 @@ const databaseId = firebaseConfig.firestoreDatabaseId || '(default)';
 const app = express();
 const PORT = parseInt(process.env.PORT || '8080', 10);
 
+// CORS — allow the HoK client (and arcade) to call this backend cross-origin
+const allowedOrigins = [
+  'https://rfditservices.com',
+  'https://www.rfditservices.com',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Vary', 'Origin');
+  }
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
+
 app.use(express.json());
 
 // API Route: Health check with dedicated Admin SDK connectivity check
