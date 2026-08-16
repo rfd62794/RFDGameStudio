@@ -51,7 +51,7 @@ export function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'playe
     if (parts) {
       let malfunctionPenalty = 0;
       for (const slot of PART_SLOTS) {
-        const part = (parts as Record<string, Part | null>)[slot];
+        const part = (parts as unknown as Record<string, Part | null>)[slot];
         if (part && rollMalfunctioningFailure(part, prng)) {
           // Each failed malfunctioning part halves its effective stat
           // contribution. We approximate by reducing total stats by 1/6

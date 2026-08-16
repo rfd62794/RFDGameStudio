@@ -14,7 +14,7 @@ export function forceSeek(x: number, y: number, tx: number, ty: number, weight: 
   return [(dx / dist) * weight * maxForce, (dy / dist) * weight * maxForce];
 }
 
-export function forceArrive(x: number, y: number, vx: number, vy: number, tx: number, ty: number, weight: number, maxSpeed: number, maxForce: number, slowingRadius: number, minSpeed: number): [number, number] {
+export function forceArrive(x: number, y: number, vx: number, vy: number, tx: number, ty: number, weight: number, maxSpeed: number, _maxForce: number, slowingRadius: number, minSpeed: number): [number, number] {
   const dx = tx - x, dy = ty - y;
   const dist = Math.sqrt(dx * dx + dy * dy);
   if (dist === 0) return [0, 0];
