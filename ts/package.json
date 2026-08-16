@@ -14,6 +14,7 @@
     "build:scrapcrawl": "vite build --config vite.scrapcrawl.config.ts",
     "build:slime_coin": "vite build --config vite.slime_coin.config.ts",
     "build:planetofgreed": "vite build --config vite.planetofgreed.config.ts",
+    "build:house_of_kings_collab": "vite build --config vite.house_of_kings_collab.config.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"

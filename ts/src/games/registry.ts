@@ -74,4 +74,5 @@ export const STANDALONE_BUILD_GAMES = [
   { id: 'gladiator_arena', label: 'Gladiator Arena' },
   { id: 'voiddrift_redux', label: 'VoidDrift Redux' },
   { id: 'succession', label: 'Succession' },
+  { id: 'house_of_kings_collab', label: 'House of Kings Collab' },
 ];
