@@ -16,6 +16,13 @@ const dataPath = resolve(repoRoot, 'games', 'mutant_battle_ball', 'data.yaml');
 const dataYaml = readFileSync(dataPath, 'utf-8');
 const data = parse(dataYaml) as Record<string, unknown>;
 
+// Helper: read all MBB simulation module sources as a combined string
+const mbbSimDir = resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation');
+function readMbbSimSources(): string {
+  const modules = ['mbbSimulation.ts', 'mbbConfig.ts', 'mbbMath.ts', 'mbbSteering.ts', 'mbbAgent.ts', 'mbbCombat.ts', 'mbbDisposal.ts', 'mbbRender.ts', 'mbbTick.ts'];
+  return modules.map(f => readFileSync(resolve(mbbSimDir, f), 'utf-8')).join('\n');
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function makePart(overrides: Partial<Part> & { id: string }): Part {
@@ -393,10 +400,7 @@ describe('test_point_cap_ends_match_immediately', () => {
   });
 
   it('Point cap does not conflict with timeout system — timeouts still work', () => {
-    const src = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const src = readMbbSimSources();
     // Timeout system must still exist
     expect(src).toContain('callTimeout');
     expect(src).toContain('timeoutsLeft');
@@ -406,10 +410,7 @@ describe('test_point_cap_ends_match_immediately', () => {
   });
 
   it('Point cap does not conflict with substitution system', () => {
-    const src = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const src = readMbbSimSources();
     // Substitution system must still exist
     expect(src).toContain('makeSubstitution');
     expect(src).toContain('agent_down');
@@ -458,10 +459,7 @@ describe('test_opponent_brand_quality_assignment_confirmed', () => {
   });
 
   it('Opponent mutants now go through calculateStats() (not flat stat bypass)', () => {
-    const src = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const src = readMbbSimSources();
     // makeAgent must still have the flat-stats path for backward compat
     expect(src).toContain('m.accuracy !== undefined');
     // But the real data no longer uses flat stats — opponents have parts
@@ -736,10 +734,7 @@ describe('test_controlled_match_isolates_brand_effect', () => {
     }
 
     // Confirm the old flat-stats path still exists for backward compat
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     expect(simSrc).toContain('m.accuracy !== undefined');
     expect(simSrc).toContain('Opponent format (flat stats)');
 
@@ -787,10 +782,7 @@ describe('test_no_regression', () => {
   });
 
   it('Simulation still has all core systems (tackle, block, score, sub, timeout)', () => {
-    const src = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const src = readMbbSimSources();
     expect(src).toContain('resolveTackle');
     expect(src).toContain('resolveBlock');
     expect(src).toContain('scorePlayer');
@@ -800,10 +792,7 @@ describe('test_no_regression', () => {
   });
 
   it('Collision/rendering decoupling still holds (ADR-021)', () => {
-    const simSrc = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const simSrc = readMbbSimSources();
     // Simulation must not import paperDoll
     expect(simSrc).not.toContain('paperDoll');
     expect(simSrc).not.toContain('PaperDoll');
@@ -811,10 +800,7 @@ describe('test_no_regression', () => {
   });
 
   it('calculateStats still applies Brand/Quality/Cyber-Organic modifiers', () => {
-    const src = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const src = readMbbSimSources();
     expect(src).toContain('getEffectivePartStats');
     expect(src).toContain('brandModifiers');
   });
@@ -839,10 +825,7 @@ describe('test_no_regression', () => {
   });
 
   it('Point cap change did not break the match end on timeout', () => {
-    const src = readFileSync(
-      resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts'),
-      'utf-8',
-    );
+    const src = readMbbSimSources();
     // Timeout-based match end must still exist
     expect(src).toContain('timeRemaining <= 0');
     expect(src).toContain("st.state = 'ended'");

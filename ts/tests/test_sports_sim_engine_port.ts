@@ -270,11 +270,10 @@ describe('test_scenarios_ts_disposition', () => {
 // ─────────────────────────────────────────────────────────────────────
 describe('test_mbb_sports_sim_wiring', () => {
   it('MBB simulation imports Ball type and BallSystem from sportsSim', () => {
-    const mbbSimPath = resolve(
-      repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts',
-    );
-    if (existsSync(mbbSimPath)) {
-      const simSrc = readFileSync(mbbSimPath, 'utf-8');
+    const mbbSimDir = resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation');
+    if (existsSync(mbbSimDir)) {
+      const modules = ['mbbSimulation.ts', 'mbbConfig.ts', 'mbbMath.ts', 'mbbSteering.ts', 'mbbAgent.ts', 'mbbCombat.ts', 'mbbDisposal.ts', 'mbbRender.ts', 'mbbTick.ts'];
+      const simSrc = modules.map(f => readFileSync(resolve(mbbSimDir, f), 'utf-8')).join('\n');
       // Ball type, BallSystem, and DisposalSystem are now imported (integration phase)
       expect(simSrc).toContain('sportsSim');
       expect(simSrc).toContain('BallSystem');

@@ -192,8 +192,9 @@ describe('test_real_sports_sim_api_used', () => {
     // Read the source file and verify it imports from sportsSim
     const { readFileSync } = await import('fs');
     const { resolve } = await import('path');
-    const simPath = resolve(__dirname, '..', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts');
-    const src = readFileSync(simPath, 'utf-8');
+    const simDir = resolve(__dirname, '..', 'src', 'games', 'mutant_battle_ball', 'simulation');
+    const modules = ['mbbSimulation.ts', 'mbbConfig.ts', 'mbbMath.ts', 'mbbSteering.ts', 'mbbAgent.ts', 'mbbCombat.ts', 'mbbDisposal.ts', 'mbbRender.ts', 'mbbTick.ts'];
+    const src = modules.map(f => readFileSync(resolve(simDir, f), 'utf-8')).join('\n');
 
     // Must import Ball type and BallSystem from sportsSim
     expect(src).toContain("from '../../../engine/shared/sportsSim'");
