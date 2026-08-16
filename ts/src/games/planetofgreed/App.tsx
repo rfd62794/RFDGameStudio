@@ -1711,7 +1711,7 @@ export default function App({ session }: GameRendererProps) {
               </section>
 
               {/* Right Column (3/12): Action Queue & Realtime Boardroom Feed */}
-              <section className="lg:col-span-3 flex flex-col gap-3 h-full overflow-hidden" id="boardroom-right-column">
+              <section className="lg:col-span-3 flex flex-col gap-3 max-h-[calc(100svh-60px)] overflow-hidden" id="boardroom-right-column">
                 {/* 1. Alert Queue */}
                 <AlertQueue
                   hasPendingEvent={gameState.currentActiveEvent !== null}
