@@ -432,7 +432,7 @@ function renderStrokeSkeletonPass(
   shapeMap: Map<PartSlot, SlotShapeMapping>,
   colors: Record<string, string>,
   genetics: Record<string, string> | undefined,
-  proportions: BodyProportions | undefined,
+  _proportions: BodyProportions | undefined,
 ): ComposedPart[] {
   const result: ComposedPart[] = [];
   const jointBlends: JointBlendCircle[] = [];
@@ -466,7 +466,7 @@ function renderStrokeSkeletonPass(
     const jointBlendK = shapeMapping.baseParams.jointBlendK ?? 4;
 
     // Get parent position
-    const parentNode = nodeMap.get(node.parentSlot ?? '');
+    const parentNode = nodeMap.get(node.parentSlot ?? ('' as PartSlot));
     const parentAtt = node.parentSlot ? attachmentMap.get(node.parentSlot) : null;
 
     if (part.slot === 'head') {

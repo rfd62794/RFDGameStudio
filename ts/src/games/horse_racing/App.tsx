@@ -152,7 +152,7 @@ export default function App({ session }: GameRendererProps) {
   const [lastRaceBets, setLastRaceBets] = useState<Bet[]>([]);
   const [unlockedSlots, setUnlockedSlots] = useState(3);
   const ticker = useCooldownTicker();
-  const { call: luaCall, error: luaError, clearError } = useLuaCall(session);
+  const { error: luaError } = useLuaCall(session);
 
   useEffect(() => {
     const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
@@ -328,7 +328,7 @@ export default function App({ session }: GameRendererProps) {
       const updatedHorses = prev.horses.map(h => {
         const r = results.find(res => res.horse_id === h.id);
         if (!r) return h;
-        const updated = call(session!, 'update_horse_after_race', h, r.rank, horseEarnings[h.id] ?? 0) as Record<string, unknown>;
+        const updated = call(session!, 'update_horse_after_race', h, r.rank, horseEarnings[h.id] ?? 0) as unknown as Record<string, unknown>;
         return { ...luaHorseToTs(updated), cooldown_until: cooldownUntil };
       });
       let next = {
@@ -369,7 +369,7 @@ export default function App({ session }: GameRendererProps) {
     if (!session || !gameState) return;
     const horse = gameState.horses.find(h => h.id === id);
     if (!horse) return;
-    const price = call(session, 'calculate_horse_price', horse) as number;
+    const price = call(session, 'calculate_horse_price', horse) as unknown as number;
     setGameState(prev => {
       if (!prev) return prev;
       return {
@@ -391,7 +391,7 @@ export default function App({ session }: GameRendererProps) {
     const coatColors = data['coat_colors'];
     const silkColors = data['silk_colors'];
     const options = { min_stat: minStat, max_stat: maxStat, generation: 1, player_owned: true, gender };
-    const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
+    const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as unknown as Record<string, unknown>;
     const horse = luaHorseToTs({ ...raw, player_owned: true, id: `horse_${Date.now()}` });
     setGameState(prev => {
       if (!prev) return prev;

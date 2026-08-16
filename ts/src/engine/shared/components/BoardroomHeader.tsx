@@ -1,4 +1,3 @@
-import React from 'react';
 import type { GameDate, Corporation, MapCell } from '../componentTypes';
 import { Play, Pause, FastForward, Briefcase, Calendar, Flag, HelpCircle, Award } from 'lucide-react';
 

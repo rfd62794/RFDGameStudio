@@ -1,4 +1,3 @@
-import React from 'react';
 import type { GameEvent, MapCell, Corporation, GameDate } from '../componentTypes';
 import { AlertTriangle } from 'lucide-react';
 

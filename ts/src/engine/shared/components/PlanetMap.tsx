@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import type { MapCell, Point, Corporation, UnitTransit, UnitGroup, UnitType } from '../componentTypes';
-import { Shield, EyeOff, Radio, Compass, Swords, Skull } from 'lucide-react';
+import { useState } from 'react';
+import type { MapCell, Corporation, UnitTransit, UnitGroup } from '../componentTypes';
+import { EyeOff } from 'lucide-react';
 
 interface PlanetMapProps {
   cells: MapCell[];
@@ -386,7 +386,6 @@ export default function PlanetMap({
 
                     {/* Draw Arrived Invaders as little secondary bubbles if player can see them */}
                     {isVisible && getArrivedInvadersForCell(cell.id).map((inv, idx) => {
-                      const invCorp = getCorp(inv.corpId);
                       const invCount = inv.units.circle + inv.units.square + inv.units.triangle;
                       if (invCount === 0) return null;
                       
@@ -440,8 +439,6 @@ export default function PlanetMap({
           {transits.map(transit => {
             const originCell = cells.find(c => c.id === transit.originCellId);
             const targetCell = cells.find(c => c.id === transit.targetCellId);
-            const corp = getCorp(transit.corpId);
-
             if (!originCell || !targetCell) return null;
 
             // Only draw transits that are visible to the player

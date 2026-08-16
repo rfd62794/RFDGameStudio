@@ -32,11 +32,11 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
   const bettingCfg = (data['betting'] as Record<string, unknown>) ?? {};
 
   const getPlaceOdds = useCallback((winOdds: number): number => {
-    return call(session, 'calculate_place_odds', winOdds, bettingCfg) as number;
+    return call(session, 'calculate_place_odds', winOdds, bettingCfg) as unknown as number;
   }, [session, bettingCfg]);
 
   const getShowOdds = useCallback((winOdds: number): number => {
-    return call(session, 'calculate_show_odds', winOdds, bettingCfg) as number;
+    return call(session, 'calculate_show_odds', winOdds, bettingCfg) as unknown as number;
   }, [session, bettingCfg]);
 
   const handleBetChange = useCallback((horseId: string, type: 'win' | 'place' | 'show', amount: number) => {
@@ -92,7 +92,7 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
 
     const settlement = call(
       session, 'settle_bets', activeBets, standings, race.prize_pool, prizeSplits
-    ) as Record<string, unknown>;
+    ) as unknown as Record<string, unknown>;
 
     const betPayout = (settlement['bet_payout'] as number) ?? 0;
     const horseEarnings = (settlement['horse_earnings'] as Record<string, number>) ?? {};

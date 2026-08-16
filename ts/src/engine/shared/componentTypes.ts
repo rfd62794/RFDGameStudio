@@ -11,7 +11,7 @@
  * for convenience.
  */
 
-import type { UnitType, UnitGroup, CellCombatState } from './combat/types';
+import type { UnitType, UnitGroup } from './combat/types';
 
 // Re-export combat types so consumers can import everything from one place
 export type { UnitType, UnitGroup, CellCombatState, CombatLogEntry } from './combat/types';

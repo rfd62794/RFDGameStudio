@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle, FileText, ShieldAlert } from 'lucide-react';
 
 interface AlertQueueProps {

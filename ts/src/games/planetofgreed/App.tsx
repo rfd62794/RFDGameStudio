@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import {
   GameState, MapCell, Corporation, WeeklyOrder, UnitTransit, UnitGroup,
-  UnitType, OrderType, GameEvent, CellCombatState, GameDate, CombatLogEntry, CultureId
+  UnitType, GameEvent, CellCombatState, GameDate, CultureId
 } from './types';
 import { generateVoronoiMap } from './utils/mapGenerator';
 import { resolveCellCombat } from '../../engine/shared/combat';
@@ -21,13 +21,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import './index.css';
 import GuidedWalkthrough from './components/GuidedWalkthrough';
 import OpeningSequence from './components/OpeningSequence';
-import { HOUSE_DESCRIPTIONS, ENDING_TEXT, EVENT_FLAVOR_NOTE } from './flavorText';
+import { HOUSE_DESCRIPTIONS, ENDING_TEXT } from './flavorText';
 import { GameShell } from '../../components/GameShell';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 
-import { 
-  Briefcase, Activity, AlertTriangle, Play, Pause, Compass, 
-  HelpCircle, ChevronRight, Layout, Info, Award, Calendar, RefreshCw 
+import {
+  Activity, Info, RefreshCw
 } from 'lucide-react';
 
 const PLAYER_CORP_ID = 'player-vanguard';
@@ -161,7 +160,7 @@ const EVENTS_TEMPLATES = [
         text: "Appease Union Demands",
         cost: 20000,
         effectText: "Pay off union leadership. Production continues uninterrupted. (Cost: -$20,000)",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Negotiated resolution with labor union. Paid $20,000 corporate settlement.`,
           stateUpdates: { publicOpinionOffset: 5 }
         })
@@ -170,7 +169,7 @@ const EVENTS_TEMPLATES = [
         text: "Authorize Security Enforcement",
         cost: 0,
         effectText: "Deploy security squads to clear the sit-in. Subdues workers, but damages infrastructure. (Sectors lose -1 Fortification)",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Deployed security personnel. Restored order by force, but local defensive shields degraded (-1 Fortification).`,
           stateUpdates: { fortificationOffset: -1, publicOpinionOffset: -10 }
         })
@@ -179,7 +178,7 @@ const EVENTS_TEMPLATES = [
         text: "Impose Production Halt",
         cost: 0,
         effectText: "Ignore union sit-in. No cash cost, but sector production is stalled.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Production locked down. Refused negotiation; local factory operations frozen.`,
           stateUpdates: { stallWeeks: 2, publicOpinionOffset: -2 }
         })
@@ -194,7 +193,7 @@ const EVENTS_TEMPLATES = [
         text: "Settle Drilling Contracts",
         cost: 0,
         effectText: "Lease mineral excavation rights to private contractors. Gain $60,000 immediately.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Executed drilling contracts. Deposited $60,000 iridium lease payment.`,
           stateUpdates: { treasuryOffset: 60000, publicOpinionOffset: 0 }
         })
@@ -203,7 +202,7 @@ const EVENTS_TEMPLATES = [
         text: "In-House Deep-Core Strip Mining",
         cost: 0,
         effectText: "Excavate the vein immediately. Gain $100,000, but destabilizes local defenses (-1 Fortification level).",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Conducted strip mining operations. Generated $100,000 revenue, but structural damage reduced fortification levels.`,
           stateUpdates: { treasuryOffset: 100000, fortificationOffset: -1, publicOpinionOffset: -8 }
         })
@@ -212,7 +211,7 @@ const EVENTS_TEMPLATES = [
         text: "Secure Strategic Reserves",
         cost: 10000,
         effectText: "Store iridium for local shield reinforcements. Cost: -$10,000. Adds +1 Fortification level.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Fortified strategic iridium vaults. Spent $10,000 on shield alloy reinforcers.`,
           stateUpdates: { fortificationOffset: 1, publicOpinionOffset: 3 }
         })
@@ -227,7 +226,7 @@ const EVENTS_TEMPLATES = [
         text: "Send Retrieval Squad",
         cost: 10000,
         effectText: "Spend $10,000 to recover secure crates. Adds +1 Circle and +1 Square unit to local garrison.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Secured drop pod crates. Recovered advanced combat components: +1 Circle and +1 Square added to garrison.`,
           stateUpdates: { unitsBonus: { circle: 1, square: 1, triangle: 0 }, publicOpinionOffset: 0 }
         })
@@ -236,7 +235,7 @@ const EVENTS_TEMPLATES = [
         text: "Remote Detonate Payload",
         cost: 2000,
         effectText: "Spend $2,000 to detonate coordinates, denying assets to rivals. Adds +1 Fortification from scrap.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Detonated capsule remotely. Recycled titanium shielding scrap into sector fortification (+1 Fortification).`,
           stateUpdates: { fortificationOffset: 1, publicOpinionOffset: 0 }
         })
@@ -245,7 +244,7 @@ const EVENTS_TEMPLATES = [
         text: "Sell Pod GPS Coordinates",
         cost: 0,
         effectText: "Sell target coordinates to independent salvage freelancers. Gain $30,000.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Coordinates sold. Credited $30,000 from salvage brokers.`,
           stateUpdates: { treasuryOffset: 30000, publicOpinionOffset: 0 }
         })
@@ -260,7 +259,7 @@ const EVENTS_TEMPLATES = [
         text: "Acquire High-Orbit Satellite Shielding",
         cost: 15000,
         effectText: "Deploy satellite Faraday cages. Cost: -$15,000. Telemetry stays online.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Faraday shields activated. Maintained complete telemetry feed.`,
           stateUpdates: { publicOpinionOffset: 2 }
         })
@@ -269,7 +268,7 @@ const EVENTS_TEMPLATES = [
         text: "Accept Telemetry Glitch",
         cost: 0,
         effectText: "Accept temporary static. Free, but 1 random scouted sector is lost back to Fog of War.",
-        action: (state: GameState, cellId: number) => ({
+        action: (_state: GameState, _cellId: number) => ({
           log: `Telemetry blackout. Lost coordinates for 1 previously scouted sector due to solar noise.`,
           stateUpdates: { fogOfWarScoutReset: true, publicOpinionOffset: -2 }
         })

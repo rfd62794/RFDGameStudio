@@ -79,7 +79,7 @@ export default function BreederTab({ horses, session, funds, onAddOffspring }: P
     if (!selectedSire || !selectedDam) return;
     setError(null);
     try {
-      const raw = call(session, 'breed_horses', selectedSire, selectedDam, coatColors, silkColors, prefixes, suffixes) as Record<string, unknown>;
+      const raw = call(session, 'breed_horses', selectedSire, selectedDam, coatColors, silkColors, prefixes, suffixes) as unknown as Record<string, unknown>;
       if (!raw || raw['id'] === undefined) {
         setError('Breeding failed — check sire/dam genders.');
         return;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { CellCombatState, Corporation, GameDate } from '../componentTypes';
 import { Swords, RefreshCw, ChevronRight, Play, FastForward } from 'lucide-react';
 
