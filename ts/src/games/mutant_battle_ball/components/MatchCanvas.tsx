@@ -4,8 +4,9 @@ import { Modal } from '../../../ui/components';
 import { PaperDoll } from '../../../engine/paperDoll';
 import type { Part, PartsBySlot } from '../../../engine/shared/partSlots';
 import type { Mutant } from '../types';
-import type { MatchState } from '../types';
+import type { MatchState, MatchAgent } from '../types';
 import type { MbbSimulation } from '../simulation/mbbSimulation';
+import type { AnimationType } from '../../../engine/paperDoll/chimeraTypes';
 
 const COURT_W = 700;
 const COURT_H = 400;
@@ -14,8 +15,45 @@ const SCALE_Y = COURT_H / 60;
 const EZ_DEPTH = 10;
 const AGENT_RENDER_SIZE = 40;
 
+// down_salvage visible-beat duration in frames. At 60fps this is ~0.5s —
+// long enough to see the agent go down, short enough to not linger.
+// The agent is rendered with 'down_salvage' pose for this many frames
+// after the agent_down event before being filtered out of the overlay.
+const DOWN_SALVAGE_FRAMES = 30;
+
+// Combat animation display duration in frames. Events are per-tick (one
+// frame), but the pose needs to persist long enough to be visible.
+// At 60fps this is ~0.33s — a clear visual beat for attack/block/celebration.
+const COMBAT_ANIM_FRAMES = 20;
+
 function toScreen(gx: number, gy: number): [number, number] {
   return [gx * SCALE_X, gy * SCALE_Y];
+}
+
+// ── Pose derivation ──────────────────────────────────────────────────
+//
+// Maps real agent status + this-tick events to AnimationType. Events are
+// ephemeral (one tick), so combat poses are tracked in a ref with frame
+// counters that persist the pose for COMBAT_ANIM_FRAMES after the event.
+//
+// Priority (highest first):
+//   1. down_salvage (agent recently went down — visible beat before removal)
+//   2. stagger (agent.status === 'stunned')
+//   3. flee_startled (failed-violence blunder event this tick)
+//   4. attack (tackle_success event — tackler is the attacker)
+//   5. tackle_block (block event — blocker is the defender)
+//   6. celebration (scored event — scoring team celebrates)
+//   7. sprint (hasBall, no combat)
+//   8. walk (no ball, no combat)
+
+interface AgentAnimState {
+  // Frame counters for transient combat poses (>0 means active)
+  attackFrames: number;
+  blockFrames: number;
+  celebrationFrames: number;
+  fleeStartledFrames: number;
+  // down_salvage: counts DOWN from DOWN_SALVAGE_FRAMES to 0
+  downSalvageRemaining: number;
 }
 
 interface MatchCanvasProps {
@@ -30,13 +68,15 @@ interface MatchCanvasProps {
 }
 
 export default function MatchCanvas(
-  { session, sim, isActive, state, setState, onMatchEnd, playerRoster, opponentMutants }: MatchCanvasProps
+  { session, sim, isActive, onMatchEnd, playerRoster, opponentMutants }: MatchCanvasProps
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [matchState, setMatchState] = useState<MatchState | null>(null);
   const [showSubModal, setShowSubModal] = useState(false);
-  const [downAgentId, setDownAgentId] = useState<string | null>(null);
   const matchStateRef = useRef<MatchState | null>(null);
+
+  // Per-agent animation state — persists combat poses across frames
+  const animStateRef = useRef<Record<string, AgentAnimState>>({});
 
   // Build a lookup from agent ID to parts for PaperDoll rendering.
   // Player agents come from the roster (real Parts with Brand/Quality).
@@ -74,22 +114,113 @@ export default function MatchCanvas(
     return map;
   }, [playerRoster, opponentMutants, session]);
 
+  // Process events to update animation state counters
+  const processEventsForAnim = useCallback((ms: MatchState) => {
+    const animState = animStateRef.current;
+    for (const ev of ms.events) {
+      const type = ev['type'] as string;
+      // tackle_success → tackler plays 'attack'
+      if (type === 'tackle_success') {
+        const tacklerId = ev['tackler_id'] as string;
+        if (!animState[tacklerId]) animState[tacklerId] = makeAnimState();
+        animState[tacklerId].attackFrames = COMBAT_ANIM_FRAMES;
+      }
+      // block with severity → blocker plays 'tackle_block'
+      if (type === 'block' && ev['severity'] && ev['severity'] !== 'none') {
+        const blockerId = ev['blocker_id'] as string;
+        if (!animState[blockerId]) animState[blockerId] = makeAnimState();
+        animState[blockerId].blockFrames = COMBAT_ANIM_FRAMES;
+      }
+      // tackle_fail with blunder → tackler plays 'flee_startled'
+      if (type === 'tackle_fail' && ev['blunder']) {
+        const tacklerId = ev['tackler_id'] as string;
+        if (!animState[tacklerId]) animState[tacklerId] = makeAnimState();
+        animState[tacklerId].fleeStartledFrames = COMBAT_ANIM_FRAMES;
+      }
+      // failed_violence_turnover → agent plays 'flee_startled'
+      if (type === 'failed_violence_turnover') {
+        const agentId = ev['agent_id'] as string;
+        if (!animState[agentId]) animState[agentId] = makeAnimState();
+        animState[agentId].fleeStartledFrames = COMBAT_ANIM_FRAMES;
+      }
+      // block_fail → blocker blundered, plays 'flee_startled'
+      if (type === 'block_fail') {
+        const blockerId = ev['blocker_id'] as string;
+        if (!animState[blockerId]) animState[blockerId] = makeAnimState();
+        animState[blockerId].fleeStartledFrames = COMBAT_ANIM_FRAMES;
+      }
+      // scored → scoring team plays 'celebration'
+      if (type === 'scored') {
+        const scoringTeam = ev['team'] as 'player' | 'opponent';
+        for (const ag of ms.agents) {
+          if (ag.team === scoringTeam && ag.status === 'active') {
+            if (!animState[ag.id]) animState[ag.id] = makeAnimState();
+            animState[ag.id].celebrationFrames = COMBAT_ANIM_FRAMES;
+          }
+        }
+      }
+      // agent_down → agent plays 'down_salvage' for a visible beat
+      if (type === 'agent_down') {
+        const agentId = ev['agent_id'] as string;
+        if (!animState[agentId]) animState[agentId] = makeAnimState();
+        animState[agentId].downSalvageRemaining = DOWN_SALVAGE_FRAMES;
+      }
+    }
+  }, []);
+
+  // Decrement all animation frame counters by 1 (called each render frame)
+  const decayAnimState = useCallback(() => {
+    const animState = animStateRef.current;
+    for (const id of Object.keys(animState)) {
+      const s = animState[id];
+      if (s.attackFrames > 0) s.attackFrames--;
+      if (s.blockFrames > 0) s.blockFrames--;
+      if (s.celebrationFrames > 0) s.celebrationFrames--;
+      if (s.fleeStartledFrames > 0) s.fleeStartledFrames--;
+      if (s.downSalvageRemaining > 0) s.downSalvageRemaining--;
+    }
+  }, []);
+
+  // Derive the animation type for an agent from its status + anim state
+  const deriveAnimation = useCallback((agent: MatchAgent): AnimationType => {
+    const s = animStateRef.current[agent.id];
+
+    // 1. down_salvage — highest priority, agent is going down
+    if (s && s.downSalvageRemaining > 0) return 'down_salvage';
+
+    // 2. stagger — agent is stunned
+    if (agent.status === 'stunned') return 'stagger';
+
+    // 3-6. Combat poses from events (persisted via frame counters)
+    if (s) {
+      if (s.fleeStartledFrames > 0) return 'flee_startled';
+      if (s.attackFrames > 0) return 'attack';
+      if (s.blockFrames > 0) return 'tackle_block';
+      if (s.celebrationFrames > 0) return 'celebration';
+    }
+
+    // 7-8. Default poses
+    return agent.hasBall ? 'sprint' : 'walk';
+  }, []);
+
   const tick = useCallback((dt: number) => {
     if (!isActive) return;
     const ms = sim.tickMatch(dt);
     matchStateRef.current = ms;
     setMatchState(ms);
 
+    // Process events for animation state before rendering
+    processEventsForAnim(ms);
+
     for (const ev of ms.events) {
       if (ev['type'] === 'agent_down') {
-        setDownAgentId(ev['agent_id'] as string);
         setShowSubModal(true);
       }
       if (ev['type'] === 'match_ended') {
         onMatchEnd(ms);
       }
     }
-  }, [isActive, sim, onMatchEnd]);
+  }, [isActive, sim, onMatchEnd, processEventsForAnim]);
 
   useGameLoop(tick, { paused: !isActive || showSubModal });
 
@@ -99,6 +230,9 @@ export default function MatchCanvas(
     if (!canvas || !matchState) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Decay animation frame counters each render
+    decayAnimState();
 
     // Court background
     ctx.fillStyle = '#1a1d27';
@@ -127,16 +261,74 @@ export default function MatchCanvas(
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, COURT_W - 2, COURT_H - 2);
 
-    // Ball
+    // ── Ball rendering ──────────────────────────────────────────────
+    // In-flight: arc with height offset + trail. Loose: pulsing dot.
+    // Held: golden dot with carrier highlight (drawn in agent loop below).
     const [bsx, bsy] = toScreen(matchState.ballX, matchState.ballY);
-    ctx.fillStyle = '#fbbf24';
-    ctx.beginPath();
-    ctx.arc(bsx, bsy, 8, 0, Math.PI * 2);
-    ctx.fill();
+
+    if (matchState.ballState === 'in_flight') {
+      // Ball is in flight from a kick/handball — render as an arc with
+      // height offset and a trail showing direction of travel.
+      const heightOffset = matchState.ballHeight * 8; // Scale height to pixels
+
+      // Trail: line from current position backward along velocity
+      const trailLen = 30;
+      const vMag = Math.hypot(matchState.ballVelocityX, matchState.ballVelocityY);
+      if (vMag > 0.1) {
+        const trailDx = -(matchState.ballVelocityX / vMag) * trailLen;
+        const trailDy = -(matchState.ballVelocityY / vMag) * trailLen;
+        const gradient = ctx.createLinearGradient(
+          bsx + trailDx, bsy + trailDy - heightOffset,
+          bsx, bsy - heightOffset,
+        );
+        gradient.addColorStop(0, 'rgba(251,191,36,0.0)');
+        gradient.addColorStop(1, 'rgba(251,191,36,0.6)');
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(bsx + trailDx, bsy + trailDy - heightOffset);
+        ctx.lineTo(bsx, bsy - heightOffset);
+        ctx.stroke();
+      }
+
+      // Shadow on the ground (shows where the ball will land)
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(bsx, bsy, 6, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ball at height — larger and brighter than the flat dot
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(bsx, bsy - heightOffset, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    } else if (matchState.ballState === 'loose') {
+      // Loose ball on the ground — pulsing orange dot
+      const pulse = 0.7 + 0.3 * Math.sin(Date.now() / 200);
+      ctx.fillStyle = `rgba(251,191,36,${pulse})`;
+      ctx.beginPath();
+      ctx.arc(bsx, bsy, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    } else {
+      // Held — flat golden dot (carrier highlight drawn in agent loop)
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(bsx, bsy, 8, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Agent health bars and labels (drawn on canvas, under SVG overlays)
     for (const agent of matchState.agents) {
-      if (agent.status === 'down' || agent.status === 'subbed') continue;
+      // down_salvage: keep rendering the health bar during the visible beat
+      const animState = animStateRef.current[agent.id];
+      const inDownSalvage = animState && animState.downSalvageRemaining > 0;
+      if ((agent.status === 'down' || agent.status === 'subbed') && !inDownSalvage) continue;
       const [ax, ay] = toScreen(agent.x, agent.y);
       const r = AGENT_RENDER_SIZE / 2;
 
@@ -173,7 +365,7 @@ export default function MatchCanvas(
       ctx.font = '9px sans-serif';
       ctx.fillText(agent.name, ax, ay - r - 4);
     }
-  }, [matchState]);
+  }, [matchState, decayAnimState]);
 
   if (!isActive) {
     return (
@@ -208,10 +400,15 @@ export default function MatchCanvas(
 
         {/* SVG PaperDoll overlays for each agent — positioned via CSS transform */}
         {matchState?.agents.map(agent => {
-          if (agent.status === 'down' || agent.status === 'subbed') return null;
+          // down_salvage: keep rendering the agent during the visible beat
+          const animState = animStateRef.current[agent.id];
+          const inDownSalvage = animState && animState.downSalvageRemaining > 0;
+          if ((agent.status === 'down' || agent.status === 'subbed') && !inDownSalvage) return null;
+
           const [ax, ay] = toScreen(agent.x, agent.y);
           const parts = agentPartsMap[agent.id];
           const facing = agent.team === 'player' ? 'side_right' : 'side_left';
+          const animation = deriveAnimation(agent);
 
           return (
             <div
@@ -224,7 +421,11 @@ export default function MatchCanvas(
                 width: AGENT_RENDER_SIZE,
                 height: AGENT_RENDER_SIZE,
                 pointerEvents: 'none',
-                opacity: agent.status === 'stunned' ? 0.5 : 1,
+                // Stunned agents are semi-transparent (existing behavior,
+                // preserved). down_salvage agents fade out during the beat.
+                opacity: agent.status === 'stunned' ? 0.5
+                  : inDownSalvage ? Math.max(0.2, animState.downSalvageRemaining / DOWN_SALVAGE_FRAMES)
+                  : 1,
               }}
             >
               {parts ? (
@@ -233,7 +434,7 @@ export default function MatchCanvas(
                   size={AGENT_RENDER_SIZE}
                   seed={agent.id.charCodeAt(0)}
                   facing={facing as 'side_right' | 'side_left'}
-                  animation={agent.hasBall ? 'sprint' : 'walk'}
+                  animation={animation}
                   animationT={(Date.now() / 1000) % 1}
                 />
               ) : (
@@ -265,7 +466,6 @@ export default function MatchCanvas(
           <button onClick={() => {
             sim.resumeMatch();
             setShowSubModal(false);
-            setDownAgentId(null);
           }}>Continue Without Sub</button>
         </Modal>
       )}
@@ -284,4 +484,16 @@ export default function MatchCanvas(
       </div>
     </div>
   );
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────
+
+function makeAnimState(): AgentAnimState {
+  return {
+    attackFrames: 0,
+    blockFrames: 0,
+    celebrationFrames: 0,
+    fleeStartledFrames: 0,
+    downSalvageRemaining: 0,
+  };
 }
