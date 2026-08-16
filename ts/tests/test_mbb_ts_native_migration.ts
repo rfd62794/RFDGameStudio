@@ -291,8 +291,8 @@ describe('test_gamerules_matches_fixed_lua_behavior', () => {
     }, parts, prng);
     expect(result.mutant).not.toBeNull();
     expect(result.error).toBeNull();
-    expect(result.mutant.name).toBe('TestMutant');
-    expect(result.mutant.parts.head.id).toBe('p1');
+    expect(result.mutant!.name).toBe('TestMutant');
+    expect(result.mutant!.parts.head!.id).toBe('p1');
   });
 });
 

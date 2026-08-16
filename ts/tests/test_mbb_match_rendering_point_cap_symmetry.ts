@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
 import { load as parse } from 'js-yaml';
 
 import { createMbbSimulation, calculateStats, CONFIG } from '../src/games/mutant_battle_ball/simulation/mbbSimulation';
@@ -231,7 +230,7 @@ describe('test_match_render_performance_reported', () => {
     const playerMutants = buildPlayerMutantsFromData();
     const opponentMutants = buildOpponentMutantsFromData();
     const sim = createMbbSimulation();
-    sim.initMatch(playerMutants, opponentMutants, data as Parameters<typeof sim.initMatch>[2], 42);
+    sim.initMatch(playerMutants, opponentMutants as unknown as Mutant[], data as unknown as Parameters<typeof sim.initMatch>[2], 42);
 
     // Time 1000 ticks (simulating ~16s of match at 60fps)
     const start = performance.now();
@@ -447,7 +446,7 @@ describe('test_opponent_brand_quality_assignment_confirmed', () => {
       const mutants = opp['mutants'] as Array<Record<string, unknown>>;
       for (const m of mutants) {
         const rawParts = m['parts'] as Record<string, string>;
-        for (const [slot, partId] of Object.entries(rawParts)) {
+        for (const [_slot, partId] of Object.entries(rawParts)) {
           const part = partsMap[partId];
           expect(part).toBeDefined();
           expect(part.brand).toBeDefined();
@@ -555,7 +554,7 @@ describe('test_controlled_match_isolates_brand_effect', () => {
     const results: Array<{ seed: number; playerScore: number; opponentScore: number; winner: string }> = [];
     for (let seed = 1; seed <= 5; seed++) {
       const sim = createMbbSimulation();
-      sim.initMatch(playerTeam, opponentTeam, data as Parameters<typeof sim.initMatch>[2], seed);
+      sim.initMatch(playerTeam, opponentTeam, data as unknown as Parameters<typeof sim.initMatch>[2], seed);
       let ended = false;
       let finalMs = null;
       let ticks = 0;
@@ -617,7 +616,7 @@ describe('test_controlled_match_isolates_brand_effect', () => {
     const results: Array<{ seed: number; winner: string }> = [];
     for (let seed = 1; seed <= 10; seed++) {
       const sim = createMbbSimulation();
-      sim.initMatch(teamA, teamB, data as Parameters<typeof sim.initMatch>[2], seed);
+      sim.initMatch(teamA, teamB, data as unknown as Parameters<typeof sim.initMatch>[2], seed);
       let ended = false;
       let finalMs = null;
       let ticks = 0;
@@ -669,7 +668,7 @@ describe('test_controlled_match_isolates_brand_effect', () => {
     const results: Array<{ seed: number; playerScore: number; opponentScore: number; winner: string; ticks: number }> = [];
     for (let seed = 1; seed <= 5; seed++) {
       const sim = createMbbSimulation();
-      sim.initMatch(playerMutants, scrappers, data as Parameters<typeof sim.initMatch>[2], seed);
+      sim.initMatch(playerMutants, scrappers as unknown as Mutant[], data as unknown as Parameters<typeof sim.initMatch>[2], seed);
       let ended = false;
       let finalMs: { scorePlayer: number; scoreOpponent: number; state: string; timeRemaining: number } | null = null;
       let ticks = 0;

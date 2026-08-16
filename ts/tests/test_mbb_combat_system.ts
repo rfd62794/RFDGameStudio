@@ -17,7 +17,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createMbbSimulation, calculateStats, CONFIG } from '../src/games/mutant_battle_ball/simulation/mbbSimulation';
+import { createMbbSimulation, CONFIG } from '../src/games/mutant_battle_ball/simulation/mbbSimulation';
 import type { Mutant, MutantParts } from '../src/games/mutant_battle_ball/types';
 import type { Part } from '../src/engine/shared/partSlots';
 

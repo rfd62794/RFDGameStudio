@@ -27,7 +27,6 @@ import {
 } from '../src/games/mutant_battle_ball/simulation/mbbSimulation';
 import type { MbbSimulation } from '../src/games/mutant_battle_ball/simulation/mbbSimulation';
 import type { MBBGameState, Mutant, MutantParts, Part } from '../src/games/mutant_battle_ball/types';
-import { PART_SLOTS } from '../src/engine/shared/partSlots';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
@@ -119,7 +118,7 @@ function equipPart(
   mutantId: string,
   slot: Part['slot'],
   newPart: Part,
-  partsMap: Map<string, Part>,
+  _partsMap: Map<string, Part>,
 ): MBBGameState {
   const targetMutant = state.roster.find(m => m.id === mutantId);
   const oldPart = targetMutant?.parts[slot] ?? null;

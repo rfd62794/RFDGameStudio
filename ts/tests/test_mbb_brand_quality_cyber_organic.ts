@@ -13,7 +13,7 @@ import {
   repairPart,
   repairOemLossWarning,
 } from '../src/games/mutant_battle_ball/brandModifiers';
-import type { Part, BrandId, QualityTier } from '../src/engine/shared/partSlots';
+import type { Part, BrandId } from '../src/engine/shared/partSlots';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
@@ -345,7 +345,7 @@ describe('test_no_regression', () => {
   });
 
   it('calculateStats still works for flat-stat opponents (no parts)', () => {
-    const opponent = { accuracy: 40, endurance: 50, power: 30, speed: 35, max_health: 50 };
+    const _opponent = { accuracy: 40, endurance: 50, power: 30, speed: 35, max_health: 50 };
     // Opponents with flat stats bypass calculateStats entirely in makeAgent,
     // but calculateStats with no parts should return zeros
     const stats = calculateStats({});

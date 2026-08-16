@@ -141,7 +141,7 @@ describe('test_balanced_stats_confirmed_symmetric', () => {
 
   it('Prior directive\'s "balanced" fixture was NOT balanced — player had 2.8x power', () => {
     const priorPlayer = makePriorPlayerMutant('test', 'T', 50);
-    const priorOpponent = makePriorOpponentMutant('test_o', 'TO', 50);
+    const _priorOpponent = makePriorOpponentMutant('test_o', 'TO', 50);
 
     const playerStats = calculateStats(priorPlayer);
     const opponentStats = {
