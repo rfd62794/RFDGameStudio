@@ -345,7 +345,6 @@ describe('test_no_regression', () => {
   });
 
   it('calculateStats still works for flat-stat opponents (no parts)', () => {
-    const _opponent = { accuracy: 40, endurance: 50, power: 30, speed: 35, max_health: 50 };
     // Opponents with flat stats bypass calculateStats entirely in makeAgent,
     // but calculateStats with no parts should return zeros
     const stats = calculateStats({});
