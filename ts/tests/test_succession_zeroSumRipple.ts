@@ -4,11 +4,9 @@ import {
   whisperTo,
   appealTo,
   presentEvidenceTo,
-  scoutForEvidence,
 } from '../src/games/succession/utils/gameOrchestration';
-import { DOMAIN_RIPPLE_CONFLICTS, DOMAIN_RIPPLE_PENALTY } from '../src/games/succession/data/gameConstants';
+import { DOMAIN_RIPPLE_PENALTY } from '../src/games/succession/data/gameConstants';
 import { getTelegraphedRivalRumors, getRivalThreatForFigure } from '../src/games/succession/utils/telegraphedRumors';
-import { GameState } from '../src/games/succession/types/gameState';
 
 describe('Zero-Sum Domain Ripple Friction (ADR-013)', () => {
   it('whisperTo_applies_domain_ripple_friction_to_opposing_councilor_with_positive_favor', () => {

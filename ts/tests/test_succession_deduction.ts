@@ -98,10 +98,10 @@ describe('Regicide Triad & Indictment Engine (ADR-014)', () => {
 
     it('triggers perjury exposure and awards 0 favor when player delivers a false indictment', () => {
       const initial = createInitialGameState();
-      const falseTriad = {
-        suspect: 'commander' as const,
-        method: 'occult_curse' as const,
-        motive: 'throne_usurpation' as const,
+      const falseTriad: IndictmentTriad = {
+        suspect: 'commander',
+        method: 'occult_curse' as unknown as IndictmentTriad['method'],
+        motive: 'throne_usurpation' as unknown as IndictmentTriad['motive'],
       };
 
       const next = deliverIndictmentTo(initial, 'chancellor', falseTriad);
