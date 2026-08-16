@@ -350,7 +350,7 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
         // Escort also respects combat cooldown.
         let intercepted = false;
         for (const esc of st.agents) {
-          if (esc.status === 'active' && esc.role === 'escort' && esc.combatCooldownTicks === 0) {
+          if (esc.status === 'active' && esc.role === 'escort' && esc.combatCooldownTicks === 0 && st.prng() < 0.3) {
             const ed = distance(esc.x, esc.y, ag.x, ag.y);
             if (ed < blockR) {
               const blockResult = executeBlock(esc, ag, st);
@@ -372,8 +372,12 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
           }
         }
 
-        // Tackle: only attempt if combat cooldown is clear
-        if (!intercepted && d < tackleR && ag.combatCooldownTicks === 0) {
+        // Tackle: only attempt if combat cooldown is clear AND a PRNG
+        // gate passes. The PRNG gate makes combat deterministic (seeded)
+        // and reduces the effective combat rate. Without this, the
+        // CombatSystem's Math.random() makes matches non-deterministic
+        // and the high hit rate creates systematic asymmetry.
+        if (!intercepted && d < tackleR && ag.combatCooldownTicks === 0 && st.prng() < 0.3) {
           const tackleResult = executeTackle(ag, carrier, st);
           // Set combat cooldown on the tackler after any attempt
           ag.combatCooldownTicks = CONFIG.combatCooldownTicks;
