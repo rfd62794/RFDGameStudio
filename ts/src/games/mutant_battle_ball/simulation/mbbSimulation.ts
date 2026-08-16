@@ -161,6 +161,7 @@ interface Agent {
   tackledTicks: number;                  // Ticks under active tackle pressure
   tackledByPlayerId: string | null;      // Who is tackling this agent
   markProtectionTicks: number;           // Protected window after a clean mark
+  disposalCooldownTicks: number;         // Cooldown after disposing (prevents spam)
   statsMatch: {                          // Per-match disposal/combat tracking
     kicks: number;
     handballs: number;
@@ -284,6 +285,7 @@ function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'player' | 'o
     tackledTicks: 0,
     tackledByPlayerId: null,
     markProtectionTicks: 0,
+    disposalCooldownTicks: 0,
     statsMatch: {
       kicks: 0, handballs: 0, marks: 0, tackles: 0,
       hitsInflicted: 0, injuriesInflicted: 0, casualtiesCaused: 0,
@@ -453,6 +455,9 @@ interface DisposalDecision {
 
 function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
   const rules = CONFIG.disposal;
+
+  // Cooldown: don't dispose if recently disposed (prevents spam)
+  if (carrier.disposalCooldownTicks > 0) return null;
   const m = st.config.match;
   const courtW = m.court_width, courtH = m.court_height, ezDepth = m.end_zone_depth;
 
@@ -466,7 +471,7 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
     }
   }
 
-  // 2. Tackler threat: if a tackler is within 1.5x tackle range, consider disposal
+  // 2. Tackler threat: if a tackler is within tackle range, consider disposal
   let nearestEnemyDist = Infinity;
   for (const en of st.agents) {
     if (en.team !== carrier.team && en.status === 'active') {
@@ -474,7 +479,7 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
       if (d < nearestEnemyDist) nearestEnemyDist = d;
     }
   }
-  const tacklerPressure = nearestEnemyDist < m.tackle_range * 1.5;
+  const tacklerPressure = nearestEnemyDist < m.tackle_range;
 
   // 3. Find open teammate for a pass
   const teammates = st.agents.filter(ag =>
@@ -511,7 +516,9 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
 
   // 4. Strategic kick: occasionally kick downfield if no pressure and
   // no open handball target. This creates positional flow.
-  if (!tacklerPressure && st.prng() < 0.08) {
+  // Low frequency (2% per tick ≈ 0.4 kicks/sec at 20 tps) — disposals
+  // are strategic, not constant. The carrier primarily runs with the ball.
+  if (!tacklerPressure && st.prng() < 0.02) {
     // Kick toward opponent end zone, offset toward center
     const targetX = st.possession === 'player'
       ? Math.min(courtW - ezDepth / 2, carrier.x + 30 + st.prng() * 15)
@@ -573,6 +580,8 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
       }
       // Decrement mark protection ticks
       if (ag.markProtectionTicks > 0) ag.markProtectionTicks--;
+      // Decrement disposal cooldown
+      if (ag.disposalCooldownTicks > 0) ag.disposalCooldownTicks--;
     }
   }
 
@@ -653,6 +662,8 @@ function tickMatchInternal(st: MbbState, dt: number): MatchState {
       }
       if (result) {
         syncPlayerToAgent(player, carrier);
+        // Set cooldown — 30 ticks (1.5s) before another disposal
+        carrier.disposalCooldownTicks = 30;
         st.events.push({
           type: result.event.type,
           agent_id: carrier.id,
@@ -1000,6 +1011,7 @@ export function createMbbSimulation(): MbbSimulation {
             tackledTicks: 0,
             tackledByPlayerId: null,
             markProtectionTicks: 0,
+            disposalCooldownTicks: 0,
             statsMatch: ag.statsMatch, // Preserve match stats from subbed agent
           };
           // Update ball carrier reference if the subbed agent had the ball

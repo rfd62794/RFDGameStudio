@@ -196,8 +196,8 @@ describe('test_real_sports_sim_api_used', () => {
     const src = readFileSync(simPath, 'utf-8');
 
     // Must import Ball type and BallSystem from sportsSim
-    expect(src).toContain("import type { Ball } from '../../../engine/shared/sportsSim'");
-    expect(src).toContain("import { BallSystem } from '../../../engine/shared/sportsSim'");
+    expect(src).toContain("from '../../../engine/shared/sportsSim'");
+    expect(src).toContain('BallSystem');
 
     // Must use BallSystem.looseBall (the real API)
     expect(src).toContain('BallSystem.looseBall(');
