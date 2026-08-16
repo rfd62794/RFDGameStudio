@@ -5,7 +5,7 @@ import { kingdomPath, playerPath } from '../lib/paths';
 import { resolvePlayerContext } from '../lib/playerContext';
 import { runGuardedTransaction } from '../lib/transactionHelpers';
 import { AuthenticatedRequest, verifyAuth, verifyAdmin } from '../middleware/verifyAuth';
-import { evaluateKingdomDaily, checkAndEvaluateKingdomsIfNeeded } from '../../functions/evaluateKingdomDaily';
+import { evaluateKingdomDaily, checkAndEvaluateKingdomsIfNeeded } from '../functions/evaluateKingdomDaily';
 import { CATHEDRAL_MAX_LEVEL, cathedralUpgradeCost, cathedralContributionMultiplier, parseUnlockedTaskTypes, resolveActionsState } from '../../types';
 import { resolveKingdomAggregateActionsState, isAggregateWarningActive, RESERVED_DAILY_BUDGET } from '../../lib/actionsAllocation';
 

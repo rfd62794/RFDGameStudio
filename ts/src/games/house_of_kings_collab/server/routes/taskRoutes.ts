@@ -5,7 +5,7 @@ import { getDb } from '../lib/firebaseAdmin';
 import { kingdomPath, playerPath, taskPath, housePath } from '../lib/paths';
 import { resolvePlayerContext } from '../lib/playerContext';
 import { runGuardedTransaction } from '../lib/transactionHelpers';
-import { checkAndEvaluateKingdomsIfNeeded } from '../../functions/evaluateKingdomDaily';
+import { checkAndEvaluateKingdomsIfNeeded } from '../functions/evaluateKingdomDaily';
 import { cathedralContributionMultiplier, resolveActionsState, LegacyItem, DescendantRecord } from '../../types';
 import { resolveKingdomAggregateActionsState } from '../../lib/actionsAllocation';
 import { getCurrentRealmEvent } from '../../lib/realmEvents';

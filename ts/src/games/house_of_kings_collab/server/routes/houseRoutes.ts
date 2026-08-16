@@ -18,7 +18,7 @@ import {
   HouseSpecialization,
 } from '../../types';
 import { resolveKingdomAggregateActionsState } from '../../lib/actionsAllocation';
-import { evaluateHouseFestival, checkAndEvaluateHouseFestivalIfNeeded } from '../../functions/evaluateHouseFestival';
+import { evaluateHouseFestival, checkAndEvaluateHouseFestivalIfNeeded } from '../functions/evaluateHouseFestival';
 
 export const houseRouter = Router();
 

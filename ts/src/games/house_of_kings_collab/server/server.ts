@@ -22,7 +22,7 @@ const databaseId = firebaseConfig.firestoreDatabaseId || '(default)';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || '8080', 10);
 
   app.use(express.json());
 

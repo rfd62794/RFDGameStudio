@@ -8,7 +8,7 @@ import { runGuardedTransaction } from '../lib/transactionHelpers';
 import { workerPoolSize, WorkerTask, TaskType, parseUnlockedTaskTypes, resolveActionsState } from '../../types';
 import { resolveKingdomAggregateActionsState } from '../../lib/actionsAllocation';
 import { getCurrentRealmEvent } from '../../lib/realmEvents';
-import { checkAndEvaluateKingdomsIfNeeded } from '../../functions/evaluateKingdomDaily';
+import { checkAndEvaluateKingdomsIfNeeded } from '../functions/evaluateKingdomDaily';
 
 export const workerRouter = Router();
 

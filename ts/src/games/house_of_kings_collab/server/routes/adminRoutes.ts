@@ -11,7 +11,7 @@ import {
   workersCollectionPath,
 } from '../lib/paths';
 
-import { evaluateHouseFestival } from '../../functions/evaluateHouseFestival';
+import { evaluateHouseFestival } from '../functions/evaluateHouseFestival';
 import { SPARK_LIMITS } from '../../lib/sparkLimits';
 import { getFirestoreUsage } from '../../lib/monitoringClient';
 import config from '../../firebase-applet-config.json' with { type: 'json' };
