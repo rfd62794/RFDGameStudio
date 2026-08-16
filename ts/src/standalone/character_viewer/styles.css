@@ -20,11 +20,11 @@ html { overflow-y: auto; }
 
 /* Arcade wrapper override: when loaded via ?game=character_viewer, the
    arcade's GameLoader wraps this component in .arcade-game-wrap (height:
-   100vh) > .arcade-game-content (overflow: hidden). That clips all
+   100svh) > .arcade-game-content (overflow: hidden). That clips all
    content past the viewport with no scrollbar — Bug 2. Override both
    so the page scrolls naturally. This only affects the character viewer
    page because styles.css is only imported by entry.tsx/App.tsx. */
-.arcade-game-wrap { height: auto; min-height: 100vh; }
+.arcade-game-wrap { height: auto; min-height: 100svh; }
 .arcade-game-content { overflow: visible; }
 
 .character-viewer {

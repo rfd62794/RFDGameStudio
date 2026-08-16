@@ -348,7 +348,7 @@
 
 /* ─── Main Menu ──────────────────────────────────────────────────────────── */
 .sr-menu-shell {
-  min-height: 100vh;
+  min-height: 100svh;
   background: #020617;
   color: #f1f5f9;
   display: flex;
