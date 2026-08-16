@@ -113,7 +113,7 @@ function buildInitialCorporations(playerCultureId: CultureId): Corporation[] {
       textClass: def.textClass,
       isPlayer,
       cultureId,
-      treasury: 100000,
+      treasury: 200000,
       scoutedCells: {},
       rank: 1, // placeholder -- computeRank() sets this for real right after map generation
       fragments: [] // placeholder -- initializeFragments() sets this to [cultureId] right after
@@ -519,31 +519,55 @@ export default function App({ session }: GameRendererProps) {
   const handleEndPlanningPhase = () => {
     if (!gameState) return;
 
-    // Apply corporate funds deduction for all player orders
-    let totalOrderCost = 0;
     const playerCorp = gameState.corporations.find(c => c.id === PLAYER_CORP_ID)!;
-
-    // Validate if player can afford these orders (costs are per-House)
     const playerStats = getHouseStats(playerCorp.cultureId);
+
+    // Helper: cost of a single order
+    const orderCost = (order: WeeklyOrder): number => {
+      if (order.type === 'expand') return playerStats.expandCost;
+      if (order.type === 'reinforce') return 30000;
+      if (order.type === 'fortify') return playerStats.fortifyCost;
+      if (order.type === 'scan') return 5000;
+      if (order.type === 'civic' && order.focus === 'defense') return 10000;
+      if (order.type === 'civic' && order.focus === 'unrest') return 10000;
+      return 0; // hold, civic production
+    };
+
+    // Build a processed-orders map: downgrade unaffordable orders to hold
+    let remainingBudget = playerCorp.treasury;
+    const processedOrders: { [cellId: number]: WeeklyOrder[] } = {};
+    let totalOrderCost = 0;
+    let anyDowngraded = false;
+
     for (const cellId in gameState.playerOrders) {
-      const cellOrders = gameState.playerOrders[Number(cellId)] || [];
+      const numericCellId = Number(cellId);
+      const cellOrders = gameState.playerOrders[numericCellId] || [];
+      const cell = gameState.cells.find(c => c.id === numericCellId);
+      const affordableOrders: WeeklyOrder[] = [];
+
       for (const order of cellOrders) {
-        if (order.type === 'expand') totalOrderCost += playerStats.expandCost;
-        if (order.type === 'reinforce') totalOrderCost += 30000;
-        if (order.type === 'fortify') totalOrderCost += playerStats.fortifyCost;
-        if (order.type === 'scan') totalOrderCost += 5000;
-        if (order.type === 'civic' && order.focus === 'defense') totalOrderCost += 10000;
-        if (order.type === 'civic' && order.focus === 'unrest') totalOrderCost += 10000;
+        const cost = orderCost(order);
+        if (cost > 0 && remainingBudget < cost) {
+          anyDowngraded = true;
+          addLog(`Insufficient funds: ${order.type.charAt(0).toUpperCase() + order.type.slice(1)} order in ${cell?.name} downgraded to Hold.`, 'warning');
+          affordableOrders.push({ type: 'hold' });
+        } else {
+          remainingBudget -= cost;
+          totalOrderCost += cost;
+          affordableOrders.push(order);
+        }
       }
+      processedOrders[numericCellId] = affordableOrders;
     }
 
-    if (playerCorp.treasury < totalOrderCost) {
-      const errorMsg = `Operational block: Cumulative weekly orders require $${totalOrderCost.toLocaleString()} but treasury holds only $${playerCorp.treasury.toLocaleString()}.`;
-      const lastLog = gameState.logs[gameState.logs.length - 1];
-      if (!lastLog || lastLog.message !== errorMsg) {
+    if (anyDowngraded) {
+      const errorMsg = `Operational block: Weekly orders require $${(playerCorp.treasury - remainingBudget).toLocaleString()} but treasury holds only $${playerCorp.treasury.toLocaleString()}. Unaffordable orders downgraded to Hold.`;
+      if (lastTreasuryErrorRef.current !== errorMsg) {
         addLog(errorMsg, 'error');
+        lastTreasuryErrorRef.current = errorMsg;
       }
-      return;
+    } else {
+      lastTreasuryErrorRef.current = '';
     }
 
     // Process orders
@@ -555,8 +579,8 @@ export default function App({ session }: GameRendererProps) {
     // Deduct cost
     updatedCorps[playerCorpIndex].treasury -= totalOrderCost;
 
-    for (const cellId in gameState.playerOrders) {
-      const cellOrders = gameState.playerOrders[Number(cellId)] || [];
+    for (const cellId in processedOrders) {
+      const cellOrders = processedOrders[Number(cellId)] || [];
       const cellIndex = updatedCells.findIndex(c => c.id === Number(cellId));
       if (cellIndex === -1) continue;
       const cell = updatedCells[cellIndex];
@@ -1129,6 +1153,7 @@ export default function App({ session }: GameRendererProps) {
       if (mustPauseForPlanning) {
         nextPlayerOrders = {};
         setIsPlanningPhase(true);
+        setPlanningMode('guided');
         prev.isSimulating = false; // Pause during planning phase
       }
 
@@ -1630,7 +1655,23 @@ export default function App({ session }: GameRendererProps) {
                 )}
 
                 <div className="flex-1">
-                  {isPlanningPhase ? (
+                  {isPlanningPhase && (
+                    <div className="flex gap-1 mb-2">
+                      <button
+                        onClick={() => setPlanningMode('guided')}
+                        className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border-2 border-[#141414] transition cursor-pointer ${planningMode === 'guided' ? 'bg-amber-500 text-[#141414] font-black' : 'bg-[#1a1a2e] text-amber-200 hover:bg-amber-950'}`}
+                      >
+                        Guided
+                      </button>
+                      <button
+                        onClick={() => setPlanningMode('manual')}
+                        className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border-2 border-[#141414] transition cursor-pointer ${planningMode === 'manual' ? 'bg-amber-500 text-[#141414] font-black' : 'bg-[#1a1a2e] text-amber-200 hover:bg-amber-950'}`}
+                      >
+                        Manual
+                      </button>
+                    </div>
+                  )}
+                  {isPlanningPhase && planningMode === 'guided' ? (
                     <GuidedWalkthrough
                       allCells={gameState.cells}
                       corporations={gameState.corporations}
