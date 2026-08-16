@@ -277,7 +277,8 @@ const EVENTS_TEMPLATES = [
   }
 ];
 
-export default function App({ session: _session }: GameRendererProps) {
+export default function App({ session }: GameRendererProps) {
+  void session; // destructured per contract; game is self-contained
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
