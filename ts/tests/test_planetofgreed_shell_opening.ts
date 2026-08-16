@@ -95,27 +95,34 @@ describe('test_opening_sequence_new_game_only', () => {
   });
 
   it('showOpeningSequence is set to true on new game (handleTitleNewGame)', () => {
-    // The new-game path sets showOpeningSequence=true
-    const newGameBlock = appSource.match(/handleTitleNewGame[\s\S]*?setShowOpeningSequence\(true\)/);
+    // The new-game path triggers the opening sequence via the shared OnboardingGate hook
+    const newGameBlock = appSource.match(/handleTitleNewGame[\s\S]*?triggerOpeningSequence/);
     expect(newGameBlock).toBeTruthy();
   });
 
   it('showOpeningSequence is set to false on continue (handleTitleContinue)', () => {
-    // The continue path sets showOpeningSequence=false
-    const continueBlock = appSource.match(/handleTitleContinue[\s\S]*?setShowOpeningSequence\(false\)/);
+    // The continue path does not trigger the opening sequence — OnboardingGate manages its own state.
+    // Verify handleTitleContinue does NOT call triggerOpeningSequence.
+    const continueBlock = appSource.match(/handleTitleContinue[\s\S]*?\}/);
     expect(continueBlock).toBeTruthy();
+    expect(continueBlock![0]).not.toContain('triggerOpeningSequence');
   });
 
   it('showOpeningSequence is set to false on resume from localStorage', () => {
-    // When loading a saved game, the opening sequence is skipped
-    const resumeBlock = appSource.match(/setGameState\(rehydrateState[\s\S]*?setShowOpeningSequence\(false\)/);
+    // When loading a saved game, the opening sequence is skipped — OnboardingGate
+    // manages its own state, so no manual clear is needed. Verify the resume path
+    // does NOT call triggerOpeningSequence.
+    const resumeBlock = appSource.match(/setGameState\(rehydrateState[\s\S]*?return/);
     expect(resumeBlock).toBeTruthy();
+    expect(resumeBlock![0]).not.toContain('triggerOpeningSequence');
   });
 
   it('showOpeningSequence is set to false on reset (handleRequestNewGame)', () => {
-    // Reset does NOT trigger the opening — it goes straight to culture selection
-    const resetBlock = appSource.match(/handleRequestNewGame[\s\S]*?setShowOpeningSequence\(false\)/);
+    // Reset does NOT trigger the opening — it goes straight to culture selection.
+    // OnboardingGate manages its own state, so no manual clear is needed.
+    const resetBlock = appSource.match(/handleRequestNewGame[\s\S]*?\}/);
     expect(resetBlock).toBeTruthy();
+    expect(resetBlock![0]).not.toContain('triggerOpeningSequence');
   });
 
   it('OpeningSequence has a skip button (matches KingMaker pattern)', () => {
@@ -126,8 +133,8 @@ describe('test_opening_sequence_new_game_only', () => {
 
   it('OpeningSequence calls onComplete when finished', () => {
     expect(appSource).toContain('handleOpeningComplete');
-    // handleOpeningComplete clears the opening and proceeds to culture selection
-    const completeBlock = appSource.match(/handleOpeningComplete[\s\S]*?setShowOpeningSequence\(false\)[\s\S]*?setPendingCultureSelection\(true\)/);
+    // handleOpeningComplete clears the opening via the shared gate and proceeds to culture selection
+    const completeBlock = appSource.match(/handleOpeningComplete[\s\S]*?handleOpeningGateComplete[\s\S]*?setPendingCultureSelection\(true\)/);
     expect(completeBlock).toBeTruthy();
   });
 });

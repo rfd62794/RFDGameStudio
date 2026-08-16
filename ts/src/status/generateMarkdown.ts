@@ -78,7 +78,7 @@ export function generateMarkdown(entries: ProjectEntry[]): string {
   sections.push('');
   sections.push('# RFD Game Studio — Status Board');
   sections.push('');
-  sections.push('*August 15, 2026 | RFD IT Services Ltd. | Generated from `ts/src/status/board.data.ts`.*');
+  sections.push('*August 16, 2026 | RFD IT Services Ltd. | Generated from `ts/src/status/board.data.ts`.*');
   sections.push('');
   sections.push('> **How this stays alive:** refreshed at natural checkpoints — the start of a');
   sections.push('> big multi-thread studio session, or whenever three or more threads below');
