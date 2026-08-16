@@ -53,11 +53,12 @@ function renderCategorySection(category: ProjectCategory, entries: ProjectEntry[
     }
   } else {
     lines.push('');
-    lines.push('| Game | Status | Current State | Next Real Action | Last Updated |');
-    lines.push('|---|---|---|---|---|');
+    lines.push('| Game | Status | Current State | Next Real Action | Menu | Tutorial | Visual | Sound | Last Updated |');
+    lines.push('|---|---|---|---|---|---|---|---|---|');
     for (const e of entries) {
+      const caps = e.capabilities ?? {};
       lines.push(
-        `| **${escapePipe(e.name)}** | ${STATUS_LABELS[e.status]} | ${escapePipe(e.currentState)} | ${escapePipe(e.nextAction ?? '—')} | ${formatLastUpdated(e)} |`,
+        `| **${escapePipe(e.name)}** | ${STATUS_LABELS[e.status]} | ${escapePipe(e.currentState)} | ${escapePipe(e.nextAction ?? '—')} | ${caps.mainMenu ?? '—'} | ${caps.tutorial ?? '—'} | ${escapePipe(caps.graphicalUpgrade ?? '—')} | ${caps.soundEffects ?? '—'} | ${formatLastUpdated(e)} |`,
       );
     }
   }
@@ -125,6 +126,8 @@ export function generateMarkdown(entries: ProjectEntry[]): string {
   sections.push('| Four-file Lua contract + `RFDStudioMCP` | Stable, live | 28/0/0, port 8025, NSSM-registered |');
   sections.push('| TS-native default (ADR-010/ADR-013) | Stable, current policy | Now the actual default, not the exception |');
   sections.push('| Shared UI components (`ts/src/ui/components/`, ADR-008) | Active use | 6+ games |');
+  sections.push('| OnboardingGate (`ts/src/ui/components/OnboardingGate.tsx`) | Built, 2 consumers | Shared fire-once gate mechanism extracted from SlimeWorld. Consumed by SlimeWorld (original) + Planet of Greed (validation) |');
+  sections.push('| Guided First-Action Walkthrough | Single instance, watching | `planetofgreed/GuidedWalkthrough.tsx` — guides real gameplay decisions with state-derived defaults. Not extracted yet — watching for a second independent build |');
   sections.push('| Shared logic (`ts/src/engine/shared/`) | Active, first-class | ADR-014: shared engine modules are the default, not demand-gated |');
   sections.push('| `artGen` module | Built AND consumed | Consumed by Shoal (canvas paths, hunger-aware specs) and SlimeWorld (seeded random, polygon generation) — ADR-014 proof case |');
   sections.push('| Standalone publishing pipeline + `RFD_IT_Publishing` | Working | 7 games packaged, Butler-based, real analytics confirmed |');
