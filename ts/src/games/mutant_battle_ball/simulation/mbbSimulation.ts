@@ -41,11 +41,13 @@ export const CONFIG = {
     team_size: 2 as 2 | 6, // Configurable roster size: 2v2 (default) or 6v6
   },
   // Disposal config — wired to sportsSim's DisposalSystem.
-  // MBB-specific tuning: shorter carry limit than AFL's 15m because
-  // MBB's court is 100x60 (smaller than a real AFL ground).
+  // MBB-specific tuning: larger carry limit than AFL's 15m because
+  // MBB's court is 100x60 (smaller than a real AFL ground but the
+  // carrier needs ~60 units to reach the end zone — 15m would force
+  // 4+ touch-bounces, killing all momentum).
   disposal: {
     allowedMethods: { kick: true, handball: true, touchBounce: true },
-    maxCarryDistanceWithoutTouch: 15.0, // AFL 15m anti-camping rule
+    maxCarryDistanceWithoutTouch: 60.0, // MBB-tuned: 60 units (carrier can reach end zone with 1 touch-bounce)
     carryPenaltyType: 'turnover_loose_ball' as const,
     minKickDistanceForMark: 10.0,       // 10m minimum for a protected mark
     markProtectionDurationTicks: 20,    // 1.0s protected disposal window
@@ -492,13 +494,20 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
   );
 
   if (tacklerPressure && teammates.length > 0) {
-    // Under pressure — look for a handball target (short, fast)
+    // Under pressure — look for a handball target (short, fast).
+    // ONLY handball to a teammate who is AHEAD (toward opponent end zone).
+    // Handballing backward kills scoring momentum.
     let bestMate: Agent | null = null;
     let bestScore = -Infinity;
     for (const mate of teammates) {
       const d = distance(carrier.x, carrier.y, mate.x, mate.y);
       if (d > 18) continue; // Handball max range
-      // Prefer teammates who are ahead (toward opponent end zone) and open
+      // Teammate must be ahead (toward opponent end zone)
+      const isAhead = st.possession === 'player'
+        ? mate.x > carrier.x
+        : mate.x < carrier.x;
+      if (!isAhead) continue;
+      // Prefer teammates who are further ahead and open
       const aheadBonus = st.possession === 'player'
         ? (mate.x - carrier.x) * 0.5
         : (carrier.x - mate.x) * 0.5;
@@ -519,24 +528,29 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
     }
   }
 
-  // 4. Strategic kick: occasionally kick downfield if no pressure and
-  // no open handball target. This creates positional flow.
-  // Low frequency (1% per tick ≈ 0.2 kicks/sec at 20 tps) — disposals
-  // are strategic, not constant. The carrier primarily runs with the ball.
-  if (!tacklerPressure && st.prng() < 0.01) {
-    // Kick toward opponent end zone, offset toward center
+  // 4. Strategic kick: very rarely kick downfield if no pressure, no
+  // open handball target, and the carrier is in the back half of the
+  // court (far from scoring). This creates positional flow without
+  // disrupting scoring runs.
+  // Ultra-low frequency (0.1% per tick ≈ 1 kick per 5 seconds).
+  const inBackHalf = (st.possession === 'player' && carrier.x < courtW * 0.4) ||
+                     (st.possession === 'opponent' && carrier.x > courtW * 0.6);
+  if (!tacklerPressure && inBackHalf && st.prng() < 0.001) {
+    const maxAdvance = 20;
     const targetX = st.possession === 'player'
-      ? Math.min(courtW - ezDepth / 2, carrier.x + 30 + st.prng() * 15)
-      : Math.max(ezDepth / 2, carrier.x - 30 - st.prng() * 15);
+      ? Math.min(courtW - ezDepth * 2, carrier.x + maxAdvance + st.prng() * 10)
+      : Math.max(ezDepth * 2, carrier.x - maxAdvance - st.prng() * 10);
     const targetY = courtH * (0.3 + st.prng() * 0.4);
     return { method: 'kick', target: { x: targetX, y: targetY } };
   }
 
   // 5. Under heavy pressure with no teammate — kick to space downfield
+  // Shorter kick just to clear pressure, not to advance
   if (tacklerPressure && nearestEnemyDist < m.tackle_range * 0.8) {
+    const maxAdvance = 15;
     const targetX = st.possession === 'player'
-      ? Math.min(courtW - 5, carrier.x + 25 + st.prng() * 10)
-      : Math.max(5, carrier.x - 25 - st.prng() * 10);
+      ? Math.min(courtW - ezDepth * 2, carrier.x + maxAdvance + st.prng() * 5)
+      : Math.max(ezDepth * 2, carrier.x - maxAdvance - st.prng() * 5);
     const targetY = courtH * (0.2 + st.prng() * 0.6);
     return { method: 'kick', target: { x: targetX, y: targetY } };
   }
