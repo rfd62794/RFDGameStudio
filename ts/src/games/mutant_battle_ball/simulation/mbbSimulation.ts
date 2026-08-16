@@ -455,6 +455,8 @@ interface DisposalDecision {
 
 function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
   const rules = CONFIG.disposal;
+  const m = st.config.match;
+  const courtW = m.court_width, courtH = m.court_height, ezDepth = m.end_zone_depth;
 
   // Cooldown: don't dispose if recently disposed (prevents spam)
   if (carrier.disposalCooldownTicks > 0) return null;
@@ -463,15 +465,13 @@ function decideDisposal(carrier: Agent, st: MbbState): DisposalDecision | null {
   const inEndZone = (st.possession === 'player' && carrier.x > courtW - ezDepth * 2) ||
                     (st.possession === 'opponent' && carrier.x < ezDepth * 2);
   if (inEndZone) return null;
-  const m = st.config.match;
-  const courtW = m.court_width, courtH = m.court_height, ezDepth = m.end_zone_depth;
 
   // 1. Anti-camping: must touch-bounce if approaching carry limit
   if (carrier.distanceCarriedWithoutTouch >= rules.maxCarryDistanceWithoutTouch * 0.85) {
     // Touch-bounce to reset carry distance, unless very close to end zone
-    const inEndZone = (st.possession === 'player' && carrier.x > courtW - ezDepth) ||
+    const inEndZoneCamping = (st.possession === 'player' && carrier.x > courtW - ezDepth) ||
                       (st.possession === 'opponent' && carrier.x < ezDepth);
-    if (!inEndZone) {
+    if (!inEndZoneCamping) {
       return { method: 'touch_bounce', target: { x: carrier.x, y: carrier.y } };
     }
   }
