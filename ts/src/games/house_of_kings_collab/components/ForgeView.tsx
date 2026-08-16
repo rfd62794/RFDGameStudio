@@ -15,7 +15,7 @@ interface ForgeViewProps {
 export const ForgeView: React.FC<ForgeViewProps> = ({
   kingdomId,
   houseId,
-  userId,
+  userId: _userId,
   onRefreshParent,
 }) => {
   const [forgeLevel, setForgeLevel] = useState<number>(0);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Building2, Sparkles, TrendingUp, RefreshCw, CheckCircle2, AlertCircle, Lock, Apple, TreePine } from 'lucide-react';
 import { CHAPEL_MAX_LEVEL, chapelUpgradeCost, chapelReputationMultiplier, ResourcesMap, specializationDiscount, HouseSpecialization } from '../types';
-import { upgradeChapelApi, getHouseApi, getWorkersApi } from '../services/api';
+import { upgradeChapelApi, getWorkersApi } from '../services/api';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -15,7 +15,7 @@ interface ChapelViewProps {
 export const ChapelView: React.FC<ChapelViewProps> = ({
   kingdomId,
   houseId,
-  userId,
+  userId: _userId,
   onRefreshParent,
 }) => {
   const [chapelLevel, setChapelLevel] = useState<number>(0);

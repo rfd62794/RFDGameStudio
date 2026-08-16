@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { KingdomDoc, RESERVED_DAILY_BUDGET, AGGREGATE_WARNING_THRESHOLD } from '../types';
+import { KingdomDoc, RESERVED_DAILY_BUDGET } from '../types';
 import { isAggregateWarningActive, computePlayerActionsAllowance } from '../lib/actionsAllocation';
-import { Shield, Award, TrendingUp, Clock, CheckCircle2, AlertTriangle, RotateCcw, Users, Zap } from 'lucide-react';
+import { Shield, Award, TrendingUp, CheckCircle2, AlertTriangle, RotateCcw, Users, Zap } from 'lucide-react';
 
 interface KingdomStatusCardProps {
   kingdomId: string;
@@ -17,7 +17,7 @@ export const KingdomStatusCard: React.FC<KingdomStatusCardProps> = ({ kingdomId 
     totalPlayerCount: 1,
     dailyActionsConsumed: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     const kingdomRef = doc(db, 'kingdoms', kingdomId);

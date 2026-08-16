@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Pickaxe, Clock, CheckCircle, AlertCircle, Plus, Sparkles, RefreshCw, Lock, TreePine, Apple } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Pickaxe, CheckCircle, AlertCircle, Plus, RefreshCw, Lock, TreePine, Apple } from 'lucide-react';
 import { WorkerTask, ResourcesMap, parseUnlockedTaskTypes, TaskType } from '../types';
 import { getWorkersApi, assignWorkerApi, collectWorkerApi } from '../services/api';
 

@@ -3,7 +3,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { House, REPUTATION_THRESHOLDS, reputationLevelForScore, ResourcesMap } from '../types';
 import { contributeFestivalApi } from '../services/api';
-import { Sparkles, Flame, Shield, Award, HeartHandshake, Wheat, Trees, ArrowUpRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Sparkles, Flame, Award, HeartHandshake, Wheat, Trees, ArrowUpRight, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface FestivalViewProps {
   kingdomId: string;

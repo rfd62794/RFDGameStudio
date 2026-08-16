@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { House, HouseSpecialization, REPUTATION_THRESHOLDS } from '../types';
+import { House, HouseSpecialization } from '../types';
 import { selectHouseSpecializationApi } from '../services/api';
-import { Sparkles, Hammer, Coins, Scroll, Lock, CheckCircle2, AlertCircle, Shield, Award } from 'lucide-react';
+import { Hammer, Coins, Scroll, Lock, CheckCircle2, AlertCircle, Award } from 'lucide-react';
 
 interface SpecializationCardProps {
   kingdomId: string;
@@ -63,7 +63,7 @@ const SPECIALIZATIONS: SpecOption[] = [
 export const SpecializationCard: React.FC<SpecializationCardProps> = ({
   kingdomId,
   houseId,
-  userId,
+  userId: _userId,
   onRefreshParent,
 }) => {
   const [houseData, setHouseData] = useState<House | null>(null);

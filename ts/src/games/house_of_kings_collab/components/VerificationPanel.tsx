@@ -30,7 +30,7 @@ import {
   isPersonalWarningActive,
   RESERVED_DAILY_BUDGET,
 } from '../lib/actionsAllocation';
-import { getCurrentRealmEvent, REALM_EVENTS } from '../lib/realmEvents';
+import { getCurrentRealmEvent } from '../lib/realmEvents';
 import {
   ShieldCheck,
   Play,

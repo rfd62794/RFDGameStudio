@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCurrentRealmEvent, RealmEvent } from '../lib/realmEvents';
+import { getCurrentRealmEvent } from '../lib/realmEvents';
 import { Wheat, TreePine, Coins, Sparkles, Clock, Zap } from 'lucide-react';
 
 export const EventBanner: React.FC<{ serverOffsetMs?: number }> = ({ serverOffsetMs = 0 }) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { LegacyItem } from '../types';
-import { Sparkles, Shield, Award, Gem, Clock, User, Compass } from 'lucide-react';
+import { Sparkles, Award, Gem, Clock, User, Compass } from 'lucide-react';
 
 interface LegacyItemsCardProps {
   kingdomId: string;
