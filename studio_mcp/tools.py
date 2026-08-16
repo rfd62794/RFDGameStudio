@@ -706,12 +706,42 @@ def studio_deploy_arcade() -> dict:
 
     target_dir = _SITE_REPO_PATH / "static" / "arcade" / "rfdgamestudio"
 
+    # TS-native standalone builds: each ts/dist-{gameId}/ directory is a
+    # self-contained Vite build that should be served at /arcade/{gameId}/.
+    # Discover them dynamically rather than hardcoding, so new games are
+    # picked up automatically once they have a build script + dist directory.
+    ts_root = repo_root / "ts"
+    standalone_builds: list[tuple[str, Path]] = []
+    for dist_dir_candidate in sorted(ts_root.iterdir()):
+        if dist_dir_candidate.is_dir() and dist_dir_candidate.name.startswith("dist-"):
+            game_id = dist_dir_candidate.name[len("dist-"):]
+            if (dist_dir_candidate / "index.html").exists():
+                standalone_builds.append((game_id, dist_dir_candidate))
+
     try:
         # Copy main arcade app
         if target_dir.exists():
             shutil.rmtree(target_dir)
         shutil.copytree(dist_dir, target_dir)
         copied_files = sum(1 for _ in target_dir.rglob("*") if _.is_file())
+
+        # Copy TS-native standalone builds to static/arcade/{gameId}/
+        for game_id, standalone_dist in standalone_builds:
+            standalone_target = _SITE_REPO_PATH / "static" / "arcade" / game_id
+            if standalone_target.exists():
+                shutil.rmtree(standalone_target)
+            shutil.copytree(standalone_dist, standalone_target)
+
+            if not standalone_target.exists() or not (standalone_target / "index.html").exists():
+                return {
+                    "error": f"copytree reported no exception but {standalone_target} "
+                             f"is missing or has no index.html after copying from "
+                             f"{standalone_dist}. Deploy aborted before SFTP step.",
+                    "tool": "studio_deploy_arcade",
+                    "failed_standalone": game_id,
+                }
+
+            copied_files += sum(1 for _ in standalone_target.rglob("*") if _.is_file())
 
         # Copy each example demo
         for demo_slug in _EXAMPLE_DEMOS:
