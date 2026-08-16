@@ -266,23 +266,25 @@ describe('test_scenarios_ts_disposition', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────
-// Anchor 5: MBB genuinely untouched
+// Anchor 5: MBB now wired to sportsSim Ball entity (integration phase)
 // ─────────────────────────────────────────────────────────────────────
-describe('test_mbb_untouched', () => {
-  it('No sportsSim imports in MBB simulation or components', () => {
+describe('test_mbb_sports_sim_wiring', () => {
+  it('MBB simulation imports Ball type and BallSystem from sportsSim', () => {
     const mbbSimPath = resolve(
       repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'simulation', 'mbbSimulation.ts',
     );
     if (existsSync(mbbSimPath)) {
       const simSrc = readFileSync(mbbSimPath, 'utf-8');
-      expect(simSrc).not.toContain('sportsSim');
-      expect(simSrc).not.toContain('BallSystem');
+      // Ball type and BallSystem are now imported (integration phase)
+      expect(simSrc).toContain('sportsSim');
+      expect(simSrc).toContain('BallSystem');
+      // DisposalSystem and UniversalDecisionSystem are still deferred
       expect(simSrc).not.toContain('DisposalSystem');
       expect(simSrc).not.toContain('UniversalDecisionSystem');
     }
   });
 
-  it('MBB App.tsx does not import sportsSim', () => {
+  it('MBB App.tsx does not import sportsSim (UI layer unaffected)', () => {
     const mbbAppPath = resolve(repoRoot, 'ts', 'src', 'games', 'mutant_battle_ball', 'App.tsx');
     if (existsSync(mbbAppPath)) {
       const appSrc = readFileSync(mbbAppPath, 'utf-8');
