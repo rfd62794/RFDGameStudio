@@ -140,6 +140,14 @@ export default function App({ session }: GameRendererProps) {
     setInMatch(false);
   }, [state, setState]);
 
+  // Adapter: useGameState returns Dispatch<SetStateAction<MBBGameState | null>>,
+  // but child tabs expect (fn: (prev: MBBGameState) => MBBGameState) => void.
+  // This wrapper narrows the null away (state is guaranteed non-null when
+  // tabs are rendered, but the hook itself must be called unconditionally).
+  const setGameState = useCallback((fn: (prev: MBBGameState) => MBBGameState) => {
+    setState(prev => (prev ? fn(prev) : prev));
+  }, [setState]);
+
   if (showTitle) {
     return (
       <GameShell
@@ -199,13 +207,6 @@ export default function App({ session }: GameRendererProps) {
   // (RosterTab, WorkshopTab, ShopTab). MatchCanvas receives the simulation
   // directly instead.
   const noopCall = (_fn: string, ..._args: unknown[]): unknown => undefined;
-
-  // Adapter: useGameState returns Dispatch<SetStateAction<MBBGameState | null>>,
-  // but child tabs expect (fn: (prev: MBBGameState) => MBBGameState) => void.
-  // This wrapper narrows the null away (state is guaranteed non-null here).
-  const setGameState = useCallback((fn: (prev: MBBGameState) => MBBGameState) => {
-    setState(prev => (prev ? fn(prev) : prev));
-  }, [setState]);
 
   return (
     <GameShell
