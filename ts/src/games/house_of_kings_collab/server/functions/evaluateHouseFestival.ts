@@ -3,7 +3,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { housePath } from '../lib/paths';
 import { reputationLevelForScore, chapelReputationMultiplier } from '../../types';
 import { runGuardedTransaction } from '../lib/transactionHelpers';
-import { getCurrentRealmEvent } from '../lib/realmEvents';
+import { getCurrentRealmEvent } from '../../lib/realmEvents';
 
 export interface FestivalResolutionResult {
   kingdomId: string;
