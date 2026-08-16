@@ -12,6 +12,125 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## Sports Sim Engine Port — COMPLETED
+
+**Date:** August 15, 2026
+**Directive:** Port a complete, working generic sports-sim engine
+(physical ball entity, foot/hand disposal, four-tier violence severity
+ladder, Universal Decision System) from an AI-Studio prototype into
+`ts/src/engine/shared/sportsSim/`, matching the real `combat/` barrel-
+export convention exactly. MBB is the first intended consumer but is
+explicitly not wired this phase — that's a deliberate separate next
+phase.
+
+### STOP rule satisfied
+
+**Real source confirmed:** Zip extracted from
+`C:\Users\cheat\Downloads\generic-sports-sim-engine-(foot_hand-+-lethal-combat) (2).zip`.
+All 7 required engine files confirmed present with real byte counts:
+`types.ts` (7135), `constants.ts` (5437), `BallSystem.ts` (7164),
+`CombatSystem.ts` (8224), `DisposalSystem.ts` (13680),
+`UniversalDecisionSystem.ts` (22107), `GameEngine.ts` (20027).
+
+### What was ported
+
+7 engine logic files into `ts/src/engine/shared/sportsSim/`:
+- **types.ts** — Ball (held/loose/in_flight states), Player (with
+  jumpReach stat), SportEngineConfig, SimEvent, all type definitions
+- **constants.ts** — 3 preset configs (MBB Arena, AFL Cyber Deathball,
+  Blood Bowl Blitz Grid) + 6 default player archetypes
+- **BallSystem.ts** — Physical ball entity with flight arcs, ground
+  friction, wall bounces, continuous pickup. The structural fix for
+  MBB's possession-reset dead-lock bug: `looseBall()` never requires a
+  successor carrier
+- **CombatSystem.ts** — Four-tier violence severity ladder (stunned/
+  down/casualty/fatal) with Blood Bowl failed-violence turnover rule
+- **DisposalSystem.ts** — Kick/handball/touch_bounce disposal methods,
+  AFL 15m anti-camping rule, real in-flight interception with two-axis
+  proximity+height check using `jumpReach` stat
+- **UniversalDecisionSystem.ts** — One scored-utility function every
+  player runs through; role/situation determine weights, not code
+  branches. 6 utility factors, dynamic man-mark assignments
+- **GameEngine.ts** — Core simulation loop, 6v6 default roster, tiered
+  goal scoring (3pts carried, 1pt otherwise), center bounce reset
+
+### Barrel export convention
+
+`sportsSim/index.ts` matches `combat/index.ts`'s exact pattern:
+`export * from './<module>'` for each file. Top-level `shared/index.ts`
+updated with `export * from './sportsSim'` and a real, cited
+justification comment matching the existing style — citing the
+confirmed MBB possession-reset bug, the structural fix (physical ball
+object), and that MBB is not yet wired.
+
+### Scenarios.ts disposition
+
+**Excluded.** `Scenarios.ts` is AI-Studio demo content, not reusable
+engine logic. It defines `ScenarioDefinition` with UI-display fields
+(category, description, explanation) and setup functions that directly
+manipulate `engine.players`/`engine.events`/`engine.ball` for the
+visualizer demo. It's coupled to the AI-Studio `ScenarioSelector`
+component. The `GameEngine` class itself is the reusable part; these
+are demo presets. Not ported, not silently dropped — explicitly
+excluded with stated reasoning.
+
+### Strict-mode cleanup
+
+The source tsconfig was lenient (no `strict`, `noUnusedLocals`,
+`noUnusedParameters`). The studio's tsconfig has all three. 9
+strict-mode errors were fixed with minimal changes that preserve logic
+and API signatures:
+- Removed unused imports (`TeamSide`, `InjurySeverity`)
+- Prefixed unused parameters with `_` (`_rules`, `_ball`) to preserve
+  public API signatures
+- Fixed null-safety: `Map.get()` returns `T | undefined`, coalesced to
+  `T | null` with `?? null`
+- Removed unused local variable (`attackDir`) and unused private method
+  (`getNearestOpponent`)
+
+No engine logic was changed.
+
+### Verification
+
+- `tsc --noEmit`: 0 errors in `sportsSim/` (confirmed via grep for
+  "sportsSim" in compiler output → 0 matches)
+- Full vitest: 1233/1236 passing (3 pre-existing
+  `test_dual_target_deploy.ts` failures, unrelated)
+- MBB confirmed untouched: `git status` on
+  `games/mutant_battle_ball/` and `ts/src/games/mutant_battle_ball/`
+  → zero changes
+- No AI-Studio demo scaffolding leaked: directory listing confirms only
+  `.ts` engine logic files present (no `.tsx`, no `components/`, no
+  `App.tsx`, no `Scenarios.ts`)
+
+### Test anchors
+
+22 tests in `test_sports_sim_engine_port.ts`, all passing:
+- `test_real_source_confirmed` (3): all 7 files present, no demo
+  scaffolding leaked, barrel export present
+- `test_verbatim_port_confirmed` (7): each file's key logic confirmed
+  present verbatim (physical ball entity, four-tier severity, in-flight
+  interception with jumpReach, Universal Decision System, tiered
+  scoring, three preset configs)
+- `test_barrel_export_convention` (4): export pattern matches combat/,
+  all 7 modules exported, shared/index.ts exports sportsSim, cited
+  justification present
+- `test_scenarios_ts_disposition` (2): Scenarios.ts excluded with
+  explicit justification
+- `test_mbb_untouched` (2): no sportsSim imports in MBB simulation or
+  App.tsx
+- `test_engine_functional_smoke` (4): GameEngine runs 100 ticks with
+  events, physical ball eliminates dead-lock bug, combat severity
+  ladder works, Universal Decision System produces role-specific weights
+
+### Next phase
+
+Wiring MBB to consume this engine is the real, deliberate next phase —
+not implied as done. The engine is proven, isolated, shared code; MBB's
+consumption of it is separate work.
+
+---
+
 ## Paper Doll / Character Rendering
 
 Full detail: [`ts/src/engine/paperDoll/CHANGELOG.md`](./ts/src/engine/paperDoll/CHANGELOG.md)
