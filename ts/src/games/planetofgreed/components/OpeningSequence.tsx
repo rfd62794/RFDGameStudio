@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronRight, AlertTriangle, Compass, Crown } from 'lucide-react';
 import { HOUSE_DESCRIPTIONS } from '../flavorText';
 import type { CultureId } from '../types';

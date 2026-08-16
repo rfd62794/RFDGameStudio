@@ -277,7 +277,7 @@ const EVENTS_TEMPLATES = [
   }
 ];
 
-export default function App({ session }: GameRendererProps) {
+export default function App({ session: _session }: GameRendererProps) {
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
@@ -1323,15 +1323,6 @@ export default function App({ session }: GameRendererProps) {
         victorId: log.victorId,
         log
       }));
-
-      // Check if year concluded and if we should show report
-      let shouldShowReport = false;
-      if (prev.date.week === 1 && prev.date.day === 1 && prev.date.month === 1) {
-        shouldShowReport = true;
-      }
-      if (prev.campaignOver) {
-        shouldShowReport = true;
-      }
 
       return {
         ...prev,

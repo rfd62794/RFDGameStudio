@@ -78,7 +78,7 @@ export default function App({ session }: GameRendererProps) {
 
   const handleFruitEaten = () => {
     setFruitsEatenSinceEvolution(prev => {
-      const shouldEvolve = call(session, 'check_evolution_trigger', prev, fruitsPerLevel) as boolean;
+      const shouldEvolve = call(session, 'check_evolution_trigger', prev, fruitsPerLevel) as unknown as boolean;
       if (shouldEvolve) {
         triggerEvolutionChoice();
         return 0;

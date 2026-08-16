@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { MapCell, Point, Corporation, WeeklyOrder, UnitGroup, UnitType, OrderType } from '../types';
-import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapCell, Corporation, WeeklyOrder, UnitGroup, UnitType } from '../types';
+import { Shield, Hammer, Compass, Users, ArrowRight, Check, Eye } from 'lucide-react';
 
 interface WeeklyOrdersPanelProps {
   selectedCell: MapCell | null;
@@ -75,7 +75,6 @@ export default function WeeklyOrdersPanel({
   }
 
   const isPlayerOwned = selectedCell.ownerId === playerCorp.id;
-  const totalGarrison = selectedCell.units.circle + selectedCell.units.square + selectedCell.units.triangle;
 
   // Get neighboring cells
   const neighborCells = selectedCell.neighbors.map(nid => allCells.find(c => c.id === nid)).filter(Boolean) as MapCell[];

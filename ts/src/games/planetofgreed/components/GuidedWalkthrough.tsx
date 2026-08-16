@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MapCell, Corporation, WeeklyOrder, UnitGroup } from '../types';
 import { getDefaultAction, sortRegionsByThreat, getThreatLevel } from '../defaultAction';
 import { REGION_FLAVOR_PREFIXES } from '../flavorText';

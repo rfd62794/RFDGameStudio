@@ -11,7 +11,7 @@
  * Family: Strategic fork (aesthetic-direction change)
  */
 
-import { FILL, STROKE } from './shared';
+import { FILL } from './shared';
 
 // 32×32 pixel grid humanoid silhouette
 // 1 = body, 0 = empty, 2 = eye, 3 = darker shade (left side)

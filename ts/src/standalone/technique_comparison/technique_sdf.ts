@@ -10,7 +10,7 @@
  * Family: Smooth-procedural-vector
  */
 
-import { FILL, STROKE } from './shared';
+import { FILL } from './shared';
 
 // ── SDF primitives ──
 function sdCircle(px: number, py: number, cx: number, cy: number, r: number): number {

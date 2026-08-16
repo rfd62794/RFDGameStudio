@@ -1,4 +1,3 @@
-import React from 'react';
 import { Corporation, GameDate, MapCell } from '../types';
 
 interface AnnualReportViewProps {

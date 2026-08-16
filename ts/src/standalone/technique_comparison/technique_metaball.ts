@@ -8,7 +8,7 @@
  * Family: Smooth-procedural-vector
  */
 
-import { FILL, STROKE } from './shared';
+import { FILL } from './shared';
 
 export function renderMetaball(): string {
   // Unique filter ID to avoid collisions

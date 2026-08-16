@@ -11,16 +11,10 @@ import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
 import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
-  canvasTeardropFinPath,
   canvasRadialBurstPath,
   canvasIrregularFragmentPath,
 } from '../../engine/artGen/shapes';
 import {
-  buildTeardropFinSpec,
-  buildAlgaeSpec,
-  buildFleshChunkSpec,
-  buildTeardropFinSpecWithHunger,
-  ageStageFromCreature,
   getBatchColor,
   FISH_MAX_HUNGER,
   SHARK_MAX_HUNGER,
@@ -30,10 +24,7 @@ import {
   getCachedAlgaePath,
   getCachedFleshChunkPath,
   hungerToBand,
-  HUNGER_BANDS,
   getCacheStats,
-  resetCacheStats,
-  clearCache,
 } from './art/pathCache';
 import { RenderProfiler, setProfilingEnabled, isProfilingEnabled } from './art/renderProfiler';
 import './styles.css';

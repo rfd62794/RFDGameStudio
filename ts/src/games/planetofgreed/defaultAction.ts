@@ -65,28 +65,6 @@ function isOppositeRivalNeighbor(
  * Check whether a neighbor cell is owned by a wheel-adjacent rival
  * (one step away on the culture wheel — a moderate threat).
  */
-function isAdjacentRivalNeighbor(
-  cell: MapCell,
-  allCells: MapCell[],
-  corporations: Corporation[],
-  playerCorp: Corporation
-): boolean {
-  const [adj1, adj2] = getAdjacent(playerCorp.cultureId);
-  const adjacentCorps = corporations.filter(
-    c => (c.cultureId === adj1 || c.cultureId === adj2) && c.id !== playerCorp.id
-  );
-
-  for (const nid of cell.neighbors) {
-    const neighbor = allCells.find(c => c.id === nid);
-    if (neighbor && neighbor.ownerId) {
-      if (adjacentCorps.some(c => c.id === neighbor.ownerId)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 /**
  * Find the first unowned (neutral) neighbor of a cell.
  */
@@ -143,23 +121,6 @@ function findRivalNeighbor(
 }
 
 /**
- * Find the first neighbor owned by the player (for redistribution).
- */
-function findOwnNeighbor(
-  cell: MapCell,
-  allCells: MapCell[],
-  playerCorp: Corporation
-): MapCell | null {
-  for (const nid of cell.neighbors) {
-    const neighbor = allCells.find(c => c.id === nid);
-    if (neighbor && neighbor.ownerId === playerCorp.id) {
-      return neighbor;
-    }
-  }
-  return null;
-}
-
-/**
  * Check whether a cell is "safe" — no rival adjacency, decent fortification,
  * and a garrison strong enough to spare units. Used for redistribution
  * candidates.
@@ -167,7 +128,7 @@ function findOwnNeighbor(
 function isSafeCell(
   cell: MapCell,
   allCells: MapCell[],
-  corporations: Corporation[],
+  _corporations: Corporation[],
   playerCorp: Corporation
 ): boolean {
   if (isRivalNeighbor(cell, allCells, playerCorp)) return false;
@@ -183,7 +144,7 @@ function isSafeCell(
  */
 function findContestedOwnCell(
   allCells: MapCell[],
-  corporations: Corporation[],
+  _corporations: Corporation[],
   playerCorp: Corporation
 ): MapCell | null {
   for (const c of allCells) {

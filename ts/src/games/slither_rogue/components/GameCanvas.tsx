@@ -117,6 +117,7 @@ export default function GameCanvas({
     const rs = call(session, 'tick_game', dt, {
       control_type: controlType,
       mouse_x: s.mouseX,
+    }) as unknown as RenderState;
       mouse_y: s.mouseY,
       keys: {
         w: !!s.keys['w'], s: !!s.keys['s'], a: !!s.keys['a'], d: !!s.keys['d'],

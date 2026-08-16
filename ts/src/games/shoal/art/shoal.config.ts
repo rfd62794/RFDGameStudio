@@ -298,7 +298,6 @@ export function parseHueFromColor(color: string): number | null {
     const b = parseInt(hexMatch[1].slice(4, 6), 16) / 255;
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    const l = (max + min) / 2;
     if (max === min) return 0; // achromatic
     const d = max - min;
     let h: number;

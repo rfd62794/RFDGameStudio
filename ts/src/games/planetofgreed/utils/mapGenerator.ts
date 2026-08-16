@@ -1,4 +1,4 @@
-import { MapCell, Point, UnitGroup, Corporation } from '../types';
+import { MapCell, Point, Corporation } from '../types';
 
 // List of 36 unique immersive sector names
 const SECTOR_NAMES = [

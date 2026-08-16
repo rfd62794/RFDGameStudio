@@ -7,7 +7,7 @@
  * primitive type and parameters change.
  */
 
-import { renderFigureSvg, composeFigure } from '../../engine/paperDoll/index';
+import { renderFigureSvg } from '../../engine/paperDoll/index';
 import type { BodyPlan, CompositionInput, PartForComposition } from '../../engine/paperDoll/types';
 import { humanoidBilateral } from '../../engine/paperDoll/bodyPlans/humanoidBilateral';
 import { chimeraAsymmetric } from '../../engine/paperDoll/bodyPlans/chimeraAsymmetric';

@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Zap, Magnet, Shield, Maximize2, Compass, Ghost, Sparkles, Flame
 } from 'lucide-react';

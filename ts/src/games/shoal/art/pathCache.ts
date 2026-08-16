@@ -17,14 +17,11 @@
  * lineTo/bezierCurveTo is the standard canvas optimization.
  */
 
-import { canvasTeardropFinPath } from '../../../engine/artGen/shapes';
 import {
   buildTeardropFinSpec,
   buildAlgaeSpec,
   buildFleshChunkSpec,
-  ageStageFromCreature,
   type AgeStage,
-  type ShoalSpecies,
 } from './shoal.config';
 import { mulberry32 } from '../../../engine/artGen/seededRandom';
 import type { TeardropFinSpec, RadialBurstSpec, IrregularFragmentSpec, PolygonSpec } from '../../../engine/artGen/types';

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Trophy, RefreshCw, Home, Sparkles, Bookmark } from 'lucide-react';
 import { Modal } from '../../../ui/components';
 import type { GameSession } from '../../../engine/types';
@@ -22,7 +21,7 @@ export default function GameOverModal({
   const [saved, setSaved] = useState(false);
 
   const data = session.files.data as Record<string, unknown>;
-  const gradeResult = call(session, 'calculate_grade', score, data['grade_thresholds']) as { title: string; description: string } | null;
+  const gradeResult = call(session, 'calculate_grade', score, data['grade_thresholds']) as unknown as { title: string; description: string } | null;
   const grade = gradeResult ?? { title: 'Newborn Hatchling', description: 'Survival is tough. Gather more mutations next time!' };
 
   const saveScore = (e: React.FormEvent) => {

@@ -16,10 +16,6 @@ import type {
   UnitTransit,
   GameEvent,
   CellCombatState,
-  CombatLogEntry,
-  Point,
-  RecruitmentItem,
-  GameEventChoice,
 } from '../../engine/shared/componentTypes';
 
 // Re-export shared types so existing imports from './types' keep working
