@@ -79,14 +79,6 @@ function makePriorPlayerMutant(id: string, name: string, speedSum: number): Muta
   return { id, name, color: '#3b82f6', parts, status: 'healthy', matchesPlayed: 0 };
 }
 
-function makePriorOpponentMutant(id: string, name: string, speed: number): Mutant & Record<string, unknown> {
-  return {
-    id, name, color: '#ef4444',
-    parts: {} as MutantParts,
-    status: 'healthy', matchesPlayed: 0,
-    accuracy: 30, endurance: 35, power: 30, speed, max_health: 35,
-  } as Mutant & Record<string, unknown>;
-}
 
 function runFullMatch(
   sim: MbbSimulation,
