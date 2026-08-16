@@ -21,6 +21,8 @@ export interface GameShellProps {
   /** External arcade URL for standalone/itch builds */
   arcadeBaseUrl?: string;
   className?: string;
+  /** Optional class applied to .game-shell-main (e.g. for scrollable overflow) */
+  mainClassName?: string;
 }
 
 /**
@@ -39,6 +41,7 @@ export function GameShell({
   mode = 'arcade',
   arcadeBaseUrl,
   className = '',
+  mainClassName = '',
 }: GameShellProps) {
   return (
     <div className={`game-shell ${className}`}>
@@ -66,7 +69,7 @@ export function GameShell({
         </div>
       </header>
 
-      <div className="game-shell-main">{children}</div>
+      <div className={`game-shell-main ${mainClassName}`}>{children}</div>
 
       {footer && <div className="game-shell-footer">{footer}</div>}
     </div>

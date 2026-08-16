@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import {
   GameState, MapCell, Corporation, WeeklyOrder, UnitTransit, UnitGroup,
@@ -289,6 +289,8 @@ export default function App({ session }: GameRendererProps) {
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
   const [showAnnualReport, setShowAnnualReport] = useState<boolean>(false);
   const [isPlanningPhase, setIsPlanningPhase] = useState<boolean>(true);
+  const [planningMode, setPlanningMode] = useState<'guided' | 'manual'>('guided');
+  const lastTreasuryErrorRef = useRef<string>('');
   // No saved game exists yet: the player must pick a culture (and therefore
   // their wheel slot / rival) before a new game initializes. Minimal
   // selection step -- see the render branch below.
@@ -441,6 +443,7 @@ export default function App({ session }: GameRendererProps) {
       setSelectedCellId(capital.id);
     }
     setIsPlanningPhase(true);
+    setPlanningMode('guided');
     setShowAnnualReport(false);
     setPendingCultureSelection(false);
   };
@@ -1523,8 +1526,8 @@ export default function App({ session }: GameRendererProps) {
     : 0;
 
   return (
-    <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl}>
-    <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden overflow-y-auto">
+    <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl} mainClassName="game-shell-main--scrollable">
+    <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
 
       {/* HEADER SECTION */}
       <BoardroomHeader

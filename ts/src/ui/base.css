@@ -382,6 +382,10 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
   flex-direction: column;
 }
 
+.game-shell-main--scrollable {
+  overflow-y: auto;
+}
+
 .game-shell-footer {
   flex-shrink: 0;
   border-top: 1px solid var(--border);
