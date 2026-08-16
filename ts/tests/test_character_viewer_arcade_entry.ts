@@ -212,6 +212,7 @@ describe('test_no_regression', () => {
       'gladiator_arena',
       'voiddrift_redux',
       'succession',
+      'house_of_kings_collab',
       'technique_showcase',
     ];
     for (const id of existingIds) {
