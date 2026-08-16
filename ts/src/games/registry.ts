@@ -18,6 +18,7 @@ import { planetofgreedConfig } from './planetofgreed/config';
 import { gladiatorArenaConfig } from './gladiator_arena/config';
 import voiddriftReduxConfig from './voiddrift_redux/config';
 import successionConfig from './succession/config';
+import houseOfKingsCollabConfig from './house_of_kings_collab/config';
 import { characterViewerConfig } from './character_viewer/config';
 import { techniqueShowcaseConfig } from './technique_showcase/config';
 
@@ -52,6 +53,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   gladiatorArenaConfig,
   voiddriftReduxConfig,
   successionConfig,
+  houseOfKingsCollabConfig,
   characterViewerConfig,
   techniqueShowcaseConfig,
 ];
