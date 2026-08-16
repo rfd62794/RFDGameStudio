@@ -611,9 +611,11 @@ describe('test_controlled_match_isolates_brand_effect', () => {
     expect(statsA.accuracy).toBe(statsB.accuracy);
     expect(statsA.endurance).toBe(statsB.endurance);
 
-    // Run 5 matches — with identical stats, results should be roughly balanced
+    // Run 10 matches — with identical stats, results should be roughly
+    // balanced. Note: CombatSystem uses Math.random() (non-deterministic),
+    // so results vary between runs. With 10 matches, variance is reduced.
     const results: Array<{ seed: number; winner: string }> = [];
-    for (let seed = 1; seed <= 5; seed++) {
+    for (let seed = 1; seed <= 10; seed++) {
       const sim = createMbbSimulation();
       sim.initMatch(teamA, teamB, data as Parameters<typeof sim.initMatch>[2], seed);
       let ended = false;
@@ -642,9 +644,10 @@ describe('test_controlled_match_isolates_brand_effect', () => {
     const opponentWins = results.filter(r => r.winner === 'opponent').length;
     console.log(`[symmetric match] player wins: ${playerWins}/${results.length}, opponent wins: ${opponentWins}/${results.length}`);
 
-    // With identical stats, neither team should dominate
-    // (allowing for some variance, but not 5-0)
-    expect(Math.abs(playerWins - opponentWins)).toBeLessThanOrEqual(3);
+    // With identical stats, neither team should dominate.
+    // CombatSystem uses Math.random() (non-deterministic), so we allow
+    // wider variance: at most 7-3 split across 10 matches.
+    expect(Math.abs(playerWins - opponentWins)).toBeLessThanOrEqual(4);
   });
 
   it('Real match with actual data: player starter roster vs easy opponent (Scrappers)', () => {
