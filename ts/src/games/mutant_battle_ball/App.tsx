@@ -104,9 +104,37 @@ export default function App({ session }: GameRendererProps) {
 
     const opponentMutants = (opponent['mutants'] as Array<Record<string, unknown>>) ?? [];
     currentOpponentMutantsRef.current = opponentMutants;
+
+    // Resolve opponent parts from string IDs to real Part objects.
+    // The raw YAML has parts as { head: 'head_basic', ... } (string IDs),
+    // but makeAgent → calculateStats → getEffectivePartStats expects Part
+    // objects with numeric stat fields. Passing strings produces NaN
+    // stats → NaN speed → NaN positions → agents stuck at CSS fallback
+    // (top-left corner). This was the root cause of the corner-stuck bug.
+    const partsData = data['parts'] as Array<Record<string, unknown>> ?? [];
+    const partsMap: Record<string, unknown> = {};
+    for (const p of partsData) {
+      partsMap[p['id'] as string] = p;
+    }
+    const resolvedOpponentMutants = opponentMutants.map(m => {
+      const rawParts = m['parts'] as Record<string, string> | undefined;
+      if (!rawParts) return m;
+      return {
+        ...m,
+        parts: {
+          head:      rawParts['head']      ? partsMap[rawParts['head']]      ?? null : null,
+          chest:     rawParts['chest']     ? partsMap[rawParts['chest']]     ?? null : null,
+          left_arm:  rawParts['left_arm']  ? partsMap[rawParts['left_arm']]  ?? null : null,
+          right_arm: rawParts['right_arm'] ? partsMap[rawParts['right_arm']] ?? null : null,
+          left_leg:  rawParts['left_leg']  ? partsMap[rawParts['left_leg']]  ?? null : null,
+          right_leg: rawParts['right_leg'] ? partsMap[rawParts['right_leg']] ?? null : null,
+        },
+      };
+    });
+
     simRef.current.initMatch(
       squadMutants as unknown as Parameters<MbbSimulation['initMatch']>[0],
-      opponentMutants as unknown as Parameters<MbbSimulation['initMatch']>[1],
+      resolvedOpponentMutants as unknown as Parameters<MbbSimulation['initMatch']>[1],
       data as unknown as Parameters<MbbSimulation['initMatch']>[2],
     );
     setInMatch(true);

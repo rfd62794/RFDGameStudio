@@ -260,12 +260,18 @@ export function tickMatchInternal(st: MbbState, dt: number): MatchState {
         if (ag.team === st.possession && ag.status !== 'down' && !resetCarrier) {
           resetCarrier = ag;
         }
-        // Spread agents vertically across the court, each at a distinct Y
-        const teamList = ag.team === 'player' ? playerAgents : opponentAgents;
-        const idxInTeam = ag.team === 'player' ? playerIdx++ : opponentIdx++;
-        ag.x = ag.team === 'player' ? 30 : 70;
-        ag.y = courtH * ((idxInTeam + 0.5) / teamList.length);
-        ag.vx = 0; ag.vy = 0;
+        // Only reposition active and stunned agents. Down/subbed agents
+        // are out of the play and should not be teleported — they stay
+        // where they fell (or are removed from the field). Repositioning
+        // them unconditionally was an independent bug that could teleport
+        // downed agents back to reset positions on every score.
+        if (ag.status === 'active' || ag.status === 'stunned') {
+          const teamList = ag.team === 'player' ? playerAgents : opponentAgents;
+          const idxInTeam = ag.team === 'player' ? playerIdx++ : opponentIdx++;
+          ag.x = ag.team === 'player' ? 30 : 70;
+          ag.y = courtH * ((idxInTeam + 0.5) / teamList.length);
+          ag.vx = 0; ag.vy = 0;
+        }
       }
       st.ball.pos.x = 50;
       st.ball.pos.y = courtH / 2;
