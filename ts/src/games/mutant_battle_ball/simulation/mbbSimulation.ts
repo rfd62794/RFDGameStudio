@@ -982,7 +982,7 @@ export function createMbbSimulation(): MbbSimulation {
         const ag = st.agents[i];
         if (ag.id === downedAgentId) {
           const hadBall = st.ball.state === 'held' && st.ball.carrierId === ag.id;
-          const cyberLean = benchMutant.parts ? averageCyberOrganicLean(benchMutant.parts as Record<string, { cyberOrganicLean?: number } | null>) : undefined;
+          const cyberLean = benchMutant.parts ? averageCyberOrganicLean(benchMutant.parts as unknown as Record<string, { cyberOrganicLean?: number } | null>) : undefined;
           const playerStats = mapToPlayerStats(stats, cyberLean);
           st.agents[i] = {
             id: benchMutant.id,
