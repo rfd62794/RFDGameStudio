@@ -1630,7 +1630,7 @@ export default function App({ session }: GameRendererProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch"
+              className="p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start"
             >
               {/* Left Column (4/12): Weekly Directives / Order controls */}
               <section className="lg:col-span-4 flex flex-col gap-4">
@@ -1696,7 +1696,7 @@ export default function App({ session }: GameRendererProps) {
               </section>
 
               {/* Center Column (5/12): Map View */}
-              <section className="lg:col-span-5 flex flex-col justify-center">
+              <section className="lg:col-span-5 flex flex-col justify-start">
                 <PlanetMap
                   cells={gameState.cells}
                   corporations={gameState.corporations}
