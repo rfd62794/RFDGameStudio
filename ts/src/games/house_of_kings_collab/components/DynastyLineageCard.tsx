@@ -7,8 +7,6 @@ import {
   Crown,
   Scroll,
   Sparkles,
-  Award,
-  ChevronRight,
   UserCheck,
   History,
   AlertCircle,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mic, Sparkles, ArrowRight, Check, X, Volume2 } from 'lucide-react';
+import { Mic, Sparkles, ArrowRight, Check, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { CharacterInstance, ArchetypeId } from '../types';
 import { ARCHETYPES } from '../data/archetypes';

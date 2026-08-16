@@ -1,4 +1,4 @@
-import { Archetype, PracticeItem, ArchetypeId } from '../types';
+import { Archetype, PracticeItem } from '../types';
 
 export const ARCHETYPES: Record<string, Archetype> = {
   pony: {

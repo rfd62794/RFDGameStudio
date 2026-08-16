@@ -23,7 +23,6 @@ import {
   Play,
   Award,
   Zap,
-  TrendingUp,
   Flame,
   RotateCcw,
 } from 'lucide-react';
