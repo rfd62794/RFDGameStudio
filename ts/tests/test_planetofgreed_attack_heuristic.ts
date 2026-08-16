@@ -4,10 +4,9 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   getDefaultAction,
-  getThreatLevel,
   sortRegionsByThreat,
 } from '../src/games/planetofgreed/defaultAction';
-import type { MapCell, Corporation, WeeklyOrder } from '../src/games/planetofgreed/types';
+import type { MapCell, Corporation } from '../src/games/planetofgreed/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');

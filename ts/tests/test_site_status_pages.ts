@@ -10,13 +10,12 @@
 //   5. test_no_regression — current floor holds
 //
 import { describe, it, expect } from 'vitest';
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STATUS_BOARD } from '../src/status/board.data';
 import { SITE_STATUS_HUB, SITE_STATUS_ENTRIES } from '../src/status/site-pages.data';
 import { generateHubMarkdown, generateDetailMarkdown, generateAllSitePages } from '../src/status/generateSitePages';
-import type { SiteStatusEntry } from '../src/status/site-pages.types';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
@@ -188,7 +187,7 @@ describe('test_no_regression', () => {
 
   it('all generated markdown files have valid Hugo front matter (start with ---)', () => {
     const pages = generateAllSitePages(SITE_STATUS_HUB, SITE_STATUS_ENTRIES);
-    for (const [filename, content] of pages) {
+    for (const [_filename, content] of pages) {
       expect(content.startsWith('---')).toBe(true);
       // Front matter must close with --- before the body
       const secondDelimiter = content.indexOf('---', 3);

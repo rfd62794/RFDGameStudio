@@ -8,7 +8,7 @@ import {
   sortRegionsByThreat,
 } from '../src/games/planetofgreed/defaultAction';
 import { HOUSE_DESCRIPTIONS, ENDING_TEXT, EVENT_FLAVOR_NOTE } from '../src/games/planetofgreed/flavorText';
-import type { MapCell, Corporation, WeeklyOrder } from '../src/games/planetofgreed/types';
+import type { MapCell, Corporation } from '../src/games/planetofgreed/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');

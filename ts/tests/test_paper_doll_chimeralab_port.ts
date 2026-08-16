@@ -210,7 +210,6 @@ describe('test_fk_rotation_accumulation_correct', () => {
 
     const resolved = resolveAttachments(fkPlan);
     const head = resolved.find(r => r.slot === 'head')!;
-    const chest = resolved.find(r => r.slot === 'chest')!;
 
     // FK formula: headPos = chestPos + (cos(restAngle) * length, sin(restAngle) * length)
     // restAngle = -PI/2, so cos(-PI/2) ≈ 0, sin(-PI/2) = -1

@@ -103,7 +103,6 @@ const GAME_REGISTRY = [
   { gameId: 'slither_rogue', label: 'Snake Roguelike', description: 'Slither, mutate, steal segments', component: null as any },
 ];
 function findGame(gameId: string) { return GAME_REGISTRY.find(g => g.gameId === gameId); }
-function findGameOrDefault(gameId: string) { return findGame(gameId) ?? GAME_REGISTRY[0]; }
 
 describe('runtime', () => {
   it('test_runtime_load_game_returns_session', async () => {

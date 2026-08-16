@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PartSlot, Part, PartsBySlot, PART_SLOTS } from '../src/engine/shared/partSlots';
+import { Part, PartsBySlot, PART_SLOTS } from '../src/engine/shared/partSlots';
 import type { Part as ChimeraPart } from '../src/games/chimera_wilds/types';
 import type { Part as MBBPart, MutantParts } from '../src/games/mutant_battle_ball/types';
 import { readFileSync } from 'fs';

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { resolveCellCombat, RPS_COUNTERS, SHAPE_MATRIX } from '../src/engine/shared/combat';
-import type { UnitGroup } from '../src/engine/shared/combat';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

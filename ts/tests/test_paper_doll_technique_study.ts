@@ -22,7 +22,6 @@ import {
   humanoidBilateral,
   chimeraAsymmetric,
   CREATURE_PRESETS,
-  CREATURE_PRESET_IDS,
   getCreaturePreset,
   getDigit,
   getBoolean,
@@ -288,7 +287,7 @@ describe('test_new_presets_are_original', () => {
       for (const shape of preset.shapes) {
         expect(validPrimitives).toContain(shape.primitive);
         // Parameters should be numbers, not SVG strings
-        for (const [key, value] of Object.entries(shape.baseParams)) {
+        for (const [_key, value] of Object.entries(shape.baseParams)) {
           expect(typeof value).toBe('number');
         }
       }

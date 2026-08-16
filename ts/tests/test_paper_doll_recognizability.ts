@@ -16,7 +16,6 @@ import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { composeFigure, humanoidBilateral } from '../src/engine/paperDoll/index';
-import { BIOLOGICAL_SCALING } from '../src/engine/paperDoll/types';
 import type { CompositionInput, PartForComposition, ComposedPart } from '../src/engine/paperDoll/types';
 import { PART_SLOTS } from '../src/engine/shared/partSlots';
 

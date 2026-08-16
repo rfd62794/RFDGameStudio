@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadGame, call } from '../src/engine/runtime';
 import { stateToLua, type LabState, type Slime, type SlimeColor } from '../src/games/slimeworld/types';
-import { buildColorSpecs, SEED_SHAPE_DEFAULTS, startingTargetRegentForColor } from '../src/games/slimeworld/App';
+import { buildColorSpecs, SEED_SHAPE_DEFAULTS } from '../src/games/slimeworld/App';
 import { generatePlanetRegion } from '../src/games/slimeworld/planetRegion';
 
 const session = loadGame('slimeworld');

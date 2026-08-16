@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  SPECIES_SHAPES,
   buildTeardropFinSpec,
   buildAlgaeSpec,
   buildFleshChunkSpec,
@@ -9,7 +8,6 @@ import {
   AGE_CURVE,
   ageStageFromCreature,
   DEFAULT_DRIFT_RANGE,
-  type ShoalSpecies,
 } from '../src/games/shoal/art/shoal.config';
 import { renderTeardropFin, renderRadialBurst, renderIrregularFragment } from '../src/engine/artGen/shapes';
 

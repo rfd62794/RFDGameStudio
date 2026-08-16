@@ -20,7 +20,6 @@ import {
   countAlive,
   CONFIG,
 } from '../src/games/shoal/simulation/shoalSimulation';
-import type { RenderState } from '../src/games/shoal/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
