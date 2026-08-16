@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   getCachedCreaturePath,
   clearCache,
@@ -20,25 +20,6 @@ import {
  * both onto an offscreen canvas and comparing the resulting pixel data.
  * If the pixels match, the geometry is identical.
  */
-
-// Helper: render a Path2D to an offscreen canvas and return pixel data
-function _renderPathToPixels(
-  drawFn: (ctx: CanvasRenderingContext2D) => void,
-  size: number = 100
-): Uint8ClampedArray {
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, size, size);
-  ctx.fillStyle = '#fff';
-  ctx.save();
-  ctx.translate(size / 2, size / 2);
-  drawFn(ctx);
-  ctx.restore();
-  return ctx.getImageData(0, 0, size, size).data;
-}
 
 // jsdom doesn't support canvas rendering, so we use a mock approach:
 // we verify the cache returns the same Path2D object for the same key
@@ -104,5 +85,4 @@ describe('test_cached_path_matches_uncached', () => {
   });
 });
 
-// Need to import beforeEach
-import { beforeEach } from 'vitest';
+
