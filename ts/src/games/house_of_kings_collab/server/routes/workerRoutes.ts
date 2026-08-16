@@ -3,7 +3,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { AuthenticatedRequest, verifyAuth } from '../middleware/verifyAuth';
 import { getDb } from '../lib/firebaseAdmin';
 import { kingdomPath, housePath, playerPath, workersCollectionPath } from '../lib/paths';
-import { resolvePlayerContext } from '../../lib/playerContext';
+import { resolvePlayerContext } from '../lib/playerContext';
 import { runGuardedTransaction } from '../lib/transactionHelpers';
 import { workerPoolSize, WorkerTask, TaskType, parseUnlockedTaskTypes, resolveActionsState } from '../../types';
 import { resolveKingdomAggregateActionsState } from '../../lib/actionsAllocation';

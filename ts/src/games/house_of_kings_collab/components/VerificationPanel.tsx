@@ -600,7 +600,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
       await ensurePlayerActionsAvailable(20);
       await ensureFreeWorkerSlot(1);
       const initialWorkerData = await getWorkersApi(kingdomId, houseId);
-      const initialResources = initialWorkerData.resources || { food: 0, wood: 0 };
+      const initialResources = initialWorkerData.resources || { food: 0, wood: 0, stone: 0 };
       const initialGold = gold;
       const initialKingdom = await getKingdomApi(kingdomId);
       const initialKC = initialKingdom.cumulativeContribution || 0;
@@ -637,7 +637,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
 
       // Read updated player doc to confirm resources isolation
       const updatedWorkerData = await getWorkersApi(kingdomId, houseId);
-      const updatedResources = updatedWorkerData.resources || { food: 0, wood: 0 };
+      const updatedResources = updatedWorkerData.resources || { food: 0, wood: 0, stone: 0 };
       const updatedKingdom = await getKingdomApi(kingdomId);
 
       addLog(id, `Post-Check Balances: Food=${updatedResources.food}, Wood=${updatedResources.wood}, Gold=${gold}, Kingdom KC=${updatedKingdom.cumulativeContribution}`);
@@ -671,7 +671,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
 
       // 1. Test insufficient resources rejection when player has 0 resources
       addLog(id, 'Testing upgrade rejection with 0 resources...');
-      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 0, wood: 0 }, actionsRemainingToday: 10, kingdomId, houseId });
+      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 0, wood: 0, stone: 0 }, actionsRemainingToday: 10, kingdomId, houseId });
 
       try {
         await upgradeChurchApi(kingdomId, houseId);
@@ -686,7 +686,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
 
       // 2. Grant enough resources to reach Level 3
       addLog(id, 'Granting 5000 Food and 5000 Wood via Admin API to test upgrade path to Level 3...');
-      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 5000, wood: 5000 }, actionsRemainingToday: 10, kingdomId, houseId });
+      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 5000, wood: 5000, stone: 0 }, actionsRemainingToday: 10, kingdomId, houseId });
 
       // Upgrade step-by-step to Level 3
       while (churchLvl < 3) {
@@ -773,7 +773,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
     try {
       // 1. Grant 500 Food and 500 Wood to player
       addLog(id, 'Setting player resources to 500 Food and 500 Wood via Admin API...');
-      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 500, wood: 500 }, actionsRemainingToday: 10, kingdomId, houseId });
+      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 500, wood: 500, stone: 0 }, actionsRemainingToday: 10, kingdomId, houseId });
 
       // 2. Read initial House doc
       const initialHouse = await getHouseApi(kingdomId, houseId);
@@ -835,7 +835,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
 
       // 2. Grant resources for Chapel upgrade
       addLog(id, 'Granting 2000 Food and 2000 Wood via Admin API...');
-      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 2000, wood: 2000 }, kingdomId, houseId });
+      await adminSetPlayerStateApi({ targetUserId: userId, resources: { food: 2000, wood: 2000, stone: 0 }, kingdomId, houseId });
 
       // 3. Upgrade Chapel to Level 1
       addLog(id, 'Upgrading House Chapel from Level 0 to Level 1...');
@@ -1038,7 +1038,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
         targetUserId: userId,
         kingdomId,
         houseId,
-        resources: { food: 500, wood: 500 },
+        resources: { food: 500, wood: 500, stone: 0 },
         chapelLevel: 0,
         reputationScore: 0,
         reputationLevel: 0,
@@ -1096,7 +1096,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
         kingdomId,
         houseId,
         cathedralLevel: 0,
-        resources: { food: 500, wood: 500 },
+        resources: { food: 500, wood: 500, stone: 0 },
         actionsRemainingToday: 8,
       });
 
@@ -1123,7 +1123,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
         actionsRemainingToday: 0,
         actionsAllowanceToday: 20,
         actionsLastResetAt: Date.now(),
-        resources: { food: 500, wood: 500 },
+        resources: { food: 500, wood: 500, stone: 0 },
         reputationScore: 350,
         reputationLevel: 2,
         cathedralLevel: 0,
@@ -1163,7 +1163,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
         kingdomId,
         houseId,
         actionsRemainingToday: 20,
-        resources: { food: 300, wood: 300 },
+        resources: { food: 300, wood: 300, stone: 0 },
       });
 
       updateTest(id, {
@@ -1209,7 +1209,7 @@ export const VerificationPanel: React.FC<VerificationPanelProps> = ({
         kingdomId,
         houseId,
         gold: 100,
-        resources: { food: 50, wood: 50 },
+        resources: { food: 50, wood: 50, stone: 0 },
         actionsRemainingToday: 20,
         rewardMultiplierLevel: 0,
         specialization: 'none',

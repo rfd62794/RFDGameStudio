@@ -15,7 +15,7 @@ interface CathedralViewProps {
 export const CathedralView: React.FC<CathedralViewProps> = ({
   kingdomId,
   houseId,
-  userId,
+  userId: _userId,
   onRefreshParent,
 }) => {
   const [kingdom, setKingdom] = useState<KingdomDoc>({
@@ -23,7 +23,7 @@ export const CathedralView: React.FC<CathedralViewProps> = ({
     cumulativeContribution: 0,
     cathedral: { level: 0 },
   });
-  const [resources, setResources] = useState<ResourcesMap>({ food: 0, wood: 0 });
+  const [resources, setResources] = useState<ResourcesMap>({ food: 0, wood: 0, stone: 0 });
   const [upgrading, setUpgrading] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -57,7 +57,7 @@ export const CathedralView: React.FC<CathedralViewProps> = ({
       if (data.resources && typeof data.resources === 'object') {
         setResources(data.resources);
       } else if (typeof data.resources === 'number') {
-        setResources({ food: data.resources, wood: 0 });
+        setResources({ food: data.resources, wood: 0, stone: 0 });
       }
     } catch (err) {
       console.warn('Error fetching player resources for Cathedral view:', err);

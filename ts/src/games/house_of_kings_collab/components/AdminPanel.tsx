@@ -55,7 +55,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [targetUserId, setTargetUserId] = useState<string>(userId);
   const [customGoldAmount, setCustomGoldAmount] = useState<number>(1000);
-  const [customLevel, setCustomLevel] = useState<number>(5);
+  const [_customLevel, _setCustomLevel] = useState<number>(5);
 
   const [players, setPlayers] = useState<PlayerRecord[]>([]);
   const [loadingPlayers, setLoadingPlayers] = useState<boolean>(false);

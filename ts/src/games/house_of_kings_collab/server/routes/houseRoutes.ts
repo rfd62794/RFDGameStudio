@@ -2,7 +2,7 @@ import { Router, Response, Request } from 'express';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getDb } from '../lib/firebaseAdmin';
 import { housePath, playerPath, kingdomPath } from '../lib/paths';
-import { resolvePlayerContext } from '../../lib/playerContext';
+import { resolvePlayerContext } from '../lib/playerContext';
 import { runGuardedTransaction } from '../lib/transactionHelpers';
 import { AuthenticatedRequest, verifyAuth } from '../middleware/verifyAuth';
 import {

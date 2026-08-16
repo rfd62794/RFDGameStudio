@@ -74,7 +74,7 @@ export default function App({ session }: GameRendererProps) {
   // Subscribe to player document for real-time gold and multiplier updates
   useEffect(() => {
     if (!user) {
-      setPlayerData({ gold: 0, rewardMultiplierLevel: 0 });
+      setPlayerData({ gold: 0, rewardMultiplierLevel: 0, actionsRemainingToday: 0 });
       return;
     }
 
