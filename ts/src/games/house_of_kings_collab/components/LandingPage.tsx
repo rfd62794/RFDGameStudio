@@ -5,7 +5,6 @@ import {
 import { auth, googleProvider } from '../lib/firebase';
 import {
   Shield,
-  Sparkles,
   Zap,
   Coins,
   ShieldCheck,
