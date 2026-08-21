@@ -224,19 +224,47 @@ function runSimulation(
   let state = createInitialGameState(origin);
   const playerMoves: string[] = [];
   let turnIndex = 0;
+  const MAX_TURNS = 20;
 
-  while (state.phase === 'segment') {
+  while (state.phase === 'segment' && turnIndex < MAX_TURNS) {
     const result = strategy(state, turnIndex);
     const moveDesc = result.move === 'scout'
       ? 'scout'
       : `${result.move}→${result.figureId}${result.themeId ? `(${result.themeId})` : ''}`;
     playerMoves.push(`S${state.segment}:${moveDesc}`);
 
-    state = applyMove(state, result);
+    const newState = applyMove(state, result);
+    if (newState === state) {
+      playerMoves.push('NO-OP→fallback:appeal');
+      const target = figureWherePlayerIsFurthestBehind(state);
+      state = appealTo(state, target);
+    } else {
+      state = newState;
+    }
     turnIndex++;
   }
 
-  const verdict = state.verdict!;
+  if (state.phase !== 'verdict' || !state.verdict) {
+    const finalFavorStuck = {} as Record<FigureId, Record<ClaimantId, number>>;
+    for (const f of state.figures) {
+      finalFavorStuck[f.id] = { ...f.favor };
+    }
+    return {
+      strategyName,
+      origin,
+      winner: null,
+      isMajority: false,
+      perFigureWinner: {},
+      finalFavor: finalFavorStuck,
+      margin: 0,
+      exposureCount: countExposures(state),
+      exposureSegment: firstExposureSegment(state),
+      decidedSegment: null,
+      playerMoves,
+    };
+  }
+
+  const verdict = state.verdict;
   const margin = computeMargin(state, verdict);
 
   const finalFavor = {} as Record<FigureId, Record<ClaimantId, number>>;
