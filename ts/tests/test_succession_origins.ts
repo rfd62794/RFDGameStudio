@@ -102,8 +102,9 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       // Player makes an appeal to commander
       const next = appealTo(state, 'commander');
 
+      // Segment 1 is odd → only Aldric acts → 1 rival whisper
       const rivalWhispers = next.ticker.filter((t) => t.claimantId !== 'player');
-      expect(rivalWhispers.length).toBe(2);
+      expect(rivalWhispers.length).toBe(1);
       rivalWhispers.forEach((entry) => {
         expect(entry.moveType).toBe('whisper');
         expect(entry.favorGain).toBe(RIVAL_WHISPER_FAVOR_GAIN + MERCHANT_RIVAL_FIRST_WHISPER_BONUS); // 20
@@ -112,29 +113,44 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
 
     it('Slander against Merchant Banker has its penalty halved (-5 instead of -10)', () => {
       const state = createInitialGameState('merchant_banker');
-      // Player whispers to Chancellor (+20). Player lead on Chancellor is 20, triggering Vivienne slander
-      const next = whisperTo(state, 'chancellor', 'noble_pedigree');
+      // Segment 1 (odd, Aldric): Player whispers to Chancellor (+20). Aldric whispers to a neglected figure.
+      const afterSeg1 = whisperTo(state, 'chancellor', 'noble_pedigree');
+      expect(afterSeg1.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(20);
 
-      const slanderEntry = next.ticker.find((t) => t.moveType === 'slander');
+      // Segment 2 (even, Vivienne): Player appeals to Chancellor (+8, total 28).
+      // Vivienne sees player lead 28 >= 16 → slanders Chancellor (-5 for Merchant Banker) = 23.
+      const afterSeg2 = appealTo(afterSeg1, 'chancellor');
+
+      const slanderEntry = afterSeg2.ticker.find(
+        (t) => t.moveType === 'slander' && t.segment === 2
+      );
       expect(slanderEntry).toBeDefined();
       expect(slanderEntry?.favorGain).toBe(-MERCHANT_SLANDER_PENALTY); // -5
 
-      const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-      // 20 favor gained minus 5 slander penalty = 15 favor
-      expect(chancellor.favor.player).toBe(15);
+      const chancellor = afterSeg2.figures.find((f) => f.id === 'chancellor')!;
+      // 20 + 8 - 5 = 23 favor
+      expect(chancellor.favor.player).toBe(23);
     });
 
     it('Standard non-merchant origin suffers full -10 slander penalty', () => {
       const state = createInitialGameState('disgraced_knight');
-      const next = whisperTo(state, 'chancellor', 'noble_pedigree');
+      // Segment 1 (odd, Aldric): Player whispers to Chancellor (+20). Aldric whispers to a neglected figure.
+      const afterSeg1 = whisperTo(state, 'chancellor', 'noble_pedigree');
+      expect(afterSeg1.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(20);
 
-      const slanderEntry = next.ticker.find((t) => t.moveType === 'slander');
+      // Segment 2 (even, Vivienne): Player appeals to Chancellor (+8, total 28).
+      // Vivienne sees player lead 28 >= 16 → slanders Chancellor (-10 for non-merchant) = 18.
+      const afterSeg2 = appealTo(afterSeg1, 'chancellor');
+
+      const slanderEntry = afterSeg2.ticker.find(
+        (t) => t.moveType === 'slander' && t.segment === 2
+      );
       expect(slanderEntry).toBeDefined();
       expect(slanderEntry?.favorGain).toBe(-RIVAL_SLANDER_PENALTY); // -10
 
-      const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-      // 20 favor gained minus 10 slander penalty = 10 favor
-      expect(chancellor.favor.player).toBe(10);
+      const chancellor = afterSeg2.figures.find((f) => f.id === 'chancellor')!;
+      // 20 + 8 - 10 = 18 favor
+      expect(chancellor.favor.player).toBe(18);
     });
   });
 });

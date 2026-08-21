@@ -3,7 +3,7 @@ import { VerdictResult } from '../engine/verdict';
 import { EvidenceItem } from '../data/evidence';
 
 export type GamePhase = 'segment' | 'verdict';
-export type PlayerMoveType = 'whisper' | 'appeal' | 'evidence' | 'scout' | 'slander' | 'indictment';
+export type PlayerMoveType = 'whisper' | 'appeal' | 'evidence' | 'scout' | 'slander' | 'indictment' | 'discredit';
 
 export interface FactionRipple {
   targetFigureId: FigureId;

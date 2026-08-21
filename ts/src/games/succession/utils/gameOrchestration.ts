@@ -1,6 +1,6 @@
 import { FigureId, ClaimantId, Claim, PlayerOriginId, IndictmentTriad } from '../engine/types';
-import { applyFavorGain, applyPlayerWhisper } from '../engine/favor';
-import { chooseRivalMoves } from '../engine/rivalAI';
+import { applyFavorGain, applyWhisper } from '../engine/favor';
+import { chooseRivalMoves, chooseRivalWhisperTheme } from '../engine/rivalAI';
 import { resolveVerdict } from '../engine/verdict';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
 import { validateIndictmentForFigure } from '../engine/deduction';
@@ -92,7 +92,10 @@ function resolveRivalMoves(state: GameState): { figures: typeof state.figures; e
         favorGain: -slanderPenalty,
       });
     } else {
-      // Check if this is the rival's first whisper move in the game
+      const figure = figures.find((f) => f.id === targetFigureId)!;
+      const themeId = chooseRivalWhisperTheme(targetFigureId, figure.mostRecentClaim, CLAIM_THEMES);
+      const rivalClaim: Claim = { figureId: targetFigureId, themeId, segment: state.segment, claimantId: rivalId };
+
       const hasPriorWhisper = state.ticker.some(
         (t) => t.claimantId === rivalId && t.moveType === 'whisper'
       );
@@ -101,15 +104,15 @@ function resolveRivalMoves(state: GameState): { figures: typeof state.figures; e
         rivalGain += modifiers.rivalFirstWhisperBonus;
       }
 
-      figures = figures.map((f) =>
-        f.id === targetFigureId ? applyFavorGain(f, rivalId, rivalGain) : f
-      );
+      const { figure: updatedFigure, exposed } = applyWhisper(figure, rivalId, rivalClaim, rivalGain, CLAIM_THEMES);
+      figures = figures.map((f) => (f.id === targetFigureId ? updatedFigure : f));
       entries.push({
         segment: state.segment,
         claimantId: rivalId,
         figureId: targetFigureId,
         moveType: 'whisper',
-        favorGain: rivalGain,
+        exposed,
+        favorGain: exposed ? 0 : rivalGain,
       });
     }
   });
@@ -143,11 +146,11 @@ export function whisperTo(state: GameState, figureId: FigureId, themeId: string)
   }
 
   const figure = state.figures.find((f) => f.id === figureId)!;
-  const claim: Claim = { figureId, themeId, segment: state.segment };
+  const claim: Claim = { figureId, themeId, segment: state.segment, claimantId: 'player' };
 
   // Direct, same-figure check — unchanged, existing function, existing tests.
   const { figure: figureAfterDirect, exposed: directExposed } =
-    applyPlayerWhisper(figure, claim, WHISPER_FAVOR_GAIN, CLAIM_THEMES);
+    applyWhisper(figure, 'player', claim, WHISPER_FAVOR_GAIN, CLAIM_THEMES);
 
   // Cross-figure check against the full claim history (not yet including
   // this new claim — it hasn't been recorded yet).
@@ -372,6 +375,50 @@ export function deliverIndictmentTo(
       triad,
       isCorrect,
     },
+  };
+
+  const stateWithPlayer = {
+    ...state,
+    figures,
+    ticker: [...state.ticker, playerEntry],
+  };
+
+  const { figures: figuresAfterRivals, entries: rivalEntries } = resolveRivalMoves(stateWithPlayer);
+  const next = {
+    ...stateWithPlayer,
+    figures: figuresAfterRivals,
+    ticker: [...stateWithPlayer.ticker, ...rivalEntries],
+  };
+
+  return advanceSegment(next);
+}
+
+export function discreditFigure(
+  state: GameState,
+  figureId: FigureId,
+  targetRivalId: ClaimantId
+): GameState {
+  if (state.phase === 'verdict') return state;
+  if (targetRivalId === 'player') return state;
+
+  const figures = state.figures.map((f) =>
+    f.id === figureId
+      ? {
+          ...f,
+          favor: {
+            ...f.favor,
+            [targetRivalId]: Math.max(0, f.favor[targetRivalId] - RIVAL_SLANDER_PENALTY),
+          },
+        }
+      : f
+  );
+
+  const playerEntry: TickerEntry = {
+    segment: state.segment,
+    claimantId: 'player',
+    figureId,
+    moveType: 'discredit',
+    favorGain: -RIVAL_SLANDER_PENALTY,
   };
 
   const stateWithPlayer = {

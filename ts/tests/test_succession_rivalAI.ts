@@ -3,8 +3,10 @@ import {
   chooseRivalMoves,
   rankFiguresByPlayerNeglect,
   rankFiguresByDisruption,
+  chooseRivalWhisperTheme,
 } from '../src/games/succession/engine/rivalAI';
-import { FigureState } from '../src/games/succession/engine/types';
+import { FigureState, Claim } from '../src/games/succession/engine/types';
+import { CLAIM_THEMES } from '../src/games/succession/data/claimThemes';
 
 describe('rivalAI - Behavioral Archetypes', () => {
   it('Aldric (The Opportunist) targets the figure neglected longest by the player', () => {
@@ -250,6 +252,26 @@ describe('rivalAI - Behavioral Archetypes', () => {
       const assignments = chooseRivalMoves(figures, ['aldric'], history);
       expect(assignments[0].targetFigureId).toBe('archbishop'); // tie-broken by ID
       expect(assignments[0].moveType).toBe('whisper');
+    });
+  });
+
+  describe('Rival Whisper Theme Selection (Fix 3 of 3)', () => {
+    it('chooseRivalWhisperTheme_repeats_prior_claim_at_same_figure', () => {
+      const priorClaim: Claim = {
+        figureId: 'chancellor',
+        themeId: 'noble_pedigree',
+        segment: 1,
+        claimantId: 'aldric',
+      };
+
+      const themeId = chooseRivalWhisperTheme('chancellor', priorClaim, CLAIM_THEMES);
+      expect(themeId).toBe('noble_pedigree');
+    });
+
+    it('chooseRivalWhisperTheme_picks_fresh_theme_when_no_prior_claim', () => {
+      const themeId = chooseRivalWhisperTheme('chancellor', null, CLAIM_THEMES);
+      const chancellorThemes = CLAIM_THEMES.filter((t) => t.figureId === 'chancellor');
+      expect(themeId).toBe(chancellorThemes[0].id);
     });
   });
 });

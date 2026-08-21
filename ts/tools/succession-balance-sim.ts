@@ -15,6 +15,7 @@ import {
   appealTo,
   presentEvidenceTo,
   scoutForEvidence,
+  discreditFigure,
 } from '../src/games/succession/utils/gameOrchestration';
 import { GameState } from '../src/games/succession/types/gameState';
 import { FigureId, PlayerOriginId, ClaimantId } from '../src/games/succession/engine/types';
@@ -24,13 +25,14 @@ import { VerdictResult } from '../src/games/succession/engine/verdict';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
-type Move = 'whisper' | 'appeal' | 'evidence' | 'scout';
+type Move = 'whisper' | 'appeal' | 'evidence' | 'scout' | 'discredit';
 
 interface StrategyResult {
   move: Move;
   figureId?: FigureId;
   themeId?: string;
   evidenceId?: string;
+  targetRivalId?: ClaimantId;
 }
 
 type Strategy = (state: GameState, turnIndex: number) => StrategyResult;
@@ -44,6 +46,7 @@ interface RunResult {
   finalFavor: Record<FigureId, Record<ClaimantId, number>>;
   margin: number;
   exposureCount: number;
+  rivalExposureCount: number;
   exposureSegment: number | null;
   decidedSegment: number | null;
   playerMoves: string[];
@@ -83,6 +86,12 @@ function figureWherePlayerIsFurthestBehind(state: GameState): FigureId {
 
 function countExposures(state: GameState): number {
   return state.figures.filter((f) => f.exposedAgainst.includes('player')).length;
+}
+
+function countRivalExposures(state: GameState): number {
+  return state.figures.filter(
+    (f) => f.exposedAgainst.includes('aldric') || f.exposedAgainst.includes('vivienne')
+  ).length;
 }
 
 function firstExposureSegment(state: GameState): number | null {
@@ -192,6 +201,45 @@ const WhisperHeavy: Strategy = (state) => {
   return { move: 'appeal', figureId: target.id };
 };
 
+const DiscreditHeavy: Strategy = (state, turnIndex) => {
+  // Alternate: even turns build own favor, odd turns discredit the leading rival
+  if (turnIndex % 2 === 0) {
+    const target = figureWherePlayerIsFurthestBehind(state);
+    const themes = CLAIM_THEMES.filter((t) => t.figureId === target);
+    const safeTheme = themes.find(
+      (t) => !checkContradictionAgainstKnown(state.allClaims, t.id, CLAIM_THEMES)
+    );
+    if (safeTheme) {
+      return { move: 'whisper', figureId: target, themeId: safeTheme.id };
+    }
+    return { move: 'appeal', figureId: target };
+  }
+
+  // Discredit: target the rival with the highest favor, at the figure where they lead most
+  const rivalLeads: { figureId: FigureId; rivalId: ClaimantId; favor: number }[] = [];
+  for (const fig of state.figures) {
+    if (fig.favor.aldric > 0) {
+      rivalLeads.push({ figureId: fig.id, rivalId: 'aldric', favor: fig.favor.aldric });
+    }
+    if (fig.favor.vivienne > 0) {
+      rivalLeads.push({ figureId: fig.id, rivalId: 'vivienne', favor: fig.favor.vivienne });
+    }
+  }
+
+  if (rivalLeads.length > 0) {
+    rivalLeads.sort((a, b) => b.favor - a.favor);
+    return {
+      move: 'discredit',
+      figureId: rivalLeads[0].figureId,
+      targetRivalId: rivalLeads[0].rivalId,
+    };
+  }
+
+  // No rival favor to discredit — fall back to building own favor
+  const target = figureWherePlayerIsFurthestBehind(state);
+  return { move: 'appeal', figureId: target };
+};
+
 // ─── Simulation Loop ────────────────────────────────────────────────
 
 function applyMove(state: GameState, result: StrategyResult): GameState {
@@ -213,6 +261,11 @@ function applyMove(state: GameState, result: StrategyResult): GameState {
       return state;
     case 'scout':
       return scoutForEvidence(state);
+    case 'discredit':
+      if (result.figureId && result.targetRivalId) {
+        return discreditFigure(state, result.figureId, result.targetRivalId);
+      }
+      return state;
   }
 }
 
@@ -230,7 +283,9 @@ function runSimulation(
     const result = strategy(state, turnIndex);
     const moveDesc = result.move === 'scout'
       ? 'scout'
-      : `${result.move}→${result.figureId}${result.themeId ? `(${result.themeId})` : ''}`;
+      : result.move === 'discredit'
+        ? `${result.move}→${result.figureId}(${result.targetRivalId})`
+        : `${result.move}→${result.figureId}${result.themeId ? `(${result.themeId})` : ''}`;
     playerMoves.push(`S${state.segment}:${moveDesc}`);
 
     const newState = applyMove(state, result);
@@ -258,6 +313,7 @@ function runSimulation(
       finalFavor: finalFavorStuck,
       margin: 0,
       exposureCount: countExposures(state),
+      rivalExposureCount: countRivalExposures(state),
       exposureSegment: firstExposureSegment(state),
       decidedSegment: null,
       playerMoves,
@@ -281,6 +337,7 @@ function runSimulation(
     finalFavor,
     margin,
     exposureCount: countExposures(state),
+    rivalExposureCount: countRivalExposures(state),
     exposureSegment: firstExposureSegment(state),
     decidedSegment: findDecidedSegment(state),
     playerMoves,
@@ -302,13 +359,14 @@ function runAll(): void {
     { name: 'SafeAppealsOnly', fn: SafeAppealsOnly },
     { name: 'ScoutThenEvidence', fn: ScoutThenEvidence },
     { name: 'WhisperHeavy', fn: WhisperHeavy },
+    { name: 'DiscreditHeavy', fn: DiscreditHeavy },
   ];
 
   const results: RunResult[] = [];
 
   console.log('═'.repeat(120));
   console.log('  SUCCESSION BALANCE SIMULATION — RAW FINDINGS');
-  console.log('  5 strategies × 3 origins = 15 runs');
+  console.log('  6 strategies × 3 origins = 18 runs');
   console.log('═'.repeat(120));
   console.log();
 
@@ -430,8 +488,10 @@ function runAll(): void {
   console.log('  Exposure Statistics:');
   const totalExposures = results.reduce((s, r) => s + r.exposureCount, 0);
   const runsWithExposure = results.filter((r) => r.exposureCount > 0).length;
-  console.log(`    Total exposures across all runs: ${totalExposures}`);
-  console.log(`    Runs with at least 1 exposure: ${runsWithExposure}/15`);
+  const totalRivalExposures = results.reduce((s, r) => s + r.rivalExposureCount, 0);
+  const runsWithRivalExposure = results.filter((r) => r.rivalExposureCount > 0).length;
+  console.log(`    Player exposures: ${totalExposures} (runs with exposure: ${runsWithExposure}/18)`);
+  console.log(`    Rival exposures: ${totalRivalExposures} (runs with exposure: ${runsWithRivalExposure}/18)`);
   console.log();
 
   // Dominance check

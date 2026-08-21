@@ -10,7 +10,7 @@ import {
   deliverIndictmentTo,
 } from '../src/games/succession/utils/gameOrchestration';
 import { SCOUTABLE_EVIDENCE } from '../src/games/succession/data/evidence';
-import { INDICTMENT_FAVOR_GAIN, RIVAL_SLANDER_PENALTY } from '../src/games/succession/data/gameConstants';
+import { INDICTMENT_FAVOR_GAIN } from '../src/games/succession/data/gameConstants';
 import type { IndictmentTriad } from '../src/games/succession/engine/types';
 
 describe('Regicide Triad & Indictment Engine (ADR-014)', () => {
@@ -90,9 +90,10 @@ describe('Regicide Triad & Indictment Engine (ADR-014)', () => {
       expect(playerEntry?.exposed).toBe(false);
       expect(playerEntry?.indictment?.isCorrect).toBe(true);
 
-      // Chancellor favor after reactive rival slander (40 - 10 = 30)
+      // Chancellor favor: +40 from indictment. Segment 1 is odd → Aldric acts.
+      // Aldric targets the most neglected figure (not chancellor), so no slander on chancellor.
       const chancellorFigure = next.figures.find((f) => f.id === 'chancellor')!;
-      expect(chancellorFigure.favor.player).toBe(INDICTMENT_FAVOR_GAIN - RIVAL_SLANDER_PENALTY);
+      expect(chancellorFigure.favor.player).toBe(INDICTMENT_FAVOR_GAIN);
       expect(chancellorFigure.exposedAgainst.includes('player')).toBe(false);
     });
 
@@ -135,7 +136,7 @@ describe('Regicide Triad & Indictment Engine (ADR-014)', () => {
 
       const chancellorFigure = next.figures.find((f) => f.id === 'chancellor')!;
       expect(chancellorFigure.exposedAgainst.includes('player')).toBe(false);
-      expect(chancellorFigure.favor.player).toBe(INDICTMENT_FAVOR_GAIN - RIVAL_SLANDER_PENALTY);
+      expect(chancellorFigure.favor.player).toBe(INDICTMENT_FAVOR_GAIN);
     });
   });
 });

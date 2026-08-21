@@ -1,4 +1,4 @@
-import { FigureState, ClaimantId, FigureId } from './types';
+import { FigureState, ClaimantId, FigureId, Claim, ClaimTheme } from './types';
 import { SLANDER_LEAD_THRESHOLD } from '../data/gameConstants';
 
 export type RivalMoveType = 'whisper' | 'slander';
@@ -174,4 +174,16 @@ export function chooseRivalMoves(
   });
 
   return assignments;
+}
+
+export function chooseRivalWhisperTheme(
+  figureId: FigureId,
+  priorClaim: Claim | null,
+  themes: ClaimTheme[]
+): string {
+  const figureThemes = themes.filter((t) => t.figureId === figureId);
+  if (priorClaim && priorClaim.figureId === figureId) {
+    return priorClaim.themeId;
+  }
+  return figureThemes[0].id;
 }

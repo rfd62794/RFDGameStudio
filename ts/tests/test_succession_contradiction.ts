@@ -9,6 +9,7 @@ describe('contradiction', () => {
       figureId: 'chancellor',
       themeId: 'noble_pedigree',
       segment: 1,
+      claimantId: 'player',
     };
     const isContradiction = checkContradiction(prevClaim, 'common_origins', CLAIM_THEMES);
     expect(isContradiction).toBe(true);
@@ -19,6 +20,7 @@ describe('contradiction', () => {
       figureId: 'chancellor',
       themeId: 'noble_pedigree',
       segment: 1,
+      claimantId: 'player',
     };
     const isContradiction = checkContradiction(prevClaim, 'noble_pedigree', CLAIM_THEMES);
     expect(isContradiction).toBe(false);
@@ -34,6 +36,7 @@ describe('contradiction', () => {
       figureId: 'chancellor',
       themeId: 'noble_pedigree',
       segment: 1,
+      claimantId: 'player',
     };
     // divine_favor belongs to archbishop, does not oppose noble_pedigree
     const isContradiction = checkContradiction(prevClaim, 'divine_favor', CLAIM_THEMES);

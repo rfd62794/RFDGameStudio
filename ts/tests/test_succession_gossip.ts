@@ -7,7 +7,7 @@ describe('gossip', () => {
   it('checkContradictionAgainstKnown_true_when_any_claim_opposes', () => {
     // noble_pedigree opposes common_origins
     const allClaims: Claim[] = [
-      { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1 },
+      { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1, claimantId: 'player' },
     ];
 
     const result = checkContradictionAgainstKnown(allClaims, 'common_origins', CLAIM_THEMES);
@@ -16,8 +16,8 @@ describe('gossip', () => {
 
   it('checkContradictionAgainstKnown_false_when_none_oppose', () => {
     const allClaims: Claim[] = [
-      { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1 },
-      { figureId: 'archbishop', themeId: 'divine_favor', segment: 2 },
+      { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1, claimantId: 'player' },
+      { figureId: 'archbishop', themeId: 'divine_favor', segment: 2, claimantId: 'player' },
     ];
 
     // battle_tested opposes diplomatic_ties; does not oppose noble_pedigree or divine_favor
@@ -34,7 +34,7 @@ describe('gossip', () => {
   it('checkContradictionAgainstKnown_detects_across_different_figures', () => {
     // Claim was told to chancellor
     const allClaims: Claim[] = [
-      { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1 },
+      { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1, claimantId: 'player' },
     ];
 
     // Archbishop has common_origins in domain (opposes noble_pedigree)

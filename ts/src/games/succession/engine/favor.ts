@@ -17,8 +17,9 @@ export interface WhisperResult {
   exposed: boolean;
 }
 
-export function applyPlayerWhisper(
+export function applyWhisper(
   figure: FigureState,
+  claimantId: ClaimantId,
   newClaim: Claim,
   favorGain: number,
   themes: ClaimTheme[]
@@ -26,13 +27,12 @@ export function applyPlayerWhisper(
   const exposed = checkContradiction(figure.mostRecentClaim, newClaim.themeId, themes);
   let updated = figure;
   if (exposed) {
-    const nextExposedAgainst = updated.exposedAgainst.includes('player')
+    const nextExposedAgainst = updated.exposedAgainst.includes(claimantId)
       ? updated.exposedAgainst
-      : [...updated.exposedAgainst, 'player' as ClaimantId];
+      : [...updated.exposedAgainst, claimantId];
     updated = { ...updated, exposedAgainst: nextExposedAgainst };
-    // No favor gain on a caught contradiction — the lie failed, full stop.
   } else {
-    updated = applyFavorGain(updated, 'player', favorGain);
+    updated = applyFavorGain(updated, claimantId, favorGain);
   }
   updated = { ...updated, mostRecentClaim: newClaim };
   return { figure: updated, exposed };

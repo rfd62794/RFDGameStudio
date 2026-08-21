@@ -1,6 +1,6 @@
 export type FigureId = 'chancellor' | 'archbishop' | 'commander';
 export type ClaimantId = 'player' | 'aldric' | 'vivienne';
-export type MoveType = 'whisper' | 'appeal' | 'evidence' | 'scout' | 'slander' | 'indictment';
+export type MoveType = 'whisper' | 'appeal' | 'evidence' | 'scout' | 'slander' | 'indictment' | 'discredit';
 export type PlayerOriginId = 'bastard_scion' | 'disgraced_knight' | 'merchant_banker';
 
 export type ClueCategory = 'suspect' | 'method' | 'motive';
@@ -25,6 +25,7 @@ export interface Claim {
   figureId: FigureId;
   themeId: string;
   segment: number;
+  claimantId: ClaimantId;
 }
 
 export interface FigureState {
