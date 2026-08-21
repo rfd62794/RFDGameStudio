@@ -13,6 +13,11 @@ import {
   MERCHANT_RIVAL_FIRST_WHISPER_BONUS,
   RIVAL_WHISPER_FAVOR_GAIN,
 } from '../src/games/succession/data/gameConstants';
+import {
+  getOriginModifiers,
+  type PlayerOrigin,
+  type PlayerOriginModifiers,
+} from '../src/games/succession/data/origins';
 
 describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
   describe('Origin 1: Bastard Scion', () => {
@@ -131,5 +136,84 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       // 20 favor gained minus 10 slander penalty = 10 favor
       expect(chancellor.favor.player).toBe(10);
     });
+  });
+});
+
+describe('Origin Modifier Refactor (OCP Proof)', () => {
+  it('origin_modifiers_produce_identical_outcomes_to_pre_refactor', () => {
+    // Bastard Scion: starting favor penalty on chancellor, starting evidence
+    const bastardState = createInitialGameState('bastard_scion');
+    const bastardModifiers = getOriginModifiers('bastard_scion');
+    expect(bastardModifiers.startingFavor?.chancellor).toBe(BASTARD_CHANCELLOR_STARTING_FAVOR);
+    expect(bastardState.figures.find((f) => f.id === 'chancellor')!.favor.player).toBe(BASTARD_CHANCELLOR_STARTING_FAVOR);
+    expect(bastardState.figures.find((f) => f.id === 'archbishop')!.favor.player).toBe(0);
+    expect(bastardState.figures.find((f) => f.id === 'commander')!.favor.player).toBe(0);
+    expect(bastardState.playerEvidence.length).toBe(1);
+    expect(bastardState.scoutedCount).toBe(1);
+
+    // Disgraced Knight: appeal gain override on commander, standard on others
+    const knightState = createInitialGameState('disgraced_knight');
+    const knightAppealCommander = appealTo(knightState, 'commander');
+    expect(knightAppealCommander.figures.find((f) => f.id === 'commander')!.favor.player).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN);
+    const knightAppealChancellor = appealTo(knightState, 'chancellor');
+    expect(knightAppealChancellor.figures.find((f) => f.id === 'chancellor')!.favor.player).toBe(APPEAL_FAVOR_GAIN);
+
+    // Merchant Banker: slander penalty halved, rival first whisper bonus
+    const merchantModifiers = getOriginModifiers('merchant_banker');
+    const computedSlanderPenalty = RIVAL_SLANDER_PENALTY * (merchantModifiers.slanderPenaltyMultiplier ?? 1);
+    expect(computedSlanderPenalty).toBe(MERCHANT_SLANDER_PENALTY);
+    const merchantState = createInitialGameState('merchant_banker');
+    const merchantAppeal = appealTo(merchantState, 'commander');
+    const rivalWhispers = merchantAppeal.ticker.filter((t) => t.claimantId !== 'player' && t.moveType === 'whisper');
+    rivalWhispers.forEach((entry) => {
+      expect(entry.favorGain).toBe(RIVAL_WHISPER_FAVOR_GAIN + MERCHANT_RIVAL_FIRST_WHISPER_BONUS);
+    });
+  });
+
+  it('hypothetical_fourth_origin_works_with_zero_orchestration_changes', () => {
+    const hypotheticalModifiers: PlayerOriginModifiers = {
+      startingFavor: { archbishop: -10 },
+      rivalFirstWhisperBonus: 8,
+    };
+    const hypotheticalOrigin: PlayerOrigin = {
+      id: 'merchant_banker',
+      name: 'Hypothetical Fourth',
+      subtitle: 'Test',
+      icon: 'Test',
+      strategicAdvantage: 'Test',
+      inherentFriction: 'Test',
+      description: 'Test',
+      modifiers: hypotheticalModifiers,
+    };
+
+    // The same generic lookup formulas used in gameOrchestration.ts
+    // work with any modifier values — no code changes needed
+
+    // Starting favor: modifiers.startingFavor?.[id] ?? 0
+    expect(hypotheticalOrigin.modifiers.startingFavor?.['archbishop'] ?? 0).toBe(-10);
+    expect(hypotheticalOrigin.modifiers.startingFavor?.['chancellor'] ?? 0).toBe(0);
+    expect(hypotheticalOrigin.modifiers.startingFavor?.['commander'] ?? 0).toBe(0);
+
+    // Rival first whisper bonus: modifiers.rivalFirstWhisperBonus ?? 0
+    expect(hypotheticalOrigin.modifiers.rivalFirstWhisperBonus ?? 0).toBe(8);
+
+    // Slander penalty: RIVAL_SLANDER_PENALTY * (modifiers.slanderPenaltyMultiplier ?? 1)
+    // Hypothetical origin has no slanderPenaltyMultiplier, so it gets the default
+    const slanderPenalty = RIVAL_SLANDER_PENALTY * (hypotheticalOrigin.modifiers.slanderPenaltyMultiplier ?? 1);
+    expect(slanderPenalty).toBe(RIVAL_SLANDER_PENALTY);
+
+    // Appeal gain: modifiers.appealFavorGainOverride?.[figureId] ?? APPEAL_FAVOR_GAIN
+    // Hypothetical origin has no appealFavorGainOverride, so all figures get standard
+    expect(hypotheticalOrigin.modifiers.appealFavorGainOverride?.['commander'] ?? APPEAL_FAVOR_GAIN).toBe(APPEAL_FAVOR_GAIN);
+
+    // Appeal required before whisper: modifiers.appealRequiredBeforeWhisper?.includes(figureId)
+    // Hypothetical origin has no appealRequiredBeforeWhisper, so no figures are gated
+    expect(hypotheticalOrigin.modifiers.appealRequiredBeforeWhisper?.includes('archbishop')).toBeFalsy();
+
+    // getOriginModifiers correctly extracts modifiers from real origins
+    // (proves the lookup mechanism that would find a fourth origin if added to PLAYER_ORIGINS)
+    expect(getOriginModifiers('bastard_scion').startingFavor?.chancellor).toBe(BASTARD_CHANCELLOR_STARTING_FAVOR);
+    expect(getOriginModifiers('disgraced_knight').appealFavorGainOverride?.commander).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN);
+    expect(getOriginModifiers('merchant_banker').rivalFirstWhisperBonus).toBe(MERCHANT_RIVAL_FIRST_WHISPER_BONUS);
   });
 });

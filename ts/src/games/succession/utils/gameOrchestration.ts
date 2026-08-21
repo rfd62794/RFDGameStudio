@@ -11,25 +11,23 @@ import {
   TOTAL_SEGMENTS,
   WHISPER_FAVOR_GAIN,
   APPEAL_FAVOR_GAIN,
-  KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN,
   EVIDENCE_FAVOR_GAIN,
   INDICTMENT_FAVOR_GAIN,
   RIVAL_WHISPER_FAVOR_GAIN,
-  MERCHANT_RIVAL_FIRST_WHISPER_BONUS,
   RIVAL_SLANDER_PENALTY,
-  MERCHANT_SLANDER_PENALTY,
-  BASTARD_CHANCELLOR_STARTING_FAVOR,
   DOMAIN_RIPPLE_CONFLICTS,
 } from '../data/gameConstants';
+import { getOriginModifiers } from '../data/origins';
 
 const RIVALS: ClaimantId[] = ['aldric', 'vivienne'];
 
 export function createInitialGameState(originId?: PlayerOriginId): GameState {
+  const modifiers = getOriginModifiers(originId || 'bastard_scion');
   const figureIds: FigureId[] = ['chancellor', 'archbishop', 'commander'];
   const figures = figureIds.map((id) => ({
     id,
     favor: {
-      player: originId === 'bastard_scion' && id === 'chancellor' ? BASTARD_CHANCELLOR_STARTING_FAVOR : 0,
+      player: modifiers.startingFavor?.[id] ?? 0,
       aldric: 0,
       vivienne: 0,
     },
@@ -37,9 +35,10 @@ export function createInitialGameState(originId?: PlayerOriginId): GameState {
     exposedAgainst: [],
   }));
 
-  // Bastard Scion starts with +1 Scouted Evidence in inventory (The Smuggler's Vault Ledger)
-  const initialEvidence = originId === 'bastard_scion' ? [SCOUTABLE_EVIDENCE[0]] : [];
-  const initialScoutedCount = originId === 'bastard_scion' ? 1 : 0;
+  const initialEvidence = (modifiers.startingEvidenceIndices ?? []).map(
+    (i) => SCOUTABLE_EVIDENCE[i]
+  );
+  const initialScoutedCount = initialEvidence.length;
 
   return {
     segment: 1,
@@ -66,8 +65,8 @@ function resolveRivalMoves(state: GameState): { figures: typeof state.figures; e
   let figures = state.figures;
   const entries: TickerEntry[] = [];
 
-  const isMerchantBanker = state.playerOrigin === 'merchant_banker';
-  const slanderPenalty = isMerchantBanker ? MERCHANT_SLANDER_PENALTY : RIVAL_SLANDER_PENALTY;
+  const modifiers = getOriginModifiers(state.playerOrigin);
+  const slanderPenalty = RIVAL_SLANDER_PENALTY * (modifiers.slanderPenaltyMultiplier ?? 1);
 
   assignments.forEach(({ rivalId, targetFigureId, moveType }) => {
     if (moveType === 'slander') {
@@ -95,8 +94,8 @@ function resolveRivalMoves(state: GameState): { figures: typeof state.figures; e
         (t) => t.claimantId === rivalId && t.moveType === 'whisper'
       );
       let rivalGain = RIVAL_WHISPER_FAVOR_GAIN;
-      if (isMerchantBanker && !hasPriorWhisper) {
-        rivalGain += MERCHANT_RIVAL_FIRST_WHISPER_BONUS;
+      if (modifiers.rivalFirstWhisperBonus && !hasPriorWhisper) {
+        rivalGain += modifiers.rivalFirstWhisperBonus;
       }
 
       figures = figures.map((f) =>
@@ -130,13 +129,12 @@ function advanceSegment(state: GameState): GameState {
 export function whisperTo(state: GameState, figureId: FigureId, themeId: string): GameState {
   if (state.phase === 'verdict') return state;
 
-  // Disgraced Knight friction: Archbishop requires 1 formal Appeal before Whispers unlock
-  if (state.playerOrigin === 'disgraced_knight' && figureId === 'archbishop') {
-    const hasAppealedArchbishop = state.ticker.some(
-      (t) => t.claimantId === 'player' && t.figureId === 'archbishop' && t.moveType === 'appeal'
+  const whisperModifiers = getOriginModifiers(state.playerOrigin);
+  if (whisperModifiers.appealRequiredBeforeWhisper?.includes(figureId)) {
+    const hasAppealedFigure = state.ticker.some(
+      (t) => t.claimantId === 'player' && t.figureId === figureId && t.moveType === 'appeal'
     );
-    if (!hasAppealedArchbishop) {
-      // Move cannot proceed without prior formal appeal
+    if (!hasAppealedFigure) {
       return state;
     }
   }
@@ -219,11 +217,8 @@ export function whisperTo(state: GameState, figureId: FigureId, themeId: string)
 export function appealTo(state: GameState, figureId: FigureId): GameState {
   if (state.phase === 'verdict') return state;
 
-  // Disgraced Iron Knight perk: Commander Appeals grant +50% favor gain (+12 instead of +8)
-  const appealGain =
-    state.playerOrigin === 'disgraced_knight' && figureId === 'commander'
-      ? KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN
-      : APPEAL_FAVOR_GAIN;
+  const appealModifiers = getOriginModifiers(state.playerOrigin);
+  const appealGain = appealModifiers.appealFavorGainOverride?.[figureId] ?? APPEAL_FAVOR_GAIN;
 
   const figures = state.figures.map((f) =>
     f.id === figureId ? applyFavorGain(f, 'player', appealGain) : f
