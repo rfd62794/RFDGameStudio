@@ -22,7 +22,7 @@ import { getOriginModifiers } from '../data/origins';
 const RIVALS: ClaimantId[] = ['aldric', 'vivienne'];
 
 export function createInitialGameState(originId?: PlayerOriginId): GameState {
-  const modifiers = getOriginModifiers(originId || 'bastard_scion');
+  const modifiers = originId ? getOriginModifiers(originId) : {};
   const figureIds: FigureId[] = ['chancellor', 'archbishop', 'commander'];
   const figures = figureIds.map((id) => ({
     id,
