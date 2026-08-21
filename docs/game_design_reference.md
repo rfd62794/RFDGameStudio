@@ -121,11 +121,11 @@ The Bartle taxonomy maps which player types each game serves:
 
 | Game | Achiever (♦) | Explorer (♠) | Socializer (♥) | Killer (♣) |
 |---|---|---|---|---|
-| Derby Sim | ✅ Career tracking | ✅ Genetics discovery | ❌ | ❌ |
+| Derby Sim | ✅ Career tracking | ✅ Genetics discovery | 🟡 Breeding lineage creates attachment to past horses | ❌ |
 | Shoal | ❌ | ✅ Ecosystem observation | ❌ | ❌ |
 | Succession | ✅ 3 Seals goal | ✅ Deduction | ✅ Rival AI interaction | ✅ Slander/rivalry |
 | AntSim Redux | ✅ Territory | ✅ Colony emergence | ❌ | ✅ Inter-colony combat |
-| CorpWorld / Planet of Greed | ✅ Rank 1 goal | ✅ Map discovery | ❌ | ✅ Combat/territory |
+| CorpWorld / Planet of Greed | ✅ Rank 1 goal | ✅ Map discovery | 🟡 Culture wheel creates asymmetric AI relationships — not multiplayer but diplomatically distinct | ✅ Combat/territory |
 | ScrapCrawl | ✅ Win the run | ❌ | ❌ | ❌ |
 | House of Kings Collab | ✅ | ✅ | ✅ | ✅ |
 
@@ -143,7 +143,9 @@ From the GDC 2026 State of the Game Industry report, filtered for solo weekend b
 
 **Live-service fatigue is real — avoid that model.** 52% of industry respondents view generative AI's impact negatively; developer and player fatigue with annualized live-service cycles is rising per GDC 2026. The studio's episodic, standalone model is correctly positioned against this trend. Don't add battle passes or season systems.
 
-**PC is still the priority platform.** 73% of studio executives rank PC top-3. The studio's browser/HTML5 + itch.io model is correct. Steam Deck is now a meaningful target (28% developing for it) — the studio's existing HTML5 builds don't target it, but any future Bevy/Rust game (VoidDrift chassis) could.
+**PC is still the priority platform.** 73% of studio executives rank PC top-3. The studio's browser/HTML5 + itch.io model is correct.
+
+**August 16 2026 note — Planet of Greed partial mitigation:** The "missing moment-to-moment feedback in the planning phase" diagnosis is now partially addressed. The Guided/Manual planning mode toggle added this session gives players faster iteration within the planning layer — sector decisions are still weighty but the player now has agency over how they navigate them. The diagnosis stands as incomplete, not closed.
 
 ---
 
@@ -165,28 +167,33 @@ The research validates this precisely: meta-progression is now the standard mech
 
 Ranked by fit to studio identity × market opportunity × lift required:
 
-| Priority | Build | Why | Lift |
-|---|---|---|---|
-| 1 | Meta-progression on ScrapCrawl | Highest-impact upgrade to existing game. Adds cyclical chain. Serves Explorer + Achiever both. | Low |
-| 2 | Deck Builder (Brewfield chassis) | Hottest genre gap. Combination engine already exists. Roguelite structure proven in catalog. | Medium |
-| 3 | Push Succession to itch.io | Feature-complete. 89 tests. Serves all 4 Bartle types. Most mechanically distinct game in catalog. | Low |
-| 4 | Trading Sim deeper than Ledger | Adjacent to existing Ledger. Strategy genre favors small studios. Sustained content model. | Medium |
-| 5 | Puzzle (Voronoi-based) | Zero instances in catalog. Agent-friendly. Strong mobile/browser category. | Low |
+| Priority | Build | Why | Lift | Est. Weekends |
+|---|---|---|---|---|
+| 1 | Push Succession to itch.io | Feature-complete. 89 tests. All 4 Bartle types. Blocker is 2 files + games.yaml entry. | Low | 1 |
+| 2 | Meta-progression on ScrapCrawl | Highest-impact upgrade to an existing game. Adds cyclical chain. Serves Explorer + Achiever. localStorage-backed unlock registry between runs. | Low | 1–2 |
+| 3 | Deck Builder (Brewfield chassis) | Hottest genre gap. Combination engine is a resolution function — the game loop around it (hand management, energy economy, enemy AI, run structure, balance tuning) is the real build. | Medium-High | 6–10 |
+| 4 | Trading Sim deeper than Ledger | Adjacent to existing Ledger foundation. Strategy genre favors small studios. Sustained content model. | Medium | 3–5 |
+| 5 | Puzzle (Voronoi-based) | Zero instances in catalog. Agent-friendly. Strong mobile/browser category. | Low | 1–2 |
+
+*Extraction mechanics (adjacent to ScrapCrawl's scrap economy — enter a zone, extract, risk loss) — explicitly deferred. Good fit for the studio but not before ScrapCrawl meta-progression is shipped. If ScrapCrawl meta-progression lands well, extraction is the natural Phase 2.*
 
 ---
 
 ## What Not to Build
 
-| Avoid | Reason |
+| Avoid / Defer | Reason |
 |---|---|
 | New breeding game before SlimeWorld resolved | Supply problem. Same system, different skin. |
 | Live-service mechanics | Fatigue trend confirmed. Contradicts studio model. |
 | Farming Sim / City Builder | Content-heavy. Fights the systems-first production model. |
 | Third game in the 4X / territory space | CorpWorld and Planet of Greed already cover this. Over-represented. |
 | New simulation before AntSim ships | Same pattern as above. |
+| Extraction mechanics (now) | Deferred — not before ScrapCrawl meta-progression ships. Adjacent to ScrapCrawl's scrap economy; natural Phase 2 if that lands well. |
+| Steam Deck targeting | HTML5 games require a wrapper (Electron/Tauri) or runtime shift (Bevy). Neither is a weekend task. Someday item only. |
 
 ---
 
-*RFDGameStudio Game Design Reference | August 2026*
+*RFDGameStudio Game Design Reference | August 16, 2026*
 *Studio identity filter applied throughout. External research mapped to actual catalog.*
+*Reviewed by Devin (August 16 2026) — deck builder lift corrected to Medium-High, Bartle Socializer updated for PoG and Derby Sim, Succession moved to Priority 1, Steam Deck deferred, extraction mechanics explicitly parked, weekend estimates added.*
 *Update when a new game ships or a significant design decision is made.*

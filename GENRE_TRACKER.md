@@ -31,7 +31,7 @@
 | 14 | SlimeGarden | Breeding Sim | Creature Collector | EXTERNAL | React/Tailwind | Standalone TypeScript breeding sandbox |
 | 15 | Gladiator Arena | Management Sim | Tactics RPG | VERIFIED | React/TS | Manager-not-fighter, scored utility AI, Anatomy Module |
 | 16 | VoidDrift Redux | Idle / Incremental | Sci-Fi Sim | VERIFIED | React/TS | TS reimagining of VoidDrift — signal loop, faction upgrades |
-| 17 | Succession | Social Deduction | Narrative Adventure | VERIFIED | React/TS | Clue-style 5×5×5 triad, rival AI, 3 origins, 89 tests |
+| 17 | Succession | Social Deduction | Narrative Adventure | EXTERNAL | React/TS | Clue-style 5×5×5 triad, rival AI, 3 origins, 89 tests. Live on itch.io |
 | 18 | House of Kings Collab | Collaborative Faction Strategy | Idle / Incremental | LIVE/BROKEN | React/TS | Mafia Wars × Kingdom Houses. Firebase backend live. UI busted |
 | 19 | AntSim Redux | Ecosystem Sim | Colony Sim | ACTIVE | Python | Two colonies, pheromones, Lanchester combat, infiltration |
 | 20 | Planet of Greed | 4X Strategy | Territory Control | ACTIVE | React/TS | Culture stat asymmetry, 60-game AI balance harness |
@@ -96,7 +96,7 @@
 | Shoal | ✅ | ✅ | Live (build pipeline proven) |
 | Planet of Greed | ✅ | ✅ | Live |
 | VoidDrift Redux | ✅ | ❌ | Verified, pipeline ready, not yet published |
-| Succession | ✅ | ❌ | Verified, needs standalone build script |
+| Succession | ✅ | ✅ | Live — August 16 2026 |
 | Gladiator Arena | ✅ | ❌ | Verified, pipeline ready, not yet published |
 | Derby Sim | 🟡 | ❌ | STABLE but needs packaging assessment |
 | Brewfield | 🟡 | ❌ | STABLE but needs packaging assessment |
@@ -108,7 +108,7 @@
 *Not game-specific — affects the whole catalog*
 
 - [ ] **Directive Lifecycle Tracker** — round-history schema, not just final state. Directive written, not yet executed
-- [ ] **Responsive Sizing** — `100svh` pass complete (Aug 16). Planet of Greed overflow remaining — `.game-shell-main` needs `overflow-y: auto`
+- [ ] **Responsive Sizing** — `100svh` pass complete (Aug 16). Planet of Greed overflow fixed via `mainClassName="game-shell-main--scrollable"` on GameShell + `items-start` grid + `justify-start` center column. Right column capped with `max-h-[calc(100svh-60px)]`
 - [ ] **Shared Onboarding Gate (Pattern 2)** — GuidedWalkthrough. Single instance, watching for second consumer before extracting
 - [ ] **Now/Next/Later triage** — actual backlog triage into `ROADMAP.md` not yet done
 - [ ] **House of Kings Collab UI** — busted, undiagnosed. IAM currently `allUsers`/public — confirm state before touching
@@ -121,3 +121,4 @@
 | Date | Change |
 |---|---|
 | Aug 16 2026 | Initial tracker created. 21 games catalogued. Genre map, gap analysis, itch status |
+| Aug 16 2026 | Succession published to itch.io. Status updated to EXTERNAL. |
