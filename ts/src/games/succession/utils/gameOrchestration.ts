@@ -19,7 +19,6 @@ import {
 } from '../data/gameConstants';
 import { getOriginModifiers } from '../data/origins';
 
-const RIVALS: ClaimantId[] = ['aldric', 'vivienne'];
 
 export function createInitialGameState(originId?: PlayerOriginId): GameState {
   const modifiers = originId ? getOriginModifiers(originId) : {};
@@ -55,13 +54,17 @@ export function createInitialGameState(originId?: PlayerOriginId): GameState {
 }
 
 /**
- * Runs both rivals' moves against the CURRENT state (i.e., after the
+ * Runs a single rival's move against the CURRENT state (i.e., after the
  * player's move has already been applied this segment) and returns the
  * updated figures + ticker entries. Called at the end of every player
  * move function below — never called standalone.
+ *
+ * Rival alternation: only one rival acts per player turn, alternating by
+ * segment parity. Aldric acts on odd segments, Vivienne on even.
  */
 function resolveRivalMoves(state: GameState): { figures: typeof state.figures; entries: TickerEntry[] } {
-  const assignments = chooseRivalMoves(state.figures, RIVALS, state.ticker);
+  const activeRivalId: ClaimantId = state.segment % 2 === 1 ? 'aldric' : 'vivienne';
+  const assignments = chooseRivalMoves(state.figures, [activeRivalId], state.ticker);
   let figures = state.figures;
   const entries: TickerEntry[] = [];
 

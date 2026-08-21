@@ -49,8 +49,8 @@ describe('gameOrchestration', () => {
     const next = whisperTo(initial, 'chancellor', 'noble_pedigree');
 
     const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-    // Player gained WHISPER_FAVOR_GAIN (20), then Vivienne slandered (-10) due to lead >= 16
-    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN - 10);
+    // Player gained WHISPER_FAVOR_GAIN (20). Only Aldric acts on odd segments (no slander).
+    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN);
 
     const playerEntry = next.ticker.find(
       (t) => t.claimantId === 'player' && t.segment === 1
@@ -62,11 +62,12 @@ describe('gameOrchestration', () => {
     expect(playerEntry?.exposed).toBe(false);
   });
 
-  it('whisperTo_triggers_rival_counter_play_including_slander_on_decisive_lead', () => {
+  it('whisperTo_triggers_single_rival_counter_play_on_odd_segment', () => {
     const initial = createInitialGameState();
     const next = whisperTo(initial, 'chancellor', 'noble_pedigree');
 
-    expect(next.ticker.length).toBe(3);
+    // Segment 1 is odd → only Aldric acts → 1 player + 1 rival = 2 ticker entries
+    expect(next.ticker.length).toBe(2);
     const aldricEntry = next.ticker.find((t) => t.claimantId === 'aldric');
     const vivienneEntry = next.ticker.find((t) => t.claimantId === 'vivienne');
 
@@ -74,11 +75,8 @@ describe('gameOrchestration', () => {
     expect(aldricEntry?.moveType).toBe('whisper');
     expect(aldricEntry?.favorGain).toBe(RIVAL_WHISPER_FAVOR_GAIN);
 
-    // Vivienne counters the decisive player lead on chancellor with slander
-    expect(vivienneEntry).toBeDefined();
-    expect(vivienneEntry?.moveType).toBe('slander');
-    expect(vivienneEntry?.figureId).toBe('chancellor');
-    expect(vivienneEntry?.favorGain).toBe(-10);
+    // Vivienne does not act on odd segments
+    expect(vivienneEntry).toBeUndefined();
   });
 
   it('whisperTo_advances_segment_by_exactly_one', () => {
@@ -107,15 +105,15 @@ describe('gameOrchestration', () => {
     const initial = createInitialGameState();
     // Move 1: whisper noble_pedigree to chancellor
     const afterFirst = whisperTo(initial, 'chancellor', 'noble_pedigree');
-    // Initial 20 favor minus 10 slander from Vivienne = 10
-    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN - 10);
+    // Player gained WHISPER_FAVOR_GAIN (20). Only Aldric acts on segment 1 (no slander).
+    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN);
 
     // Move 2: whisper common_origins (opposes noble_pedigree) to chancellor
     const afterContradiction = whisperTo(afterFirst, 'chancellor', 'common_origins');
     const chancellor = afterContradiction.figures.find((f) => f.id === 'chancellor')!;
 
-    // Player favor did not increase on contradiction (stays at 10)
-    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN - 10);
+    // Player favor did not increase on contradiction (stays at 20)
+    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN);
     expect(chancellor.exposedAgainst).toContain('player');
 
     const contradictionEntry = afterContradiction.ticker.find(
@@ -224,7 +222,7 @@ describe('gameOrchestration', () => {
     expect(state.verdict?.perFigureWinner).toBeDefined();
   });
 
-  it('rival_moves_cover_distinct_figures_when_contested', () => {
+  it('rival_moves_target_neglected_figure_on_odd_segment', () => {
     // Construct initial state where player already has different favor across figures
     const initial = createInitialGameState();
     const customState: GameState = {
@@ -238,22 +236,21 @@ describe('gameOrchestration', () => {
 
     const next = appealTo(customState, 'commander');
 
+    // Segment 1 is odd → only Aldric acts
     const aldricEntry = next.ticker.find((t) => t.claimantId === 'aldric');
     const vivienneEntry = next.ticker.find((t) => t.claimantId === 'vivienne');
 
     expect(aldricEntry).toBeDefined();
-    expect(vivienneEntry).toBeDefined();
+    expect(vivienneEntry).toBeUndefined();
     // Aldric (Opportunist) targets archbishop (neglected figure with lower player favor than chancellor)
     expect(aldricEntry?.figureId).toBe('archbishop');
-    // Vivienne (Disruptor) deconflicts and targets chancellor / commander
-    expect(aldricEntry?.figureId).not.toBe(vivienneEntry?.figureId);
   });
 
   it('whisperTo_catches_cross_figure_contradiction', () => {
     const initial = createInitialGameState();
-    // Segment 1: Whisper noble_pedigree to chancellor -> +20 favor, records claim (minus 10 slander)
+    // Segment 1: Whisper noble_pedigree to chancellor -> +20 favor, records claim (no slander on odd segment)
     const afterFirst = whisperTo(initial, 'chancellor', 'noble_pedigree');
-    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN - 10);
+    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN);
     expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.exposedAgainst).toEqual([]);
 
     // Segment 2: Whisper common_origins (opposing theme) to archbishop -> cross-figure contradiction
@@ -276,7 +273,7 @@ describe('gameOrchestration', () => {
     const afterSecond = whisperTo(afterFirst, 'chancellor', 'common_origins');
     const chancellor = afterSecond.figures.find((f) => f.id === 'chancellor')!;
 
-    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN - 10); // stays at first whisper favor (net 10), gain rejected
+    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN); // stays at first whisper favor (20), gain rejected
     expect(chancellor.exposedAgainst).toContain('player');
   });
 
@@ -307,17 +304,25 @@ describe('gameOrchestration', () => {
 
   describe('Phase 10: Rival Counter-Play & Active Slander Orchestration', () => {
     it('slander reduces player favor by exactly RIVAL_SLANDER_PENALTY (10) and logs negative favorGain', () => {
+      // Segment 1 (odd): Aldric acts. Player whispers to chancellor (+20).
       const initial = createInitialGameState();
-      const next = whisperTo(initial, 'chancellor', 'noble_pedigree');
+      const afterSeg1 = whisperTo(initial, 'chancellor', 'noble_pedigree');
+      expect(afterSeg1.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN);
 
-      const slanderEntry = next.ticker.find((t) => t.moveType === 'slander');
+      // Segment 2 (even): Vivienne acts. Player appeals to chancellor (+8, total 28).
+      // Vivienne sees player lead 28 >= 16 → slanders chancellor (-10) = 18.
+      const afterSeg2 = appealTo(afterSeg1, 'chancellor');
+
+      const slanderEntry = afterSeg2.ticker.find(
+        (t) => t.moveType === 'slander' && t.segment === 2
+      );
       expect(slanderEntry).toBeDefined();
       expect(slanderEntry?.claimantId).toBe('vivienne');
       expect(slanderEntry?.figureId).toBe('chancellor');
       expect(slanderEntry?.favorGain).toBe(-10);
 
-      const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-      expect(chancellor.favor.player).toBe(10); // 20 - 10
+      const chancellor = afterSeg2.figures.find((f) => f.id === 'chancellor')!;
+      expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN + APPEAL_FAVOR_GAIN - 10); // 20 + 8 - 10 = 18
     });
 
     it('formal appeal (+8) does not cross the slander threshold (16), rivals whisper instead', () => {
@@ -327,12 +332,52 @@ describe('gameOrchestration', () => {
       const slanderEntry = next.ticker.find((t) => t.moveType === 'slander');
       expect(slanderEntry).toBeUndefined();
 
-      const vivienneEntry = next.ticker.find((t) => t.claimantId === 'vivienne');
-      expect(vivienneEntry?.moveType).toBe('whisper');
-      expect(vivienneEntry?.favorGain).toBe(RIVAL_WHISPER_FAVOR_GAIN);
+      // Segment 1 is odd → Aldric acts, not Vivienne
+      const aldricEntry = next.ticker.find((t) => t.claimantId === 'aldric');
+      expect(aldricEntry?.moveType).toBe('whisper');
+      expect(aldricEntry?.favorGain).toBe(RIVAL_WHISPER_FAVOR_GAIN);
 
       const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
       expect(chancellor.favor.player).toBe(APPEAL_FAVOR_GAIN); // 8 intact
+    });
+  });
+
+  describe('Rival Alternation (Action Economy Fix)', () => {
+    it('resolveRivalMoves_only_aldric_acts_on_odd_segments', () => {
+      const initial = createInitialGameState();
+      // Segment 1 is odd
+      expect(initial.segment).toBe(1);
+      const next = whisperTo(initial, 'chancellor', 'noble_pedigree');
+
+      const rivalEntries = next.ticker.filter(
+        (t) => t.claimantId !== 'player' && t.segment === 1
+      );
+      expect(rivalEntries.length).toBe(1);
+      expect(rivalEntries[0].claimantId).toBe('aldric');
+    });
+
+    it('resolveRivalMoves_only_vivienne_acts_on_even_segments', () => {
+      // Get to segment 2 by making a move on segment 1
+      const initial = createInitialGameState();
+      const afterSeg1 = appealTo(initial, 'chancellor');
+      expect(afterSeg1.segment).toBe(2);
+
+      // Segment 2 is even → Vivienne acts
+      const next = appealTo(afterSeg1, 'chancellor');
+
+      const rivalEntries = next.ticker.filter(
+        (t) => t.claimantId !== 'player' && t.segment === 2
+      );
+      expect(rivalEntries.length).toBe(1);
+      expect(rivalEntries[0].claimantId).toBe('vivienne');
+    });
+
+    it('whisperTo_produces_exactly_one_rival_ticker_entry_now', () => {
+      const initial = createInitialGameState();
+      const next = whisperTo(initial, 'chancellor', 'noble_pedigree');
+
+      const rivalEntries = next.ticker.filter((t) => t.claimantId !== 'player');
+      expect(rivalEntries.length).toBe(1);
     });
   });
 });
