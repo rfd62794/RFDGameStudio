@@ -26,6 +26,7 @@ const EXPECTED_ORDER = [
   'house_of_kings_collab',
   'character_viewer',
   'technique_showcase',
+  'role_symbol_viewer',
 ];
 
 describe('Arcade Registry Directive — July 2026', () => {

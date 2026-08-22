@@ -21,6 +21,7 @@ import successionConfig from './succession/config';
 import houseOfKingsCollabConfig from './house_of_kings_collab/config';
 import { characterViewerConfig } from './character_viewer/config';
 import { techniqueShowcaseConfig } from './technique_showcase/config';
+import { roleSymbolViewerConfig } from './role_symbol_viewer/config';
 
 // Retired games (matching SlimeBreeder precedent): config.ts preserved in
 // their ts/src/games/{slug}/ directories, but NOT imported here. Source
@@ -56,6 +57,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   houseOfKingsCollabConfig,
   characterViewerConfig,
   techniqueShowcaseConfig,
+  roleSymbolViewerConfig,
 ];
 
 /**
