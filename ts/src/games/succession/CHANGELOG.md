@@ -208,3 +208,84 @@ theme, or per-claimant claim memory) — not something to guess-fix now.
 The aggregate table being identical to Fix 2 confirms Fix 3 had zero
 behavioral impact on the current harness — the symmetry is real in
 code but not exercised in practice.
+
+## 2026-08-22 — ADR-002: Diminishing Returns on Repeated Claims
+
+Follow-up to ADR-001's named risk: rival exposures sat at exactly 0/18
+after Fix 3 landed, confirming "always repeat" was strictly dominant
+and risk-free with `CLAIM_THEMES`'s two flat, equal-value themes per
+figure. This fix implements the smaller of ADR-001's two named
+follow-ups — diminishing returns on consecutive same-theme repeats —
+rather than the larger, deferred one (per-claimant claim memory).
+
+New `applyRepeatDecay(baseGain, consecutiveRepeats)` in `engine/favor.ts`:
+halves the gain on each consecutive same-theme repeat by the same
+claimant at the same figure, floored at 25% of base value. Full value
+restored immediately on a genuine theme switch. `FigureState` gains an
+optional `repeatTracker` field (`engine/types.ts`) so the ~75 existing
+`FigureState` literals across the test suite didn't need updating.
+Applies identically to player and rivals — same function, no
+claimant-specific branching. `chooseRivalWhisperTheme` in
+`engine/rivalAI.ts` was intentionally left unmodified, per scope.
+
+ADR written: `docs/adr/ADR-002-diminishing-returns-on-repeated-claims.md`.
+
+### Tests
+
+5 new tests in `tests/test_succession_favor.ts`:
+- `applyRepeatDecay_returns_full_value_at_zero_repeats`
+- `applyRepeatDecay_halves_on_each_consecutive_repeat_down_to_floor`
+- `applyWhisper_decays_favor_on_consecutive_same_theme_repeat`
+- `applyWhisper_restores_full_value_immediately_on_theme_switch`
+- `applyWhisper_repeat_decay_applies_identically_to_player_and_rival`
+
+`npx tsc --noEmit` clean. **110/110** tests pass (105 existing,
+unmodified, + 5 new).
+
+### Harness Re-Run After ADR-002 (6 strategies × 3 origins = 18 runs)
+
+**Aggregate win rates per strategy — shifted substantially from the
+Fix 3 baseline:**
+
+| Strategy | Before (Fix 3) | After (ADR-002) |
+|---|---|---|
+| RushOneFigure | W:3 L:0 D:0, AvgMargin:+2.33 | W:1 L:2 D:0, AvgMargin:-1.00 |
+| SpreadEvenly | W:3 L:0 D:0, AvgMargin:+1.67 | W:2 L:1 D:0, AvgMargin:+0.33 |
+| SafeAppealsOnly | W:0 L:1 D:2, AvgMargin:-1.67 | W:1 L:1 D:1, AvgMargin:-0.33 |
+| ScoutThenEvidence | W:2 L:0 D:1, AvgMargin:+0.33 | W:2 L:0 D:1, AvgMargin:+1.67 |
+| WhisperHeavy | W:3 L:0 D:0, AvgMargin:+1.67 | W:0 L:2 D:1, AvgMargin:-1.00 |
+| DiscreditHeavy | W:1 L:0 D:2, AvgMargin:-0.33 | W:2 L:0 D:1, AvgMargin:+0.33 |
+
+**Win rates per origin:**
+- bastard_scion: W:0 L:3 D:3
+- disgraced_knight: W:5 L:0 D:1
+- merchant_banker: W:3 L:3 D:0
+
+**Exposure statistics — the named success metric:**
+- Player exposures: 0 (runs with exposure: 0/18)
+- Rival exposures: 0 (runs with exposure: 0/18)
+
+**Real finding: rival exposures did NOT move off zero.**
+
+WhisperHeavy fell from tied-best strategy (W:3) to worst (W:0).
+RushOneFigure fell from best (W:3) to second-worst (W:1). Both
+strategies repeatedly whisper the same figure without rotating targets
+— exactly the pattern the decay curve punishes hardest, since
+consecutive repeats at one figure hit the 25% floor fast. Strategies
+that naturally rotate targets held steady or improved. This confirms
+the mechanic has a real, substantial economic effect on the game.
+
+But the actual test this directive specified — does diminishing
+returns cause the rival AI to ever switch themes, reintroducing real
+contradiction risk — failed. `chooseRivalWhisperTheme`'s preference
+logic (intentionally left unmodified per scope) is unconditional: it
+repeats whenever a prior claim exists, regardless of how decayed that
+repeat's value has become. Diminishing returns changes what repeating
+is *worth*; it doesn't change *how the rival AI decides* whether to
+repeat. Those are separate problems, and this fix solved only the
+first one. The larger, previously-deferred fix — per-claimant claim
+memory combined with making the rival AI actually reason about decayed
+value when choosing to repeat vs. switch — is now supported by direct
+harness evidence as the fix genuinely required to move rival exposures
+off zero. Per this directive's explicit instruction, this is reported
+as a real finding rather than escalated into scope here.

@@ -28,10 +28,20 @@ export interface Claim {
   claimantId: ClaimantId;
 }
 
+export interface RepeatState {
+  themeId: string;
+  count: number; // number of consecutive claims of themeId by this claimant, including this one
+}
+
 export interface FigureState {
   id: FigureId;
   favor: Record<ClaimantId, number>;
   mostRecentClaim: Claim | null; // player-only, see ⚠️ RULE below
   exposedAgainst: ClaimantId[];  // in practice only ever contains 'player'
                                   // under MVP scope, kept generic on purpose
+  repeatTracker?: Partial<Record<ClaimantId, RepeatState>>;
+  // Per-claimant consecutive-repeat tracking for diminishing returns
+  // (ADR-002). Optional so existing FigureState literals across the
+  // test suite don't need updating — favor.ts treats a missing tracker
+  // as "no claimant has claimed anything yet at this figure."
 }
