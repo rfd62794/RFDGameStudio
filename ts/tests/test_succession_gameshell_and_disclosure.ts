@@ -33,7 +33,9 @@ describe('GameShell adoption (ADR-006)', () => {
       // of ">" (the JSX children start after it) — safer than the
       // first raw ">" in the block, which can appear inside a nested
       // element's props (e.g. statusArea={<SegmentHeader ... />}).
-      const propsSection = block.slice(0, block.indexOf('\n    >'));
+      const closeTagMatch = block.match(/\n\s*>\n/);
+      expect(closeTagMatch).not.toBeNull();
+      const propsSection = block.slice(0, closeTagMatch!.index);
       expect(propsSection).toContain('mainClassName="game-shell-main--scrollable"');
     }
   });
