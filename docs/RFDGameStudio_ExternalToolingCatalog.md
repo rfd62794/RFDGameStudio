@@ -1,136 +1,152 @@
 # RFDGameStudio — External Tooling & Package Catalog
 
-*v0.3 — supersedes v0.2 (same week) | August 2026 | Living reference — add to this before adopting any external library. Companion to `RFDGameStudio_EngineExpansionMap.md` (internal Lua primitive/system gaps).*
+*v0.4 — supersedes v0.3 (same week) | August 2026 | Living reference — add to this before adopting any external library. Companion to `RFDGameStudio_EngineExpansionMap.md` (internal Lua primitive/system gaps).*
 
-*Change from v0.2: added Graphics (beyond rendering), full AI Logic, Movement/Pathfinding, Controls, UI/Dialogue systems, an honest genre-specific-package survey, and — new — a Methods & Techniques section, since real game-dev craft knowledge isn't all package-shaped.*
+*Change from v0.3: closed remaining gaps per explicit request for full breadth — Math/Color utilities, Save/Serialization, Localization, and Netcode/Replay techniques. This version consolidates every finding from both research passes into one organized reference.*
 
 ---
 
 ## How to read this document
 
-Every entry is real — found via direct research. Fit against this
-studio's real architecture (Lua multi-runtime contract, presentation-
-adapter philosophy — see `EngineExpansionMap.md` and the real,
-confirmed `render_adapter.py` contract) is a separate, honest note on
-each entry, never a reason to omit something from the list.
+Every entry is real — found via direct research, not inferred. Fit
+against this studio's real architecture (the confirmed Lua
+multi-runtime contract — `lupa`/`fengari-web`, presentation-adapter
+philosophy, real `render_adapter.py` entity-dict contract) is a
+separate, honest note on each entry — never a reason to omit
+something. Where genuine research turned up nothing real, that's
+recorded plainly too (see §8, §13) — an honest gap is a real finding,
+not a failure.
 
 ---
 
-## 1. Graphics
-
-Rendering-surface options (Canvas/SVG/PixiJS/Three.js/Babylon) are
-covered under §2-3 below. This section covers **graphics techniques**
-beyond raw rendering choice.
+## 1. Graphics (techniques beyond rendering choice)
 
 | Item | Real details | Fit |
 |---|---|---|
-| **Sprite/pixel-art pipeline** | No dedicated JS "import Aseprite" package found as a mature standard — most projects hand-roll a spritesheet-JSON loader (Aseprite exports JSON directly). Real gap, not a package to adopt. | If pixel art is ever adopted, budget for a small custom loader, not a library search. |
-| **`regl` / `ogl`** | Lightweight, lower-level WebGL wrappers — a middle ground between raw WebGL and a full engine like Three.js, for anyone wanting custom shader control without engine overhead. | No current shader/GPU-effect need anywhere in the catalog. Real option if that ever changes. |
+| Sprite/pixel-art pipeline | No mature "import Aseprite directly" JS package found — most projects hand-roll a spritesheet-JSON loader (Aseprite exports JSON natively). | Real gap; budget a small custom loader if pixel art is ever adopted, not a library search. |
+| `regl` / `ogl` | Lightweight, lower-level WebGL wrappers — middle ground between raw WebGL and a full engine. | No current shader/GPU-effect need in the catalog. |
 
 ## 2. Raster / Sprite Presentation
 
-*(carried from v0.2, unchanged)*
-
-| Package | Real fit assessment | Priority |
-|---|---|---|
-| Plain Canvas 2D API | Matches confirmed ~30-80 entity/frame real volume with zero dependencies. | **High — default** |
-| PixiJS | Only justified at real entity counts an order of magnitude above what's currently observed. | Low, pending real evidence |
-| Phaser / Excalibur.js / melonJS / Kaplay | Full engines — own the game loop, compete with the Lua contract. | Archived, not for lack of quality |
+| Package | Fit |
+|---|---|
+| Plain Canvas 2D API | **High — default.** Matches confirmed ~30-80 entity/frame real volume, zero dependencies. |
+| PixiJS | Low, pending real evidence of an order-of-magnitude-higher entity count in a specific game. |
+| Phaser / Excalibur.js / melonJS / Kaplay / GameJs | Full engines — own the game loop, compete with the Lua contract. Archived, not for lack of quality. |
 
 ## 3. Vector / SVG Presentation
 
-*(carried from v0.2)* Native React SVG — high fit, zero dependencies, directly validated by a real, current (Aug 13 2026) TS roguelike devlog using the identical pure-logic-module + SVG-render pattern. `svg.js` as a real option only if animation proves clunky with plain SVG + React.
+Native React SVG — high fit, zero dependencies, directly validated by a real, current (Aug 13 2026) TS roguelike devlog using the identical pure-logic-module + SVG-render pattern this studio already follows. `svg.js` as a fallback only if animation proves clunky with plain SVG + React.
 
 ## 4. AI Logic
 
-*New category. This was a real gap in v0.1/v0.2.*
-
 | Package | Real details | Fit |
 |---|---|---|
-| **Yuka** | Standalone JS game-AI library, TypeScript definitions included, zero dependencies. Steering behaviors (seek, flee, pursue, evade, wander, flocking), navigation mesh pathfinding, A* + graph search, perception (vision/hearing), triggers, **fuzzy logic inference**, state-driven and goal-driven agent design, JSON save/load. Engine-independent — works with Three.js, Canvas 2D, or headless (Node). Actively used, documented, tested. | **High fit** — this is exactly a presentation-agnostic logic library, the same shape as this studio's own `engine/shared` modules. Real candidate for any future game with autonomous NPCs (a wandering creature in a future SlimeGarden-successor, roaming rivals, etc.). |
-| **Behavior trees vs. GOAP vs. Utility AI vs. FSM** | Not a package category — a real design choice. See §9 Methods & Techniques below for a real comparison; Yuka covers FSM and goal-driven design natively, not full behavior-tree or GOAP frameworks. | — |
+| **Yuka** | Standalone, TS-typed, zero-dependency game-AI library. Steering behaviors (seek/flee/pursue/evade/wander/flocking), navmesh pathfinding, A*/graph search, perception (vision/hearing), triggers, fuzzy logic, state- and goal-driven agent design, JSON save/load. Engine-independent. | **High fit** — presentation-agnostic logic, the same shape as this studio's own `engine/shared` modules. Real candidate for any future autonomous-NPC need. |
 
 ## 5. Movement / Pathfinding
 
 | Package | Real details | Fit |
 |---|---|---|
-| **`rot.js`** | (carried from v0.2) Grid-based, roguelike-purpose-built: FOV, A*, dungeon generation, turn scheduling. Feature-complete, last release Nov 2024. | High fit for tile-based games — 2 real roguelikes already in the catalog. |
-| **Yuka's navigation module** | Navmesh loading/parsing, graph-based search — for continuous (non-grid) space, unlike `rot.js`'s grid focus. | Real complement to `rot.js`, not a competitor — different movement models. |
-| **`PathFinding.js` / `easystar.js`** | Narrower, grid-based A* implementations, no roguelike-specific extras (no FOV, no dungeon gen). | Lower priority than `rot.js` given `rot.js` already covers this plus more for the studio's real grid-based games. |
+| `rot.js` | Grid-based, roguelike-purpose-built: FOV, A*, dungeon generation, turn scheduling. Feature-complete, stable since Nov 2024. | High fit — 2 real roguelikes already in the catalog. |
+| Yuka's navigation module | Navmesh for continuous (non-grid) space — complements `rot.js`, doesn't compete with it. | Real complement, different movement model. |
+| `PathFinding.js` / `easystar.js` | Narrower grid-A* only, no roguelike extras. | Lower priority than `rot.js` given the overlap. |
 
 ## 6. Controls / Input
 
 | Package | Real details | Fit |
 |---|---|---|
-| **Native Gamepad API** | Browser-native, no dependency. The actual foundation every wrapper library below sits on. | Always the starting point. |
-| **`gamecontroller.js`** | Event-based wrapper over the Gamepad API, standard button-layout normalization (handles the real, documented cross-browser button-mapping inconsistency the raw API has). | Real, low-risk option once any game needs gamepad support — nothing currently does. |
-| **`joypad.js`** | Similar wrapper, configurable button mapping, adjustable analog-stick dead-zone threshold. | Comparable alternative to gamecontroller.js. |
-| **`nipplejs` / `VirtualJoystick.js`** | Touch-based virtual joystick for mobile web. | Real option for any future mobile-first game; several existing games are already browser/desktop-primary. |
+| Native Gamepad API | Browser-native foundation everything below wraps. | Starting point. |
+| `gamecontroller.js` / `joypad.js` | Event-based wrappers, normalize the real, documented cross-browser button-mapping inconsistency in the raw API. | Real, low-risk once any game needs gamepad support. |
+| `nipplejs` / `VirtualJoystick.js` | Touch virtual joystick for mobile web. | Real option for a future mobile-first game. |
 
 ## 7. UI / Dialogue-Narrative Systems
 
-General UI (buttons, panels, layout) is already well-served by this
-studio's real, live React + Tailwind stack — not re-covered here.
-**Branching dialogue/narrative** is a genuine, distinct category with
-real, mature tools:
+General UI is already served by the real, live React + Tailwind stack. Branching dialogue is a distinct, real category:
 
 | Tool | Real details | Fit |
 |---|---|---|
-| **Yarn Spinner** | Real, proven shipped pedigree: Night in the Woods, A Short Hike, Dredge, Lost in Random. Writer-friendly Yarn language, branching choices, variables tied to game state, localization support. Primary integrations are Unity/Godot/Unreal — web/JS support exists via community projects (e.g. `YarnClassic`, which compiles Ink files too via a WASM `inklecate` port) but is less first-class than the Unity path. | Real option for any narrative-heavy game (Succession is the obvious current candidate) — the web-integration path needs a real trial before committing, not assumed smooth. |
-| **Ink / `inkjs`** | Inkle Studios' narrative scripting language (80 Days, Heaven's Vault). `inkjs` is a genuine, direct JS/TS port — no Unity dependency, runs natively in a web project. | **Higher web-fit than Yarn Spinner specifically because of `inkjs`** — worth the first real trial if branching dialogue is ever built for Succession or a future narrative game. |
-| **Twine** | Browser-native, simplest entry point, visual passage-linking. Good for early prototyping and non-programmer story review, less suited to deep variable/state integration with a real game engine. | Lower fit for production integration; real fit for early narrative prototyping only. |
+| **`inkjs`** | Direct JS/TS port of Inkle's Ink language (80 Days, Heaven's Vault) — no engine dependency. | **Higher web-fit than Yarn Spinner** for this studio's stack specifically. |
+| Yarn Spinner | Real, proven shipped pedigree (Night in the Woods, A Short Hike, Dredge). Primary integration path is Unity/Godot/Unreal; web support exists via community projects but is less first-class. | Real option, real trial needed before assuming a smooth web path. A real, current tutorial confirms i18next + ExcaliburJS + Twine/dialogue integration works together in practice. |
+| Twine | Browser-native, simplest, visual passage-linking. | Real fit for early prototyping only, weaker for deep state integration. |
 
-## 8. Genre-Specific Packages — an honest survey across the full genre spread
-
-Given the real ask for "all genres," the honest finding is: **most
-genres don't have a dedicated, mature JS/TS package ecosystem beyond
-what's already covered above.** Recording this plainly rather than
-padding the list with weak matches:
+## 8. Genre-Specific Packages — honest survey across all genres
 
 | Genre | Real finding |
 |---|---|
-| **Racing** (Horse Racing exists) | No dedicated racing-game package ecosystem found — physics (§ carried from v0.2: Matter.js/Planck.js/Rapier) covers the mechanical need; the rest is genre-specific game logic, which is exactly what this studio's own Lua layer already owns. |
-| **Card / deckbuilder** (Ledger, Succession-adjacent) | No mature, general-purpose JS card-game engine found. This genre is real logic-and-state work, not a solved-by-package problem — matches this studio's existing approach of hand-rolling logic in Lua/TS rather than importing a framework. |
-| **Tower defense** | No dedicated package found. Pathfinding (§5) + a wave-spawner primitive (already named as a real gap in `EngineExpansionMap.md`'s "Wave/encounter spawner" entry) covers the real mechanical needs. |
-| **Colony-sim / city-builder** (Planet of Greed) | No dedicated package. Real needs are covered by this studio's own primitive/system layer (resources, progression, dispatch — already identified in `EngineExpansionMap.md`). |
-| **Visual novel / narrative** | Real, mature tooling exists — see §7 above (Ink/`inkjs`, Yarn Spinner). |
-| **Roguelike** | Real, mature tooling exists — see §5 (`rot.js`). |
-| **Idle/incremental** | Real, specific tooling exists — see §10 below (`break_infinity.js` family). |
-| **Rhythm** | No dedicated JS rhythm-game package found; real need would be precise audio-timing (Web Audio API's own clock, already in use for Gladiator Arena) plus custom input-timing logic — not a packageable genre. |
+| Racing (Horse Racing) | No dedicated package ecosystem; physics (§12) covers the mechanical need, rest is game logic. |
+| Card / deckbuilder (Ledger, Succession-adjacent) | No mature general-purpose JS card engine found. Real logic-and-state work — matches this studio's existing hand-rolled approach. |
+| Tower defense | No dedicated package. Pathfinding (§5) + a wave-spawner primitive (already a real, named gap in `EngineExpansionMap.md`) covers it. |
+| Colony-sim / city-builder (Planet of Greed) | No dedicated package — served by this studio's own primitive/system layer (resources, progression, dispatch). |
+| Visual novel / narrative | Real, mature tooling — see §7. |
+| Roguelike | Real, mature tooling — see §5. |
+| Idle/incremental | Real, specific tooling — see §11. |
+| Rhythm | No dedicated package; real need is Web Audio's own precise clock (already in use) plus custom input-timing logic. |
 
-**The pattern across this whole survey:** genres with a real, narrow, algorithmically-defined core (roguelike FOV/pathfinding, dialogue branching, big-number math) have real dedicated packages. Genres that are mostly "custom game rules and state" (card games, tower defense, city-builders, racing) don't — and don't need to, since that's exactly the job this studio's Lua primitive/system layer already does. This is a real, useful finding: it confirms the studio's own architecture is already aimed at the right problem.
+**The pattern:** genres with a narrow, algorithmically-defined core (roguelike FOV/pathfinding, dialogue branching, big-number math) have real dedicated packages. Genres that are mostly custom rules and state (card games, tower defense, city-builders, racing) don't — and don't need to, since that's exactly the job this studio's Lua primitive/system layer already does. This validates the existing architecture rather than exposing a gap.
 
-## 9. Methods & Techniques (not packages)
+## 9. Save / Serialization / Data Validation
 
-Real craft knowledge worth recording, separate from any library:
+*New in v0.4 — a real, previously-uncatalogued category, and it directly answers an already-named internal gap.*
 
-- **FSM vs. Behavior Trees vs. GOAP vs. Utility AI** — real tradeoff, not solved by picking a library: FSMs (Yuka has this) are simplest and best for small, well-defined state counts. Behavior trees scale better for complex, hierarchical decision logic but need more upfront design. GOAP (Goal-Oriented Action Planning) is best when an agent needs to dynamically sequence actions toward a goal rather than follow scripted states — no mature JS package found for this specifically; it's a pattern to implement directly if ever needed. Utility AI (scoring multiple possible actions and picking the highest-scoring one) suits agents balancing several competing priorities.
-- **Navmesh vs. flow-field vs. grid-A\*** — grid-A* (`rot.js`, `easystar.js`) is simplest and fits tile-based games exactly. Navmesh (Yuka) fits continuous, non-tile space. Flow-fields are worth knowing about for many-agents-pathing-to-one-target scenarios (a swarm all moving toward the same point) — cheaper than running A* per-agent, though no dedicated JS package was found for this; it's a real, implementable technique, not a library gap.
-- **Camera juice** — deadzone-based camera follow (camera only moves once the target leaves a central zone, avoiding jitter), lerped position (smooth catch-up rather than instant snap), and screen shake on impact events are all real, well-established techniques with no dedicated package needed — a few lines of interpolation math, same "primitive-first" pattern already used throughout this studio's code.
-- **Input feel** — coyote time (a brief grace window after leaving a platform where a jump still registers) and input buffering (queuing a button press slightly before it's valid so it fires the instant it becomes valid) are real, well-documented platformer-feel techniques — implementation detail, not a package.
-- **UI/UX-specific technique reference** — this studio already has a real, deep worked example: the Time Served project's `UI_UX_Redesign_Plan.md` (three-tier Chrome/Viewport/Overlay architecture, severity color grammar, progressive disclosure rules). Worth treating as this studio's own real methods reference for game UI, not just external research.
+| Package | Real details | Fit |
+|---|---|---|
+| **Zod** | TypeScript-first schema validation with static type inference. Zero dependencies, ~4kB minified+gzipped. Define a schema once, get runtime validation and a compile-time type together — eliminates duplicate type declarations. Real, current detail: a recent `z.compile()` feature adds ahead-of-time compilation for hot validation paths (2.4x median speedup across a 55-schema benchmark, up to ~9x for large arrays/objects). | **High fit, and directly closes a real, already-named gap:** `EngineExpansionMap.md` states plainly "the Lua layer has no save primitive... games that need persistence have to solve it themselves." Zod is the natural validation layer for a real save/load contract — confirmed in independent real use for exactly this (the Aug 13 2026 roguelike devlog uses Zod specifically "to validate an imported save string"). |
 
----
+## 10. Math / Color Utilities
 
-## 10. Procedural Generation
+*New in v0.4.*
 
-*(carried from v0.2)* `kchapelier/procedural-generation` curated list (seeded RNG, Perlin/Simplex/Worley noise, maze gen, Voronoi, cellular-automata caves) — high fit, extends `seededRandom.ts`. `pure-rand` confirmed in real current use in the same roguelike devlog referenced in §3.
+| Package | Real details | Fit |
+|---|---|---|
+| **`chroma.js`** | Small (13.5kB), zero-dependency color manipulation and scale/palette generation — conversions, gradients, class-break computation (equidistant/quantile/logarithmic/k-means). | Real, direct fit for extending the severity-color-grammar work already built for Time Served (`severityGrammar.ts`) — a proven, real internal pattern this could formalize rather than a speculative addition. |
+| **`gl-matrix`** | High-performance vector/matrix math for WebGL/WebGPU. Mature (1,173+ npm dependents), hand-tuned for real-time 3D. | Only relevant if 3D or GPU shader work is ever adopted — no current need given the studio's real, confirmed 2D-only usage. |
 
 ## 11. Big-Number / Idle-Game Math
 
-*(carried from v0.2)* `break_infinity.js`/`break_eternity.js` — real, specific fit if Shoal or Slime Coin's real number growth approaches JS's native ~1.79e308 ceiling. `decimal.js`/`bignumber.js` for precision-first needs (distinct problem from scale-first).
+`break_infinity.js`/`break_eternity.js` — real, specific fit if Shoal or Slime Coin's real number growth approaches JS's native ~1.79e308 ceiling; worth an actual check against real current game state before adopting. `decimal.js`/`bignumber.js` for precision-first needs — a distinct problem from scale-first, easy to conflate.
 
-## 12. State Machine / App-Shell, ECS, Networking, Audio, Physics, Animation
+## 12. Physics, Animation, State Machines, ECS
 
-*(carried from v0.2, unchanged — see prior version history)*
+*(carried unchanged from v0.2/v0.3)* Matter.js/Planck.js/Rapier (physics, no current need); `motion`/`framer-motion` (already live), tween.js, GSAP (animation); `xstate` (medium fit, app-shell flow only); `bitecs`/`miniplex` (low fit, unverified conflict with the Lua systems layer, no genre need in the catalog to justify it).
+
+## 13. Localization
+
+*New in v0.4.*
+
+| Package | Real details | Fit |
+|---|---|---|
+| **`i18next`** | The most-used JS i18n framework — 14+ years old, weekly downloads in the millions. Framework-agnostic bindings (React, Vue, Node, vanilla). ICU formatting, plurals, backends for lazy-loading translation files. | Real, low-risk option whenever the studio's catalog needs a second language — nothing currently does, but this is mature, boring, well-proven infrastructure, not a speculative bet. A real, current tutorial confirms it integrates cleanly alongside ExcaliburJS + Twine dialogue in practice. |
+
+## 14. Networking / Multiplayer / Netcode
+
+| Package | Real details | Fit |
+|---|---|---|
+| Colyseus / geckos.io | Server-authoritative real-time sync, room-based matchmaking. | Low — Firebase/Firestore already solved this for House of Kings: Collab. |
+| **`netplayjs`** | Real P2P browser multiplayer — no server hosting required. Rollback netcode (predictive) over WebRTC by default; falls back to Lockstep if game state can't be serialized, and games must be explicitly marked deterministic for full rollback benefits. | New, real, distinct option — this is peer-to-peer, not server-authoritative, a genuinely different tradeoff than the Firebase path. No current game needs this, but it's the right answer specifically if a future game wants multiplayer *without* standing up backend infrastructure. |
+
+## 15. Audio
+
+Native Web Audio API — already in real, live use (Gladiator Arena's procedural sound effects). `howler.js` — only relevant for positional/mixing complexity beyond what a direct implementation handles cleanly.
+
+## 16. Methods & Techniques (not packages)
+
+- **FSM vs. Behavior Trees vs. GOAP vs. Utility AI** — real tradeoff. FSMs (Yuka has this) suit small, well-defined state counts. Behavior trees scale to complex hierarchical decisions at more upfront design cost. GOAP suits agents that need to dynamically sequence actions toward a goal — no mature JS package found; a real pattern to implement directly if ever needed. Utility AI suits agents balancing several competing priorities via scoring.
+- **Navmesh vs. flow-field vs. grid-A\*** — grid-A* (`rot.js`) fits tile-based games. Navmesh (Yuka) fits continuous space. Flow-fields suit many-agents-to-one-target scenarios, cheaper than per-agent A* — no dedicated package found, a real implementable technique.
+- **Deterministic Lockstep vs. Rollback netcode** — new in v0.4. Lockstep sends player *inputs*, not state, and every client simulates identically — requires true determinism and can stall waiting for the slowest peer's input each tick, historically the standard for RTS games with huge unit counts. Rollback (used by `netplayjs`'s default mode) predicts ahead locally and re-simulates ("rolls back") when a late input contradicts the prediction — lower perceived latency, more complex to implement correctly. Real, honest note: whether JavaScript operations are reliably cross-platform-deterministic (float math consistency across browsers/devices) is a genuinely open question worth testing directly before betting a design on it, not assuming.
+- **Camera juice** — deadzone-based follow, lerped position, screen shake on impact. No package needed — a few lines of interpolation math, matching this studio's own primitive-first pattern.
+- **Input feel** — coyote time (grace window after leaving a platform), input buffering (queue a press slightly early, fire the instant it's valid). Implementation detail, not a package.
+- **UI/UX technique reference** — this studio already has a real, deep worked example: Time Served's `UI_UX_Redesign_Plan.md` (three-tier Chrome/Viewport/Overlay architecture, severity color grammar, progressive disclosure). Treat as this studio's own methods reference for game UI, not just external research.
+
+## 17. Level Editors / Tilemap Loading
+
+*New in v0.4, and an honest negative result worth recording.* Real research found mature Tiled (TMX) loaders for C++ (`tmxlite`, `tinytmx`), Python (`pytiled-parser`, `PyTMX` — directly relevant to `renderers/pygame/`), and Lua (`AdvTiledLoader`), but **no standout standalone JS/TS TMX loader** — JS-side Tiled support is typically bundled inside a full engine (melonJS, Phaser) rather than existing as its own package. If tile-based level design is ever needed on the TS side without adopting a full engine, this is a real, confirmed gap requiring a small custom loader — not an oversight in this research.
 
 ---
 
 ## Explicitly Rejected Scope
 
-"Pure TypeScript as the single source of truth" (abandoning the Lua
-multi-runtime contract) — rejected, requires its own deliberate
-decision and ADR-level weight if ever reconsidered.
+"Pure TypeScript as the single source of truth" (abandoning the Lua multi-runtime contract) — rejected. Requires its own deliberate decision and ADR-level weight if ever genuinely reconsidered.
 
 ---
 
@@ -139,8 +155,9 @@ decision and ADR-level weight if ever reconsidered.
 | Version | Change |
 |---|---|
 | v0.1 | Initial, narrow — pre-filtered by architecture fit before establishing breadth. |
-| v0.2 | Expanded following feedback that v0.1 was too short: full 2D/3D engines, roguelike toolkits, physics, animation, big-number/idle math. |
-| v0.3 | Further expanded per explicit request for Graphics, Audio, AI Logic, Movement, Pathfinding, Controls, UI, genre-specific coverage across all genres, and methods/techniques (not just packages). Major new finding: **Yuka** (standalone AI/steering/navmesh library, high fit). Real dialogue-engine research: Ink/`inkjs` (higher web-fit) vs. Yarn Spinner (stronger shipped pedigree, weaker native web path). Real, honest genre survey: most genres have no dedicated package ecosystem and are correctly served by this studio's existing Lua primitive/system layer — a finding that validates the architecture rather than exposing a gap. New Methods & Techniques section covering FSM/behavior-tree/GOAP/utility-AI tradeoffs, navmesh/flow-field/grid-A* tradeoffs, camera juice, and input-feel techniques — real craft knowledge that isn't package-shaped. |
+| v0.2 | Expanded: full 2D/3D engines, roguelike toolkits, physics, animation, big-number/idle math. |
+| v0.3 | Expanded further: Graphics, AI Logic (Yuka), Movement/Pathfinding, Controls, UI/Dialogue (Ink vs. Yarn Spinner), honest genre-specific survey, Methods & Techniques section. |
+| v0.4 | Closed remaining real gaps: Save/Serialization (Zod — directly answers `EngineExpansionMap.md`'s named "no save primitive" gap), Math/Color utilities (chroma.js, gl-matrix), Localization (i18next), Netcode/Replay (netplayjs, Lockstep vs. Rollback as a real technique comparison), Level Editor/Tilemap survey (honest negative result — no standalone JS TMX loader exists, bundled-in-engine only). This version consolidates every finding across both research passes into one organized reference. |
 
 ---
 
