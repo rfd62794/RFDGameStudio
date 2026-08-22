@@ -5,6 +5,7 @@ export const TOTAL_SEGMENTS = 8;
 export const WHISPER_FAVOR_GAIN = 20;        // unverified
 export const APPEAL_FAVOR_GAIN = 8;          // unverified — deliberately smaller and safer
 export const KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN = 12; // +50% favor gain (+12 instead of +8) for Disgraced Iron Knight on Commander
+export const KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN = 4; // -50% favor gain (-4 instead of +8) for Disgraced Iron Knight on Archbishop — recurring friction (ADR-004), matching the compounding shape of the Commander bonus instead of the one-time appeal-gate alone
 export const EVIDENCE_FAVOR_GAIN = 30;       // unverified — largest, guaranteed, costs a prior Scout turn
 export const INDICTMENT_FAVOR_GAIN = 40;     // decisive resolution of mystery inquiry via triangulated triad
 export const RIVAL_WHISPER_FAVOR_GAIN = 15;  // unverified — rivals always Whisper, never Appeal; see ⚠️ RULE below

@@ -7,6 +7,7 @@ import {
 import {
   BASTARD_CHANCELLOR_STARTING_FAVOR,
   KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN,
+  KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN,
   APPEAL_FAVOR_GAIN,
   MERCHANT_SLANDER_PENALTY,
   RIVAL_SLANDER_PENALTY,
@@ -61,12 +62,23 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       expect(playerEntry?.favorGain).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN);
     });
 
-    it('Chancellor or Archbishop Appeals grant standard +8 favor gain', () => {
+    it('Chancellor Appeals grant standard +8 favor gain', () => {
       const state = createInitialGameState('disgraced_knight');
       const next = appealTo(state, 'chancellor');
 
       const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
       expect(chancellor.favor.player).toBe(APPEAL_FAVOR_GAIN); // 8
+    });
+
+    it('Archbishop Appeals grant -50% favor gain (4 instead of 8) — ADR-004 recurring friction', () => {
+      const state = createInitialGameState('disgraced_knight');
+      const next = appealTo(state, 'archbishop');
+
+      const archbishop = next.figures.find((f) => f.id === 'archbishop')!;
+      expect(archbishop.favor.player).toBe(KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN); // 4
+
+      const playerEntry = next.ticker.find((t) => t.claimantId === 'player' && t.figureId === 'archbishop');
+      expect(playerEntry?.favorGain).toBe(KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN);
     });
 
     it('Archbishop requires 1 formal Appeal before Whispers unlock (Whisper is rejected if unappealed)', () => {
@@ -77,10 +89,10 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       expect(rejected.segment).toBe(1);
       expect(rejected.ticker.length).toBe(0);
 
-      // Deliver 1 formal appeal to Archbishop
+      // Deliver 1 formal appeal to Archbishop (ADR-004: reduced to -50% favor gain, 4 instead of 8)
       const appealed = appealTo(state, 'archbishop');
       expect(appealed.segment).toBe(2);
-      expect(appealed.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(APPEAL_FAVOR_GAIN);
+      expect(appealed.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN);
 
       // Now whispering to Archbishop succeeds
       const whispered = whisperTo(appealed, 'archbishop', 'pious_devotion');

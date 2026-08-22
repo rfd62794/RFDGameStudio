@@ -2,6 +2,7 @@ import { FigureId } from '../engine/types';
 import {
   BASTARD_CHANCELLOR_STARTING_FAVOR,
   KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN,
+  KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN,
   MERCHANT_RIVAL_FIRST_WHISPER_BONUS,
   MERCHANT_SLANDER_PENALTY,
   RIVAL_SLANDER_PENALTY,
@@ -53,10 +54,10 @@ export const PLAYER_ORIGINS: PlayerOrigin[] = [
     subtitle: 'Veteran of the Citadel Siege',
     icon: 'Shield',
     strategicAdvantage: 'Commander Appeals grant +50% favor gain (+12 instead of +8).',
-    inherentFriction: 'Archbishop requires 1 formal Appeal before Whispers unlock in his antechamber.',
+    inherentFriction: 'Archbishop Appeals grant -50% favor gain (4 instead of 8), and require 1 formal Appeal before Whispers unlock in his antechamber.',
     description: 'A decorated legionary revered by the garrison, but viewed with holy skepticism by the High Sanctum.',
     modifiers: {
-      appealFavorGainOverride: { commander: KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN },
+      appealFavorGainOverride: { commander: KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN, archbishop: KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN },
       appealRequiredBeforeWhisper: ['archbishop'],
     },
   },
