@@ -51,12 +51,12 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       });
     });
 
-    it('Commander Appeals grant +50% favor gain (+12 instead of +8)', () => {
+    it('Commander Appeals grant +25% favor gain (+10 instead of +8)', () => {
       const state = createInitialGameState('disgraced_knight');
       const next = appealTo(state, 'commander');
 
       const commander = next.figures.find((f) => f.id === 'commander')!;
-      expect(commander.favor.player).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN); // 12
+      expect(commander.favor.player).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN); // 10
 
       const playerEntry = next.ticker.find((t) => t.claimantId === 'player' && t.figureId === 'commander');
       expect(playerEntry?.favorGain).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN);

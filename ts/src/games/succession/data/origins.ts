@@ -53,7 +53,7 @@ export const PLAYER_ORIGINS: PlayerOrigin[] = [
     name: 'Disgraced Iron Knight',
     subtitle: 'Veteran of the Citadel Siege',
     icon: 'Shield',
-    strategicAdvantage: 'Commander Appeals grant +50% favor gain (+12 instead of +8).',
+    strategicAdvantage: 'Commander Appeals grant +25% favor gain (+10 instead of +8).',
     inherentFriction: 'Archbishop Appeals grant -50% favor gain (4 instead of 8), and require 1 formal Appeal before Whispers unlock in his antechamber.',
     description: 'A decorated legionary revered by the garrison, but viewed with holy skepticism by the High Sanctum.',
     modifiers: {
