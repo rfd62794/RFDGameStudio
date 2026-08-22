@@ -1,5 +1,68 @@
 # Succession — CHANGELOG
 
+## 2026-08-22 — ADR-006: GameShell Adoption and Audience Progressive Disclosure
+
+Two independent, real presentation fixes, verified against real
+precedent (`chimera_wilds/App.tsx`, `planetofgreed/App.tsx`) rather than
+invented from scratch.
+
+**Fix 1 — GameShell adoption.** `App.tsx` had never adopted the shared
+`GameShell` component (`ts/src/components/GameShell.tsx`) — it rendered
+its own root and a hand-rolled sticky header (`components/SegmentHeader.tsx`)
+with a duplicate "SUCCESSION" title and no back button. Worse, without
+`GameShell`'s `mainClassName="game-shell-main--scrollable"` modifier,
+`.game-shell-main`'s default `overflow: hidden` (combined with the
+arcade shell's own `overflow: hidden` on `.arcade-game-content`) meant
+any view taller than the viewport was silently clipped with no scroll
+path — confirmed as the real cause, not assumed. All three real view
+branches (title, playing, verdict) now render through `<GameShell
+gameLabel="Succession" gameId="succession" mainClassName="game-shell-main--scrollable" ...>`.
+`SegmentHeader.tsx` was rewritten to render only real status content
+(segment dots, time badge, final-segment warning) as a `statusArea`
+fragment, dropping its own header wrapper and the now-duplicate title.
+`AudienceStage.tsx`'s own "Step Back to Grand Chamber" button was
+deliberately left untouched — confirmed to be real in-game
+`PlayStage` navigation, not arcade-level shell chrome.
+
+**Fix 2 — Audience progressive disclosure.** `AudienceStage.tsx`
+previously rendered all five approaches (Whisper, Appeal, Evidence,
+Indictment, Discredit) fully expanded simultaneously, all the time. New
+`utils/approachDisclosure.ts` exports `nextExpandedApproach`, a pure
+state-transition function ensuring exactly one approach is ever
+expanded at a time (collapsed by default). `WhisperPanel.tsx`,
+`EvidencePanel.tsx`, `IndictmentPanel.tsx`, and the inline Appeal/
+Discredit cards all gained `isExpanded`/`onToggle`-style wiring — their
+real cost/risk badges stay visible in the always-shown header row even
+while collapsed; only the action body (option grids, execute buttons)
+is hidden. Fixed a genuine pre-existing bug found while doing this:
+`IndictmentPanel.tsx` and Discredit were both labeled "Approach 4" —
+Discredit is now "Approach 5."
+
+ADR written: `docs/adr/ADR-006-gameshell-adoption-and-progressive-disclosure.md`.
+
+### Tests
+
+`tests/test_succession_gameshell_and_disclosure.ts`: 7 new tests.
+GameShell adoption group (4): structural checks against the real
+`App.tsx` source proving `GameShell` import, all 3 view branches
+wrapped, `mainClassName="game-shell-main--scrollable"` present on every
+usage, and the old arcade-level back button text is gone while
+`AudienceStage`'s real in-game back navigation remains wired.
+Progressive disclosure group (3): exercises the exact
+`nextExpandedApproach` function `AudienceStage.tsx` calls — starts
+collapsed, selecting a second approach replaces (never adds to) the
+first, and the "exactly one expanded" invariant holds across a full
+5-approach selection sequence. `npx tsc --noEmit` clean. **1451/1451**
+tests pass across the full monorepo suite; all 127 pre-existing
+Succession tests unmodified and passing.
+
+### Manual Verification
+
+No screenshot/vision tool is available in this environment. A live dev
+server + browser preview was handed to the user to confirm visually
+that the header no longer clips and only one Audience approach expands
+at a time.
+
 ## 2026-08-20 — Balance Simulation Harness
 
 Added `ts/tools/succession-balance-sim.ts` — a standalone diagnostic
