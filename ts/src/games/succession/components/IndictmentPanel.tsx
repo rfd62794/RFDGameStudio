@@ -7,6 +7,7 @@ import {
   Check,
   BookOpen,
   Sparkles,
+  ChevronDown,
 } from 'lucide-react';
 import { FigureId, FigureState, IndictmentTriad, SuspectId, MethodId, MotiveId } from '../engine/types';
 import { COURT_FIGURES } from '../data/courtFigures';
@@ -23,12 +24,16 @@ interface IndictmentPanelProps {
   figure: FigureState;
   playerEvidence: EvidenceItem[];
   onDeliverIndictment: (figureId: FigureId, triad: IndictmentTriad) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export const IndictmentPanel: React.FC<IndictmentPanelProps> = ({
   figure,
   playerEvidence,
   onDeliverIndictment,
+  isExpanded,
+  onToggle,
 }) => {
   const [selectedSuspect, setSelectedSuspect] = useState<SuspectId>('chancellor');
   const [selectedMethod, setSelectedMethod] = useState<MethodId>('forged_seal');
@@ -56,7 +61,13 @@ export const IndictmentPanel: React.FC<IndictmentPanelProps> = ({
       id="audience-indictment-section"
       className="bg-stone-900/90 border border-purple-900/60 rounded-2xl p-5 sm:p-6 space-y-5 shadow-2xl relative overflow-hidden"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-3">
+      <button
+        id="audience-approach-toggle-indictment"
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        className={`w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 text-left cursor-pointer ${isExpanded ? 'border-b border-stone-800' : ''}`}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-purple-950/80 border border-purple-600/70 flex items-center justify-center text-purple-300">
             <Gavel className="w-4 h-4" />
@@ -76,14 +87,16 @@ export const IndictmentPanel: React.FC<IndictmentPanelProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-serif px-2.5 py-1 bg-purple-950/80 border border-purple-800 text-purple-200 rounded-lg shrink-0 font-medium">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <span className="text-[11px] font-serif px-2.5 py-1 bg-purple-950/80 border border-purple-800 text-purple-200 rounded-lg font-medium">
             Decisive Proof (+40) | High Stakes Perjury Risk
           </span>
+          <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
         </div>
-      </div>
+      </button>
 
       {/* Active Case Notebook Tabs */}
+      {isExpanded && (
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-stone-800/80 pb-2">
           <div className="flex gap-2">
@@ -335,6 +348,7 @@ export const IndictmentPanel: React.FC<IndictmentPanelProps> = ({
           </span>
         </button>
       </div>
+      )}
     </div>
   );
 };

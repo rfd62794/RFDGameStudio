@@ -5,6 +5,7 @@ import {
   Check,
   Radio,
   Lock,
+  ChevronDown,
 } from 'lucide-react';
 import { FigureId, FigureState, Claim } from '../engine/types';
 import { COURT_FIGURES } from '../data/courtFigures';
@@ -23,6 +24,8 @@ interface WhisperPanelProps {
   onSelectTheme: (themeId: string) => void;
   onHoverTheme: (themeId: string | null) => void;
   onWhisper: (figureId: FigureId, themeId: string) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export const WhisperPanel: React.FC<WhisperPanelProps> = ({
@@ -34,6 +37,8 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
   onSelectTheme,
   onHoverTheme,
   onWhisper,
+  isExpanded,
+  onToggle,
 }) => {
   const meta = COURT_FIGURES[figure.id];
 
@@ -53,8 +58,14 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
   const opposingFigureMeta = domainConflict ? COURT_FIGURES[domainConflict.targetFigureId] : null;
 
   return (
-    <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-800 pb-3">
+    <div id="audience-action-whisper" className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-4">
+      <button
+        id="audience-approach-toggle-whisper"
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        className={`w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 text-left cursor-pointer ${isExpanded ? 'border-b border-stone-800' : ''}`}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-amber-950/80 border border-amber-600/70 flex items-center justify-center text-amber-400">
             <MessageSquareQuote className="w-4 h-4" />
@@ -69,12 +80,15 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
           </div>
         </div>
 
-        <span className="text-[11px] font-serif px-2.5 py-1 bg-amber-950/60 border border-amber-800/60 text-amber-300 rounded-lg shrink-0 font-medium">
-          High Sway (+20) | Zero-Sum Faction Friction (-4)
-        </span>
-      </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <span className="text-[11px] font-serif px-2.5 py-1 bg-amber-950/60 border border-amber-800/60 text-amber-300 rounded-lg font-medium">
+            High Sway (+20) | Zero-Sum Faction Friction (-4)
+          </span>
+          <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
 
-      {isArchbishopWhisperLocked ? (
+      {isExpanded && (isArchbishopWhisperLocked ? (
         <div className="p-4 bg-stone-950/80 border border-amber-900/40 rounded-xl text-xs text-stone-300 space-y-2">
           <div className="flex items-center gap-2 text-amber-400 font-serif font-semibold text-sm">
             <Lock className="w-4 h-4" />
@@ -209,7 +223,7 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
             </button>
           </div>
         </div>
-      )}
+      ))}
     </div>
   );
 };

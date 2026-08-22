@@ -13,6 +13,7 @@ import {
   Zap,
   Scale,
   Swords,
+  ChevronDown,
 } from 'lucide-react';
 import {
   FigureState,
@@ -31,6 +32,7 @@ import { RIVAL_SLANDER_PENALTY } from '../data/gameConstants';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
 import { getFigureQualitativeStanding } from '../utils/favorTiers';
 import { TickerEntry } from '../types/gameState';
+import { ApproachId, nextExpandedApproach } from '../utils/approachDisclosure';
 import { WhisperPanel } from './WhisperPanel';
 import { EvidencePanel } from './EvidencePanel';
 import { IndictmentPanel } from './IndictmentPanel';
@@ -66,6 +68,16 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
   const [hoveredThemeId, setHoveredThemeId] = useState<string | null>(null);
   const rivalIds: ClaimantId[] = ['aldric', 'vivienne'];
   const [selectedRivalId, setSelectedRivalId] = useState<ClaimantId>('aldric');
+
+  // Progressive disclosure (ADR-006): all five approaches are collapsed
+  // by default. Delegates to nextExpandedApproach (utils/approachDisclosure.ts)
+  // — the same real function exercised end-to-end in
+  // tests/test_succession_progressiveDisclosure.ts — so only one
+  // approach is ever expanded at a time, never a reimplementation that
+  // could silently diverge.
+  const [expandedApproach, setExpandedApproach] = useState<ApproachId | null>(null);
+  const toggleApproach = (id: ApproachId) =>
+    setExpandedApproach((prev) => nextExpandedApproach(prev, id));
 
   const meta = COURT_FIGURES[figure.id];
   const isExposed = figure.exposedAgainst.includes('player');
@@ -343,7 +355,8 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
         </div>
       </div>
 
-      {/* Main Persuasion Approaches */}
+      {/* Main Persuasion Approaches — collapsed by default, expand-on-select, */}
+      {/* only one open at a time (ADR-006 progressive disclosure) */}
       <div className="space-y-6">
         {/* Section 1: Whisper Panel */}
         <WhisperPanel
@@ -355,38 +368,54 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
           onSelectTheme={setSelectedThemeId}
           onHoverTheme={setHoveredThemeId}
           onWhisper={onWhisper}
+          isExpanded={expandedApproach === 'whisper'}
+          onToggle={() => toggleApproach('whisper')}
         />
 
-        {/* Section 2: Formal Appeal & Evidence Presentation Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Action 2: Formal Appeal Card (inline — no local state, ~40 lines) */}
-          <div
-            id="audience-action-appeal"
-            className="bg-stone-900/80 border border-stone-800 hover:border-sky-700/70 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all space-y-4"
+        {/* Action 2: Formal Appeal Card (inline — no local state beyond expand) */}
+        <div
+          id="audience-action-appeal"
+          className="bg-stone-900/80 border border-stone-800 hover:border-sky-700/70 rounded-2xl p-5 sm:p-6 space-y-4 transition-all"
+        >
+          <button
+            id="audience-approach-toggle-appeal"
+            type="button"
+            onClick={() => toggleApproach('appeal')}
+            aria-expanded={expandedApproach === 'appeal'}
+            className={`w-full flex items-center justify-between gap-3 pb-3 text-left cursor-pointer ${
+              expandedApproach === 'appeal' ? 'border-b border-stone-800' : ''
+            }`}
           >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-sky-950/80 border border-sky-600/70 flex items-center justify-center text-sky-400">
-                    <Scale className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-serif font-bold text-stone-100 text-sm">
-                      Approach 2: Formal Diplomatic Appeal
-                    </h3>
-                    <p className="text-[11px] text-stone-400">
-                      Open, dignified petition before the assembled Council
-                    </p>
-                  </div>
-                </div>
-
-                <span className="text-[11px] font-serif px-2 py-0.5 bg-sky-950/60 border border-sky-800/60 text-sky-300 rounded font-medium shrink-0">
-                  {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
-                    ? '+50% Knight Perk'
-                    : 'Zero-Risk'}
-                </span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-sky-950/80 border border-sky-600/70 flex items-center justify-center text-sky-400">
+                <Scale className="w-4 h-4" />
               </div>
+              <div>
+                <h3 className="font-serif font-bold text-stone-100 text-sm">
+                  Approach 2: Formal Diplomatic Appeal
+                </h3>
+                <p className="text-[11px] text-stone-400">
+                  Open, dignified petition before the assembled Council
+                </p>
+              </div>
+            </div>
 
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="text-[11px] font-serif px-2 py-0.5 bg-sky-950/60 border border-sky-800/60 text-sky-300 rounded font-medium">
+                {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
+                  ? '+50% Knight Perk'
+                  : 'Zero-Risk'}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform ${
+                  expandedApproach === 'appeal' ? 'rotate-180' : ''
+                }`}
+              />
+            </div>
+          </button>
+
+          {expandedApproach === 'appeal' && (
+            <div className="space-y-4">
               <p className="text-xs text-stone-300 leading-relaxed">
                 Deliver an open, measured address on the Council floor. Steady, dignified, and 100% free of contradiction traps and domain friction.
               </p>
@@ -403,96 +432,119 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
                     : 'Earns a reliable +8 favor without planting claims or provoking opposing faction jealousy.'}
                 </p>
               </div>
+
+              <button
+                id="audience-execute-appeal-button"
+                type="button"
+                onClick={() => onAppeal(figure.id)}
+                className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-stone-950 font-serif font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-sky-950/50"
+              >
+                <Scale className="w-4 h-4" />
+                <span>
+                  {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
+                    ? 'Deliver Commander Appeal (+12 Favor)'
+                    : 'Deliver Formal Council Appeal (+8 Favor)'}
+                </span>
+              </button>
             </div>
-
-            <button
-              id="audience-execute-appeal-button"
-              type="button"
-              onClick={() => onAppeal(figure.id)}
-              className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-stone-950 font-serif font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-sky-950/50"
-            >
-              <Scale className="w-4 h-4" />
-              <span>
-                {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
-                  ? 'Deliver Commander Appeal (+12 Favor)'
-                  : 'Deliver Formal Council Appeal (+8 Favor)'}
-              </span>
-            </button>
-          </div>
-
-          {/* Action 3: Evidence Panel */}
-          <EvidencePanel
-            figure={figure}
-            playerEvidence={playerEvidence}
-            onPresentEvidence={onPresentEvidence}
-          />
+          )}
         </div>
 
-        {/* Section 3: Indictment Panel */}
+        {/* Action 3: Evidence Panel */}
+        <EvidencePanel
+          figure={figure}
+          playerEvidence={playerEvidence}
+          onPresentEvidence={onPresentEvidence}
+          isExpanded={expandedApproach === 'evidence'}
+          onToggle={() => toggleApproach('evidence')}
+        />
+
+        {/* Section 4: Indictment Panel */}
         <IndictmentPanel
           figure={figure}
           playerEvidence={playerEvidence}
           onDeliverIndictment={onDeliverIndictment}
+          isExpanded={expandedApproach === 'indictment'}
+          onToggle={() => toggleApproach('indictment')}
         />
 
-        {/* Section 4: Discredit a Rival */}
+        {/* Section 5: Discredit a Rival */}
         <div
           id="audience-action-discredit"
           className="bg-stone-900/80 border border-stone-800 hover:border-rose-700/60 rounded-2xl p-5 sm:p-6 space-y-4"
         >
-          <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+          <button
+            id="audience-approach-toggle-discredit"
+            type="button"
+            onClick={() => toggleApproach('discredit')}
+            aria-expanded={expandedApproach === 'discredit'}
+            className={`w-full flex items-center justify-between gap-3 pb-3 text-left cursor-pointer ${
+              expandedApproach === 'discredit' ? 'border-b border-stone-800' : ''
+            }`}
+          >
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-rose-950/80 border border-rose-700/70 flex items-center justify-center text-rose-400">
                 <Swords className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="font-serif font-bold text-stone-100 text-sm">
-                  Approach 4: Discredit a Rival
+                  Approach 5: Discredit a Rival
                 </h3>
                 <p className="text-[11px] text-stone-400">
                   Spend your turn to directly damage a rival's standing here — no favor gained for you.
                 </p>
               </div>
             </div>
-            <span className="text-[11px] font-serif px-2 py-0.5 bg-rose-950/60 border border-rose-800/60 text-rose-300 rounded font-medium shrink-0">
-              -{RIVAL_SLANDER_PENALTY} Rival Favor
-            </span>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            {rivalIds.map((rivalId) => {
-              const rival = CLAIMANTS[rivalId];
-              const isSelected = rivalId === selectedRivalId;
-              return (
-                <button
-                  key={rivalId}
-                  id={`discredit-target-${rivalId}`}
-                  type="button"
-                  onClick={() => setSelectedRivalId(rivalId)}
-                  className={`flex-1 p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-rose-950/40 border-rose-500 ring-1 ring-rose-500/50'
-                      : 'bg-stone-950/60 border-stone-800 hover:border-stone-700'
-                  }`}
-                >
-                  <div className="font-serif font-bold text-xs text-stone-100">{rival.name}</div>
-                  <div className="text-[11px] text-stone-400">
-                    Current favor here: {figure.favor[rivalId]}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            id="audience-execute-discredit-button"
-            type="button"
-            onClick={() => onDiscredit(figure.id, selectedRivalId)}
-            className="w-full py-2.5 px-4 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-serif font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-rose-950/50"
-          >
-            <Swords className="w-4 h-4" />
-            <span>Discredit {CLAIMANTS[selectedRivalId].name} (-{RIVAL_SLANDER_PENALTY} Favor)</span>
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="text-[11px] font-serif px-2 py-0.5 bg-rose-950/60 border border-rose-800/60 text-rose-300 rounded font-medium">
+                -{RIVAL_SLANDER_PENALTY} Rival Favor
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform ${
+                  expandedApproach === 'discredit' ? 'rotate-180' : ''
+                }`}
+              />
+            </div>
           </button>
+
+          {expandedApproach === 'discredit' && (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                {rivalIds.map((rivalId) => {
+                  const rival = CLAIMANTS[rivalId];
+                  const isSelected = rivalId === selectedRivalId;
+                  return (
+                    <button
+                      key={rivalId}
+                      id={`discredit-target-${rivalId}`}
+                      type="button"
+                      onClick={() => setSelectedRivalId(rivalId)}
+                      className={`flex-1 p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-rose-950/40 border-rose-500 ring-1 ring-rose-500/50'
+                          : 'bg-stone-950/60 border-stone-800 hover:border-stone-700'
+                      }`}
+                    >
+                      <div className="font-serif font-bold text-xs text-stone-100">{rival.name}</div>
+                      <div className="text-[11px] text-stone-400">
+                        Current favor here: {figure.favor[rivalId]}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                id="audience-execute-discredit-button"
+                type="button"
+                onClick={() => onDiscredit(figure.id, selectedRivalId)}
+                className="w-full py-2.5 px-4 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-serif font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-rose-950/50"
+              >
+                <Swords className="w-4 h-4" />
+                <span>Discredit {CLAIMANTS[selectedRivalId].name} (-{RIVAL_SLANDER_PENALTY} Favor)</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
