@@ -22,7 +22,7 @@ import {
 
 describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
   describe('Origin 1: Bastard Scion', () => {
-    it('initializes with +1 Scouted Evidence and -5 Chancellor starting penalty', () => {
+    it('initializes with +1 Scouted Evidence and -2 Chancellor starting penalty (ADR-004)', () => {
       const state = createInitialGameState('bastard_scion');
       expect(state.playerOrigin).toBe('bastard_scion');
       expect(state.playerEvidence.length).toBe(1);
@@ -30,7 +30,7 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       expect(state.scoutedCount).toBe(1);
 
       const chancellor = state.figures.find((f) => f.id === 'chancellor')!;
-      expect(chancellor.favor.player).toBe(BASTARD_CHANCELLOR_STARTING_FAVOR); // -5
+      expect(chancellor.favor.player).toBe(BASTARD_CHANCELLOR_STARTING_FAVOR); // -2
 
       const archbishop = state.figures.find((f) => f.id === 'archbishop')!;
       expect(archbishop.favor.player).toBe(0);

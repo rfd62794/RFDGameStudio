@@ -396,3 +396,87 @@ rival contradiction risk. Per the explicit rule against hand-tuning or
 escalating scope to hit a target number, no origin-balance change is
 made here — it is named as the real next-step candidate, not
 undertaken.
+
+## 2026-08-22 — ADR-004: Origin Rebalance
+
+Follow-up to ADR-003's real finding: three directives of harness
+evidence pointed to origin selection, not rival AI, as the actual
+imbalance. Confirmed baseline: `disgraced_knight` 5W-0L-1D (never
+lost), `bastard_scion` 0W-3L-3D (never won), `merchant_banker` 3W-3L-0D.
+
+Tested hypothesis: `disgraced_knight` pairs a compounding (per-appeal,
+unlimited) advantage with an inert one-time friction gate;
+`bastard_scion` pairs a one-time advantage with a real persistent
+deficit. Three separate, individually-tested changes, per the rule
+against batching untested changes:
+
+- **Change A** — added `KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN = 4` (-50%),
+  giving `disgraced_knight` real recurring friction matching the shape
+  of its recurring Commander bonus (reusing the existing
+  `appealFavorGainOverride` field — no new mechanic). Confirmed via
+  direct code read that the prior friction (`appealRequiredBeforeWhisper`)
+  cost zero net favor once satisfied. Result: 5W-0L-1D → 3W-0L-3D.
+  Real movement, but still zero losses.
+- **Change B** — reduced `KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN` 12→10
+  (+50%→+25%), since Change A alone wasn't sufficient. Result:
+  3W-0L-3D → 3W-1L-2D — first real loss recorded for this origin.
+- **Change C** — reduced `BASTARD_CHANCELLOR_STARTING_FAVOR` -5→-2,
+  testing the simpler friction-magnitude explanation before assuming
+  the advantage needed to become more recurring. Result: 0W-3L-3D →
+  1W-3L-2D — first real win recorded for this origin, from softening
+  friction alone.
+
+ADR written: `docs/adr/ADR-004-origin-rebalance.md`.
+
+### Tests
+
+`tests/test_succession_origins.ts`: updated assertions/titles for all
+three changed constants; renamed the now-inaccurate "Chancellor or
+Archbishop Appeals grant standard +8" test (Archbishop no longer does);
+added 1 new dedicated test for the Change A recurring friction. Net:
++1 test. `npx tsc --noEmit` clean. **112/112** tests pass.
+
+### Real Verdict Against the Actual Design Goal
+
+Final harness re-run, by origin:
+
+| Origin | W | L | D |
+|---|---|---|---|
+| bastard_scion | 1 | 3 | 2 |
+| disgraced_knight | 3 | 1 | 2 |
+| merchant_banker | 3 | 3 | 0 |
+
+**Every origin now has both a win and a loss** — real, substantial
+movement from two origins sitting at zero wins or zero losses outright.
+This reads as genuine contested balance by the stated bar, for the
+first time across all three directives that have measured it.
+
+**A real new finding, not fixed here:** by strategy, `DiscreditHeavy`
+moved from 2W-0L-1D to a clean **3W-0L-0D** sweep as a side effect of
+the origin rebalance (all three wins narrow, +1 margin, "Contested" by
+the harness's own blowout threshold — not a runaway blowout strategy,
+but still a real 0-loss floor). `SafeAppealsOnly` moved the opposite
+direction, 1W-1L-1D → 0W-2L-1D. Fixing this would require touching
+`discreditFigure`/`rivalAI.ts`, explicitly read-only in this directive's
+scope. Reported honestly as a finding for a follow-up directive, not
+absorbed into origin tuning (which would mean adjusting origin numbers
+to suppress a downstream strategy effect with no origin-shape reasoning
+behind it — the exact hand-tuning pattern the rule prohibits).
+
+### Hypothesis Verdict — Partially Held, More Nuanced
+
+For `disgraced_knight`: held, but adding matching recurring friction
+alone (Change A) was insufficient — it took combining that with
+reducing the advantage's own magnitude (Change B) to produce a real
+loss. For `bastard_scion`: the friction-*magnitude* explanation alone
+was sufficient (Change C) — the "advantage needs to become more
+recurring" half of the hypothesis was never needed and is a real,
+direct partial disproof for this origin. Not every
+one-time-advantage/persistent-friction pairing needs a shape change;
+sometimes the friction is just oversized relative to what it's supposed
+to offset.
+
+Iteration stopped after three changes: all three origins now have
+genuine wins and losses, and a fourth change with no comparable
+principled reasoning would risk exactly the hand-tuning pattern the
+rule prohibits.

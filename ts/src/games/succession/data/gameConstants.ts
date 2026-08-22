@@ -14,7 +14,7 @@ export const RIVAL_SLANDER_PENALTY = 10;     // fixed favor subtracted from play
 export const MERCHANT_SLANDER_PENALTY = 5;   // halved slander penalty for Merchant Banker (-5 instead of -10)
 export const SLANDER_LEAD_THRESHOLD = 16;   // lead margin required for rivals to deploy slander (Decisive Favor)
 export const DOMAIN_RIPPLE_PENALTY = 4;       // Zero-sum domain ripple friction on opposing councilor
-export const BASTARD_CHANCELLOR_STARTING_FAVOR = -5; // Starting favor penalty for Bastard Scion on Chancellor
+export const BASTARD_CHANCELLOR_STARTING_FAVOR = -2; // Starting favor penalty for Bastard Scion on Chancellor — reduced from -5 (ADR-004 Change C): testing whether softening the one-time-but-permanent-feeling friction alone closes the gap before touching the one-time advantage's shape
 
 export interface DomainRippleConflict {
   targetFigureId: 'chancellor' | 'archbishop' | 'commander';

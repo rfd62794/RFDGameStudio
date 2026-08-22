@@ -41,7 +41,7 @@ export const PLAYER_ORIGINS: PlayerOrigin[] = [
     subtitle: 'The Unacknowledged Bloodline',
     icon: 'Sparkles',
     strategicAdvantage: 'Starts with 1 Scouted Clue ("The Smuggler\'s Vault Ledger") in inventory.',
-    inherentFriction: 'Chancellor begins with Cold favor (-5 starting penalty).',
+    inherentFriction: 'Chancellor begins with Cold favor (-2 starting penalty).',
     description: 'Born in the shadow of the palace with direct knowledge of royal secrets, but despised by the noble establishment.',
     modifiers: {
       startingFavor: { chancellor: BASTARD_CHANCELLOR_STARTING_FAVOR },
