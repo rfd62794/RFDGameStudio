@@ -480,3 +480,90 @@ Iteration stopped after three changes: all three origins now have
 genuine wins and losses, and a fourth change with no comparable
 principled reasoning would risk exactly the hand-tuning pattern the
 rule prohibits.
+
+## 2026-08-22 — ADR-005: Contextual First-Use Onboarding
+
+Presentation-only, zero mechanical change. Confirmed by direct
+inspection: `App.tsx` had no onboarding state at all past origin
+selection — a new player went straight into a live game with every
+panel active and zero explanation of Favor, Whisper vs. Appeal,
+contradiction risk, Discredit, or verdict requirements.
+
+### Two real findings before writing anything
+
+- **Discredit had zero UI wiring.** `discreditFigure`
+  (`utils/gameOrchestration.ts`) is a real, tested engine function, but
+  a repo-wide search confirmed no component ever called it — no
+  button, nothing. A trigger test for "first Discredit use" is
+  impossible to write honestly against a mechanic the player can never
+  invoke, so this directive added a minimal "Approach 4: Discredit a
+  Rival" section to `AudienceStage.tsx` (rival picker + button) that
+  calls the existing, already-tested function — exposing an existing
+  mechanic for the first time, not adding new economics or logic.
+- **"First Evidence scout" doesn't belong in `EvidencePanel.tsx`,**
+  contrary to the directive's scope table. `EvidencePanel.tsx` only
+  *presents* already-scouted evidence; the real Scout action lives in
+  `ChamberStage.tsx`'s `chamber-scout-button` → `App.tsx`'s
+  `handleScout`. Wired there instead, per the sourcing rule to verify
+  before assuming.
+
+### Content — cited against real mechanics
+
+All 5 tips (`content/onboardingTips.ts`) cite the exact function each
+explanation is drawn from: Whisper (`engine/favor.ts` `applyWhisper` +
+`engine/gossip.ts` `checkContradictionAgainstKnown` — checked against
+ALL prior claims, any figure), Appeal (`gameOrchestration.ts` `appealTo`
+— verified it never touches `mostRecentClaim`/`allClaims`/`exposedAgainst`,
+so it's genuinely risk-free, not just "safer"), Evidence Scout
+(`scoutForEvidence`'s fixed rotation + `presentEvidenceTo`'s figure-match
+no-op), Discredit (`discreditFigure` — costs a turn, grants the player
+no favor of their own), and Verdict Approach (`engine/verdict.ts`
+`resolveVerdict`'s real majority/tiebreak/empty-throne logic — left
+deliberately longer than the other four rather than oversimplified).
+
+### Trigger architecture — real state, not a "seen" flag
+
+`utils/onboardingTriggers.ts` exports `determineTip(gameState, moveType,
+tipId)` — the exact function `App.tsx`'s move handlers call before
+dispatching. MoveType tips check real ticker history
+(`gameState.ticker.some(...)`); the verdict-approach tip checks
+`gameState.segment === TOTAL_SEGMENTS` directly (true for exactly one
+real move per game, since segment never revisits a prior value) and
+takes priority if both conditions coincide. Called only from inside the
+four real click handlers, never a `useEffect` on mount — the direct
+architectural fix for the Phase 11 "re-fires on every revisit" bug
+class, since there's no code path that can invoke it without a genuine
+player action.
+
+### Tests
+
+`tests/test_succession_onboarding.ts`: 15 tests, 3 per tip, built from
+real `gameOrchestration.ts` state transitions (never a hand-typed mock
+ticker), calling the same `determineTip` used in production. Per tip:
+Test A (fires on genuine first occurrence — guards "never checked its
+real condition"), Test B (does not fire on real second occurrence —
+guards "re-fires on every revisit"), Test C (does not fire from
+unrelated real activity — proves it discriminates on the specific
+condition, not just ticker non-emptiness). One extra: the Evidence
+Scout Test C uses `bastard_scion`, which starts with 1 pre-scouted item
+*without* ever calling `scoutForEvidence` — proving the trigger checks
+real `'scout'` ticker entries, not `scoutedCount`, which would have
+misfired. `npx tsc --noEmit` clean. **127/127** tests pass (112 + 15).
+
+### Manual Verification
+
+No screenshot/vision tool is available in this environment. A live dev
+server + browser preview was handed to the user with explicit steps to
+manually trigger the Appeal and Whisper tips, per the directive's own
+"Manual" labeling of this criterion.
+
+### What Did NOT Change
+
+`rivalAI.ts`, `favor.ts`, `verdict.ts`, `origins.ts` — untouched,
+read-only. `discreditFigure`'s own logic — untouched, only its UI
+exposure is new. No new npm dependencies —
+`@testing-library/react` was considered for true DOM-level tests but
+rejected as outside scope; the real trigger function was extracted
+instead so tests exercise the identical production code path built from
+real state transitions, the strongest available guarantee without a new
+dependency.
