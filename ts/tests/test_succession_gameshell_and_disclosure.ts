@@ -29,20 +29,23 @@ describe('GameShell adoption (ADR-006)', () => {
     const gameShellBlocks = appSource.split('<GameShell').slice(1);
     expect(gameShellBlocks.length).toBe(3);
     for (const block of gameShellBlocks) {
-      // mainClassName is a prop on the same element, so it must appear
-      // before that element's closing `>`.
-      const propsSection = block.slice(0, block.indexOf('>'));
+      // The opening tag's props end at the first line consisting only
+      // of ">" (the JSX children start after it) — safer than the
+      // first raw ">" in the block, which can appear inside a nested
+      // element's props (e.g. statusArea={<SegmentHeader ... />}).
+      const propsSection = block.slice(0, block.indexOf('\n    >'));
       expect(propsSection).toContain('mainClassName="game-shell-main--scrollable"');
     }
   });
 
-  it('does not leave the old hand-rolled back button in App.tsx (GameShell owns the single back button)', () => {
+  it('does not leave a hand-rolled arcade-level back button in App.tsx (GameShell owns that single back button)', () => {
     expect(appSource).not.toMatch(/Back to (Grand )?Arcade/);
-    expect(appSource).not.toContain('onBackToChamber={() => setPlayStage(\'chamber\')}');
     // AudienceStage's own "Step Back to Grand Chamber" is real in-game
-    // navigation (Audience -> Chamber), not arcade-level shell chrome —
-    // it intentionally still exists (checked in AudienceStage's own
-    // file, not here), and is distinct from GameShell's arcade-back link.
+    // navigation (Audience -> Chamber, a PlayStage transition), not
+    // arcade-level shell chrome, so its wiring (onBackToChamber) is
+    // expected to remain in App.tsx — distinct from GameShell's
+    // arcade-back link, which is what this test guards against duplicating.
+    expect(appSource).toContain('onBackToChamber={() => setPlayStage(\'chamber\')}');
     expect(readFileSync(resolve(__dirname, '../src/games/succession/components/AudienceStage.tsx'), 'utf-8')).toContain(
       'Step Back to Grand Chamber'
     );
