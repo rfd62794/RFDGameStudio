@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { GameRendererProps } from '../../engine/types';
-import { GameState } from './types/gameState';
-import { FigureId, PlayerOriginId, IndictmentTriad } from './engine/types';
+import { GameState, PlayerMoveType } from './types/gameState';
+import { FigureId, PlayerOriginId, IndictmentTriad, ClaimantId } from './engine/types';
 import {
   createInitialGameState,
   whisperTo,
@@ -9,6 +9,7 @@ import {
   presentEvidenceTo,
   scoutForEvidence,
   deliverIndictmentTo,
+  discreditFigure,
 } from './utils/gameOrchestration';
 import { TitleScreen } from './components/TitleScreen';
 import { SegmentHeader } from './components/SegmentHeader';
@@ -17,6 +18,9 @@ import { AudienceStage } from './components/AudienceStage';
 import { TurnInterlude } from './components/TurnInterlude';
 import { GossipTicker } from './components/GossipTicker';
 import { VerdictScreen } from './components/VerdictScreen';
+import { OnboardingTip } from './components/OnboardingTip';
+import { ONBOARDING_TIPS, OnboardingTipId } from './content/onboardingTips';
+import { determineTip } from './utils/onboardingTriggers';
 
 type View = 'title' | 'playing' | 'verdict';
 type PlayStage = 'chamber' | 'audience' | 'interlude';
@@ -29,13 +33,25 @@ export default function App({ session }: GameRendererProps) {
   const [selectedFigureId, setSelectedFigureId] = useState<FigureId | null>('chancellor');
   const [completedSegment, setCompletedSegment] = useState<number>(1);
   const [chosenOriginId, setChosenOriginId] = useState<PlayerOriginId>('bastard_scion');
+  const [activeTip, setActiveTip] = useState<OnboardingTipId | null>(null);
 
   const handleBegin = (originId: PlayerOriginId) => {
     setChosenOriginId(originId);
     setGameState(createInitialGameState(originId));
     setSelectedFigureId('chancellor');
     setPlayStage('chamber');
+    setActiveTip(null);
     setView('playing');
+  };
+
+  // Delegates to determineTip (utils/onboardingTriggers.ts) — the same
+  // real function exercised end-to-end in tests/test_succession_onboarding.ts
+  // (ADR-005), so the tested logic and the live wiring are identical,
+  // not a reimplementation that could silently diverge.
+  const maybeTriggerTip = (moveType: PlayerMoveType, tipId: OnboardingTipId) => {
+    if (!gameState) return;
+    const tip = determineTip(gameState, moveType, tipId);
+    if (tip) setActiveTip(tip);
   };
 
   const handleMove = (updater: (s: GameState) => GameState) => {
@@ -74,10 +90,12 @@ export default function App({ session }: GameRendererProps) {
 
   // Specific move dispatches using the real orchestration functions
   const handleWhisper = (figureId: FigureId, themeId: string) => {
+    maybeTriggerTip('whisper', 'whisper');
     handleMove((s) => whisperTo(s, figureId, themeId));
   };
 
   const handleAppeal = (figureId: FigureId) => {
+    maybeTriggerTip('appeal', 'appeal');
     handleMove((s) => appealTo(s, figureId));
   };
 
@@ -86,11 +104,17 @@ export default function App({ session }: GameRendererProps) {
   };
 
   const handleScout = () => {
+    maybeTriggerTip('scout', 'evidenceScout');
     handleMove((s) => scoutForEvidence(s));
   };
 
   const handleDeliverIndictment = (figureId: FigureId, triad: IndictmentTriad) => {
     handleMove((s) => deliverIndictmentTo(s, figureId, triad));
+  };
+
+  const handleDiscredit = (figureId: FigureId, targetRivalId: ClaimantId) => {
+    maybeTriggerTip('discredit', 'discredit');
+    handleMove((s) => discreditFigure(s, figureId, targetRivalId));
   };
 
   // Title Screen View
@@ -142,6 +166,7 @@ export default function App({ session }: GameRendererProps) {
             onAppeal={handleAppeal}
             onPresentEvidence={handlePresentEvidence}
             onDeliverIndictment={handleDeliverIndictment}
+            onDiscredit={handleDiscredit}
           />
         )}
 
@@ -154,6 +179,10 @@ export default function App({ session }: GameRendererProps) {
           />
         )}
       </main>
+
+      {activeTip && (
+        <OnboardingTip tip={ONBOARDING_TIPS[activeTip]} onDismiss={() => setActiveTip(null)} />
+      )}
     </div>
   );
 }

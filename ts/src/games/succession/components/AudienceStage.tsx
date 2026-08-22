@@ -12,6 +12,7 @@ import {
   Activity,
   Zap,
   Scale,
+  Swords,
 } from 'lucide-react';
 import {
   FigureState,
@@ -20,10 +21,13 @@ import {
   PlayerOriginId,
   ClaimTheme,
   IndictmentTriad,
+  ClaimantId,
 } from '../engine/types';
 import { EvidenceItem } from '../data/evidence';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIM_THEMES } from '../data/claimThemes';
+import { CLAIMANTS } from '../data/claimants';
+import { RIVAL_SLANDER_PENALTY } from '../data/gameConstants';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
 import { getFigureQualitativeStanding } from '../utils/favorTiers';
 import { TickerEntry } from '../types/gameState';
@@ -42,6 +46,7 @@ interface AudienceStageProps {
   onAppeal: (figureId: FigureId) => void;
   onPresentEvidence: (figureId: FigureId, evidenceId: string) => void;
   onDeliverIndictment: (figureId: FigureId, triad: IndictmentTriad) => void;
+  onDiscredit: (figureId: FigureId, targetRivalId: ClaimantId) => void;
 }
 
 export const AudienceStage: React.FC<AudienceStageProps> = ({
@@ -55,9 +60,12 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
   onAppeal,
   onPresentEvidence,
   onDeliverIndictment,
+  onDiscredit,
 }) => {
   const [selectedThemeId, setSelectedThemeId] = useState<string>(CLAIM_THEMES[0].id);
   const [hoveredThemeId, setHoveredThemeId] = useState<string | null>(null);
+  const rivalIds: ClaimantId[] = ['aldric', 'vivienne'];
+  const [selectedRivalId, setSelectedRivalId] = useState<ClaimantId>('aldric');
 
   const meta = COURT_FIGURES[figure.id];
   const isExposed = figure.exposedAgainst.includes('player');
@@ -426,6 +434,66 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
           playerEvidence={playerEvidence}
           onDeliverIndictment={onDeliverIndictment}
         />
+
+        {/* Section 4: Discredit a Rival */}
+        <div
+          id="audience-action-discredit"
+          className="bg-stone-900/80 border border-stone-800 hover:border-rose-700/60 rounded-2xl p-5 sm:p-6 space-y-4"
+        >
+          <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-rose-950/80 border border-rose-700/70 flex items-center justify-center text-rose-400">
+                <Swords className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-stone-100 text-sm">
+                  Approach 4: Discredit a Rival
+                </h3>
+                <p className="text-[11px] text-stone-400">
+                  Spend your turn to directly damage a rival's standing here — no favor gained for you.
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] font-serif px-2 py-0.5 bg-rose-950/60 border border-rose-800/60 text-rose-300 rounded font-medium shrink-0">
+              -{RIVAL_SLANDER_PENALTY} Rival Favor
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            {rivalIds.map((rivalId) => {
+              const rival = CLAIMANTS[rivalId];
+              const isSelected = rivalId === selectedRivalId;
+              return (
+                <button
+                  key={rivalId}
+                  id={`discredit-target-${rivalId}`}
+                  type="button"
+                  onClick={() => setSelectedRivalId(rivalId)}
+                  className={`flex-1 p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-rose-950/40 border-rose-500 ring-1 ring-rose-500/50'
+                      : 'bg-stone-950/60 border-stone-800 hover:border-stone-700'
+                  }`}
+                >
+                  <div className="font-serif font-bold text-xs text-stone-100">{rival.name}</div>
+                  <div className="text-[11px] text-stone-400">
+                    Current favor here: {figure.favor[rivalId]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            id="audience-execute-discredit-button"
+            type="button"
+            onClick={() => onDiscredit(figure.id, selectedRivalId)}
+            className="w-full py-2.5 px-4 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-serif font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-rose-950/50"
+          >
+            <Swords className="w-4 h-4" />
+            <span>Discredit {CLAIMANTS[selectedRivalId].name} (-{RIVAL_SLANDER_PENALTY} Favor)</span>
+          </button>
+        </div>
       </div>
     </div>
   );
