@@ -203,3 +203,58 @@ Robert said there's more. Known unknowns:
 - [ ] Anything from rpgCore systems not yet named here
 
 **Add to this document before writing any directives.**
+
+---
+
+## TS shared modules (what's actually there)
+
+*Tracking the TS-native shared layer (`ts/src/engine/shared/`), parallel to the
+Lua tables above. Added as the TS surface became the studio default. Each entry
+is a real, landed module — not a gap.*
+
+| Module | Path | Status | Real consumers |
+|---|---|---|---|
+| `seededRandom` | `ts/src/engine/shared/seededRandom.ts` | Functional | artGen, SlimeVisual, Planet of Greed aiDecisions, personGenerator |
+| `wheelRelation` | `ts/src/engine/shared/wheelRelation.ts` | Functional | element-wheel classification |
+| `partSlots` | `ts/src/engine/shared/partSlots.ts` | Functional | 6-slot body-part type system |
+| `combat` | `ts/src/engine/shared/combat.ts` | Functional | RPS combat resolver (254 lines) |
+| `componentTypes` | `ts/src/engine/shared/componentTypes.ts` | Functional | shared UI component contracts |
+| `sportsSim` | `ts/src/engine/shared/sportsSim/` | Built, first consumer (MBB) not yet wired | generic possession/violence sports engine |
+| `anatomy` | `ts/src/engine/shared/anatomy/` | Functional | body-plan / part system |
+| `personGenerator` | `ts/src/engine/shared/personGenerator/` | **New — v1 (role symbols), Aug 22 2026** | Succession (mapping only — `data/figureArchetypeMap.ts`); preview at `games/role_symbol_viewer` |
+
+### `personGenerator` — v1: role symbols (Aug 22 2026)
+
+Generic person generator meant to make future demos easier — starting simple,
+growing later. v1 scope is **role-based symbols only**: archetype → SVG
+shape / charge / palette. Deliberately not full character portraits or
+individual-level variation (deferred).
+
+- **Vocabulary:** 5 real archetypes — `ruler`, `warrior`, `cleric`,
+  `merchant`, `scholar` (`archetypes.ts`). Archetypal, not game-specific
+  titles: Succession's Chancellor/Archbishop/Commander *map onto* these;
+  they are not the archetype list.
+- **Pure logic:** `generateRoleSymbol(archetype, seed?)` is deterministic
+  (mulberry32 via `seededRandom.ts` — no second randomness primitive).
+  Same archetype + same seed → byte-identical spec.
+- **Render:** `RoleSymbol.tsx` — native SVG only, zero-dependency (matches
+  the studio's confirmed graphics primitive).
+- **Palette:** base colors sourced from `ts/src/ui/tokens.css`
+  (`--accent`, `--red`, `--yellow`, `--green`, `--amber`), not invented.
+- **First real consumer:** Succession's 5 cast members (3 court figures +
+  2 rival claimants) mapped in `games/succession/data/figureArchetypeMap.ts`.
+  Mapping only — **not wired into any live Succession UI this phase**
+  (AudienceStage.tsx restructure is in-flight elsewhere). Wiring is a
+  deliberate future phase.
+- **Real finding:** Succession's cast maps onto 4 of 5 archetypes
+  (ruler/warrior/cleric/merchant); `scholar` is unused. Two figures
+  (chancellor, vivienne) both map to `ruler` — permitted, the vocabulary
+  is archetypal not one-to-one. No sixth archetype was needed.
+- **Preview surface:** `games/role_symbol_viewer` (registered in
+  `registry.ts`), matching the `character_viewer`/`technique_showcase`
+  pattern — all 5 symbols rendered standalone for visual verification.
+- **Tests:** `tests/test_engine_personGenerator.ts` (16 tests):
+  determinism, archetype distinctness, token-sourced palette verification,
+  full 5-cast mapping, and a grep anchor confirming no live Succession UI
+  imports the module.
+
