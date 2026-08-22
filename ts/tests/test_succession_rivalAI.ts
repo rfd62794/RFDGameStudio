@@ -5,7 +5,7 @@ import {
   rankFiguresByDisruption,
   chooseRivalWhisperTheme,
 } from '../src/games/succession/engine/rivalAI';
-import { FigureState, Claim } from '../src/games/succession/engine/types';
+import { FigureState } from '../src/games/succession/engine/types';
 import { CLAIM_THEMES } from '../src/games/succession/data/claimThemes';
 
 describe('rivalAI - Behavioral Archetypes', () => {
@@ -256,22 +256,56 @@ describe('rivalAI - Behavioral Archetypes', () => {
   });
 
   describe('Rival Whisper Theme Selection (Fix 3 of 3)', () => {
-    it('chooseRivalWhisperTheme_repeats_prior_claim_at_same_figure', () => {
-      const priorClaim: Claim = {
-        figureId: 'chancellor',
-        themeId: 'noble_pedigree',
-        segment: 1,
-        claimantId: 'aldric',
-      };
-
-      const themeId = chooseRivalWhisperTheme('chancellor', priorClaim, CLAIM_THEMES);
-      expect(themeId).toBe('noble_pedigree');
-    });
-
     it('chooseRivalWhisperTheme_picks_fresh_theme_when_no_prior_claim', () => {
-      const themeId = chooseRivalWhisperTheme('chancellor', null, CLAIM_THEMES);
+      const figure: FigureState = {
+        id: 'chancellor',
+        favor: { player: 0, aldric: 0, vivienne: 0 },
+        mostRecentClaim: null,
+        exposedAgainst: [],
+      };
+      const themeId = chooseRivalWhisperTheme(figure, 'aldric', 20, CLAIM_THEMES);
       const chancellorThemes = CLAIM_THEMES.filter((t) => t.figureId === 'chancellor');
       expect(themeId).toBe(chancellorThemes[0].id);
+    });
+  });
+
+  describe('Rival Whisper Theme Selection — Value-Aware (ADR-003)', () => {
+    it('chooseRivalWhisperTheme_prefers_repeating_when_decay_has_not_eroded_enough_to_justify_switching', () => {
+      // Isolated case: only this rival has ever claimed at this figure, so
+      // mostRecentClaim genuinely reflects their own last claim. Switching
+      // is therefore a guaranteed contradiction (the only other theme
+      // always opposes the current one) — value 0. Even a single decayed
+      // repeat (50% of base) beats that.
+      const figure: FigureState = {
+        id: 'chancellor',
+        favor: { player: 0, aldric: 20, vivienne: 0 },
+        mostRecentClaim: { figureId: 'chancellor', themeId: 'noble_pedigree', segment: 1, claimantId: 'aldric' },
+        exposedAgainst: [],
+        repeatTracker: { aldric: { themeId: 'noble_pedigree', count: 1 } },
+      };
+
+      const themeId = chooseRivalWhisperTheme(figure, 'aldric', 20, CLAIM_THEMES);
+      expect(themeId).toBe('noble_pedigree'); // repeat: decayed 10 > switch: 0 (guaranteed exposure)
+    });
+
+    it('chooseRivalWhisperTheme_prefers_switching_when_repeating_would_itself_be_exposed', () => {
+      // Interference case: another claimant (the player) has since
+      // whispered the OPPOSING theme at this figure, moving the shared
+      // mostRecentClaim away from this rival's own established theme.
+      // Now REPEATING the rival's own theme would itself be caught as a
+      // contradiction (value 0), while switching to match the current
+      // public claim is contradiction-free (full value). This is the real
+      // scenario the shared-mostRecentClaim structure (ADR-001) creates.
+      const figure: FigureState = {
+        id: 'chancellor',
+        favor: { player: 0, aldric: 20, vivienne: 0 },
+        mostRecentClaim: { figureId: 'chancellor', themeId: 'common_origins', segment: 2, claimantId: 'player' },
+        exposedAgainst: [],
+        repeatTracker: { aldric: { themeId: 'noble_pedigree', count: 2 } },
+      };
+
+      const themeId = chooseRivalWhisperTheme(figure, 'aldric', 20, CLAIM_THEMES);
+      expect(themeId).toBe('common_origins'); // switch: 20 (full) > repeat: 0 (would be exposed)
     });
   });
 });

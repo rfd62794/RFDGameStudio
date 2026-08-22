@@ -289,3 +289,110 @@ value when choosing to repeat vs. switch — is now supported by direct
 harness evidence as the fix genuinely required to move rival exposures
 off zero. Per this directive's explicit instruction, this is reported
 as a real finding rather than escalated into scope here.
+
+## 2026-08-22 — ADR-003: Value-Aware Rival Theme Selection
+
+Follow-up to ADR-002's precise gap: diminishing returns gave repeating
+real economic cost, but `chooseRivalWhisperTheme` never consulted it —
+it repeated unconditionally regardless of decay level. This directive
+made the decision logic real: `chooseRivalWhisperTheme` now compares
+the decayed value of repeating against the contradiction-checked full
+value of switching, using exact information (`checkContradiction`
+against the figure's actual current state), not a probabilistic risk
+estimate. New signature:
+`chooseRivalWhisperTheme(figure, claimantId, baseGain, themes)`.
+
+`gameOrchestration.ts`'s `resolveRivalMoves` reordered so `rivalGain`
+(including origin-modifier bonuses) is computed before theme selection,
+so the decision uses the same value that will actually be applied.
+
+ADR written: `docs/adr/ADR-003-value-aware-rival-switching.md`.
+
+### Tests
+
+`tests/test_succession_rivalAI.ts`: removed 1 obsolete test (old
+3-argument signature), added 2 new tests proving the decision logic
+works in both directions — prefers repeating when decay hasn't eroded
+enough to justify switching, and prefers switching when a constructed
+interference scenario makes *repeating* the exposed move. Net: +1 test.
+`npx tsc --noEmit` clean. **111/111** tests pass (110 - 1 removed + 2
+new).
+
+### Harness Re-Run — Byte-Identical to ADR-002
+
+Full re-run (6 strategies × 3 origins, 18 runs) produced **exactly the
+same aggregate output as the ADR-002 baseline** — same win-rate table,
+same exposure counts (Player 0/18, Rival 0/18). Verified by direct
+comparison, not assumed.
+
+### Investigation: Why Zero Behavioral Change, And What's Actually Blocking It
+
+Per this directive's explicit instruction to investigate rather than
+assume, temporary diagnostic instrumentation was added directly to
+`chooseRivalWhisperTheme` (a `console.error` gated by an env var), the
+harness was run once with it active, and the instrumentation was
+removed immediately after. It traced **all 56 real decision points**
+across the 18 runs. Finding: `repeatExposed=false` and
+`switchExposed=true` in **every single one**, with no exception.
+Switching was mathematically guaranteed to lose in every real decision
+this directive's logic ever encountered.
+
+**Root cause, precisely identified — narrower than ADR-001's named
+shared-`mostRecentClaim` limitation:** no claimant in the current game
+— player or rival — ever picks a theme that diverges from what every
+other claimant would independently pick for the same figure. A rival
+with no prior claim always defaults to `figureThemes[0]`. The player's
+own strategies pick the first theme not contradicting `state.allClaims`
+— and `state.allClaims` only ever records the *player's own* claims,
+never rival claims (confirmed by direct read of `whisperTo` vs.
+`resolveRivalMoves` in `gameOrchestration.ts`) — so the player also
+defaults to `figureThemes[0]` on effectively every first visit. Both
+defaults land on the same theme, every time, for every claimant. The
+shared-`mostRecentClaim` field is real and still present, but it has
+zero observable effect here because nothing ever writes a genuinely
+different claim to it — the field-sharing limitation would matter the
+moment two claimants actually diverge in theme choice (proven directly
+by the constructed interference unit test), but that scenario never
+arises from how the 6 harness strategies and rival fallback logic
+actually behave.
+
+### Real Verdict Against the Actual Design Goal
+
+Per this directive's explicit framing — exposure count is "necessary
+but not sufficient," the real bar is contested balance:
+
+| Strategy | W | L | D | AvgMargin |
+|---|---|---|---|---|
+| RushOneFigure | 1 | 2 | 0 | -1.00 |
+| SpreadEvenly | 2 | 1 | 0 | +0.33 |
+| SafeAppealsOnly | 1 | 1 | 1 | -0.33 |
+| ScoutThenEvidence | 2 | 0 | 1 | +1.67 |
+| WhisperHeavy | 0 | 2 | 1 | -1.00 |
+| DiscreditHeavy | 2 | 0 | 1 | +0.33 |
+
+| Origin | W | L | D |
+|---|---|---|---|
+| bastard_scion | 0 | 3 | 3 |
+| disgraced_knight | 5 | 0 | 1 |
+| merchant_banker | 3 | 3 | 0 |
+
+**Honest verdict: this does not read as genuine contested balance, and
+the dominant problem isn't where this directive was looking.** No
+strategy hits 3/3, but `WhisperHeavy` at 0/3 is a real "structurally
+hopeless" case. More importantly, **the origin table is far more
+skewed than the strategy table**: `disgraced_knight` never loses across
+all 6 strategy pairings (5W 0L 1D); `bastard_scion` never wins across
+all 6 (0W 3L 3D). Origin choice alone is close to determining the
+outcome — a starker imbalance than anything rival contradiction risk
+produces. This skew is not new (it's present unchanged in the ADR-002
+baseline) but was not named as the primary issue until measured
+directly against this directive's explicit design-goal framing.
+
+This fix is real, correct, and tested, but addresses a mechanism that
+never actually activates given current theme-selection defaults. It did
+not move the needle on the real design goal because the imbalance is
+concentrated in per-origin favor economics (`data/origins.ts`), not in
+rival contradiction risk. Per the explicit rule against hand-tuning or
+escalating scope to hit a target number, no origin-balance change is
+made here — it is named as the real next-step candidate, not
+undertaken.

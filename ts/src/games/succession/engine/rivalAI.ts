@@ -1,5 +1,7 @@
-import { FigureState, ClaimantId, FigureId, Claim, ClaimTheme } from './types';
+import { FigureState, ClaimantId, FigureId, ClaimTheme } from './types';
 import { SLANDER_LEAD_THRESHOLD } from '../data/gameConstants';
+import { checkContradiction } from './contradiction';
+import { applyRepeatDecay } from './favor';
 
 export type RivalMoveType = 'whisper' | 'slander';
 
@@ -176,14 +178,56 @@ export function chooseRivalMoves(
   return assignments;
 }
 
+/**
+ * Value-aware rival theme selection (ADR-003).
+ *
+ * When this claimant has a prior claim of their own at this figure
+ * (tracked via figure.repeatTracker, keyed per-claimant), compare the
+ * real, known expected value of two options rather than blindly
+ * repeating:
+ *
+ * - Repeat the current theme: decayed value per applyRepeatDecay,
+ *   using this claimant's own consecutive-repeat count. Zero if the
+ *   figure's actual current mostRecentClaim (shared across all
+ *   claimants — see ADR-001) means repeating would itself now be a
+ *   contradiction (e.g. another claimant flipped the figure's public
+ *   claim to the opposing theme since this claimant last spoke).
+ * - Switch to the figure's other theme: full base value, discounted to
+ *   zero if checkContradiction against the figure's actual current
+ *   mostRecentClaim says the switch would be caught. This is not a
+ *   probabilistic risk estimate — the game has perfect information at
+ *   decision time, so exposure is computed exactly.
+ *
+ * Whichever option has the higher computed value is chosen; repeating
+ * wins ties (stability, no reason to switch without a real edge). If
+ * this claimant has no prior claim at this figure at all, there is
+ * nothing to compare against — fall back to the first theme, as before.
+ */
 export function chooseRivalWhisperTheme(
-  figureId: FigureId,
-  priorClaim: Claim | null,
+  figure: FigureState,
+  claimantId: ClaimantId,
+  baseGain: number,
   themes: ClaimTheme[]
 ): string {
-  const figureThemes = themes.filter((t) => t.figureId === figureId);
-  if (priorClaim && priorClaim.figureId === figureId) {
-    return priorClaim.themeId;
+  const figureThemes = themes.filter((t) => t.figureId === figure.id);
+  const ownRepeat = figure.repeatTracker?.[claimantId];
+
+  if (!ownRepeat) {
+    return figureThemes[0].id;
   }
-  return figureThemes[0].id;
+
+  const currentTheme = ownRepeat.themeId;
+  const currentThemeDef = figureThemes.find((t) => t.id === currentTheme);
+  const switchTheme =
+    currentThemeDef?.opposesThemeId ??
+    figureThemes.find((t) => t.id !== currentTheme)?.id ??
+    currentTheme;
+
+  const repeatExposed = checkContradiction(figure.mostRecentClaim, currentTheme, themes);
+  const switchExposed = checkContradiction(figure.mostRecentClaim, switchTheme, themes);
+
+  const repeatValue = repeatExposed ? 0 : applyRepeatDecay(baseGain, ownRepeat.count);
+  const switchValue = switchExposed ? 0 : baseGain;
+
+  return switchValue > repeatValue ? switchTheme : currentTheme;
 }

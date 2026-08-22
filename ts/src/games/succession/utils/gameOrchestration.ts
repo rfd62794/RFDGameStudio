@@ -93,8 +93,6 @@ function resolveRivalMoves(state: GameState): { figures: typeof state.figures; e
       });
     } else {
       const figure = figures.find((f) => f.id === targetFigureId)!;
-      const themeId = chooseRivalWhisperTheme(targetFigureId, figure.mostRecentClaim, CLAIM_THEMES);
-      const rivalClaim: Claim = { figureId: targetFigureId, themeId, segment: state.segment, claimantId: rivalId };
 
       const hasPriorWhisper = state.ticker.some(
         (t) => t.claimantId === rivalId && t.moveType === 'whisper'
@@ -103,6 +101,9 @@ function resolveRivalMoves(state: GameState): { figures: typeof state.figures; e
       if (modifiers.rivalFirstWhisperBonus && !hasPriorWhisper) {
         rivalGain += modifiers.rivalFirstWhisperBonus;
       }
+
+      const themeId = chooseRivalWhisperTheme(figure, rivalId, rivalGain, CLAIM_THEMES);
+      const rivalClaim: Claim = { figureId: targetFigureId, themeId, segment: state.segment, claimantId: rivalId };
 
       const { figure: updatedFigure, exposed } = applyWhisper(figure, rivalId, rivalClaim, rivalGain, CLAIM_THEMES);
       figures = figures.map((f) => (f.id === targetFigureId ? updatedFigure : f));
