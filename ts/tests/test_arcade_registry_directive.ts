@@ -29,6 +29,11 @@ const EXPECTED_ORDER = [
   'character_viewer',
   'technique_showcase',
   'role_symbol_viewer',
+  'dissonance_prototype',
+  'slimegarden',
+  'slimebreeder',
+  'corpworld',
+  'kingmaker_squads',
 ];
 
 describe('Arcade Registry Directive — July 2026', () => {
@@ -58,10 +63,26 @@ describe('Arcade Registry Directive — July 2026', () => {
     expect(entry!.component).toBeDefined();
   });
 
-  it('test_registry_slimebreeder_slimegarden_absent', () => {
+  // Legacy/Origin Projects (ADR-023, Aug 23 2026): SlimeGarden and
+  // SlimeBreeder merged to become the current, live SlimeWorld. Real
+  // origin history, registered honestly as such — not competing new
+  // entries. Supersedes the prior "absent" tests from before the Type
+  // existed.
+  it('test_registry_slimebreeder_slimegarden_present_as_legacy_origin', () => {
     const ids = GAME_REGISTRY.map(g => g.gameId);
-    expect(ids).not.toContain('slimebreeder');
-    expect(ids).not.toContain('slimegarden');
+    expect(ids).toContain('slimebreeder');
+    expect(ids).toContain('slimegarden');
+  });
+
+  it('test_slimebreeder_slimegarden_descriptions_name_slimeworld', () => {
+    const slimebreeder = GAME_REGISTRY.find(g => g.gameId === 'slimebreeder');
+    const slimegarden = GAME_REGISTRY.find(g => g.gameId === 'slimegarden');
+    expect(slimebreeder).toBeDefined();
+    expect(slimegarden).toBeDefined();
+    expect(slimebreeder!.description).toContain('SlimeWorld');
+    expect(slimegarden!.description).toContain('SlimeWorld');
+    expect(slimebreeder!.status).toBe('external');
+    expect(slimegarden!.status).toBe('external');
   });
 
   it('test_slimebreeder_slimegarden_source_intact', () => {
@@ -75,13 +96,25 @@ describe('Arcade Registry Directive — July 2026', () => {
     }
   });
 
-  // Retirement tests — CorpWorld and KingMaker Squads retired Aug 2026.
-  // Matching SlimeBreeder precedent: config.ts preserved in ts/src/games/,
-  // explicitly absent from registry, source in examples/ preserved untouched.
-  it('test_registry_corpworld_kingmaker_absent', () => {
+  // Legacy/Origin Projects (ADR-023): CorpWorld and Kingmaker Squads were
+  // superseded by the current, live Planet of Greed. Real origin history,
+  // registered honestly as such. Supersedes the prior "retired/absent"
+  // tests from before the Type existed.
+  it('test_registry_corpworld_kingmaker_present_as_legacy_origin', () => {
     const ids = GAME_REGISTRY.map(g => g.gameId);
-    expect(ids).not.toContain('corpworld');
-    expect(ids).not.toContain('kingmaker_squads');
+    expect(ids).toContain('corpworld');
+    expect(ids).toContain('kingmaker_squads');
+  });
+
+  it('test_corpworld_kingmaker_descriptions_name_planetofgreed', () => {
+    const corpworld = GAME_REGISTRY.find(g => g.gameId === 'corpworld');
+    const kingmakerSquads = GAME_REGISTRY.find(g => g.gameId === 'kingmaker_squads');
+    expect(corpworld).toBeDefined();
+    expect(kingmakerSquads).toBeDefined();
+    expect(corpworld!.description).toContain('Planet of Greed');
+    expect(kingmakerSquads!.description).toContain('Planet of Greed');
+    expect(corpworld!.status).toBe('external');
+    expect(kingmakerSquads!.status).toBe('external');
   });
 
   it('test_corpworld_kingmaker_source_intact', () => {
@@ -93,5 +126,30 @@ describe('Arcade Registry Directive — July 2026', () => {
       const config = resolve(dir, 'config.ts');
       expect(existsSync(config), `${id} config.ts missing`).toBe(true);
     }
+  });
+
+  // Legacy/Origin Projects (ADR-023): the Dissonance Loop Prototype
+  // (tmp/dissonance-src/) is the original AI Studio source behind the
+  // current, live Dissonance Depths.
+  it('test_registry_dissonance_prototype_present_as_legacy_origin', () => {
+    const entry = GAME_REGISTRY.find(g => g.gameId === 'dissonance_prototype');
+    expect(entry).toBeDefined();
+    expect(entry!.status).toBe('external');
+    expect(entry!.description).toContain('Dissonance Depths');
+  });
+
+  it('test_dissonance_prototype_source_intact', () => {
+    const repoRoot = resolve(import.meta.dirname, '../..');
+    const dir = resolve(repoRoot, 'tmp/dissonance-src');
+    expect(existsSync(dir), 'tmp/dissonance-src missing').toBe(true);
+    expect(lstatSync(dir).isDirectory(), 'tmp/dissonance-src is not a directory').toBe(true);
+    // Real, original AI Studio source files.
+    expect(existsSync(resolve(dir, 'metadata.json'))).toBe(true);
+    expect(existsSync(resolve(dir, 'src', 'App.tsx'))).toBe(true);
+  });
+
+  it('test_registry_total_count_includes_legacy_origin_projects', () => {
+    // 25 pre-existing entries + 5 Legacy/Origin Projects (ADR-023).
+    expect(GAME_REGISTRY.length).toBe(30);
   });
 });

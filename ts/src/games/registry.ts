@@ -24,13 +24,20 @@ import houseOfKingsCollabConfig from './house_of_kings_collab/config';
 import { characterViewerConfig } from './character_viewer/config';
 import { techniqueShowcaseConfig } from './technique_showcase/config';
 import { roleSymbolViewerConfig } from './role_symbol_viewer/config';
+import dissonancePrototypeConfig from './dissonance_prototype/config';
+import slimegardenConfig from './slimegarden/config';
+import slimebreederConfig from './slimebreeder/config';
+import corpworldConfig from './corpworld/config';
+import kingmakerSquadsConfig from './kingmaker_squads/config';
 
-// Retired games (matching SlimeBreeder precedent): config.ts preserved in
-// their ts/src/games/{slug}/ directories, but NOT imported here. Source
-// in examples/ preserved untouched. Explicit absence confirmed by
-// test_arcade_registry_directive.ts.
-//   - corpworld:        Planet of Greed's fork ancestor. Retired Aug 2026.
-//   - kingmaker_squads: Wheel/culture-identity design source. Retired Aug 2026.
+// Legacy/Origin Projects (ADR-023, Aug 23 2026): real material that
+// predates and became a currently-live game, registered here as real
+// origin history — not as new games competing with what they became.
+//   - dissonance_prototype: original AI Studio source → Dissonance Depths
+//   - slimegarden + slimebreeder: merged → SlimeWorld
+//   - corpworld + kingmaker_squads: superseded → Planet of Greed
+// Reuses status: 'external' with honest "(Origin)" labeling in both the
+// label and description — no new GameStatus value; see the ADR for why.
 
 /**
  * Formal game registry. Add new games here.
@@ -62,6 +69,11 @@ export const GAME_REGISTRY: GameConfig[] = [
   characterViewerConfig,
   techniqueShowcaseConfig,
   roleSymbolViewerConfig,
+  dissonancePrototypeConfig,
+  slimegardenConfig,
+  slimebreederConfig,
+  corpworldConfig,
+  kingmakerSquadsConfig,
 ];
 
 /**
