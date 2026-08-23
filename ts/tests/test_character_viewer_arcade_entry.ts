@@ -222,7 +222,14 @@ describe('test_no_regression', () => {
     }
     // Plus the new entry
     expect(findGame('character_viewer')).toBeDefined();
-    expect(GAME_REGISTRY.length).toBe(existingIds.length + 1);
+    // Registry has grown since this test was written (technique_showcase,
+    // role_symbol_viewer, and the 5 Legacy/Origin Projects from ADR-023 —
+    // dissonance_prototype, slimegarden, slimebreeder, corpworld,
+    // kingmaker_squads). This test's real job is confirming none of the
+    // pre-existing entries got displaced, not pinning an exact total —
+    // that's covered by test_registry_total_count_includes_legacy_origin_projects
+    // in test_arcade_registry_directive.ts.
+    expect(GAME_REGISTRY.length).toBeGreaterThanOrEqual(existingIds.length + 1);
   });
 
   it('Existing game statuses are unaffected by the new tool status', () => {
