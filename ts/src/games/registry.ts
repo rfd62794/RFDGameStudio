@@ -14,7 +14,9 @@ import trinitySiegeConfig from './trinity_siege/config';
 import sevenDaysToFryConfig from './7_days_to_fry/config';
 import antsimReduxConfig from './antsim_redux/config';
 import facilityEscapeConfig from './facility_escape/config';
+import factoryIdleConfig from './factory_idle/config';
 import { planetofgreedConfig } from './planetofgreed/config';
+import planetforgeConfig from './planetforge/config';
 import { gladiatorArenaConfig } from './gladiator_arena/config';
 import voiddriftReduxConfig from './voiddrift_redux/config';
 import successionConfig from './succession/config';
@@ -50,7 +52,9 @@ export const GAME_REGISTRY: GameConfig[] = [
   sevenDaysToFryConfig,
   antsimReduxConfig,
   facilityEscapeConfig,
+  factoryIdleConfig,
   planetofgreedConfig,
+  planetforgeConfig,
   gladiatorArenaConfig,
   voiddriftReduxConfig,
   successionConfig,
