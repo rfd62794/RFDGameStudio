@@ -48,6 +48,27 @@ GAME_PATHS: dict[str, list[str]] = {
     "house_of_kings_collab": ["ts/src/games/house_of_kings_collab"],
     "voiddrift_redux": ["ts/src/games/voiddrift_redux"],
     "succession": ["ts/src/games/succession"],
+    # Added Aug 23 2026 (Arcade Metadata Expansion date-accuracy pass):
+    # these 9 are real GAME_REGISTRY entries that were never given a
+    # GAME_PATHS entry either -- same real gap as the "Added" block
+    # above. `planetofgreed` previously had a hand-written
+    # game-metadata.json entry with real dates that a full regeneration
+    # silently dropped entirely (not tracked=false -- fully absent from
+    # the dict), since generate_game_metadata() only ever emits
+    # GAME_PATHS keys. examples/tmp source dirs for the config.ts-only
+    # entries below (planetforge, dissonance_prototype, slimegarden,
+    # factory_idle) are confirmed untracked by git (0 files via
+    # `git ls-files`), so only the real, tracked ts/src/games/ path is
+    # listed -- the config.ts fallback in _git_dates covers these.
+    "planetofgreed": ["ts/src/games/planetofgreed"],
+    "gladiator_arena": ["ts/src/games/gladiator_arena"],
+    "planetforge": ["ts/src/games/planetforge"],
+    "character_viewer": ["ts/src/games/character_viewer"],
+    "technique_showcase": ["ts/src/games/technique_showcase"],
+    "role_symbol_viewer": ["ts/src/games/role_symbol_viewer"],
+    "dissonance_prototype": ["ts/src/games/dissonance_prototype"],
+    "slimegarden": ["ts/src/games/slimegarden"],
+    "factory_idle": ["ts/src/games/factory_idle"],
 }
 
 
