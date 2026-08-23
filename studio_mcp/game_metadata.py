@@ -93,6 +93,14 @@ def _git_dates(cwd: Path, paths: list[str], exclude_files: list[str] | None = No
     for p in paths:
         last_pathspecs = [p] + [f":(exclude){p}/{ef}" for ef in exclude_files]
         last = _run_git(cwd, ["log", "-1", "--format=%cI", "--", *last_pathspecs])
+        if not last and exclude_files:
+            # Real fallback: some real, tracked demos (e.g. 7_days_to_fry,
+            # antsim_redux, facility_escape) have NO tracked TS-side file
+            # other than config.ts -- excluding it there would leave zero
+            # real signal. Falling back to the unexcluded date for that
+            # path only means it can still bump on a cosmetic-only edit,
+            # but only for games with no other real file to fall back on.
+            last = _run_git(cwd, ["log", "-1", "--format=%cI", "--", p])
         if last:
             all_last.append(last)
         first_log = _run_git(cwd, ["log", "--diff-filter=A", "--format=%cI", "--", p])
