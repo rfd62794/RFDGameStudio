@@ -7,5 +7,8 @@ export const roleSymbolViewerConfig: GameConfig = {
   description: 'Preview of the shared person generator v1 — all five archetypal role symbols (ruler, warrior, cleric, merchant, scholar) rendered as native SVG, with deterministic seed-driven variation. A studio tool, not a game.',
   color:       '#f59e0b',
   status:      'tool',
+  // No `genre` — a studio sandbox tool, not a game; the taxonomy
+  // doesn't apply.
+  tags:        ['sandbox-tool', 'svg-preview'],
   component:   React.lazy(() => import('./App')),
 };
