@@ -24,7 +24,6 @@ import {
   forceCohere as sharedForceCohere,
 } from '../../../engine/shared/aiBehavior';
 import {
-  BehavioralState,
   BehavioralStateMachine,
   createBehavioralState,
   type ForceRequest,
