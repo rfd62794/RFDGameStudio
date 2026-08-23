@@ -18,6 +18,7 @@ from studio_mcp.game_metadata import (
     PIPELINE_STAGE_WEBSITE_COLLECTION,
     advance_pipeline_stage,
     generate_game_metadata,
+    _load_existing_curated_fields,
 )
 
 
@@ -100,3 +101,61 @@ def test_advance_pipeline_stage_unknown_game_id_no_write(tmp_path) -> None:
     assert result is False
     data = json.loads(metadata_path.read_text(encoding="utf-8"))
     assert data == original
+
+
+# ── Arcade Metadata Expansion (Aug 23 2026): genre/tags carry-forward ──
+# Real risk: generate_game_metadata rebuilds created/last_updated/version/
+# tracked fresh from git every time. Without an explicit carry-forward
+# (matching the pipeline_stage precedent above), hand-curated genre/tags
+# in the on-disk JSON would be silently wiped on the next regeneration.
+
+def test_load_existing_curated_fields_reads_genre_and_tags(tmp_path) -> None:
+    """genre/tags are read back from the on-disk file when present."""
+    metadata_path = tmp_path / "game-metadata.json"
+    metadata_path.write_text(
+        json.dumps({"succession": {"genre": "narrative-persuasion", "tags": ["court-intrigue", "rival-ai"]}}),
+        encoding="utf-8",
+    )
+    curated = _load_existing_curated_fields(metadata_path)
+    assert curated["succession"]["genre"] == "narrative-persuasion"
+    assert curated["succession"]["tags"] == ["court-intrigue", "rival-ai"]
+
+
+def test_load_existing_curated_fields_missing_file_returns_empty(tmp_path) -> None:
+    """A missing file is a safe empty result, not an error."""
+    metadata_path = tmp_path / "does-not-exist.json"
+    assert _load_existing_curated_fields(metadata_path) == {}
+
+
+def test_load_existing_curated_fields_omits_games_without_them(tmp_path) -> None:
+    """A game with no genre/tags recorded is simply absent from the
+    carry-forward map, not present with empty/null values."""
+    metadata_path = tmp_path / "game-metadata.json"
+    metadata_path.write_text(
+        json.dumps({"shoal": {"pipeline_stage": PIPELINE_STAGE_AI_STUDIO}}),
+        encoding="utf-8",
+    )
+    curated = _load_existing_curated_fields(metadata_path)
+    assert "shoal" not in curated
+
+
+def test_generate_game_metadata_carries_forward_existing_genre_and_tags() -> None:
+    """A full regeneration must preserve real, previously curated
+    genre/tags -- otherwise every deploy would silently wipe them,
+    exactly like the pipeline_stage risk this pattern is copied from."""
+    any_game = next(iter(GAME_PATHS))
+    metadata = generate_game_metadata(
+        existing_stages={},
+        existing_curated={any_game: {"genre": "roguelike", "tags": ["turn-based"]}},
+    )
+    assert metadata[any_game]["genre"] == "roguelike"
+    assert metadata[any_game]["tags"] == ["turn-based"]
+
+
+def test_generate_game_metadata_no_genre_key_when_uncurated() -> None:
+    """A game with no curated genre/tags gets no genre/tags key at all --
+    never a fabricated empty placeholder."""
+    metadata = generate_game_metadata(existing_stages={}, existing_curated={})
+    for game_id in GAME_PATHS:
+        assert "genre" not in metadata[game_id]
+        assert "tags" not in metadata[game_id]

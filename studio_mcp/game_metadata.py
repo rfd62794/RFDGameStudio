@@ -137,14 +137,56 @@ def _load_existing_pipeline_stages(out_path: Path) -> dict[str, str]:
     }
 
 
-def generate_game_metadata(existing_stages: dict[str, str] | None = None) -> dict[str, dict[str, object]]:
+def _load_existing_curated_fields(out_path: Path) -> dict[str, dict[str, object]]:
+    """Read `genre`/`tags` from the current on-disk metadata file, if any.
+
+    Arcade Metadata Expansion (Aug 23 2026): `genre`/`tags` are curated
+    by hand in each game's real, version-controlled `GameConfig`
+    (ts/src/games/*/config.ts) -- this Python-side JSON file only carries
+    a synced copy for cross-pipeline visibility. Same real risk as
+    pipeline_stage: a full regeneration rebuilds created/last_updated/
+    version/tracked fresh from git every time, so without this explicit
+    carry-forward, any hand-added genre/tags would be silently wiped on
+    the next regen. Never raises -- a missing or corrupt file just means
+    nothing to carry forward.
+    """
+    if not out_path.exists():
+        return {}
+    try:
+        existing = json.loads(out_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if not isinstance(existing, dict):
+        return {}
+    result: dict[str, dict[str, object]] = {}
+    for game_id, info in existing.items():
+        if not isinstance(info, dict):
+            continue
+        curated: dict[str, object] = {}
+        if info.get("genre"):
+            curated["genre"] = info["genre"]
+        if info.get("tags"):
+            curated["tags"] = info["tags"]
+        if curated:
+            result[game_id] = curated
+    return result
+
+
+def generate_game_metadata(
+    existing_stages: dict[str, str] | None = None,
+    existing_curated: dict[str, dict[str, object]] | None = None,
+) -> dict[str, dict[str, object]]:
     """Produce the game metadata object derived from git and VERSION files.
 
     existing_stages: game_id -> pipeline_stage, carried forward from the
     current on-disk file so this rebuild never resets real pipeline
     progress. Defaults to "ai_studio" for any game with no recorded stage.
+
+    existing_curated: game_id -> {"genre": ..., "tags": [...]}, carried
+    forward the same way -- see _load_existing_curated_fields.
     """
     existing_stages = existing_stages or {}
+    existing_curated = existing_curated or {}
     result: dict[str, dict[str, object]] = {}
 
     for game_id, paths in GAME_PATHS.items():
@@ -163,13 +205,15 @@ def generate_game_metadata(existing_stages: dict[str, str] | None = None) -> dic
             version = _read_version(REPO_ROOT, paths)
             tracked = bool(last_updated)
 
-        result[game_id] = {
+        entry: dict[str, object] = {
             "created": created,
             "last_updated": last_updated,
             "version": version,
             "tracked": tracked,
             "pipeline_stage": existing_stages.get(game_id, _DEFAULT_PIPELINE_STAGE),
         }
+        entry.update(existing_curated.get(game_id, {}))
+        result[game_id] = entry
 
     return result
 
@@ -177,11 +221,13 @@ def generate_game_metadata(existing_stages: dict[str, str] | None = None) -> dic
 def write_game_metadata() -> Path:
     """Generate and write ts/src/games/game-metadata.json.
 
-    Preserves any existing pipeline_stage per game across the rebuild.
+    Preserves any existing pipeline_stage and curated genre/tags per
+    game across the rebuild.
     """
     out_path = _METADATA_PATH
     existing_stages = _load_existing_pipeline_stages(out_path)
-    metadata = generate_game_metadata(existing_stages)
+    existing_curated = _load_existing_curated_fields(out_path)
+    metadata = generate_game_metadata(existing_stages, existing_curated)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return out_path
