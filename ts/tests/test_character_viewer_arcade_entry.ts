@@ -214,6 +214,7 @@ describe('test_no_regression', () => {
       'succession',
       'house_of_kings_collab',
       'technique_showcase',
+      'role_symbol_viewer',
     ];
     for (const id of existingIds) {
       expect(findGame(id)).toBeDefined();
