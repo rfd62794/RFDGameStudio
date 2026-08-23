@@ -4,6 +4,7 @@ import { loadGameFiles } from '../engine/loader';
 import { navigateTo } from './routing';
 import { navigateToPage } from './routing';
 import { GameDetailView } from './GameDetailView';
+import { useHoverCapable } from './useHoverCapable';
 import gameMetadata from '../games/game-metadata.json';
 
 type GameMetadataEntry = { last_updated?: string };
@@ -64,6 +65,10 @@ function getRuntimeDetail(gameId: string, data: Record<string, unknown>): string
 
 export default function GameSelector() {
   const [detailGameId, setDetailGameId] = useState<string | null>(null);
+  const hoverCapable = useHoverCapable();
+  // Real tap-to-reveal state for touch devices — hover-capable desktops
+  // rely on pure CSS (:hover/:focus-within), never this state.
+  const [openPreviewId, setOpenPreviewId] = useState<string | null>(null);
   const details = useMemo(() => {
     const map: Record<string, string> = {};
     for (const config of GAME_REGISTRY) {
