@@ -170,17 +170,68 @@ export default function GameSelector() {
                   <p className="arcade-card-desc">{cardDesc}</p>
                   <div className="arcade-card-detail">{details[config.gameId]}</div>
                   <div className="arcade-card-id">{config.gameId}</div>
-                  <button
-                    type="button"
-                    className="arcade-card-details-btn"
-                    data-testid={`arcade-card-details-btn-${config.gameId}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDetailGameId(config.gameId);
-                    }}
-                  >
-                    Details
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="arcade-card-details-btn"
+                      data-testid={`arcade-card-details-btn-${config.gameId}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDetailGameId(config.gameId);
+                      }}
+                    >
+                      Details
+                    </button>
+                    {!hoverCapable && (
+                      <button
+                        type="button"
+                        className="arcade-card-preview-toggle-btn"
+                        data-testid={`arcade-card-preview-toggle-${config.gameId}`}
+                        aria-expanded={openPreviewId === config.gameId}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenPreviewId(prev => prev === config.gameId ? null : config.gameId);
+                        }}
+                      >
+                        Preview
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Real hover-preview surface (Steam-style pattern, Aug 23
+                    2026): shortDescription/description fallback, genre +
+                    tags, real last_updated. Shown via pure CSS :hover /
+                    :focus-within on hover-capable devices; on touch
+                    devices (no real hover capability) the "Preview"
+                    button above toggles `arcade-card-preview--open`
+                    instead, so the same content is reachable without a
+                    hover-only interaction. Never fabricates content for
+                    missing genre/tags — the section simply omits what
+                    isn't real. */}
+                <div
+                  className={`arcade-card-preview${openPreviewId === config.gameId ? ' arcade-card-preview--open' : ''}`}
+                  data-testid={`arcade-card-preview-${config.gameId}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <p className="arcade-card-preview-desc" data-testid={`arcade-card-preview-desc-${config.gameId}`}>
+                    {cardDesc}
+                  </p>
+                  {(config.genre || (config.tags && config.tags.length > 0)) && (
+                    <div className="arcade-card-preview-tags" data-testid={`arcade-card-preview-tags-${config.gameId}`}>
+                      {config.genre && (
+                        <span className="arcade-card-preview-genre">{GENRE_LABELS[config.genre] ?? config.genre}</span>
+                      )}
+                      {config.tags?.map(tag => (
+                        <span key={tag} className="arcade-card-preview-tag">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  {lastUpdated && (
+                    <p className="arcade-card-preview-updated" data-testid={`arcade-card-preview-updated-${config.gameId}`}>
+                      Updated {lastUpdated.slice(0, 10)}
+                    </p>
+                  )}
                 </div>
               </div>
             );
