@@ -14,8 +14,3 @@ export {
   forceAlign,
   forceCohere,
 } from './steering';
-
-export type {
-  SteeringEntity,
-  SteeringObstacle,
-} from './steering';
