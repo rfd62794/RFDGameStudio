@@ -128,9 +128,33 @@ export interface GameConfig {
   embedUrl?: string;        // if set, GameLoader renders this inline instead of redirecting
   embedWidth?: number;      // present + embedHeight → fixed aspect-ratio container (itch.io)
   embedHeight?: number;     // absent → responsive full-bleed container (same-origin demos)
+
+  // Arcade metadata expansion (Aug 23 2026). All optional/additive —
+  // existing entries without these fields keep working unmodified.
+  shortDescription?: string;  // card-length; falls back to `description` if absent
+  longDescription?: string;   // detail-view length; falls back to shortDescription/description if absent
+  genre?: PrimaryGenre;       // single, curated primary genre
+  tags?: string[];            // looser, optional secondary tags (itch.io Genre+Tags precedent)
+  patchNotesPath?: string;    // path relative to ts/src/games/, e.g. 'succession/PATCH_NOTES_v0.2.0.md'
 }
 
 export type GameStatus = 'stable' | 'beta' | 'dev' | 'external' | 'tool';
+
+// Curated primary genre taxonomy, grounded in the real catalog
+// (drafted during arcade-structure research, Aug 2026). One primary
+// genre per game; `tags` carries anything looser or secondary.
+export type PrimaryGenre =
+  | 'creature-collector'
+  | 'combat-arena'
+  | 'economic-precarity'
+  | 'colony-4x'
+  | 'idle-incremental'
+  | 'roguelike'
+  | 'racing'
+  | 'puzzle-stealth'
+  | 'cooperative'
+  | 'narrative-persuasion'
+  | 'management-sim';
 
 export class RuntimeError extends Error {
   constructor(message: string) {
