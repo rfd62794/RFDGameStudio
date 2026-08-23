@@ -30,10 +30,6 @@ import {
   type ForceRequest,
   type StateContext,
 } from '../../../engine/shared/aiBehavior/yukaStates';
-  forceAvoid as sharedForceAvoid,
-  forceAlign as sharedForceAlign,
-  forceCohere as sharedForceCohere,
-} from '../../../engine/shared/aiBehavior';
 
 // â”€â”€ Config (from data.yaml) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -510,16 +506,63 @@ function computeSharkForces(s:Shark,st:ShoalState,hash:SpatialHash):[number,numb
   let nearestChunk:Chunk|null=null;let chunkDist2=cfg.perception.flesh*cfg.perception.flesh;
   for(const c of st.chunks){const d2=dist2(s.x,s.depth,c.x,c.depth);if(d2<chunkDist2){chunkDist2=d2;nearestChunk=c;}}
   const hadTarget=nearestFish!==null||nearestChunk!==null;
-  if(s.inRetreat){const retreatRatio=(s.exposure-cfg.exposure_retreat_resume_threshold)/(cfg.exposure.threshold-cfg.exposure_retreat_resume_threshold);const clampedRatio=Math.max(Math.min(retreatRatio,1.0),0.3);return[0,cfg.exposure_retreat_weight*s.maxForce*clampedRatio,hadTarget];}
-  let fx=0,fy=0;
-  if(nearestFish&&(!nearestChunk||fishDist2<chunkDist2)){let sr=stoppingRadius(s.maxSpeed,s.maxForce,1.3);sr=Math.min(sr,cfg.perception.fish);const[sx,sy]=forceArrive(s.x,s.depth,s.vx,s.vd,nearestFish.x,nearestFish.depth,w.seek_fish,s.maxSpeed,s.maxForce,sr,s.maxSpeed);fx+=sx;fy+=sy;}
-  else if(nearestChunk){targetChunkId=nearestChunk.id;let sr=stoppingRadius(s.maxSpeed,s.maxForce,1.3);sr=Math.min(sr,cfg.perception.flesh);let minSpeed=CONFIG.flesh_chunk.sink_rate;if(s.maxSpeed*0.3>minSpeed)minSpeed=s.maxSpeed*0.3;const[sx,sy]=forceArrive(s.x,s.depth,s.vx,s.vd,nearestChunk.x,nearestChunk.depth,w.seek_flesh,s.maxSpeed,s.maxForce,sr,minSpeed);fx+=sx;fy+=sy;}
-  else{const[wx,wy]=forceWander(s.id,s.x,s.depth,s.vx,s.vd,w.wander,s.maxForce);fx+=wx;fy+=wy;fy+=forceDepthArrive(s.depth,s.vd,cfg.home_depth,cfg.home_bias_weight,s.maxSpeed,s.maxForce);}
   const avoidRadiusSq=CONFIG.avoid_chunk_radius*CONFIG.avoid_chunk_radius;
   const avoidTargets:{id:string;x:number;depth:number}[]=[];
   const nearbyAlgaeForShark=getNearby(hash.algae,sbx,sby,1,Math.ceil(CONFIG.avoid_chunk_radius/bd)+1);
   for(const entry of nearbyAlgaeForShark)if(entry.n.live)avoidTargets.push(entry.n);
   for(const c of st.chunks)avoidTargets.push(c);
+
+  // ── Behavioral state machine ──
+  if (s.fsm) {
+    const retreatRatio=(s.exposure-cfg.exposure_retreat_resume_threshold)/(cfg.exposure.threshold-cfg.exposure_retreat_resume_threshold);
+    const clampedRatio=Math.max(Math.min(retreatRatio,1.0),0.3);
+    const ctx: StateContext = {
+      hunger: s.hunger,
+      exposure: s.exposure,
+      threatNearby: false,
+      foodNearby: nearestFish !== null || nearestChunk !== null,
+      inRetreat: s.inRetreat,
+      tickCount: st.tickCount,
+    };
+    s.fsm._stateContext = ctx;
+    s.fsm.update();
+    const requests = s.fsm.getForceRequests();
+    if (s.inRetreat) {
+      // Retreat state: use the existing retreat force computation
+      const [rfx, rfy] = applyForceRequests(requests, s.x, s.depth, s.vx, s.vd, s.maxSpeed, s.maxForce, {
+        nearestNodule: null, nearestShark: null, sharkDist2: 0, others: [], schoolRadiusSq: 0,
+        avoidTargets, avoidRadiusSq, homeDepth: cfg.home_depth, depthBiasWeight: cfg.home_bias_weight,
+        nearestFish, fishDist2, nearestChunk, chunkDist2, targetChunkId: null,
+        exposureRetreatWeight: cfg.exposure_retreat_weight, exposureRetreatRatio: clampedRatio,
+      });
+      return [rfx, rfy, hadTarget];
+    }
+    const [rfx, rfy] = applyForceRequests(requests, s.x, s.depth, s.vx, s.vd, s.maxSpeed, s.maxForce, {
+      nearestNodule: null, nearestShark: null, sharkDist2: 0, others: [], schoolRadiusSq: 0,
+      avoidTargets, avoidRadiusSq, homeDepth: cfg.home_depth, depthBiasWeight: cfg.home_bias_weight,
+      nearestFish, fishDist2, nearestChunk, chunkDist2, targetChunkId: nearestChunk?.id ?? null,
+      exposureRetreatWeight: 0, exposureRetreatRatio: 0,
+    });
+    let fx = rfx, fy = rfy;
+    // Wander handled separately (uses entity id for persistent state)
+    const wanderReq = requests.find(r => r.type === 'wander');
+    if (wanderReq && wanderReq.weight > 0) {
+      const [wx, wy] = forceWander(s.id, s.x, s.depth, s.vx, s.vd, w.wander * wanderReq.weight, s.maxForce);
+      fx += wx; fy += wy;
+      // Resting state: add depth bias for hover behavior
+      if (s.fsm.in('resting')) {
+        fy += forceDepthArrive(s.depth, s.vd, cfg.home_depth, cfg.home_bias_weight, s.maxSpeed, s.maxForce);
+      }
+    }
+    return [fx, fy, hadTarget];
+  }
+
+  // Fallback: no FSM — use original flat weighted sum (for fixed-state equivalence test)
+  if(s.inRetreat){const retreatRatio=(s.exposure-cfg.exposure_retreat_resume_threshold)/(cfg.exposure.threshold-cfg.exposure_retreat_resume_threshold);const clampedRatio=Math.max(Math.min(retreatRatio,1.0),0.3);return[0,cfg.exposure_retreat_weight*s.maxForce*clampedRatio,hadTarget];}
+  let fx=0,fy=0;
+  if(nearestFish&&(!nearestChunk||fishDist2<chunkDist2)){let sr=stoppingRadius(s.maxSpeed,s.maxForce,1.3);sr=Math.min(sr,cfg.perception.fish);const[sx,sy]=forceArrive(s.x,s.depth,s.vx,s.vd,nearestFish.x,nearestFish.depth,w.seek_fish,s.maxSpeed,s.maxForce,sr,s.maxSpeed);fx+=sx;fy+=sy;}
+  else if(nearestChunk){targetChunkId=nearestChunk.id;let sr=stoppingRadius(s.maxSpeed,s.maxForce,1.3);sr=Math.min(sr,cfg.perception.flesh);let minSpeed=CONFIG.flesh_chunk.sink_rate;if(s.maxSpeed*0.3>minSpeed)minSpeed=s.maxSpeed*0.3;const[sx,sy]=forceArrive(s.x,s.depth,s.vx,s.vd,nearestChunk.x,nearestChunk.depth,w.seek_flesh,s.maxSpeed,s.maxForce,sr,minSpeed);fx+=sx;fy+=sy;}
+  else{const[wx,wy]=forceWander(s.id,s.x,s.depth,s.vx,s.vd,w.wander,s.maxForce);fx+=wx;fy+=wy;fy+=forceDepthArrive(s.depth,s.vd,cfg.home_depth,cfg.home_bias_weight,s.maxSpeed,s.maxForce);}
   const[avoidX,avoidY]=forceAvoid(s.x,s.depth,avoidTargets,avoidRadiusSq,w.avoid_chunk,s.maxForce,targetChunkId??undefined);fx+=avoidX;fy+=avoidY;
   return[fx,fy,hadTarget];
 }
@@ -540,8 +583,8 @@ interface ShoalState { world:typeof CONFIG.world; fish:Fish[]; sharks:Shark[]; a
 let nextIdCounter=0;
 function uid(prefix:string):string{nextIdCounter++;return prefix+'_'+nextIdCounter;}
 function collectLiveColors(st:ShoalState):string[]{const colors:string[]=[];for(const f of st.fish)if(f.alive)colors.push(f.lineageColor);for(const s of st.sharks)if(s.alive)colors.push(s.lineageColor);return colors;}
-function newFish(st:ShoalState,x:number,depth:number,parentColor?:string):Fish{const cfg=CONFIG.fish;const id=uid('fish');const liveColors=collectLiveColors(st);const lineageColor=parentColor?generateInheritedColor(id,parentColor,liveColors):generateProceduralColor(id,liveColors);return{id,x,depth,vx:prngFloat(st.prng,-1,1),vd:prngFloat(st.prng,-0.5,0.5),age:0,fed:0,hunger:0,coldExposure:0,coldDamage:0,radius:cfg.radius,maxSpeed:cfg.max_speed,maxForce:cfg.max_force,lineageColor,mature:false,alive:true};}
-function newShark(st:ShoalState,x:number,depth:number,parentColor?:string):Shark{const cfg=CONFIG.shark;const id=uid('shark');const liveColors=collectLiveColors(st);const lineageColor=parentColor?generateInheritedColor(id,parentColor,liveColors):generateProceduralColor(id,liveColors);return{id,x,depth,vx:prngFloat(st.prng,-1,1),vd:prngFloat(st.prng,-0.5,0.5),age:0,fed:0,hunger:0,exposure:0,lastMealTick:0,ticksWithTarget:0,ticksTotal:0,radius:cfg.radius,maxSpeed:cfg.max_speed,maxForce:cfg.max_force,lineageColor,mature:false,alive:true,inRetreat:false,spawnTick:st.tickCount};}
+function newFish(st:ShoalState,x:number,depth:number,parentColor?:string):Fish{const cfg=CONFIG.fish;const id=uid('fish');const liveColors=collectLiveColors(st);const lineageColor=parentColor?generateInheritedColor(id,parentColor,liveColors):generateProceduralColor(id,liveColors);return{id,x,depth,vx:prngFloat(st.prng,-1,1),vd:prngFloat(st.prng,-0.5,0.5),age:0,fed:0,hunger:0,coldExposure:0,coldDamage:0,radius:cfg.radius,maxSpeed:cfg.max_speed,maxForce:cfg.max_force,lineageColor,mature:false,alive:true,fsm:createFishFSM()};}
+function newShark(st:ShoalState,x:number,depth:number,parentColor?:string):Shark{const cfg=CONFIG.shark;const id=uid('shark');const liveColors=collectLiveColors(st);const lineageColor=parentColor?generateInheritedColor(id,parentColor,liveColors):generateProceduralColor(id,liveColors);return{id,x,depth,vx:prngFloat(st.prng,-1,1),vd:prngFloat(st.prng,-0.5,0.5),age:0,fed:0,hunger:0,exposure:0,lastMealTick:0,ticksWithTarget:0,ticksTotal:0,radius:cfg.radius,maxSpeed:cfg.max_speed,maxForce:cfg.max_force,lineageColor,mature:false,alive:true,inRetreat:false,spawnTick:st.tickCount,fsm:createSharkFSM()};}
 function spawnFish(st:ShoalState,x:number,depth:number,parentColor?:string):Fish{const f=newFish(st,x,depth,parentColor);st.fish.push(f);st.stats.fish_count++;return f;}
 function spawnShark(st:ShoalState,x:number,depth:number,parentColor?:string):Shark{const s=newShark(st,x,depth,parentColor);s.lastMealTick=st.tickCount;st.sharks.push(s);st.stats.shark_count++;return s;}
 function newAlgaeNodule(cx:number,cdepth:number,dir:number,dist:number):Nodule{let dx=0,dy=0;if(dir===0)dy=-dist;else if(dir===1)dy=dist;else if(dir===2)dx=-dist;else if(dir===3)dx=dist;const depth=cdepth+dy;return{id:uid('nodule'),x:cx+dx,depth,live:true,cooldown:0,offsetX:dx,offsetY:dy,cachedDanger:computeFishColdRate(depth)};}
