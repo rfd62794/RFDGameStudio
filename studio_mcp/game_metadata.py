@@ -71,14 +71,28 @@ def _run_git(cwd: Path, args: list[str]) -> str:
     return result.stdout.strip()
 
 
-def _git_dates(cwd: Path, paths: list[str]) -> tuple[str, str]:
-    """Return (created_iso, last_updated_iso) across all given paths, or ("", "") if none tracked."""
+def _git_dates(cwd: Path, paths: list[str], exclude_files: list[str] | None = None) -> tuple[str, str]:
+    """Return (created_iso, last_updated_iso) across all given paths, or ("", "") if none tracked.
+
+    exclude_files: real file basenames (e.g. "config.ts") to exclude from
+    the `last_updated` computation via git's ":(exclude)" pathspec magic,
+    per path. This exists because `GameConfig`'s registry-presentation
+    fields (label/description/genre/tags/color) live in the same
+    config.ts that also matters for real content -- a purely cosmetic
+    metadata edit there (e.g. adding a `genre` tag) should not bump
+    `last_updated` to today and bury the real date of the last actual
+    gameplay/content change. `created` intentionally still considers
+    these files -- the file existing at all is still real signal for
+    when the game was first added, cosmetic or not.
+    """
     if not paths:
         return "", ""
+    exclude_files = exclude_files or []
     all_last: list[str] = []
     all_first: list[str] = []
     for p in paths:
-        last = _run_git(cwd, ["log", "-1", "--format=%cI", "--", p])
+        last_pathspecs = [p] + [f":(exclude){p}/{ef}" for ef in exclude_files]
+        last = _run_git(cwd, ["log", "-1", "--format=%cI", "--", *last_pathspecs])
         if last:
             all_last.append(last)
         first_log = _run_git(cwd, ["log", "--diff-filter=A", "--format=%cI", "--", p])
