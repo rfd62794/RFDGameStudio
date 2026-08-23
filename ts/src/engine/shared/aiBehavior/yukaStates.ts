@@ -7,7 +7,7 @@
  * NOT reimplement or replace the force math itself.
  *
  * CRITICAL BOUNDARY: Yuka ships its own steering-behavior classes
- * (SeekBehavior, FleeBehavior, SeparationBehavior, etc.). These are
+ * (seek, flee, separation, alignment, cohesion, etc.). These are
  * NEVER imported, used, or referenced by this module or any consumer
  * in this studio. Yuka is used exclusively for its FSM layer
  * (StateMachine/State). The force computation lives in

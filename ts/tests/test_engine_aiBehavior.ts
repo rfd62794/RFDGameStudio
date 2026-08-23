@@ -13,6 +13,7 @@ import {
   initGameState,
   tickGameInternal,
   CONFIG,
+  _setFsmDisabled,
 } from '../src/games/shoal/simulation/shoalSimulation';
 
 const tsRoot = resolve(import.meta.dirname, '..');
@@ -249,9 +250,15 @@ describe('aiBehavior — behavioral equivalence with Shoal', () => {
   });
 
   it('test_behavioral_equivalence_first_5_fish_positions_match', () => {
+    _setFsmDisabled(true);
     const st = initGameState(42, 60, 8, 6);
+    // Disable FSMs to use the fallback flat-weighted-sum path — proves
+    // the force math itself is unmodified. With FSMs active, behavior
+    // genuinely changes (different forces fire per state), which is
+    // the point of Phase 2.
     const dt = CONFIG.world.discrete_tick;
     for (let i = 0; i < 100; i++) tickGameInternal(st, dt);
+    _setFsmDisabled(false);
     for (let i = 0; i < Math.min(5, st.fish.length); i++) {
       const f = st.fish[i];
       const exp = EXPECTED.fish[i];
@@ -265,9 +272,12 @@ describe('aiBehavior — behavioral equivalence with Shoal', () => {
   });
 
   it('test_behavioral_equivalence_first_3_shark_positions_match', () => {
+    _setFsmDisabled(true);
     const st = initGameState(42, 60, 8, 6);
+    // Disable FSMs — same rationale as the fish test above.
     const dt = CONFIG.world.discrete_tick;
     for (let i = 0; i < 100; i++) tickGameInternal(st, dt);
+    _setFsmDisabled(false);
     for (let i = 0; i < Math.min(3, st.sharks.length); i++) {
       const s = st.sharks[i];
       const exp = EXPECTED.sharks[i];
@@ -281,9 +291,12 @@ describe('aiBehavior — behavioral equivalence with Shoal', () => {
   });
 
   it('test_behavioral_equivalence_aggregate_stats_match', () => {
+    _setFsmDisabled(true);
     const st = initGameState(42, 60, 8, 6);
+    // Disable FSMs — same rationale as above.
     const dt = CONFIG.world.discrete_tick;
     for (let i = 0; i < 100; i++) tickGameInternal(st, dt);
+    _setFsmDisabled(false);
     const totalFishX = st.fish.reduce((s, f) => s + f.x, 0);
     const totalFishDepth = st.fish.reduce((s, f) => s + f.depth, 0);
     const totalSharkX = st.sharks.reduce((s, sh) => s + sh.x, 0);

@@ -236,7 +236,7 @@ is a real, landed module — not a gap.*
 | `anatomy` | `ts/src/engine/shared/anatomy/` | Functional | body-plan / part system |
 | `personGenerator` | `ts/src/engine/shared/personGenerator/` | **New — v1 (role symbols), Aug 22 2026** | Succession (mapping only — `data/figureArchetypeMap.ts`); preview at `games/role_symbol_viewer` |
 | `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **Phase 1: detection + interface shell (Aug 22 2026); Phase 2: Y8 adapter (Aug 22 2026); Phase 3: Shoal wired (Aug 22 2026)** | Shoal — first live consumer (Y8 SDK script + notifyGameplayStart/Stop at real transitions) |
-| `aiBehavior` | `ts/src/engine/shared/aiBehavior/` | **Phase 1: steering forces extracted from Shoal (Aug 22, 2026)** | Shoal — first live consumer (steering forces imported from shared module) |
+| `aiBehavior` | `ts/src/engine/shared/aiBehavior/` | **Phase 1: steering forces extracted from Shoal (Aug 22, 2026); Phase 2: Yuka FSM adapter added (Aug 22, 2026)** | Shoal — first live consumer (steering forces + behavioral states) |
 
 ### `personGenerator` — v1: role symbols (Aug 22 2026)
 
@@ -511,7 +511,39 @@ tests + 5 no-change-to-other-games tests).
   must be investigated before expanding the shared interface
 - Decision-making primitives (`decide`, `seek_nearest`) — not extracted
 - Lua-side `ai_behavior.lua` — remains unimplemented
-- Yuka adoption — not warranted (assessed above)
+- Yuka adoption — **warranted and implemented in Phase 2** (see below)
+
+### `aiBehavior` — Phase 2: Yuka FSM adapter for behavioral states (Aug 22, 2026)
+
+**Additive layer on top of Phase 1's proven steering forces.**
+
+Yuka v0.7.8 added as the first external gamedev-specific dependency
+studio-wide. Used exclusively for its `StateMachine`/`State` FSM
+classes — Yuka's own steering-behavior classes are never imported or
+used (grep-verified, test-enforced). See ADR-022 for full reasoning.
+
+New files:
+- `ts/src/engine/shared/aiBehavior/yukaStates.ts` — generic
+  `BehavioralState`/`BehavioralStateMachine` wrapper
+- `ts/src/engine/shared/aiBehavior/yuka.d.ts` — minimal type
+  declarations (only `State` and `StateMachine`, enforcing the boundary)
+
+Shoal now has real behavioral states:
+- **Fish:** `Schooling` (align/cohere/separate dominant), `Foraging`
+  (seek_algae boosted, schooling reduced), `Fleeing` (flee_shark
+  dominant, schooling suppressed)
+- **Shark:** `Hunting` (seek_fish/seek_flesh), `Resting` (wander only,
+  hunting suppressed), `Fleeing` (retreat dominant)
+
+State transitions use Shoal's real existing entity fields (hunger,
+exposure, proximity, inRetreat) — no new tracked values invented.
+Config thresholds in `behavioral_states` section of CONFIG.
+
+The force math itself is unmodified — proven by the fixed-state
+equivalence test (FSMs disabled via `_setFsmDisabled(true)` →
+byte-identical to pre-Yuka output). 19 tests in
+`test_engine_yukaStates.ts` (state execute, transitions, fixed-state
+equivalence, Yuka steering non-import regression).
 
 
 
