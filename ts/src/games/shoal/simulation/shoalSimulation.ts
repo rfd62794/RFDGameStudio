@@ -176,24 +176,26 @@ function forceWander(id:string,x:number,y:number,vx:number,vy:number,weight:numb
 
 // Shoal-specific adapters for the neighbor-based steering forces.
 // Shoal uses `depth` for Y and `vd` for Y-velocity; the shared module
-// uses generic `y`/`vy`. These adapters map the entity shape without
-// allocating new objects (critical for hot-path performance).
-// The actual force computation logic lives in the shared module —
-// these are thin wrappers that adapt the neighbor/obstacle arrays.
-function forceSeparate(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{
-  // Inline the depth→y mapping to avoid per-tick object allocation.
-  // This preserves the exact same computation as the shared module's
-  // forceSeparate, just reading from Shoal's entity shape directly.
-  let sx=0,sy=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){const dist=Math.sqrt(d2);sx+=dx/dist/dist;sy+=dy/dist/dist;}}if(sx===0&&sy===0)return[0,0];const[nx,ny]=normalize(sx,sy);return[nx*weight*maxForce,ny*weight*maxForce];
+// uses accessor callbacks to read position/velocity from any entity
+// shape. These adapters pass Shoal's entity shape to the shared
+// functions without allocating new objects (critical for hot-path
+// performance). The actual force computation logic lives in the
+// shared module — no duplicated definitions here.
+const fishPosAccessor = (n: Fish) => ({ x: n.x, y: n.depth, alive: n.alive });
+const fishVelAccessor = (n: Fish) => ({ x: n.x, y: n.depth, vx: n.vx, vy: n.vd, alive: n.alive });
+const obstaclePosAccessor = (o: { id?: string; x: number; depth: number }) => ({ x: o.x, y: o.depth, id: o.id });
+
+function forceSeparate(x:number,y:number,neighbors:Fish[],radiusSq:number,weight:number,maxForce:number):[number,number]{
+  return sharedForceSeparate(x, y, neighbors, fishPosAccessor, radiusSq, weight, maxForce);
 }
 function forceAvoid(x:number,y:number,obstacles:{id?:string;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number,excludeId?:string):[number,number]{
-  if(!obstacles)return[0,0];let sx=0,sy=0;for(const o of obstacles){if(o.id===excludeId)continue;const dx=x-o.x,dy=y-o.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){const dist=Math.sqrt(d2);sx+=dx/dist/dist;sy+=dy/dist/dist;}}if(sx===0&&sy===0)return[0,0];const[nx,ny]=normalize(sx,sy);return[nx*weight*maxForce,ny*weight*maxForce];
+  return sharedForceAvoid(x, y, obstacles, obstaclePosAccessor, radiusSq, weight, maxForce, excludeId);
 }
-function forceAlign(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number;vx:number;vd:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{
-  let avx=0,avy=0,count=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){avx+=n.vx;avy+=n.vd;count++;}}if(count===0)return[0,0];avx/=count;avy/=count;const[nx,ny]=normalize(avx,avy);return[nx*weight*maxForce,ny*weight*maxForce];
+function forceAlign(x:number,y:number,neighbors:Fish[],radiusSq:number,weight:number,maxForce:number):[number,number]{
+  return sharedForceAlign(x, y, neighbors, fishVelAccessor, radiusSq, weight, maxForce);
 }
-function forceCohere(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{
-  let sx=0,sy=0,count=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){sx+=n.x;sy+=n.depth;count++;}}if(count===0)return[0,0];return forceSeek(x,y,sx/count,sy/count,weight,maxForce);
+function forceCohere(x:number,y:number,neighbors:Fish[],radiusSq:number,weight:number,maxForce:number):[number,number]{
+  return sharedForceCohere(x, y, neighbors, fishPosAccessor, radiusSq, weight, maxForce);
 }
 
 // â”€â”€ Exposure/cold rate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
