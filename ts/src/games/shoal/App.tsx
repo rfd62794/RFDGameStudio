@@ -11,8 +11,11 @@ import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
 import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
-  getBatchColor,
   ageStageFromCreature,
+  applyAgeSaturation,
+  parseHueFromColor,
+  hueToBand,
+  bandToHue,
   FISH_MAX_HUNGER,
   SHARK_MAX_HUNGER,
 } from './art/shoal.config';
@@ -29,6 +32,18 @@ import { initY8 } from '../../engine/shared/portalAdapter/adapters/y8';
 import { detectPortalEnvironment } from '../../engine/shared/portalAdapter/detection';
 import { SHOAL_Y8_CONFIG } from './y8Config';
 import './styles.css';
+
+// Age-aware batch color: quantizes hue to a band AND applies age saturation,
+// so young creatures render paler than mature ones within the same hue family.
+// Extends getBatchColor with the age-saturation curve from shoal.config.ts.
+function getAgeAwareBatchColor(lineageColor: string, mature: boolean): string {
+  const hue = parseHueFromColor(lineageColor);
+  if (hue === null) return lineageColor;
+  const band = hueToBand(hue);
+  const bandHue = bandToHue(band);
+  const ageStage = ageStageFromCreature(mature);
+  return applyAgeSaturation(bandHue, 0.7, ageStage, 0.55);
+}
 
 
 let backgroundCache: HTMLCanvasElement | null = null;
@@ -357,10 +372,10 @@ function drawFish(
 }
 
 function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish']) {
-  // Batch by hue-banded color (preserves batch grouping with lineage variety)
+  // Batch by hue-banded + age-aware color (preserves batch grouping with lineage variety)
   const byColor = new Map<string, ShoalCreature[]>();
   for (const f of fish) {
-    const batchColor = getBatchColor(f.color);
+    const batchColor = getAgeAwareBatchColor(f.color, f.mature);
     const group = byColor.get(batchColor);
     if (group) {
       group.push(f);
@@ -379,7 +394,7 @@ function drawFishBatched(ctx: CanvasRenderingContext2D, fish: RenderState['fish'
 function drawSharksBatched(ctx: CanvasRenderingContext2D, sharks: RenderState['sharks']) {
   const byColor = new Map<string, ShoalCreature[]>();
   for (const s of sharks) {
-    const batchColor = getBatchColor(s.color);
+    const batchColor = getAgeAwareBatchColor(s.color, s.mature);
     const group = byColor.get(batchColor);
     if (group) {
       group.push(s);
@@ -467,9 +482,10 @@ export function drawGame(
     }
   }
 
-  // Draw flesh chunks with decay-based color lerp (batched into decay buckets)
-  // Uses cached Path2D
+  // Draw flesh chunks with 3-stop decay gradient (batched into decay buckets)
+  // red (fresh) → orange (mid decay) → gold (decomposed). Uses cached Path2D.
   const chunkColor = renderCfg?.chunk_color ?? '#f43f5e';
+  const chunkMidColor = renderCfg?.chunk_decay_mid_color ?? '#f97316';
   const coreColor = renderCfg?.algae_core_color ?? '#eab308';
   const chunksByBucket = new Map<number, FleshChunk[]>();
   for (const c of rs.chunks) {
@@ -478,7 +494,10 @@ export function drawGame(
     if (group) group.push(c); else chunksByBucket.set(bucket, [c]);
   }
   for (const [bucket, group] of chunksByBucket) {
-    const color = lerpColor(chunkColor, coreColor, bucket);
+    // 3-stop lerp: 0→0.5 goes chunkColor→chunkMidColor, 0.5→1 goes chunkMidColor→coreColor
+    const color = bucket <= 0.5
+      ? lerpColor(chunkColor, chunkMidColor, bucket * 2)
+      : lerpColor(chunkMidColor, coreColor, (bucket - 0.5) * 2);
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     for (const c of group) {
