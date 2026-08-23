@@ -23,6 +23,17 @@ import {
   forceAlign as sharedForceAlign,
   forceCohere as sharedForceCohere,
 } from '../../../engine/shared/aiBehavior';
+import {
+  BehavioralState,
+  BehavioralStateMachine,
+  createBehavioralState,
+  type ForceRequest,
+  type StateContext,
+} from '../../../engine/shared/aiBehavior/yukaStates';
+  forceAvoid as sharedForceAvoid,
+  forceAlign as sharedForceAlign,
+  forceCohere as sharedForceCohere,
+} from '../../../engine/shared/aiBehavior';
 
 // â”€â”€ Config (from data.yaml) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -50,6 +61,19 @@ const CONFIG = {
   steering_weights: {
     fish: { seek_algae: 1.0, flee_shark: 2.5, separate: 1.0, align: 0.6, cohere: 0.35, wander: 0.4, depth_bias: 0.8, avoid_chunk: 0.8 },
     shark: { seek_fish: 1.5, seek_flesh: 1.5, wander: 0.3, avoid_chunk: 0.5 },
+  },
+  // Behavioral state transition thresholds — grounded in real simulation values.
+  // Fish: hunger > foraging_threshold → Foraging; threat nearby → Fleeing; else Schooling.
+  // Shark: hunger > hunting_threshold → Hunting; exposure > retreat → Fleeing; else Resting.
+  behavioral_states: {
+    fish: {
+      foraging_hunger_threshold: 1.0,  // fish.hunger starts at 0, increases at hunger_rate=0.05/tick
+      fleeing_shark_perception: 190,   // matches fish.perception.shark
+    },
+    shark: {
+      hunting_hunger_threshold: 1.0,   // shark.hunger increases when not eating
+      resting_wander_multiplier: 0.5,  // reduced wander when resting
+    },
   },
   avoid_chunk_radius: 25,
   wander: { circle_distance: 40, circle_radius: 15, change_interval: 0.4 },
@@ -126,8 +150,8 @@ function generateInheritedColor(id:string,parentColor:string,liveColors:string[]
 
 // â”€â”€ Entity types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-interface Fish { id:string; x:number; depth:number; vx:number; vd:number; age:number; fed:number; hunger:number; coldExposure:number; coldDamage:number; radius:number; maxSpeed:number; maxForce:number; lineageColor:string; mature:boolean; alive:boolean; }
-interface Shark { id:string; x:number; depth:number; vx:number; vd:number; age:number; fed:number; hunger:number; exposure:number; lastMealTick:number; ticksWithTarget:number; ticksTotal:number; radius:number; maxSpeed:number; maxForce:number; lineageColor:string; mature:boolean; alive:boolean; inRetreat:boolean; spawnTick:number; }
+interface Fish { id:string; x:number; depth:number; vx:number; vd:number; age:number; fed:number; hunger:number; coldExposure:number; coldDamage:number; radius:number; maxSpeed:number; maxForce:number; lineageColor:string; mature:boolean; alive:boolean; fsm:BehavioralStateMachine|null; }
+interface Shark { id:string; x:number; depth:number; vx:number; vd:number; age:number; fed:number; hunger:number; exposure:number; lastMealTick:number; ticksWithTarget:number; ticksTotal:number; radius:number; maxSpeed:number; maxForce:number; lineageColor:string; mature:boolean; alive:boolean; inRetreat:boolean; spawnTick:number; fsm:BehavioralStateMachine|null; }
 interface Nodule { id:string; x:number; depth:number; live:boolean; cooldown:number; offsetX:number; offsetY:number; cachedDanger:number; }
 interface AlgaeCore { id:string; x:number; depth:number; targetDepth:number; nodules:Nodule[]; maxNodules:number; emptyFor:number; }
 interface Chunk { id:string; x:number; depth:number; vx:number; vd:number; radius:number; floorTimer:number; }
@@ -205,26 +229,269 @@ function computeFishColdRate(depth:number):number{const bands=CONFIG.depth_bands
 
 // â”€â”€ Fish/shark force computation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+// ── Behavioral state definitions ─────────────────────────────────────
+// Each state's execute() produces ForceRequests that specify which
+// steering forces to apply and at what weight multiplier. The actual
+// force computation uses Shoal's existing, unmodified force functions.
+// The state machine changes WHICH forces fire and HOW STRONGLY —
+// never how the forces themselves compute.
+
+// Fish states: Schooling, Foraging, Fleeing
+const fishSchoolingState = createBehavioralState('schooling', (_ctx: StateContext) => [
+  { type: 'separate', weight: 1.0 },
+  { type: 'align', weight: 1.0 },
+  { type: 'cohere', weight: 1.0 },
+  { type: 'seek_algae', weight: 0.3 },  // reduced — schooling dominant
+  { type: 'depth_bias', weight: 1.0 },
+  { type: 'wander', weight: 0.5 },      // reduced — schooling dominant
+  { type: 'avoid_chunk', weight: 1.0 },
+]);
+
+const fishForagingState = createBehavioralState('foraging', (_ctx: StateContext) => [
+  { type: 'seek_algae', weight: 1.5 },  // boosted — foraging dominant
+  { type: 'separate', weight: 0.5 },    // reduced — foraging priority
+  { type: 'align', weight: 0.3 },       // reduced — foraging priority
+  { type: 'cohere', weight: 0.2 },      // reduced — foraging priority
+  { type: 'depth_bias', weight: 0.8 },
+  { type: 'wander', weight: 0.3 },
+  { type: 'avoid_chunk', weight: 1.0 },
+]);
+
+const fishFleeingState = createBehavioralState('fleeing', (_ctx: StateContext) => [
+  { type: 'flee_shark', weight: 1.5 },  // boosted — survival priority
+  { type: 'separate', weight: 0.8 },    // keep some separation
+  { type: 'align', weight: 0.2 },       // minimal — fleeing priority
+  { type: 'cohere', weight: 0.1 },      // minimal — fleeing priority
+  { type: 'seek_algae', weight: 0.0 },  // suppressed — not foraging
+  { type: 'depth_bias', weight: 0.5 },
+  { type: 'wander', weight: 0.0 },      // suppressed — focused flight
+  { type: 'avoid_chunk', weight: 1.0 },
+]);
+
+// Shark states: Hunting, Resting, Fleeing
+const sharkHuntingState = createBehavioralState('hunting', (_ctx: StateContext) => [
+  { type: 'seek_fish', weight: 1.0 },
+  { type: 'seek_flesh', weight: 1.0 },
+  { type: 'wander', weight: 0.3 },
+  { type: 'avoid_chunk', weight: 1.0 },
+]);
+
+const sharkRestingState = createBehavioralState('resting', (_ctx: StateContext) => [
+  { type: 'seek_fish', weight: 0.0 },   // suppressed — not hunting
+  { type: 'seek_flesh', weight: 0.0 },  // suppressed — not hunting
+  { type: 'wander', weight: 1.0 },      // wander only
+  { type: 'avoid_chunk', weight: 1.0 },
+]);
+
+const sharkFleeingState = createBehavioralState('fleeing', (_ctx: StateContext) => [
+  { type: 'retreat', weight: 1.0 },     // exposure retreat dominant
+  { type: 'seek_fish', weight: 0.0 },
+  { type: 'seek_flesh', weight: 0.0 },
+  { type: 'wander', weight: 0.0 },
+  { type: 'avoid_chunk', weight: 0.5 },
+]);
+
+// ── State machine factory functions ──────────────────────────────────
+
+function createFishFSM(): BehavioralStateMachine {
+  const fsm = new BehavioralStateMachine();
+  fsm.add('schooling', fishSchoolingState);
+  fsm.add('foraging', fishForagingState);
+  fsm.add('fleeing', fishFleeingState);
+  fsm.changeTo('schooling');
+  // Fish transition logic: threat → Fleeing; hungry+food → Foraging; else Schooling
+  fsm.evaluateTransitions = (ctx: StateContext) => {
+    if (ctx.threatNearby) {
+      if (!fsm.in('fleeing')) fsm.changeTo('fleeing');
+    } else if (ctx.hunger > CONFIG.behavioral_states.fish.foraging_hunger_threshold && ctx.foodNearby) {
+      if (!fsm.in('foraging')) fsm.changeTo('foraging');
+    } else {
+      if (!fsm.in('schooling')) fsm.changeTo('schooling');
+    }
+  };
+  return fsm;
+}
+
+function createSharkFSM(): BehavioralStateMachine {
+  const fsm = new BehavioralStateMachine();
+  fsm.add('hunting', sharkHuntingState);
+  fsm.add('resting', sharkRestingState);
+  fsm.add('fleeing', sharkFleeingState);
+  fsm.changeTo('hunting');
+  // Shark transition logic: exposure retreat → Fleeing; hungry+food → Hunting; else Resting
+  fsm.evaluateTransitions = (ctx: StateContext) => {
+    if (ctx.inRetreat) {
+      if (!fsm.in('fleeing')) fsm.changeTo('fleeing');
+    } else if (ctx.hunger > CONFIG.behavioral_states.shark.hunting_hunger_threshold || ctx.foodNearby) {
+      if (!fsm.in('hunting')) fsm.changeTo('hunting');
+    } else {
+      if (!fsm.in('resting')) fsm.changeTo('resting');
+    }
+  };
+  return fsm;
+}
+
+// ── Force request application ────────────────────────────────────────
+// Maps a ForceRequest to the actual steering force call, using the
+// existing unmodified force functions. Returns the accumulated force.
+
+function applyForceRequests(
+  requests: ForceRequest[],
+  entityX: number, entityY: number,
+  entityVx: number, entityVy: number,
+  maxSpeed: number, maxForce: number,
+  // Context for force computation (pre-computed by the caller)
+  ctx: {
+    nearestNodule: Nodule | null;
+    nearestShark: Shark | null;
+    sharkDist2: number;
+    others: Fish[];
+    schoolRadiusSq: number;
+    avoidTargets: { id: string; x: number; depth: number }[];
+    avoidRadiusSq: number;
+    homeDepth: number;
+    depthBiasWeight: number;
+    nearestFish: Fish | null;
+    fishDist2: number;
+    nearestChunk: Chunk | null;
+    chunkDist2: number;
+    targetChunkId: string | null;
+    exposureRetreatWeight: number;
+    exposureRetreatRatio: number;
+  },
+): [number, number] {
+  let fx = 0, fy = 0;
+  const w = CONFIG.steering_weights;
+  for (const req of requests) {
+    switch (req.type) {
+      case 'seek_algae': {
+        if (ctx.nearestNodule) {
+          let sr = stoppingRadius(maxSpeed, maxForce, 1.3);
+          sr = Math.min(sr, CONFIG.fish.perception.algae);
+          const [sx, sy] = forceArrive(entityX, entityY, entityVx, entityVy, ctx.nearestNodule.x, ctx.nearestNodule.depth, w.fish.seek_algae * req.weight, maxSpeed, maxForce, sr, 0);
+          fx += sx; fy += sy;
+        }
+        break;
+      }
+      case 'flee_shark': {
+        if (ctx.nearestShark) {
+          const [flx, fly] = forceFlee(entityX, entityY, ctx.nearestShark.x, ctx.nearestShark.depth, w.fish.flee_shark * req.weight, maxForce, ctx.sharkDist2);
+          fx += flx; fy += fly;
+        }
+        break;
+      }
+      case 'separate': {
+        const [sxp, syp] = forceSeparate(entityX, entityY, ctx.others, ctx.schoolRadiusSq, w.fish.separate * req.weight, maxForce);
+        fx += sxp; fy += syp;
+        break;
+      }
+      case 'align': {
+        const [axp, ayp] = forceAlign(entityX, entityY, ctx.others, ctx.schoolRadiusSq, w.fish.align * req.weight, maxForce);
+        fx += axp; fy += ayp;
+        break;
+      }
+      case 'cohere': {
+        const [cxp, cyp] = forceCohere(entityX, entityY, ctx.others, ctx.schoolRadiusSq, w.fish.cohere * req.weight, maxForce);
+        fx += cxp; fy += cyp;
+        break;
+      }
+      case 'avoid_chunk': {
+        const [avx, avy] = forceAvoid(entityX, entityY, ctx.avoidTargets, ctx.avoidRadiusSq, w.fish.avoid_chunk * req.weight, maxForce, ctx.nearestNodule?.id);
+        fx += avx; fy += avy;
+        break;
+      }
+      case 'depth_bias': {
+        fy += forceDepthArrive(entityY, entityVy, ctx.homeDepth, w.fish.depth_bias * req.weight, maxSpeed, maxForce);
+        break;
+      }
+      case 'wander': {
+        // Wander uses entity id for persistent state — caller must handle
+        // This is handled separately in the caller for fish/shark
+        break;
+      }
+      case 'seek_fish': {
+        if (ctx.nearestFish && (!ctx.nearestChunk || ctx.fishDist2 < ctx.chunkDist2)) {
+          let sr = stoppingRadius(maxSpeed, maxForce, 1.3);
+          sr = Math.min(sr, CONFIG.shark.perception.fish);
+          const [sx, sy] = forceArrive(entityX, entityY, entityVx, entityVy, ctx.nearestFish.x, ctx.nearestFish.depth, w.shark.seek_fish * req.weight, maxSpeed, maxForce, sr, maxSpeed);
+          fx += sx; fy += sy;
+        }
+        break;
+      }
+      case 'seek_flesh': {
+        if (ctx.nearestChunk && (!ctx.nearestFish || ctx.chunkDist2 <= ctx.fishDist2)) {
+          let sr = stoppingRadius(maxSpeed, maxForce, 1.3);
+          sr = Math.min(sr, CONFIG.shark.perception.flesh);
+          let minSpeed = CONFIG.flesh_chunk.sink_rate;
+          if (maxSpeed * 0.3 > minSpeed) minSpeed = maxSpeed * 0.3;
+          const [sx, sy] = forceArrive(entityX, entityY, entityVx, entityVy, ctx.nearestChunk.x, ctx.nearestChunk.depth, w.shark.seek_flesh * req.weight, maxSpeed, maxForce, sr, minSpeed);
+          fx += sx; fy += sy;
+        }
+        break;
+      }
+      case 'retreat': {
+        fy += ctx.exposureRetreatWeight * maxForce * ctx.exposureRetreatRatio;
+        break;
+      }
+    }
+  }
+  return [fx, fy];
+}
+
 function computeFishForces(f:Fish,st:ShoalState,hash:SpatialHash):[number,number]{
-  const w=CONFIG.steering_weights.fish,cfg=CONFIG.fish;let fx=0,fy=0;
+  const w=CONFIG.steering_weights.fish,cfg=CONFIG.fish;
   const bw=CONFIG.spatial_hash.bucket_width,bd=CONFIG.spatial_hash.bucket_depth;
   const bx=Math.floor(f.x/bw)%Math.ceil(st.world.width/bw),by=Math.floor(f.depth/bd)%Math.ceil(st.world.height/bd);
   let nearestNodule:Nodule|null=null;let nearestDist2=cfg.perception.algae*cfg.perception.algae;
   const nearbyAlgae=getNearby(hash.algae,bx,by,Math.ceil(cfg.perception.algae/bw),Math.ceil(cfg.perception.algae/bd));
   for(const entry of nearbyAlgae){const n=entry.n;if(n.live&&n.cachedDanger<=cfg.max_safe_cold_rate){const d2=dist2(f.x,f.depth,n.x,n.depth);if(d2<nearestDist2){nearestDist2=d2;nearestNodule=n;}}}
-  if(nearestNodule){let sr=stoppingRadius(f.maxSpeed,f.maxForce,1.3);sr=Math.min(sr,cfg.perception.algae);const[sx,sy]=forceArrive(f.x,f.depth,f.vx,f.vd,nearestNodule.x,nearestNodule.depth,w.seek_algae,f.maxSpeed,f.maxForce,sr,0);fx+=sx;fy+=sy;}
   let nearestShark:Shark|null=null;let sharkDist2=cfg.perception.shark*cfg.perception.shark;
   const nearbySharks=getNearby(hash.shark,bx,by,Math.ceil(cfg.perception.shark/bw),Math.ceil(cfg.perception.shark/bd));
   for(const s of nearbySharks){if(s.alive){const d2=dist2(f.x,f.depth,s.x,s.depth);if(d2<sharkDist2){sharkDist2=d2;nearestShark=s;}}}
-  if(nearestShark){const[flx,fly]=forceFlee(f.x,f.depth,nearestShark.x,nearestShark.depth,w.flee_shark,f.maxForce,sharkDist2);fx+=flx;fy+=fly;}
   const others=getNearby(hash.fish,bx,by,1,1);const schoolRadiusSq=cfg.perception.school*cfg.perception.school;
-  const[sepX,sepY]=forceSeparate(f.x,f.depth,others,schoolRadiusSq,w.separate,f.maxForce);fx+=sepX;fy+=sepY;
-  const[alignX,alignY]=forceAlign(f.x,f.depth,others,schoolRadiusSq,w.align,f.maxForce);fx+=alignX;fy+=alignY;
-  const[cohereX,cohereY]=forceCohere(f.x,f.depth,others,schoolRadiusSq,w.cohere,f.maxForce);fx+=cohereX;fy+=cohereY;
   const avoidRadiusSq=CONFIG.avoid_chunk_radius*CONFIG.avoid_chunk_radius;
   const avoidTargets:{id:string;x:number;depth:number}[]=[];
   for(const entry of nearbyAlgae)if(entry.n.live)avoidTargets.push(entry.n);
   for(const c of st.chunks)avoidTargets.push(c);
+
+  // ── Behavioral state machine ──
+  // Update the FSM with current context, then use its force requests
+  // to determine which forces fire and at what weight multiplier.
+  if (f.fsm) {
+    const ctx: StateContext = {
+      hunger: f.hunger,
+      exposure: f.coldExposure,
+      threatNearby: nearestShark !== null,
+      foodNearby: nearestNodule !== null,
+      inRetreat: false,
+      tickCount: st.tickCount,
+    };
+    f.fsm._stateContext = ctx;
+    f.fsm.update();
+    const requests = f.fsm.getForceRequests();
+    const [rfx, rfy] = applyForceRequests(requests, f.x, f.depth, f.vx, f.vd, f.maxSpeed, f.maxForce, {
+      nearestNodule, nearestShark, sharkDist2, others, schoolRadiusSq, avoidTargets, avoidRadiusSq,
+      homeDepth: cfg.home_depth, depthBiasWeight: w.depth_bias,
+      nearestFish: null, fishDist2: 0, nearestChunk: null, chunkDist2: 0, targetChunkId: null,
+      exposureRetreatWeight: 0, exposureRetreatRatio: 0,
+    });
+    let fx = rfx, fy = rfy;
+    // Wander is handled separately because it uses entity id for persistent state
+    const wanderReq = requests.find(r => r.type === 'wander');
+    if (wanderReq && wanderReq.weight > 0) {
+      const [wx, wy] = forceWander(f.id, f.x, f.depth, f.vx, f.vd, w.wander * wanderReq.weight, f.maxForce);
+      fx += wx; fy += wy;
+    }
+    return [fx, fy];
+  }
+
+  // Fallback: no FSM — use original flat weighted sum (for fixed-state equivalence test)
+  let fx=0,fy=0;
+  if(nearestNodule){let sr=stoppingRadius(f.maxSpeed,f.maxForce,1.3);sr=Math.min(sr,cfg.perception.algae);const[sx,sy]=forceArrive(f.x,f.depth,f.vx,f.vd,nearestNodule.x,nearestNodule.depth,w.seek_algae,f.maxSpeed,f.maxForce,sr,0);fx+=sx;fy+=sy;}
+  if(nearestShark){const[flx,fly]=forceFlee(f.x,f.depth,nearestShark.x,nearestShark.depth,w.flee_shark,f.maxForce,sharkDist2);fx+=flx;fy+=fly;}
+  const[sepX,sepY]=forceSeparate(f.x,f.depth,others,schoolRadiusSq,w.separate,f.maxForce);fx+=sepX;fy+=sepY;
+  const[alignX,alignY]=forceAlign(f.x,f.depth,others,schoolRadiusSq,w.align,f.maxForce);fx+=alignX;fy+=alignY;
+  const[cohereX,cohereY]=forceCohere(f.x,f.depth,others,schoolRadiusSq,w.cohere,f.maxForce);fx+=cohereX;fy+=cohereY;
   const[avoidX,avoidY]=forceAvoid(f.x,f.depth,avoidTargets,avoidRadiusSq,w.avoid_chunk,f.maxForce,nearestNodule?.id);fx+=avoidX;fy+=avoidY;
   fy+=forceDepthArrive(f.depth,f.vd,cfg.home_depth,w.depth_bias,f.maxSpeed,f.maxForce);
   const[wx,wy]=forceWander(f.id,f.x,f.depth,f.vx,f.vd,w.wander,f.maxForce);fx+=wx;fy+=wy;
