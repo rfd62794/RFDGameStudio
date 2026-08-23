@@ -115,6 +115,19 @@ slither_rogue has sophisticated NPC AI locally. MutantBattleBall has agent AI lo
 - `seek_nearest(entity, targets, filter_fn)` → nearest target or nil
 - `decide(entity, context, behavior_tree)` → action_id
 
+**TS-side extraction status (Aug 22, 2026): extraction started, not yet closed.**
+Shoal's proven steering forces (`forceSeek`, `forceFlee`, `forceSeparate`,
+`forceAlign`, `forceCohere`, `forceAvoid`) have been extracted to
+`ts/src/engine/shared/aiBehavior/steering.ts` as generic, accessor-based
+pure functions. Shoal now imports from the shared module — behavioral
+equivalence proven via deterministic 100-tick simulation comparison
+(34 tests in `test_engine_aiBehavior.ts`). The Lua-side
+`ai_behavior.lua` primitive remains unimplemented; the TS extraction
+covers steering forces only, not decision-making (`decide`,
+`seek_nearest`). Adoption by Slither Rogue and Mutant Battle Ball is
+**explicitly not yet started** — Phase 2 will investigate their real
+needs before expanding the shared interface.
+
 **`inventory.lua` — item and card management**
 SlimeCoin pocket coins, shop items. Any deckbuilder or RPG item system.
 - `add_item(inventory, item)` → updated inventory
@@ -223,6 +236,7 @@ is a real, landed module — not a gap.*
 | `anatomy` | `ts/src/engine/shared/anatomy/` | Functional | body-plan / part system |
 | `personGenerator` | `ts/src/engine/shared/personGenerator/` | **New — v1 (role symbols), Aug 22 2026** | Succession (mapping only — `data/figureArchetypeMap.ts`); preview at `games/role_symbol_viewer` |
 | `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **Phase 1: detection + interface shell (Aug 22 2026); Phase 2: Y8 adapter (Aug 22 2026); Phase 3: Shoal wired (Aug 22 2026)** | Shoal — first live consumer (Y8 SDK script + notifyGameplayStart/Stop at real transitions) |
+| `aiBehavior` | `ts/src/engine/shared/aiBehavior/` | **Phase 1: steering forces extracted from Shoal (Aug 22, 2026)** | Shoal — first live consumer (steering forces imported from shared module) |
 
 ### `personGenerator` — v1: role symbols (Aug 22 2026)
 
@@ -451,6 +465,53 @@ working, tested, performant code with an external dependency that does
 the same thing. No genuine need — the standing discipline (extract or
 adopt from real proven need, not because a candidate was interesting)
 applies.
+
+### `aiBehavior` — Phase 1: steering force extraction from Shoal (Aug 22, 2026)
+
+**Extraction done, adoption by other games explicitly not yet started.**
+
+Shoal's proven, tested steering forces have been extracted to
+`ts/src/engine/shared/aiBehavior/steering.ts` as generic, accessor-
+based pure functions. This is pure extraction — zero new capability,
+zero behavior change. The `ai_behavior` gap named above is partially
+addressed (steering forces only; decision-making primitives like
+`decide` and `seek_nearest` remain unimplemented on both Lua and TS
+sides).
+
+**What was extracted:**
+- `forceSeek` — seek toward a target position
+- `forceFlee` — flee away from a threat position (radius-limited)
+- `forceSeparate` — separation from neighbors (inverse-distance repulsion)
+- `forceAlign` — alignment with neighbor velocities
+- `forceCohere` — cohesion toward neighbor centroid
+- `forceAvoid` — avoidance of obstacles (with id-based exclusion)
+
+**Design decision — accessor callbacks, not interface conformance:**
+Shoal uses `depth` for the Y axis and `vd` for Y-velocity. Rather than
+baking field names into the shared API (which would force every
+consumer to adopt the same naming), the neighbor-based functions accept
+accessor callbacks that extract position/velocity from whatever entity
+shape the caller uses. This avoids per-tick object allocation
+(critical for hot-path performance — Shoal runs 60+ agents at 60Hz)
+while keeping the force computation logic in one place. `forceSeek` and
+`forceFlee` take raw position numbers, so they need no accessors.
+
+**Behavioral-equivalence proof:**
+The pre-extraction Shoal simulation was run with seed=42 for 100 ticks
+and the full state (fish/shark positions, velocities, alive flags,
+aggregate stats) was captured. After extraction, the same simulation
+produces byte-identical output to 10 decimal places. A 500-tick
+stability test confirms no divergence or NaN propagation over longer
+runs. 34 tests in `test_engine_aiBehavior.ts` (16 unit tests for the
+extracted functions + 6 behavioral-equivalence tests + 7 structural
+tests + 5 no-change-to-other-games tests).
+
+**What was NOT done (deferred to Phase 2+):**
+- Slither Rogue and Mutant Battle Ball adoption — their real needs
+  must be investigated before expanding the shared interface
+- Decision-making primitives (`decide`, `seek_nearest`) — not extracted
+- Lua-side `ai_behavior.lua` — remains unimplemented
+- Yuka adoption — not warranted (assessed above)
 
 
 

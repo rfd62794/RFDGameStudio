@@ -65,7 +65,7 @@ describe('aiBehavior steering — forceFlee', () => {
   it('test_forceFlee_pushes_away_from_threat', () => {
     // Threat at (100, 0), entity at (0, 0), radiusSq = 20000
     const [fx, fy] = forceFlee(0, 0, 100, 0, 1.0, 80, 20000);
-    expect(fx).toBeCloseTo(80, 10); // pushes left (away from threat)
+    expect(fx).toBeCloseTo(-80, 10); // pushes left (away from threat at x=100)
     expect(fy).toBeCloseTo(0, 10);
   });
 
@@ -81,7 +81,8 @@ describe('aiBehavior steering — forceFlee', () => {
 
 describe('aiBehavior steering — forceSeparate', () => {
   it('test_forceSeparate_returns_zero_for_no_neighbors', () => {
-    const [fx, fy] = forceSeparate(0, 0, [], n => ({ x: n.x, y: n.y, alive: n.alive }), 100, 1.0, 80);
+    const neighbors: { x: number; y: number; alive: boolean }[] = [];
+    const [fx, fy] = forceSeparate(0, 0, neighbors, n => ({ x: n.x, y: n.y, alive: n.alive }), 100, 1.0, 80);
     expect(fx).toBe(0);
     expect(fy).toBe(0);
   });
@@ -114,7 +115,8 @@ describe('aiBehavior steering — forceSeparate', () => {
 
 describe('aiBehavior steering — forceAvoid', () => {
   it('test_forceAvoid_returns_zero_for_null_obstacles', () => {
-    const [fx, fy] = forceAvoid(0, 0, null as any, o => ({ x: o.x, y: o.y, id: o.id }), 100, 1.0, 80);
+    const obstacles: { id?: string; x: number; y: number }[] = [];
+    const [fx, fy] = forceAvoid(0, 0, obstacles, o => ({ x: o.x, y: o.y, id: o.id }), 100, 1.0, 80);
     expect(fx).toBe(0);
     expect(fy).toBe(0);
   });
@@ -132,7 +134,7 @@ describe('aiBehavior steering — forceAvoid', () => {
 
   it('test_forceAvoid_pushes_away_from_obstacle', () => {
     const obstacles = [{ id: 'x', x: 5, y: 0 }];
-    const [fx, fy] = forceAvoid(0, 0, obstacles, o => ({ x: o.x, y: o.y, id: o.id }), 100, 1.0, 80);
+    const [fx] = forceAvoid(0, 0, obstacles, o => ({ x: o.x, y: o.y, id: o.id }), 100, 1.0, 80);
     expect(fx).toBeLessThan(0); // pushed left
     expect(Math.abs(fx)).toBeCloseTo(80, 5);
   });
@@ -140,7 +142,8 @@ describe('aiBehavior steering — forceAvoid', () => {
 
 describe('aiBehavior steering — forceAlign', () => {
   it('test_forceAlign_returns_zero_for_no_neighbors', () => {
-    const [fx, fy] = forceAlign(0, 0, [], n => ({ x: n.x, y: n.y, vx: n.vx, vy: n.vy, alive: n.alive }), 100, 1.0, 80);
+    const neighbors: { x: number; y: number; vx: number; vy: number; alive: boolean }[] = [];
+    const [fx, fy] = forceAlign(0, 0, neighbors, n => ({ x: n.x, y: n.y, vx: n.vx, vy: n.vy, alive: n.alive }), 100, 1.0, 80);
     expect(fx).toBe(0);
     expect(fy).toBe(0);
   });
@@ -168,7 +171,8 @@ describe('aiBehavior steering — forceAlign', () => {
 
 describe('aiBehavior steering — forceCohere', () => {
   it('test_forceCohere_returns_zero_for_no_neighbors', () => {
-    const [fx, fy] = forceCohere(0, 0, [], n => ({ x: n.x, y: n.y, alive: n.alive }), 100, 1.0, 80);
+    const neighbors: { x: number; y: number; alive: boolean }[] = [];
+    const [fx, fy] = forceCohere(0, 0, neighbors, n => ({ x: n.x, y: n.y, alive: n.alive }), 100, 1.0, 80);
     expect(fx).toBe(0);
     expect(fy).toBe(0);
   });
