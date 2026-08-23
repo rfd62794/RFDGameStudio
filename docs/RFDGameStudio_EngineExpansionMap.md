@@ -222,7 +222,7 @@ is a real, landed module — not a gap.*
 | `sportsSim` | `ts/src/engine/shared/sportsSim/` | Built, first consumer (MBB) not yet wired | generic possession/violence sports engine |
 | `anatomy` | `ts/src/engine/shared/anatomy/` | Functional | body-plan / part system |
 | `personGenerator` | `ts/src/engine/shared/personGenerator/` | **New — v1 (role symbols), Aug 22 2026** | Succession (mapping only — `data/figureArchetypeMap.ts`); preview at `games/role_symbol_viewer` |
-| `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **New — v1 (detection + interface shell), Aug 22 2026** | No live consumers yet — zero games wired this phase |
+| `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **Phase 1: detection + interface shell (Aug 22 2026); Phase 2: Y8 adapter (Aug 22 2026)** | No live consumers yet — zero games wired (Phase 3 will wire Shoal) |
 
 ### `personGenerator` — v1: role symbols (Aug 22 2026)
 
@@ -292,9 +292,58 @@ build is running in.
 - **No live consumers yet.** Zero game components import this module
   this phase — confirmed by a grep-anchor test. Live game integration
   is a deliberate future phase.
-- **Tests:** `tests/test_engine_portalAdapter.ts` (26 tests): pure
-  classifier coverage for all 5 environments, unknown≡own_site
+- **Tests:** `tests/test_engine_portalAdapter.ts` (29 tests): pure
+  classifier coverage for all 6 environments (incl. y8), unknown≡own_site
   equivalence, interface safety with zero portals, real-runtime wrapper
   with mocked SDK globals, and a grep anchor confirming no live game
   imports the module.
+
+### `portalAdapter` — Phase 2: Y8 adapter (Aug 22 2026)
+
+Real Y8 SDK wrapper living behind Phase 1's locked interface. Y8's real
+developer dashboard documents a real SDK loaded from
+`https://cdn.y8.com/minimal-sdk/2-0/y8.min.js`, initialized via a
+`y8sdk.ready` event + `y8.sdk().init()` call, with ad breaks via
+`y8Sdk.showAd({ type, beforeAd, afterAd })`.
+
+- **Real type-mapping decision (locked):** Y8 has five real ad types
+  (`reward`, `next`, `start`, `pause`, `browse`). Phase 1's generic
+  `requestAdBreak()` gained a real optional `AdBreakContext` parameter
+  (`'launch' | 'transition' | 'reward'`) that maps to exactly three of
+  Y8's five types:
+    - `'launch'` → `showAd({ type: 'start' })`
+    - `'transition'` → `showAd({ type: 'next' })`
+    - `'reward'` → `showAd({ type: 'reward' })`
+- **⚠️ `'pause'` and `'browse'` are intentionally unimplemented** — real
+  Y8 types with no current mapped consumer. Named in comments, not
+  implemented, matching the project's standing discipline against
+  speculative building. Adding them requires extending `AdBreakContext`
+  first, which is a deliberate future decision.
+- **Script injection:** `injectY8Script()` injects the real
+  `<script src="https://cdn.y8.com/minimal-sdk/2-0/y8.min.js">` tag at
+  runtime, only when `detectPortalEnvironment()` genuinely returns `'y8'`
+  — never loads Y8's SDK on own_site, itch, or any other environment.
+  Idempotent (won't inject a duplicate tag).
+- **⚠️ No hardcoded Shoal credentials.** `appId`/`gameId` are real
+  required parameters to `initY8(config)` — Phase 3 supplies Shoal's
+  real values (`6a8a38fd3daf0b765651b797` / `281135`) from Shoal's own
+  config, not from this shared adapter file. Confirmed by test.
+- **Detection update:** `'y8'` added to `PortalEnvironment` type.
+  Detected via `window.y8` global presence or `?portal=y8` query-param
+  fallback. `isPortalEnvironment('y8')` returns `true`.
+- **Interface update:** `requestAdBreak(context?)` — the optional
+  `AdBreakContext` parameter defaults to `'transition'`. When env is
+  `'y8'` and the SDK is initialized, dispatches to `y8RequestAdBreak()`.
+  When the SDK isn't initialized yet, resolves immediately (safe no-op).
+- **No live consumers yet.** Zero Shoal files (or any other game's
+  files) import `portalAdapter` — confirmed by grep-anchor test. Phase 3
+  will wire Shoal as the first real consumer.
+- **Tests:** `tests/test_engine_portalAdapter_y8.ts` (25 tests):
+  type-mapping (3 distinct assertions + pause/browse exclusion),
+  `y8RequestAdBreak` per context, script injection (real tag, no
+  duplicate, real CDN URL), script-injection gating regression (does
+  NOT fire on own_site/itch/unknown), `initY8` idempotency + script
+  injection + ready-event resolution, no-hardcoded-credentials check,
+  no-Shoal-imports grep anchor.
+
 

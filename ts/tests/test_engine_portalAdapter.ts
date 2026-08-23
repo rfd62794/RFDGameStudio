@@ -22,6 +22,7 @@ function input(overrides: Partial<PortalDetectionInput> = {}): PortalDetectionIn
     search: '',
     hasCrazySDK: false,
     hasPokiSDK: false,
+    hasY8: false,
     ...overrides,
   };
 }
@@ -103,6 +104,16 @@ describe('classifyPortalEnvironment', () => {
     expect(classifyPortalEnvironment(input({ hostname: 'FOO.ITCH.IO' }))).toBe('itch');
     expect(classifyPortalEnvironment(input({ hostname: 'RFDITSERVICES.COM' }))).toBe('own_site');
   });
+
+  it('test_returns_y8_when_y8_global_present', () => {
+    expect(classifyPortalEnvironment(input({ hostname: 'example.com', hasY8: true }))).toBe('y8');
+  });
+
+  it('test_returns_y8_via_query_param_fallback', () => {
+    expect(
+      classifyPortalEnvironment(input({ hostname: 'example.com', search: '?portal=y8' })),
+    ).toBe('y8');
+  });
 });
 
 // ── unknown behaves identically to own_site ──────────────────────────
@@ -117,6 +128,7 @@ describe('unknown environment behaves identically to own_site', () => {
     expect(isPortalEnvironment('itch')).toBe(true);
     expect(isPortalEnvironment('crazygames')).toBe(true);
     expect(isPortalEnvironment('poki')).toBe(true);
+    expect(isPortalEnvironment('y8')).toBe(true);
   });
 
   it('test_interface_functions_safe_in_unknown_and_own_site', async () => {
@@ -136,6 +148,7 @@ describe('detectPortalEnvironment', () => {
   const originalLocation = (globalThis as { location?: { hostname?: string; search?: string } }).location;
   const originalCrazy = (globalThis as { CrazySDK?: unknown }).CrazySDK;
   const originalPoki = (globalThis as { PokiSDK?: unknown }).PokiSDK;
+  const originalY8 = (globalThis as { y8?: unknown }).y8;
 
   afterEach(() => {
     // Restore globals after each test.
@@ -144,8 +157,10 @@ describe('detectPortalEnvironment', () => {
     }
     delete (globalThis as { CrazySDK?: unknown }).CrazySDK;
     delete (globalThis as { PokiSDK?: unknown }).PokiSDK;
+    delete (globalThis as { y8?: unknown }).y8;
     if (originalCrazy !== undefined) (globalThis as { CrazySDK?: unknown }).CrazySDK = originalCrazy;
     if (originalPoki !== undefined) (globalThis as { PokiSDK?: unknown }).PokiSDK = originalPoki;
+    if (originalY8 !== undefined) (globalThis as { y8?: unknown }).y8 = originalY8;
   });
 
   it('test_returns_own_site_in_default_jsdom_environment', () => {
@@ -165,6 +180,11 @@ describe('detectPortalEnvironment', () => {
   it('test_returns_poki_when_PokiSDK_global_present', () => {
     (globalThis as { PokiSDK?: unknown }).PokiSDK = { init: () => {} };
     expect(detectPortalEnvironment()).toBe('poki');
+  });
+
+  it('test_returns_y8_when_y8_global_present', () => {
+    (globalThis as { y8?: unknown }).y8 = { sdk: () => {}, emitReadyEvent: () => {} };
+    expect(detectPortalEnvironment()).toBe('y8');
   });
 });
 

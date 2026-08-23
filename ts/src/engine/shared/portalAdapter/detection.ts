@@ -23,6 +23,7 @@ export type PortalEnvironment =
   | 'itch' // detected via itch's known iframe/hostname pattern
   | 'crazygames' // detected via CrazySDK presence or query-param fallback
   | 'poki' // detected via PokiSDK presence or query-param fallback
+  | 'y8' // detected via window.y8 presence or y8sdk.ready event / query-param fallback
   | 'unknown'; // anything else — treated identically to own_site
 
 /**
@@ -34,6 +35,7 @@ export interface PortalDetectionInput {
   search: string; // query string, e.g. "?portal=crazygames"
   hasCrazySDK: boolean; // window.CrazySDK !== undefined
   hasPokiSDK: boolean; // window.PokiSDK !== undefined
+  hasY8: boolean; // window.y8 !== undefined (Y8 SDK global)
 }
 
 /** The studio's own domain — the default environment. */
@@ -70,8 +72,9 @@ function parseQuery(search: string): Map<string, string> {
  *   2. itch hostname pattern → itch
  *   3. CrazySDK global present → crazygames
  *   4. PokiSDK global present → poki
- *   5. query-param fallback (?portal=crazygames / ?portal=poki) → that portal
- *   6. anything else → unknown (behaves identically to own_site)
+ *   5. Y8 global present (window.y8) → y8
+ *   6. query-param fallback (?portal=crazygames|poki|y8) → that portal
+ *   7. anything else → unknown (behaves identically to own_site)
  */
 export function classifyPortalEnvironment(input: PortalDetectionInput): PortalEnvironment {
   const host = input.hostname.toLowerCase();
@@ -86,15 +89,18 @@ export function classifyPortalEnvironment(input: PortalDetectionInput): PortalEn
     return 'itch';
   }
 
-  // 3 & 4. SDK presence — the primary signal for CrazyGames and Poki.
+  // 3, 4 & 5. SDK presence — the primary signal for CrazyGames, Poki, and Y8.
   if (input.hasCrazySDK) {
     return 'crazygames';
   }
   if (input.hasPokiSDK) {
     return 'poki';
   }
+  if (input.hasY8) {
+    return 'y8';
+  }
 
-  // 5. Query-param fallback — for iframed cases where the SDK hasn't
+  // 6. Query-param fallback — for iframed cases where the SDK hasn't
   //    loaded yet or is inaccessible from the iframe's origin.
   const params = parseQuery(input.search);
   const portalParam = params.get('portal');
@@ -104,8 +110,11 @@ export function classifyPortalEnvironment(input: PortalDetectionInput): PortalEn
   if (portalParam === 'poki') {
     return 'poki';
   }
+  if (portalParam === 'y8') {
+    return 'y8';
+  }
 
-  // 6. Unknown — behaves identically to own_site (safe, silent no-op).
+  // 7. Unknown — behaves identically to own_site (safe, silent no-op).
   return 'unknown';
 }
 
@@ -120,6 +129,7 @@ export function detectPortalEnvironment(): PortalEnvironment {
     location?: { hostname?: string; search?: string };
     CrazySDK?: unknown;
     PokiSDK?: unknown;
+    y8?: unknown;
   };
   const loc = w.location;
   return classifyPortalEnvironment({
@@ -127,6 +137,7 @@ export function detectPortalEnvironment(): PortalEnvironment {
     search: loc?.search ?? '',
     hasCrazySDK: w.CrazySDK !== undefined && w.CrazySDK !== null,
     hasPokiSDK: w.PokiSDK !== undefined && w.PokiSDK !== null,
+    hasY8: w.y8 !== undefined && w.y8 !== null,
   });
 }
 
@@ -138,5 +149,5 @@ export function detectPortalEnvironment(): PortalEnvironment {
  * itch, crazygames, and poki DO require it.
  */
 export function isPortalEnvironment(env: PortalEnvironment): boolean {
-  return env === 'itch' || env === 'crazygames' || env === 'poki';
+  return env === 'itch' || env === 'crazygames' || env === 'poki' || env === 'y8';
 }
