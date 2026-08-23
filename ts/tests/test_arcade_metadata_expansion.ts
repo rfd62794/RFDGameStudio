@@ -187,19 +187,37 @@ describe('Arcade Metadata Expansion — last_updated sourcing', () => {
   });
 
   it('test_last_updated_absent_for_a_game_with_no_metadata_entry', async () => {
-    // gladiator_arena has a real GameConfig but no game-metadata.json
-    // entry (not in GAME_PATHS on the Python side) — the detail view
-    // must degrade honestly, not fabricate a date.
-    const gladiator = GAME_REGISTRY.find(g => g.gameId === 'gladiator_arena')!;
-    expect((gameMetadata as Record<string, unknown>)['gladiator_arena']).toBeUndefined();
+    // Real, honest gap coverage: a gameId genuinely absent from
+    // game-metadata.json (a synthetic config here, not asserting a real
+    // registry entry is untracked — the tracking-gap directive on
+    // Aug 23 2026 fixed every real registry game's GAME_PATHS coverage,
+    // so no live registry entry is missing a metadata entry anymore).
+    // The detail view must still degrade honestly for the general case,
+    // not fabricate a date.
+    expect((gameMetadata as Record<string, unknown>)['not_a_real_tracked_game']).toBeUndefined();
+    const config: GameConfig = { gameId: 'not_a_real_tracked_game', label: 'Untracked Game' };
 
     const container = document.createElement('div');
     const root = createRoot(container);
     await act(async () => {
-      root.render(React.createElement(GameDetailView, { config: gladiator, onClose: () => {} }));
+      root.render(React.createElement(GameDetailView, { config, onClose: () => {} }));
     });
     expect(container.querySelector('[data-testid="game-detail-last-updated"]')).toBeNull();
     root.unmount();
+  });
+
+  it('test_every_real_registry_game_has_a_metadata_entry', () => {
+    // Real regression coverage for the tracking-gap fix (Aug 23 2026):
+    // 9 real registry games (planetofgreed, gladiator_arena, planetforge,
+    // character_viewer, technique_showcase, role_symbol_viewer,
+    // dissonance_prototype, slimegarden, factory_idle) were silently
+    // absent from game-metadata.json because GAME_PATHS never listed
+    // them on the Python side. Confirms every live GAME_REGISTRY entry
+    // now has real, non-fabricated date coverage.
+    for (const config of GAME_REGISTRY) {
+      const entry = (gameMetadata as Record<string, unknown>)[config.gameId];
+      expect(entry, `${config.gameId} missing from game-metadata.json`).toBeDefined();
+    }
   });
 });
 
