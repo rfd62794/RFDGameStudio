@@ -11,6 +11,8 @@ const config: GameConfig = {
   description: 'Origin project — the original AI Studio (Gemini API) core-loop prototype that became the live Dissonance Depths (ts/src/games/dissonance/). Tested turn-based combat, relation-based combination mechanics, and Locked/Hinted/Discovered stabilization.',
   color: '#78716c',
   status: 'external',
+  genre: 'roguelike',
+  tags: ['origin-project', 'ai-studio-source'],
   embedUrl: '/arcade/dissonance_prototype/',
 };
 

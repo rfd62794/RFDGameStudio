@@ -10,6 +10,8 @@ const config: GameConfig = {
   description: 'Origin project — the original multi-tank slime breeding and genetics sandbox. Merged with SlimeBreeder to become the current, live SlimeWorld (ts/src/games/slimeworld/). Real specimen dispatch, territory claims, and garrison risk across planet nodes.',
   color: '#6c8ef7',
   status: 'external',
+  genre: 'creature-collector',
+  tags: ['origin-project', 'territory-control'],
   embedUrl: '/arcade/slimegarden/',
 };
 

@@ -10,6 +10,8 @@ const config: GameConfig = {
   description: 'Origin project — a standalone TypeScript reimagining of the SlimeGarden core loop. Merged with SlimeGarden to become the current, live SlimeWorld (ts/src/games/slimeworld/).',
   color: '#ec4899',
   status: 'external',
+  genre: 'creature-collector',
+  tags: ['origin-project'],
   embedUrl: '/arcade/slimebreeder/',
 };
 
