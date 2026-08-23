@@ -210,5 +210,5 @@ def test_generate_game_metadata_excludes_config_ts_from_real_dates() -> None:
     the config.ts exclusion (not just the internal _git_dates helper in
     isolation) for every real, currently-tracked game."""
     metadata = generate_game_metadata()
-    excluded, _ = _git_dates(REPO_ROOT, ["ts/src/games/horse_racing"], exclude_files=["config.ts"])
-    assert metadata["horse_racing"]["last_updated"] == excluded
+    _, excluded_last = _git_dates(REPO_ROOT, GAME_PATHS["horse_racing"], exclude_files=["config.ts"])
+    assert metadata["horse_racing"]["last_updated"] == excluded_last
