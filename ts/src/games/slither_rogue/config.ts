@@ -7,5 +7,7 @@ export const slitherRogueConfig: GameConfig = {
   description: 'Slither.io meets roguelike. Steal segments, collect evolution cards, dominate the arena.',
   color:       '#34d399',   // green
   status:      'beta',
+  genre:       'roguelike',
+  tags:        ['io-style', 'evolution-cards'],
   component:   React.lazy(() => import('./App')),
 };

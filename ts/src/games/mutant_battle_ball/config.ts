@@ -7,5 +7,7 @@ export const mutantBattleBallConfig: GameConfig = {
   description: 'Assemble mutants from parts. Field a 2v2 squad. Reach the end zone. Salvage the fallen.',
   color:       '#f87171',
   status:      'dev',
+  genre:       'creature-collector',
+  tags:        ['sports-combat', 'squad-based'],
   component:   React.lazy(() => import('./App')),
 };

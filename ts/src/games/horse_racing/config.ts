@@ -7,5 +7,7 @@ export const horseRacingConfig: GameConfig = {
   description: 'Race, breed, and bet on horses. Win/Place/Show betting, genetics system, career tracking.',
   color:       '#f59e0b',   // amber
   status:      'stable',
+  genre:       'racing',
+  tags:        ['breeding', 'betting'],
   component:   React.lazy(() => import('./App')),
 };

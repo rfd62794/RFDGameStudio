@@ -7,5 +7,7 @@ export const slimeworldConfig: GameConfig = {
   description: 'Breed, dispatch, and conquer planet nodes with slime specimens. Color/shape/accent genetics, territory claims, garrison mechanics.',
   color:       '#22c55e',
   status:      'stable',
+  genre:       'creature-collector',
+  tags:        ['territory-control', 'genetics'],
   component:   React.lazy(() => import('./App')),
 };
