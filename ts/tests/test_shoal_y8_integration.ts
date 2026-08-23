@@ -40,52 +40,59 @@ describe('Shoal Y8 config', () => {
 });
 
 // ── Script tag in source index.html ──────────────────────────────────
+// The Y8 SDK script tag is no longer in the source template directly.
+// It is injected at build time by the preserveY8ScriptTag() plugin in
+// vite.shoal.config.ts, only when --mode y8 is used. The source template
+// contains a comment placeholder instead.
 
 describe('Y8 SDK script tag in source', () => {
-  it('test_script_tag_present_in_source_index_html', () => {
+  it('test_script_tag_not_in_source_index_html', () => {
     const src = readFileSync(
       resolve(tsRoot, 'src', 'standalone', 'shoal', 'index.html'),
       'utf8',
     );
-    expect(src).toContain('https://cdn.y8.com/minimal-sdk/2-0/y8.min.js');
-    expect(src).toContain('async');
+    // The script tag should NOT be in the source template — it's
+    // injected conditionally at build time.
+    expect(src).not.toContain('https://cdn.y8.com/minimal-sdk/2-0/y8.min.js');
+    // The template should have a comment explaining the injection.
+    expect(src).toContain('BUILD_TARGET=y8');
   });
 
-  it('test_script_tag_in_head_before_entry_script', () => {
-    const src = readFileSync(
-      resolve(tsRoot, 'src', 'standalone', 'shoal', 'index.html'),
+  it('test_vite_config_has_conditional_injection_plugin', () => {
+    const configSrc = readFileSync(
+      resolve(tsRoot, 'vite.shoal.config.ts'),
       'utf8',
     );
-    const sdkPos = src.indexOf('cdn.y8.com');
-    const entryPos = src.indexOf('entry.tsx');
-    expect(sdkPos).toBeGreaterThan(-1);
-    expect(entryPos).toBeGreaterThan(-1);
-    // SDK script must appear before the entry script.
-    expect(sdkPos).toBeLessThan(entryPos);
+    // The plugin must check mode === 'y8' to conditionally inject.
+    expect(configSrc).toContain('preserveY8ScriptTag');
+    expect(configSrc).toContain("mode === 'y8'");
+    // The plugin must NOT unconditionally inject.
+    expect(configSrc).not.toMatch(/preserveY8ScriptTag\(\)/);
   });
 });
 
-// ── Script tag survives real build ───────────────────────────────────
+// ── Script tag survives Y8 build, absent from itch build ─────────────
 
-describe('Y8 SDK script tag survives build', () => {
-  it('test_script_tag_present_in_dist_shoal_index_html', () => {
-    // Run the real Shoal build, then check the generated dist file.
-    let distSrc: string;
-    try {
-      distSrc = readFileSync(
-        resolve(tsRoot, 'dist-shoal', 'index.html'),
-        'utf8',
-      );
-    } catch {
-      // dist-shoal doesn't exist yet — run the build.
-      execSync('npm run build:shoal', { cwd: tsRoot, encoding: 'utf8', stdio: 'pipe' });
-      distSrc = readFileSync(
-        resolve(tsRoot, 'dist-shoal', 'index.html'),
-        'utf8',
-      );
-    }
-    // The Y8 SDK script tag must survive the Vite build — Vite preserves
-    // external script tags in index.html.
+describe('Y8 SDK script tag build-target conditional', () => {
+  it('test_script_tag_absent_from_default_build', () => {
+    // Run the default Shoal build (itch/arcade target), then check.
+    execSync('npm run build:shoal', { cwd: tsRoot, encoding: 'utf8', stdio: 'pipe' });
+    const distSrc = readFileSync(
+      resolve(tsRoot, 'dist-shoal', 'index.html'),
+      'utf8',
+    );
+    // The Y8 SDK script tag must NOT be present in the default build.
+    expect(distSrc).not.toContain('cdn.y8.com/minimal-sdk/2-0/y8.min.js');
+  });
+
+  it('test_script_tag_present_in_y8_build', () => {
+    // Run the Y8-targeted build, then check.
+    execSync('npm run build:shoal:y8', { cwd: tsRoot, encoding: 'utf8', stdio: 'pipe' });
+    const distSrc = readFileSync(
+      resolve(tsRoot, 'dist-shoal', 'index.html'),
+      'utf8',
+    );
+    // The Y8 SDK script tag must be present in the Y8 build.
     expect(distSrc).toContain('cdn.y8.com/minimal-sdk/2-0/y8.min.js');
   });
 });
