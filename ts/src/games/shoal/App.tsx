@@ -24,6 +24,10 @@ import {
   getCacheStats,
 } from './art/pathCache';
 import { RenderProfiler, setProfilingEnabled, isProfilingEnabled } from './art/renderProfiler';
+import { notifyGameplayStart, notifyGameplayStop } from '../../engine/shared/portalAdapter/interface';
+import { initY8 } from '../../engine/shared/portalAdapter/adapters/y8';
+import { detectPortalEnvironment } from '../../engine/shared/portalAdapter/detection';
+import { SHOAL_Y8_CONFIG } from './y8Config';
 import './styles.css';
 
 
@@ -114,6 +118,11 @@ export default function App({ session }: GameRendererProps) {
     spawn.seed = config.seed;
     setReefKey((k) => k + 1);
     setScreen('game');
+    // Y8 portal integration — initialize SDK if on Y8, then signal start.
+    if (detectPortalEnvironment() === 'y8') {
+      initY8(SHOAL_Y8_CONFIG);
+    }
+    notifyGameplayStart();
   };
 
   if (screen === 'title') {
@@ -138,7 +147,7 @@ export default function App({ session }: GameRendererProps) {
       mode={mode}
       arcadeBaseUrl={arcadeBaseUrl}
       headerExtra={
-        <button className="game-shell-back" onClick={() => setScreen('title')}>
+        <button className="game-shell-back" onClick={() => { notifyGameplayStop(); setScreen('title'); }}>
           ← Title
         </button>
       }
