@@ -1,6 +1,8 @@
 # RFDGameStudio — Full Demo Porting Roadmap
 
-*v0.1 | August 2026 | Living reference — every real demo found across this session's discovery work, tracked as a real, long-term backlog. Nothing here gets dropped for being harder — that's the explicit point of this document. Companion to `RFDGameStudio_EngineExpansionMap.md` and `RFDGameStudio_ExternalToolingCatalog.md`.*
+*v0.2 — supersedes v0.1 (same week) | August 2026 | Living reference — every real demo found across this session's discovery work, tracked as a real, long-term backlog. Nothing here gets dropped for being harder — that's the explicit point of this document. Companion to `RFDGameStudio_EngineExpansionMap.md` and `RFDGameStudio_ExternalToolingCatalog.md`.*
+
+*Change from v0.1: a real, direct correction — SlimeGarden and SlimeBreeder were not two ordinary Tier 1 candidates, they were merged to become SlimeWorld. That's a genuinely different category from "port this as a new external game," and it applies to more than just those two. This version introduces **Legacy/Origin Projects** as a real, distinct Type, connecting directly to the earlier Type/Genre/Date arcade-structure work — Type isn't just Game/Tool/External anymore.*
 
 ---
 
@@ -10,7 +12,38 @@ Every entry below is real, found via direct investigation this session
 — repo-wide discovery plus a real local Downloads batch. Tiers reflect
 real, evidenced porting difficulty, not preference. Tier 3 exists
 specifically so the hard ones stay visible and planned, not silently
-dropped.
+dropped. **Legacy/Origin Projects is not a difficulty tier — it's a
+real, separate Type**, for material that predates and became a
+currently-live game, ported and preserved *as that history*, not as a
+new, competing entry.
+
+---
+
+## Legacy / Origin Projects — a real, distinct Type
+
+**The real, defining test:** does a currently-live game already exist
+that this project's real work became, was merged into, or was directly
+superseded by? If yes, it belongs here, not in the difficulty tiers
+below — porting it means preserving and presenting real origin
+material, not adding a new catalog entry competing with the game it
+led to.
+
+| Project | Real relationship | Became / merged into |
+|---|---|---|
+| **SlimeGarden** | Real, confirmed origin material — merged with SlimeBreeder to form the current, live SlimeWorld | SlimeWorld (`ts/src/games/slimeworld/`) |
+| **SlimeBreeder** | Real, confirmed origin material — same merge as SlimeGarden | SlimeWorld |
+| **CorpWorld** | Already found, correctly flagged as retired — confirmed via registry.ts's own comment ("Planet of Greed's fork ancestor") | Planet of Greed |
+| **Kingmaker Squads** | Already found, correctly flagged as retired — confirmed via registry.ts's own comment ("Wheel/culture-identity design source") | Planet of Greed |
+| **Dissonance prototype** (`tmp/dissonance-src/`) | The original AI-Studio source; already noted as "already ported" in v0.1, correctly belongs here as the formal Type rather than a footnote | Dissonance Depths |
+
+**Real porting shape for this Type, distinct from the tiers below:**
+not a standard `status: 'external'` embed competing for attention with
+the live game — a real, clearly-labeled "Origin" presentation, honest
+about what it is and what it became. The real, open question, not yet
+decided: does this need new registry infrastructure (a genuine
+`status: 'legacy'` or similar), or can it reuse `status: 'external'`
+with real, clear labeling in the description field? Worth a real
+decision before the first directive in this category ships.
 
 ---
 
@@ -28,16 +61,11 @@ dropped.
 
 ## Tier 1 — Real, Straightforward, TS/React, No Unresolved Blockers
 
-Standard AI-Studio export shape, no exotic backend or cross-language dependency. Real, low-friction porting candidates whenever picked up.
+*Corrected in v0.2 — SlimeGarden and SlimeBreeder removed from this tier, moved to Legacy/Origin Projects above.*
 
 | Demo | Real state | What it is |
 |---|---|---|
-| SlimeGarden | Deployed as external embed, large (79KB gameLogic, 57KB App.tsx) | Breeding/lab management, corporate contracts, exploration — no spatial AI |
 | Coin Pusher Arcade | Archived, not deployed | Physics-based arcade, no AI agents |
-| SlimeBreeder | Deployed as external embed | Small, lightweight PWA |
-| CorpWorld | Retired, deployed as external | Turn-based strategy AI (4 named opponents) — superseded by Planet of Greed, real historical value only |
-| Kingmaker Squads | Retired, deployed as external | Auto-battler frame-based combat — superseded by Planet of Greed, real historical value only |
-| Brewfield | Has both a real Lua-backed version and a separate TS prototype | Card/deckbuilding, element wheel — already has a real, live path via Lua |
 
 ---
 
@@ -81,7 +109,6 @@ Registered as `external` today, but its real AI complexity (pheromone grids, mul
 
 - **Time Served** — confirmed, directly, to be the real canonical AI-Studio source behind this session's own in-repo work, not a port target.
 - **Kaggriculture** — confirmed to be a real Python-based Kaggle agent-competition framework, not a game in any portable format. Tracked separately as its own research thread (`personal:kaggle_agentic_logic_study_aug22`), not part of this roadmap.
-- **Dissonance prototype** (`tmp/dissonance-src/`) — already ported; the live TS-native Dissonance Depths is the completed result.
 
 ---
 
@@ -89,9 +116,10 @@ Registered as `external` today, but its real AI complexity (pheromone grids, mul
 
 | Version | Change |
 |---|---|
-| v0.1 | Initial. Full real inventory across repo-wide discovery and a real local Downloads batch. Three tiers by real, evidenced difficulty — nothing dropped, Tier 3 exists specifically to keep the harder items visible and planned rather than silently deprioritized. |
+| v0.1 | Initial. Full real inventory across repo-wide discovery and a real local Downloads batch. Three tiers by real, evidenced difficulty. |
+| v0.2 | Real, direct correction: SlimeGarden and SlimeBreeder are confirmed to have merged into the current, live SlimeWorld — not ordinary Tier 1 candidates. Introduced **Legacy/Origin Projects** as a real, distinct Type (not a difficulty tier), connecting directly to the earlier arcade Type/Genre/Date research. CorpWorld, Kingmaker Squads, and the Dissonance prototype — already correctly flagged as retired/superseded in v0.1 — moved into this same, now-properly-named category. Real, open question flagged: whether this Type needs new registry infrastructure or can reuse `status: 'external'` with clear labeling. |
 
 ---
 
 *RFDGameStudio | August 22 2026*
-*Every real demo found gets a real place on this list — difficulty changes the tier, not whether it's tracked.*
+*Every real demo found gets a real place on this list — difficulty changes the tier, being someone's real origin changes the Type entirely.*
