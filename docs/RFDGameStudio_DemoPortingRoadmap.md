@@ -4,6 +4,8 @@
 
 *Change from v0.1: a real, direct correction — SlimeGarden and SlimeBreeder were not two ordinary Tier 1 candidates, they were merged to become SlimeWorld. That's a genuinely different category from "port this as a new external game," and it applies to more than just those two. This version introduces **Legacy/Origin Projects** as a real, distinct Type, connecting directly to the earlier Type/Genre/Date arcade-structure work — Type isn't just Game/Tool/External anymore.*
 
+*Change from v0.2 (Aug 23 2026, same day): all five Legacy/Origin Projects are now real, registered `GAME_REGISTRY` entries — see ADR-023 (`docs/adr/ADR-023-legacy-origin-projects-type.md`). The open registry-infrastructure question below is resolved: `status: 'external'` is reused, with honest "(Origin)" labeling and a "became/merged into/superseded by" sentence naming the real successor game in the description. No new `GameStatus` value was added — the real investigation found no grouping UI exists in `GameSelector.tsx` today to justify one; that work stays deferred until a genuine grouping UI is built.*
+
 ---
 
 ## How to read this
@@ -21,6 +23,10 @@ new, competing entry.
 
 ## Legacy / Origin Projects — a real, distinct Type
 
+**Status: done.** All five entries below are registered, live in
+`GAME_REGISTRY` (`ts/src/games/registry.ts`), as of Aug 23 2026. See
+ADR-023 for the full real reasoning.
+
 **The real, defining test:** does a currently-live game already exist
 that this project's real work became, was merged into, or was directly
 superseded by? If yes, it belongs here, not in the difficulty tiers
@@ -28,22 +34,24 @@ below — porting it means preserving and presenting real origin
 material, not adding a new catalog entry competing with the game it
 led to.
 
-| Project | Real relationship | Became / merged into |
-|---|---|---|
-| **SlimeGarden** | Real, confirmed origin material — merged with SlimeBreeder to form the current, live SlimeWorld | SlimeWorld (`ts/src/games/slimeworld/`) |
-| **SlimeBreeder** | Real, confirmed origin material — same merge as SlimeGarden | SlimeWorld |
-| **CorpWorld** | Already found, correctly flagged as retired — confirmed via registry.ts's own comment ("Planet of Greed's fork ancestor") | Planet of Greed |
-| **Kingmaker Squads** | Already found, correctly flagged as retired — confirmed via registry.ts's own comment ("Wheel/culture-identity design source") | Planet of Greed |
-| **Dissonance prototype** (`tmp/dissonance-src/`) | The original AI-Studio source; already noted as "already ported" in v0.1, correctly belongs here as the formal Type rather than a footnote | Dissonance Depths |
+| Project | gameId | Real relationship | Became / merged into |
+|---|---|---|---|
+| **SlimeGarden** | `slimegarden` | Real, confirmed origin material — merged with SlimeBreeder to form the current, live SlimeWorld | SlimeWorld (`ts/src/games/slimeworld/`) |
+| **SlimeBreeder** | `slimebreeder` | Real, confirmed origin material — same merge as SlimeGarden | SlimeWorld |
+| **CorpWorld** | `corpworld` | Previously retired from the registry — confirmed via registry.ts's own comment ("Planet of Greed's fork ancestor"), now re-registered honestly as origin history | Planet of Greed |
+| **Kingmaker Squads** | `kingmaker_squads` | Previously retired from the registry — confirmed via registry.ts's own comment ("Wheel/culture-identity design source"), now re-registered honestly as origin history | Planet of Greed |
+| **Dissonance prototype** (`tmp/dissonance-src/`) | `dissonance_prototype` | The original AI Studio (Gemini API) source; already noted as "already ported" in v0.1, correctly belongs here as the formal Type rather than a footnote | Dissonance Depths |
 
-**Real porting shape for this Type, distinct from the tiers below:**
-not a standard `status: 'external'` embed competing for attention with
-the live game — a real, clearly-labeled "Origin" presentation, honest
-about what it is and what it became. The real, open question, not yet
-decided: does this need new registry infrastructure (a genuine
-`status: 'legacy'` or similar), or can it reuse `status: 'external'`
-with real, clear labeling in the description field? Worth a real
-decision before the first directive in this category ships.
+**Real porting shape used for this Type, distinct from the tiers
+below:** not a standard `status: 'external'` embed competing for
+attention with the live game — a real, clearly-labeled "(Origin)"
+presentation (in both `label` and `description`), honest about what it
+is and what it became. **The registry-infrastructure question is
+resolved (ADR-023):** `status: 'external'` is reused rather than adding
+a new `GameStatus` value — direct investigation of `GameSelector.tsx`
+found no real grouping UI exists today to justify new infrastructure
+ahead of need. Revisit if a genuine Type/Genre/Date grouping UI is ever
+built.
 
 ---
 
