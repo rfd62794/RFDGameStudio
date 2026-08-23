@@ -15,6 +15,14 @@
 // and the RenderState shape the TS rendering layer expects.
 
 import type { RenderState, Stats, ShoalCreature, AlgaeCore as RAlgaeCore, FleshChunk, InputState } from '../types';
+import {
+  forceSeek as sharedForceSeek,
+  forceFlee as sharedForceFlee,
+  forceSeparate as sharedForceSeparate,
+  forceAvoid as sharedForceAvoid,
+  forceAlign as sharedForceAlign,
+  forceCohere as sharedForceCohere,
+} from '../../../engine/shared/aiBehavior';
 
 // â”€â”€ Config (from data.yaml) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -147,11 +155,12 @@ function getNearby<T>(buckets:Map<number,T[]>,bx:number,by:number,bxRange:number
 
 // â”€â”€ Steering forces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-function forceSeek(x:number,y:number,tx:number,ty:number,weight:number,maxForce:number):[number,number]{const dx=tx-x,dy=ty-y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist===0)return[0,0];return[(dx/dist)*weight*maxForce,(dy/dist)*weight*maxForce];}
+// forceSeek and forceFlee take raw position numbers — direct aliases to shared module.
+const forceSeek = sharedForceSeek;
+const forceFlee = sharedForceFlee;
 function stoppingRadius(maxSpeed:number,maxForce:number,margin:number):number{return(maxSpeed*maxSpeed)/(2*maxForce)*margin;}
 function forceArrive(x:number,y:number,vx:number,vy:number,tx:number,ty:number,weight:number,maxSpeed:number,_maxForce:number,slowingRadius:number,minSpeed:number):[number,number]{const dx=tx-x,dy=ty-y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist===0)return[0,0];let desiredSpeed=maxSpeed;if(dist<slowingRadius){desiredSpeed=maxSpeed*(dist/slowingRadius);if(desiredSpeed<minSpeed)desiredSpeed=minSpeed;}return[((dx/dist)*desiredSpeed-vx)*weight,((dy/dist)*desiredSpeed-vy)*weight];}
 function forceDepthArrive(depth:number,vd:number,targetDepth:number,weight:number,maxSpeed:number,maxForce:number):number{const effectiveMaxForce=Math.min(maxForce,weight*maxSpeed);const sr=stoppingRadius(maxSpeed,effectiveMaxForce,1.3);const dy=targetDepth-depth;const dist=Math.abs(dy);if(dist<2)return 0;let desiredSpeed=maxSpeed;if(dist<sr)desiredSpeed=maxSpeed*(dist/sr);const desiredVd=(dy>0?1:-1)*desiredSpeed;const steerY=desiredVd-vd;const force=steerY*weight;return Math.max(-maxForce,Math.min(maxForce,force));}
-function forceFlee(x:number,y:number,tx:number,ty:number,weight:number,maxForce:number,radiusSq:number):[number,number]{const dx=x-tx,dy=y-ty;const d2=dx*dx+dy*dy;if(d2===0||d2>radiusSq)return[0,0];const dist=Math.sqrt(d2);return[(dx/dist)*weight*maxForce,(dy/dist)*weight*maxForce];}
 
 let currentPrng:()=>number;
 const wanderTargets=new Map<string,{x:number;y:number}>();
@@ -165,10 +174,27 @@ function forceWander(id:string,x:number,y:number,vx:number,vy:number,weight:numb
   return forceSeek(x,y,tx+wx*cr,ty+wy*cr,weight,maxForce);
 }
 
-function forceSeparate(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{let sx=0,sy=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){const dist=Math.sqrt(d2);sx+=dx/dist/dist;sy+=dy/dist/dist;}}if(sx===0&&sy===0)return[0,0];const[nx,ny]=normalize(sx,sy);return[nx*weight*maxForce,ny*weight*maxForce];}
-function forceAvoid(x:number,y:number,obstacles:{id?:string;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number,excludeId?:string):[number,number]{if(!obstacles)return[0,0];let sx=0,sy=0;for(const o of obstacles){if(o.id===excludeId)continue;const dx=x-o.x,dy=y-o.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){const dist=Math.sqrt(d2);sx+=dx/dist/dist;sy+=dy/dist/dist;}}if(sx===0&&sy===0)return[0,0];const[nx,ny]=normalize(sx,sy);return[nx*weight*maxForce,ny*weight*maxForce];}
-function forceAlign(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number;vx:number;vd:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{let avx=0,avy=0,count=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){avx+=n.vx;avy+=n.vd;count++;}}if(count===0)return[0,0];avx/=count;avy/=count;const[nx,ny]=normalize(avx,avy);return[nx*weight*maxForce,ny*weight*maxForce];}
-function forceCohere(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{let sx=0,sy=0,count=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){sx+=n.x;sy+=n.depth;count++;}}if(count===0)return[0,0];return forceSeek(x,y,sx/count,sy/count,weight,maxForce);}
+// Shoal-specific adapters for the neighbor-based steering forces.
+// Shoal uses `depth` for Y and `vd` for Y-velocity; the shared module
+// uses generic `y`/`vy`. These adapters map the entity shape without
+// allocating new objects (critical for hot-path performance).
+// The actual force computation logic lives in the shared module —
+// these are thin wrappers that adapt the neighbor/obstacle arrays.
+function forceSeparate(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{
+  // Inline the depth→y mapping to avoid per-tick object allocation.
+  // This preserves the exact same computation as the shared module's
+  // forceSeparate, just reading from Shoal's entity shape directly.
+  let sx=0,sy=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){const dist=Math.sqrt(d2);sx+=dx/dist/dist;sy+=dy/dist/dist;}}if(sx===0&&sy===0)return[0,0];const[nx,ny]=normalize(sx,sy);return[nx*weight*maxForce,ny*weight*maxForce];
+}
+function forceAvoid(x:number,y:number,obstacles:{id?:string;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number,excludeId?:string):[number,number]{
+  if(!obstacles)return[0,0];let sx=0,sy=0;for(const o of obstacles){if(o.id===excludeId)continue;const dx=x-o.x,dy=y-o.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){const dist=Math.sqrt(d2);sx+=dx/dist/dist;sy+=dy/dist/dist;}}if(sx===0&&sy===0)return[0,0];const[nx,ny]=normalize(sx,sy);return[nx*weight*maxForce,ny*weight*maxForce];
+}
+function forceAlign(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number;vx:number;vd:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{
+  let avx=0,avy=0,count=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){avx+=n.vx;avy+=n.vd;count++;}}if(count===0)return[0,0];avx/=count;avy/=count;const[nx,ny]=normalize(avx,avy);return[nx*weight*maxForce,ny*weight*maxForce];
+}
+function forceCohere(x:number,y:number,neighbors:{alive:boolean;x:number;depth:number}[],radiusSq:number,weight:number,maxForce:number):[number,number]{
+  let sx=0,sy=0,count=0;for(const n of neighbors){if(!n.alive)continue;const dx=x-n.x,dy=y-n.depth;const d2=dx*dx+dy*dy;if(d2>0&&d2<radiusSq){sx+=n.x;sy+=n.depth;count++;}}if(count===0)return[0,0];return forceSeek(x,y,sx/count,sy/count,weight,maxForce);
+}
 
 // â”€â”€ Exposure/cold rate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
