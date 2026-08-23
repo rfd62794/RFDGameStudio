@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "build:dissonance": "vite build --config vite.dissonance.config.ts",
     "build:shoal": "vite build --config vite.shoal.config.ts",
+    "build:shoal:y8": "vite build --config vite.shoal.config.ts --mode y8",
     "build:slimeworld": "vite build --config vite.slimeworld.config.ts",
     "build:chimera_wilds": "vite build --config vite.chimera_wilds.config.ts",
     "build:mutant_battle_ball": "vite build --config vite.mutant_battle_ball.config.ts",
