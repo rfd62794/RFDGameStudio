@@ -7,6 +7,8 @@ const config: GameConfig = {
   description: 'A TS-native reimagining of the Rust/Bevy VoidDrift — idle space mining at the edge of a black hole. Real Mining/Hauler FSM states, the Aluminum/H3Gas resource chain, tap-to-dispatch interaction, and fragment-drift orbital simulation.',
   color: '#22d3ee',
   status: 'dev',
+  genre: 'idle-incremental',
+  tags: ['fsm-drones', 'tap-to-dispatch'],
   component: React.lazy(() => import('./App')),
 };
 

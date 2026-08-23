@@ -7,5 +7,7 @@ export const gladiatorArenaConfig: GameConfig = {
   description: 'Assemble cyber-organic gladiator frames. Manage your roster across a 5-tier champion ladder. Turn-based tactical combat with continuous anatomy damage, Blood Bowl recoil, and agent-driven decision AI.',
   color:       '#f59e0b',
   status:      'dev',
+  genre:       'combat-arena',
+  tags:        ['roster-management', 'tactical-combat'],
   component:   React.lazy(() => import('./App')),
 };
