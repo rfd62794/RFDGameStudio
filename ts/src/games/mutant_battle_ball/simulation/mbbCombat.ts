@@ -100,7 +100,7 @@ export function executeTackle(
     st.ball.state = 'loose';
     st.ball.carrierId = null;
     st.ball.lastCarrierId = carrier.id;
-    st.ball.velocity = { x: (Math.random() - 0.5) * 4, y: (Math.random() - 0.5) * 4 };
+    st.ball.velocity = { x: (st.prng() - 0.5) * 4, y: (st.prng() - 0.5) * 4 };
     st.ball.height = 0;
     st.ball.looseTicks = 0;
     return {
