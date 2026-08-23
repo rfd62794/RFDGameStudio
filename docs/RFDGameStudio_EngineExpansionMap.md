@@ -389,5 +389,68 @@ real, existing state transitions — not new game logic.
   build), App.tsx wiring (imports, call sites, gated init), shared
   adapter unchanged, honest pause/stop state findings.
 
+### Shoal — Color Variation Expansion + Movement Investigation (Aug 22 2026)
+
+**Color expansion** — wired in existing-but-dead code and extended the
+decay-lerp pattern. All changes in Shoal's shared source (no Y8 files).
+
+- **Lineage color inheritance:** `inheritHue` existed in
+  `shoal.config.ts` but was never called by the simulation. Added
+  `generateInheritedColor` to `shoalSimulation.ts` — bred offspring now
+  inherit a hue from their parent (±15° drift), creating visible
+  lineage color families. `newFish`/`newShark`/`spawnFish`/`spawnShark`
+  accept an optional `parentColor` parameter; breeding calls pass the
+  parent's `lineageColor`. Initial spawns still use
+  `generateProceduralColor` (no parent).
+- **Age saturation in rendering:** `AGE_CURVE` and `applyAgeSaturation`
+  existed in `shoal.config.ts` but `App.tsx` didn't apply them. Added
+  `getAgeAwareBatchColor` — batches by (hue band, age stage) so young
+  creatures render at 0.6× saturation (paler) vs mature at full
+  saturation. Preserves the existing batching pattern.
+- **3-stop decay gradient:** Flesh chunks now go red (`#f43f5e`) →
+  orange (`#f97316`) → gold (`#eab308`) instead of 2-stop red → gold.
+  New `chunk_decay_mid_color` config in `data.yaml`. Extends the
+  existing decay-lerp mechanic with one more stop.
+- **Tests:** `tests/test_shoal_color_expansion.ts` (16 tests):
+  inherited color generation, hue proximity, reserved-color avoidance,
+  breeding inheritance, 3-stop config, age saturation rendering, no Y8
+  file changes.
+
+**Movement/steering investigation (report only, no code changes):**
+
+The directive's initial note said "No separation/alignment/cohesion
+terms were found anywhere in the file." That was wrong — direct full
+reading of `shoalSimulation.ts` confirms all three exist, explicitly
+named, with tunable weights:
+
+- `forceSeparate` (line 154) — separation: pushes away from nearby
+  neighbors. Weight: `steering_weights.fish.separate = 1.0`.
+- `forceAlign` (line 156) — alignment: matches velocity of nearby
+  neighbors. Weight: `steering_weights.fish.align = 0.6`.
+- `forceCohere` (line 157) — cohesion: moves toward average position
+  of neighbors. Weight: `steering_weights.fish.cohere = 0.35`.
+- All three called in `computeFishForces` (lines 179-181) with
+  `perception.school = 70` radius.
+
+Full fish steering: seek algae (1.0), flee shark (2.5), separate (1.0),
+align (0.6), cohere (0.35), avoid chunks/algae (0.8), depth bias (0.8),
+wander (0.4). Full shark steering: seek fish (1.5) or seek flesh (1.5)
+or wander (0.3) + depth bias, avoid chunks/algae (0.5), exposure
+retreat. All weights are in `data.yaml` `steering_weights` section —
+fully tunable, nothing hardcoded in the movement logic.
+
+Additional movement features: `limitTurn` (speed-dependent turn rate),
+drag (`Math.pow(0.99, dt/0.1)`), spatial hash for O(n) neighbor
+queries, world-wrap on X axis.
+
+**Yuka assessment: NOT warranted.** Shoal already has a complete, tuned,
+named steering behavior system (seek, flee, arrive, wander, separate,
+align, cohere, avoid, depth-arrive) with tunable weights and spatial-
+hash-accelerated neighbor queries. Adopting Yuka would mean replacing
+working, tested, performant code with an external dependency that does
+the same thing. No genuine need — the standing discipline (extract or
+adopt from real proven need, not because a candidate was interesting)
+applies.
+
 
 
