@@ -215,7 +215,7 @@ def generate_game_metadata(
             version = _read_version(external_repo, ["."])
             tracked = True
         elif paths:
-            created, last_updated = _git_dates(REPO_ROOT, paths)
+            created, last_updated = _git_dates(REPO_ROOT, paths, exclude_files=["config.ts"])
             version = _read_version(REPO_ROOT, paths)
             tracked = bool(last_updated)
 
