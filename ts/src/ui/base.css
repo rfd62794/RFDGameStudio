@@ -251,6 +251,115 @@ input[type="number"]:focus { outline: 1px solid var(--accent); }
   color: var(--card-color, var(--accent));
 }
 
+/* Real hover-preview surface (Steam-style pattern, Aug 23 2026).
+   Pure CSS :hover/:focus-within on hover-capable devices; the
+   `arcade-card-preview--open` modifier is toggled by the real
+   tap-to-reveal "Preview" button on touch devices (no real hover).
+   Never fabricates content for missing genre/tags — the section
+   simply omits what isn't real. */
+.arcade-card-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--surface);
+  border-radius: inherit;
+  border: 1px solid var(--card-color, var(--accent));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.15s, transform 0.15s;
+  overflow: auto;
+}
+
+/* Hover-capable path: reveal on real hover/focus-within only.
+   Touch devices never trigger this — they use the --open modifier
+   below, driven by the real "Preview" button. */
+@media (hover: hover) {
+  .arcade-card:hover .arcade-card-preview,
+  .arcade-card:focus-within .arcade-card-preview {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+
+/* Real tap-to-reveal path for touch devices (no real hover). The
+   button toggles this class via React state — same content, just
+   triggered by tap instead of hover. */
+.arcade-card-preview--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.arcade-card-preview-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.arcade-card-preview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.arcade-card-preview-genre {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--card-color, var(--accent));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.arcade-card-preview-tag {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  background: var(--surface-raised, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.arcade-card-preview-updated {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Real tap-to-reveal toggle button — only rendered on touch devices
+   (no real hover), never on desktop. Distinct from the "Details"
+   button so the two paths don't collide. */
+.arcade-card-preview-toggle-btn {
+  margin-top: var(--space-3);
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.arcade-card-preview-toggle-btn:hover,
+.arcade-card-preview-toggle-btn:focus-visible,
+.arcade-card-preview-toggle-btn[aria-expanded="true"] {
+  border-color: var(--card-color, var(--accent));
+  color: var(--card-color, var(--accent));
+}
+
 .arcade-footer {
   padding: var(--space-4) var(--space-8);
   border-top: 1px solid var(--border);
