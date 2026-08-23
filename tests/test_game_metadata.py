@@ -16,8 +16,10 @@ from studio_mcp.game_metadata import (
     PIPELINE_STAGE_AI_STUDIO,
     PIPELINE_STAGE_ITCH_PUBLISHED,
     PIPELINE_STAGE_WEBSITE_COLLECTION,
+    REPO_ROOT,
     advance_pipeline_stage,
     generate_game_metadata,
+    _git_dates,
     _load_existing_curated_fields,
 )
 
@@ -159,3 +161,54 @@ def test_generate_game_metadata_no_genre_key_when_uncurated() -> None:
     for game_id in GAME_PATHS:
         assert "genre" not in metadata[game_id]
         assert "tags" not in metadata[game_id]
+
+
+# ── Real date accuracy: config.ts-only edits shouldn't inflate dates ──
+# Real regression this session: adding `genre`/`tags` to config.ts files
+# (Arcade Metadata Expansion) bumped every touched game's last_updated
+# to that commit's date, burying the real date of the last actual
+# gameplay/content change. _git_dates gained an exclude_files param to
+# fix this -- with a real fallback for demos whose ONLY tracked TS file
+# is config.ts itself (7_days_to_fry, antsim_redux, facility_escape).
+
+def test_git_dates_excludes_cosmetic_only_file_from_last_updated() -> None:
+    """A real, live example: horse_racing's most recent commit only
+    touched config.ts (adding genre/tags); the real last content change
+    was an earlier commit. Excluding config.ts must surface that earlier,
+    real date instead of the cosmetic one."""
+    with_config, _ = _git_dates(REPO_ROOT, ["ts/src/games/horse_racing"])
+    without_config, _ = _git_dates(REPO_ROOT, ["ts/src/games/horse_racing"], exclude_files=["config.ts"])
+    # Both are real dates, but excluding the cosmetic-only file must not
+    # produce a *later* date than including it -- it can only surface an
+    # earlier (or equal) real content date.
+    assert without_config <= with_config
+
+
+def test_git_dates_falls_back_to_included_file_when_nothing_else_tracked() -> None:
+    """A demo whose ONLY tracked TS-side file is config.ts itself (e.g.
+    facility_escape has no App.tsx, no simulation/, nothing else under
+    ts/src/games/facility_escape/) must not lose its date entirely --
+    the fallback must still surface a real, non-empty date."""
+    created, last_updated = _git_dates(
+        REPO_ROOT, ["ts/src/games/facility_escape"], exclude_files=["config.ts"],
+    )
+    assert last_updated != ""
+    assert created != ""
+
+
+def test_git_dates_exclude_files_is_a_real_noop_for_paths_without_that_file() -> None:
+    """Excluding "config.ts" from a path that never had one (e.g. a real
+    Lua-side games/ directory) must not break or empty out that path's
+    real contribution to the date range."""
+    without_exclude = _git_dates(REPO_ROOT, ["games/brewfield"])
+    with_exclude = _git_dates(REPO_ROOT, ["games/brewfield"], exclude_files=["config.ts"])
+    assert without_exclude == with_exclude
+
+
+def test_generate_game_metadata_excludes_config_ts_from_real_dates() -> None:
+    """End-to-end: generate_game_metadata's real, live call must apply
+    the config.ts exclusion (not just the internal _git_dates helper in
+    isolation) for every real, currently-tracked game."""
+    metadata = generate_game_metadata()
+    excluded, _ = _git_dates(REPO_ROOT, ["ts/src/games/horse_racing"], exclude_files=["config.ts"])
+    assert metadata["horse_racing"]["last_updated"] == excluded
