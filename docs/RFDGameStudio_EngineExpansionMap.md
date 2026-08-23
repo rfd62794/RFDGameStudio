@@ -222,6 +222,7 @@ is a real, landed module — not a gap.*
 | `sportsSim` | `ts/src/engine/shared/sportsSim/` | Built, first consumer (MBB) not yet wired | generic possession/violence sports engine |
 | `anatomy` | `ts/src/engine/shared/anatomy/` | Functional | body-plan / part system |
 | `personGenerator` | `ts/src/engine/shared/personGenerator/` | **New — v1 (role symbols), Aug 22 2026** | Succession (mapping only — `data/figureArchetypeMap.ts`); preview at `games/role_symbol_viewer` |
+| `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **New — v1 (detection + interface shell), Aug 22 2026** | No live consumers yet — zero games wired this phase |
 
 ### `personGenerator` — v1: role symbols (Aug 22 2026)
 
@@ -256,5 +257,44 @@ individual-level variation (deferred).
 - **Tests:** `tests/test_engine_personGenerator.ts` (16 tests):
   determinism, archetype distinctness, token-sourced palette verification,
   full 5-cast mapping, and a grep anchor confirming no live Succession UI
+  imports the module.
+
+### `portalAdapter` — v1: detection + interface shell (Aug 22 2026)
+
+A single, shared abstraction letting any game call a small, unified
+interface (`notifyGameplayStart`, `notifyGameplayStop`,
+`requestAdBreak`) safely from anywhere — the adapter decides at runtime
+whether anything actually happens, based on which real environment the
+build is running in.
+
+- **Real, confirmed technical basis:** Poki and CrazyGames both require
+  a `gameplayStart()`/`gameplayStop()` session pair plus an ad-break
+  call — conceptually identical patterns across both. CrazyGames
+  requires runtime detection via `CrazySDK.IsAvailable` plus a
+  query-param fallback for iframed cases.
+- **v1 scope is the shell only.** No real portal SDK is wired in yet —
+  this phase works correctly with **zero portals present**, defaulting
+  to safe no-ops everywhere. Real SDK integration is a later, separate
+  phase per `RFDGameStudio_MultiPortalPublishing.md`.
+- **Detection:** `classifyPortalEnvironment(input)` is a pure function
+  of an explicit environment snapshot (hostname, SDK globals present,
+  query params) — fully testable without a real browser.
+  `detectPortalEnvironment()` is a thin wrapper reading real runtime
+  globals and delegating. Detects: `own_site`, `itch`, `crazygames`,
+  `poki`, `unknown`.
+- **⚠️ `unknown` behaves identically to `own_site`** — safe, silent
+  no-op. Never assume a portal is present; only confirm one via a real,
+  positive detection signal.
+- **Locked interface:** `notifyGameplayStart()`, `notifyGameplayStop()`,
+  `requestAdBreak(): Promise<void>` — permanent public shape. Later
+  phases fill in real SDK calls *behind* these signatures; they do not
+  change what games call.
+- **No live consumers yet.** Zero game components import this module
+  this phase — confirmed by a grep-anchor test. Live game integration
+  is a deliberate future phase.
+- **Tests:** `tests/test_engine_portalAdapter.ts` (26 tests): pure
+  classifier coverage for all 5 environments, unknown≡own_site
+  equivalence, interface safety with zero portals, real-runtime wrapper
+  with mocked SDK globals, and a grep anchor confirming no live game
   imports the module.
 
