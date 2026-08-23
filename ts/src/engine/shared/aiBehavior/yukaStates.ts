@@ -90,15 +90,18 @@ export class BehavioralStateMachine extends StateMachine {
 
   /**
    * Updates the state machine: evaluates transitions, then executes
-   * the current state. The owner entity's `_stateContext` is used
-   * for both transition evaluation and state execution.
+   * the current state. The `_stateContext` is used for both transition
+   * evaluation and state execution. We bypass Yuka's super.update()
+   * because it passes `this.owner` (null) to execute(), whereas the
+   * context lives on `_stateContext` directly.
    */
   update(): void {
     const ctx = this._stateContext;
-    if (ctx) {
-      this.evaluateTransitions(ctx);
+    if (!ctx) return;
+    this.evaluateTransitions(ctx);
+    if (this.currentState instanceof BehavioralState) {
+      this.currentState.forceRequests = this.currentState.computeForces(ctx);
     }
-    super.update();
   }
 
   /**
