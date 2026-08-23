@@ -5,7 +5,6 @@ import {
   classifyPortalEnvironment,
   detectPortalEnvironment,
   isPortalEnvironment,
-  PortalEnvironment,
   PortalDetectionInput,
   OWN_SITE_HOSTNAME,
 } from '../src/engine/shared/portalAdapter/detection';
