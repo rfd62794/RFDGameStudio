@@ -545,5 +545,102 @@ byte-identical to pre-Yuka output). 19 tests in
 `test_engine_yukaStates.ts` (state execute, transitions, fixed-state
 equivalence, Yuka steering non-import regression).
 
+## Arcade metadata expansion — genre, descriptions, dates, patch notes, detail view (Aug 23, 2026)
 
+**Real, honest schema expansion + a real new surface to show it, not just a UI tweak.**
+
+`GameConfig` (`ts/src/engine/types.ts`) gains five new, fully optional/
+additive fields: `shortDescription`, `longDescription`, `genre`
+(single, curated `PrimaryGenre`), `tags` (looser, secondary), and
+`patchNotesPath`. Every existing registry entry that hasn't adopted
+these fields keeps working unmodified — no forced migration.
+
+### Real architectural decision: where genre/tags actually live
+
+`game-metadata.json` (`ts/src/games/game-metadata.json`) is a
+**gitignored, auto-regenerated-from-git artifact** — confirmed by
+direct read of `studio_mcp/game_metadata.py`'s `generate_game_metadata()`,
+which rebuilds `created`/`last_updated`/`version`/`tracked` fresh from
+git on every run. This is the wrong home for hand-curated data like
+genre/tags to live authoritatively — a naive edit would be silently
+wiped on the next regeneration (the file only ever explicitly carried
+`pipeline_stage` forward, via `_load_existing_pipeline_stages`).
+
+**Real decision made:** `genre`/`tags` live authoritatively on each
+game's real, version-controlled `GameConfig` (`config.ts`) — the arcade
+UI (`GameSelector.tsx`, `GameDetailView.tsx`) reads genre/tags from
+there, and reads `last_updated`/`created`/`version` from
+`game-metadata.json` only. To honor this directive's literal request
+to also extend `game-metadata.json` with genre/tags (useful for
+cross-pipeline, non-TS visibility), the on-disk JSON carries a synced
+copy, and `generate_game_metadata()` was extended with a new
+`_load_existing_curated_fields()` + `existing_curated` parameter,
+carrying genre/tags forward across regeneration exactly like
+`pipeline_stage` — verified by a real regeneration run
+(`write_game_metadata()`) that confirmed the hand-added values survive.
+5 new Python tests in `tests/test_game_metadata.py`.
+
+### Real genre classification — 30 registered games, honest results
+
+All `GAME_REGISTRY` games were assessed directly against the curated
+11-value taxonomy (creature-collector, combat-arena, economic-precarity,
+colony-4x, idle-incremental, roguelike, racing, puzzle-stealth,
+cooperative, narrative-persuasion, management-sim). Real, honest
+findings:
+
+- **27 of 30** fit cleanly and were assigned a genre.
+- **3 of 30 genuinely don't fit** and were left without a `genre`
+  rather than forced, per the directive's explicit rule — `shoal`
+  (continuous, no-player-agency ecosystem simulation), `slime_coin`
+  (real-time arcade coin-pusher physics), `7_days_to_fry` (cooking
+  survival). Each has an explanatory code comment and real `tags`
+  instead. Regression-tested in `test_arcade_metadata_expansion.ts`.
+- The 3 studio tool entries (`character_viewer`, `technique_showcase`,
+  `role_symbol_viewer`, all `status: 'tool'`) were also left
+  ungenred — the taxonomy is for games, and these are explicitly not
+  competitive games.
+
+### Real detail view — `GameDetailView.tsx`
+
+A modal (reusing the existing `ui/components/Modal.tsx`, not a new
+routing pattern — no full-page route needed since the content is
+short-lived and per-card) triggered by a new "Details" button on each
+arcade card, added as a real, nested `<button>` with
+`stopPropagation()` so it never triggers the card's own
+play/navigate click. The outer `.arcade-card` changed from `<button>`
+to `<div role="button" tabIndex={0}>` with Enter/Space key handling,
+to make the nested Details button valid HTML (no nested interactive
+elements) while staying keyboard-accessible.
+
+Shows: description via a real fallback chain
+(`longDescription → shortDescription → description → ''`, exported
+standalone as `resolveDetailDescription()` for direct unit testing),
+genre + tags as badges, real `last_updated` pulled from
+`game-metadata.json` (omitted entirely, not fabricated, for the games
+with no metadata entry — e.g. `gladiator_arena`, `planetforge`,
+`character_viewer` aren't in the Python side's `GAME_PATHS` dict), and
+real patch notes content loaded via a new
+`ts/src/games/patchNotesLoader.ts` (`import.meta.glob` over
+`./*/PATCH_NOTES*.md`, keyed by real relative path — never a
+duplicated/copied string). A `patchNotesPath` set but pointing at no
+real file renders a real, visible "Patch notes unavailable" state
+(`data-testid="game-detail-patch-notes-unavailable"`) — never silently
+hidden, never fabricated placeholder content.
+
+### Real subset actually populated this phase
+
+Per the directive's explicit incremental-adoption allowance, only
+**Succession** got the full field set this phase (`shortDescription`,
+`longDescription`, `patchNotesPath` pointing at its real
+`PATCH_NOTES_v0.2.0.md` from this session) — it's the one game with
+real patch notes to show. All 30 registered games got `genre`/`tags`
+(or an honest, documented non-fit). No other game has
+`shortDescription`/`longDescription`/`patchNotesPath` yet — their
+cards and detail views fall back to the existing `description` field,
+exactly as the backward-compatibility rule requires.
+
+20 new tests in `test_arcade_metadata_expansion.ts` (GameConfig
+optionality, taxonomy validity + honest gaps, description fallback
+chain, patch notes real-load + honest-failure, `last_updated` sourcing
++ honest-absence, genre/tags honest rendering, card-level wiring).
 
