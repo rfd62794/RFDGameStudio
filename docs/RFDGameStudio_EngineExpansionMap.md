@@ -222,7 +222,7 @@ is a real, landed module — not a gap.*
 | `sportsSim` | `ts/src/engine/shared/sportsSim/` | Built, first consumer (MBB) not yet wired | generic possession/violence sports engine |
 | `anatomy` | `ts/src/engine/shared/anatomy/` | Functional | body-plan / part system |
 | `personGenerator` | `ts/src/engine/shared/personGenerator/` | **New — v1 (role symbols), Aug 22 2026** | Succession (mapping only — `data/figureArchetypeMap.ts`); preview at `games/role_symbol_viewer` |
-| `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **Phase 1: detection + interface shell (Aug 22 2026); Phase 2: Y8 adapter (Aug 22 2026)** | No live consumers yet — zero games wired (Phase 3 will wire Shoal) |
+| `portalAdapter` | `ts/src/engine/shared/portalAdapter/` | **Phase 1: detection + interface shell (Aug 22 2026); Phase 2: Y8 adapter (Aug 22 2026); Phase 3: Shoal wired (Aug 22 2026)** | Shoal — first live consumer (Y8 SDK script + notifyGameplayStart/Stop at real transitions) |
 
 ### `personGenerator` — v1: role symbols (Aug 22 2026)
 
@@ -345,5 +345,49 @@ developer dashboard documents a real SDK loaded from
   NOT fire on own_site/itch/unknown), `initY8` idempotency + script
   injection + ready-event resolution, no-hardcoded-credentials check,
   no-Shoal-imports grep anchor.
+
+### `portalAdapter` — Phase 3: Shoal wired as first live consumer (Aug 22 2026)
+
+Shoal is the first real, live consumer of the Y8 adapter built in
+Phase 2. This is presentation/telemetry wiring — calling the adapter at
+real, existing state transitions — not new game logic.
+
+- **Real state transitions found (read, not invented):** Shoal has a
+  `title` → `game` screen transition via `handleStart` (title screen
+  "Start" button) and a `game` → `title` transition via the "← Title"
+  button. `notifyGameplayStart()` is wired into `handleStart`;
+  `notifyGameplayStop()` is wired into the "← Title" button onClick.
+  Both are real, confirmed call sites in `App.tsx`.
+- **Honest finding on pause state:** Shoal has NO separate pause
+  state. The Mechanics overlay is an informational popup, not a pause
+  — the simulation (`useGameLoop`) runs unconditionally while on the
+  game screen. There is no `paused`/`isPaused` flag. This is by design
+  (continuous sandbox), not a gap. `notifyGameplayStop` has exactly one
+  real call site (the title button), which is the honest, complete
+  wiring.
+- **Y8 SDK script tag:** Added to `src/standalone/shoal/index.html`
+  `<head>` (the real source template, not the generated dist). Vite
+  strips non-module external scripts during build, so
+  `vite.shoal.config.ts` gained a `preserveY8ScriptTag()` plugin that
+  re-injects the tag into the built `dist-shoal/index.html` via
+  `transformIndexHtml`. Confirmed: the tag survives a real
+  `npm run build:shoal` and appears in `dist-shoal/index.html`.
+- **Credentials:** Shoal's real `appId` (`6a8a38fd3daf0b765651b797`)
+  and `gameId` (`281135`) live in `src/games/shoal/y8Config.ts` —
+  Shoal's own config, not the shared adapter. These are public
+  identifiers meant to ship in the client bundle (Y8's own SDK snippet
+  embeds them directly in the page), not privileged secrets.
+- **Gated initialization:** `initY8(SHOAL_Y8_CONFIG)` is only called
+  when `detectPortalEnvironment() === 'y8'` — never on own_site, itch,
+  or unknown. The SDK script tag loads async in the HTML, but the
+  adapter only initializes when the environment is genuinely Y8.
+- **Shared adapter not modified.** All files in
+  `engine/shared/portalAdapter/` are unchanged from Phase 2 —
+  confirmed by a git-diff test anchor.
+- **Tests:** `tests/test_shoal_y8_integration.ts` (15 tests): config
+  file with real credentials, script tag in source + dist (survives
+  build), App.tsx wiring (imports, call sites, gated init), shared
+  adapter unchanged, honest pause/stop state findings.
+
 
 

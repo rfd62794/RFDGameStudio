@@ -274,28 +274,27 @@ describe('no hardcoded Shoal credentials in shared adapter', () => {
   });
 });
 
-// ── No Shoal files touched ───────────────────────────────────────────
+// ── Shoal is now the wired consumer (Phase 3) ───────────────────────
+// Phase 2 forbade Shoal from importing portalAdapter. Phase 3 wires
+// Shoal in — this test now verifies the opposite: Shoal's App.tsx
+// DOES import portalAdapter, and the shared adapter files are unchanged.
 
-describe('no Shoal files import portalAdapter yet', () => {
-  it('test_no_shoal_file_imports_portalAdapter', () => {
+describe('Shoal wired as Y8 consumer (Phase 3)', () => {
+  it('test_shoal_app_imports_portalAdapter', () => {
     const repoRoot = resolve(import.meta.dirname, '..');
-    const shoalFiles = [
-      'src/games/shoal/App.tsx',
-      'src/games/shoal/config.ts',
-      'src/standalone/shoal/entry.tsx',
-    ];
-    for (const rel of shoalFiles) {
-      const path = resolve(repoRoot, rel);
-      let src: string;
-      try {
-        src = readFileSync(path, 'utf8');
-      } catch {
-        continue; // file doesn't exist — skip
-      }
-      expect(
-        src.includes('portalAdapter'),
-        `${rel} imports portalAdapter — forbidden this phase`,
-      ).toBe(false);
-    }
+    const src = readFileSync(
+      resolve(repoRoot, 'src/games/shoal/App.tsx'),
+      'utf8',
+    );
+    expect(src.includes('portalAdapter')).toBe(true);
+  });
+
+  it('test_shoal_y8_config_exists', () => {
+    const repoRoot = resolve(import.meta.dirname, '..');
+    const src = readFileSync(
+      resolve(repoRoot, 'src/games/shoal/y8Config.ts'),
+      'utf8',
+    );
+    expect(src.includes('portalAdapter')).toBe(true);
   });
 });

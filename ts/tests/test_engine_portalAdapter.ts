@@ -217,21 +217,23 @@ describe('interface functions safe with zero portals', () => {
   });
 });
 
-// ── No live game imports this module yet (grep anchor) ───────────────
+// ── Only wired games import portalAdapter (grep anchor) ──────────────
+// Phase 3 wired Shoal as the first legitimate consumer. The grep anchor
+// now verifies that only Shoal (the wired game) imports portalAdapter,
+// and no other live game does yet.
 
-describe('no live game imports portalAdapter yet', () => {
-  const LIVE_FILES = [
+describe('only wired games import portalAdapter', () => {
+  const UNWIRED_FILES = [
     'src/games/succession/App.tsx',
     'src/games/succession/components/AudienceStage.tsx',
-    'src/games/shoal/App.tsx',
     'src/games/slimeworld/App.tsx',
     'src/games/dissonance/App.tsx',
     'src/games/planetofgreed/App.tsx',
   ];
 
-  it('test_no_live_game_component_imports_portalAdapter', () => {
+  it('test_no_unwired_game_component_imports_portalAdapter', () => {
     const repoRoot = resolve(import.meta.dirname, '..');
-    for (const rel of LIVE_FILES) {
+    for (const rel of UNWIRED_FILES) {
       const path = resolve(repoRoot, rel);
       let src: string;
       try {
@@ -242,8 +244,14 @@ describe('no live game imports portalAdapter yet', () => {
       }
       expect(
         src.includes('portalAdapter'),
-        `${rel} imports portalAdapter — forbidden this phase`,
+        `${rel} imports portalAdapter — not wired yet`,
       ).toBe(false);
     }
+  });
+
+  it('test_shoal_is_the_wired_consumer', () => {
+    const repoRoot = resolve(import.meta.dirname, '..');
+    const src = readFileSync(resolve(repoRoot, 'src/games/shoal/App.tsx'), 'utf8');
+    expect(src.includes('portalAdapter')).toBe(true);
   });
 });
