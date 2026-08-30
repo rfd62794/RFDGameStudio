@@ -139,17 +139,22 @@ def test_studio_deploy_arcade_records_deployed_version_on_success(tmp_path, monk
     fake_module_dir.mkdir()
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
 
+    now = time.time()
+
     # Main arcade bundle: dist exists and is newer than its source.
     dist_dir = tmp_path / "ts" / "dist"
     dist_dir.mkdir(parents=True)
     (dist_dir / "index.html").write_text("<h1>Arcade</h1>", encoding="utf-8")
+    _touch(dist_dir / "index.html", now)
 
     # Example demo: dist exists and is newer than its source.
     demo_dist = tmp_path / "examples" / "ledger" / "dist"
     demo_dist.mkdir(parents=True)
     (demo_dist / "index.html").write_text("<h1>Ledger</h1>", encoding="utf-8")
+    _touch(demo_dist / "index.html", now)
     (tmp_path / "examples" / "ledger" / "src").mkdir(parents=True)
     (tmp_path / "examples" / "ledger" / "src" / "main.tsx").write_text("export {}", encoding="utf-8")
+    _touch(tmp_path / "examples" / "ledger" / "src" / "main.tsx", now - 10)
 
     # One tracked game with a real VERSION file.
     game_dir = tmp_path / "games" / "demo_game"
