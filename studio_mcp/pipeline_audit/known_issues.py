@@ -60,7 +60,7 @@ def check_ensure_node_modules(tools_path: Path = TOOLS_PATH) -> dict:
             "details": "Could not locate _ensure_node_modules function body.",
         }
 
-    runs_npm_install = "npm install" in body
+    runs_npm_install = bool(re.search(r"npm['\"\s,]*install", body))
     returns_none_on_no_match = "return None" in body
     status = "fixed" if runs_npm_install and returns_none_on_no_match else "not_fixed"
 

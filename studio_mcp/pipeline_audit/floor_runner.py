@@ -113,72 +113,57 @@ def collect_test_log(
 
 def parse_pytest_summary(text: str) -> dict:
     """Extract passed/failed/skipped from a pytest summary line."""
-    pattern = re.compile(
-        r"=+\s*"
-        r"(?P<passed>\d+)\s+passed"
-        r"(?:,\s*(?P<failed>\d+)\s+failed)?"
-        r"(?:,\s*(?P<skipped>\d+)\s+skipped)?"
-        r"(?:,\s*(?P<deselected>\d+)\s+deselected)?"
-        r"(?:,\s*(?P<error>\d+)\s+error)?"
-        r"\s*in\s+[^=]+=+",
-        re.IGNORECASE,
-    )
-    match = pattern.search(text)
-    if not match:
-        return {"passed": 0, "failed": 0, "skipped": 0, "error": 0, "certified": False}
+    summary_line = ""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("=") and " passed" in stripped:
+            summary_line = stripped
+            break
 
-    groups = match.groupdict()
-    passed = int(groups.get("passed") or 0)
-    failed = int(groups.get("failed") or 0)
-    skipped = int(groups.get("skipped") or 0)
-    error = int(groups.get("error") or 0)
-    return {
-        "passed": passed,
-        "failed": failed,
-        "skipped": skipped,
-        "error": error,
-        "certified": failed == 0 and skipped == 0 and error == 0,
-    }
+    counts: dict[str, int] = {"passed": 0, "failed": 0, "skipped": 0, "error": 0}
+    if summary_line:
+        token_pattern = re.compile(r"(\d+)\s+(passed|failed|skipped|error)", re.IGNORECASE)
+        for count_str, label in token_pattern.findall(summary_line):
+            counts[label.lower()] = int(count_str)
+
+    counts["certified"] = bool(
+        summary_line and counts["failed"] == 0 and counts["skipped"] == 0 and counts["error"] == 0
+    )
+    return counts
+
+
+def _parse_vitest_line(line: str) -> dict[str, int]:
+    """Parse counts from a Vitest summary line like '2 failed | 132 passed (134)'."""
+    counts: dict[str, int] = {"failed": 0, "passed": 0, "skipped": 0}
+    pattern = re.compile(r"(\d+)\s+(passed|failed|skipped)", re.IGNORECASE)
+    for count_str, label in pattern.findall(line):
+        counts[label.lower()] = int(count_str)
+    return counts
 
 
 def parse_vitest_summary(text: str) -> dict:
     """Extract passed/failed/skipped from a Vitest summary block."""
-    file_pattern = re.compile(
-        r"Test\s+Files\s+"
-        r"(?:(?P<failed>\d+)\s+failed\s*\|\s*)?"
-        r"(?:(?P<passed>\d+)\s+passed\s*\|\s*)?"
-        r"\(?\d+\)?",
-        re.IGNORECASE,
-    )
-    test_pattern = re.compile(
-        r"Tests\s+"
-        r"(?:(?P<failed>\d+)\s+failed\s*\|\s*)?"
-        r"(?:(?P<passed>\d+)\s+passed\s*\|\s*)?"
-        r"(?:(?P<skipped>\d+)\s+skipped\s*\|\s*)?"
-        r"\(?\d+\)?",
-        re.IGNORECASE,
-    )
+    file_line = ""
+    test_line = ""
+    for line in text.splitlines():
+        if line.strip().startswith("Test Files"):
+            file_line = line
+        elif line.strip().startswith("Tests"):
+            test_line = line
 
-    file_match = file_pattern.search(text)
-    test_match = test_pattern.search(text)
+    file_counts = _parse_vitest_line(file_line)
+    test_counts = _parse_vitest_line(test_line)
 
-    def _int(m: re.Match | None, name: str) -> int:
-        if not m:
-            return 0
-        value = m.groupdict().get(name)
-        return int(value) if value else 0
-
-    passed = _int(test_match, "passed")
-    failed = _int(test_match, "failed")
-    skipped = _int(test_match, "skipped")
-    file_failed = _int(file_match, "failed")
-    failed = max(failed, file_failed)
+    found_summary = bool(file_line or test_line)
+    failed = max(file_counts["failed"], test_counts["failed"])
+    passed = test_counts["passed"]
+    skipped = test_counts["skipped"]
 
     return {
         "passed": passed,
         "failed": failed,
         "skipped": skipped,
-        "certified": failed == 0 and skipped == 0,
+        "certified": found_summary and failed == 0 and skipped == 0,
     }
 
 
