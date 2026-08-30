@@ -1,0 +1,6 @@
+{
+  "name": "SlimeWorld: Ring God-Game",
+  "description": "A planetary god-game simulation featuring a 32-tile ring world, sector zone soil stability progression, resource harvesting, and monument construction.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
