@@ -23,7 +23,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "studio_mcp/pipeline_audit/tests"]
+testpaths = ["tests", "studio_mcp/pipeline_audit/tests", "studio_mcp/zip_verify/tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "e2e: L3 headless playthrough smoke tests — real browser, real dev server (deselect with '-m \"not e2e\"')",
