@@ -373,7 +373,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
-                      width: `${(tierVal / 10) * 100}%`,
+                      width: `${(tierVal / 3) * 100}%`,
                       backgroundColor: color,
                     }}
                   />
@@ -390,7 +390,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   </button>
                   <button
                     onClick={() => onInfuseElement(selectedTileIdx, eIdx, 1)}
-                    disabled={tierVal >= 10}
+                    disabled={tierVal >= 3}
                     className="w-full py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-40"
                   >
                     +1

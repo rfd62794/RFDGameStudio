@@ -114,7 +114,7 @@ export default function App() {
       if (!targetTile) return prev;
 
       const newTiers = [...targetTile.tiers] as [number, number, number, number];
-      newTiers[elementIdx] = Math.max(0, Math.min(10, newTiers[elementIdx] + delta));
+      newTiers[elementIdx] = Math.max(0, Math.min(3, newTiers[elementIdx] + delta));
 
       // Elemental perturbation resets stability
       newTiles[tileIdx] = {
