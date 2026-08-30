@@ -1,0 +1,6 @@
+{
+  "name": "Factory Idle: Precision Armory",
+  "description": "An in-depth Factory Idle inspired manufacturing automation simulation with conveyors, splitters, underground tunnels, crossings, power grids, research labs, and market logistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
