@@ -657,20 +657,21 @@ _DEMO_STATIC_NAME = {
     "facility-escape": "facility_escape",
 }
 
-# demo slug → source directory (allows demos outside the examples/ tree)
-_DEMO_SOURCE_PATHS: dict[str, Path] = {
-    "brewfield": Path(__file__).parent.parent / "examples" / "brewfield",
-    "ledger": Path(__file__).parent.parent / "examples" / "ledger",
-    "trinity-siege": Path(__file__).parent.parent / "examples" / "trinity-siege",
+_DEMO_EXTERNAL_PATHS: dict[str, Path] = {
     "slimebreeder": Path(r"C:\Github\SlimeBreeder"),
-    "corpworld": Path(__file__).parent.parent / "examples" / "corpworld",
-    "slimegarden": Path(__file__).parent.parent / "examples" / "slimegarden",
-    "slimeworld": Path(__file__).parent.parent / "examples" / "slimeworld",
-    "7-days-to-fry": Path(__file__).parent.parent / "examples" / "7-days-to-fry",
-    "kingmaker-squads": Path(__file__).parent.parent / "examples" / "kingmaker-squads",
-    "antsim-redux": Path(__file__).parent.parent / "examples" / "antsim-redux",
-    "facility-escape": Path(__file__).parent.parent / "examples" / "facility-escape",
 }
+
+
+def _demo_source_path(demo_slug: str, repo_root: Path) -> Path:
+    """Resolve a demo's source root relative to the repo root at call time.
+
+    External repos (e.g. SlimeBreeder) are returned from an absolute map.
+    This is a function rather than a module-level dict so tests that
+    monkeypatch __file__ get the expected temp repo paths.
+    """
+    if demo_slug in _DEMO_EXTERNAL_PATHS:
+        return _DEMO_EXTERNAL_PATHS[demo_slug]
+    return repo_root / "examples" / demo_slug
 
 
 def _is_dist_stale(dist_dir: Path, source_dir: Path) -> bool:
@@ -716,10 +717,10 @@ def studio_deploy_arcade() -> dict:
 
     # Verify all example demo dists exist before copying anything
     for demo_slug in _EXAMPLE_DEMOS:
-        demo_dist = _DEMO_SOURCE_PATHS[demo_slug] / "dist"
+        demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
         if not demo_dist.exists():
             return {
-                "error": f"{_DEMO_SOURCE_PATHS[demo_slug]} / dist/ does not exist. Build it first.",
+                "error": f"{_demo_source_path(demo_slug, repo_root)} / dist/ does not exist. Build it first.",
                 "tool": "studio_deploy_arcade",
             }
 
@@ -732,8 +733,8 @@ def studio_deploy_arcade() -> dict:
 
     stale_demo: str | None = None
     for demo_slug in _EXAMPLE_DEMOS:
-        demo_dist = _DEMO_SOURCE_PATHS[demo_slug] / "dist"
-        demo_source = _DEMO_SOURCE_PATHS[demo_slug] / "src"
+        demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
+        demo_source = repo_root / "examples" / demo_slug / "src"
         if _is_dist_stale(demo_dist, demo_source):
             stale_demo = demo_slug
             break
@@ -792,7 +793,7 @@ def studio_deploy_arcade() -> dict:
 
         # Copy each example demo
         for demo_slug in _EXAMPLE_DEMOS:
-            demo_dist = _DEMO_SOURCE_PATHS[demo_slug] / "dist"
+            demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
             static_name = _DEMO_STATIC_NAME[demo_slug]
             demo_target = _SITE_REPO_PATH / "static" / "arcade" / static_name
             if demo_target.exists():

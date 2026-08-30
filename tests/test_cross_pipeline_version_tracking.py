@@ -72,7 +72,6 @@ def test_studio_deploy_arcade_fails_on_stale_dist():
         with patch("studio_mcp.tools.__file__", fake_tools_path), \
              patch("studio_mcp.tools._SITE_REPO_PATH", repo_root / "site"), \
              patch("studio_mcp.tools._EXAMPLE_DEMOS", ["ledger"]), \
-             patch("studio_mcp.tools._DEMO_SOURCE_PATHS", {"ledger": repo_root / "examples" / "ledger"}), \
              patch("studio_mcp.tools.GAME_PATHS", {}), \
              patch("studio_mcp.tools._EXTERNAL_REPOS", {}), \
              patch("studio_mcp.tools.write_game_metadata"):
