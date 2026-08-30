@@ -189,6 +189,14 @@ examples/*
 !examples/shoal/
 !examples/trinity-siege/
 !examples/planetforge/
+!examples/7-days-to-fry/
+!examples/antsim-redux/
+!examples/dissonance-prototype/
+!examples/facility-escape/
+!examples/factory-idle-precision-armory-phase1/
+!examples/factory-idle-precision-armory-phase2/
+!examples/SlimeBreeder/
+!examples/slimegarden/
 
 # Screenshots
 screenshots/
