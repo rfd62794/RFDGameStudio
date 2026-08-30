@@ -1,0 +1,472 @@
+{
+  "timestamp": "2026-08-30T17:05:00-04:00",
+  "repo_state": {
+    "registry_path": "C:\\Github\\RFDGameStudio\\ts\\src\\games\\registry.ts",
+    "metadata_path": "C:\\Github\\RFDGameStudio\\ts\\src\\games\\game-metadata.json",
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples",
+    "games": [
+      {
+        "id": "dissonance",
+        "config_export": "dissonanceConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-07-22T19:58:40-04:00",
+        "last_updated": "2026-08-15T18:10:04-04:00",
+        "tracked": true
+      },
+      {
+        "id": "slimeworld",
+        "config_export": "slimeworldConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-07-14T22:09:36-04:00",
+        "last_updated": "2026-08-16T15:05:51-04:00",
+        "tracked": true
+      },
+      {
+        "id": "shoal",
+        "config_export": "shoalConfig",
+        "pipeline_stage": "itch_published",
+        "version": "2.31.0",
+        "created": "2026-07-10T23:02:49-04:00",
+        "last_updated": "2026-08-22T22:35:51-04:00",
+        "tracked": true
+      },
+      {
+        "id": "voiddrift",
+        "config_export": "voiddriftConfig",
+        "pipeline_stage": "itch_published",
+        "version": "1.0.0",
+        "created": "2026-07-10T20:25:49-04:00",
+        "last_updated": "2026-07-11T18:39:04-04:00",
+        "tracked": true
+      },
+      {
+        "id": "horse_racing",
+        "config_export": "horseRacingConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-06-23T20:59:34-04:00",
+        "last_updated": "2026-08-16T15:01:09-04:00",
+        "tracked": true
+      },
+      {
+        "id": "slither_rogue",
+        "config_export": "slitherRogueConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-06-26T22:19:51-04:00",
+        "last_updated": "2026-08-16T15:05:51-04:00",
+        "tracked": true
+      },
+      {
+        "id": "mutant_battle_ball",
+        "config_export": "mutantBattleBallConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-06-27T18:22:35-04:00",
+        "last_updated": "2026-08-23T14:03:13-04:00",
+        "tracked": true
+      },
+      {
+        "id": "slime_coin",
+        "config_export": "slimeCoinConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-06-27T21:08:17-04:00",
+        "last_updated": "2026-08-16T15:05:51-04:00",
+        "tracked": true
+      },
+      {
+        "id": "chimera_wilds",
+        "config_export": "chimeraWildsConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-07-08T20:40:17-04:00",
+        "last_updated": "2026-08-16T15:05:51-04:00",
+        "tracked": true
+      },
+      {
+        "id": "scrapcrawl",
+        "config_export": "scrapcrawlConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-07-08T21:05:08-04:00",
+        "last_updated": "2026-08-16T15:05:51-04:00",
+        "tracked": true
+      },
+      {
+        "id": "ledger",
+        "config_export": "ledgerConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-07-11T18:42:41-04:00",
+        "last_updated": "2026-07-11T18:42:41-04:00",
+        "tracked": true
+      },
+      {
+        "id": "trinity_siege",
+        "config_export": "trinitySiegeConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-07-11T18:42:41-04:00",
+        "last_updated": "2026-07-11T18:42:41-04:00",
+        "tracked": true
+      },
+      {
+        "id": "7_days_to_fry",
+        "config_export": "sevenDaysToFryConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-04T22:13:41-04:00",
+        "last_updated": "2026-08-23T14:16:01-04:00",
+        "tracked": true
+      },
+      {
+        "id": "antsim_redux",
+        "config_export": "antsimReduxConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-06T22:26:34-04:00",
+        "last_updated": "2026-08-23T14:16:01-04:00",
+        "tracked": true
+      },
+      {
+        "id": "facility_escape",
+        "config_export": "facilityEscapeConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-06T22:26:34-04:00",
+        "last_updated": "2026-08-23T14:16:01-04:00",
+        "tracked": true
+      },
+      {
+        "id": "factory_idle",
+        "config_export": "factoryIdleConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-22T22:02:42-04:00",
+        "last_updated": "2026-08-23T14:16:01-04:00",
+        "tracked": true
+      },
+      {
+        "id": "planetofgreed",
+        "config_export": "planetofgreedConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-13T21:58:10-04:00",
+        "last_updated": "2026-08-16T15:53:27-04:00",
+        "tracked": true
+      },
+      {
+        "id": "planetforge",
+        "config_export": "planetforgeConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-22T22:02:42-04:00",
+        "last_updated": "2026-08-23T14:16:37-04:00",
+        "tracked": true
+      },
+      {
+        "id": "gladiator_arena",
+        "config_export": "gladiatorArenaConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-15T23:16:53-04:00",
+        "last_updated": "2026-08-15T23:22:24-04:00",
+        "tracked": true
+      },
+      {
+        "id": "voiddrift_redux",
+        "config_export": "voiddriftReduxConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-15T23:27:38-04:00",
+        "last_updated": "2026-08-15T23:30:38-04:00",
+        "tracked": true
+      },
+      {
+        "id": "succession",
+        "config_export": "successionConfig",
+        "pipeline_stage": "itch_published",
+        "version": "0.1.0",
+        "created": "2026-08-15T23:27:48-04:00",
+        "last_updated": "2026-08-22T23:04:56-04:00",
+        "tracked": true
+      },
+      {
+        "id": "house_of_kings_collab",
+        "config_export": "houseOfKingsCollabConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-15T23:46:00-04:00",
+        "last_updated": "2026-08-16T00:29:17-04:00",
+        "tracked": true
+      },
+      {
+        "id": "character_viewer",
+        "config_export": "characterViewerConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-14T21:55:13-04:00",
+        "last_updated": "2026-08-15T18:10:04-04:00",
+        "tracked": true
+      },
+      {
+        "id": "technique_showcase",
+        "config_export": "techniqueShowcaseConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-14T23:39:46-04:00",
+        "last_updated": "2026-08-14T23:39:46-04:00",
+        "tracked": true
+      },
+      {
+        "id": "role_symbol_viewer",
+        "config_export": "roleSymbolViewerConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-22T19:34:01-04:00",
+        "last_updated": "2026-08-22T19:34:01-04:00",
+        "tracked": true
+      },
+      {
+        "id": "dissonance_prototype",
+        "config_export": "dissonancePrototypeConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-23T13:48:11-04:00",
+        "last_updated": "2026-08-23T14:18:43-04:00",
+        "tracked": true
+      },
+      {
+        "id": "slimegarden",
+        "config_export": "slimegardenConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-07-13T18:32:06-04:00",
+        "last_updated": "2026-08-23T14:18:43-04:00",
+        "tracked": true
+      },
+      {
+        "id": "slimebreeder",
+        "config_export": "slimebreederConfig",
+        "pipeline_stage": "website_collection",
+        "version": "1.0.0",
+        "created": "2026-04-10T21:08:42-04:00",
+        "last_updated": "2026-04-11T21:33:00-04:00",
+        "tracked": true
+      },
+      {
+        "id": "corpworld",
+        "config_export": "corpworldConfig",
+        "pipeline_stage": "website_collection",
+        "version": "\ufeff0.1.0",
+        "created": "2026-07-12T21:25:26-04:00",
+        "last_updated": "2026-08-13T21:58:10-04:00",
+        "tracked": true
+      },
+      {
+        "id": "kingmaker_squads",
+        "config_export": "kingmakerSquadsConfig",
+        "pipeline_stage": "website_collection",
+        "version": "0.1.0",
+        "created": "2026-08-04T22:13:41-04:00",
+        "last_updated": "2026-08-13T21:58:10-04:00",
+        "tracked": true
+      }
+    ],
+    "examples": [
+      "7-days-to-fry",
+      "SlimeBreeder",
+      "antsim-redux",
+      "armory-storefront-spindle",
+      "brewfield",
+      "coin-pusher-arcade",
+      "corpworld",
+      "dissonance-prototype",
+      "facility-escape",
+      "factory-idle-precision-armory-phase1",
+      "factory-idle-precision-armory-phase2",
+      "horse-racing-&-breeding",
+      "kingmaker-squads",
+      "ledger",
+      "lua",
+      "mutant-battle-ball",
+      "planetforge",
+      "planetofgreed",
+      "scrapcrawl",
+      "shoal",
+      "slimegarden",
+      "slimeworld",
+      "slither-rogue_-evolution",
+      "throwaway-test",
+      "trinity-siege",
+      "voiddrift-redux-core-loop",
+      "voidrift-redux-particle-sandbox",
+      "voidrift-redux-station-sim"
+    ],
+    "game_count": 30
+  },
+  "zip_inventory": {
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake",
+    "total_exports": 11,
+    "imported": 11,
+    "pending": 0,
+    "exports": [
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\7-days-to-fry\\7-days-to-fry_v0.1.0R1.zip",
+        "slug": "7-days-to-fry",
+        "version": "0.1.0R1",
+        "created": "2026-08-04T22:10:31",
+        "modified": "2026-08-04T21:51:49",
+        "game_id": "7_days_to_fry",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\antsim-redux\\antsim-redux_v0.1.0R1.zip",
+        "slug": "antsim-redux",
+        "version": "0.1.0R1",
+        "created": "2026-08-06T22:23:07",
+        "modified": "2026-08-06T22:17:52",
+        "game_id": "antsim_redux",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\corpworld\\corpworld_v0.1.0R1.zip",
+        "slug": "corpworld",
+        "version": "0.1.0R1",
+        "created": "2026-07-12T20:46:26",
+        "modified": "2026-07-12T20:40:55",
+        "game_id": "corpworld",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\corpworld\\corpworld_v0.1.0R2.zip",
+        "slug": "corpworld",
+        "version": "0.1.0R2",
+        "created": "2026-07-12T21:08:07",
+        "modified": "2026-07-12T21:05:08",
+        "game_id": "corpworld",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\corpworld\\corpworld_v0.1.0R3.zip",
+        "slug": "corpworld",
+        "version": "0.1.0R3",
+        "created": "2026-07-12T21:27:00",
+        "modified": "2026-07-12T21:18:49",
+        "game_id": "corpworld",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\corpworld\\corpworld_v0.1.0R4.zip",
+        "slug": "corpworld",
+        "version": "0.1.0R4",
+        "created": "2026-07-12T22:17:59",
+        "modified": "2026-07-12T22:15:37",
+        "game_id": "corpworld",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\corpworld\\corpworld_v0.1.0R5.zip",
+        "slug": "corpworld",
+        "version": "0.1.0R5",
+        "created": "2026-07-12T22:55:04",
+        "modified": "2026-07-12T22:51:30",
+        "game_id": "corpworld",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\facility-escape\\facility-escape_v0.1.0R1.zip",
+        "slug": "facility-escape",
+        "version": "0.1.0R1",
+        "created": "2026-08-06T22:23:07",
+        "modified": "2026-08-06T22:21:35",
+        "game_id": "facility_escape",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\kingmaker-squads\\kingmaker-squads_v0.1.0R1.zip",
+        "slug": "kingmaker-squads",
+        "version": "0.1.0R1",
+        "created": "2026-08-04T22:10:31",
+        "modified": "2026-08-04T22:01:36",
+        "game_id": "kingmaker_squads",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\slimegarden\\slimegarden_v0.1.0R1.zip",
+        "slug": "slimegarden",
+        "version": "0.1.0R1",
+        "created": "2026-07-13T18:18:28",
+        "modified": "2026-07-13T18:06:50",
+        "game_id": "slimegarden",
+        "imported": true,
+        "warnings": []
+      },
+      {
+        "path": "C:\\Github\\RFDGameStudio\\intake\\slimegarden\\slimegarden_v0.1.0R2.zip",
+        "slug": "slimegarden",
+        "version": "0.1.0R2",
+        "created": "2026-07-18T09:33:56",
+        "modified": "2026-07-18T09:28:13",
+        "game_id": "slimegarden",
+        "imported": true,
+        "warnings": []
+      }
+    ],
+    "pending_exports": []
+  },
+  "known_issues": {
+    "ensure_node_modules": {
+      "status": "fixed",
+      "runs_npm_install": true,
+      "returns_none_on_no_match": true,
+      "details": "_ensure_node_modules contains a real npm install fallback and returns None only when package.json is missing."
+    },
+    "cross_pipeline_version_tracking": {
+      "status": "partial",
+      "repo_counts": {
+        "_is_dist_stale": 13,
+        "--userversion": 15,
+        "deployed_version": 24
+      },
+      "publishing_counts": {
+        "_is_dist_stale": 0,
+        "--userversion": 0,
+        "deployed_version": 0
+      },
+      "total_hits": 52,
+      "details": "Version-tracking strings found, but not in RFD_IT_Publishing."
+    }
+  },
+  "floors": {
+    "python": {
+      "cmd": "uv run pytest -m \"not slow\"",
+      "raw_log": "==== 588 passed, 1 failed, 31 deselected, 8 warnings in 123.26s (0:02:03) ====",
+      "passed": 588,
+      "failed": 1,
+      "skipped": 0,
+      "error": 0,
+      "certified": false
+    },
+    "typescript": {
+      "cmd": "npx vitest run",
+      "raw_log": "Test Files  2 failed | 132 passed (134)\nTests  2 failed | 1644 passed (1646)",
+      "passed": 1644,
+      "failed": 2,
+      "skipped": 0,
+      "certified": false
+    }
+  }
+}
