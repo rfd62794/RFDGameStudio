@@ -65,4 +65,12 @@ def test_repo_state_handles_missing_metadata(tmp_path: Path):
         metadata_path=metadata,
         examples_dir=tmp_path / "examples",
     )
-    assert state["games"] == [{"id": "a", "config_export": "a", "pipeline_stage": "ai_studio"}]
+    assert state["games"] == [{
+        "id": "a",
+        "config_export": "a",
+        "pipeline_stage": "ai_studio",
+        "version": "0.1.0",
+        "created": "",
+        "last_updated": "",
+        "tracked": False,
+    }]

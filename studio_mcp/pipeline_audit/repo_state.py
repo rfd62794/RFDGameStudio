@@ -18,8 +18,13 @@ def _extract_registry_games(registry_text: str) -> list[dict[str, str]]:
     imports: dict[str, str] = {}
     for line in registry_text.splitlines():
         line = line.strip()
+        # import x from './{game_id}/config';
+        # import { x } from './{game_id}/config';
+        # import type declarations are ignored.
+        if line.startswith("import type"):
+            continue
         match = re.match(
-            r"^import\s+([A-Za-z0-9_]+)\s+from\s+['\"]\.\/([^/]+)\/config['\"];?$",
+            r"^import\s+(?:\{\s*)?([A-Za-z0-9_]+)\s*\}?\s+from\s+['\"]\.\/([^/]+)\/config['\"];?$",
             line,
         )
         if match:
@@ -27,21 +32,28 @@ def _extract_registry_games(registry_text: str) -> list[dict[str, str]]:
             imports[var_name] = game_id
 
     games: list[dict[str, str]] = []
-    in_registry = False
-    for line in registry_text.splitlines():
+    # Locate the array literal after `export const GAME_REGISTRY`.
+    registry_match = re.search(
+        r"export\s+const\s+GAME_REGISTRY\s*:?[^=]*=\s*\[(.*?)\]",
+        registry_text,
+        re.DOTALL,
+    )
+    if not registry_match:
+        return games
+
+    body = registry_match.group(1)
+    for line in body.splitlines():
         stripped = line.strip()
-        if "export const GAME_REGISTRY" in stripped:
-            in_registry = True
+        if not stripped:
             continue
-        if in_registry and stripped.startswith("]"):
-            break
-        if in_registry:
-            match = re.match(r"^([A-Za-z0-9_]+),?$", stripped)
-            if match:
-                var_name = match.group(1)
-                game_id = imports.get(var_name)
-                if game_id:
-                    games.append({"id": game_id, "config_export": var_name})
+        # Strip trailing comma/semicolon/bracket noise.
+        cleaned = re.sub(r"[,;\]]+$", "", stripped).strip()
+        match = re.match(r"^([A-Za-z0-9_]+)$", cleaned)
+        if match:
+            var_name = match.group(1)
+            game_id = imports.get(var_name)
+            if game_id:
+                games.append({"id": game_id, "config_export": var_name})
     return games
 
 
