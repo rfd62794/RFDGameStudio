@@ -5,7 +5,7 @@ import os
 import tempfile
 import time
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -126,3 +126,66 @@ def test_games_yaml_no_placeholder_entries():
     games = config.get("games", {})
     assert "antsim" not in games
     assert "greengap" not in games
+
+
+def test_studio_deploy_arcade_records_deployed_version_on_success(tmp_path, monkeypatch) -> None:
+    """End-to-end mocked deploy: studio_deploy_arcade writes deployed_version
+    from the game's VERSION file into game-metadata.json on success, without
+    needing a live hugo/SFTP run."""
+    import studio_mcp.game_metadata as gm
+    import studio_mcp.tools as tools
+
+    fake_module_dir = tmp_path / "fake_module"
+    fake_module_dir.mkdir()
+    monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
+
+    # Main arcade bundle: dist exists and is newer than its source.
+    dist_dir = tmp_path / "ts" / "dist"
+    dist_dir.mkdir(parents=True)
+    (dist_dir / "index.html").write_text("<h1>Arcade</h1>", encoding="utf-8")
+
+    # Example demo: dist exists and is newer than its source.
+    demo_dist = tmp_path / "examples" / "ledger" / "dist"
+    demo_dist.mkdir(parents=True)
+    (demo_dist / "index.html").write_text("<h1>Ledger</h1>", encoding="utf-8")
+    (tmp_path / "examples" / "ledger" / "src").mkdir(parents=True)
+    (tmp_path / "examples" / "ledger" / "src" / "main.tsx").write_text("export {}", encoding="utf-8")
+
+    # One tracked game with a real VERSION file.
+    game_dir = tmp_path / "games" / "demo_game"
+    game_dir.mkdir(parents=True)
+    (game_dir / "VERSION").write_text("1.2.3", encoding="utf-8")
+
+    site_repo = tmp_path / "site"
+    site_repo.mkdir()
+
+    metadata_path = tmp_path / "game-metadata.json"
+
+    def fake_write_metadata() -> None:
+        metadata_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata_path.write_text(
+            json.dumps({"demo_game": {"pipeline_stage": "ai_studio", "deployed_version": ""}}),
+            encoding="utf-8",
+        )
+
+    monkeypatch.setattr(tools, "_EXAMPLE_DEMOS", ["ledger"])
+    monkeypatch.setattr(tools, "GAME_PATHS", {"demo_game": ["games/demo_game"]})
+    monkeypatch.setattr(gm, "GAME_PATHS", {"demo_game": ["games/demo_game"]})
+    monkeypatch.setattr(tools, "_EXTERNAL_REPOS", {})
+    monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
+    monkeypatch.setattr(tools, "write_game_metadata", fake_write_metadata)
+    monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
+    monkeypatch.setattr(gm, "_METADATA_PATH", metadata_path)
+
+    mock_build = MagicMock(returncode=0, stdout="", stderr="")
+    mock_deploy = MagicMock(returncode=0, stdout="ok")
+
+    with patch("subprocess.run", side_effect=[mock_build, mock_deploy]):
+        result = tools.studio_deploy_arcade()
+
+    assert "error" not in result
+    assert result["deploy"]["returncode"] == 0
+
+    data = json.loads(metadata_path.read_text(encoding="utf-8"))
+    assert data["demo_game"]["pipeline_stage"] == "website_collection"
+    assert data["demo_game"]["deployed_version"] == "1.2.3"

@@ -740,7 +740,7 @@ def studio_deploy_arcade() -> dict:
             break
     if stale_demo:
         return {
-            "error": f"{_DEMO_SOURCE_PATHS[stale_demo]} / dist/ is older than its src/. Build it first.",
+            "error": f"{_demo_source_path(stale_demo, repo_root)} / dist/ is older than its src/. Build it first.",
             "tool": "studio_deploy_arcade",
             "stale_demo": stale_demo,
         }
