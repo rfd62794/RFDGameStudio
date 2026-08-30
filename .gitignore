@@ -188,6 +188,7 @@ examples/*
 !examples/ledger/
 !examples/shoal/
 !examples/trinity-siege/
+!examples/planetforge/
 
 # Screenshots
 screenshots/
