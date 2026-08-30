@@ -43,7 +43,10 @@ from studio.runtime import load_game
 from studio_mcp.game_metadata import (
     GAME_PATHS,
     PIPELINE_STAGE_WEBSITE_COLLECTION,
+    _EXTERNAL_REPOS,
+    _read_version,
     advance_pipeline_stage,
+    record_deployed_version,
     write_game_metadata,
 )
 from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
@@ -670,6 +673,22 @@ _DEMO_SOURCE_PATHS: dict[str, Path] = {
 }
 
 
+def _is_dist_stale(dist_dir: Path, source_dir: Path) -> bool:
+    """Compare dist/'s newest file against source's newest real file.
+
+    Returns True if dist/ predates the source it's supposed to represent.
+    A missing dist_dir is treated as stale by the caller's existing check.
+    """
+    if not dist_dir.exists():
+        return True
+    if not source_dir.exists():
+        # No source to compare against — cannot determine staleness.
+        return False
+    dist_newest = max((f.stat().st_mtime for f in dist_dir.rglob("*") if f.is_file()), default=0)
+    source_newest = max((f.stat().st_mtime for f in source_dir.rglob("*") if f.is_file()), default=0)
+    return dist_newest < source_newest
+
+
 def studio_deploy_arcade() -> dict:
     """Copy ts/dist/ into the site repo's static/arcade/rfdgamestudio/,
     copy each example demo's dist/ into static/arcade/{gameId}/,
@@ -704,6 +723,27 @@ def studio_deploy_arcade() -> dict:
                 "tool": "studio_deploy_arcade",
             }
 
+    # Freshness checks: fail loudly if any dist/ is older than its source.
+    if _is_dist_stale(dist_dir, repo_root / "ts" / "src"):
+        return {
+            "error": "ts/dist/ is older than ts/src/. Run studio_build first.",
+            "tool": "studio_deploy_arcade",
+        }
+
+    stale_demo: str | None = None
+    for demo_slug in _EXAMPLE_DEMOS:
+        demo_dist = _DEMO_SOURCE_PATHS[demo_slug] / "dist"
+        demo_source = _DEMO_SOURCE_PATHS[demo_slug] / "src"
+        if _is_dist_stale(demo_dist, demo_source):
+            stale_demo = demo_slug
+            break
+    if stale_demo:
+        return {
+            "error": f"{_DEMO_SOURCE_PATHS[stale_demo]} / dist/ is older than its src/. Build it first.",
+            "tool": "studio_deploy_arcade",
+            "stale_demo": stale_demo,
+        }
+
     target_dir = _SITE_REPO_PATH / "static" / "arcade" / "rfdgamestudio"
 
     # TS-native standalone builds: each ts/dist-{gameId}/ directory is a
@@ -716,6 +756,13 @@ def studio_deploy_arcade() -> dict:
         if dist_dir_candidate.is_dir() and dist_dir_candidate.name.startswith("dist-"):
             game_id = dist_dir_candidate.name[len("dist-"):]
             if (dist_dir_candidate / "index.html").exists():
+                source_candidate = ts_root / "src" / "games" / game_id
+                if _is_dist_stale(dist_dir_candidate, source_candidate):
+                    return {
+                        "error": f"{dist_dir_candidate} is older than {source_candidate}. Build it first.",
+                        "tool": "studio_deploy_arcade",
+                        "stale_standalone": game_id,
+                    }
                 standalone_builds.append((game_id, dist_dir_candidate))
 
     try:
@@ -812,6 +859,11 @@ def studio_deploy_arcade() -> dict:
         if deploy_proc.returncode == 0:
             for tracked_game_id in GAME_PATHS:
                 advance_pipeline_stage(tracked_game_id, PIPELINE_STAGE_WEBSITE_COLLECTION)
+                if tracked_game_id in _EXTERNAL_REPOS:
+                    deployed_version = _read_version(_EXTERNAL_REPOS[tracked_game_id], ["."])
+                else:
+                    deployed_version = _read_version(repo_root, GAME_PATHS[tracked_game_id])
+                record_deployed_version(tracked_game_id, deployed_version)
 
         return {
             "copied_files": copied_files,
@@ -1155,6 +1207,16 @@ def studio_promote_to_examples(
         "output": deploy_output[-2000:],
     }
 
+    # Record the intake -> VERSION seam whenever a concept is promoted.
+    # This writes a small adjacent note in the promoted examples/ tree so the
+    # exact intake version a release graduated from is never lost.
+    if deploy_proc.returncode <= 7:
+        intake_version_path = examples_dir / "INTAKE_VERSION"
+        intake_version_path.write_text(
+            f"# Intake version this promotion was extracted from\n{used_version}\n",
+            encoding="utf-8",
+        )
+
     duration_ms = int((time.time() - start) * 1000)
 
     return {
@@ -1166,6 +1228,7 @@ def studio_promote_to_examples(
         "base_action": base_action,
         "build": build_result,
         "deploy": deploy_result,
+        "intake_version_path": str(examples_dir / "INTAKE_VERSION"),
         "duration_ms": duration_ms,
     }
 

@@ -158,6 +158,29 @@ _DEFAULT_PIPELINE_STAGE = PIPELINE_STAGE_AI_STUDIO
 _METADATA_PATH = REPO_ROOT / "ts" / "src" / "games" / "game-metadata.json"
 
 
+def _load_existing_deployed_versions(out_path: Path) -> dict[str, str]:
+    """Read deployed_version values from the current on-disk metadata file.
+
+    Carried forward for the same reason as pipeline_stage: a full regeneration
+    rebuilds version/created/last_updated/tracked from git, so without this
+    carry-forward the real deployed version recorded by studio_deploy_arcade
+    would be silently wiped.
+    """
+    if not out_path.exists():
+        return {}
+    try:
+        existing = json.loads(out_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if not isinstance(existing, dict):
+        return {}
+    return {
+        game_id: info["deployed_version"]
+        for game_id, info in existing.items()
+        if isinstance(info, dict) and info.get("deployed_version")
+    }
+
+
 def _load_existing_pipeline_stages(out_path: Path) -> dict[str, str]:
     """Read pipeline_stage values from the current on-disk metadata file, if
     any, so a full regeneration (which rebuilds created/last_updated/version/
@@ -218,6 +241,7 @@ def _load_existing_curated_fields(out_path: Path) -> dict[str, dict[str, object]
 def generate_game_metadata(
     existing_stages: dict[str, str] | None = None,
     existing_curated: dict[str, dict[str, object]] | None = None,
+    existing_deployed_versions: dict[str, str] | None = None,
 ) -> dict[str, dict[str, object]]:
     """Produce the game metadata object derived from git and VERSION files.
 
@@ -230,6 +254,7 @@ def generate_game_metadata(
     """
     existing_stages = existing_stages or {}
     existing_curated = existing_curated or {}
+    existing_deployed_versions = existing_deployed_versions or {}
     result: dict[str, dict[str, object]] = {}
 
     for game_id, paths in GAME_PATHS.items():
@@ -254,6 +279,7 @@ def generate_game_metadata(
             "version": version,
             "tracked": tracked,
             "pipeline_stage": existing_stages.get(game_id, _DEFAULT_PIPELINE_STAGE),
+            "deployed_version": existing_deployed_versions.get(game_id, ""),
         }
         entry.update(existing_curated.get(game_id, {}))
         result[game_id] = entry
@@ -270,7 +296,8 @@ def write_game_metadata() -> Path:
     out_path = _METADATA_PATH
     existing_stages = _load_existing_pipeline_stages(out_path)
     existing_curated = _load_existing_curated_fields(out_path)
-    metadata = generate_game_metadata(existing_stages, existing_curated)
+    existing_deployed_versions = _load_existing_deployed_versions(out_path)
+    metadata = generate_game_metadata(existing_stages, existing_curated, existing_deployed_versions)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return out_path
@@ -305,6 +332,27 @@ def advance_pipeline_stage(game_id: str, new_stage: str, out_path: Path | None =
         return False
 
     data[game_id]["pipeline_stage"] = new_stage
+    out_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    return True
+
+
+def record_deployed_version(game_id: str, version: str, out_path: Path | None = None) -> bool:
+    """Record the deployed_version for game_id in the on-disk metadata file.
+
+    Called only after a real, confirmed successful deploy -- never speculatively.
+    Returns True if a write happened, False otherwise.
+    """
+    out_path = out_path or _METADATA_PATH
+    if not out_path.exists():
+        return False
+    try:
+        data = json.loads(out_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    if not isinstance(data, dict) or game_id not in data:
+        return False
+
+    data[game_id]["deployed_version"] = version
     out_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
     return True
 
