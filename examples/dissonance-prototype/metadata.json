@@ -1,0 +1,6 @@
+{
+  "name": "Dissonance Loop Prototype",
+  "description": "Core loop prototype for Dissonance, testing turn-based combat, relation-based combination mechanics, and Locked/Hinted/Discovered stabilization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
