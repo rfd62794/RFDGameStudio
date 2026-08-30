@@ -31,20 +31,30 @@ def _extract_function_body(text: str, func_name: str) -> str | None:
     return match.group(1) if match else None
 
 
-def _count_occurrences(root: Path, pattern: str, glob: str = "**/*") -> int:
+_SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "dist", "build"}
+_SOURCE_SUFFIXES = {".py", ".ts", ".tsx", ".js", ".md", ".json", ".yaml", ".yml", ".toml"}
+
+
+def _count_occurrences(root: Path, pattern: str, suffixes: set[str] | None = None) -> int:
     """Return the number of files under root whose content contains pattern."""
     if not root.exists():
         return 0
+    suffixes = suffixes or _SOURCE_SUFFIXES
     count = 0
-    for path in root.rglob(glob):
-        if not path.is_file():
-            continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        if re.search(pattern, text):
-            count += 1
+    import os
+
+    for dirpath, dirnames, filenames in os.walk(root, topdown=True):
+        dirnames[:] = [d for d in dirnames if d not in _SKIP_DIRS]
+        for filename in filenames:
+            if not any(filename.endswith(suf) for suf in suffixes):
+                continue
+            path = Path(dirpath) / filename
+            try:
+                text = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+            if re.search(pattern, text):
+                count += 1
     return count
 
 

@@ -123,11 +123,13 @@ def _format_as_markdown(report: dict) -> str:
     for s, count in issues["cross_pipeline_version_tracking"]["repo_counts"].items():
         lines.append(f"- `{s}`: {count}")
 
-    lines.append("", "**RFD_IT_Publishing hits:**")
+    lines.append("")
+    lines.append("**RFD_IT_Publishing hits:**")
     for s, count in issues["cross_pipeline_version_tracking"]["publishing_counts"].items():
         lines.append(f"- `{s}`: {count}")
 
-    lines.append(f"\n- Details: {issues['cross_pipeline_version_tracking']['details']}")
+    lines.append("")
+    lines.append(f"- Details: {issues['cross_pipeline_version_tracking']['details']}")
     lines.append("")
 
     return "\n".join(lines)
