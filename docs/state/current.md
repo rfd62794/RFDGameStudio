@@ -1,10 +1,10 @@
 # RFD_IT_Publishing - Current State
 
-## Phase 1: itch.io via Butler — CERTIFIED ✅
+## Phase 1: itch.io via Butler — CERTIFIED ✅ (updated August 30 2026)
 
-**Date:** May 1, 2026  
-**Status:** Complete  
-**Test Floor:** 5 passing, 0 failing, 0 skipped
+**Date:** August 30, 2026  
+**Status:** Complete — freshness check + `--userversion` wiring landed  
+**Test Floor:** 9 passing, 0 failing, 0 skipped
 
 ### Implementation Summary
 
@@ -73,7 +73,8 @@ One-command publishing to itch.io. Eliminates friction between "it's ready" and 
 
 ---
 
-## Phase 4: rfditservices.com via SFTP — NOT STARTED
+## Phase 4: rfditservices.com via SFTP — STATUS UNDER REVIEW
 
-**Status:** Pending  
-**Trigger:** When ready to deploy to RFD IT Services website
+**Status:** Pending / potentially superseded  
+**Trigger:** Decision needed by Robert  
+**Note:** `studio_deploy_arcade` in the RFDGameStudio repo already performs a real SFTP/deploy to the same site endpoint. The original plan to build a competing mechanism in this repo may be redundant. This is explicitly flagged as an open judgment call, not silently resolved.

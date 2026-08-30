@@ -19,7 +19,29 @@ _GAME_METADATA_PATH = _RFDGAMESTUDIO_PATH / "ts" / "src" / "games" / "game-metad
 _GAME_ID_ALIASES = {"voidrift": "voiddrift"}
 
 
-def _mark_itch_published(game_name: str) -> None:
+def _is_dist_stale(dist_dir: Path, source_dir: Path) -> bool:
+    """Compare dist/'s newest file against source's newest real file.
+
+    Returns True if dist/ predates the source it's supposed to represent.
+    A missing dist_dir is treated as stale by the caller.
+    """
+    if not dist_dir.exists():
+        return True
+    if not source_dir.exists():
+        return False
+    dist_newest = max((f.stat().st_mtime for f in dist_dir.rglob("*") if f.is_file()), default=0)
+    source_newest = max((f.stat().st_mtime for f in source_dir.rglob("*") if f.is_file()), default=0)
+    return dist_newest < source_newest
+
+
+def _read_version(version_file: Path) -> str | None:
+    """Return the stripped contents of a VERSION file, or None."""
+    if version_file and version_file.exists():
+        return version_file.read_text(encoding="utf-8").strip()
+    return None
+
+
+def _mark_itch_published(game_name: str, version: str | None = None) -> None:
     """Best-effort: record game_name as itch_published in RFDGameStudio's
     game-metadata.json. Called only after a real, confirmed successful
     butler push (never on dry_run, never on failure). Never raises — a
@@ -34,6 +56,8 @@ def _mark_itch_published(game_name: str) -> None:
         if not isinstance(data, dict) or game_id not in data:
             return
         data[game_id]["pipeline_stage"] = "itch_published"
+        if version:
+            data[game_id]["deployed_version"] = version
         _GAME_METADATA_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
     except Exception:
         pass
@@ -72,11 +96,11 @@ def load_game_config(game_name: str) -> dict:
 def push(game_name: str, dry_run: bool = False) -> bool:
     """
     Push build to itch.io via Butler.
-    
+
     Args:
         game_name: Key from games.yaml
         dry_run: If True, print command without executing
-    
+
     Returns:
         True on success, False on failure
     """
@@ -85,22 +109,36 @@ def push(game_name: str, dry_run: bool = False) -> bool:
     except KeyError as e:
         print(f"Error: {e}")
         return False
-    
-    build_dir = game_config["build_dir"]
+
+    build_dir = Path(game_config["build_dir"])
     itchio_slug = game_config["itchio_slug"]
     channel = game_config["channel"]
-    
-    command = ["butler", "push", build_dir, f"{itchio_slug}:{channel}"]
-    
+    source_dir = Path(game_config["source_dir"]) if game_config.get("source_dir") else None
+    version_file = Path(game_config["version_file"]) if game_config.get("version_file") else None
+
+    # Freshness check: fail loudly if build_dir is older than source_dir.
+    if source_dir and _is_dist_stale(build_dir, source_dir):
+        print(
+            f"Error: {build_dir} is older than {source_dir}. "
+            "Build first."
+        )
+        return False
+
+    version = _read_version(version_file) if version_file else None
+
+    command = ["butler", "push", str(build_dir), f"{itchio_slug}:{channel}"]
+    if version:
+        command.extend(["--userversion", version])
+
     if dry_run:
         print(f"Would execute: {' '.join(command)}")
         return True
-    
+
     try:
         result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace")
         if result.returncode == 0:
             print(f"Successfully pushed {game_name} to itch.io")
-            _mark_itch_published(game_name)
+            _mark_itch_published(game_name, version=version)
             return True
         else:
             print(f"Failed to push {game_name}: {result.stderr}")
