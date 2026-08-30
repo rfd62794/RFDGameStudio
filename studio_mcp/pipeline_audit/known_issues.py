@@ -22,7 +22,7 @@ def _read_text(path: Path) -> str:
 def _extract_function_body(text: str, func_name: str) -> str | None:
     """Return the raw body of the named top-level function, or None."""
     match = re.search(
-        rf"^def\s+{re.escape(func_name)}\s*\([^)]*\)\s*(?:->[^:]*:)?\s*:"
+        rf"^def\s+{re.escape(func_name)}\s*\([^)]*\)(?:\s*->[^:]*)?:"
         r"(?:\s*\"\"\"[^\"]*\"\"\")?"
         r"(.*?)\n(?=^def\s+|^class\s+|\Z)",
         text,
@@ -36,26 +36,60 @@ _SOURCE_SUFFIXES = {".py", ".ts", ".tsx", ".js", ".md", ".json", ".yaml", ".yml"
 
 
 def _count_occurrences(root: Path, pattern: str, suffixes: set[str] | None = None) -> int:
-    """Return the number of files under root whose content contains pattern."""
+    """Return the number of occurrences of pattern under root, mirroring `git grep`.
+
+    Uses git ls-files when root is a git repository so generated audit reports
+    and temporary scripts do not inflate the count.
+    """
     if not root.exists():
         return 0
-    suffixes = suffixes or _SOURCE_SUFFIXES
-    count = 0
-    import os
 
-    for dirpath, dirnames, filenames in os.walk(root, topdown=True):
+    import os
+    import subprocess
+
+    # Try git-tracked files first to avoid counting generated audit output.
+    try:
+        result = subprocess.run(
+            ["git", "-c", f"safe.directory={root.resolve()}", "ls-files"],
+            capture_output=True,
+            text=True,
+            cwd=str(root),
+            timeout=10,
+        )
+        if result.returncode == 0:
+            files = [root / p for p in result.stdout.splitlines() if p.strip()]
+            return _count_in_paths(files, pattern, suffixes)
+    except (subprocess.SubprocessError, FileNotFoundError):
+        pass
+
+    count = 0
+    for dirpath, dirnames, filenames in os.walk(root, topdown=True, followlinks=False):
         dirnames[:] = [d for d in dirnames if d not in _SKIP_DIRS]
         for filename in filenames:
-            if not any(filename.endswith(suf) for suf in suffixes):
+            if suffixes and not any(filename.endswith(suf) for suf in suffixes):
                 continue
             path = Path(dirpath) / filename
-            try:
-                text = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue
-            if re.search(pattern, text):
-                count += 1
+            count += _count_in_file(path, pattern)
     return count
+
+
+def _count_in_paths(paths: list[Path], pattern: str, suffixes: set[str] | None) -> int:
+    count = 0
+    for path in paths:
+        if suffixes and not any(path.name.endswith(suf) for suf in suffixes):
+            continue
+        if not path.is_file():
+            continue
+        count += _count_in_file(path, pattern)
+    return count
+
+
+def _count_in_file(path: Path, pattern: str) -> int:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return 0
+    return len(re.findall(pattern, text))
 
 
 def check_ensure_node_modules(tools_path: Path = TOOLS_PATH) -> dict:
