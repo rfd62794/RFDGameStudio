@@ -212,7 +212,6 @@ export default function GameSelector() {
                 <div
                   className={`arcade-card-preview${openPreviewId === config.gameId ? ' arcade-card-preview--open' : ''}`}
                   data-testid={`arcade-card-preview-${config.gameId}`}
-                  onClick={(e) => e.stopPropagation()}
                 >
                   <p className="arcade-card-preview-desc" data-testid={`arcade-card-preview-desc-${config.gameId}`}>
                     {cardDesc}

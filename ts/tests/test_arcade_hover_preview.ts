@@ -383,6 +383,35 @@ describe('Arcade Hover Preview', () => {
     cleanup();
   });
 
+  // ── Regression: hover preview must not block click-through ─────────
+  // Real bug, found live on localhost: the preview overlay is a
+  // position:absolute, inset:0 full-card layer once revealed on hover
+  // (base.css .arcade-card-preview). It previously carried
+  // onClick={(e) => e.stopPropagation()}, which swallowed every click
+  // on the card while hovering -- the card was visually there but
+  // functionally unclickable. This test simulates the real hover-
+  // capable desktop path (matchMedia hover:hover matches) and clicks
+  // directly on the preview surface itself, since that is the exact
+  // element a hovering user's click actually lands on.
+
+  it('test_clicking_preview_surface_on_hover_capable_device_navigates_to_game', async () => {
+    installMatchMedia(true); // real desktop: CSS :hover path, no toggle button
+    mockRegistry = [fullConfig];
+    const routing = await import('../src/arcade/routing');
+    const navigateTo = vi.spyOn(routing, 'navigateTo');
+    const { container, cleanup } = await renderGameSelector();
+    const preview = container.querySelector(
+      '[data-testid="arcade-card-preview-preview_full"]',
+    ) as HTMLElement;
+    expect(preview).toBeTruthy();
+    await act(async () => {
+      preview.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    // The click must bubble up to the card's own onClick handler and
+    // actually navigate -- not get swallowed by the preview overlay.
+    expect(navigateTo).toHaveBeenCalledWith('preview_full');
+    cleanup();
+  });
   // ── Honest-degradation guard: no fabricated content anywhere ───────
 
   it('test_no_fabricated_placeholder_content_for_any_missing_field', async () => {
