@@ -40,7 +40,7 @@ def test_check_ensure_node_modules_reports_not_fixed_when_no_npm_install(tmp_pat
     assert result["runs_npm_install"] is False
 
 
-def test_check_ensure_node_modules_reports_real_state(tmp_path: Path):
+def test_known_issues_node_modules_check(tmp_path: Path):
     """The real repo state should be reported accurately, whatever it is."""
     result = check_ensure_node_modules()
     assert result["status"] in {"fixed", "not_fixed", "unknown"}
@@ -64,7 +64,7 @@ def test_check_cross_pipeline_counts_strings(tmp_path: Path):
     assert result["status"] == "fixed"
 
 
-def test_check_cross_pipeline_reports_real_state():
+def test_known_issues_crosspipeline_check():
     result = check_cross_pipeline_version_tracking()
     assert "repo_counts" in result
     assert "publishing_counts" in result

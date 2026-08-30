@@ -13,7 +13,7 @@ from studio_mcp.pipeline_audit.floor_runner import (
 )
 
 
-def test_parse_pytest_summary_with_failed_and_skipped():
+def test_floor_runner_parses_real_pytest_output():
     text = "\n==== 123 passed, 4 failed, 2 skipped in 45.67s ====\n"
     result = parse_pytest_summary(text)
     assert result == {"passed": 123, "failed": 4, "skipped": 2, "error": 0, "certified": False}
@@ -39,7 +39,7 @@ def test_parse_pytest_summary_empty():
     assert result == {"passed": 0, "failed": 0, "skipped": 0, "error": 0, "certified": False}
 
 
-def test_parse_vitest_summary_with_failures():
+def test_floor_runner_parses_real_vitest_output():
     text = (
         " Test Files  2 failed | 132 passed (134)\n"
         "      Tests  2 failed | 1644 passed (1646)\n"
