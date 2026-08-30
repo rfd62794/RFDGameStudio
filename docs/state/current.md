@@ -23,3 +23,21 @@ Full per-project detail is in each project's own `CHANGELOG.md`:
 - [`_check/antsim-redux/CHANGELOG.md`](../../_check/antsim-redux/CHANGELOG.md)
 
 The full content of this retired file is preserved in git history.
+
+## Phase 1 — Pipeline Audit Module (August 30 2026)
+
+Per the Phase 1 directive, the read-only audit module in `studio_mcp/pipeline_audit/`
+is complete. Real observed floors:
+
+- Python (`uv run pytest -m "not slow"`): 588 passed, 1 failed, 31 deselected
+- TypeScript (`npx vitest run`): 1644 passed, 2 failed
+
+Open items:
+
+- `_ensure_node_modules` (studio_mcp/tools.py): **fixed** — now runs real `npm install`
+  as a fallback and returns `None` only when `package.json` is missing.
+- CrossPipeline Version Tracking: **partial** — version-tracking strings appear only
+  in RFDGameStudio documentation; RFD_IT_Publishing has zero hits, so the real
+  implementation work is not done.
+
+Generated report: [`docs/state/PipelineAuditReport.md`](./PipelineAuditReport.md)
