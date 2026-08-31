@@ -217,3 +217,44 @@ def test_detect_silent_fallback_logs_before_return_is_ambiguous(
 
     assert len(amb) == 1
     assert "log" in (amb[0].reason or "").lower()
+
+
+def test_detect_silent_fallback_excludes_defensive_noop(tmp_path: Path) -> None:
+    """A `default: return <param>` that returns the caller's own input
+    unchanged is a defensive no-op at a type boundary, not a silent
+    fallback. Must be classified no_clean_match, not clean_match.
+
+    This is the real playerAdapter.ts:96 case: mapInjuryToStatus has
+    `default: return current` where `current` is the function's second
+    parameter — preserving existing state on an unrecognized input,
+    not discarding information.
+    """
+    scratch = tmp_path / "bridge.ts"
+    scratch.write_text(
+        textwrap.dedent(
+            """
+            function mapInjuryToStatus(injury: string, current: string): string {
+              switch (injury) {
+                case 'none': return 'active';
+                case 'stunned': return 'stunned';
+                case 'down': return 'down';
+                case 'casualty': return current === 'subbed' ? 'subbed' : 'down';
+                case 'fatal': return 'down';
+                default: return current;
+              }
+            }
+            """
+        ).strip(),
+        encoding="utf-8",
+    )
+    results = detect_silent_fallback(scratch)
+    clean = [r for r in results if r.status == MatchStatus.CLEAN_MATCH]
+    defensive = [
+        r
+        for r in results
+        if r.status == MatchStatus.NO_CLEAN_MATCH and "defensive" in (r.reason or "").lower()
+    ]
+
+    assert len(clean) == 0
+    assert len(defensive) == 1
+    assert "current" in (defensive[0].reason or "")

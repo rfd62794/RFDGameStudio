@@ -255,6 +255,89 @@ _DEFAULT_THROWS_RE = re.compile(
     re.DOTALL,
 )
 
+# Match function declarations to extract parameter names, so we can
+# distinguish `default: return <param>` (defensive no-op) from
+# `default: return <manufactured value>` (silent fallback).
+_FUNC_RE = re.compile(
+    r"function\s+[A-Za-z_$][A-Za-z0-9_$]*\s*\((?P<params>[^)]*)\)",
+    re.DOTALL,
+)
+_ARROW_FUNC_RE = re.compile(
+    r"(?:const|let|var)\s+[A-Za-z_$][A-Za-z0-9_$]*\s*(?::\s*[^=]+)?\s*=\s*\((?P<params>[^)]*)\)\s*=>",
+    re.DOTALL,
+)
+
+
+def _parse_param_names(param_str: str) -> set[str]:
+    """Extract bare parameter names from a parameter list string.
+
+    Handles typed params (`x: number`), destructuring is not supported
+    (returns empty for those — they won't match simple return values).
+    """
+    names: set[str] = set()
+    for part in param_str.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        # Strip type annotation: `name: type` → `name`
+        name = part.split(":")[0].strip()
+        # Strip default value: `name = value` → `name`
+        name = name.split("=")[0].strip()
+        # Only accept simple identifiers, not destructuring patterns
+        if re.match(r"^[A-Za-z_$][A-Za-z0-9_$]*$", name):
+            names.add(name)
+    return names
+
+
+def _find_enclosing_function_params(text: str, pos: int) -> set[str]:
+    """Find the parameter names of the function enclosing position `pos`.
+
+    Scans backward from `pos` for the nearest function declaration
+    whose body contains `pos`. Returns an empty set if not found.
+    """
+    # Search backward for function declarations before `pos`.
+    best_params: set[str] = set()
+    best_end: int = -1
+
+    for m in _FUNC_RE.finditer(text, 0, pos + 1):
+        # Find the end of this function's body (matching braces).
+        brace_start = text.find("{", m.end())
+        if brace_start == -1:
+            continue
+        depth = 0
+        end = brace_start
+        for i in range(brace_start, len(text)):
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if brace_start <= pos <= end and end > best_end:
+            best_end = end
+            best_params = _parse_param_names(m.group("params"))
+
+    for m in _ARROW_FUNC_RE.finditer(text, 0, pos + 1):
+        brace_start = text.find("{", m.end())
+        if brace_start == -1:
+            continue
+        depth = 0
+        end = brace_start
+        for i in range(brace_start, len(text)):
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if brace_start <= pos <= end and end > best_end:
+            best_end = end
+            best_params = _parse_param_names(m.group("params"))
+
+    return best_params
+
 
 def detect_silent_fallback(file_path: Path | str) -> list[DetectionResult]:
     """Detect `default: return X` branches in switch/match statements.
@@ -308,14 +391,42 @@ def detect_silent_fallback(file_path: Path | str) -> list[DetectionResult]:
 
         silent = _SILENT_DEFAULT_RE.search(branch_text) or _SILENT_DEFAULT_BLOCK_RE.search(branch_text)
         if silent:
+            retval = silent.group("retval").strip()
+            extra = {"return_value": retval}
+
+            # Check whether the return value is one of the enclosing
+            # function's parameters — a `default: return <param>` is a
+            # defensive no-op at a type boundary (preserving the caller's
+            # input unchanged), not a silent fallback that discards data.
+            # This is excluded from Pattern 2 per the scoping decision:
+            # "default returns the caller's own input, unchanged" is a
+            # deliberate safety net, not a bug.
+            func_params = _find_enclosing_function_params(text, start)
+            if func_params and retval in func_params:
+                results.append(
+                    DetectionResult(
+                        status=MatchStatus.NO_CLEAN_MATCH,
+                        pattern=PatternName.SILENT_FALLBACK,
+                        file=file_str,
+                        line=line,
+                        reason=(
+                            f"default branch returns parameter `{retval}` "
+                            "unchanged — defensive no-op at a type boundary, "
+                            "not a silent fallback"
+                        ),
+                        extra=extra,
+                    )
+                )
+                continue
+
             results.append(
                 DetectionResult(
                     status=MatchStatus.CLEAN_MATCH,
                     pattern=PatternName.SILENT_FALLBACK,
                     file=file_str,
                     line=line,
-                    reason=f"default branch returns `{silent.group('retval').strip()}` instead of throwing",
-                    extra={"return_value": silent.group("retval").strip()},
+                    reason=f"default branch returns `{retval}` instead of throwing",
+                    extra=extra,
                 )
             )
         else:
