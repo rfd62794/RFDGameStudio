@@ -134,15 +134,10 @@ def detect_bound_mismatch(
 
     clamps = _find_clamp_functions(text)
 
-    if not clamps:
-        return DetectionResult(
-            status=MatchStatus.NO_CLEAN_MATCH,
-            pattern=PatternName.BOUND_MISMATCH,
-            file=file_str,
-            reason="No clamp-style function found",
-        )
-
-    # Look for clamp-shaped functions the regex didn't match (variable bounds)
+    # Look for clamp-shaped functions the regex didn't match (variable bounds).
+    # This check runs before the early "no clamps" return so that a
+    # variable-bound clamp is correctly flagged as ambiguous, not silently
+    # dropped as "no clamp found".
     loose_clamp_re = re.compile(
         r"function\s+(?P<name>[A-Za-z_$][A-Za-z0-9_$]*)\s*\([^)]*\)[^{]*\{[^}]*?"
         r"Math\.(?:min|max)\s*\(",
@@ -161,6 +156,14 @@ def detect_bound_mismatch(
                 f"Clamp-shaped function(s) {sorted(unmatched_loose)} use "
                 "non-literal bounds; cannot verify against manifest"
             ),
+        )
+
+    if not clamps:
+        return DetectionResult(
+            status=MatchStatus.NO_CLEAN_MATCH,
+            pattern=PatternName.BOUND_MISMATCH,
+            file=file_str,
+            reason="No clamp-style function found",
         )
 
     # Check each matched clamp against the manifest
@@ -243,8 +246,10 @@ _DEFAULT_LOGS_RE = re.compile(
 )
 
 # Detect a default branch that throws — correct shape, not a bug.
+# The throw can appear anywhere in the branch (e.g. after a log statement),
+# not just immediately after `default:`.
 _DEFAULT_THROWS_RE = re.compile(
-    r"default\s*:\s*\n?\s*throw\s+",
+    r"throw\s+",
     re.DOTALL,
 )
 
