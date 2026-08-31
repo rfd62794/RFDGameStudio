@@ -137,10 +137,12 @@ def detect_bound_mismatch(
     # Look for clamp-shaped functions the regex didn't match (variable bounds).
     # This check runs before the early "no clamps" return so that a
     # variable-bound clamp is correctly flagged as ambiguous, not silently
-    # dropped as "no clamp found".
+    # dropped as "no clamp found". A clamp shape requires BOTH Math.min and
+    # Math.max in the same function body — a lone Math.min (like ring_distance)
+    # is not a clamp and should not trigger ambiguity.
     loose_clamp_re = re.compile(
         r"function\s+(?P<name>[A-Za-z_$][A-Za-z0-9_$]*)\s*\([^)]*\)[^{]*\{[^}]*?"
-        r"Math\.(?:min|max)\s*\(",
+        r"Math\.(?:min|max)\s*\([^}]*?Math\.(?:min|max)\s*\(",
         re.DOTALL,
     )
     loose_names = {m.group("name") for m in loose_clamp_re.finditer(text)}
