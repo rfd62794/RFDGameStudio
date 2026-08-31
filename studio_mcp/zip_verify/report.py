@@ -11,6 +11,7 @@ from .caller_check import caller_check
 from .concept_grep import concept_check
 from .openrouter_client import OpenRouterClient
 from .revision_diff import diff_revision
+from .tracked_dir_diff import diff_tracked_dir
 from .verdict_synthesizer import find_narrative_artifact, synthesize_verdict
 from .zip_reader import extract_zip
 
@@ -19,14 +20,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def _format_verdict_report(
     slug: str,
-    zip_path: Path,
+    source_path: Path,
     findings: dict[str, Any],
     verdict: dict[str, Any],
 ) -> str:
     lines = [
         f"# Zip Verification Report — {slug}",
         "",
-        f"**Zip:** `{zip_path}`",
+        f"**Source:** `{source_path}`",
         f"**Generated:** {datetime.now(timezone.utc).isoformat()}",
         f"**Model:** {verdict.get('model', 'unknown')}",
         "",
@@ -80,31 +81,33 @@ def _format_verdict_report(
     return "\n".join(lines)
 
 
-class ZipVerifier:
-    """Read-only verifier for a single AI Studio zip export."""
+class Verifier:
+    """Read-only verifier for a single game source tree (zip or tracked dir)."""
 
     def __init__(
         self,
-        zip_path: Path | str,
+        slug: str,
+        source_dir: Path | str,
+        revision_diff_result: dict[str, Any],
+        source_path: Path | str,
         client: OpenRouterClient | None = None,
     ):
-        self.zip_path = Path(zip_path).resolve()
+        self.slug = slug
+        self.source_dir = Path(source_dir)
+        self.revision_diff_result = revision_diff_result
+        self.source_path = Path(source_path)
         self.client = client
 
     def analyze(self) -> dict[str, Any]:
         """Run all non-LLM checks and return structured findings."""
-        scratch, _ = extract_zip(self.zip_path)
-        slug = self.zip_path.stem.split("_v")[0]
-
-        rev = diff_revision(self.zip_path)
-        narrative = find_narrative_artifact(scratch)
-        concept = concept_check(scratch, slug)
-        caller = caller_check(scratch, rev.get("changed_functions", []))
+        rev = self.revision_diff_result
+        narrative = find_narrative_artifact(self.source_dir)
+        concept = concept_check(self.source_dir, self.slug)
+        caller = caller_check(self.source_dir, rev.get("changed_functions", []))
 
         return {
-            "slug": slug,
-            "zip_path": str(self.zip_path),
-            "scratch_dir": str(scratch),
+            "slug": self.slug,
+            "source_path": str(self.source_path),
             "revision_diff": rev,
             "narrative": narrative,
             "concept_grep": concept,
@@ -130,13 +133,44 @@ class ZipVerifier:
         out_path.write_text(
             _format_verdict_report(
                 slug,
-                Path(result["findings"]["zip_path"]),
+                self.source_path,
                 result["findings"],
                 result["verdict"],
             ),
             encoding="utf-8",
         )
         return out_path
+
+
+class ZipVerifier(Verifier):
+    """Read-only verifier for a single AI Studio zip export."""
+
+    def __init__(
+        self,
+        zip_path: Path | str,
+        client: OpenRouterClient | None = None,
+    ):
+        zip_path = Path(zip_path).resolve()
+        scratch, _ = extract_zip(zip_path)
+        slug = zip_path.stem.split("_v")[0]
+        rev = diff_revision(zip_path)
+        super().__init__(slug, scratch, rev, zip_path, client=client)
+        self.zip_path = zip_path
+
+
+class TrackedDirVerifier(Verifier):
+    """Read-only verifier for a tracked examples/ directory."""
+
+    def __init__(
+        self,
+        slug: str,
+        tracked_dir: Path | str,
+        client: OpenRouterClient | None = None,
+    ):
+        tracked_dir = Path(tracked_dir).resolve()
+        rev = diff_tracked_dir(tracked_dir)
+        super().__init__(slug, tracked_dir, rev, tracked_dir, client=client)
+        self.tracked_dir = tracked_dir
 
 
 # Re-export for tests/convenience

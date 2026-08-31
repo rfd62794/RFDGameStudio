@@ -20,10 +20,13 @@ def _find_call_sites(source_text: str, func_name: str) -> list[int]:
     return calls
 
 
-def caller_check(zip_scratch: Path, changed_functions: list[str]) -> dict[str, Any]:
-    """For each changed function, report whether it is invoked in the zip source."""
+def caller_check(source_dir: Path, changed_functions: list[str]) -> dict[str, Any]:
+    """For each changed function, report whether it is invoked in the source tree.
+
+    Works for either a zip-extraction scratch directory or a tracked directory.
+    """
     source_files: list[Path] = []
-    for path in zip_scratch.rglob("*"):
+    for path in source_dir.rglob("*"):
         if not path.is_file():
             continue
         if path.suffix not in {".py", ".ts", ".tsx", ".js", ".jsx"}:
@@ -42,7 +45,7 @@ def caller_check(zip_scratch: Path, changed_functions: list[str]) -> dict[str, A
             calls = _find_call_sites(text, func)
             if calls:
                 total_calls += len(calls)
-                files_with_calls.append(str(source_file.relative_to(zip_scratch)).replace("\\", "/"))
+                files_with_calls.append(str(source_file.relative_to(source_dir)).replace("\\", "/"))
         findings[func] = {
             "call_count": total_calls,
             "files": files_with_calls,

@@ -71,8 +71,11 @@ def _extract_concepts(text: str) -> list[str]:
     return unique[:30]
 
 
-def concept_check(zip_scratch: Path, slug: str) -> dict[str, Any]:
-    """Check whether the directive's concepts appear in the zip source."""
+def concept_check(source_dir: Path, slug: str) -> dict[str, Any]:
+    """Check whether the directive's concepts appear in the source tree.
+
+    Works for either a zip-extraction scratch directory or a tracked directory.
+    """
     directive = find_source_directive(slug)
     if not directive["found"]:
         return {
@@ -99,7 +102,7 @@ def concept_check(zip_scratch: Path, slug: str) -> dict[str, Any]:
 
     # Gather all text from source files.
     all_text_parts: list[str] = []
-    for path in zip_scratch.rglob("*"):
+    for path in source_dir.rglob("*"):
         if not path.is_file():
             continue
         if path.suffix not in {".py", ".ts", ".tsx", ".js", ".jsx", ".md"}:

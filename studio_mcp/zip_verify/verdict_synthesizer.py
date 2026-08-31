@@ -89,13 +89,16 @@ def synthesize_verdict(
     }
 
 
-def find_narrative_artifact(zip_scratch: Any) -> dict[str, Any]:
-    """Look inside the zip for a README/current.md style narrative artifact."""
+def find_narrative_artifact(source_dir: Any) -> dict[str, Any]:
+    """Look inside the source tree for a README/current.md style narrative artifact.
+
+    Works for either a zip-extraction scratch directory or a tracked directory.
+    """
     from pathlib import Path
 
     candidates = ["README.md", "docs/state/current.md", "docs/state/STATUS.md", "CHANGES.md"]
     for candidate in candidates:
-        path = Path(zip_scratch) / candidate
+        path = Path(source_dir) / candidate
         if path.exists():
             text = path.read_text(encoding="utf-8", errors="replace")
             return {
