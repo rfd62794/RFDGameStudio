@@ -1,0 +1,8 @@
+# bound_manifest.yaml — human-authored, one entry per locked numeric bound.
+# The fixer treats absence from this file as "no known correct value" and
+# refuses to fix, never as license to guess.
+- file: examples/planetforge/src/engine/slimeEngine.ts
+  symbol: clampTier
+  locked_min: 0
+  locked_max: 3
+  source: docs/directives/PlanetForge_Phase1_TS_Directive.md
