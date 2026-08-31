@@ -94,11 +94,11 @@ def _find_examples_dir_candidates(slug: str, examples_dir: Path | None = None) -
         for candidate in ed.iterdir():
             if not candidate.is_dir():
                 continue
-        if candidate in seen:
-            continue
-        if _normalize_name(candidate.name) == target_norm:
-            candidates.append(candidate)
-            seen.add(candidate)
+            if candidate in seen:
+                continue
+            if _normalize_name(candidate.name) == target_norm:
+                candidates.append(candidate)
+                seen.add(candidate)
 
     return candidates
 
