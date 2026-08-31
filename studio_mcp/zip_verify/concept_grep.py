@@ -44,11 +44,45 @@ def find_source_directive(slug: str) -> dict[str, Any]:
     return {"found": False, "path": None, "text": None}
 
 
+def _strip_long_backtick_spans(text: str) -> str:
+    """Keep short, single-line backtick spans (identifiers, selectors);
+    strip only genuine multi-line or long code blocks.
+    """
+    def _replace(m: re.Match) -> str:
+        content = m.group(1)
+        if "\n" in content or len(content) > 40:
+            return ""  # real code block — strip
+        return content  # short identifier/selector — keep, feeds extraction
+    return re.sub(r"`([^`]+)`", _replace, text)
+
+
+_DIRECTIVE_MARKERS = [
+    re.compile(r"\*\*Directive:\*\*", re.IGNORECASE),
+    re.compile(r"^##?\s*§\d", re.MULTILINE),
+]
+
+
+def _scope_to_directive_section(text: str) -> str:
+    """Return the text from the first directive marker onward, if found.
+    Falls back to the full text when no marker matches — existing
+    fixtures without this shape must not regress.
+    """
+    earliest = None
+    for pattern in _DIRECTIVE_MARKERS:
+        m = pattern.search(text)
+        if m and (earliest is None or m.start() < earliest):
+            earliest = m.start()
+    return text[earliest:] if earliest is not None else text
+
+
 def _extract_concepts(text: str) -> list[str]:
     """Extract plausible directive concepts as lowercase keywords."""
+    # Scope to the directive section if a marker is found.
+    text = _scope_to_directive_section(text)
+
     # Strip markdown formatting and code blocks.
     text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
-    text = re.sub(r"`[^`]+`", "", text)
+    text = _strip_long_backtick_spans(text)
     text = re.sub(r"\[.*?\]\(.*?\)", "", text)
     text = re.sub(r"[^A-Za-z0-9_\-\s]", " ", text)
 
@@ -124,12 +158,15 @@ def concept_check(source_dir: Path, slug: str) -> dict[str, Any]:
     coverage = len(matches) / len(concepts) if concepts else 0.0
     suspicious = coverage == 0.0 or coverage == 1.0
 
+    unmatched = [c for c in concepts if c not in matches]
+
     return {
         "slug": slug,
         "no_source_directive_found": False,
         "directive_path": directive["path"],
         "concepts": concepts,
         "matches": matches,
+        "unmatched_concepts": unmatched,
         "concept_coverage": round(coverage, 2),
         "suspiciously_clean": suspicious,
     }

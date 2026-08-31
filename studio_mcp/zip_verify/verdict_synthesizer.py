@@ -44,6 +44,9 @@ def build_prompt(findings: dict[str, Any]) -> str:
         prompt += f"- Source directive: {concept.get('directive_path')}\n"
         prompt += f"- Concept coverage in zip: {concept.get('concept_coverage')}\n"
         prompt += f"- Suspiciously clean/uniform: {concept.get('suspiciously_clean')}\n"
+        unmatched = concept.get("unmatched_concepts", [])
+        if unmatched:
+            prompt += f"- Unmatched concepts (found in directive but not in zip): {unmatched}\n"
 
     caller = findings.get("caller_check", {})
     prompt += f"- Changed functions with zero call sites: {caller.get('unused_functions', [])}\n"
