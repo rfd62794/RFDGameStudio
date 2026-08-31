@@ -60,6 +60,57 @@ def _is_git_tracked(path: Path) -> bool:
     return bool(result.stdout.strip())
 
 
+def _find_examples_dir_candidates(slug: str) -> list[Path]:
+    """Return all on-disk examples/ directory candidates for a slug.
+
+    Handles exact matches, hyphen/underscore variants, casing mismatches
+    (e.g. SlimeBreeder), and a small explicit override table for names that
+    diverge further. Does NOT check git-tracking — that's the caller's job.
+    """
+    candidates: list[Path] = []
+    seen: set[Path] = set()
+
+    if slug in _EXAMPLES_DIR_OVERRIDES:
+        override = EXAMPLES_DIR / _EXAMPLES_DIR_OVERRIDES[slug]
+        if override.is_dir() and override not in seen:
+            candidates.append(override)
+            seen.add(override)
+
+    # Exact and simple variant matches, case-insensitive for casing mismatches.
+    for variant in _slug_variants(slug):
+        for name in [variant, variant.lower(), variant.capitalize()]:
+            candidate = EXAMPLES_DIR / name
+            if candidate.is_dir() and candidate not in seen:
+                candidates.append(candidate)
+                seen.add(candidate)
+
+    # Fuzzy normalized match: only accept an exact normalized equality so we
+    # don't accidentally pick a loosely related directory.
+    target_norm = _normalize_name(slug)
+    for candidate in EXAMPLES_DIR.iterdir():
+        if not candidate.is_dir():
+            continue
+        if candidate in seen:
+            continue
+        if _normalize_name(candidate.name) == target_norm:
+            candidates.append(candidate)
+            seen.add(candidate)
+
+    return candidates
+
+
+def find_examples_dir_untracked(slug: str) -> list[Path]:
+    """Return all on-disk examples/ directories for a slug, regardless of
+    git-tracking status. Used by Pattern 3's detector to find untracked
+    source directories that `_find_examples_dir` (which requires
+    git-tracking) would miss.
+
+    This function does NOT alter `resolve_source()`'s behavior — it's a
+    separate entry point for the import_fixer package.
+    """
+    return _find_examples_dir_candidates(slug)
+
+
 def _find_examples_dir(slug: str) -> Path | None:
     """Return a real, git-tracked examples/ directory for a registry slug, if any.
 
@@ -68,28 +119,7 @@ def _find_examples_dir(slug: str) -> Path | None:
     diverge further. A directory is only returned if git actually tracks it —
     an untracked or gitignored directory does not count as a verifiable source.
     """
-    candidates: list[Path] = []
-
-    if slug in _EXAMPLES_DIR_OVERRIDES:
-        override = EXAMPLES_DIR / _EXAMPLES_DIR_OVERRIDES[slug]
-        if override.is_dir():
-            candidates.append(override)
-
-    # Exact and simple variant matches, case-insensitive for casing mismatches.
-    for variant in _slug_variants(slug):
-        for name in [variant, variant.lower(), variant.capitalize()]:
-            candidate = EXAMPLES_DIR / name
-            if candidate.is_dir():
-                candidates.append(candidate)
-
-    # Fuzzy normalized match: only accept an exact normalized equality so we
-    # don't accidentally pick a loosely related directory.
-    target_norm = _normalize_name(slug)
-    for candidate in EXAMPLES_DIR.iterdir():
-        if not candidate.is_dir():
-            continue
-        if _normalize_name(candidate.name) == target_norm:
-            candidates.append(candidate)
+    candidates = _find_examples_dir_candidates(slug)
 
     for candidate in candidates:
         if _is_git_tracked(candidate):

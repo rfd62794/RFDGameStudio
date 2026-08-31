@@ -14,10 +14,17 @@ findings into one. Each clean_match is a single located instance.
 from __future__ import annotations
 
 import re
+import subprocess
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+from studio_mcp.pipeline_audit.commit_claim_audit import audit_addition_claim
+from studio_mcp.zip_verify.source_resolver import (
+    _has_intake_zip,
+    find_examples_dir_untracked,
+)
 
 from .bound_manifest import BoundEntry, find_entry, load_bound_manifest
 from .pattern_catalog import PatternName
