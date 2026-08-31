@@ -1,0 +1,337 @@
+"""pattern_detector.py — scan for clean matches of cataloged patterns.
+
+Each detector returns one of:
+    - clean_match:   a real, unambiguous instance of a cataloged pattern
+                     with all required context (manifest entry, etc.)
+    - no_clean_match: no instance found, or an instance that's already
+                     correct / has no manifest entry
+    - ambiguous:     something *almost* matches but doesn't cleanly fit
+
+Detectors never produce a fix, never guess, never batch multiple
+findings into one. Each clean_match is a single located instance.
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Any
+
+from .bound_manifest import BoundEntry, find_entry, load_bound_manifest
+from .pattern_catalog import PatternName
+
+
+class MatchStatus(str, Enum):
+    CLEAN_MATCH = "clean_match"
+    NO_CLEAN_MATCH = "no_clean_match"
+    AMBIGUOUS = "ambiguous"
+
+
+@dataclass
+class DetectionResult:
+    status: MatchStatus
+    pattern: PatternName
+    file: str
+    symbol: str | None = None
+    line: int | None = None
+    current_min: int | None = None
+    current_max: int | None = None
+    locked_min: int | None = None
+    locked_max: int | None = None
+    reason: str | None = None
+    extra: dict[str, Any] = field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# Pattern 1: bound mismatch
+# ---------------------------------------------------------------------------
+
+# Matches: function symbolName(...): number { return Math.max(LIT, Math.min(LIT, ...)); }
+# Captures the two literal bounds and the function name.
+_CLAMP_RE = re.compile(
+    r"function\s+(?P<name>[A-Za-z_$][A-Za-z0-9_$]*)\s*\([^)]*\)[^{]*\{[^}]*?"
+    r"Math\.max\s*\(\s*(?P<lo>[-+]?\d+)\s*,\s*"
+    r"Math\.min\s*\(\s*(?P<hi>[-+]?\d+)\s*,",
+    re.DOTALL,
+)
+
+# Variant: Math.min(LIT, Math.max(LIT, ...)) — reversed nesting
+_CLAMP_RE_REVERSED = re.compile(
+    r"function\s+(?P<name>[A-Za-z_$][A-Za-z0-9_$]*)\s*\([^)]*\)[^{]*\{[^}]*?"
+    r"Math\.min\s*\(\s*(?P<hi>[-+]?\d+)\s*,\s*"
+    r"Math\.max\s*\(\s*(?P<lo>[-+]?\d+)\s*,",
+    re.DOTALL,
+)
+
+
+def _find_clamp_functions(text: str) -> list[dict[str, Any]]:
+    """Return list of {name, lo, hi, line, start} for clamp-style functions."""
+    results: list[dict[str, Any]] = []
+    seen_spans: set[int] = set()
+
+    for m in _CLAMP_RE.finditer(text):
+        if m.start() in seen_spans:
+            continue
+        seen_spans.add(m.start())
+        line = text.count("\n", 0, m.start()) + 1
+        results.append(
+            {
+                "name": m.group("name"),
+                "lo": int(m.group("lo")),
+                "hi": int(m.group("hi")),
+                "line": line,
+                "start": m.start(),
+            }
+        )
+
+    for m in _CLAMP_RE_REVERSED.finditer(text):
+        if m.start() in seen_spans:
+            continue
+        seen_spans.add(m.start())
+        line = text.count("\n", 0, m.start()) + 1
+        results.append(
+            {
+                "name": m.group("name"),
+                "lo": int(m.group("lo")),
+                "hi": int(m.group("hi")),
+                "line": line,
+                "start": m.start(),
+            }
+        )
+
+    return results
+
+
+def detect_bound_mismatch(
+    file_path: Path | str,
+    manifest_entries: list[BoundEntry] | None = None,
+    manifest_path: Path | str = "bound_manifest.yaml",
+) -> DetectionResult:
+    """Detect a numeric bound mismatch against the locked manifest.
+
+    Returns clean_match only when:
+      - a clamp function is found with literal bounds
+      - a manifest entry exists for (file, symbol)
+      - the current bounds differ from the locked bounds
+
+    Returns no_clean_match when:
+      - no clamp function found
+      - a clamp is found but no manifest entry exists (no guessing)
+      - a clamp is found and already matches the manifest (nothing to fix)
+
+    Returns ambiguous when:
+      - a clamp uses a variable bound instead of a literal (regex won't
+        match, but if we detect a clamp-shaped function without literal
+        bounds we flag it here)
+    """
+    file_str = str(file_path).replace("\\", "/")
+    text = Path(file_path).read_text(encoding="utf-8")
+
+    if manifest_entries is None:
+        manifest_entries = load_bound_manifest(manifest_path)
+
+    clamps = _find_clamp_functions(text)
+
+    if not clamps:
+        return DetectionResult(
+            status=MatchStatus.NO_CLEAN_MATCH,
+            pattern=PatternName.BOUND_MISMATCH,
+            file=file_str,
+            reason="No clamp-style function found",
+        )
+
+    # Look for clamp-shaped functions the regex didn't match (variable bounds)
+    loose_clamp_re = re.compile(
+        r"function\s+(?P<name>[A-Za-z_$][A-Za-z0-9_$]*)\s*\([^)]*\)[^{]*\{[^}]*?"
+        r"Math\.(?:min|max)\s*\(",
+        re.DOTALL,
+    )
+    loose_names = {m.group("name") for m in loose_clamp_re.finditer(text)}
+    matched_names = {c["name"] for c in clamps}
+    unmatched_loose = loose_names - matched_names
+    if unmatched_loose:
+        return DetectionResult(
+            status=MatchStatus.AMBIGUOUS,
+            pattern=PatternName.BOUND_MISMATCH,
+            file=file_str,
+            symbol=next(iter(unmatched_loose)),
+            reason=(
+                f"Clamp-shaped function(s) {sorted(unmatched_loose)} use "
+                "non-literal bounds; cannot verify against manifest"
+            ),
+        )
+
+    # Check each matched clamp against the manifest
+    for c in clamps:
+        entry = find_entry(manifest_entries, file_str, c["name"])
+        if entry is None:
+            # No manifest entry — try matching by symbol name alone across
+            # any file, but only if exactly one entry has that symbol.
+            same_symbol = [e for e in manifest_entries if e.symbol == c["name"]]
+            if len(same_symbol) == 1:
+                entry = same_symbol[0]
+            else:
+                continue
+
+        if c["lo"] == entry.locked_min and c["hi"] == entry.locked_max:
+            # Already correct — nothing to fix.
+            return DetectionResult(
+                status=MatchStatus.NO_CLEAN_MATCH,
+                pattern=PatternName.BOUND_MISMATCH,
+                file=file_str,
+                symbol=c["name"],
+                line=c["line"],
+                current_min=c["lo"],
+                current_max=c["hi"],
+                locked_min=entry.locked_min,
+                locked_max=entry.locked_max,
+                reason="Current bounds already match the manifest",
+            )
+
+        # Real mismatch.
+        return DetectionResult(
+            status=MatchStatus.CLEAN_MATCH,
+            pattern=PatternName.BOUND_MISMATCH,
+            file=file_str,
+            symbol=c["name"],
+            line=c["line"],
+            current_min=c["lo"],
+            current_max=c["hi"],
+            locked_min=entry.locked_min,
+            locked_max=entry.locked_max,
+            reason=(
+                f"Current bounds [{c['lo']}, {c['hi']}] vs "
+                f"locked [{entry.locked_min}, {entry.locked_max}]"
+            ),
+        )
+
+    # Clamps found but none have a manifest entry.
+    return DetectionResult(
+        status=MatchStatus.NO_CLEAN_MATCH,
+        pattern=PatternName.BOUND_MISMATCH,
+        file=file_str,
+        reason="Clamp function(s) found but no manifest entry for any of them",
+        extra={"clamp_names": [c["name"] for c in clamps]},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Pattern 2: silent fallback
+# ---------------------------------------------------------------------------
+
+# Match `default: return <something>;` inside a switch block.
+# We deliberately do NOT match `default: throw ...` — that's the correct
+# shape, not a bug.
+_SILENT_DEFAULT_RE = re.compile(
+    r"default\s*:\s*\n?\s*return\s+(?P<retval>[^;]+);",
+    re.DOTALL,
+)
+
+# Match `default: { ... return <something>; }` block form
+_SILENT_DEFAULT_BLOCK_RE = re.compile(
+    r"default\s*:\s*\{[^}]*?return\s+(?P<retval>[^;]+);",
+    re.DOTALL,
+)
+
+# Detect a default branch that logs before returning — that's ambiguous,
+# not a clean silent-fallback match.
+_DEFAULT_LOGS_RE = re.compile(
+    r"default\s*:\s*\n?\s*(?:console\.log|log\w*|console\.\w+)\s*\(",
+    re.DOTALL,
+)
+
+# Detect a default branch that throws — correct shape, not a bug.
+_DEFAULT_THROWS_RE = re.compile(
+    r"default\s*:\s*\n?\s*throw\s+",
+    re.DOTALL,
+)
+
+
+def detect_silent_fallback(file_path: Path | str) -> list[DetectionResult]:
+    """Detect `default: return X` branches in switch/match statements.
+
+    Returns one DetectionResult per located instance. A default that
+    throws is no_clean_match (correct shape). A default that logs before
+    returning is ambiguous. A plain `default: return X` is clean_match.
+    """
+    file_str = str(file_path).replace("\\", "/")
+    text = Path(file_path).read_text(encoding="utf-8")
+
+    results: list[DetectionResult] = []
+
+    # Find all default branches first, then classify each.
+    default_spans: list[tuple[int, int]] = []
+    for m in re.finditer(r"default\s*:", text):
+        start = m.start()
+        # Find the end of this default branch: next `case`, `}`, or end of switch
+        rest = text[m.end():]
+        end_rel = re.search(r"(\bcase\b|\})", rest)
+        end = m.end() + (end_rel.start() if end_rel else len(rest))
+        default_spans.append((start, end))
+
+    for start, end in default_spans:
+        branch_text = text[start:end]
+        line = text.count("\n", 0, start) + 1
+
+        if _DEFAULT_THROWS_RE.search(branch_text):
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.NO_CLEAN_MATCH,
+                    pattern=PatternName.SILENT_FALLBACK,
+                    file=file_str,
+                    line=line,
+                    reason="default branch throws — correct shape, not a bug",
+                )
+            )
+            continue
+
+        if _DEFAULT_LOGS_RE.search(branch_text):
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.AMBIGUOUS,
+                    pattern=PatternName.SILENT_FALLBACK,
+                    file=file_str,
+                    line=line,
+                    reason="default branch logs before returning — ambiguous",
+                )
+            )
+            continue
+
+        silent = _SILENT_DEFAULT_RE.search(branch_text) or _SILENT_DEFAULT_BLOCK_RE.search(branch_text)
+        if silent:
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.CLEAN_MATCH,
+                    pattern=PatternName.SILENT_FALLBACK,
+                    file=file_str,
+                    line=line,
+                    reason=f"default branch returns `{silent.group('retval').strip()}` instead of throwing",
+                    extra={"return_value": silent.group("retval").strip()},
+                )
+            )
+        else:
+            # default branch with no return and no throw — could be empty
+            # fallthrough, ambiguous.
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.AMBIGUOUS,
+                    pattern=PatternName.SILENT_FALLBACK,
+                    file=file_str,
+                    line=line,
+                    reason="default branch neither returns nor throws — unclear intent",
+                )
+            )
+
+    if not results:
+        results.append(
+            DetectionResult(
+                status=MatchStatus.NO_CLEAN_MATCH,
+                pattern=PatternName.SILENT_FALLBACK,
+                file=file_str,
+                reason="No default branches found",
+            )
+        )
+
+    return results
