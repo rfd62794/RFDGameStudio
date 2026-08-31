@@ -60,18 +60,21 @@ def _is_git_tracked(path: Path) -> bool:
     return bool(result.stdout.strip())
 
 
-def _find_examples_dir_candidates(slug: str) -> list[Path]:
+def _find_examples_dir_candidates(slug: str, examples_dir: Path | None = None) -> list[Path]:
     """Return all on-disk examples/ directory candidates for a slug.
 
     Handles exact matches, hyphen/underscore variants, casing mismatches
     (e.g. SlimeBreeder), and a small explicit override table for names that
     diverge further. Does NOT check git-tracking — that's the caller's job.
+
+    If `examples_dir` is provided, uses it instead of the default EXAMPLES_DIR.
     """
+    ed = examples_dir or EXAMPLES_DIR
     candidates: list[Path] = []
     seen: set[Path] = set()
 
     if slug in _EXAMPLES_DIR_OVERRIDES:
-        override = EXAMPLES_DIR / _EXAMPLES_DIR_OVERRIDES[slug]
+        override = ed / _EXAMPLES_DIR_OVERRIDES[slug]
         if override.is_dir() and override not in seen:
             candidates.append(override)
             seen.add(override)
@@ -79,7 +82,7 @@ def _find_examples_dir_candidates(slug: str) -> list[Path]:
     # Exact and simple variant matches, case-insensitive for casing mismatches.
     for variant in _slug_variants(slug):
         for name in [variant, variant.lower(), variant.capitalize()]:
-            candidate = EXAMPLES_DIR / name
+            candidate = ed / name
             if candidate.is_dir() and candidate not in seen:
                 candidates.append(candidate)
                 seen.add(candidate)
@@ -87,9 +90,10 @@ def _find_examples_dir_candidates(slug: str) -> list[Path]:
     # Fuzzy normalized match: only accept an exact normalized equality so we
     # don't accidentally pick a loosely related directory.
     target_norm = _normalize_name(slug)
-    for candidate in EXAMPLES_DIR.iterdir():
-        if not candidate.is_dir():
-            continue
+    if ed.exists():
+        for candidate in ed.iterdir():
+            if not candidate.is_dir():
+                continue
         if candidate in seen:
             continue
         if _normalize_name(candidate.name) == target_norm:
@@ -99,7 +103,7 @@ def _find_examples_dir_candidates(slug: str) -> list[Path]:
     return candidates
 
 
-def find_examples_dir_untracked(slug: str) -> list[Path]:
+def find_examples_dir_untracked(slug: str, examples_dir: Path | None = None) -> list[Path]:
     """Return all on-disk examples/ directories for a slug, regardless of
     git-tracking status. Used by Pattern 3's detector to find untracked
     source directories that `_find_examples_dir` (which requires
@@ -108,7 +112,7 @@ def find_examples_dir_untracked(slug: str) -> list[Path]:
     This function does NOT alter `resolve_source()`'s behavior — it's a
     separate entry point for the import_fixer package.
     """
-    return _find_examples_dir_candidates(slug)
+    return _find_examples_dir_candidates(slug, examples_dir=examples_dir)
 
 
 def _find_examples_dir(slug: str) -> Path | None:

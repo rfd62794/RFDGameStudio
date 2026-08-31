@@ -460,3 +460,260 @@ def detect_silent_fallback(file_path: Path | str) -> list[DetectionResult]:
         )
 
     return results
+
+
+# ---------------------------------------------------------------------------
+# Pattern 3: untracked registry source
+# ---------------------------------------------------------------------------
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+
+
+def _count_tracked_files(path: Path) -> int:
+    """Count git-tracked files under `path` (relative to repo root)."""
+    try:
+        rel = path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return 0
+    result = subprocess.run(
+        ["git", "ls-files", "--", rel],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return len([l for l in result.stdout.strip().splitlines() if l])
+
+
+def detect_untracked_registry_source(
+    slug: str, repo_root: Path | str | None = None
+) -> DetectionResult:
+    """Detect an untracked source directory for a registry-linked game.
+
+    Logic:
+      1. If the slug has a zip source → no_clean_match (zip is valid).
+      2. If ts/src/games/{slug}/ has >1 tracked file → no_clean_match
+         (properly ported).
+      3. Use the tracking-agnostic finder to get on-disk candidates.
+         Zero → no_clean_match. One untracked → clean_match.
+         Multiple untracked → ambiguous.
+    """
+    root = Path(repo_root) if repo_root else REPO_ROOT
+
+    # 1. Check for zip source.
+    intake_dir = _has_intake_zip(slug)
+    if intake_dir:
+        return DetectionResult(
+            status=MatchStatus.NO_CLEAN_MATCH,
+            pattern=PatternName.UNTRACKED_REGISTRY_SOURCE,
+            file=str(intake_dir),
+            reason="Slug has a zip source — untracked examples/ copy is expected",
+        )
+
+    # 2. Check ts/src/games/{slug}/ tracked file count.
+    for variant in [slug, slug.replace("_", "-"), slug.replace("-", "_")]:
+        ts_dir = root / "ts" / "src" / "games" / variant
+        if ts_dir.is_dir():
+            count = _count_tracked_files(ts_dir)
+            if count > 1:
+                return DetectionResult(
+                    status=MatchStatus.NO_CLEAN_MATCH,
+                    pattern=PatternName.UNTRACKED_REGISTRY_SOURCE,
+                    file=str(ts_dir),
+                    reason=f"ts/src/games/{variant}/ has {count} tracked files — properly ported",
+                )
+            break
+
+    # 3. Find on-disk candidates (tracking-agnostic).
+    examples_dir = root / "examples"
+    candidates = find_examples_dir_untracked(slug, examples_dir=examples_dir)
+    if not candidates:
+        return DetectionResult(
+            status=MatchStatus.NO_CLEAN_MATCH,
+            pattern=PatternName.UNTRACKED_REGISTRY_SOURCE,
+            file="",
+            reason="No on-disk examples/ directory found for this slug",
+        )
+
+    # Filter to untracked candidates only.
+    untracked = [c for c in candidates if not _is_git_tracked_local(c, root)]
+    if not untracked:
+        return DetectionResult(
+            status=MatchStatus.NO_CLEAN_MATCH,
+            pattern=PatternName.UNTRACKED_REGISTRY_SOURCE,
+            file="",
+            reason="All candidate directories are already git-tracked",
+        )
+
+    if len(untracked) > 1:
+        names = [c.name for c in untracked]
+        return DetectionResult(
+            status=MatchStatus.AMBIGUOUS,
+            pattern=PatternName.UNTRACKED_REGISTRY_SOURCE,
+            file="",
+            reason=f"Multiple untracked candidate directories: {names} — cannot determine which is canonical",
+            extra={"candidates": names},
+        )
+
+    # Exactly one untracked candidate.
+    c = untracked[0]
+    return DetectionResult(
+        status=MatchStatus.CLEAN_MATCH,
+        pattern=PatternName.UNTRACKED_REGISTRY_SOURCE,
+        file=str(c),
+        symbol=c.name,
+        reason=f"Untracked source directory found: {c.name}",
+    )
+
+
+def _is_git_tracked_local(path: Path, repo_root: Path) -> bool:
+    """Check if path has any git-tracked files (local version for Pattern 3)."""
+    try:
+        rel = path.relative_to(repo_root).as_posix()
+    except ValueError:
+        return False
+    result = subprocess.run(
+        ["git", "ls-files", "--", rel],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return bool(result.stdout.strip())
+
+
+# ---------------------------------------------------------------------------
+# Pattern 4: mislabeled add claim
+# ---------------------------------------------------------------------------
+
+# Match "add/adds/added <symbol>" in commit messages. Symbol can be
+# backtick-quoted or a bare identifier.
+_ADD_CLAIM_RE = re.compile(
+    r"\b(?:add|adds|added)\s+(?:`(?P<q>[A-Za-z_$][A-Za-z0-9_$]*)`"
+    r"|(?P<bare>[A-Za-z_$][A-Za-z0-9_$]*))",
+    re.IGNORECASE,
+)
+
+
+def _get_commit_message(commit_hash: str, repo_root: Path | str | None = None) -> str:
+    """Return the full commit message for a commit."""
+    root = Path(repo_root) if repo_root else REPO_ROOT
+    result = subprocess.run(
+        ["git", "log", "-1", "--format=%B", commit_hash],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return result.stdout or ""
+
+
+def _get_commit_files(commit_hash: str, repo_root: Path | str | None = None) -> list[str]:
+    """Return the list of files touched by a commit."""
+    root = Path(repo_root) if repo_root else REPO_ROOT
+    result = subprocess.run(
+        ["git", "show", "--stat", "--format=", commit_hash],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    files: list[str] = []
+    for line in result.stdout.splitlines():
+        stripped = line.strip()
+        if "|" in stripped:
+            file_part = stripped.split("|")[0].strip()
+            if file_part:
+                files.append(file_part)
+    return files
+
+
+def detect_mislabeled_add_claim(
+    commit_hash: str, repo_root: Path | str | None = None
+) -> list[DetectionResult]:
+    """Detect commit messages that falsely claim to "add" a pre-existing symbol.
+
+    Parses the commit message for "add/adds/added <symbol>" patterns,
+    then runs audit_addition_claim for each. Returns one DetectionResult
+    per claim found.
+    """
+    root = Path(repo_root) if repo_root else REPO_ROOT
+    message = _get_commit_message(commit_hash, repo_root=root)
+
+    if not message:
+        return [
+            DetectionResult(
+                status=MatchStatus.NO_CLEAN_MATCH,
+                pattern=PatternName.MISLABELED_ADD_CLAIM,
+                file=commit_hash,
+                reason="Commit message is empty or commit not found",
+            )
+        ]
+
+    claims = _ADD_CLAIM_RE.findall(message)
+    if not claims:
+        return [
+            DetectionResult(
+                status=MatchStatus.NO_CLEAN_MATCH,
+                pattern=PatternName.MISLABELED_ADD_CLAIM,
+                file=commit_hash,
+                reason="No 'add <symbol>' claim found in commit message",
+            )
+        ]
+
+    commit_files = _get_commit_files(commit_hash, repo_root=root)
+    results: list[DetectionResult] = []
+
+    for match in claims:
+        # findall returns tuples of named groups
+        symbol = match[0] if match[0] else match[1]
+        if not symbol:
+            continue
+
+        audit = audit_addition_claim(
+            symbol=symbol,
+            commit_hash=commit_hash,
+            file_paths=commit_files,
+            repo_path=root,
+        )
+
+        if audit.get("confirmed"):
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.NO_CLEAN_MATCH,
+                    pattern=PatternName.MISLABELED_ADD_CLAIM,
+                    file=commit_hash,
+                    symbol=symbol,
+                    reason=f"Claim 'add {symbol}' is true — symbol genuinely first appears in this commit",
+                )
+            )
+        elif audit.get("pre_existing_since"):
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.CLEAN_MATCH,
+                    pattern=PatternName.MISLABELED_ADD_CLAIM,
+                    file=commit_hash,
+                    symbol=symbol,
+                    reason=(
+                        f"Claim 'add {symbol}' is false — symbol pre-exists "
+                        f"as of {audit['pre_existing_since']}"
+                    ),
+                    extra={"pre_existing_since": audit["pre_existing_since"]},
+                )
+            )
+        else:
+            results.append(
+                DetectionResult(
+                    status=MatchStatus.AMBIGUOUS,
+                    pattern=PatternName.MISLABELED_ADD_CLAIM,
+                    file=commit_hash,
+                    symbol=symbol,
+                    reason=f"Could not verify claim 'add {symbol}' — audit returned no clear result",
+                )
+            )
+
+    return results
