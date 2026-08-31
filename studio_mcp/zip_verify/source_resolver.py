@@ -4,6 +4,7 @@ examples/ directory source, both, or neither."""
 from __future__ import annotations
 
 import re
+import subprocess
 from enum import Enum
 from pathlib import Path
 
@@ -26,6 +27,9 @@ _EXAMPLES_DIR_OVERRIDES: dict[str, str] = {
     "horse_racing": "horse-racing-&-breeding",
     "slither_rogue": "slither-rogue_-evolution",
     "voiddrift_redux": "voiddrift-redux-core-loop",
+    # Phase2 is treated as the current Factory Idle source; Phase1 is retained
+    # as a prior iteration but is not the canonical mapping for verification.
+    "factory_idle": "factory-idle-precision-armory-phase2",
 }
 
 
@@ -39,24 +43,44 @@ def _normalize_name(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", name.lower())
 
 
+def _is_git_tracked(path: Path) -> bool:
+    """Return True if `path` (relative to repo root) has any tracked files."""
+    try:
+        rel = path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return False
+    result = subprocess.run(
+        ["git", "ls-files", "--", rel],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return bool(result.stdout.strip())
+
+
 def _find_examples_dir(slug: str) -> Path | None:
-    """Return the real examples/ directory for a registry slug, if any.
+    """Return a real, git-tracked examples/ directory for a registry slug, if any.
 
     Handles exact matches, hyphen/underscore variants, casing mismatches
     (e.g. SlimeBreeder), and a small explicit override table for names that
-    diverge further.
+    diverge further. A directory is only returned if git actually tracks it —
+    an untracked or gitignored directory does not count as a verifiable source.
     """
+    candidates: list[Path] = []
+
     if slug in _EXAMPLES_DIR_OVERRIDES:
         override = EXAMPLES_DIR / _EXAMPLES_DIR_OVERRIDES[slug]
         if override.is_dir():
-            return override
+            candidates.append(override)
 
     # Exact and simple variant matches, case-insensitive for casing mismatches.
     for variant in _slug_variants(slug):
         for name in [variant, variant.lower(), variant.capitalize()]:
             candidate = EXAMPLES_DIR / name
             if candidate.is_dir():
-                return candidate
+                candidates.append(candidate)
 
     # Fuzzy normalized match: only accept an exact normalized equality so we
     # don't accidentally pick a loosely related directory.
@@ -65,6 +89,10 @@ def _find_examples_dir(slug: str) -> Path | None:
         if not candidate.is_dir():
             continue
         if _normalize_name(candidate.name) == target_norm:
+            candidates.append(candidate)
+
+    for candidate in candidates:
+        if _is_git_tracked(candidate):
             return candidate
 
     return None
