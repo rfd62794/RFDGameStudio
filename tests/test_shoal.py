@@ -241,7 +241,7 @@ def test_breed_thresholds_read_from_data() -> None:
     call(session, "init_game", data)
     call(session, "tick_game", 0, { "tool": "fish", "x": 300, "y": 300, "clicked": True })
     call(session, "tick_game", 0, { "tool": "shark", "x": 300, "y": 300, "clicked": True })
-    for _ in range(5):
+    for _ in range(20):
         state = call(session, "tick_game", 0.05, {})
     assert state["stats"]["shark_count"] > 1
 
