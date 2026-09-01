@@ -254,15 +254,25 @@ def run_low_stage(
         # Step 2: Compile — a BLOCK: costs no round, but we need to handle it
         compile_ok, compile_output = compile_spec(spec_path, glb_path)
         if not compile_ok:
-            # Engine floor block — fix and rebuild, costs no round
-            # But we can't auto-fix a BLOCK without another LLM call, so we
-            # treat this as a repair trigger with the BLOCK message as the verdict
+            # Build failed — could be an engine BLOCK: (mechanical check)
+            # or a JS crash (syntax/skeleton error). Both need to go back
+            # to the designer as the repair work order.
             block_lines = [l for l in compile_output.split("\n") if "BLOCK:" in l]
+            if block_lines:
+                failure_msg = "; ".join(block_lines)
+                failure_type = "Engine floor check failed"
+            else:
+                # JS crash — extract the actual error line
+                error_lines = [l for l in compile_output.split("\n")
+                               if l.startswith("Error:") or "throw new Error" in l]
+                failure_msg = error_lines[0] if error_lines else compile_output.strip()[:500]
+                failure_type = "Engine crashed — spec syntax/skeleton error"
             repair_context = {
                 "round": repair_round + 1,
-                "verdict": "BUILD REFUSED: " + "; ".join(block_lines),
-                "failure": "Engine floor check failed — fix the geometry issue.",
+                "verdict": f"BUILD REFUSED: {failure_msg}",
+                "failure": failure_type,
             }
+            _log(f"compile: repair context = {failure_type}: {failure_msg[:200]}")
             repair_round += 1
             if repair_round > MAX_REPAIR_ROUNDS:
                 return GateResult(
