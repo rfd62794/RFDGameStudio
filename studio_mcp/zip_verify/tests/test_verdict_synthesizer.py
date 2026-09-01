@@ -67,6 +67,26 @@ def test_allowed_verdict_rejects_invalid():
     assert _allowed_verdict("maybe") is None
 
 
+def test_allowed_verdict_accepts_space_before_hyphen():
+    """Real model output 'BLOCKED - reason' must be recognized, not
+    silently discarded as UNVERIFIABLE due to whitespace."""
+    result = _allowed_verdict("BLOCKED - reason")
+    assert result is not None
+    assert result.startswith("BLOCKED-")
+
+
+def test_allowed_verdict_accepts_space_after_hyphen():
+    """'BLOCKED- reason' and 'BLOCKED -reason' must both return valid."""
+    assert _allowed_verdict("BLOCKED- reason") is not None
+    assert _allowed_verdict("BLOCKED -reason") is not None
+
+
+def test_allowed_verdict_still_rejects_garbage():
+    """The whitespace fix must not loosen the check generally."""
+    assert _allowed_verdict("MAYBE-reason") is None
+    assert _allowed_verdict("BLOCKED") is None  # no reason after hyphen
+
+
 def test_build_prompt_contains_findings():
     findings = {
         "revision_diff": {"no_prior_revision": True},

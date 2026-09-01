@@ -135,11 +135,15 @@ def concept_check(source_dir: Path, slug: str) -> dict[str, Any]:
         }
 
     # Gather all text from source files.
+    # .md files are excluded from the match-counting corpus —
+    # documentation is never the implementation. Matching against it
+    # answers "did someone write about this concept," not "did someone
+    # build it." find_source_directive's separate .md search is unaffected.
     all_text_parts: list[str] = []
     for path in source_dir.rglob("*"):
         if not path.is_file():
             continue
-        if path.suffix not in {".py", ".ts", ".tsx", ".js", ".jsx", ".md"}:
+        if path.suffix not in {".py", ".ts", ".tsx", ".js", ".jsx"}:
             continue
         if "node_modules" in path.parts:
             continue

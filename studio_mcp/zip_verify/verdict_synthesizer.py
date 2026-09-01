@@ -13,6 +13,9 @@ VALID_VERDICTS = {"CERTIFIED", "UNVERIFIABLE"}
 
 def _allowed_verdict(text: str) -> str | None:
     text = text.strip().upper()
+    # Normalize hyphen-adjacent whitespace so "BLOCKED - x", "BLOCKED- x",
+    # and "BLOCKED -x" are all recognized as valid BLOCKED verdicts.
+    text = re.sub(r"\s*-\s*", "-", text)
     if text in VALID_VERDICTS:
         return text
     if text.startswith("BLOCKED-"):

@@ -124,3 +124,117 @@ def test_existing_certified_fixtures_unaffected():
     # Same behavior as before: no marker, whole-document extraction.
     assert "directive" in concepts
     assert "pheromone" in concepts or "trail" in concepts
+
+
+# ---------------------------------------------------------------------------
+# §3 tests: .md corpus exclusion
+# ---------------------------------------------------------------------------
+
+def test_concept_check_excludes_markdown_from_corpus(tmp_path: Path, monkeypatch):
+    """Real break-streamer-mvp.zip: 'composite' match comes only from
+    PLAN.md/STRUCTURE.md, not from real code. After .md exclusion,
+    'composite' must move from matched to unmatched.
+
+    Uses a synthetic reproduction of the real finding: a .md file
+    containing 'composite' and a .tsx file that does not.
+    """
+    from studio_mcp.zip_verify import concept_grep as cg
+
+    directives = tmp_path / "directives"
+    directives.mkdir()
+    (directives / "test_game_Directive.md").write_text(
+        "**Directive:** Build a composite card system.",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cg, "DIRECTIVE_DIRS", [directives])
+
+    src = tmp_path / "src"
+    src.mkdir()
+    # Real code file — no 'composite' anywhere.
+    (src / "App.tsx").write_text(
+        "export function App() { return <div>hello</div>; }",
+        encoding="utf-8",
+    )
+    # Planning doc — 'composite' only here.
+    (src / "PLAN.md").write_text(
+        "We plan to build a composite card layering system.",
+        encoding="utf-8",
+    )
+
+    result = concept_check(tmp_path, "test-game")
+    assert "composite" not in result["matches"]
+    assert "composite" in result.get("unmatched_concepts", [])
+
+
+def test_concept_check_relative_drops_for_dead_boilerplate_match(tmp_path: Path, monkeypatch):
+    """Note: 'relative' in the real Manus build is mostly in dead shadcn
+    .tsx boilerplate, not .md files. This .md exclusion does NOT fix that
+    — it's the deferred dead-code problem. This test confirms 'relative'
+    still matches when it appears in real .tsx code (which it does in the
+    Manus build, outside the dead library).
+    """
+    from studio_mcp.zip_verify import concept_grep as cg
+
+    directives = tmp_path / "directives"
+    directives.mkdir()
+    (directives / "test_game_Directive.md").write_text(
+        "**Directive:** Use relative positioning for the card.",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cg, "DIRECTIVE_DIRS", [directives])
+
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "Card.tsx").write_text(
+        "const style = { position: 'relative' };",
+        encoding="utf-8",
+    )
+
+    result = concept_check(tmp_path, "test-game")
+    # 'relative' in real .tsx code still matches — .md exclusion only
+    # removes docs, not dead code.
+    assert "relative" in result["matches"]
+
+
+def test_find_source_directive_still_finds_markdown(tmp_path: Path, monkeypatch):
+    """The .md exclusion from the corpus must not affect
+    find_source_directive, which needs to find .md directive files."""
+    from studio_mcp.zip_verify import concept_grep as cg
+
+    directives = tmp_path / "directives"
+    directives.mkdir()
+    (directives / "my_game_Directive.md").write_text(
+        "**Directive:** Build something real.",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cg, "DIRECTIVE_DIRS", [directives])
+
+    result = find_source_directive("my-game")
+    assert result["found"] is True
+    assert result["path"] is not None
+
+
+def test_existing_certified_fixtures_unaffected_by_md_exclusion(tmp_path: Path, monkeypatch):
+    """Existing fixtures (antsim-redux/corpworld style) with no .md files
+    in their source tree must have unchanged coverage numbers."""
+    from studio_mcp.zip_verify import concept_grep as cg
+
+    directives = tmp_path / "directives"
+    directives.mkdir()
+    (directives / "demo_project_directive.md").write_text(
+        "The directive asks for a robust pheromone trail system and worker aging mechanics.",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cg, "DIRECTIVE_DIRS", [directives])
+
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "simulation.ts").write_text(
+        "function updatePheromoneTrail() {} function applyWorkerAging() {}",
+        encoding="utf-8",
+    )
+
+    result = concept_check(tmp_path, "demo-project")
+    # No .md files in source tree — coverage must be the same as before.
+    assert result["concept_coverage"] > 0
+    assert "pheromone" in result["matches"] or "trail" in result["matches"]
