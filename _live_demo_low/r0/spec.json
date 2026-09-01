@@ -1,40 +1,59 @@
 {
   "palette": {
-    "skin_rock": {
-      "color": "#6b625a",
-      "rough": 0.95
+    "skin_torso": {
+      "color": "#6b5e4a",
+      "rough": 0.9
+    },
+    "skin_arm": {
+      "color": "#5f5340",
+      "rough": 0.9
+    },
+    "skin_leg": {
+      "color": "#5a4f3d",
+      "rough": 0.9
     },
     "skin_fist": {
-      "color": "#5a524a",
-      "rough": 0.95
-    },
-    "magma": {
-      "color": "#ff4d00",
-      "rough": 0.4
+      "color": "#4a4030",
+      "rough": 1.0
     },
     "eye": {
-      "color": "#ffcc00",
+      "color": "#ff3300",
+      "rough": 0.1
+    },
+    "gem": {
+      "color": "#ff6600",
       "rough": 0.2
     }
   },
+  "sections": {},
   "smooth_angle": 40,
+  "shading": {
+    "gradient": {
+      "top": 0.3,
+      "bottom": -0.88
+    },
+    "noise": {
+      "size": 0.018,
+      "amount": 0.26
+    }
+  },
   "joints": {
     "Hips": [
       0,
-      0.9,
+      0.4,
       0
     ],
     "Spine": {
       "from": "Hips",
-      "up": 0.45
+      "up": 0.4
     },
     "Chest": {
       "from": "Spine",
-      "up": 0.45
+      "up": 0.4
     },
     "Neck": {
       "from": "Chest",
-      "up": 0.25
+      "up": 0.2
     },
     "Head": {
       "from": "Neck",
@@ -42,60 +61,32 @@
     },
     "LShoulder": {
       "from": "Chest",
-      "side": -0.35,
-      "up": 0.15,
-      "fwd": 0.05
+      "side": -0.3,
+      "up": 0.1,
+      "fwd": 0.2
     },
     "LElbow": {
       "from": "LShoulder",
-      "dir": [
-        0,
-        -1,
-        0.2
-      ],
-      "len": 0.35
+      "fwd": 0.1,
+      "down": 0.4
     },
     "LHand": {
       "from": "LElbow",
-      "dir": [
-        0,
-        -1,
-        0.3
-      ],
-      "len": 0.3
+      "fwd": 0.1,
+      "down": 0.3
     },
-    "LHip": {
+    "LThigh": {
       "from": "Hips",
-      "side": -0.18,
-      "dir": [
-        0,
-        -1,
-        0
-      ],
-      "len": 0.05
+      "down": 0.2
     },
     "LKnee": {
-      "from": "LHip",
-      "dir": [
-        0,
-        -1,
-        0
-      ],
-      "len": 0.4
-    },
-    "LAnkle": {
-      "from": "LKnee",
-      "dir": [
-        0,
-        -1,
-        0
-      ],
-      "len": 0.4
+      "from": "LThigh",
+      "down": 0.3
     },
     "LFoot": {
-      "from": "LAnkle",
-      "fwd": 0.12,
-      "ground": 0.03
+      "from": "LKnee",
+      "down": 0.3,
+      "ground": 0.1
     }
   },
   "chains": {
@@ -114,16 +105,15 @@
       "LHand"
     ],
     "LLeg": [
-      "LHip",
+      "LThigh",
       "LKnee",
-      "LAnkle",
       "LFoot"
     ]
   },
   "attach": {
-    "head": "Chest",
     "LArm": "Chest",
-    "LLeg": "Hips"
+    "LLeg": "Hips",
+    "head": "Neck"
   },
   "mirror": [
     "LArm",
@@ -132,176 +122,129 @@
   "volumes": [
     {
       "chain": "torso",
-      "material": "skin_rock",
-      "sides": 16,
+      "material": "skin_torso",
+      "sides": 14,
       "frame": "up",
       "profile": [
         [
           0,
-          0.28,
-          0.32
-        ],
-        [
-          0.25,
-          0.42,
-          0.48,
-          {
-            "bias": -0.1
-          }
+          0.3,
+          0.35
         ],
         [
           0.5,
-          0.52,
-          0.58
-        ],
-        [
-          0.75,
-          0.56,
-          0.62
+          0.5,
+          0.55
         ],
         [
           1,
-          0.5,
-          0.55
+          0.4,
+          0.45
         ]
       ],
-      "smooth_angle": 30,
-      "caps": [
-        "dome",
-        "dome"
-      ],
-      "ring_step": 0.1,
-      "colors": {
-        "arcs": [
-          {
-            "from": 165,
-            "to": 195,
-            "color": "#ff4d00"
-          }
-        ]
-      }
+      "smooth_angle": 30
     },
     {
       "chain": "head",
-      "material": "skin_rock",
-      "sides": 12,
-      "frame": "up",
-      "profile": [
-        [
-          0,
-          0.18,
-          0.22
-        ],
-        [
-          0.5,
-          0.17,
-          0.2
-        ],
-        [
-          1,
-          0.14,
-          0.17
-        ]
-      ],
-      "smooth_angle": 30,
-      "caps": [
-        "dome",
-        "dome"
-      ],
-      "ring_step": 0.12
-    },
-    {
-      "chain": "LArm",
-      "material": "skin_rock",
+      "material": "skin_torso",
       "sides": 10,
       "frame": "up",
       "profile": [
         [
           0,
-          0.14,
-          0.14
-        ],
-        [
-          0.4,
-          0.16,
-          0.16
-        ],
-        [
-          0.7,
-          0.17,
-          0.17
-        ],
-        [
-          1,
-          0.18,
-          0.18
-        ]
-      ],
-      "smooth_angle": 40,
-      "caps": [
-        "dome",
-        "dome"
-      ],
-      "ring_step": 0.1
-    },
-    {
-      "chain": "LLeg",
-      "material": "skin_rock",
-      "sides": 10,
-      "frame": "up",
-      "profile": [
-        [
-          0,
-          0.22,
-          0.22
-        ],
-        [
-          0.3,
-          0.2,
-          0.2
-        ],
-        [
-          0.7,
-          0.17,
-          0.17
-        ],
-        [
-          1,
           0.15,
+          0.2
+        ],
+        [
+          1,
+          0.12,
           0.15
         ]
       ],
-      "smooth_angle": 40,
-      "caps": [
-        "dome",
-        "dome"
+      "smooth_angle": 30
+    },
+    {
+      "chain": "LArm",
+      "material": "skin_arm",
+      "sides": 8,
+      "frame": "up",
+      "profile": [
+        [
+          0,
+          0.15,
+          0.2
+        ],
+        [
+          0.5,
+          0.12,
+          0.15
+        ],
+        [
+          1,
+          0.1,
+          0.12
+        ]
       ],
-      "ring_step": 0.1
+      "smooth_angle": 30
+    },
+    {
+      "chain": "LLeg",
+      "material": "skin_leg",
+      "sides": 10,
+      "frame": "up",
+      "profile": [
+        [
+          0,
+          0.2,
+          0.25
+        ],
+        [
+          0.5,
+          0.15,
+          0.2
+        ],
+        [
+          1,
+          0.1,
+          0.15
+        ]
+      ],
+      "smooth_angle": 30
     }
   ],
   "parts": [
     {
+      "type": "paw",
+      "host": "LHand",
+      "material": "skin_fist",
+      "size": [
+        0.4,
+        0.35,
+        0.3
+      ],
+      "mirrored": true
+    },
+    {
       "type": "eye",
-      "name": "eyes",
       "host": "Head",
       "material": "eye",
       "size": 0.05,
       "anchor": {
         "chain": "head",
-        "t": 0.5,
-        "around": 65
+        "t": 0.4,
+        "around": 60
       }
     },
     {
       "type": "fin",
-      "name": "magma_core",
-      "host": "Chest",
-      "material": "magma",
-      "anchor": {
-        "chain": "torso",
-        "t": 0.6,
-        "around": 180
-      },
+      "host": "Hips",
+      "material": "gem",
+      "thickness": 0.02,
+      "offset": [
+        0,
+        0,
+        0.1
+      ],
       "udir": [
         0,
         0,
@@ -318,195 +261,45 @@
           0
         ],
         [
-          0.15,
-          0.02
-        ],
-        [
           0.1,
-          0.2
-        ],
-        [
-          0,
-          0.25
-        ],
-        [
-          -0.1,
-          0.2
-        ],
-        [
-          -0.15,
           0.02
+        ],
+        [
+          0.05,
+          0.15
         ]
       ],
       "faceted": true
-    },
-    {
-      "type": "paw",
-      "name": "fists",
-      "host": "LHand",
-      "material": "skin_fist",
-      "size": [
-        0.55,
-        0.45,
-        0.4
-      ],
-      "mirrored": true
-    },
-    {
-      "type": "curve",
-      "name": "finger1",
-      "host": "LHand",
-      "material": "skin_fist",
-      "mirrored": true,
-      "offset": [
-        0.1,
-        0.05,
-        0.15
-      ],
-      "dir": [
-        0,
-        0,
-        1
-      ],
-      "sides": 8,
-      "segments": [
-        {
-          "len": 0.12,
-          "r": 0.04,
-          "ahead": 10
-        },
-        {
-          "len": 0.1,
-          "r": 0.03,
-          "ahead": 20,
-          "taper": true
-        }
-      ]
-    },
-    {
-      "type": "curve",
-      "name": "finger2",
-      "host": "LHand",
-      "material": "skin_fist",
-      "mirrored": true,
-      "offset": [
-        0.05,
-        0.1,
-        0.15
-      ],
-      "dir": [
-        0,
-        0,
-        1
-      ],
-      "sides": 8,
-      "segments": [
-        {
-          "len": 0.12,
-          "r": 0.04,
-          "ahead": 10
-        },
-        {
-          "len": 0.1,
-          "r": 0.03,
-          "ahead": 20,
-          "taper": true
-        }
-      ]
-    },
-    {
-      "type": "curve",
-      "name": "finger3",
-      "host": "LHand",
-      "material": "skin_fist",
-      "mirrored": true,
-      "offset": [
-        0,
-        0.15,
-        0.15
-      ],
-      "dir": [
-        0,
-        0,
-        1
-      ],
-      "sides": 8,
-      "segments": [
-        {
-          "len": 0.12,
-          "r": 0.04,
-          "ahead": 10
-        },
-        {
-          "len": 0.1,
-          "r": 0.03,
-          "ahead": 20,
-          "taper": true
-        }
-      ]
     }
   ],
   "animations": {
     "idle": {
-      "duration": 2.0,
+      "duration": 2,
       "loop": true,
       "tracks": {
         "Chest": {
           "rx": [
             [
               0,
-              2
+              0
             ],
             [
               0.5,
-              -2
-            ],
-            [
-              1,
-              2
-            ]
-          ]
-        },
-        "Head": {
-          "rx": [
-            [
-              0,
-              1
-            ],
-            [
-              0.5,
-              -1
-            ],
-            [
-              1,
-              1
-            ]
-          ]
-        },
-        "LShoulder": {
-          "rx": [
-            [
-              0,
               2
             ],
             [
-              0.5,
-              -2
-            ],
-            [
               1,
-              2
+              0
             ]
           ]
         }
       }
     },
     "move": {
-      "duration": 1.0,
+      "duration": 1,
       "loop": true,
-      "mirror_phase": 0.5,
       "tracks": {
-        "LHip": {
+        "LThigh": {
           "rx": [
             [
               0,
@@ -526,7 +319,23 @@
           "rx": [
             [
               0,
+              0
+            ],
+            [
+              0.5,
               10
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        "LFoot": {
+          "rx": [
+            [
+              0,
+              0
             ],
             [
               0.5,
@@ -534,93 +343,29 @@
             ],
             [
               1,
-              10
-            ]
-          ]
-        },
-        "LAnkle": {
-          "rx": [
-            [
-              0,
-              -5
-            ],
-            [
-              0.5,
-              5
-            ],
-            [
-              1,
-              -5
-            ]
-          ]
-        },
-        "LShoulder": {
-          "rx": [
-            [
-              0,
-              10
-            ],
-            [
-              0.5,
-              -10
-            ],
-            [
-              1,
-              10
-            ]
-          ]
-        },
-        "LElbow": {
-          "rx": [
-            [
-              0,
-              -5
-            ],
-            [
-              0.5,
-              5
-            ],
-            [
-              1,
-              -5
-            ]
-          ]
-        },
-        "Chest": {
-          "rx": [
-            [
-              0,
-              2
-            ],
-            [
-              0.5,
-              -2
-            ],
-            [
-              1,
-              2
+              0
             ]
           ]
         }
       }
     },
     "attack": {
-      "duration": 0.8,
+      "duration": 0.6,
       "loop": false,
       "tracks": {
         "LShoulder": {
           "rx": [
             [
               0,
-              -50
+              -20
             ],
             [
               0.3,
-              80
+              -30
             ],
             [
-              0.7,
-              -50
+              0.6,
+              40
             ]
           ]
         },
@@ -628,51 +373,23 @@
           "rx": [
             [
               0,
-              -40
-            ],
-            [
-              0.3,
-              20
-            ],
-            [
-              0.7,
-              -40
-            ]
-          ]
-        },
-        "Chest": {
-          "rx": [
-            [
-              0,
-              -5
+              0
             ],
             [
               0.3,
               10
             ],
             [
-              0.7,
-              -5
-            ]
-          ]
-        },
-        "Head": {
-          "rx": [
-            [
-              0,
-              -5
-            ],
-            [
-              0.3,
-              10
-            ],
-            [
-              0.7,
-              -5
+              0.6,
+              0
             ]
           ]
         }
       }
     }
-  }
+  },
+  "style": "heavy",
+  "ao": true,
+  "keep_uv": false,
+  "qa_isolate": true
 }

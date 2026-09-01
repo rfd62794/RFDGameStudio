@@ -91,8 +91,22 @@ def read_gate_1(
         }
     ]
 
-    response = client.complete(messages, temperature=0.0)
-    verdict = client.get_content(response)
+    if client is None:
+        # Real call — fresh client with streaming for visibility
+        client = OpenRouterClient(model=READER_MODEL)
+        token_count = [0]
+
+        def _on_token(token: str) -> None:
+            token_count[0] += 1
+            if token_count[0] % 20 == 0:
+                print(f"[blind_reader] ...{token_count[0]} tokens received", flush=True)
+
+        verdict = client.complete_stream(messages, temperature=0.0, on_token=_on_token)
+        print(f"[blind_reader] stream complete, {len(verdict)} chars, ~{token_count[0]} tokens", flush=True)
+    else:
+        # Injected (mocked) client — use complete()
+        response = client.complete(messages, temperature=0.0)
+        verdict = client.get_content(response)
 
     return {
         "verdict": verdict,
