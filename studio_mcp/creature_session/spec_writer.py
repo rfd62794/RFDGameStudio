@@ -167,7 +167,8 @@ def write_spec(
           flush=True)
 
     if client is None:
-        # Real call — use streaming for visibility
+        # Real call — use streaming for visibility, JSON mode to force
+        # valid JSON output (stops the model from narrating in prose)
         client = OpenRouterClient(model=DEFAULT_DESIGNER_MODEL)
         token_count = [0]
 
@@ -176,10 +177,12 @@ def write_spec(
             if token_count[0] % 50 == 0:
                 print(f"[spec_writer] ...{token_count[0]} tokens received", flush=True)
 
-        content = client.complete_stream(messages, temperature=0.4, on_token=_on_token)
+        content = client.complete_stream(
+            messages, temperature=0.4, on_token=_on_token, json_mode=True,
+        )
         print(f"[spec_writer] stream complete, {len(content)} chars, ~{token_count[0]} tokens", flush=True)
     else:
-        # Injected (mocked) client — use complete()
+        # Injected (mocked) client — use complete() without json_mode
         response = client.complete(messages, temperature=0.4)
         content = client.get_content(response)
 

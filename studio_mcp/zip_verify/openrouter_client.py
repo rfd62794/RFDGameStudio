@@ -26,16 +26,29 @@ class OpenRouterClient:
         self.model = model
         self.base_url = base_url
 
-    def complete(self, messages: list[dict[str, str]], temperature: float = 0.1) -> dict[str, Any]:
-        """Send a chat-completions request and return the raw JSON response."""
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        temperature: float = 0.1,
+        json_mode: bool = False,
+    ) -> dict[str, Any]:
+        """Send a chat-completions request and return the raw JSON response.
+
+        Args:
+            json_mode: if True, sends response_format={"type":"json_object"}
+                which structurally forces the model to produce valid JSON.
+                The model must support response_format in its parameter set.
+        """
         if not self.api_key:
             raise RuntimeError("OpenRouter API key not configured")
 
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
         }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
         data = json.dumps(payload).encode("utf-8")
         request = urllib.request.Request(
             self.base_url,
@@ -56,6 +69,7 @@ class OpenRouterClient:
         messages: list[dict[str, Any]],
         temperature: float = 0.1,
         on_token: Any | None = None,
+        json_mode: bool = False,
     ) -> str:
         """Send a streaming chat-completions request, yielding tokens as they arrive.
 
@@ -68,6 +82,8 @@ class OpenRouterClient:
             temperature: sampling temperature.
             on_token: optional callback called with each content chunk as it
                 arrives. Useful for printing progress dots or partial output.
+            json_mode: if True, sends response_format={"type":"json_object"}
+                which structurally forces the model to produce valid JSON.
 
         Returns:
             The full assembled content string (same as get_content(complete())).
@@ -75,12 +91,14 @@ class OpenRouterClient:
         if not self.api_key:
             raise RuntimeError("OpenRouter API key not configured")
 
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
             "stream": True,
         }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
         data = json.dumps(payload).encode("utf-8")
         request = urllib.request.Request(
             self.base_url,
