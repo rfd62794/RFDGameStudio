@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { resolveCreatureArt, type CreatureArtConfig } from '../index';
+import { resolveCreatureArt, type CreatureArtConfig } from '../src/engine/creatureArt/index';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -27,7 +27,7 @@ describe('creatureArt seam', () => {
     // Static check: the types.ts module must not contain any game-specific
     // identifiers — same discipline as artGen/types.ts.
     const typesSource = readFileSync(
-      resolve(__dirname, '../types.ts'),
+      resolve(__dirname, '../src/engine/creatureArt/types.ts'),
       'utf-8',
     );
 
@@ -49,7 +49,7 @@ describe('creatureArt seam', () => {
   });
 
   it('test_wolf_fixture_is_real_generated_asset', () => {
-    const fixturePath = resolve(__dirname, '../fixtures/wolf.png');
+    const fixturePath = resolve(__dirname, '../src/engine/creatureArt/fixtures/wolf.png');
     const stat = readFileSync(fixturePath);
 
     // Byte size must match the recorded 347,341 bytes from the
