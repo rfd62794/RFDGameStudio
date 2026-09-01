@@ -98,8 +98,9 @@ def build_designer_prompt(
 def extract_spec_json(raw_response: str) -> dict[str, Any]:
     """Extract a JSON object from the model's response.
 
-    Handles markdown fences and surrounding text. Raises ValueError if no
-    valid JSON object can be found.
+    Handles markdown fences, surrounding text, and JSONC-style comments
+    (// line comments and trailing commas) since SYNTAX.md itself uses
+    jsonc notation. Raises ValueError if no valid JSON object can be found.
     """
     # Strip markdown code fences if present
     text = raw_response.strip()
@@ -107,18 +108,13 @@ def extract_spec_json(raw_response: str) -> dict[str, Any]:
     if fence_match:
         text = fence_match.group(1).strip()
 
-    # Try direct parse first
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        pass
-
     # Find the first { ... } block (greedy outermost)
     start = text.find("{")
     if start == -1:
         raise ValueError(f"No JSON object found in response: {text[:200]}...")
 
     # Walk to matching close brace
+    candidate = None
     depth = 0
     for i in range(start, len(text)):
         if text[i] == "{":
@@ -127,9 +123,21 @@ def extract_spec_json(raw_response: str) -> dict[str, Any]:
             depth -= 1
             if depth == 0:
                 candidate = text[start : i + 1]
-                return json.loads(candidate)
+                break
 
-    raise ValueError(f"Unbalanced JSON in response: {text[:200]}...")
+    if candidate is None:
+        raise ValueError(f"Unbalanced JSON in response: {text[:200]}...")
+
+    # Strip JSONC: // line comments and trailing commas
+    # Remove // comments (but not inside strings)
+    candidate = re.sub(r'//.*?$', '', candidate, flags=re.MULTILINE)
+    # Remove trailing commas before } or ]
+    candidate = re.sub(r',\s*([}\]])', r'\1', candidate)
+
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"JSON parse failed: {e}. First 200 chars: {candidate[:200]}...")
 
 
 def write_spec(
@@ -175,8 +183,13 @@ def write_spec(
         response = client.complete(messages, temperature=0.4)
         content = client.get_content(response)
 
+    # Save raw content before parsing — if extraction fails, the raw
+    # output is preserved for debugging instead of being lost entirely.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path = output_path.with_suffix(".raw.txt")
+    raw_path.write_text(content, encoding="utf-8")
+
     spec = extract_spec_json(content)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(spec, indent=2), encoding="utf-8")
     return spec
