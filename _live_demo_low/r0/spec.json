@@ -1,0 +1,678 @@
+{
+  "palette": {
+    "skin_rock": {
+      "color": "#6b625a",
+      "rough": 0.95
+    },
+    "skin_fist": {
+      "color": "#5a524a",
+      "rough": 0.95
+    },
+    "magma": {
+      "color": "#ff4d00",
+      "rough": 0.4
+    },
+    "eye": {
+      "color": "#ffcc00",
+      "rough": 0.2
+    }
+  },
+  "smooth_angle": 40,
+  "joints": {
+    "Hips": [
+      0,
+      0.9,
+      0
+    ],
+    "Spine": {
+      "from": "Hips",
+      "up": 0.45
+    },
+    "Chest": {
+      "from": "Spine",
+      "up": 0.45
+    },
+    "Neck": {
+      "from": "Chest",
+      "up": 0.25
+    },
+    "Head": {
+      "from": "Neck",
+      "up": 0.2
+    },
+    "LShoulder": {
+      "from": "Chest",
+      "side": -0.35,
+      "up": 0.15,
+      "fwd": 0.05
+    },
+    "LElbow": {
+      "from": "LShoulder",
+      "dir": [
+        0,
+        -1,
+        0.2
+      ],
+      "len": 0.35
+    },
+    "LHand": {
+      "from": "LElbow",
+      "dir": [
+        0,
+        -1,
+        0.3
+      ],
+      "len": 0.3
+    },
+    "LHip": {
+      "from": "Hips",
+      "side": -0.18,
+      "dir": [
+        0,
+        -1,
+        0
+      ],
+      "len": 0.05
+    },
+    "LKnee": {
+      "from": "LHip",
+      "dir": [
+        0,
+        -1,
+        0
+      ],
+      "len": 0.4
+    },
+    "LAnkle": {
+      "from": "LKnee",
+      "dir": [
+        0,
+        -1,
+        0
+      ],
+      "len": 0.4
+    },
+    "LFoot": {
+      "from": "LAnkle",
+      "fwd": 0.12,
+      "ground": 0.03
+    }
+  },
+  "chains": {
+    "torso": [
+      "Hips",
+      "Spine",
+      "Chest"
+    ],
+    "head": [
+      "Neck",
+      "Head"
+    ],
+    "LArm": [
+      "LShoulder",
+      "LElbow",
+      "LHand"
+    ],
+    "LLeg": [
+      "LHip",
+      "LKnee",
+      "LAnkle",
+      "LFoot"
+    ]
+  },
+  "attach": {
+    "head": "Chest",
+    "LArm": "Chest",
+    "LLeg": "Hips"
+  },
+  "mirror": [
+    "LArm",
+    "LLeg"
+  ],
+  "volumes": [
+    {
+      "chain": "torso",
+      "material": "skin_rock",
+      "sides": 16,
+      "frame": "up",
+      "profile": [
+        [
+          0,
+          0.28,
+          0.32
+        ],
+        [
+          0.25,
+          0.42,
+          0.48,
+          {
+            "bias": -0.1
+          }
+        ],
+        [
+          0.5,
+          0.52,
+          0.58
+        ],
+        [
+          0.75,
+          0.56,
+          0.62
+        ],
+        [
+          1,
+          0.5,
+          0.55
+        ]
+      ],
+      "smooth_angle": 30,
+      "caps": [
+        "dome",
+        "dome"
+      ],
+      "ring_step": 0.1,
+      "colors": {
+        "arcs": [
+          {
+            "from": 165,
+            "to": 195,
+            "color": "#ff4d00"
+          }
+        ]
+      }
+    },
+    {
+      "chain": "head",
+      "material": "skin_rock",
+      "sides": 12,
+      "frame": "up",
+      "profile": [
+        [
+          0,
+          0.18,
+          0.22
+        ],
+        [
+          0.5,
+          0.17,
+          0.2
+        ],
+        [
+          1,
+          0.14,
+          0.17
+        ]
+      ],
+      "smooth_angle": 30,
+      "caps": [
+        "dome",
+        "dome"
+      ],
+      "ring_step": 0.12
+    },
+    {
+      "chain": "LArm",
+      "material": "skin_rock",
+      "sides": 10,
+      "frame": "up",
+      "profile": [
+        [
+          0,
+          0.14,
+          0.14
+        ],
+        [
+          0.4,
+          0.16,
+          0.16
+        ],
+        [
+          0.7,
+          0.17,
+          0.17
+        ],
+        [
+          1,
+          0.18,
+          0.18
+        ]
+      ],
+      "smooth_angle": 40,
+      "caps": [
+        "dome",
+        "dome"
+      ],
+      "ring_step": 0.1
+    },
+    {
+      "chain": "LLeg",
+      "material": "skin_rock",
+      "sides": 10,
+      "frame": "up",
+      "profile": [
+        [
+          0,
+          0.22,
+          0.22
+        ],
+        [
+          0.3,
+          0.2,
+          0.2
+        ],
+        [
+          0.7,
+          0.17,
+          0.17
+        ],
+        [
+          1,
+          0.15,
+          0.15
+        ]
+      ],
+      "smooth_angle": 40,
+      "caps": [
+        "dome",
+        "dome"
+      ],
+      "ring_step": 0.1
+    }
+  ],
+  "parts": [
+    {
+      "type": "eye",
+      "name": "eyes",
+      "host": "Head",
+      "material": "eye",
+      "size": 0.05,
+      "anchor": {
+        "chain": "head",
+        "t": 0.5,
+        "around": 65
+      }
+    },
+    {
+      "type": "fin",
+      "name": "magma_core",
+      "host": "Chest",
+      "material": "magma",
+      "anchor": {
+        "chain": "torso",
+        "t": 0.6,
+        "around": 180
+      },
+      "udir": [
+        0,
+        0,
+        1
+      ],
+      "vdir": [
+        0,
+        1,
+        0
+      ],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0.15,
+          0.02
+        ],
+        [
+          0.1,
+          0.2
+        ],
+        [
+          0,
+          0.25
+        ],
+        [
+          -0.1,
+          0.2
+        ],
+        [
+          -0.15,
+          0.02
+        ]
+      ],
+      "faceted": true
+    },
+    {
+      "type": "paw",
+      "name": "fists",
+      "host": "LHand",
+      "material": "skin_fist",
+      "size": [
+        0.55,
+        0.45,
+        0.4
+      ],
+      "mirrored": true
+    },
+    {
+      "type": "curve",
+      "name": "finger1",
+      "host": "LHand",
+      "material": "skin_fist",
+      "mirrored": true,
+      "offset": [
+        0.1,
+        0.05,
+        0.15
+      ],
+      "dir": [
+        0,
+        0,
+        1
+      ],
+      "sides": 8,
+      "segments": [
+        {
+          "len": 0.12,
+          "r": 0.04,
+          "ahead": 10
+        },
+        {
+          "len": 0.1,
+          "r": 0.03,
+          "ahead": 20,
+          "taper": true
+        }
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "finger2",
+      "host": "LHand",
+      "material": "skin_fist",
+      "mirrored": true,
+      "offset": [
+        0.05,
+        0.1,
+        0.15
+      ],
+      "dir": [
+        0,
+        0,
+        1
+      ],
+      "sides": 8,
+      "segments": [
+        {
+          "len": 0.12,
+          "r": 0.04,
+          "ahead": 10
+        },
+        {
+          "len": 0.1,
+          "r": 0.03,
+          "ahead": 20,
+          "taper": true
+        }
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "finger3",
+      "host": "LHand",
+      "material": "skin_fist",
+      "mirrored": true,
+      "offset": [
+        0,
+        0.15,
+        0.15
+      ],
+      "dir": [
+        0,
+        0,
+        1
+      ],
+      "sides": 8,
+      "segments": [
+        {
+          "len": 0.12,
+          "r": 0.04,
+          "ahead": 10
+        },
+        {
+          "len": 0.1,
+          "r": 0.03,
+          "ahead": 20,
+          "taper": true
+        }
+      ]
+    }
+  ],
+  "animations": {
+    "idle": {
+      "duration": 2.0,
+      "loop": true,
+      "tracks": {
+        "Chest": {
+          "rx": [
+            [
+              0,
+              2
+            ],
+            [
+              0.5,
+              -2
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        "Head": {
+          "rx": [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              -1
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        "LShoulder": {
+          "rx": [
+            [
+              0,
+              2
+            ],
+            [
+              0.5,
+              -2
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
+      }
+    },
+    "move": {
+      "duration": 1.0,
+      "loop": true,
+      "mirror_phase": 0.5,
+      "tracks": {
+        "LHip": {
+          "rx": [
+            [
+              0,
+              -20
+            ],
+            [
+              0.5,
+              20
+            ],
+            [
+              1,
+              -20
+            ]
+          ]
+        },
+        "LKnee": {
+          "rx": [
+            [
+              0,
+              10
+            ],
+            [
+              0.5,
+              -10
+            ],
+            [
+              1,
+              10
+            ]
+          ]
+        },
+        "LAnkle": {
+          "rx": [
+            [
+              0,
+              -5
+            ],
+            [
+              0.5,
+              5
+            ],
+            [
+              1,
+              -5
+            ]
+          ]
+        },
+        "LShoulder": {
+          "rx": [
+            [
+              0,
+              10
+            ],
+            [
+              0.5,
+              -10
+            ],
+            [
+              1,
+              10
+            ]
+          ]
+        },
+        "LElbow": {
+          "rx": [
+            [
+              0,
+              -5
+            ],
+            [
+              0.5,
+              5
+            ],
+            [
+              1,
+              -5
+            ]
+          ]
+        },
+        "Chest": {
+          "rx": [
+            [
+              0,
+              2
+            ],
+            [
+              0.5,
+              -2
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
+      }
+    },
+    "attack": {
+      "duration": 0.8,
+      "loop": false,
+      "tracks": {
+        "LShoulder": {
+          "rx": [
+            [
+              0,
+              -50
+            ],
+            [
+              0.3,
+              80
+            ],
+            [
+              0.7,
+              -50
+            ]
+          ]
+        },
+        "LElbow": {
+          "rx": [
+            [
+              0,
+              -40
+            ],
+            [
+              0.3,
+              20
+            ],
+            [
+              0.7,
+              -40
+            ]
+          ]
+        },
+        "Chest": {
+          "rx": [
+            [
+              0,
+              -5
+            ],
+            [
+              0.3,
+              10
+            ],
+            [
+              0.7,
+              -5
+            ]
+          ]
+        },
+        "Head": {
+          "rx": [
+            [
+              0,
+              -5
+            ],
+            [
+              0.3,
+              10
+            ],
+            [
+              0.7,
+              -5
+            ]
+          ]
+        }
+      }
+    }
+  }
+}

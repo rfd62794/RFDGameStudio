@@ -26,6 +26,12 @@ from studio_mcp.zip_verify.openrouter_client import OpenRouterClient
 from .blind_reader import read_gate_1
 from .spec_writer import write_spec
 
+
+def _log(msg: str) -> None:
+    """Granular progress logging — flushed immediately so output is visible
+    even while waiting on long API calls or subprocesses."""
+    print(f"[gate_runner] {msg}", flush=True)
+
 ANYCREATURE_ROOT = Path(r"C:\Github\anyCreature")
 ENGINE_CLI = ANYCREATURE_ROOT / "engine" / "cli.js"
 SILMETRICS = ANYCREATURE_ROOT / "harness" / "silmetrics.mjs"
@@ -66,8 +72,17 @@ def compile_spec(spec_path: Path, glb_path: Path) -> tuple[bool, str]:
     not a gate failure. The caller must fix the spec and rebuild (costs no round).
     """
     cmd = ["node", str(ENGINE_CLI), str(spec_path), str(glb_path)]
+    _log(f"compile: node engine/cli.js {spec_path.name} → {glb_path.name}")
+    t0 = time.time()
     rc, stdout, stderr = _run_subprocess(cmd)
+    _log(f"compile: done in {time.time()-t0:.1f}s, rc={rc}")
     combined = stderr + stdout
+    if rc != 0:
+        block_lines = [l for l in combined.split("\n") if "BLOCK:" in l]
+        _log(f"compile: BLOCKED — {len(block_lines)} block line(s)")
+    else:
+        info_lines = [l for l in combined.split("\n") if l.startswith("info:")]
+        _log(f"compile: OK — {len(info_lines)} info line(s)")
     return rc == 0, combined
 
 
@@ -81,7 +96,10 @@ def measure_silhouettes(glb_path: Path, out_dir: Path) -> dict[str, Any]:
     # silmetrics produces sil_side.png, sil_front.png, sil_top.png, sil_hero.png
     # and thumb24.png in out_dir
     cmd = ["node", str(SILMETRICS), str(glb_path), str(out_dir)]
+    _log(f"measure: silmetrics.mjs starting (launches Playwright/Chromium)...")
+    t0 = time.time()
     rc, stdout, stderr = _run_subprocess(cmd)
+    _log(f"measure: silmetrics done in {time.time()-t0:.1f}s, rc={rc}")
     if rc != 0:
         raise RuntimeError(f"silmetrics failed: {stderr}")
 
@@ -93,9 +111,13 @@ def measure_silhouettes(glb_path: Path, out_dir: Path) -> dict[str, Any]:
         out_dir / "sil_hero.png",
     ]
     existing = [str(p) for p in sil_images if p.exists()]
+    _log(f"measure: {len(existing)} silhouette image(s) found")
     if existing:
         cmd = [sys.executable, str(MASKMETRICS), str(out_dir)] + existing
+        _log(f"measure: maskmetrics.py starting...")
+        t0 = time.time()
         rc, stdout, stderr = _run_subprocess(cmd)
+        _log(f"measure: maskmetrics done in {time.time()-t0:.1f}s, rc={rc}")
         if rc != 0:
             raise RuntimeError(f"maskmetrics failed: {stderr}")
 
@@ -212,6 +234,12 @@ def run_low_stage(
         glb_path = round_dir / "creature.glb"
 
         # Step 1: Design (or repair) the spec
+        if repair_context:
+            _log(f"=== ATTEMPT {attempt} (repair round {repair_context['round']}) ===")
+        else:
+            _log(f"=== ATTEMPT {attempt} (initial design) ===")
+        _log(f"design: calling OpenRouter ({'repair' if repair_context else 'fresh'} prompt)...")
+        t0 = time.time()
         spec = write_spec(
             order=order,
             temperament=temperament,
@@ -221,6 +249,7 @@ def run_low_stage(
             client=designer_client,
             repair_context=repair_context,
         )
+        _log(f"design: done in {time.time()-t0:.1f}s, spec written to {spec_path.name}")
 
         # Step 2: Compile — a BLOCK: costs no round, but we need to handle it
         compile_ok, compile_output = compile_spec(spec_path, glb_path)
@@ -291,12 +320,18 @@ def run_low_stage(
                 )
             continue
 
+        _log(f"gate1: thumb24={'yes' if thumb24 else 'NO'}, thumb48s={len(thumb48s)}")
+        _log(f"gate1: calling OpenRouter reader (vision model, 5 images)...")
+        t0 = time.time()
         reader_result = read_gate_1(thumb24, thumb48s, client=reader_client)
+        _log(f"gate1: reader done in {time.time()-t0:.1f}s")
         last_verdict = reader_result["verdict"]
+        _log(f"gate1: verdict = {last_verdict[:200]}...")
 
         # Step 5: Evaluate the verdict
         passed, failures = evaluate_gate_1(last_verdict, brief)
         last_failures = failures
+        _log(f"gate1: evaluated — passed={passed}, failures={failures}")
 
         if passed:
             return GateResult(

@@ -152,8 +152,13 @@ def write_spec(
     messages = build_designer_prompt(
         order, temperament, role, brief, repair_context
     )
+    print(f"[spec_writer] calling OpenRouter model={client.model}, "
+          f"{len(messages)} messages, "
+          f"prompt~{sum(len(m.get('content','')) for m in messages)} chars",
+          flush=True)
     response = client.complete(messages, temperature=0.4)
     content = client.get_content(response)
+    print(f"[spec_writer] response received, {len(content)} chars", flush=True)
     spec = extract_spec_json(content)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
