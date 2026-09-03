@@ -1,0 +1,10 @@
+engine_version: "1.0"
+engine_systems: []
+
+systems:
+  - id: choke_point_core
+    description: "Choke Point grid TD simulation, enemy path previews, tower placement and turn commit logic"
+    functions:
+      - init_game
+      - place_tower
+      - commit_turn

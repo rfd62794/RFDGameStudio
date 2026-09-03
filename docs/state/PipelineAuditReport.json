@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-03T05:25:29.171649+00:00",
+  "timestamp": "2026-09-03T05:36:04.439527+00:00",
   "repo_state": {
     "registry_path": "C:\\Github\\RFDGameStudio\\ts\\src\\games\\registry.ts",
     "metadata_path": "C:\\Github\\RFDGameStudio\\ts\\src\\games\\game-metadata.json",
@@ -98,6 +98,15 @@
       {
         "id": "wire_rust",
         "config_export": "wire_rustConfig",
+        "pipeline_stage": "ai_studio",
+        "version": "0.1.0",
+        "created": "",
+        "last_updated": "",
+        "tracked": false
+      },
+      {
+        "id": "choke_point",
+        "config_export": "chokePointConfig",
         "pipeline_stage": "ai_studio",
         "version": "0.1.0",
         "created": "",
@@ -315,7 +324,7 @@
       "voidrift-redux-particle-sandbox",
       "voidrift-redux-station-sim"
     ],
-    "game_count": 31
+    "game_count": 32
   },
   "zip_inventory": {
     "intake_dir": "C:\\Github\\RFDGameStudio\\intake",
@@ -462,7 +471,7 @@
   "floors": {
     "python": {
       "cmd": "uv run pytest",
-      "raw_log": "# Test run started: 2026-09-03T05:25:28.141474+00:00\n# Command: uv run pytest\n",
+      "raw_log": "# Test run started: 2026-09-03T05:36:03.408489+00:00\n# Command: uv run pytest\n",
       "passed": 0,
       "failed": 0,
       "skipped": 0,
@@ -471,7 +480,7 @@
     },
     "typescript": {
       "cmd": "npx vitest run",
-      "raw_log": "# Test run started: 2026-09-03T05:25:28.149475+00:00\n# Command: npx vitest run\n",
+      "raw_log": "# Test run started: 2026-09-03T05:36:03.417540+00:00\n# Command: npx vitest run\n",
       "passed": 0,
       "failed": 0,
       "skipped": 0,

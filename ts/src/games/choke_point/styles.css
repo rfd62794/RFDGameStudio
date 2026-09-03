@@ -1,0 +1,46 @@
+.choke-point-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.defense-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 4px;
+  background-color: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 0.5rem;
+  padding: 8px;
+  aspect-ratio: 6 / 5;
+}
+
+.defense-cell {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.defense-cell:hover {
+  background-color: #1e293b;
+  border-color: #38bdf8;
+}
+
+.defense-cell.core {
+  background-color: #1e1b4b;
+  border-color: #4f46e5;
+}
+
+.defense-cell.selected {
+  background-color: #0c4a6e;
+  border-color: #0ea5e9;
+}

@@ -124,9 +124,13 @@ export default function App({ session }: GameRendererProps) {
         <Card className="max-w-md mx-auto mt-12 p-6 border-red-500 bg-red-950/20 text-center">
           <h2 className="text-2xl font-bold text-red-500 mb-4">SYSTEM SHUTDOWN</h2>
           <p className="text-slate-300 mb-6">Your core integrity reached critical limits. Your scrap has rusted over.</p>
-          <Button onClick={handleReset} variant="danger" className="w-full justify-center">
-            <RefreshCw className="mr-2 h-4 w-4" /> Reboot Core
-          </Button>
+          <Button
+            onClick={handleReset}
+            variant="danger"
+            className="w-full justify-center"
+            label="Reboot Core"
+            icon={<RefreshCw className="mr-2 h-4 w-4" />}
+          />
         </Card>
       ) : (
         <div className="wire-rust-grid">
@@ -182,10 +186,9 @@ export default function App({ session }: GameRendererProps) {
                     onClick={() => handleMove(connId)}
                     variant="secondary"
                     className="justify-between"
-                  >
-                    <span>Move to {rooms[connId]?.name || connId}</span>
-                    <Badge variant="outline" className="ml-2">Threat {rooms[connId]?.difficulty}</Badge>
-                  </Button>
+                    label={`Move to ${rooms[connId]?.name || connId}`}
+                    icon={<Badge variant="outline" className="ml-2">Threat {rooms[connId]?.difficulty}</Badge>}
+                  />
                 ))}
               </div>
             </Card>

@@ -28,12 +28,12 @@ Status tracking for the overnight multi-cycle build job.
 - [x] Registered in registry.ts + GENRE_TRACKER.md
 
 ### Choke Point Checklist
-- [ ] Spec Locked
-- [ ] Three-File Scaffold
-- [ ] Shared-Engine Primitives Wired
-- [ ] Tests Written
-- [ ] Tests Green
-- [ ] Registered in registry.ts + GENRE_TRACKER.md
+- [x] Spec Locked
+- [x] Three-File Scaffold
+- [x] Shared-Engine Primitives Wired
+- [x] Tests Written
+- [x] Tests Green
+- [x] Registered in registry.ts + GENRE_TRACKER.md
 
 ---
 
@@ -90,3 +90,53 @@ RUN  v2.1.9 C:/Github/RFDGameStudio/ts
 
 #### 3. Resume Point
 - **Next File/Task**: Begin scaffold creation for Game 2: 'Choke Point' under `games/choke_point/`. Set up its `data.yaml`, `ui.yaml`, `systems.yaml`, and `logic.lua`.
+
+---
+
+### 2026-09-03 (Midnight Cycle - 1:40 AM)
+
+#### 1. What was done this cycle
+- **Completed Choke Point**:
+  - Built the three-file backend scaffold for `choke_point` (`data.yaml`, `ui.yaml`, `systems.yaml`, `logic.lua`, and `VERSION`) under `games/choke_point/`.
+  - Implemented the complete "Into the Breach" style Turn-Based tactical path preview and attack indicator logic on the Lua side (`logic.lua`).
+  - Created a gorgeous, interactive 6x5 spatial grid UI in `ts/src/games/choke_point/` (App.tsx, config.ts, styles.css, types.ts) utilizing GameShell and state hooks.
+  - Implemented correct `<Button>` usages across both `wire_rust` and `choke_point` to strictly use the `label`/`icon` props schema.
+- **Tests Written & Green**:
+  - Python tests for Choke Point turn progression, core/tower damage, path previews, and wave triggers written in `tests/test_choke_point.py` (3/3 tests green!).
+  - TypeScript UI rendering and title screen transition tests written in `ts/tests/test_choke_point_ui.ts` (2/2 vitest tests green!).
+- **Registered**: Added 'Choke Point' to the formal arcade `registry.ts` and updated `GENRE_TRACKER.md` to show that the Tower Defense genre gap has been filled!
+
+#### 2. Raw Test Command Output
+
+##### Pytest (Python/Lua)
+```
+============================= test session starts =============================
+platform win32 -- Python 3.12.12, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Github\RFDGameStudio
+configfile: pyproject.toml
+collected 3 items
+
+tests\test_choke_point.py ...                                            [100%]
+
+============================== 3 passed in 0.07s ==============================
+```
+
+##### Vitest (TypeScript/UI)
+```
+RUN  v2.1.9 C:/Github/RFDGameStudio/ts
+
+ ✓ tests/test_choke_point_ui.ts (2 tests) 91ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  01:35:01
+   Duration  2.40s (transform 379ms, setup 17ms, collect 871ms, tests 91ms, environment 1.03s, prepare 113ms)
+```
+
+##### Verification Auditor Result (floor_claim_diff)
+```
+{'matches': True, 'claimed': {'passed': 2, 'failed': 0, 'skipped': 0}, 'real': {'passed': 2, 'failed': 0, 'skipped': 0, 'certified': True}, 'mismatch_detail': None}
+```
+
+#### 3. Resume Point
+- **Next File/Task**: Both games are completely built, validated, and registered. No further overnight tasks required for this branch. Recommend promoting and scheduling for direct live-preview or staging assessments.

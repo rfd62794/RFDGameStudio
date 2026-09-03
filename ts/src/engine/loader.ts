@@ -48,6 +48,10 @@ import wrDataRaw    from '../../../games/wire_rust/data.yaml?raw';
 import wrUiRaw     from '../../../games/wire_rust/ui.yaml?raw';
 import wrSystemsRaw from '../../../games/wire_rust/systems.yaml?raw';
 
+import cpDataRaw    from '../../../games/choke_point/data.yaml?raw';
+import cpUiRaw     from '../../../games/choke_point/ui.yaml?raw';
+import cpSystemsRaw from '../../../games/choke_point/systems.yaml?raw';
+
 const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }> = {
   horse_racing: { data: hrDataRaw, ui: hrUiRaw, systems: hrSystemsRaw },
   slither_rogue: { data: srDataRaw, ui: srUiRaw, systems: srSystemsRaw },
@@ -60,6 +64,7 @@ const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }>
   slimeworld: { data: swDataRaw, ui: swUiRaw, systems: swSystemsRaw },
   dissonance: { data: disDataRaw, ui: disUiRaw, systems: disSystemsRaw },
   wire_rust: { data: wrDataRaw, ui: wrUiRaw, systems: wrSystemsRaw },
+  choke_point: { data: cpDataRaw, ui: cpUiRaw, systems: cpSystemsRaw },
 };
 
 // ── Lua files — bundled at build time via import.meta.glob ───────────────────

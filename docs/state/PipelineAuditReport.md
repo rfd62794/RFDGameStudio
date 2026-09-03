@@ -1,10 +1,10 @@
 # Pipeline Audit Report
 
-**Generated:** 2026-09-03T05:25:29.171649+00:00
+**Generated:** 2026-09-03T05:36:04.439527+00:00
 
 ## Summary
 
-- Registry entries: 31
+- Registry entries: 32
 - Example directories: 28
 - AI Studio zip exports: 11
 - Unimported zip exports: 0
@@ -42,6 +42,7 @@
 | chimera_wilds | website_collection | True | 1.0.0 | 2026-07-08T20:40:17-04:00 | 2026-08-16T15:05:51-04:00 |
 | scrapcrawl | website_collection | True | 1.0.0 | 2026-07-08T21:05:08-04:00 | 2026-08-16T15:05:51-04:00 |
 | wire_rust | ai_studio | False | 0.1.0 |  |  |
+| choke_point | ai_studio | False | 0.1.0 |  |  |
 | ledger | website_collection | True | 1.0.0 | 2026-07-11T18:42:41-04:00 | 2026-07-11T18:42:41-04:00 |
 | trinity_siege | website_collection | True | 1.0.0 | 2026-07-11T18:42:41-04:00 | 2026-07-11T18:42:41-04:00 |
 | 7_days_to_fry | website_collection | True | 0.1.0 | 2026-08-04T22:13:41-04:00 | 2026-08-30T18:57:31-04:00 |

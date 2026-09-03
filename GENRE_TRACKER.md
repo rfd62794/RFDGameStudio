@@ -37,6 +37,7 @@
 | 20 | Planet of Greed | 4X Strategy | Territory Control | ACTIVE | React/TS | Culture stat asymmetry, 60-game AI balance harness |
 | 21 | Early Learning Buddy | Educational | Casual | UNLISTED | React/TS | Voice-detection child learning. Personal project, not public |
 | 22 | Wire & Rust | Deck Builder | Roguelike | DEV | React/TS | Turn-based scrapyard exploration and scrap chemistry synergies |
+| 23 | Choke Point | Turn-Based Strategy | Tower Defense | DEV | React/TS | Vector preview pathing and tactical grid defense |
 
 ---
 
@@ -61,6 +62,7 @@
 | Turn-Based Strategy | CorpWorld, Trinity Siege, Planet of Greed |
 | 4X Strategy | CorpWorld, Planet of Greed |
 | Territory Control | CorpWorld, Trinity Siege, Planet of Greed |
+| Tower Defense | Choke Point |
 | Idle / Incremental | VoidRift, VoidDrift Redux, House of Kings Collab |
 | Colony Sim | AntSim Redux |
 | Collaborative / Social Strategy | House of Kings Collab |
@@ -79,7 +81,7 @@
 | **Deck Builder** | COVERED | Filled by Wire & Rust prototype |
 | **Merchant / Trading Sim (deep)** | HIGH | Ledger is shallow — a deeper trading sim is Ledger's natural next phase, not a new build |
 | **Puzzle** | MEDIUM | Logic or spatial. Zero instances. Agent-friendly to build |
-| **Tower Defense** | MEDIUM | Into the Breach-style (turn-based) fits the studio. Real design risk/reward |
+| **Tower Defense** | COVERED | Filled by Choke Point prototype |
 | **Dungeon Crawler (deep)** | MEDIUM | ScrapCrawl exists but is minimal. A deeper pass is a backlog item, not a new game |
 | **Idle / Incremental (standalone)** | LOW | VoidDrift already embodies this philosophy. Low novelty |
 | **Farming Sim** | LOW | Content/art-heavy. Fights the systems-not-content production model |

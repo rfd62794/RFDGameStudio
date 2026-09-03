@@ -10,6 +10,7 @@ import { slimeCoinConfig } from './slime_coin/config';
 import { chimeraWildsConfig } from './chimera_wilds/config';
 import { scrapcrawlConfig } from './scrapcrawl/config';
 import { wire_rustConfig } from './wire_rust/config';
+import { chokePointConfig } from './choke_point/config';
 import ledgerConfig from './ledger/config';
 import trinitySiegeConfig from './trinity_siege/config';
 import sevenDaysToFryConfig from './7_days_to_fry/config';
@@ -56,6 +57,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   chimeraWildsConfig,
   scrapcrawlConfig,
   wire_rustConfig,
+  chokePointConfig,
   ledgerConfig,
   trinitySiegeConfig,
   sevenDaysToFryConfig,
@@ -92,6 +94,7 @@ export const STANDALONE_BUILD_GAMES = [
   { id: 'mutant_battle_ball', label: 'Mutant Battle Ball' },
   { id: 'scrapcrawl', label: 'ScrapCrawl' },
   { id: 'wire_rust', label: 'Wire & Rust' },
+  { id: 'choke_point', label: 'Choke Point' },
   { id: 'slime_coin', label: 'Slime Coin' },
   { id: 'planetofgreed', label: 'Planet of Greed' },
   { id: 'gladiator_arena', label: 'Gladiator Arena' },
