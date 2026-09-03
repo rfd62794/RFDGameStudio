@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-30T17:05:00-04:00",
+  "timestamp": "2026-09-03T05:25:29.171649+00:00",
   "repo_state": {
     "registry_path": "C:\\Github\\RFDGameStudio\\ts\\src\\games\\registry.ts",
     "metadata_path": "C:\\Github\\RFDGameStudio\\ts\\src\\games\\game-metadata.json",
@@ -96,6 +96,15 @@
         "tracked": true
       },
       {
+        "id": "wire_rust",
+        "config_export": "wire_rustConfig",
+        "pipeline_stage": "ai_studio",
+        "version": "0.1.0",
+        "created": "",
+        "last_updated": "",
+        "tracked": false
+      },
+      {
         "id": "ledger",
         "config_export": "ledgerConfig",
         "pipeline_stage": "website_collection",
@@ -119,7 +128,7 @@
         "pipeline_stage": "website_collection",
         "version": "0.1.0",
         "created": "2026-08-04T22:13:41-04:00",
-        "last_updated": "2026-08-23T14:16:01-04:00",
+        "last_updated": "2026-08-30T18:57:31-04:00",
         "tracked": true
       },
       {
@@ -128,7 +137,7 @@
         "pipeline_stage": "website_collection",
         "version": "0.1.0",
         "created": "2026-08-06T22:26:34-04:00",
-        "last_updated": "2026-08-23T14:16:01-04:00",
+        "last_updated": "2026-08-30T18:57:33-04:00",
         "tracked": true
       },
       {
@@ -137,7 +146,7 @@
         "pipeline_stage": "website_collection",
         "version": "0.1.0",
         "created": "2026-08-06T22:26:34-04:00",
-        "last_updated": "2026-08-23T14:16:01-04:00",
+        "last_updated": "2026-08-30T18:57:31-04:00",
         "tracked": true
       },
       {
@@ -306,7 +315,7 @@
       "voidrift-redux-particle-sandbox",
       "voidrift-redux-station-sim"
     ],
-    "game_count": 30
+    "game_count": 31
   },
   "zip_inventory": {
     "intake_dir": "C:\\Github\\RFDGameStudio\\intake",
@@ -435,36 +444,36 @@
       "details": "_ensure_node_modules contains a real npm install fallback and returns None only when package.json is missing."
     },
     "cross_pipeline_version_tracking": {
-      "status": "partial",
+      "status": "fixed",
       "repo_counts": {
-        "_is_dist_stale": 13,
-        "--userversion": 15,
-        "deployed_version": 24
+        "_is_dist_stale": 44,
+        "--userversion": 19,
+        "deployed_version": 68
       },
       "publishing_counts": {
-        "_is_dist_stale": 0,
-        "--userversion": 0,
-        "deployed_version": 0
+        "_is_dist_stale": 10,
+        "--userversion": 4,
+        "deployed_version": 9
       },
-      "total_hits": 52,
-      "details": "Version-tracking strings found, but not in RFD_IT_Publishing."
+      "total_hits": 154,
+      "details": "Version-tracking strings appear to be implemented."
     }
   },
   "floors": {
     "python": {
-      "cmd": "uv run pytest -m \"not slow\"",
-      "raw_log": "==== 588 passed, 1 failed, 31 deselected, 8 warnings in 123.26s (0:02:03) ====",
-      "passed": 588,
-      "failed": 1,
+      "cmd": "uv run pytest",
+      "raw_log": "# Test run started: 2026-09-03T05:25:28.141474+00:00\n# Command: uv run pytest\n",
+      "passed": 0,
+      "failed": 0,
       "skipped": 0,
       "error": 0,
       "certified": false
     },
     "typescript": {
       "cmd": "npx vitest run",
-      "raw_log": "Test Files  2 failed | 132 passed (134)\nTests  2 failed | 1644 passed (1646)",
-      "passed": 1644,
-      "failed": 2,
+      "raw_log": "# Test run started: 2026-09-03T05:25:28.149475+00:00\n# Command: npx vitest run\n",
+      "passed": 0,
+      "failed": 0,
       "skipped": 0,
       "certified": false
     }

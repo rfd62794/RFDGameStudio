@@ -143,9 +143,12 @@ def _parse_vitest_line(line: str) -> dict[str, int]:
 
 def parse_vitest_summary(text: str) -> dict:
     """Extract passed/failed/skipped from a Vitest summary block."""
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    clean_text = ansi_escape.sub('', text)
+
     file_line = ""
     test_line = ""
-    for line in text.splitlines():
+    for line in clean_text.splitlines():
         if line.strip().startswith("Test Files"):
             file_line = line
         elif line.strip().startswith("Tests"):

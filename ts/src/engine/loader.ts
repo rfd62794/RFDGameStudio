@@ -44,6 +44,10 @@ import disDataRaw    from '../../../games/dissonance/data.yaml?raw';
 import disUiRaw     from '../../../games/dissonance/ui.yaml?raw';
 import disSystemsRaw from '../../../games/dissonance/systems.yaml?raw';
 
+import wrDataRaw    from '../../../games/wire_rust/data.yaml?raw';
+import wrUiRaw     from '../../../games/wire_rust/ui.yaml?raw';
+import wrSystemsRaw from '../../../games/wire_rust/systems.yaml?raw';
+
 const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }> = {
   horse_racing: { data: hrDataRaw, ui: hrUiRaw, systems: hrSystemsRaw },
   slither_rogue: { data: srDataRaw, ui: srUiRaw, systems: srSystemsRaw },
@@ -55,6 +59,7 @@ const GAME_ASSETS: Record<string, { data: string; ui: string; systems: string }>
   shoal: { data: shDataRaw, ui: shUiRaw, systems: shSystemsRaw },
   slimeworld: { data: swDataRaw, ui: swUiRaw, systems: swSystemsRaw },
   dissonance: { data: disDataRaw, ui: disUiRaw, systems: disSystemsRaw },
+  wire_rust: { data: wrDataRaw, ui: wrUiRaw, systems: wrSystemsRaw },
 };
 
 // ── Lua files — bundled at build time via import.meta.glob ───────────────────

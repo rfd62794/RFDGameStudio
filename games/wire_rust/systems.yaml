@@ -1,0 +1,13 @@
+engine_version: "1.0"
+engine_systems:
+  - inventory
+
+systems:
+  - id: wire_rust_core
+    description: "Wire & Rust game state, exploration, hand draw, chemistry, and combat resolution"
+    functions:
+      - init_game
+      - draw_hand
+      - get_synergies
+      - move_room
+      - resolve_encounter

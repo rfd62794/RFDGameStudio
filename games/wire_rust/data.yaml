@@ -1,0 +1,73 @@
+game:
+  id: wire_rust
+  name: Wire & Rust
+  version: "0.1.0"
+  studio: RFDGameStudio
+  description: >-
+    A turn-based deck building prototype where your deck is your salvage pile.
+    Navigate rooms, draw salvage parts, roll D20 combat checks, and utilize element chemistry synergies.
+
+constants:
+  start_room: junk_heap
+  max_rooms: 5
+  hand_size: 4
+  base_hp: 50
+  base_scrap: 10
+
+cards:
+  copper_rod:
+    id: copper_rod
+    name: "Copper Rod"
+    element: "copper"
+    combat_mod: 2
+    scrap_value: 3
+  zinc_plate:
+    id: zinc_plate
+    name: "Zinc Plate"
+    element: "zinc"
+    combat_mod: 1
+    scrap_value: 2
+  iron_block:
+    id: iron_block
+    name: "Iron Block"
+    element: "iron"
+    combat_mod: 3
+    scrap_value: 4
+  lead_solder:
+    id: lead_solder
+    name: "Lead Solder"
+    element: "lead"
+    combat_mod: 0
+    scrap_value: 1
+
+rooms:
+  junk_heap:
+    id: junk_heap
+    name: "Junk Heap"
+    interaction_types: [salvage, craft]
+    connections: [rust_pit, wire_maze]
+    difficulty: 6
+  rust_pit:
+    id: rust_pit
+    name: "Rust Pit"
+    interaction_types: [fight]
+    connections: [junk_heap, reactor_core]
+    difficulty: 10
+  wire_maze:
+    id: wire_maze
+    name: "Wire Maze"
+    interaction_types: [fight, salvage]
+    connections: [junk_heap, reactor_core]
+    difficulty: 12
+  reactor_core:
+    id: reactor_core
+    name: "Reactor Core"
+    interaction_types: [fight]
+    connections: [rust_pit, wire_maze, control_room]
+    difficulty: 16
+  control_room:
+    id: control_room
+    name: "Control Room"
+    interaction_types: [rest]
+    connections: [reactor_core]
+    difficulty: 20

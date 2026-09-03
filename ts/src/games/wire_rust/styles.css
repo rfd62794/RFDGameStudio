@@ -1,0 +1,24 @@
+.wire-rust-container {
+  padding: 1rem;
+}
+
+.wire-rust-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+}
+
+.wire-rust-card {
+  border: 1px solid #38bdf8;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  background-color: #0c4a6e;
+  color: #f0f9ff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wire-rust-card:hover {
+  background-color: #075985;
+  border-color: #0ea5e9;
+}

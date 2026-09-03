@@ -36,6 +36,7 @@
 | 19 | AntSim Redux | Ecosystem Sim | Colony Sim | ACTIVE | Python | Two colonies, pheromones, Lanchester combat, infiltration |
 | 20 | Planet of Greed | 4X Strategy | Territory Control | ACTIVE | React/TS | Culture stat asymmetry, 60-game AI balance harness |
 | 21 | Early Learning Buddy | Educational | Casual | UNLISTED | React/TS | Voice-detection child learning. Personal project, not public |
+| 22 | Wire & Rust | Deck Builder | Roguelike | DEV | React/TS | Turn-based scrapyard exploration and scrap chemistry synergies |
 
 ---
 
@@ -45,6 +46,7 @@
 
 | Genre | Games |
 |---|---|
+| Deck Builder | Wire & Rust |
 | Ecosystem Sim | Shoal, VoidRift, AntSim Redux |
 | Emergent Sandbox | Shoal, Brewfield |
 | Roguelike / Roguelite | Brewfield, Snake Roguelike, Chimera Wilds, ScrapCrawl |
@@ -64,7 +66,7 @@
 | Collaborative / Social Strategy | House of Kings Collab |
 | Social Deduction | Succession |
 | Narrative Adventure | Succession |
-| Card / Synergy | Snake Roguelike, SlimeCoin |
+| Card / Synergy | Snake Roguelike, SlimeCoin, Wire & Rust |
 | Sci-Fi Sim | VoidDrift Redux |
 | Educational | Early Learning Buddy |
 
@@ -74,7 +76,7 @@
 
 | Genre | Priority | Notes |
 |---|---|---|
-| **Deck Builder** | HIGH | Fuses naturally onto existing roguelike chassis (Brewfield/ScrapCrawl). Biggest missing genre for the studio identity |
+| **Deck Builder** | COVERED | Filled by Wire & Rust prototype |
 | **Merchant / Trading Sim (deep)** | HIGH | Ledger is shallow — a deeper trading sim is Ledger's natural next phase, not a new build |
 | **Puzzle** | MEDIUM | Logic or spatial. Zero instances. Agent-friendly to build |
 | **Tower Defense** | MEDIUM | Into the Breach-style (turn-based) fits the studio. Real design risk/reward |

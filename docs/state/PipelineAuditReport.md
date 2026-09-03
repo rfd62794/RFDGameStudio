@@ -1,10 +1,10 @@
 # Pipeline Audit Report
 
-**Generated:** 2026-08-30T17:05:00-04:00
+**Generated:** 2026-09-03T05:25:29.171649+00:00
 
 ## Summary
 
-- Registry entries: 30
+- Registry entries: 31
 - Example directories: 28
 - AI Studio zip exports: 11
 - Unimported zip exports: 0
@@ -13,17 +13,17 @@
 
 ### Python (`pytest`)
 
-- Command: `uv run pytest -m "not slow"`
-- Passed: 588
-- Failed: 1
+- Command: `uv run pytest`
+- Passed: 0
+- Failed: 0
 - Skipped: 0
 - Certified: False
 
 ### TypeScript (`vitest`)
 
 - Command: `npx vitest run`
-- Passed: 1644
-- Failed: 2
+- Passed: 0
+- Failed: 0
 - Skipped: 0
 - Certified: False
 
@@ -41,11 +41,12 @@
 | slime_coin | website_collection | True | 1.0.0 | 2026-06-27T21:08:17-04:00 | 2026-08-16T15:05:51-04:00 |
 | chimera_wilds | website_collection | True | 1.0.0 | 2026-07-08T20:40:17-04:00 | 2026-08-16T15:05:51-04:00 |
 | scrapcrawl | website_collection | True | 1.0.0 | 2026-07-08T21:05:08-04:00 | 2026-08-16T15:05:51-04:00 |
+| wire_rust | ai_studio | False | 0.1.0 |  |  |
 | ledger | website_collection | True | 1.0.0 | 2026-07-11T18:42:41-04:00 | 2026-07-11T18:42:41-04:00 |
 | trinity_siege | website_collection | True | 1.0.0 | 2026-07-11T18:42:41-04:00 | 2026-07-11T18:42:41-04:00 |
-| 7_days_to_fry | website_collection | True | 0.1.0 | 2026-08-04T22:13:41-04:00 | 2026-08-23T14:16:01-04:00 |
-| antsim_redux | website_collection | True | 0.1.0 | 2026-08-06T22:26:34-04:00 | 2026-08-23T14:16:01-04:00 |
-| facility_escape | website_collection | True | 0.1.0 | 2026-08-06T22:26:34-04:00 | 2026-08-23T14:16:01-04:00 |
+| 7_days_to_fry | website_collection | True | 0.1.0 | 2026-08-04T22:13:41-04:00 | 2026-08-30T18:57:31-04:00 |
+| antsim_redux | website_collection | True | 0.1.0 | 2026-08-06T22:26:34-04:00 | 2026-08-30T18:57:33-04:00 |
+| facility_escape | website_collection | True | 0.1.0 | 2026-08-06T22:26:34-04:00 | 2026-08-30T18:57:31-04:00 |
 | factory_idle | website_collection | True | 0.1.0 | 2026-08-22T22:02:42-04:00 | 2026-08-23T14:16:01-04:00 |
 | planetofgreed | website_collection | True | 0.1.0 | 2026-08-13T21:58:10-04:00 | 2026-08-16T15:53:27-04:00 |
 | planetforge | website_collection | True | 0.1.0 | 2026-08-22T22:02:42-04:00 | 2026-08-23T14:16:37-04:00 |
@@ -120,17 +121,17 @@
 
 ### CrossPipeline Version Tracking
 
-- Status: `partial`
-- Total hits: 52
+- Status: `fixed`
+- Total hits: 154
 
 **RFDGameStudio hits:**
-- `_is_dist_stale`: 13
-- `--userversion`: 15
-- `deployed_version`: 24
+- `_is_dist_stale`: 44
+- `--userversion`: 19
+- `deployed_version`: 68
 
 **RFD_IT_Publishing hits:**
-- `_is_dist_stale`: 0
-- `--userversion`: 0
-- `deployed_version`: 0
+- `_is_dist_stale`: 10
+- `--userversion`: 4
+- `deployed_version`: 9
 
-- Details: Version-tracking strings found, but not in RFD_IT_Publishing.
+- Details: Version-tracking strings appear to be implemented.
