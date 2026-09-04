@@ -150,6 +150,7 @@ export type PrimaryGenre =
   | 'colony-4x'
   | 'idle-incremental'
   | 'roguelike'
+  | 'tower-defense'
   | 'racing'
   | 'puzzle-stealth'
   | 'cooperative'

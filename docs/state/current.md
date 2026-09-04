@@ -24,6 +24,8 @@ Full per-project detail is in each project's own `CHANGELOG.md`:
 
 The full content of this retired file is preserved in git history.
 
+> For the current verified floor, see [`/docs/status.md`](../status.md) (last updated September 3 2026).
+
 ## Phase 1 — Pipeline Audit Module (August 30 2026)
 
 Per the Phase 1 directive, the read-only audit module in `studio_mcp/pipeline_audit/`

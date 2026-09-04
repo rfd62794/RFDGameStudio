@@ -37,7 +37,7 @@ describe('Arcade Metadata Expansion — GameConfig backward compatibility', () =
   it('test_genre_values_are_from_the_curated_taxonomy_when_set', () => {
     const validGenres: PrimaryGenre[] = [
       'creature-collector', 'combat-arena', 'economic-precarity',
-      'colony-4x', 'idle-incremental', 'roguelike', 'racing',
+      'colony-4x', 'idle-incremental', 'roguelike', 'tower-defense', 'racing',
       'puzzle-stealth', 'cooperative', 'narrative-persuasion',
       'management-sim',
     ];

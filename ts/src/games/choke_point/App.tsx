@@ -4,18 +4,15 @@ import {
   Zap,
   Target,
   Sword,
-  Compass,
-  ArrowRight,
   RefreshCw,
   Cpu,
-  Lock,
 } from 'lucide-react';
 import { GameShell } from '../../components';
 import { Badge, Button, Card, Panel } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useLuaCall, useGameState } from '../../hooks';
 import type { GameRendererProps, GameSession } from '../../engine/types';
-import type { ChokePointGameState, TowerType, Tower, Enemy } from './types';
+import type { ChokePointGameState, TowerType } from './types';
 import './styles.css';
 
 const GRID_W = 6;
@@ -30,7 +27,7 @@ function buildInitialState(session: GameSession): ChokePointGameState {
 
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
-  const { call, error } = useLuaCall(session);
+  const { call } = useLuaCall(session);
   const [showTitle, setShowTitle] = useState(true);
   const [selectedTower, setSelectedTower] = useState<TowerType>('blocker');
   
@@ -77,9 +74,8 @@ export default function App({ session }: GameRendererProps) {
         title="CHOKE POINT"
         pitch="Turn-based grid defense. Intercept automated threats with perfect foresight."
         quote="Analyze their vectors. Lock their trajectories. Construct the choke point."
-        onStart={() => setShowTitle(false)}
         menuItems={[
-          { label: 'Establish Connection', onClick: () => setShowTitle(false) }
+          { id: 'establish-connection', label: 'Establish Connection', onClick: () => setShowTitle(false) }
         ]}
       />
     );
@@ -223,7 +219,7 @@ export default function App({ session }: GameRendererProps) {
                 >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-bold text-white uppercase">Barricade</span>
-                    <Badge variant="warning">3 Energy</Badge>
+                    <Badge variant="yellow" label="3 Energy" />
                   </div>
                   <p className="text-[11px] text-slate-400">High health obstacle. Directs and blocks vector pathing.</p>
                 </div>
@@ -234,7 +230,7 @@ export default function App({ session }: GameRendererProps) {
                 >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-bold text-white uppercase">Autocannon</span>
-                    <Badge variant="warning">5 Energy</Badge>
+                    <Badge variant="yellow" label="5 Energy" />
                   </div>
                   <p className="text-[11px] text-slate-400">Deals 3 damage to nearest threat in its column/lane.</p>
                 </div>

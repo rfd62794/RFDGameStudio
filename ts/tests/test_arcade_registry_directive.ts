@@ -14,6 +14,8 @@ const EXPECTED_ORDER = [
   'slime_coin',
   'chimera_wilds',
   'scrapcrawl',
+  'wire_rust',
+  'choke_point',
   'ledger',
   'trinity_siege',
   '7_days_to_fry',
@@ -149,7 +151,7 @@ describe('Arcade Registry Directive — July 2026', () => {
   });
 
   it('test_registry_total_count_includes_legacy_origin_projects', () => {
-    // 25 pre-existing entries + 5 Legacy/Origin Projects (ADR-023).
-    expect(GAME_REGISTRY.length).toBe(30);
+    // 27 pre-existing entries + 5 Legacy/Origin Projects (ADR-023).
+    expect(GAME_REGISTRY.length).toBe(32);
   });
 });

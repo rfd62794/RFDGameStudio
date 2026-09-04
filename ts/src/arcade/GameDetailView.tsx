@@ -24,6 +24,7 @@ const GENRE_LABELS: Record<string, string> = {
   'colony-4x': 'Colony/4X',
   'idle-incremental': 'Idle/Incremental',
   'roguelike': 'Roguelike',
+  'tower-defense': 'Tower Defense',
   'racing': 'Racing',
   'puzzle-stealth': 'Puzzle/Stealth',
   'cooperative': 'Cooperative',

@@ -1,6 +1,6 @@
 # RFDGameStudio — Status
 
-*Last updated: August 15 2026*
+*Last updated: September 3 2026*
 
 > **This file is a short summary.** For full history see
 > [CHANGELOG.md](../CHANGELOG.md). For future plans see
@@ -10,7 +10,8 @@
 
 ## Test Floor
 
-**1083/1083 passing** (100 test files). Zero failures.
+|**1654/1654 passing** (137 test files). Zero failures.
+> Verification directive (Sep 3 2026): `wire_rust` and `choke_point` scaffolds audited, TypeScript build errors fixed, Fengari Lua→JS array crash not reproducible, both wired into Arcade dev server with passing UI tests.
 
 ## Active Projects
 
@@ -26,6 +27,8 @@
 | AntSim Redux | Dev (in `_check/`) | Phase 4g complete — 120 test anchors, delivery relevance + wander | 120/120 anchors |
 | Character Viewer | Tool (arcade) | Real arcade entry, live shape controls | Full suite passing |
 | Paper Doll | Engine module | 8 ChimeraLab patterns ported, technique comparison POC | Full suite passing |
+| Wire & Rust | Dev (arcade) | Lua-backed prototype wired into Arcade, title + run loop render | Full suite passing |
+| Choke Point | Dev (arcade) | Lua-backed tower-defense prototype wired into Arcade, title + grid render | Full suite passing |
 
 ## Retired (source preserved)
 
@@ -37,7 +40,7 @@
 
 ## Infrastructure
 
-- **Arcade:** Vite + React + TS + Tailwind v4 + Vitest. 18 registry entries.
+- **Arcade:** Vite + React + TS + Tailwind v4 + Vitest. 32 registry entries.
 - **Status Board:** Arcade page (`?page=status`) + Hugo site pages on rfditservices.com.
 - **Publishing:** Butler-based via `RFD_IT_Publishing`. Shoal, Planet of Greed, Dissonance published.
 - **ADRs:** 16 recorded (ADR-001 through ADR-016). ADR-014 (shared engine modules default) is the current governing rule for shared code.

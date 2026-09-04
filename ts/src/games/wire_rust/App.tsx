@@ -1,8 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
-  Shield,
   Heart,
-  Wrench,
   Dices,
   Compass,
   ArrowRight,
@@ -37,7 +35,7 @@ function buildInitialState(session: GameSession): WireRustGameState {
 
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
-  const { call, error } = useLuaCall(session);
+  const { call } = useLuaCall(session);
   const [showTitle, setShowTitle] = useState(true);
   const data = session.files.data as Record<string, unknown>;
   const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
@@ -104,9 +102,8 @@ export default function App({ session }: GameRendererProps) {
         title="WIRE & RUST"
         pitch="Draft scrap parts, align atomic chemistry, and survive the rogue scrapyard loops."
         quote="In the scrapyard, nothing is junk. Everything has a current."
-        onStart={() => setShowTitle(false)}
         menuItems={[
-          { label: 'Start Run', onClick: () => setShowTitle(false) }
+          { id: 'start-run', label: 'Start Run', onClick: () => setShowTitle(false) }
         ]}
       />
     );
@@ -187,7 +184,11 @@ export default function App({ session }: GameRendererProps) {
                     variant="secondary"
                     className="justify-between"
                     label={`Move to ${rooms[connId]?.name || connId}`}
-                    icon={<Badge variant="outline" className="ml-2">Threat {rooms[connId]?.difficulty}</Badge>}
+                    icon={
+                      <span className="ml-2">
+                        <Badge variant="muted" label={`Threat ${rooms[connId]?.difficulty}`} />
+                      </span>
+                    }
                   />
                 ))}
               </div>
@@ -211,7 +212,7 @@ export default function App({ session }: GameRendererProps) {
                       <span className="text-xs text-slate-500 italic">No synergies</span>
                     ) : (
                       handSynergies.map(syn => (
-                        <Badge key={syn} variant="success">{syn}</Badge>
+                        <Badge key={syn} variant="green" label={syn} />
                       ))
                     )}
                   </div>
@@ -230,7 +231,9 @@ export default function App({ session }: GameRendererProps) {
                     >
                       <div>
                         <div className="text-sm font-bold text-white mb-1">{info.name}</div>
-                        <Badge variant="outline" className="text-[10px] uppercase">{info.element}</Badge>
+                        <span className="text-[10px] uppercase">
+                          <Badge variant="muted" label={info.element} />
+                        </span>
                       </div>
                       <div className="flex justify-between items-center text-xs">
                         <span>Combat:</span>
