@@ -1,0 +1,6 @@
+{
+  "name": "Filipino BPO Simulator",
+  "description": "An authentic pixel-art isometric tycoon simulation game managing a bustling Philippine call center floor with hiring, wages, IT support, floor layout, and call queues.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
