@@ -10,7 +10,7 @@
 
 ## Test Floor
 
-|**1654/1654 passing** (137 test files). Zero failures.
+|**1649/1654 passing** (137 test files). 5 failures in `tests/test_dual_target_deploy.ts` due to a `dist-shoal` build race when `tests/test_shoal_y8_integration.ts` rebuilds the standalone directory mid-suite; the same tests pass when run in isolation.
 > Verification directive (Sep 3 2026): `wire_rust` and `choke_point` scaffolds audited, TypeScript build errors fixed, Fengari Lua→JS array crash not reproducible, both wired into Arcade dev server with passing UI tests.
 
 ## Active Projects
