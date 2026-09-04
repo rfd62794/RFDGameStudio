@@ -1,33 +1,42 @@
 # Filipino BPO Simulator / Call Center Tycoon — Current Status
 
-*Phase 1: List, Dialer, Quota core systems*
+*Phase 2: Dashboard / Floor / After-Hours UI restructure*
 
 ## Verified Floor
 
-- `npx tsc --noEmit` — 0 errors (baseline and post-change)
-- `npx vite build` — success (baseline and post-change)
-- `npm run test` — **20 passed, 0 failed, 0 skipped** (3 test files)
+- `npx tsc --noEmit` — 0 errors
+- `npx vite build` — success
+- `npm run test` — **22 passed, 0 failed, 0 skipped** (3 test files)
   - `src/systems/listSystem.test.ts` — 8/8 passed
-  - `src/systems/dialerSystem.test.ts` — 6/6 passed
+  - `src/systems/dialerSystem.test.ts` — 8/8 passed
   - `src/systems/quotaSystem.test.ts` — 6/6 passed
 
-## What changed in Phase 1
+## What changed in Phase 2
 
-- Added Vitest as a dev dependency and a `test`/`test:watch` script.
-- Added `LeadList`, `DialerConfig`, `QuotaState`, and `DayVerdict` types to `src/types.ts`.
-- Implemented pure logic modules:
-  - `src/systems/listSystem.ts` — volume depletion, freshness decay, swap detection
-  - `src/systems/dialerSystem.ts` — safe-pace ceiling, call-generation rate with purity/freshness/volume/over-pace penalties
-  - `src/systems/quotaSystem.ts` — progress tracking and day-end verdict (met/missed/partial)
-- Replaced the flat `Math.random() < 0.75` call generator in `src/App.tsx` with output driven by `activeList` + `dialerConfig` state.
-- Wired `quota` state into the existing call-completion flow and day-wrap reset.
+- Added `dialerUpgradeCost()` and `applyDialerUpgrade()` to `src/systems/dialerSystem.ts` with tests.
+- Created `src/components/DashboardView.tsx` — quota tracker, list-health bars, dialer-pace slider, floor readouts, and Floor toggle.
+- Created `src/components/FloorView.tsx` — thin wrapper around the existing `IsometricOfficeCanvas` with a back button.
+- Created `src/components/AfterHoursView.tsx` — day verdict, dialer upgrade purchase, request-new-list action, and "Start Next Day" button.
+- Updated `src/App.tsx`:
+  - Added `activeScreen` state (`dashboard` | `floor` | `afterhours`).
+  - Gave `dialerConfig` a setter and wired it through `DashboardView`.
+  - Conditional rendering of the three views in the center pane.
+  - Day-end wraps to `activeScreen === 'afterhours'` after capturing `lastVerdict`.
+  - Replaced cosmetic employee multiplier (`agents.length * 10 + 2`) with real `agents.length`.
+  - Replaced `totalDesks * 10 + 20` with real `totalDesks`.
+  - Replaced hardcoded starting state (`Day 68`, `₱458,720`, etc.) with Day 1 / `₱50,000` / 08:00.
+  - Reset-game handler updated to the same Day 1 values.
 
 ## Scope discipline
 
-- No `src/components/*.tsx` files modified.
-- No `src/utils/*.ts` files modified.
-- No UI controls for List/Dialer/Quota added in this phase.
-- Cosmetic `displayEmployees` / hardcoded starting-state values left untouched, per Phase 1 scope.
+- No existing logic in `listSystem.ts` or `quotaSystem.ts` modified.
+- `dialerSystem.ts` modified only by adding `dialerUpgradeCost` and `applyDialerUpgrade` — existing functions untouched.
+- No read-only components (`BuildModal`, `RecruitingModal`, `WageModal`, `HRModal`, `ITSupportModal`, `TrainingModal`, `FacilitiesModal`, `StaffModal`, `ReportsModal`, `ScriptModal`, `SettingsModal`, `AgentModal`, `EventModal`, `HelpModal`, `IsometricOfficeCanvas`, `gameData.ts`, `audio.ts`, `names.ts`) modified.
+- Phase 1's 20 tests still pass unchanged; the 22-test count is 20 + 2 new dialer-upgrade tests.
+
+## Screenshots
+
+Not captured this phase per explicit user instruction.
 
 ## Source of truth
 
