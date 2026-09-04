@@ -12,6 +12,7 @@ import {
   LeadList,
   DialerConfig,
   QuotaState,
+  DayVerdict,
 } from './types';
 import {
   INITIAL_CAMPAIGNS,
@@ -24,10 +25,17 @@ import {
 import { CALL_CENTER_PHRASES } from './utils/names';
 import { sounds } from './utils/audio';
 import { createList, processListWork } from './systems/listSystem';
-import { computeCallGenerationRate } from './systems/dialerSystem';
-import { createQuota, updateProgress, resetDay } from './systems/quotaSystem';
+import {
+  computeCallGenerationRate,
+  dialerUpgradeCost,
+  applyDialerUpgrade,
+} from './systems/dialerSystem';
+import { createQuota, updateProgress, resetDay, getDayVerdict } from './systems/quotaSystem';
 
 import { IsometricOfficeCanvas } from './components/IsometricOfficeCanvas';
+import { DashboardView } from './components/DashboardView';
+import { FloorView } from './components/FloorView';
+import { AfterHoursView } from './components/AfterHoursView';
 import { BuildModal } from './components/BuildModal';
 import { RecruitingModal } from './components/RecruitingModal';
 import { ScriptModal } from './components/ScriptModal';
@@ -76,13 +84,12 @@ export default function App() {
     return generateInitialAgents(generateInitialGrid());
   });
 
-  // Game economy & time state matching the screenshot:
-  // ₱ 458,720 | Day 68 | 11:30 AM | Employees: 312/350 | Employee Happiness: 74% 😊 | Productivity: 81% | Calls Queue: 18
-  const [money, setMoney] = useState<number>(458720);
-  const [day, setDay] = useState<number>(68);
-  const [gameTimeMinutes, setGameTimeMinutes] = useState<number>(690); // 11:30 AM
-  const [callsQueue, setCallsQueue] = useState<number>(18);
-  const [totalAnsweredToday, setTotalAnsweredToday] = useState<number>(312);
+  // Game economy & time state — Day 1 start (no screenshot-matching hardcoding)
+  const [money, setMoney] = useState<number>(50000); // Phase 2 balance placeholder
+  const [day, setDay] = useState<number>(1);
+  const [gameTimeMinutes, setGameTimeMinutes] = useState<number>(480); // 08:00 AM
+  const [callsQueue, setCallsQueue] = useState<number>(0);
+  const [totalAnsweredToday, setTotalAnsweredToday] = useState<number>(0);
   const [productivity, setProductivity] = useState<number>(81);
   const [happiness, setHappiness] = useState<number>(74);
 
@@ -97,8 +104,15 @@ export default function App() {
   const [activeList, setActiveList] = useState<LeadList>(() =>
     createList('starter-001', 'ACBS', 85, 90, 1000)
   );
-  const [dialerConfig] = useState<DialerConfig>({ pace: 6, tier: 1 });
+  const [dialerConfig, setDialerConfig] = useState<DialerConfig>({
+    pace: 6,
+    tier: 1,
+  });
   const [quota, setQuota] = useState<QuotaState>(() => createQuota(100, 120));
+
+  // Phase 2 UI state
+  const [activeScreen, setActiveScreen] = useState<'dashboard' | 'floor' | 'afterhours'>('dashboard');
+  const [lastVerdict, setLastVerdict] = useState<DayVerdict | null>(null);
 
   // Interaction & Modals
   const [activeModal, setActiveModal] = useState<ActiveModalType>(null);
@@ -144,11 +158,10 @@ export default function App() {
     return 'Graveyard Shift (Night Diff)';
   };
 
-  // Capacity calculation
+  // Capacity calculation — real counts, no cosmetic multiplier
   const totalDesks = grid.filter(t => t.type === 'CUBICLE').length;
-  // Scaled display metric matching screenshot proportions (e.g. 312 / 350)
-  const displayEmployees = agents.length * 10 + 2;
-  const displayCapacity = totalDesks * 10 + 20;
+  const displayEmployees = agents.length;
+  const displayCapacity = totalDesks;
 
   // Main Simulation Loop
   useEffect(() => {
@@ -160,10 +173,13 @@ export default function App() {
       setGameTimeMinutes(prev => {
         const next = prev + 5;
         if (next >= 1440) {
-          // New day
+          // Day end: capture verdict, reset quota, open after-hours
+          const verdict = getDayVerdict(quota);
+          setLastVerdict(verdict);
           setDay(d => d + 1);
           setTotalAnsweredToday(0);
           setQuota(q => resetDay(q));
+          setActiveScreen('afterhours');
           return 0;
         }
         return next;
@@ -307,7 +323,31 @@ export default function App() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [gameSpeed, callsQueue, campaigns, itConfig, hrPolicy, activeEvent, agents, dialerConfig, activeList]);
+  }, [gameSpeed, callsQueue, campaigns, itConfig, hrPolicy, activeEvent, agents, dialerConfig, activeList, quota]);
+
+  // Phase 2: screen / planning handlers
+  const handlePaceChange = (newPace: number) => {
+    setDialerConfig(prev => ({
+      ...prev,
+      pace: Math.max(1, Math.min(20, newPace)),
+    }));
+  };
+
+  const handleUpgradeDialer = () => {
+    const cost = dialerUpgradeCost(dialerConfig.tier);
+    if (money >= cost) {
+      setMoney(prev => prev - cost);
+      setDialerConfig(prev => applyDialerUpgrade(prev));
+    }
+  };
+
+  const handleRequestNewList = () => {
+    setActiveList(createList('acbs-daily', 'ACBS', 85, 90, 1000));
+  };
+
+  const handleStartNextDay = () => {
+    setActiveScreen('dashboard');
+  };
 
   // Trigger exciting BPO events
   const triggerRandomBPOEvent = () => {
@@ -658,23 +698,55 @@ export default function App() {
         </button>
       </div>
 
-      {/* 3. CENTER VIEW: ISOMETRIC PIXEL ART CANVAS */}
-      <div className="flex-1 w-full h-full relative">
-        <IsometricOfficeCanvas
-          grid={grid}
-          agents={agents}
-          onSelectAgent={(agent) => setSelectedAgent(agent)}
-          onSelectTile={(tile) => setSelectedTile(tile)}
-          selectedAgentId={selectedAgent?.id}
-          selectedTileId={selectedTile?.id}
-          gameTimeMinutes={gameTimeMinutes}
-          buildModeItem={buildPlacementItem?.name}
-          onPlaceBuildItem={handlePlaceBuildItem}
-        />
+      {/* 3. CENTER VIEW: Dashboard / Floor / After-Hours */}
+      <div className="flex-1 w-full h-full relative overflow-hidden">
+        {activeScreen === 'dashboard' && (
+          <DashboardView
+            quota={quota}
+            activeList={activeList}
+            dialerConfig={dialerConfig}
+            callsQueue={callsQueue}
+            totalAnsweredToday={totalAnsweredToday}
+            productivity={productivity}
+            happiness={happiness}
+            money={money}
+            day={day}
+            gameTime={formatTime(gameTimeMinutes)}
+            onPaceChange={handlePaceChange}
+            onGoToFloor={() => setActiveScreen('floor')}
+          />
+        )}
+        {activeScreen === 'floor' && (
+          <FloorView
+            grid={grid}
+            agents={agents}
+            selectedAgent={selectedAgent}
+            selectedTile={selectedTile}
+            gameTimeMinutes={gameTimeMinutes}
+            buildPlacementItem={buildPlacementItem}
+            onSelectAgent={setSelectedAgent}
+            onSelectTile={setSelectedTile}
+            onPlaceBuildItem={handlePlaceBuildItem}
+            onGoToDashboard={() => setActiveScreen('dashboard')}
+          />
+        )}
+        {activeScreen === 'afterhours' && (
+          <AfterHoursView
+            money={money}
+            day={day}
+            quota={quota}
+            dialerConfig={dialerConfig}
+            activeList={activeList}
+            upgradeCost={dialerUpgradeCost(dialerConfig.tier)}
+            lastVerdict={lastVerdict}
+            onUpgradeDialer={handleUpgradeDialer}
+            onRequestNewList={handleRequestNewList}
+            onStartNextDay={handleStartNextDay}
+          />
+        )}
       </div>
 
-      {/* 4. BOTTOM STATUS BAR matching the screenshot exactly:
-          🪙 P 458,720 | Day 68 | 11:30 AM | Employees: 312/350 | Employee Happiness: 74% 😊 | Productivity: 81% | Calls Queue: 18 */}
+      {/* 4. BOTTOM STATUS BAR */}
       <div className="h-12 bg-slate-900/95 border-t-2 border-slate-700 shadow-2xl backdrop-blur-md px-4 flex items-center justify-between z-30 font-pixel text-[10px] text-slate-100 overflow-x-auto gap-4">
         
         {/* Left segment: Money & Day */}
@@ -950,10 +1022,16 @@ export default function App() {
           localStorage.removeItem('bpo_agents');
           setGrid(generateInitialGrid());
           setAgents(generateInitialAgents(generateInitialGrid()));
-          setMoney(458720);
-          setDay(68);
-          setGameTimeMinutes(690);
-          setCallsQueue(18);
+          setMoney(50000);
+          setDay(1);
+          setGameTimeMinutes(480);
+          setCallsQueue(0);
+          setTotalAnsweredToday(0);
+          setActiveList(createList('starter-001', 'ACBS', 85, 90, 1000));
+          setDialerConfig({ pace: 6, tier: 1 });
+          setQuota(createQuota(100, 120));
+          setActiveScreen('dashboard');
+          setLastVerdict(null);
         }}
       />
     </div>

@@ -45,3 +45,24 @@ export function computeCallGenerationRate(
 
   return Math.max(0, Math.floor(Math.min(list.volume, rawCalls)));
 }
+
+const DIALER_UPGRADE_BASE_COST = 5000;
+
+/**
+ * Cost (in PHP) to upgrade the dialer from the current tier to the next.
+ * Scales linearly with current tier.
+ */
+export function dialerUpgradeCost(tier: number): number {
+  return Math.max(0, tier) * DIALER_UPGRADE_BASE_COST;
+}
+
+/**
+ * Apply a tier upgrade. Returns a new DialerConfig with the tier
+ * incremented and the pace unchanged.
+ */
+export function applyDialerUpgrade(config: DialerConfig): DialerConfig {
+  return {
+    ...config,
+    tier: config.tier + 1,
+  };
+}

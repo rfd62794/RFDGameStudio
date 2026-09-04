@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { computeSafePace, computeCallGenerationRate } from './dialerSystem';
+import {
+  computeSafePace,
+  computeCallGenerationRate,
+  dialerUpgradeCost,
+  applyDialerUpgrade,
+} from './dialerSystem';
 import { createList } from './listSystem';
 
 describe('dialerSystem', () => {
@@ -54,5 +59,18 @@ describe('dialerSystem', () => {
     expect(under).toBeGreaterThan(0);
     expect(over).toBeGreaterThan(0);
     expect(over).toBeLessThan(under);
+  });
+
+  it('upgrade cost scales predictably with current tier', () => {
+    expect(dialerUpgradeCost(1)).toBe(5000);
+    expect(dialerUpgradeCost(2)).toBe(10000);
+    expect(dialerUpgradeCost(5)).toBe(25000);
+    expect(dialerUpgradeCost(0)).toBe(0);
+  });
+
+  it('applying an upgrade increases tier and leaves pace unchanged', () => {
+    const upgraded = applyDialerUpgrade({ pace: 6, tier: 1 });
+    expect(upgraded.tier).toBe(2);
+    expect(upgraded.pace).toBe(6);
   });
 });
