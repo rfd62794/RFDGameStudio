@@ -33,9 +33,8 @@ import {
 import { createQuota, updateProgress, resetDay, getDayVerdict } from './systems/quotaSystem';
 
 import { IsometricOfficeCanvas } from './components/IsometricOfficeCanvas';
-import { DashboardView } from './components/DashboardView';
-import { FloorView } from './components/FloorView';
 import { AfterHoursView } from './components/AfterHoursView';
+import { DialerControlModal } from './components/DialerControlModal';
 import { BuildModal } from './components/BuildModal';
 import { RecruitingModal } from './components/RecruitingModal';
 import { ScriptModal } from './components/ScriptModal';
@@ -51,19 +50,20 @@ import { EventModal } from './components/EventModal';
 import { HelpModal } from './components/HelpModal';
 import { SettingsModal } from './components/SettingsModal';
 
-type ActiveModalType = 
-  | 'BUILD' 
-  | 'RECRUITING' 
-  | 'SCRIPT' 
-  | 'WAGE' 
-  | 'HR' 
-  | 'IT' 
-  | 'TRAINING' 
-  | 'REPORTS' 
-  | 'STAFF' 
-  | 'FACILITIES' 
-  | 'HELP' 
-  | 'SETTINGS' 
+type ActiveModalType =
+  | 'BUILD'
+  | 'RECRUITING'
+  | 'SCRIPT'
+  | 'WAGE'
+  | 'HR'
+  | 'IT'
+  | 'TRAINING'
+  | 'REPORTS'
+  | 'STAFF'
+  | 'FACILITIES'
+  | 'DIALER'
+  | 'HELP'
+  | 'SETTINGS'
   | null;
 
 export default function App() {
@@ -110,8 +110,8 @@ export default function App() {
   });
   const [quota, setQuota] = useState<QuotaState>(() => createQuota(100, 120));
 
-  // Phase 2 UI state
-  const [activeScreen, setActiveScreen] = useState<'dashboard' | 'floor' | 'afterhours'>('dashboard');
+  // Phase 2b UI state: floor is permanent; only After-Hours is a screen swap
+  const [isAfterHours, setIsAfterHours] = useState(false);
   const [lastVerdict, setLastVerdict] = useState<DayVerdict | null>(null);
 
   // Interaction & Modals
@@ -179,7 +179,7 @@ export default function App() {
           setDay(d => d + 1);
           setTotalAnsweredToday(0);
           setQuota(q => resetDay(q));
-          setActiveScreen('afterhours');
+          setIsAfterHours(true);
           return 0;
         }
         return next;
@@ -346,7 +346,7 @@ export default function App() {
   };
 
   const handleStartNextDay = () => {
-    setActiveScreen('dashboard');
+    setIsAfterHours(false);
   };
 
   // Trigger exciting BPO events
@@ -561,6 +561,18 @@ export default function App() {
             <span>BUILD</span>
           </button>
 
+          {/* DIALER / LIST CONTROL */}
+          <button
+            onClick={() => {
+              sounds.playClick();
+              setActiveModal('DIALER');
+            }}
+            className="w-full py-2 px-3 rounded-lg font-pixel text-[10px] tracking-wide text-white bg-sky-700 hover:bg-sky-600 border-2 border-sky-500 pixel-btn flex items-center gap-2.5 shadow-md active:scale-95 transition-all text-left"
+          >
+            <span className="text-base">📞</span>
+            <span>DIALER</span>
+          </button>
+
           {/* RECRUITING */}
           <button
             onClick={() => {
@@ -698,39 +710,22 @@ export default function App() {
         </button>
       </div>
 
-      {/* 3. CENTER VIEW: Dashboard / Floor / After-Hours */}
+      {/* 3. CENTER VIEW: permanent floor, with After-Hours as the one screen exception */}
       <div className="flex-1 w-full h-full relative overflow-hidden">
-        {activeScreen === 'dashboard' && (
-          <DashboardView
-            quota={quota}
-            activeList={activeList}
-            dialerConfig={dialerConfig}
-            callsQueue={callsQueue}
-            totalAnsweredToday={totalAnsweredToday}
-            productivity={productivity}
-            happiness={happiness}
-            money={money}
-            day={day}
-            gameTime={formatTime(gameTimeMinutes)}
-            onPaceChange={handlePaceChange}
-            onGoToFloor={() => setActiveScreen('floor')}
-          />
-        )}
-        {activeScreen === 'floor' && (
-          <FloorView
+        {!isAfterHours && (
+          <IsometricOfficeCanvas
             grid={grid}
             agents={agents}
-            selectedAgent={selectedAgent}
-            selectedTile={selectedTile}
+            onSelectAgent={(agent) => setSelectedAgent(agent)}
+            onSelectTile={(tile) => setSelectedTile(tile)}
+            selectedAgentId={selectedAgent?.id}
+            selectedTileId={selectedTile?.id}
             gameTimeMinutes={gameTimeMinutes}
-            buildPlacementItem={buildPlacementItem}
-            onSelectAgent={setSelectedAgent}
-            onSelectTile={setSelectedTile}
+            buildModeItem={buildPlacementItem?.name}
             onPlaceBuildItem={handlePlaceBuildItem}
-            onGoToDashboard={() => setActiveScreen('dashboard')}
           />
         )}
-        {activeScreen === 'afterhours' && (
+        {isAfterHours && (
           <AfterHoursView
             money={money}
             day={day}
@@ -769,6 +764,15 @@ export default function App() {
           {/* Clock & Shift */}
           <div className="text-sky-300 flex items-center gap-1.5" title={getCurrentShift(gameTimeMinutes)}>
             <span>{formatTime(gameTimeMinutes)}</span>
+          </div>
+
+          <div className="w-px h-4 bg-slate-700" />
+
+          {/* Phase 2b: real quota/list/dialer readouts */}
+          <div className="text-slate-300 flex items-center gap-3 shrink-0">
+            <span>Quota: <span className="text-emerald-400 font-bold">{quota.progress}/{quota.target}</span></span>
+            <span>List: <span className="text-sky-400 font-bold">P{activeList.purity} F{activeList.freshness} V{activeList.volume}</span></span>
+            <span>Pace: <span className="text-amber-400 font-bold">{dialerConfig.pace}</span></span>
           </div>
         </div>
 
@@ -815,6 +819,14 @@ export default function App() {
       </div>
 
       {/* 5. INTERACTIVE MODALS */}
+      <DialerControlModal
+        isOpen={activeModal === 'DIALER'}
+        onClose={() => setActiveModal(null)}
+        dialerConfig={dialerConfig}
+        activeList={activeList}
+        onPaceChange={handlePaceChange}
+        onRequestNewList={handleRequestNewList}
+      />
       <BuildModal
         isOpen={activeModal === 'BUILD'}
         onClose={() => setActiveModal(null)}
@@ -1030,7 +1042,7 @@ export default function App() {
           setActiveList(createList('starter-001', 'ACBS', 85, 90, 1000));
           setDialerConfig({ pace: 6, tier: 1 });
           setQuota(createQuota(100, 120));
-          setActiveScreen('dashboard');
+          setIsAfterHours(false);
           setLastVerdict(null);
         }}
       />
