@@ -5,6 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    base: '/arcade/filipino_bpo_simulator/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
