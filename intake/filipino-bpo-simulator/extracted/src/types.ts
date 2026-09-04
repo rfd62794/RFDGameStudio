@@ -154,3 +154,25 @@ export interface HRPolicy {
   freeMealsEnabled: boolean;
   monthly13thAccrued: number;
 }
+
+// List/Dialer/Quota systems (Phase 1)
+export interface LeadList {
+  id: string;
+  source: string;
+  purity: number; // 0-100
+  freshness: number; // 0-100
+  volume: number; // remaining leads
+}
+
+export interface DialerConfig {
+  pace: number; // calls per tick the dialer attempts to push
+  tier: number; // upgrade tier (1 = base)
+}
+
+export interface QuotaState {
+  target: number;
+  progress: number;
+  payoutPerCall: number; // PHP earned per completed call
+}
+
+export type DayVerdict = 'met' | 'missed' | 'partial';

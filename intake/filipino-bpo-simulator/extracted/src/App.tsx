@@ -9,6 +9,9 @@ import {
   GameEvent,
   GameStats,
   TileType,
+  LeadList,
+  DialerConfig,
+  QuotaState,
 } from './types';
 import {
   INITIAL_CAMPAIGNS,
@@ -20,6 +23,9 @@ import {
 } from './utils/gameData';
 import { CALL_CENTER_PHRASES } from './utils/names';
 import { sounds } from './utils/audio';
+import { createList, processListWork } from './systems/listSystem';
+import { computeCallGenerationRate } from './systems/dialerSystem';
+import { createQuota, updateProgress, resetDay } from './systems/quotaSystem';
 
 import { IsometricOfficeCanvas } from './components/IsometricOfficeCanvas';
 import { BuildModal } from './components/BuildModal';
@@ -87,6 +93,13 @@ export default function App() {
   const [hrPolicy, setHrPolicy] = useState<HRPolicy>(INITIAL_HR_CONFIG);
   const [officeLevel, setOfficeLevel] = useState<number>(1);
 
+  // Phase 1 core systems: List, Dialer, Quota
+  const [activeList, setActiveList] = useState<LeadList>(() =>
+    createList('starter-001', 'ACBS', 85, 90, 1000)
+  );
+  const [dialerConfig] = useState<DialerConfig>({ pace: 6, tier: 1 });
+  const [quota, setQuota] = useState<QuotaState>(() => createQuota(100, 120));
+
   // Interaction & Modals
   const [activeModal, setActiveModal] = useState<ActiveModalType>(null);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -150,15 +163,24 @@ export default function App() {
           // New day
           setDay(d => d + 1);
           setTotalAnsweredToday(0);
+          setQuota(q => resetDay(q));
           return 0;
         }
         return next;
       });
 
-      // 2. Incoming Call Generation
-      const incomingChance = Math.random();
-      if (incomingChance < 0.75) {
-        setCallsQueue(q => Math.min(q + Math.floor(Math.random() * 3) + 1, 99));
+      // 2. Incoming Call Generation (List + Dialer driven)
+      const availableAgents = agents.filter(
+        a => a.state === 'IDLE' && a.energy > 20
+      ).length;
+      const generatedCalls = computeCallGenerationRate(
+        dialerConfig,
+        activeList,
+        availableAgents
+      );
+      if (generatedCalls > 0) {
+        setCallsQueue(q => Math.min(q + generatedCalls, 99));
+        setActiveList(prev => processListWork(prev, generatedCalls));
         if (Math.random() < 0.2) {
           sounds.playPhoneRing();
         }
@@ -254,6 +276,7 @@ export default function App() {
         if (moneyEarned > 0) {
           setMoney(m => m + moneyEarned);
           setTotalAnsweredToday(cnt => cnt + callsHandled);
+          setQuota(prev => updateProgress(prev, callsHandled));
           if (Math.random() < 0.4) {
             sounds.playCash();
           }
@@ -284,7 +307,7 @@ export default function App() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [gameSpeed, callsQueue, campaigns, itConfig, hrPolicy, activeEvent, agents]);
+  }, [gameSpeed, callsQueue, campaigns, itConfig, hrPolicy, activeEvent, agents, dialerConfig, activeList]);
 
   // Trigger exciting BPO events
   const triggerRandomBPOEvent = () => {
