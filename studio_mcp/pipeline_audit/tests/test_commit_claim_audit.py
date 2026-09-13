@@ -1,5 +1,6 @@
 """Tests for commit_claim_audit.py using real commits in this repo."""
 
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -55,3 +56,30 @@ def test_commit_claim_audit_addition_claim_true_positive() -> None:
 
     assert result["confirmed"] is True
     assert result["pre_existing_since"] is None
+
+
+def _full_hash(ref: str) -> str:
+    return subprocess.run(
+        ["git", "rev-parse", ref], cwd=REPO_ROOT, capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+
+@pytest.mark.parametrize("length", [7, 8, 12, 40])
+def test_commit_claim_audit_addition_claim_independent_of_hash_length(length: int) -> None:
+    """Git's automatic short-hash length grows as the repo grows (7 -> 8 chars
+    here once enough objects exist); the verdict must not depend on it."""
+    real = _full_hash(COMMIT_WITH_REAL_FEATURE)
+    mislabeled = _full_hash(COMMIT_REFACTOR_MISLABELED)
+
+    genuine = audit_addition_claim(
+        symbol="_is_dist_stale", commit_hash=real[:length],
+        file_paths=["studio_mcp/tools.py"], repo_path=REPO_ROOT,
+    )
+    stale = audit_addition_claim(
+        symbol="_is_dist_stale", commit_hash=mislabeled[:length],
+        file_paths=["studio_mcp/tools.py"], repo_path=REPO_ROOT,
+    )
+
+    assert genuine["confirmed"] is True
+    assert stale["confirmed"] is False
+    assert stale["pre_existing_since"] == real[:length]

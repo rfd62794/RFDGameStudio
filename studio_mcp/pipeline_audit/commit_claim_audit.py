@@ -86,6 +86,10 @@ def audit_addition_claim(
     Uses `git log -S` scoped to `file_paths`. If an earlier commit than
     `commit_hash` already touched the symbol, the "added X" claim is false
     and `pre_existing_since` points to the oldest such commit.
+
+    Commits are compared by full hash. Hashes in the result are abbreviated to
+    the length of `commit_hash` (at least 7), because git's automatic short-hash
+    length grows with the repository and must not change the outcome.
     """
     if not file_paths:
         return {
@@ -100,12 +104,14 @@ def audit_addition_claim(
     rel_paths = [str(Path(p).as_posix()) for p in file_paths]
 
     log_output = _run_git(
-        ["log", "-S", symbol, "--oneline", "--", *rel_paths],
+        ["log", "-S", symbol, "--format=%H", "--", *rel_paths],
         cwd=repo_path,
     )
-    commits = [line.split()[0] for line in log_output.splitlines() if line.strip()]
+    commits = [line.strip() for line in log_output.splitlines() if line.strip()]
+    target = _run_git(["rev-parse", "--verify", "--quiet", f"{commit_hash}^{{commit}}"], cwd=repo_path).strip()
+    short_length = max(7, len(commit_hash))
 
-    if commit_hash not in commits:
+    if target not in commits:
         # Symbol may exist from an earlier commit not listed if it was never
         # removed, but git log -S should list all commits that changed the count.
         # If the queried commit isn't in the list, the claim is unsupported.
@@ -113,11 +119,11 @@ def audit_addition_claim(
             "symbol": symbol,
             "commit_hash": commit_hash,
             "confirmed": False,
-            "pre_existing_since": commits[-1] if commits else None,
+            "pre_existing_since": commits[-1][:short_length] if commits else None,
             "error": None,
         }
 
-    index = commits.index(commit_hash)
+    index = commits.index(target)
     if index == len(commits) - 1:
         # This is the oldest commit touching the symbol -> genuine origin.
         return {
@@ -133,6 +139,6 @@ def audit_addition_claim(
         "symbol": symbol,
         "commit_hash": commit_hash,
         "confirmed": False,
-        "pre_existing_since": commits[-1],
+        "pre_existing_since": commits[-1][:short_length],
         "error": None,
     }
