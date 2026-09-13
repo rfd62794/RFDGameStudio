@@ -1,0 +1,20 @@
+name: herald
+role: "Convert approved SessionPlan to paste-ready IDE agent directive with specific file paths."
+department: execution
+model_preference: remote
+backend_override: null
+prompts:
+  system: docs/agents/prompts/herald_system.md
+  fewshot: docs/agents/prompts/herald_fewshot.md
+schema: HeraldDirective
+fallback:
+  session_id: "S000"
+  title: "Session Work"
+  preamble: "Run `python -m src.tools.apj handoff`."
+  context: "[FALLBACK — could not generate directive]"
+  tasks: ["Review strategist plan manually and write directive"]
+  verification: "uv run pytest --tb=no -q"
+  commit_message: "feat: session work"
+  confidence: "low"
+save_output: true
+log_quality: true

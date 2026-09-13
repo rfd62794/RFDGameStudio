@@ -1,0 +1,14 @@
+# Physics Configuration
+# Used by collision and movement systems
+
+physics:
+  gravity: 0.0
+  friction: 0.02
+  max_velocity: 500.0
+  collision_iterations: 3
+  world_wrap: true
+
+world:
+  width: 160
+  height: 144
+  boundary_mode: "wrap"

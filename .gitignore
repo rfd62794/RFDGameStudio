@@ -221,3 +221,9 @@ local-arcade-preview/
 ts/tsc-errors.txt
 ts/*.zip
 *.bak
+
+# rpgCore archive: runtime output if the archived code is run locally
+archive/rpgCore/logs/
+archive/rpgCore/saves/
+archive/rpgCore/data/*.sqlite
+archive/rpgCore/**/*.log

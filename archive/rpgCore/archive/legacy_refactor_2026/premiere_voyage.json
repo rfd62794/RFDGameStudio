@@ -1,0 +1,79 @@
+{
+  "player": {
+    "name": "Adventurer",
+    "hp": 10,
+    "max_hp": 10,
+    "gold": 50,
+    "inventory": [],
+    "attributes": {
+      "strength": 10,
+      "dexterity": 10,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10
+    },
+    "archetype_name": null,
+    "personality_traits": [],
+    "skill_proficiencies": [],
+    "vector_traits": [],
+    "trait_description": null
+  },
+  "position": {
+    "x": 0,
+    "y": 0,
+    "t": 0
+  },
+  "player_angle": 0.0,
+  "world_time": 0,
+  "rooms": {
+    "tavern": {
+      "name": "The Rusty Flagon",
+      "description": "A dimly lit tavern filled with the smell of ale and roasted meat. Rowdy patrons fill the wooden tables.",
+      "npcs": [
+        {
+          "name": "Guard",
+          "state": "neutral",
+          "hp": 80,
+          "description": "A stern-looking town guard watching the entrance"
+        },
+        {
+          "name": "Bartender",
+          "state": "neutral",
+          "hp": 30,
+          "description": "A burly man wiping mugs behind the bar"
+        }
+      ],
+      "items": [
+        "wooden table",
+        "beer mug",
+        "chair"
+      ],
+      "exits": {
+        "north": "town_square",
+        "east": "alley"
+      },
+      "tags": [
+        "Sticky Floors",
+        "Rowdy Crowd",
+        "Dimly Lit"
+      ]
+    }
+  },
+  "turn_count": 3,
+  "reputation": {
+    "law": 0,
+    "underworld": 0,
+    "clergy": 0
+  },
+  "goal_stack": [],
+  "completed_goals": [],
+  "social_graph": {},
+  "latent_context": {},
+  "lore_index": [],
+  "active_vectors": {},
+  "current_chunk": null,
+  "travel_stamina": 100,
+  "last_rest_turn": 0,
+  "discovered_coordinates": []
+}

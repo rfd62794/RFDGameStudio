@@ -1,0 +1,2319 @@
+{
+  "voyage_id": "seed_zero_voyage_001",
+  "start_timestamp": "2026-02-07T01:17:01.337476",
+  "end_timestamp": "2026-02-07T01:17:19.401469",
+  "total_turns": 100,
+  "final_state": {
+    "game_state": {
+      "player": {
+        "name": "Adventurer",
+        "hp": 10,
+        "max_hp": 10,
+        "gold": 50,
+        "inventory": [],
+        "attributes": {
+          "strength": 10,
+          "dexterity": 10,
+          "constitution": 10,
+          "intelligence": 10,
+          "wisdom": 10,
+          "charisma": 10
+        },
+        "archetype_name": null,
+        "personality_traits": [],
+        "skill_proficiencies": [],
+        "vector_traits": [],
+        "trait_description": null
+      },
+      "position": {
+        "x": 0,
+        "y": 0,
+        "t": 0
+      },
+      "player_angle": 0.0,
+      "world_time": 0,
+      "rooms": {
+        "tavern": {
+          "name": "The Rusty Flagon",
+          "description": "A dimly lit tavern filled with the smell of ale and roasted meat. Rowdy patrons fill the wooden tables.",
+          "npcs": [
+            {
+              "name": "Guard",
+              "state": "neutral",
+              "hp": 80,
+              "description": "A stern-looking town guard watching the entrance"
+            },
+            {
+              "name": "Bartender",
+              "state": "neutral",
+              "hp": 30,
+              "description": "A burly man wiping mugs behind the bar"
+            }
+          ],
+          "items": [
+            "wooden table",
+            "beer mug",
+            "chair"
+          ],
+          "exits": {
+            "north": "town_square",
+            "east": "alley"
+          },
+          "tags": [
+            "Sticky Floors",
+            "Rowdy Crowd",
+            "Dimly Lit"
+          ]
+        }
+      },
+      "turn_count": 0,
+      "reputation": {
+        "law": 0,
+        "underworld": 0,
+        "clergy": 0
+      },
+      "goal_stack": [],
+      "completed_goals": [],
+      "social_graph": {},
+      "latent_context": {},
+      "lore_index": [],
+      "active_vectors": {},
+      "current_chunk": null,
+      "travel_stamina": 100,
+      "last_rest_turn": 0,
+      "discovered_coordinates": []
+    },
+    "simulator_config": {
+      "target_fps": 30,
+      "view_mode": "terminal",
+      "save_path": "seed_zero_save.json"
+    },
+    "system_timestamp": "2026-02-07T01:17:19.402280"
+  },
+  "voyage_logs": [
+    {
+      "turn_number": 1,
+      "timestamp": "2026-02-07T01:17:07.639120",
+      "player_input": "I look around the tavern",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 2,
+      "timestamp": "2026-02-07T01:17:07.769643",
+      "player_input": "I talk to the bartender",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 3,
+      "timestamp": "2026-02-07T01:17:07.898461",
+      "player_input": "I investigate the wooden table",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 4,
+      "timestamp": "2026-02-07T01:17:08.017478",
+      "player_input": "I talk to the guard",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 5,
+      "timestamp": "2026-02-07T01:17:08.140831",
+      "player_input": "I investigate the beer mug",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 6,
+      "timestamp": "2026-02-07T01:17:08.250596",
+      "player_input": "I rest at the table",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 7,
+      "timestamp": "2026-02-07T01:17:08.364494",
+      "player_input": "I talk to the bartender about the town",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 8,
+      "timestamp": "2026-02-07T01:17:08.486940",
+      "player_input": "I investigate the tavern entrance",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 9,
+      "timestamp": "2026-02-07T01:17:08.596651",
+      "player_input": "I help the bartender clean up",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 10,
+      "timestamp": "2026-02-07T01:17:08.707913",
+      "player_input": "I talk to the guard about local news",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 11,
+      "timestamp": "2026-02-07T01:17:08.833123",
+      "player_input": "I leave the tavern",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 12,
+      "timestamp": "2026-02-07T01:17:08.953865",
+      "player_input": "I investigate the town square",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 13,
+      "timestamp": "2026-02-07T01:17:09.065734",
+      "player_input": "I talk to the merchant",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 14,
+      "timestamp": "2026-02-07T01:17:09.177362",
+      "player_input": "I investigate the market stalls",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 15,
+      "timestamp": "2026-02-07T01:17:09.303847",
+      "player_input": "I talk to the guard captain",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 16,
+      "timestamp": "2026-02-07T01:17:09.425518",
+      "player_input": "I investigate the town notice board",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 17,
+      "timestamp": "2026-02-07T01:17:09.540962",
+      "player_input": "I trade with the merchant",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 18,
+      "timestamp": "2026-02-07T01:17:09.665070",
+      "player_input": "I investigate the fountain",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 19,
+      "timestamp": "2026-02-07T01:17:09.775563",
+      "player_input": "I talk to the town crier",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 20,
+      "timestamp": "2026-02-07T01:17:09.902745",
+      "player_input": "I rest on the bench",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 21,
+      "timestamp": "2026-02-07T01:17:10.022387",
+      "player_input": "I talk to the merchant about goods",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 22,
+      "timestamp": "2026-02-07T01:17:10.133359",
+      "player_input": "I help the merchant with crates",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 23,
+      "timestamp": "2026-02-07T01:17:10.242957",
+      "player_input": "I investigate the merchant's cart",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 24,
+      "timestamp": "2026-02-07T01:17:10.353773",
+      "player_input": "I trade for a healing potion",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 25,
+      "timestamp": "2026-02-07T01:17:10.463805",
+      "player_input": "I talk to the guard captain about safety",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 26,
+      "timestamp": "2026-02-07T01:17:10.574553",
+      "player_input": "I investigate the town walls",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 27,
+      "timestamp": "2026-02-07T01:17:10.699146",
+      "player_input": "I help the guard with patrol duty",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 28,
+      "timestamp": "2026-02-07T01:17:10.808608",
+      "player_input": "I talk to the townsfolk",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 29,
+      "timestamp": "2026-02-07T01:17:10.919573",
+      "player_input": "I investigate the inn",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 30,
+      "timestamp": "2026-02-07T01:17:11.030972",
+      "player_input": "I rest at the inn",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 31,
+      "timestamp": "2026-02-07T01:17:11.155391",
+      "player_input": "I investigate the training grounds",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 32,
+      "timestamp": "2026-02-07T01:17:11.278565",
+      "player_input": "I talk to the weapons master",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 33,
+      "timestamp": "2026-02-07T01:17:11.388399",
+      "player_input": "I use the training dummy",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 34,
+      "timestamp": "2026-02-07T01:17:11.498683",
+      "player_input": "I investigate the armor rack",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 35,
+      "timestamp": "2026-02-07T01:17:11.608558",
+      "player_input": "I talk to the veteran soldier",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 36,
+      "timestamp": "2026-02-07T01:17:11.734576",
+      "player_input": "I practice with the wooden sword",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 37,
+      "timestamp": "2026-02-07T01:17:11.861697",
+      "player_input": "I investigate the archery range",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 38,
+      "timestamp": "2026-02-07T01:17:11.985277",
+      "player_input": "I use the bow and arrows",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 39,
+      "timestamp": "2026-02-07T01:17:12.107996",
+      "player_input": "I talk to the archery instructor",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 40,
+      "timestamp": "2026-02-07T01:17:12.216837",
+      "player_input": "I rest after training",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 41,
+      "timestamp": "2026-02-07T01:17:12.329021",
+      "player_input": "I investigate the strange noises",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 42,
+      "timestamp": "2026-02-07T01:17:12.453692",
+      "player_input": "I talk to the concerned citizen",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 43,
+      "timestamp": "2026-02-07T01:17:12.579660",
+      "player_input": "I investigate the dark alley",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 44,
+      "timestamp": "2026-02-07T01:17:12.702874",
+      "player_input": "I use the lantern to see better",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 45,
+      "timestamp": "2026-02-07T01:17:12.816389",
+      "player_input": "I investigate the mysterious symbols",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 46,
+      "timestamp": "2026-02-07T01:17:12.942404",
+      "player_input": "I talk to the scholar about runes",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 47,
+      "timestamp": "2026-02-07T01:17:13.060252",
+      "player_input": "I investigate the ancient book",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 48,
+      "timestamp": "2026-02-07T01:17:13.170925",
+      "player_input": "I talk to the historian about legends",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 49,
+      "timestamp": "2026-02-07T01:17:13.288511",
+      "player_input": "I investigate the old map",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 50,
+      "timestamp": "2026-02-07T01:17:13.408312",
+      "player_input": "I rest to ponder the mystery",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 51,
+      "timestamp": "2026-02-07T01:17:13.518651",
+      "player_input": "I talk to the merchant about supplies",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 52,
+      "timestamp": "2026-02-07T01:17:13.632757",
+      "player_input": "I trade for rations and water",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 53,
+      "timestamp": "2026-02-07T01:17:13.754592",
+      "player_input": "I investigate the equipment shop",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 54,
+      "timestamp": "2026-02-07T01:17:13.864190",
+      "player_input": "I use the climbing gear",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 55,
+      "timestamp": "2026-02-07T01:17:13.990645",
+      "player_input": "I talk to the guide about the forest",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 56,
+      "timestamp": "2026-02-07T01:17:14.112700",
+      "player_input": "I investigate the forest path",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 57,
+      "timestamp": "2026-02-07T01:17:14.223696",
+      "player_input": "I talk to the ranger about dangers",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 58,
+      "timestamp": "2026-02-07T01:17:14.333253",
+      "player_input": "I investigate the abandoned cabin",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 59,
+      "timestamp": "2026-02-07T01:17:14.458021",
+      "player_input": "I use the healing supplies",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 60,
+      "timestamp": "2026-02-07T01:17:14.585736",
+      "player_input": "I rest at the cabin",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 61,
+      "timestamp": "2026-02-07T01:17:14.714731",
+      "player_input": "I investigate the forest creatures",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 62,
+      "timestamp": "2026-02-07T01:17:14.834354",
+      "player_input": "I talk to the forest spirit",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 63,
+      "timestamp": "2026-02-07T01:17:14.958704",
+      "player_input": "I investigate the ancient tree",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 64,
+      "timestamp": "2026-02-07T01:17:15.068627",
+      "player_input": "I use the nature knowledge",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 65,
+      "timestamp": "2026-02-07T01:17:15.179435",
+      "player_input": "I talk to the animals",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 66,
+      "timestamp": "2026-02-07T01:17:15.305072",
+      "player_input": "I investigate the hidden path",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 67,
+      "timestamp": "2026-02-07T01:17:15.429524",
+      "player_input": "I investigate the cave entrance",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 68,
+      "timestamp": "2026-02-07T01:17:15.538586",
+      "player_input": "I use the torch to light the way",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 69,
+      "timestamp": "2026-02-07T01:17:15.663380",
+      "player_input": "I talk to the cave echo",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 70,
+      "timestamp": "2026-02-07T01:17:15.773214",
+      "player_input": "I rest in the cave",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 71,
+      "timestamp": "2026-02-07T01:17:15.884230",
+      "player_input": "I investigate the cave paintings",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 72,
+      "timestamp": "2026-02-07T01:17:15.993769",
+      "player_input": "I talk to the ancient spirits",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 73,
+      "timestamp": "2026-02-07T01:17:16.104816",
+      "player_input": "I investigate the underground river",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 74,
+      "timestamp": "2026-02-07T01:17:16.214555",
+      "player_input": "I use the boat to cross",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 75,
+      "timestamp": "2026-02-07T01:17:16.325476",
+      "player_input": "I investigate the treasure chamber",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 76,
+      "timestamp": "2026-02-07T01:17:16.450545",
+      "player_input": "I talk to the guardian spirit",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 77,
+      "timestamp": "2026-02-07T01:17:16.560848",
+      "player_input": "I investigate the ancient artifact",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 78,
+      "timestamp": "2026-02-07T01:17:16.669802",
+      "player_input": "I use the magical device",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 79,
+      "timestamp": "2026-02-07T01:17:16.782473",
+      "player_input": "I talk to the wisdom keeper",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 80,
+      "timestamp": "2026-02-07T01:17:16.906785",
+      "player_input": "I rest before the return",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 81,
+      "timestamp": "2026-02-07T01:17:17.035982",
+      "player_input": "I investigate the way back",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 82,
+      "timestamp": "2026-02-07T01:17:17.154791",
+      "player_input": "I talk to the forest guide",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 83,
+      "timestamp": "2026-02-07T01:17:17.267198",
+      "player_input": "I investigate the changed landscape",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 84,
+      "timestamp": "2026-02-07T01:17:17.393455",
+      "player_input": "I use the new knowledge",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 85,
+      "timestamp": "2026-02-07T01:17:17.520042",
+      "player_input": "I talk to the town about discoveries",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 86,
+      "timestamp": "2026-02-07T01:17:17.643264",
+      "player_input": "I investigate the town's reaction",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 87,
+      "timestamp": "2026-02-07T01:17:17.769955",
+      "player_input": "I talk to the council about the artifact",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 88,
+      "timestamp": "2026-02-07T01:17:17.889887",
+      "player_input": "I investigate the council chamber",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 89,
+      "timestamp": "2026-02-07T01:17:18.000626",
+      "player_input": "I use the diplomatic skills",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 90,
+      "timestamp": "2026-02-07T01:17:18.109549",
+      "player_input": "I rest after the journey",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 91,
+      "timestamp": "2026-02-07T01:17:18.221509",
+      "player_input": "I investigate the museum space",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 92,
+      "timestamp": "2026-02-07T01:17:18.346167",
+      "player_input": "I talk to the curator about exhibits",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 93,
+      "timestamp": "2026-02-07T01:17:18.455770",
+      "player_input": "I investigate the historical records",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 94,
+      "timestamp": "2026-02-07T01:17:18.565778",
+      "player_input": "I use the writing materials",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 95,
+      "timestamp": "2026-02-07T01:17:18.676561",
+      "player_input": "I talk to the scholars about knowledge",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 96,
+      "timestamp": "2026-02-07T01:17:18.791299",
+      "player_input": "I investigate the library archives",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 97,
+      "timestamp": "2026-02-07T01:17:18.912845",
+      "player_input": "I talk to the future generations",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 98,
+      "timestamp": "2026-02-07T01:17:19.040937",
+      "player_input": "I investigate the legacy monument",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 99,
+      "timestamp": "2026-02-07T01:17:19.161808",
+      "player_input": "I use the ceremonial tools",
+      "intent": "unknown",
+      "success": false,
+      "prose": "I don't understand that action. Try rephrasing?",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "invalid_action",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    },
+    {
+      "turn_number": 100,
+      "timestamp": "2026-02-07T01:17:19.287693",
+      "player_input": "I rest and reflect on the journey",
+      "intent": "error",
+      "success": false,
+      "prose": "Error processing action: 'IntentMatch' object has no attribute 'reasoning'",
+      "hp_delta": 0,
+      "gold_delta": 0,
+      "location": "unknown",
+      "narrative_seed": "error",
+      "system_state": {
+        "player_hp": 10,
+        "player_gold": 50,
+        "turn_count": 0,
+        "reputation": {
+          "law": 0,
+          "underworld": 0,
+          "clergy": 0
+        }
+      }
+    }
+  ],
+  "system_metrics": {
+    "total_voyage_time_seconds": 18.063993,
+    "average_turn_time_seconds": 0.18063993,
+    "total_actions": 100,
+    "successful_actions": 0,
+    "failed_actions": 100,
+    "unique_intents_used": 2,
+    "unique_locations_visited": 1,
+    "final_player_hp": 10,
+    "final_player_gold": 50,
+    "final_reputation": {
+      "law": 0,
+      "underworld": 0,
+      "clergy": 0
+    }
+  },
+  "intent_distribution": {
+    "error": 65,
+    "unknown": 35
+  },
+  "location_history": [
+    "unknown"
+  ],
+  "validation_checksum": "d090049857c1db593205c1c9bc5edf74ed0e876f981a461cbc635f2e824670c1"
+}

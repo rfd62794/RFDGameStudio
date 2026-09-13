@@ -1,0 +1,58 @@
+from .enums import RenderLayer
+
+# === VIEWPORT AND RENDERING CONSTANTS ===
+
+VIEWPORT_WIDTH = 160
+VIEWPORT_HEIGHT = 144
+VIEWPORT_WIDTH_PIXELS = 160
+VIEWPORT_HEIGHT_PIXELS = 144
+TILE_SIZE_PIXELS = 8
+VIEWPORT_TILES_X = 20
+VIEWPORT_TILES_Y = 18
+
+# === COLOR PALETTE ===
+
+COLOR_PALETTE = {
+    "lightest": (255, 255, 255),
+    "light": (170, 170, 170),
+    "dark": (85, 85, 85),
+    "darkest": (0, 0, 0)
+}
+
+RENDER_LAYERS = list(RenderLayer)
+TILE_SIZE = 8
+
+# === WORLD GENERATION CONSTANTS ===
+
+WORLD_SIZE_X = 50
+WORLD_SIZE_Y = 50
+CHUNK_SIZE = 10
+PERMUTATION_TABLE_SIZE = 256
+
+# === PERFORMANCE CONSTANTS ===
+
+TARGET_FPS = 60
+FRAME_DELAY_MS = 1000 // TARGET_FPS
+INTENT_COOLDOWN_MS = 10
+MOVEMENT_RANGE = 15
+PERSISTENCE_INTERVAL_TURNS = 10
+
+# === PERSISTENCE CONSTANTS ===
+
+PERSISTENCE_FORMAT = "json"
+PERSISTENCE_COMPRESSION = True
+BACKUP_INTERVAL_TURNS = 50
+MAX_BACKUP_FILES = 5
+
+# === UTILITY CONSTANTS ===
+
+DIRECTION_VECTORS = {
+    "north": (0, -1),
+    "south": (0, 1),
+    "east": (1, 0),
+    "west": (-1, 0),
+    "northeast": (1, -1),
+    "northwest": (-1, -1),
+    "southeast": (1, 1),
+    "southwest": (-1, 1)
+}

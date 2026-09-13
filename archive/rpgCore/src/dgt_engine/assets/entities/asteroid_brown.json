@@ -1,0 +1,15 @@
+{
+    "blueprint_id": "asteroid_brown",
+    "name": "Carbonaceous Chondrite",
+    "entity_type": "asteroid",
+    "category": "rock",
+    "hit_points": 50,
+    "speed": 0,
+    "turn_rate": 0.5,
+    "drag": 0.0,
+    "mass": 500.0,
+    "radius": 12.0,
+    "material_id": "mat_basic_hull",
+    "size_category": "medium",
+    "color_scheme": "asteroid_brown"
+}

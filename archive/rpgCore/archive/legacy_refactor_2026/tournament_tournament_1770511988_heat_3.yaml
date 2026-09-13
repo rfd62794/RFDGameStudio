@@ -1,0 +1,20 @@
+participants:
+- fitness_score: 1.4025602974331541
+  genetic_signature: null
+  turtle_id: 9e48d4b9
+- fitness_score: 1.577821163573032
+  genetic_signature: null
+  turtle_id: 5b3e1198
+- fitness_score: 1.4454312919026486
+  genetic_signature: null
+  turtle_id: 76ff872c
+- fitness_score: 1.0853525775092605
+  genetic_signature: null
+  turtle_id: 506803d5
+results: []
+timestamp: 1770512020.7635133
+track_info:
+  checkpoints: 9
+  height: 600
+  total_distance: 2202.1841887804203
+  width: 800

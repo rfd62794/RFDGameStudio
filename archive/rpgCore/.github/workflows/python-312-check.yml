@@ -1,0 +1,67 @@
+name: Python 3.12 Version Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  python-version-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    
+    - name: Verify Python version
+      run: |
+        python --version
+        python -c "import sys; print(f'Python version: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"
+    
+    - name: Test version enforcement
+      run: |
+        python -c "
+        try:
+            from src.foundation import enforce_python_312
+            enforce_python_312()
+            print('✅ Python 3.12 enforcement working')
+        except RuntimeError as e:
+            print(f'❌ Version enforcement failed: {e}')
+            exit(1)
+        except ImportError as e:
+            print(f'❌ Import failed: {e}')
+            exit(1)
+        "
+    
+    - name: Test version manager
+      run: |
+        python -c "
+        from pathlib import Path
+        from src.tools.python_version_manager import PythonVersionManager
+        
+        mgr = PythonVersionManager(Path.cwd())
+        is_valid, msg = mgr.check_current_version()
+        print(f'Version check: {is_valid}, {msg}')
+        
+        if not is_valid:
+            print('❌ Version manager validation failed')
+            exit(1)
+        else:
+            print('✅ Version manager working correctly')
+        "
+    
+    - name: Install dependencies
+      run: |
+        pip install -e .
+    
+    - name: Run headless derby test
+      run: |
+        python tests/verification/test_headless_derby.py
