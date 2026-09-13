@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "saved_at": "2026-09-13T14:35:35.561344+00:00",
+  "roster": {
+    "slimes": []
+  },
+  "session": {
+    "session_id": "266ed6ad-7c07-4b9a-9639-9d10b0334087",
+    "resources": {
+      "gold": 100,
+      "scrap": 0,
+      "food": 50
+    },
+    "garden": {
+      "room_level": 0,
+      "unlocked_rooms": [],
+      "capacity": 6,
+      "idle_assignments": {}
+    },
+    "world": {
+      "discovered_cultures": [],
+      "diplomatic_standing": {},
+      "conquered_zones": [],
+      "active_events": []
+    },
+    "active_dispatches": [],
+    "current_tick": 0
+  }
+}

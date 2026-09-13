@@ -1,0 +1,56 @@
+{
+  "player": {
+    "name": "Adventurer",
+    "hp": 9,
+    "max_hp": 10,
+    "gold": 50,
+    "inventory": [],
+    "attributes": {
+      "strength": 10,
+      "dexterity": 10,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10
+    },
+    "archetype_name": null,
+    "personality_traits": [],
+    "skill_proficiencies": [],
+    "vector_traits": [],
+    "trait_description": null
+  },
+  "position": {
+    "x": 0,
+    "y": 0,
+    "t": 0
+  },
+  "player_angle": 0.0,
+  "world_time": 0,
+  "rooms": {},
+  "turn_count": 5,
+  "reputation": {
+    "law": 4,
+    "underworld": 0,
+    "clergy": 0
+  },
+  "goal_stack": [],
+  "completed_goals": [],
+  "social_graph": {
+    "unknown": {
+      "Bartender": {
+        "disposition": 20,
+        "tags": [
+          "charmed"
+        ],
+        "last_interaction_turn": 2
+      }
+    }
+  },
+  "latent_context": {},
+  "lore_index": [],
+  "active_vectors": {},
+  "current_chunk": null,
+  "travel_stamina": 100,
+  "last_rest_turn": 0,
+  "discovered_coordinates": []
+}

@@ -1,0 +1,55 @@
+{
+    "enemies": [
+        {
+            "id": "slime",
+            "name": "Cave Slime",
+            "tier": "mindless",
+            "stats": {
+                "hp": 10,
+                "attack": 3,
+                "defense": 1,
+                "speed": 2,
+                "magic": 0
+            },
+            "loot_weight": {
+                "gold": 0.6,
+                "item": 0.3,
+                "nothing": 0.1
+            }
+        },
+        {
+            "id": "skeleton",
+            "name": "Skeleton Warrior",
+            "tier": "mindless",
+            "stats": {
+                "hp": 18,
+                "attack": 5,
+                "defense": 3,
+                "speed": 4,
+                "magic": 0
+            },
+            "loot_weight": {
+                "gold": 0.4,
+                "item": 0.5,
+                "nothing": 0.1
+            }
+        },
+        {
+            "id": "dark_mage",
+            "name": "Dark Mage",
+            "tier": "tactical",
+            "stats": {
+                "hp": 12,
+                "attack": 2,
+                "defense": 1,
+                "speed": 6,
+                "magic": 8
+            },
+            "loot_weight": {
+                "gold": 0.3,
+                "item": 0.6,
+                "nothing": 0.1
+            }
+        }
+    ]
+}

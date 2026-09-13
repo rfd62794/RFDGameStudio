@@ -1,0 +1,21 @@
+﻿============================================================
+  ASTEROIDS STRESS TEST - PERFORMANCE REPORT
+============================================================
+  Frames rendered : 300
+  Total collisions: 36
+  Avg FPS         : 3641.3
+  Min FPS         : 1104.3
+  Max FPS         : 3953.2
+  Avg frame time  : 0.279 ms
+------------------------------------------------------------
+  Pillar Breakdown (avg / max ms):
+       physics:   0.044 /   0.210
+           vfx:   0.014 /   0.048
+     collision:   0.019 /   0.376
+        render:   0.200 /   0.457
+------------------------------------------------------------
+  Exhaust peak    : 40 particles
+  Exhaust avg     : 31.1 particles
+============================================================
+  PASS - under 16.7 ms frame budget
+

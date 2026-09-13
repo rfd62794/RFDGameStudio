@@ -1,0 +1,256 @@
+{
+  "slimes": [
+    {
+      "slime_id": "mochi_1",
+      "name": "Mochi 1",
+      "team": "dungeon",
+      "locked": false,
+      "alive": true,
+      "genome": {
+        "shape": "crystalline",
+        "size": "tiny",
+        "base_color": [
+          229,
+          133,
+          68
+        ],
+        "pattern": "spotted",
+        "pattern_color": [
+          236,
+          84,
+          162
+        ],
+        "accessory": "scar",
+        "curiosity": 0.029914924898037487,
+        "energy": 0.7235737269216155,
+        "affection": 0.310579886906033,
+        "shyness": 0.348099344018829,
+        "cultural_base": "ember",
+        "base_hp": 16.0,
+        "base_atk": 7.0,
+        "base_spd": 5.5,
+        "generation": 1
+      },
+      "level": 1,
+      "experience": 20,
+      "breeding_lock_level": 0,
+      "current_hp": 10.0,
+      "vit_xp": 0,
+      "pwr_xp": 0,
+      "agi_xp": 0,
+      "mnd_xp": 0,
+      "res_xp": 0,
+      "chm_xp": 0
+    },
+    {
+      "slime_id": "pip_2",
+      "name": "Pip 2",
+      "team": "dungeon",
+      "locked": false,
+      "alive": true,
+      "genome": {
+        "shape": "cubic",
+        "size": "large",
+        "base_color": [
+          229,
+          73,
+          68
+        ],
+        "pattern": "iridescent",
+        "pattern_color": [
+          122,
+          240,
+          99
+        ],
+        "accessory": "scar",
+        "curiosity": 0.5467060538045054,
+        "energy": 0.3397755219434383,
+        "affection": 0.5043570265066931,
+        "shyness": 0.3620849249947815,
+        "cultural_base": "ember",
+        "base_hp": 16.0,
+        "base_atk": 7.0,
+        "base_spd": 5.5,
+        "generation": 1
+      },
+      "level": 1,
+      "experience": 0,
+      "breeding_lock_level": 0,
+      "current_hp": 14.0,
+      "vit_xp": 0,
+      "pwr_xp": 0,
+      "agi_xp": 0,
+      "mnd_xp": 0,
+      "res_xp": 0,
+      "chm_xp": 0
+    },
+    {
+      "slime_id": "fizz_3",
+      "name": "Fizz 3",
+      "team": "dungeon",
+      "locked": false,
+      "alive": true,
+      "genome": {
+        "shape": "round",
+        "size": "medium",
+        "base_color": [
+          68,
+          229,
+          126
+        ],
+        "pattern": "solid",
+        "pattern_color": [
+          110,
+          142,
+          84
+        ],
+        "accessory": "glow",
+        "curiosity": 0.09391229109309163,
+        "energy": 0.01812584260227601,
+        "affection": 0.6456059092271252,
+        "shyness": 0.05592499121812533,
+        "cultural_base": "marsh",
+        "base_hp": 20.0,
+        "base_atk": 4.5,
+        "base_spd": 6.5,
+        "generation": 1
+      },
+      "level": 1,
+      "experience": 0,
+      "breeding_lock_level": 0,
+      "current_hp": 20.0,
+      "vit_xp": 0,
+      "pwr_xp": 0,
+      "agi_xp": 0,
+      "mnd_xp": 0,
+      "res_xp": 0,
+      "chm_xp": 0
+    },
+    {
+      "slime_id": "mochi_4",
+      "name": "Mochi 4",
+      "team": "racing",
+      "locked": false,
+      "alive": true,
+      "genome": {
+        "shape": "crystalline",
+        "size": "tiny",
+        "base_color": [
+          229,
+          81,
+          68
+        ],
+        "pattern": "spotted",
+        "pattern_color": [
+          184,
+          94,
+          95
+        ],
+        "accessory": "crown",
+        "curiosity": 0.2938184615024949,
+        "energy": 0.6629893488097545,
+        "affection": 0.6715337681677919,
+        "shyness": 0.6242889579633103,
+        "cultural_base": "ember",
+        "base_hp": 16.0,
+        "base_atk": 7.0,
+        "base_spd": 5.5,
+        "generation": 1
+      },
+      "level": 1,
+      "experience": 50,
+      "breeding_lock_level": 0,
+      "current_hp": 10.0,
+      "vit_xp": 0,
+      "pwr_xp": 0,
+      "agi_xp": 0,
+      "mnd_xp": 0,
+      "res_xp": 0,
+      "chm_xp": 0
+    },
+    {
+      "slime_id": "bloop_5",
+      "name": "Bloop 5",
+      "team": "dungeon",
+      "locked": false,
+      "alive": true,
+      "genome": {
+        "shape": "round",
+        "size": "tiny",
+        "base_color": [
+          174,
+          68,
+          229
+        ],
+        "pattern": "marbled",
+        "pattern_color": [
+          149,
+          164,
+          55
+        ],
+        "accessory": "glow",
+        "curiosity": 0.11519341857511911,
+        "energy": 0.1097777727546213,
+        "affection": 0.7562567434949213,
+        "shyness": 0.38983613785480176,
+        "cultural_base": "void",
+        "base_hp": 24.0,
+        "base_atk": 6.0,
+        "base_spd": 6.0,
+        "generation": 1
+      },
+      "level": 1,
+      "experience": 0,
+      "breeding_lock_level": 0,
+      "current_hp": 23.0,
+      "vit_xp": 0,
+      "pwr_xp": 0,
+      "agi_xp": 0,
+      "mnd_xp": 0,
+      "res_xp": 0,
+      "chm_xp": 0
+    },
+    {
+      "slime_id": "lumen_6",
+      "name": "Lumen 6",
+      "team": "dungeon",
+      "locked": false,
+      "alive": true,
+      "genome": {
+        "shape": "elongated",
+        "size": "medium",
+        "base_color": [
+          68,
+          229,
+          144
+        ],
+        "pattern": "spotted",
+        "pattern_color": [
+          254,
+          56,
+          85
+        ],
+        "accessory": "crystals",
+        "curiosity": 0.1869757891731506,
+        "energy": 0.8183709566814519,
+        "affection": 0.47414284342543045,
+        "shyness": 0.2732068650024718,
+        "cultural_base": "marsh",
+        "base_hp": 20.0,
+        "base_atk": 4.5,
+        "base_spd": 6.5,
+        "generation": 1
+      },
+      "level": 1,
+      "experience": 0,
+      "breeding_lock_level": 0,
+      "current_hp": 20.0,
+      "vit_xp": 0,
+      "pwr_xp": 0,
+      "agi_xp": 0,
+      "mnd_xp": 0,
+      "res_xp": 0,
+      "chm_xp": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2026-02-12",
+    "description": "Shared Knowledge Library for AI Pilots - Epigenetic Learning",
+    "total_techniques": 0,
+    "last_updated": null
+  },
+  "techniques": [],
+  "success_vectors": {
+    "avoidance_patterns": [],
+    "collection_patterns": [],
+    "navigation_patterns": []
+  },
+  "learning_statistics": {
+    "total_extractions": 0,
+    "successful_applications": 0,
+    "failed_applications": 0,
+    "average_success_rate": 0.0
+  }
+}

@@ -1,0 +1,15 @@
+   Building dgt-engine @ file:///C:/Github/rpgCore
+      Built dgt-engine @ file:///C:/Github/rpgCore
+Uninstalled 1 package in 2ms
+Installed 1 package in 6ms
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Github\rpgCore
+configfile: pyproject.toml
+testpaths: tests/unit
+collected 7 items
+
+tests\unit\slime_clan_autobattle_test.py ....                            [ 57%]
+tests\unit\slime_clan_overworld_test.py ...                              [100%]
+
+============================== 7 passed in 0.15s ==============================

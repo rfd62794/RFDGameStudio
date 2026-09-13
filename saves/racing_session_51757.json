@@ -1,0 +1,13 @@
+{
+  "seed": 51757,
+  "track_length": 3000,
+  "team_slime_ids": [
+    "ai_0",
+    "ai_1",
+    "ai_2",
+    "ai_3"
+  ],
+  "race_completed": false,
+  "best_time": null,
+  "race_history": []
+}

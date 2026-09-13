@@ -1,0 +1,77 @@
+{
+  "player_stats": {
+    "total_scrap_collected": 33.0,
+    "successful_extractions": 6,
+    "failed_attempts": 2,
+    "clone_number": 3,
+    "highest_mass_achieved": 18.2,
+    "total_distance_traveled": 1020.0,
+    "credits": 330
+  },
+  "recent_extractions": [
+    {
+      "timestamp": 1770601838.8738582,
+      "mass": 12.5,
+      "scrap": 2.5,
+      "credits": 25,
+      "survival_time": 64.28837301536008,
+      "energy_remaining": 85.0
+    },
+    {
+      "timestamp": 1770601838.8858552,
+      "mass": 15.8,
+      "scrap": 5.800000000000001,
+      "credits": 58,
+      "survival_time": 63.6192822068588,
+      "energy_remaining": 92.0
+    },
+    {
+      "timestamp": 1770601838.8984804,
+      "mass": 18.2,
+      "scrap": 8.2,
+      "credits": 82,
+      "survival_time": 61.82812648697888,
+      "energy_remaining": 78.0
+    },
+    {
+      "timestamp": 1770602024.7003472,
+      "mass": 12.5,
+      "scrap": 2.5,
+      "credits": 25,
+      "survival_time": 64.8902284561766,
+      "energy_remaining": 85.0
+    },
+    {
+      "timestamp": 1770602024.7147815,
+      "mass": 15.8,
+      "scrap": 5.800000000000001,
+      "credits": 58,
+      "survival_time": 60.76267641443167,
+      "energy_remaining": 92.0
+    },
+    {
+      "timestamp": 1770602024.7287974,
+      "mass": 18.2,
+      "scrap": 8.2,
+      "credits": 82,
+      "survival_time": 62.99484236340184,
+      "energy_remaining": 78.0
+    }
+  ],
+  "unlocked_stories": [
+    "first_extraction.md",
+    "seasoned_scout.md"
+  ],
+  "med_bay_logs": [
+    {
+      "timestamp": 1770601838.9109666,
+      "clone_number": 2,
+      "log": "Neural pathways recalibrated. Previous clone suffered de-sync at velocity 10.7."
+    },
+    {
+      "timestamp": 1770602024.743326,
+      "clone_number": 2,
+      "log": "Cellular reconstruction complete. Clone #2 reporting for duty. Avoid high-speed collisions."
+    }
+  ]
+}

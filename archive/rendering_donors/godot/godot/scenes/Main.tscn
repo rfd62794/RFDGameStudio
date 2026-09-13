@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvjl5bxf6qg5q"]
+
+[ext_resource type="Script" path="res://scenes/Main.cs" id="1_0h4qd"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_0h4qd")
+
+[node name="GameCanvas" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="GameRenderer" type="CanvasItem" parent="GameCanvas"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_left = 0.0
+anchors_top = 0.0
+anchors_right = 1.0
+anchors_bottom = 1.0

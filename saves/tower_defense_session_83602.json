@@ -1,0 +1,32 @@
+{
+  "session_id": "83602",
+  "wave": 1,
+  "gold": 100,
+  "lives": 20,
+  "score": 0,
+  "tower_grid": {},
+  "seed": 9063,
+  "completed_waves": 0,
+  "game_active": false,
+  "game_paused": false,
+  "game_over": true,
+  "victory": true,
+  "enemies_killed": 0,
+  "enemies_escaped": 0,
+  "total_damage_dealt": 0,
+  "gold_earned": 0,
+  "towers_placed": 0,
+  "statistics": {
+    "session_id": "83602",
+    "total_play_time": 0,
+    "enemies_killed": 0,
+    "enemies_escaped": 0,
+    "total_damage_dealt": 0,
+    "gold_earned": 0,
+    "gold_spent": 0,
+    "towers_placed": 0,
+    "completed_waves": 0,
+    "final_score": 0,
+    "victory": true
+  }
+}

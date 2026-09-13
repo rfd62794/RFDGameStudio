@@ -1,0 +1,22 @@
+{
+  "stable_entries": {
+    "shop_default_1": {
+      "turtle_id": "shop_default_1",
+      "acquisition_day": 1,
+      "acquisition_price": 100.0,
+      "acquisition_method": "purchase",
+      "current_stamina": 80.0,
+      "max_stamina": 100.0,
+      "race_count": 1,
+      "wins": 1,
+      "total_earnings": 200.0,
+      "last_race_day": 2,
+      "active": true
+    }
+  },
+  "owned_turtle_ids": [
+    "shop_default_1"
+  ],
+  "wild_turtle_ids": [],
+  "timestamp": 1770963385.5050976
+}
