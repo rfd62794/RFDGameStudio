@@ -122,3 +122,20 @@ def test_verify_arcade_deploy_runs_tier1_and_tier2(tmp_path, monkeypatch) -> Non
     assert result["games"]["demo"]["render"]["ok"] is True
     assert result["games"]["demo"]["render"]["root_has_content"] is True
     assert (tmp_path / "screenshots" / "demo.png").exists()
+
+
+# ---------------------------------------------------------------------------
+# Site target selection (main site vs games.rfditservices.com)
+# ---------------------------------------------------------------------------
+
+def test_site_targets_main_build_until_games_site_is_configured(tmp_path) -> None:
+    """While the site runs in transitional mode (no deploy_config.games.json),
+    arcade builds are verified in public/ and deployed with the default config."""
+    assert verify_module.games_site_enabled(tmp_path) is False
+    assert verify_module.site_public_dir(tmp_path) == tmp_path / "public"
+
+
+def test_site_targets_games_build_once_configured(tmp_path) -> None:
+    (tmp_path / "deploy_config.games.json").write_text("{}", encoding="utf-8")
+    assert verify_module.games_site_enabled(tmp_path) is True
+    assert verify_module.site_public_dir(tmp_path) == tmp_path / "public-games"

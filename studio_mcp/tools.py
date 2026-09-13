@@ -52,7 +52,7 @@ from studio_mcp.game_metadata import (
 from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
 from studio_mcp.scaffold import studio_scaffold_game
 from studio_mcp.session_store import create_session, get_session
-from studio_mcp.verify import verify_arcade_deploy
+from studio_mcp.verify import games_site_enabled, verify_arcade_deploy
 from studio_mcp.paths import sibling_repo
 
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
@@ -815,8 +815,9 @@ def studio_deploy_arcade() -> dict:
 
             copied_files += sum(1 for _ in demo_target.rglob("*") if _.is_file())
 
-        # The site builds two Hugo sites (main + games studio); arcade builds
-        # live only on the studio site (public-games/).
+        # The site builds two Hugo sites (main + games studio). Arcade builds are
+        # deployed with the games site's config once it exists; before that the
+        # site is in transitional mode and the main site carries the arcade.
         venv_python = _SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe"
         build_proc = subprocess.run(
             [str(venv_python), str(_SITE_REPO_PATH / "scripts" / "site" / "build_all.py")],
@@ -842,7 +843,8 @@ def studio_deploy_arcade() -> dict:
 
         deploy_script = _SITE_REPO_PATH / "deploy_smart.py"
         deploy_proc = subprocess.run(
-            [str(venv_python), str(deploy_script), "deploy_config.games.json"],
+            [str(venv_python), str(deploy_script)]
+            + (["deploy_config.games.json"] if games_site_enabled(_SITE_REPO_PATH) else []),
             cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
             encoding="utf-8", errors="replace",
             # deploy_smart.py prints emoji (🚀, ✓, etc.) — without an explicit

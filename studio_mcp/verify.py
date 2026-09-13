@@ -28,13 +28,27 @@ from studio_mcp.paths import sibling_repo
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SITE_REPO_PATH = sibling_repo("RFD_IT_Services_Site", "SITE_REPO_PATH")
-# Arcade builds are published on the studio site (games.rfditservices.com), built to public-games/.
-PUBLIC_DIR = SITE_REPO_PATH / "public-games"
+PUBLIC_DIR = SITE_REPO_PATH / "public"
+
 SCREENSHOT_DIR = REPO_ROOT / "screenshots" / "arcade-verify"
 
 _HREF_SRC_RE = re.compile(r'(?:src|href)="([^"]+\.(?:js|css))"')
 _GAME_CONFIG_RE = re.compile(r"gameId:\s*['\"]([^'\"]+)['\"]")
 _EMBED_URL_RE = re.compile(r"embedUrl:\s*['\"]([^'\"]+)['\"]")
+
+
+def games_site_enabled(site: Path = SITE_REPO_PATH) -> bool:
+    """True once the site repo is configured to deploy games.rfditservices.com.
+
+    Until then the site runs in transitional mode: the main build (public/)
+    carries the arcade and is deployed with the default deploy config.
+    """
+    return (site / "deploy_config.games.json").exists()
+
+
+def site_public_dir(site: Path = SITE_REPO_PATH) -> Path:
+    """Build output that holds the arcade: public-games/ after rollout, public/ before."""
+    return site / ("public-games" if games_site_enabled(site) else "public")
 
 
 class _LocalServer:
@@ -262,13 +276,15 @@ def check_renders(local_preview_url: str, game_id: str, screenshot_dir: Path) ->
     }
 
 
-def verify_arcade_deploy(public_dir: Path = PUBLIC_DIR, include_render: bool = False) -> dict:
+def verify_arcade_deploy(public_dir: Path | None = None, include_render: bool = False) -> dict:
     """Run Tier 1 and Tier 2 verification over all embedUrl games and the lobby.
 
     Returns a dict with a top-level "ok" summary and a per-game "games" report.
     This intentionally does not raise on failures; the report is folded into
     studio_deploy_arcade() for human review.
     """
+    if public_dir is None:
+        public_dir = site_public_dir()
     if not public_dir.exists():
         return {
             "ok": False,
