@@ -519,14 +519,14 @@ So `engine/systems/combat.lua` is currently loaded by no studio game.
 
 `grep_search` for `BattleBots` (case-insensitive) across the repo found 46 matches in 9 files:
 
-- `docs/directives/RFDGameStudio_Phase2j_Directive.md`
+- `docs/directives/archive/RFDGameStudio_Phase2j_Directive.md`
 - `docs/state/recon_report.md` (the flawed v1 report)
 - `engine/systems/combat.lua`
 - `tests/fixtures/engine/systems/combat.lua`
 - `docs/adr/ADR-006.md`
 - `docs/adr/ADR-007.md`
-- `docs/directives/RFDGameStudio_Recon_Directive.md`
-- `docs/directives/RFDGameStudio_Phase3_Directive.md`
+- `docs/directives/archive/RFDGameStudio_Recon_Directive.md`
+- `docs/directives/archive/RFDGameStudio_Phase3_Directive.md`
 - `docs/sdd/RFDGameStudio_SDD_v0_2.md`
 
 No match appears in any `games/` game logic, `examples/trinity-siege/`, or `examples/scrapcrawl/` source code. BattleBots is referenced only in design documents and the unused `engine/systems/combat.lua` stub.
