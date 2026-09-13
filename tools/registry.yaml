@@ -1,0 +1,16 @@
+tools:
+  - name: "svg-generator"
+    path: "tools/svg-generator/"
+    schema: "schemas/svg-generator.schema.json"
+    model: "claude-3.5-sonnet"  # Default model
+    description: "Generates SVG assets from prompts."
+  - name: "pixel-art-converter"
+    path: "tools/pixel-art-converter/"
+    schema: "schemas/pixel-art-converter.schema.json"
+    model: "dall-e-3"  # Default model
+    description: "Converts images to pixel art."
+  - name: "3d-modeler"
+    path: "tools/3d-modeler/"
+    schema: "schemas/3d-modeler.schema.json"
+    model: "gpt-4o"  # Default model
+    description: "3D modeling component."
