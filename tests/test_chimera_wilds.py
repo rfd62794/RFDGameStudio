@@ -116,15 +116,22 @@ def test_resolve_encounter_boundary_equal_score_is_win() -> None:
 
 
 def test_data_yaml_parts_match_mbb_source_values() -> None:
-    """Copied parts are byte-identical to the real MBB source, not just present."""
+    """Copied parts match the real MBB source on every field Chimera Wilds uses.
+
+    MBB later added MBB-only metadata (brand, qualityTier, cyberOrganicLean;
+    commit 9d23938, "undefined for non-MBB parts"), which Chimera Wilds
+    intentionally does not carry.
+    """
     mbb_data = yaml.safe_load((MBB_DIR / "data.yaml").read_text(encoding="utf-8"))
     cw_data = yaml.safe_load((CW_DIR / "data.yaml").read_text(encoding="utf-8"))
 
     mbb_parts = {p["id"]: p for p in mbb_data["parts"]}
     cw_parts = {p["id"]: p for p in cw_data["parts"]}
+    mbb_only_fields = {"brand", "qualityTier", "cyberOrganicLean"}
 
     for part_id in ["head_basic", "arm_pile", "leg_sprint"]:
-        assert cw_parts[part_id] == mbb_parts[part_id]
+        shared_fields = {k: v for k, v in mbb_parts[part_id].items() if k not in mbb_only_fields}
+        assert cw_parts[part_id] == shared_fields
 
 
 def test_studio_validate_game_chimera_wilds() -> None:

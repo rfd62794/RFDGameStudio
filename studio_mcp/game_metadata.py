@@ -69,6 +69,11 @@ GAME_PATHS: dict[str, list[str]] = {
     "dissonance_prototype": ["ts/src/games/dissonance_prototype"],
     "slimegarden": ["ts/src/games/slimegarden"],
     "factory_idle": ["ts/src/games/factory_idle"],
+    # Added Sep 13 2026: registered in ts/src/games/registry.ts without a
+    # GAME_PATHS entry, so they were absent from game-metadata.json.
+    "wire_rust": ["games/wire_rust", "ts/src/games/wire_rust"],
+    "choke_point": ["games/choke_point", "ts/src/games/choke_point"],
+    "filipino_bpo_simulator": ["ts/src/games/filipino_bpo_simulator", "intake/filipino-bpo-simulator"],
 }
 
 

@@ -16,6 +16,7 @@ const EXPECTED_ORDER = [
   'scrapcrawl',
   'wire_rust',
   'choke_point',
+  'filipino_bpo_simulator',
   'ledger',
   'trinity_siege',
   '7_days_to_fry',
@@ -151,7 +152,8 @@ describe('Arcade Registry Directive — July 2026', () => {
   });
 
   it('test_registry_total_count_includes_legacy_origin_projects', () => {
-    // 27 pre-existing entries + 5 Legacy/Origin Projects (ADR-023).
-    expect(GAME_REGISTRY.length).toBe(32);
+    // 27 pre-existing entries + 5 Legacy/Origin Projects (ADR-023)
+    // + filipino_bpo_simulator (Call Center Tycoon, Sep 2026).
+    expect(GAME_REGISTRY.length).toBe(33);
   });
 });
