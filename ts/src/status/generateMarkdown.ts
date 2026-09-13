@@ -130,7 +130,7 @@ export function generateMarkdown(entries: ProjectEntry[]): string {
   sections.push('| Guided First-Action Walkthrough | Single instance, watching | `planetofgreed/GuidedWalkthrough.tsx` — guides real gameplay decisions with state-derived defaults. Not extracted yet — watching for a second independent build |');
   sections.push('| Shared logic (`ts/src/engine/shared/`) | Active, first-class | ADR-014: shared engine modules are the default, not demand-gated |');
   sections.push('| `artGen` module | Built AND consumed | Consumed by Shoal (canvas paths, hunger-aware specs) and SlimeWorld (seeded random, polygon generation) — ADR-014 proof case |');
-  sections.push('| Standalone publishing pipeline + `RFD_IT_Publishing` | Working | 7 games packaged, Butler-based, real analytics confirmed |');
+  sections.push('| Standalone publishing pipeline + `packages/itch_publisher` | Working | 7 games packaged, Butler-based, real analytics confirmed |');
   sections.push('| Rust runtime (mlua bridge) | **Confirmed Far Future Dream** | Not active roadmap — VoidDrift remains fully separate native Rust |');
   sections.push('| Bevy vs. egui (studio-wide Rust graphical layer) | Open, deprioritized | Low priority — see Trinity Siege\'s row above |');
   sections.push('');

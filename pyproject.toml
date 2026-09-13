@@ -15,7 +15,14 @@ dependencies = [
     "pygame>=2.5",
     "pygame_gui>=0.6.9,<0.6.10",
     "playwright>=1.61.0",
+    "itch-publisher",
 ]
+
+[tool.uv.sources]
+itch-publisher = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/itch_publisher"]
 
 [dependency-groups]
 dev = [
@@ -23,7 +30,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "studio_mcp/pipeline_audit/tests", "studio_mcp/zip_verify/tests"]
+testpaths = ["tests", "studio_mcp/pipeline_audit/tests", "studio_mcp/zip_verify/tests", "packages/itch_publisher/tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "e2e: L3 headless playthrough smoke tests — real browser, real dev server (deselect with '-m \"not e2e\"')",

@@ -124,7 +124,7 @@ def _format_as_markdown(report: dict) -> str:
         lines.append(f"- `{s}`: {count}")
 
     lines.append("")
-    lines.append("**RFD_IT_Publishing hits:**")
+    lines.append("**packages/itch_publisher hits:**")
     for s, count in issues["cross_pipeline_version_tracking"]["publishing_counts"].items():
         lines.append(f"- `{s}`: {count}")
 

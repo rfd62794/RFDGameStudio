@@ -1,29 +1,23 @@
-import json
-import subprocess
-import yaml
+"""Push HTML5 builds to itch.io with butler."""
+
+from __future__ import annotations
+
 import os
+import subprocess
+from collections.abc import Callable
 from pathlib import Path
 
-# Pipeline Stage Tracking (additive, August 2026): RFDGameStudio's
-# ts/src/games/game-metadata.json is the real source of truth for where a
-# game sits in the AI Studio -> website -> itch.io sequence. This repo is
-# separate from RFDGameStudio, so the path is configurable via env var with
-# the same "sensible default, overridable" convention already used by
-# RFDGameStudio's own SITE_REPO_PATH.
-_RFDGAMESTUDIO_PATH = Path(os.environ.get("RFDGAMESTUDIO_PATH", r"C:\Github\RFDGameStudio"))
-_GAME_METADATA_PATH = _RFDGAMESTUDIO_PATH / "ts" / "src" / "games" / "game-metadata.json"
+from .config import load_game_config
 
-# games.yaml game name -> game-metadata.json game_id, where they differ.
-# Confirmed real mismatch this session: games.yaml uses "voidrift",
-# game-metadata.json/GAME_PATHS uses "voiddrift".
-_GAME_ID_ALIASES = {"voidrift": "voiddrift"}
+# Called as on_published(game_name, version) after a confirmed successful push.
+PublishedHook = Callable[[str, str | None], None]
 
 
 def _is_dist_stale(dist_dir: Path, source_dir: Path) -> bool:
     """Compare dist/'s newest file against source's newest real file.
 
     Returns True if dist/ predates the source it's supposed to represent.
-    A missing dist_dir is treated as stale by the caller.
+    A missing dist_dir is treated as stale.
     """
     if not dist_dir.exists():
         return True
@@ -41,28 +35,6 @@ def _read_version(version_file: Path) -> str | None:
     return None
 
 
-def _mark_itch_published(game_name: str, version: str | None = None) -> None:
-    """Best-effort: record game_name as itch_published in RFDGameStudio's
-    game-metadata.json. Called only after a real, confirmed successful
-    butler push (never on dry_run, never on failure). Never raises — a
-    metadata-write problem must not be reported as a publish failure, and
-    must not block the real push this function's caller already completed.
-    """
-    try:
-        if not _GAME_METADATA_PATH.exists():
-            return
-        data = json.loads(_GAME_METADATA_PATH.read_text(encoding="utf-8"))
-        game_id = _GAME_ID_ALIASES.get(game_name, game_name)
-        if not isinstance(data, dict) or game_id not in data:
-            return
-        data[game_id]["pipeline_stage"] = "itch_published"
-        if version:
-            data[game_id]["deployed_version"] = version
-        _GAME_METADATA_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    except Exception:
-        pass
-
-
 def check_butler() -> bool:
     """Verify butler is installed. Returns True if found."""
     try:
@@ -78,34 +50,40 @@ def check_butler() -> bool:
         return False
 
 
-def load_game_config(game_name: str) -> dict:
+def _notify(on_published: PublishedHook | None, game_name: str, version: str | None) -> None:
+    """Run the caller's post-publish hook.
+
+    The push has already succeeded, so a hook error is printed but never turns
+    it into a reported failure.
     """
-    Load game entry from config/games.yaml.
-    Raises KeyError if game_name not found.
-    """
-    config_path = os.path.join(os.path.dirname(__file__), "..", "config", "games.yaml")
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    
-    if game_name not in config["games"]:
-        raise KeyError(f"Game not found: {game_name}")
-    
-    return config["games"][game_name]
+    if on_published is None:
+        return
+    try:
+        on_published(game_name, version)
+    except Exception as exc:
+        print(f"Warning: post-publish hook failed for {game_name}: {exc}")
 
 
-def push(game_name: str, dry_run: bool = False) -> bool:
-    """
-    Push build to itch.io via Butler.
+def push(
+    game_name: str,
+    config_path: str | os.PathLike[str] | None = None,
+    dry_run: bool = False,
+    on_published: PublishedHook | None = None,
+) -> bool:
+    """Push a game's build to itch.io via butler.
 
     Args:
         game_name: Key from games.yaml
+        config_path: Path to games.yaml (see config.resolve_config_path)
         dry_run: If True, print command without executing
+        on_published: Called with (game_name, version) only after a real,
+            successful push
 
     Returns:
-        True on success, False on failure
+        True on success (or dry run), False on failure
     """
     try:
-        game_config = load_game_config(game_name)
+        game_config = load_game_config(game_name, config_path)
     except KeyError as e:
         print(f"Error: {e}")
         return False
@@ -136,13 +114,14 @@ def push(game_name: str, dry_run: bool = False) -> bool:
 
     try:
         result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace")
-        if result.returncode == 0:
-            print(f"Successfully pushed {game_name} to itch.io")
-            _mark_itch_published(game_name, version=version)
-            return True
-        else:
-            print(f"Failed to push {game_name}: {result.stderr}")
-            return False
     except FileNotFoundError:
         print("Error: butler not found. Install from https://itch.io/docs/butler/")
         return False
+
+    if result.returncode != 0:
+        print(f"Failed to push {game_name}: {result.stderr}")
+        return False
+
+    print(f"Successfully pushed {game_name} to itch.io")
+    _notify(on_published, game_name, version)
+    return True

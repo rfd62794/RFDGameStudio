@@ -1,0 +1,12 @@
+games:
+  shoal:
+    itchio_slug: rdug627/shoal
+    channel: html5
+    build_dir: builds/dist-shoal
+    source_dir: src/shoal
+    version_file: src/shoal/VERSION
+
+  slimeworld:
+    itchio_slug: rdug627/slimeworld
+    channel: html5
+    build_dir: builds/dist-slimeworld

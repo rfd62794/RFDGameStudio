@@ -1,28 +1,36 @@
 # Publishing a Game
 
-This repo does not deploy games. Publishing (the `butler push` to itch.io)
-is owned by a sibling repo, `RFD_IT_Publishing`, and lives entirely there —
-this repo has no deploy logic and does not shell out to itch.io directly.
+itch.io publishing (the `butler push`) is done by the self-contained
+`itch_publisher` package in
+[`packages/itch_publisher`](../packages/itch_publisher/README.md). It was
+merged in from the former `RFD_IT_Publishing` repo with its history, and it
+must never import studio code (enforced by
+`tests/test_itch_publisher_boundary.py`) so it can be split back out later.
 
-The interface between the two repos is
-`ts/src/games/game-metadata.json`. `RFD_IT_Publishing` writes a
-`pipeline_stage` update into it after a real, confirmed successful push;
-it never reads it to decide *how* to deploy (that config lives in
-`RFD_IT_Publishing/config/games.yaml`, in the other repo). See
-[`PUBLISHING_CONTRACT.md`](PUBLISHING_CONTRACT.md) for the full, verified
-shape of that file.
+The studio-specific parts live outside the package:
+
+- `publishing/games.yaml` — which games publish where (itch.io slug, channel,
+  build folder). Keys match the `game_id`s in `ts/src/games/game-metadata.json`.
+- `studio_mcp/publishing.py` — calls the package and passes a post-publish
+  hook that marks the game `itch_published` and records `deployed_version`
+  after a confirmed successful push. See
+  [`PUBLISHING_CONTRACT.md`](PUBLISHING_CONTRACT.md) for the metadata shape.
 
 To publish:
 
-1. Confirm your game's entry passes `studio/publish_validator.py`:
+1. Build the game, e.g. `npm run build:shoal` in `ts/`. A push is refused when
+   the build folder is older than the game's source.
+2. Dry run — validates the metadata entry and prints the butler command:
    ```bash
-   python -c "from studio.publish_validator import validate_publish_metadata; validate_publish_metadata('shoal')"
+   uv run python scripts/publish.py shoal
    ```
-2. Run `python scripts/publish.py {game_id}` — it validates the entry, then
-   prints the real `RFD_IT_Publishing` command that performs the push (and
-   will run it directly with `--execute`, if that repo is found at the
-   expected path).
+3. Push for real (run `butler login` once beforehand):
+   ```bash
+   uv run python scripts/publish.py shoal --execute
+   ```
 
-`scripts/publish.py` and this document only validate and point at the real
-publish command. All Butler/itch.io logic — credentials, the actual push,
-`config/games.yaml` — stays in `RFD_IT_Publishing`, unchanged.
+To compare source, deployed and live itch.io versions for every game:
+
+```bash
+uv run itch-publisher --config publishing/games.yaml report --metadata ts/src/games/game-metadata.json
+```

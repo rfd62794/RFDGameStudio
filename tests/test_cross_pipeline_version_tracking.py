@@ -115,12 +115,8 @@ def test_deployed_version_carried_forward_in_generate_game_metadata():
 
 
 def test_games_yaml_no_placeholder_entries():
-    """RFD_IT_Publishing games.yaml no longer contains antsim or greengap."""
-    publishing_root = Path(__file__).resolve().parent.parent / ".." / "RFD_IT_Publishing"
-    publishing_root = publishing_root.resolve()
-    yaml_path = publishing_root / "config" / "games.yaml"
-    if not yaml_path.exists():
-        pytest.skip("RFD_IT_Publishing not present in this checkout")
+    """publishing/games.yaml no longer contains antsim or greengap."""
+    yaml_path = Path(__file__).resolve().parent.parent / "publishing" / "games.yaml"
     import yaml
     config = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
     games = config.get("games", {})

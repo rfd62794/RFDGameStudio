@@ -7,7 +7,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 TOOLS_PATH = REPO_ROOT / "studio_mcp" / "tools.py"
-PUBLISHING_ROOT = Path(r"C:\Github\RFD_IT_Publishing")
+PUBLISHING_ROOT = REPO_ROOT / "packages" / "itch_publisher"
 
 
 def _read_text(path: Path) -> str:
@@ -152,7 +152,7 @@ def check_cross_pipeline_version_tracking(
         "details": (
             "No real implementation hits for any of the three version-tracking strings."
             if total == 0
-            else "Version-tracking strings found, but not in RFD_IT_Publishing."
+            else "Version-tracking strings found, but not in packages/itch_publisher."
             if status == "partial"
             else "Version-tracking strings appear to be implemented."
         ),

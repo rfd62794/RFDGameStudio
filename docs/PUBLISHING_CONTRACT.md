@@ -3,24 +3,25 @@
 This documents the real, confirmed shape `ts/src/games/game-metadata.json`
 must have for the itch.io publish flow to work. It is derived from reading:
 
-- `RFD_IT_Publishing/targets/itchio.py` (`_mark_itch_published`, lines 22–39;
-  `_GAME_METADATA_PATH` / `_GAME_ID_ALIASES`, lines 13–19)
-- `RFD_IT_Publishing/publisher.py` (`deploy` command, lines 13–37)
-- `RFD_IT_Publishing/config/games.yaml`
+- `studio_mcp/publishing.py` (`mark_itch_published`, the post-publish hook
+  passed to `itch_publisher.push`)
+- `packages/itch_publisher/src/itch_publisher/itchio.py` (`push`, which calls
+  the hook only after a confirmed successful `butler push`)
+- `publishing/games.yaml`
 - `studio_mcp/game_metadata.py` (`generate_game_metadata`,
-  `advance_pipeline_stage`), which is what actually generates this file in
-  RFDGameStudio
+  `advance_pipeline_stage`, `record_deployed_version`), which generates and
+  updates this file
 
-**Correction to a common assumption:** `publisher.py deploy` does **not**
-read `game-metadata.json` to decide how to deploy a game. Deployment
-parameters (`build_dir`, `itchio_slug`, `channel`) come entirely from
-`RFD_IT_Publishing/config/games.yaml`, which is edited independently in that
-repo. `game-metadata.json` is **write-back only** in the publish direction:
-after a real, confirmed successful `butler push`, `targets/itchio.py`'s
-`_mark_itch_published` opens `game-metadata.json` and sets
-`pipeline_stage: "itch_published"` on the matching entry, purely for
-pipeline-stage tracking. It never raises and never blocks a real push if the
-write fails or the entry is missing — the field exists for status reporting
+**Correction to a common assumption:** the itch.io push does **not** read
+`game-metadata.json` to decide how to deploy a game. Deployment parameters
+(`build_dir`, `itchio_slug`, `channel`) come entirely from
+`publishing/games.yaml`. `game-metadata.json` is **write-back only** in the
+publish direction: after a real, confirmed successful `butler push`,
+`itch_publisher.push` calls the studio's `mark_itch_published` hook, which sets
+`pipeline_stage: "itch_published"` (and `deployed_version`, when the build has
+a `VERSION` file) on the matching entry, purely for pipeline-stage tracking. A
+hook failure is printed but never reported as a publish failure, and a missing
+entry is ignored — the field exists for status reporting
 (`scripts/pipeline_status.py`), not for gating deploys.
 
 ## Required shape
@@ -36,7 +37,7 @@ depends on.
 | `last_updated` | `string` (ISO 8601, or `""`) | Most recent git commit date touching the game's paths | `"2026-07-28T22:40:50-04:00"` |
 | `version` | `string` | Contents of the game's `VERSION` file, or `"0.1.0"` default | `"2.31.0"` |
 | `tracked` | `boolean` | Whether git history was actually found for this game | `true` |
-| `pipeline_stage` | `string`, one of `"ai_studio"` \| `"website_collection"` \| `"itch_published"` | Where the game sits in the AI Studio → website → itch.io sequence; the field `_mark_itch_published` writes to after a real push | `"itch_published"` |
+| `pipeline_stage` | `string`, one of `"ai_studio"` \| `"website_collection"` \| `"itch_published"` | Where the game sits in the AI Studio → website → itch.io sequence; the field `mark_itch_published` writes to after a real push | `"itch_published"` |
 | `pipeline_flag` *(optional)* | `string` | Free-text flag for a real, live-confirmed regression (e.g. a broken itch.io push); reported separately by `scripts/pipeline_status.py`, never absorbed into `pipeline_stage` | *(not present on any current entry)* |
 
 `pipeline_stage` defaults to `"ai_studio"` when generated fresh
@@ -45,27 +46,16 @@ from `itch_published` back to `website_collection` is refused by
 `advance_pipeline_stage`. Re-publishing to itch.io after already being
 `itch_published` is allowed (not a regression).
 
-## `game_id` naming: two different key sets
+## `game_id` naming
 
-The `game_id` used in `game-metadata.json` (and in this repo's
-`studio_mcp/game_metadata.py:GAME_PATHS`) is not always the same string as
-the `game_name` key used in `RFD_IT_Publishing/config/games.yaml`. Only one
-mismatch is currently known and aliased in code
-(`targets/itchio.py:_GAME_ID_ALIASES`):
+Keys in `publishing/games.yaml` are the same `game_id`s used in
+`game-metadata.json` and `studio_mcp/game_metadata.py:GAME_PATHS`, so no alias
+table is needed. VoidDrift's key is `voiddrift`; only its itch.io slug keeps
+the old spelling, `rdug627/voidrift`.
 
-| `game-metadata.json` (`game_id`) | `games.yaml` (`game_name`) |
-|---|---|
-| `voiddrift` | `voidrift` |
-
-Every other overlapping key (`brewfield`, `shoal`, `chimera_wilds`,
-`mutant_battle_ball`, `scrapcrawl`, `slime_coin`) is identical in both
-files. `games.yaml` also lists `antsim`, `greengap`, `slimeworld`, and
-`dissonance` — none of which currently have a `game-metadata.json` entry
-(they are not present in `studio_mcp/game_metadata.py:GAME_PATHS`). Publishing
-those games today happens outside this pipeline-stage-tracking path; the
-`butler push` itself is unaffected (it never depended on `game-metadata.json`
-in the first place), but no `pipeline_stage` write-back or
-`publish_validator` pass is possible for them until an entry exists.
+A game listed in `publishing/games.yaml` without a `game-metadata.json` entry
+can still be pushed with `itch-publisher` directly, but `scripts/publish.py`'s
+validation and the `pipeline_stage` write-back both need an entry to exist.
 
 ## Example: a full, valid entry
 
