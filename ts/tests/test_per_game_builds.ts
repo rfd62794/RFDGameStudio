@@ -86,7 +86,7 @@ describe('Per-game standalone builds', () => {
 
   it('test_publishing_config_entries_valid', () => {
     const cfg = readFileSync(
-      resolve(import.meta.dirname, '../../../RFD_IT_Publishing/config/games.yaml'),
+      resolve(import.meta.dirname, '../../publishing/games.yaml'),
       'utf8'
     );
     for (const game of GAMES) {

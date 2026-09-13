@@ -2,6 +2,12 @@ version = 1
 revision = 3
 requires-python = "==3.12.*"
 
+[manifest]
+members = [
+    "itch-publisher",
+    "rfdgamestudio",
+]
+
 [[package]]
 name = "annotated-doc"
 version = "0.0.4"
@@ -229,6 +235,29 @@ sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
 ]
+
+[[package]]
+name = "itch-publisher"
+version = "0.2.0"
+source = { editable = "packages/itch_publisher" }
+dependencies = [
+    { name = "click" },
+    { name = "pyyaml" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "click", specifier = ">=8.0" },
+    { name = "pyyaml", specifier = ">=6.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.0" }]
 
 [[package]]
 name = "jsonschema"
@@ -593,6 +622,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "itch-publisher" },
     { name = "lupa" },
     { name = "mcp" },
     { name = "playwright" },
@@ -610,6 +640,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "itch-publisher", editable = "packages/itch_publisher" },
     { name = "lupa", specifier = ">=2.0" },
     { name = "mcp", specifier = ">=1.0.0,<2" },
     { name = "playwright", specifier = ">=1.61.0" },

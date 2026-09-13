@@ -1,8 +1,10 @@
-"""scripts/publish.py — Entry point for publishing a game from
-RFDGameStudio. Does NOT perform deployment itself — validates the
-game-metadata.json contract (see docs/PUBLISHING_CONTRACT.md), then prints
-the real command that does, in the sibling `RFD_IT_Publishing` repo. Only
-runs that command itself if explicitly asked with --execute.
+"""scripts/publish.py — Publish a game from RFDGameStudio to itch.io.
+
+Validates the game's game-metadata.json entry (see docs/PUBLISHING_CONTRACT.md),
+then pushes its build with the in-repo ``itch_publisher`` package using
+publishing/games.yaml. Dry run by default: prints the butler command without
+running it. Pass --execute to push for real; on success the game is marked
+itch_published in game-metadata.json.
 
 See docs/PUBLISHING.md for the full picture.
 """
@@ -10,22 +12,13 @@ See docs/PUBLISHING.md for the full picture.
 from __future__ import annotations
 
 import argparse
-import os
-import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from studio.publish_validator import PublishValidationError, validate_publish_metadata
-
-# game-metadata.json's game_id -> RFD_IT_Publishing/config/games.yaml's
-# game_name, where they differ. Confirmed real mismatch (the reverse of
-# RFD_IT_Publishing/targets/itchio.py's _GAME_ID_ALIASES):
-# game-metadata.json uses "voiddrift", games.yaml uses "voidrift".
-_GAME_NAME_ALIASES = {"voiddrift": "voidrift"}
-
-_PUBLISHING_REPO = Path(os.environ.get("RFD_IT_PUBLISHING_PATH", r"C:\Github\RFD_IT_Publishing"))
+from studio_mcp.publishing import publish_to_itch
 
 
 def main(game_id: str, execute: bool) -> int:
@@ -35,21 +28,9 @@ def main(game_id: str, execute: bool) -> int:
         print(f"Validation failed: {exc}")
         return 1
 
-    game_name = _GAME_NAME_ALIASES.get(game_id, game_id)
-    command = ["python", "publisher.py", "deploy", game_name, "--target", "itchio"]
-    print(f"cd {_PUBLISHING_REPO} && {' '.join(command)}")
-
     if not execute:
-        print("(dry: pass --execute to actually run this, with RFD_IT_Publishing's own butler setup)")
-        return 0
-
-    if not (_PUBLISHING_REPO / "publisher.py").exists():
-        print(f"Cannot execute: publisher.py not found under {_PUBLISHING_REPO}")
-        return 1
-
-    print(f"Running: {' '.join(command)} (cwd={_PUBLISHING_REPO})")
-    result = subprocess.run(command, cwd=str(_PUBLISHING_REPO))
-    return result.returncode
+        print("(dry run: pass --execute to push for real)")
+    return 0 if publish_to_itch(game_id, dry_run=not execute) else 1
 
 
 if __name__ == "__main__":
@@ -58,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--execute",
         action="store_true",
-        help="Actually run the publish command in RFD_IT_Publishing, instead of only printing it.",
+        help="Actually push to itch.io with butler, instead of printing the command.",
     )
     args = parser.parse_args()
     sys.exit(main(args.game_id, args.execute))
