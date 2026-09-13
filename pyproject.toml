@@ -27,6 +27,7 @@ members = ["packages/itch_publisher"]
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "pytest-rerunfailures>=16.6.1",
 ]
 
 [tool.pytest.ini_options]
