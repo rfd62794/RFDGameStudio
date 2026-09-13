@@ -169,7 +169,7 @@ def test_write_arcade_index_creates_file(tmp_path, monkeypatch) -> None:
     result = studio_write_arcade_index("RFDGameStudio", "Four games, one engine.")
 
     assert "error" not in result
-    index_path = tmp_path / "content" / "games" / "rfdgamestudio" / "_index.md"
+    index_path = tmp_path / "content-studio" / "studio" / "_index.md"
     assert index_path.exists()
     text = index_path.read_text(encoding="utf-8")
     assert 'title: "RFDGameStudio"' in text
@@ -195,7 +195,7 @@ def test_write_arcade_page_rejects_unknown_game_id(tmp_path, monkeypatch) -> Non
     assert "error" in result
     assert "not_a_real_game" in result["error"]
     # No file should have been written
-    assert not (tmp_path / "content" / "games" / "rfdgamestudio" / "fake-game.md").exists()
+    assert not (tmp_path / "content-studio" / "studio" / "fake-game.md").exists()
 
 
 # ---------------------------------------------------------------------------
@@ -217,7 +217,7 @@ def test_write_arcade_page_creates_file_with_demo_link(tmp_path, monkeypatch) ->
     )
 
     assert "error" not in result
-    page_path = tmp_path / "content" / "games" / "rfdgamestudio" / "horse-racing.md"
+    page_path = tmp_path / "content-studio" / "studio" / "horse-racing.md"
     assert page_path.exists()
     text = page_path.read_text(encoding="utf-8")
     assert 'demo_link: "/arcade/rfdgamestudio/?game=horse_racing"' in text

@@ -28,7 +28,8 @@ from studio_mcp.paths import sibling_repo
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SITE_REPO_PATH = sibling_repo("RFD_IT_Services_Site", "SITE_REPO_PATH")
-PUBLIC_DIR = SITE_REPO_PATH / "public"
+# Arcade builds are published on the studio site (games.rfditservices.com), built to public-games/.
+PUBLIC_DIR = SITE_REPO_PATH / "public-games"
 SCREENSHOT_DIR = REPO_ROOT / "screenshots" / "arcade-verify"
 
 _HREF_SRC_RE = re.compile(r'(?:src|href)="([^"]+\.(?:js|css))"')

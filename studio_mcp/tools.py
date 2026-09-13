@@ -580,7 +580,7 @@ _KNOWN_GAME_IDS = {"horse_racing", "slither_rogue", "mutant_battle_ball", "slime
 
 
 def studio_write_arcade_index(title: str, description: str) -> dict:
-    """Write content/games/rfdgamestudio/_index.md in the site repo.
+    """Write content-studio/studio/_index.md (the studio site's RFDGameStudio page) in the site repo.
 
     Bundle index page — no relation to SECTION_SCHEMAS['games'], which
     is a leaf-page schema. Only title and description required, matching
@@ -589,7 +589,7 @@ def studio_write_arcade_index(title: str, description: str) -> dict:
     Returns: {"path": str}
     """
     try:
-        bundle_dir = _SITE_REPO_PATH / "content" / "games" / "rfdgamestudio"
+        bundle_dir = _SITE_REPO_PATH / "content-studio" / "studio"
         bundle_dir.mkdir(parents=True, exist_ok=True)
         index_path = bundle_dir / "_index.md"
         content = f"---\ntitle: \"{title}\"\ndescription: \"{description}\"\n---\n"
@@ -607,7 +607,7 @@ def studio_write_arcade_page(
     engine: str | None = None,
     controls_hint: str | None = None,
 ) -> dict:
-    """Write one child page under content/games/rfdgamestudio/ in the site repo.
+    """Write one child page under content-studio/studio/ in the site repo.
 
     game_id must exist in the TS GAME_REGISTRY — checked against the known
     set: horse_racing, slither_rogue, mutant_battle_ball, slime_coin.
@@ -623,7 +623,7 @@ def studio_write_arcade_page(
             "tool": "studio_write_arcade_page",
         }
     try:
-        bundle_dir = _SITE_REPO_PATH / "content" / "games" / "rfdgamestudio"
+        bundle_dir = _SITE_REPO_PATH / "content-studio" / "studio"
         bundle_dir.mkdir(parents=True, exist_ok=True)
         page_path = bundle_dir / f"{slug}.md"
 
@@ -815,9 +815,11 @@ def studio_deploy_arcade() -> dict:
 
             copied_files += sum(1 for _ in demo_target.rglob("*") if _.is_file())
 
-        hugo_exe = _SITE_REPO_PATH / "hugo.exe"
+        # The site builds two Hugo sites (main + games studio); arcade builds
+        # live only on the studio site (public-games/).
+        venv_python = _SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe"
         build_proc = subprocess.run(
-            [str(hugo_exe), "--minify"],
+            [str(venv_python), str(_SITE_REPO_PATH / "scripts" / "site" / "build_all.py")],
             cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
             encoding="utf-8", errors="replace",
         )
@@ -838,10 +840,9 @@ def studio_deploy_arcade() -> dict:
                 "games": {},
             }
 
-        venv_python = _SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe"
         deploy_script = _SITE_REPO_PATH / "deploy_smart.py"
         deploy_proc = subprocess.run(
-            [str(venv_python), str(deploy_script)],
+            [str(venv_python), str(deploy_script), "deploy_config.games.json"],
             cwd=str(_SITE_REPO_PATH), capture_output=True, text=True,
             encoding="utf-8", errors="replace",
             # deploy_smart.py prints emoji (🚀, ✓, etc.) — without an explicit
