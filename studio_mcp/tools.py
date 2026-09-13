@@ -53,10 +53,11 @@ from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
 from studio_mcp.scaffold import studio_scaffold_game
 from studio_mcp.session_store import create_session, get_session
 from studio_mcp.verify import verify_arcade_deploy
+from studio_mcp.paths import sibling_repo
 
 _GAMES_DIR = Path(os.environ.get("GAMES_DIR", str(Path(__file__).parent.parent / "games")))
 
-_SITE_REPO_PATH = Path(os.environ.get("SITE_REPO_PATH", r"C:\Github\RFD_IT_Services_Site"))
+_SITE_REPO_PATH = sibling_repo("RFD_IT_Services_Site", "SITE_REPO_PATH")
 
 
 def _to_lua_table(lua_runtime, obj):
@@ -658,7 +659,7 @@ _DEMO_STATIC_NAME = {
 }
 
 _DEMO_EXTERNAL_PATHS: dict[str, Path] = {
-    "slimebreeder": Path(r"C:\Github\SlimeBreeder"),
+    "slimebreeder": sibling_repo("SlimeBreeder"),
 }
 
 

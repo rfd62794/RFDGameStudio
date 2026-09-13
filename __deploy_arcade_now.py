@@ -1,6 +1,8 @@
 import json
 import sys
-sys.path.insert(0, r"C:\Github\RFDGameStudio")
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from studio_mcp.tools import studio_deploy_arcade
 
 result = studio_deploy_arcade()

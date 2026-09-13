@@ -24,8 +24,10 @@ from urllib.request import Request, urlopen
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
+from studio_mcp.paths import sibling_repo
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SITE_REPO_PATH = Path(os.environ.get("SITE_REPO_PATH", r"C:\Github\RFD_IT_Services_Site"))
+SITE_REPO_PATH = sibling_repo("RFD_IT_Services_Site", "SITE_REPO_PATH")
 PUBLIC_DIR = SITE_REPO_PATH / "public"
 SCREENSHOT_DIR = REPO_ROOT / "screenshots" / "arcade-verify"
 

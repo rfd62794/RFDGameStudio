@@ -13,10 +13,11 @@ import re
 from pathlib import Path
 from typing import Any
 
+from studio_mcp.paths import sibling_repo
 from studio_mcp.zip_verify.openrouter_client import OpenRouterClient
 
-# Path to the anyCreature fork's cards directory.
-ANYCREATURE_ROOT = Path(r"C:\Github\anyCreature")
+# Path to the anyCreature fork (cards, harness presets).
+ANYCREATURE_ROOT = sibling_repo("anyCreature", "ANYCREATURE_ROOT")
 SYNTAX_PATH = ANYCREATURE_ROOT / "cards" / "SYNTAX.md"
 PRESETS_PATH = ANYCREATURE_ROOT / "harness" / "presets"
 

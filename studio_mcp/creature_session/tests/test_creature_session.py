@@ -103,8 +103,12 @@ def test_blind_reader_payload_contains_no_designer_context():
 
 def test_blind_reader_question_matches_card_verbatim():
     """The question text sent to the model must match cards/01_LOW.md §4 exactly."""
-    # Read the real card file
-    card_path = Path(r"C:\Github\anyCreature\cards\01_LOW.md")
+    # Read the real card file from the sibling anyCreature checkout.
+    from studio_mcp.creature_session.spec_writer import ANYCREATURE_ROOT
+
+    card_path = ANYCREATURE_ROOT / "cards" / "01_LOW.md"
+    if not card_path.exists():
+        pytest.skip(f"anyCreature checkout not found at {ANYCREATURE_ROOT}")
     card_text = card_path.read_text(encoding="utf-8")
 
     # Extract the Gate 1 question block from the card (lines 34-37)
