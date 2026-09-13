@@ -10,6 +10,16 @@ from studio_mcp.zip_verify.revision_diff import diff_revision, find_prior_revisi
 INTAKE_DIR = Path(__file__).resolve().parents[3] / "intake"
 
 
+def _requires_intake_zip(relative: str):
+    """Intake zips are gitignored (intake/**/*.zip), so tests against real
+    zips only run where they exist locally — they skip in a fresh clone or CI."""
+    return pytest.mark.skipif(
+        not (INTAKE_DIR / relative).exists(),
+        reason=f"local-only intake zip not present: intake/{relative}",
+    )
+
+
+@_requires_intake_zip("antsim-redux/antsim-redux_v0.1.0R1.zip")
 def test_revision_diff_handles_single_revision():
     zip_path = INTAKE_DIR / "antsim-redux" / "antsim-redux_v0.1.0R1.zip"
     assert zip_path.exists()
@@ -19,6 +29,7 @@ def test_revision_diff_handles_single_revision():
     assert "simulation" in str(result["files"])
 
 
+@_requires_intake_zip("corpworld/corpworld_v0.1.0R5.zip")
 def test_find_prior_revision_for_corpworld():
     r5 = INTAKE_DIR / "corpworld" / "corpworld_v0.1.0R5.zip"
     assert r5.exists()
@@ -27,6 +38,7 @@ def test_find_prior_revision_for_corpworld():
     assert "corpworld_v0.1.0R" in prior.name
 
 
+@_requires_intake_zip("corpworld/corpworld_v0.1.0R5.zip")
 def test_revision_diff_finds_real_diff_across_revisions():
     r5 = INTAKE_DIR / "corpworld" / "corpworld_v0.1.0R5.zip"
     result = diff_revision(r5)
