@@ -1,0 +1,2 @@
+Import error: cannot import name 'TestHarness' from 'tests.integration.test_validation_harness' (C:\Github\rpgCore\tests\integration\test_validation_harness\__init__.py)
+Make sure you're running from the project root directory

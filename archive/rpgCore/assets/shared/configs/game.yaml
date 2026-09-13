@@ -1,0 +1,21 @@
+# Main Game Configuration
+# Loaded by ConfigManager at startup
+
+game:
+  name: "DGT Platform Demo"
+  version: "0.1.0"
+  target_fps: 60
+  debug_mode: false
+
+display:
+  width: 160
+  height: 144
+  scale: 4
+  fullscreen: false
+  title: "DGT Platform"
+
+audio:
+  master_volume: 0.8
+  music_volume: 0.6
+  sfx_volume: 1.0
+  enabled: true

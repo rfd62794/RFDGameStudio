@@ -1,0 +1,187 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Github\rpgCore
+configfile: pyproject.toml
+testpaths: tests/unit
+collected 79 items / 16 errors
+
+=================================== ERRORS ====================================
+______________ ERROR collecting tests/unit/configuration_test.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\configuration_test.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\configuration_test.py:3: in <module>
+    from src.game_engine.foundation.config_schemas import GameConfig, PhysicsConfig, GraphicsConfig
+E   ModuleNotFoundError: No module named 'src'
+____________ ERROR collecting tests/unit/foundation_assets_test.py ____________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\foundation_assets_test.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\foundation_assets_test.py:4: in <module>
+    from src.game_engine.foundation.asset_registry import AssetRegistry, AssetType, Asset
+E   ModuleNotFoundError: No module named 'src'
+__________ ERROR collecting tests/unit/slime_clan_autobattle_test.py __________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\slime_clan_autobattle_test.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\slime_clan_autobattle_test.py:2: in <module>
+    from src.apps.slime_clan.auto_battle import (
+E   ModuleNotFoundError: No module named 'src'
+__________ ERROR collecting tests/unit/slime_clan_overworld_test.py ___________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\slime_clan_overworld_test.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\slime_clan_overworld_test.py:2: in <module>
+    from src.apps.slime_clan.overworld import NodeState, MapNode
+E   ModuleNotFoundError: No module named 'src'
+_______________ ERROR collecting tests/unit/test_asset_cache.py _______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_asset_cache.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_asset_cache.py:16: in <module>
+    from src.game_engine.foundation.asset_system.asset_cache import AssetCache
+E   ModuleNotFoundError: No module named 'src'
+______________ ERROR collecting tests/unit/test_asset_loaders.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_asset_loaders.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_asset_loaders.py:19: in <module>
+    from src.game_engine.foundation.asset_system.asset_loaders import (
+E   ModuleNotFoundError: No module named 'src'
+_____________ ERROR collecting tests/unit/test_asset_registry.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_asset_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_asset_registry.py:13: in <module>
+    from src.game_engine.foundation.asset_system.asset_registry import (
+E   ModuleNotFoundError: No module named 'src'
+___________ ERROR collecting tests/unit/test_asteroids_neat_game.py ___________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_asteroids_neat_game.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_asteroids_neat_game.py:16: in <module>
+    from src.game_engine.godot.asteroids_neat_game import (
+E   ModuleNotFoundError: No module named 'src'
+______________ ERROR collecting tests/unit/test_asteroids_sdk.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_asteroids_sdk.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_asteroids_sdk.py:18: in <module>
+    from src.game_engine.godot.asteroids_clone_sdk import (
+E   ModuleNotFoundError: No module named 'src'
+_____________ ERROR collecting tests/unit/test_config_manager.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_config_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_config_manager.py:19: in <module>
+    from src.game_engine.foundation.config_system.config_manager import (
+E   ModuleNotFoundError: No module named 'src'
+__________ ERROR collecting tests/unit/test_engines/test_physics.py ___________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_engines\test_physics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_engines\test_physics.py:15: in <module>
+    from hypothesis import given, strategies as st
+E   ModuleNotFoundError: No module named 'hypothesis'
+____________ ERROR collecting tests/unit/test_entity_factories.py _____________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_entity_factories.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_entity_factories.py:14: in <module>
+    from src.game_engine.systems.body.entity_factories import (
+E   ModuleNotFoundError: No module named 'src'
+________ ERROR collecting tests/unit/test_entity_manager_templates.py _________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_entity_manager_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_entity_manager_templates.py:14: in <module>
+    from src.game_engine.systems.body.entity_manager import (
+E   ModuleNotFoundError: No module named 'src'
+____________ ERROR collecting tests/unit/test_entity_templates.py _____________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_entity_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_entity_templates.py:12: in <module>
+    from src.game_engine.foundation.asset_system.entity_templates import (
+E   ModuleNotFoundError: No module named 'src'
+_________ ERROR collecting tests/unit/test_foundation/test_genome.py __________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_foundation\test_genome.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_foundation\test_genome.py:14: in <module>
+    from hypothesis import given, strategies as st
+E   ModuleNotFoundError: No module named 'hypothesis'
+______________ ERROR collecting tests/unit/test_input_handler.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\test_input_handler.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_input_handler.py:13: in <module>
+    from src.game_engine.godot.input_handler import (
+E   ModuleNotFoundError: No module named 'src'
+=========================== short test summary info ===========================
+ERROR tests/unit/configuration_test.py
+ERROR tests/unit/foundation_assets_test.py
+ERROR tests/unit/slime_clan_autobattle_test.py
+ERROR tests/unit/slime_clan_overworld_test.py
+ERROR tests/unit/test_asset_cache.py
+ERROR tests/unit/test_asset_loaders.py
+ERROR tests/unit/test_asset_registry.py
+ERROR tests/unit/test_asteroids_neat_game.py
+ERROR tests/unit/test_asteroids_sdk.py
+ERROR tests/unit/test_config_manager.py
+ERROR tests/unit/test_engines/test_physics.py
+ERROR tests/unit/test_entity_factories.py
+ERROR tests/unit/test_entity_manager_templates.py
+ERROR tests/unit/test_entity_templates.py
+ERROR tests/unit/test_foundation/test_genome.py
+ERROR tests/unit/test_input_handler.py
+!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
+============================= 16 errors in 0.37s ==============================

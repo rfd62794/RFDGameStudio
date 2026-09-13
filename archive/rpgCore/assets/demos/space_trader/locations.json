@@ -1,0 +1,111 @@
+{
+    "locations": [
+        {
+            "id": "port_kelvin",
+            "name": "Port Kelvin",
+            "description": "Industrial hub. Metals cheap, food scarce.",
+            "connections": [
+                "the_shallows",
+                "ironmere_station"
+            ],
+            "faction": "industrial",
+            "market": {
+                "ore": 0.6,
+                "food": 1.4,
+                "tech": 1.1,
+                "fuel": 1.0
+            }
+        },
+        {
+            "id": "the_shallows",
+            "name": "The Shallows",
+            "description": "Agricultural colony. Food cheap, tech expensive.",
+            "connections": [
+                "port_kelvin",
+                "new_carris"
+            ],
+            "faction": "neutral",
+            "market": {
+                "ore": 1.2,
+                "food": 0.5,
+                "tech": 1.3,
+                "fuel": 0.9
+            }
+        },
+        {
+            "id": "drifters_wake",
+            "name": "Drifter's Wake",
+            "description": "Black market. Everything available, nothing cheap.",
+            "connections": [
+                "the_fringe",
+                "deadrock"
+            ],
+            "faction": "outlaw",
+            "market": {
+                "ore": 1.3,
+                "food": 1.3,
+                "tech": 1.3,
+                "fuel": 1.4
+            }
+        },
+        {
+            "id": "ironmere_station",
+            "name": "Ironmere Station",
+            "description": "Mining colony. Raw ore cheap, fuel expensive.",
+            "connections": [
+                "port_kelvin",
+                "deadrock"
+            ],
+            "faction": "industrial",
+            "market": {
+                "ore": 0.4,
+                "food": 1.3,
+                "tech": 1.2,
+                "fuel": 1.5
+            }
+        },
+        {
+            "id": "new_carris",
+            "name": "New Carris",
+            "description": "Wealthy core world. Tech cheap, luxury goods flow.",
+            "connections": [
+                "the_shallows",
+                "the_fringe"
+            ],
+            "faction": "corporate",
+            "market": {
+                "ore": 1.1,
+                "food": 1.0,
+                "tech": 0.6,
+                "fuel": 0.8
+            }
+        },
+        {
+            "id": "the_fringe",
+            "name": "The Fringe",
+            "description": "Frontier outpost. High risk, high price variance.",
+            "connections": [
+                "new_carris",
+                "drifters_wake"
+            ],
+            "faction": "neutral",
+            "market": {
+                "ore": 1.2,
+                "food": 1.5,
+                "tech": 1.4,
+                "fuel": 1.3
+            }
+        },
+        {
+            "id": "deadrock",
+            "name": "Deadrock",
+            "description": "Derelict station. Salvage only. No safe docking.",
+            "connections": [
+                "ironmere_station",
+                "drifters_wake"
+            ],
+            "faction": "none",
+            "market": {}
+        }
+    ]
+}

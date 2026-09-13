@@ -1,0 +1,20 @@
+# Graphics Configuration
+# Used by pixel renderer and effects systems
+
+renderer:
+  type: "pixel"
+  width: 160
+  height: 144
+  palette_size: 4
+  background_color: 0
+
+particles:
+  max_particles: 2000
+  pool_size: 500
+  default_lifetime: 1.0
+
+tiles:
+  bank_size: 256
+  tile_width: 8
+  tile_height: 8
+  animation_fps: 12

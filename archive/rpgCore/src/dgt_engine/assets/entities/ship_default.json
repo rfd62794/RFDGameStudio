@@ -1,0 +1,15 @@
+{
+    "blueprint_id": "ship_default",
+    "name": "Terran Interceptor",
+    "entity_type": "ship",
+    "category": "fighter",
+    "hit_points": 100,
+    "speed": 60,
+    "turn_rate": 2.0,
+    "drag": 0.05,
+    "mass": 10.0,
+    "radius": 8.0,
+    "material_id": "mat_basic_hull",
+    "size_category": "small",
+    "color_scheme": "player_default"
+}

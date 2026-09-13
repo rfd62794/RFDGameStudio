@@ -1,0 +1,124 @@
+================================================================================
+NEAT ASTEROIDS VISUAL DEMO - MANUAL STARTUP GUIDE
+================================================================================
+
+IMPORTANT: The automated scripts can't display Godot's graphical window in a
+headless environment. You need to run this manually on your Windows desktop.
+
+================================================================================
+OPTION 1: EASIEST (2 Steps - Recommended)
+================================================================================
+
+Step 1: Open Godot Project
+---------------------------
+Double-click this file:
+    C:\Godot\4.6_NET\Godot_v4.6-stable_mono_win64.exe
+
+When it opens:
+    - Click "Import" or "Open Project"
+    - Navigate to: C:\Github\rpgCore\godot_project
+    - Select the folder
+    - Click "Open"
+
+First-time import will take 30-60 seconds.
+Wait for: "Importing Assets" to finish
+
+Step 2: Press F5 in Godot
+--------------------------
+In the Godot editor:
+    - Press F5 (or click the Play button in top-right)
+    - A game window (640x576) will appear
+    - You should see a black screen with:
+      "[GameServer] Listening on localhost:9001" in the Output console
+
+Step 3: Run Python Engine
+--------------------------
+Open a Command Prompt:
+    cd C:\Github\rpgCore
+    python run_demo.py
+
+You should see:
+    [OK] Connected to Godot
+    [Spawned 5 pilots for generation 0]
+    Frame     0 | Generation 0 | Active Pilots: 5/5
+
+Step 4: Watch AI Learn!
+------------------------
+In the Godot game window, you'll see:
+    - Green triangles (AI pilots)
+    - Yellow circles (Asteroids)
+    - White dots (Projectiles)
+    - HUD showing generation and pilot count
+
+Pilots improve over ~10 generations (5 minutes).
+
+
+================================================================================
+OPTION 2: DIRECT BATCH FILE (May work on Windows desktop)
+================================================================================
+
+If you're on a Windows desktop with display:
+    1. Double-click: run_visual_demo_direct.bat
+    2. Godot window should appear
+    3. Watch console for connection status
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+"Build required" in Godot
+--------------------------
+Click: Build → Build Project (or press Ctrl+Shift+B)
+Wait for compilation, then press F5
+
+"Failed to connect to Godot"
+-----------------------------
+Godot isn't running or server didn't start.
+Make sure you pressed F5 in Godot BEFORE running Python.
+
+No visual output
+----------------
+The game scene is running but may be rendering blank.
+Check Godot Output console for errors.
+
+C# build errors
+---------------
+cd godot_project
+C:\Godot\4.6_NET\Godot_v4.6-stable_mono_win64.exe --path . --build-solutions
+
+================================================================================
+EXPECTED CONSOLE OUTPUT
+================================================================================
+
+Python console (successful connection):
+    [Initializing NEAT Asteroids Game...]
+    [OK] Connected to Godot
+    [Spawned 5 pilots for generation 0]
+    Frame    60 | Generation 0 | Active Pilots: 5/5
+    Frame   120 | Generation 0 | Active Pilots: 4/5
+    ...
+    [Generation 0 Complete]
+      Pilot 0: Fitness=125.3
+      Pilot 1: Fitness=87.2
+
+Godot Output console:
+    === rpgCore Godot Engine Starting ===
+    Game Type: space
+    [Main] Entity renderer initialized
+    [GameServer] Listening on localhost:9001
+    [GameServer] Client connected from 127.0.0.1
+    [GameServer] Received handshake from Python engine
+
+================================================================================
+WHY THE SCRIPTS DON'T WORK
+================================================================================
+
+The automated Python scripts (start_visual_demo.py, run_visual_demo_direct.bat)
+launch Godot processes, but Godot requires a DISPLAY/X server to show windows.
+
+In terminal-only environments (like this one), Godot can't create graphical
+windows even though the process starts.
+
+You need to run this on a Windows desktop with a monitor/display attached.
+
+================================================================================
