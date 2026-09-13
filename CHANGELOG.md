@@ -12,6 +12,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## rpgCore Archived into `archive/rpgCore` — COMPLETED
+
+**Date:** September 13, 2026
+**Directive:** Retire rpgCore (the studio's precursor engine) by archiving it
+here for reference, refactoring and recovery
+([plan](./docs/plans/2026-09-13-rpgcore-archive.md)).
+
+- Squashed import of rpgCore at `02aef64` into `archive/rpgCore/` (full
+  3,627-commit history stays in the archived rpgCore GitHub repo); runtime
+  files (logs, saves, SQLite data, caches) dropped and ignored.
+- `archive/rpgCore/ARCHIVE.md`: provenance, state at archive time, how to run
+  it in isolation, and a recovery index of its apps against studio games.
+- `tests/test_archive_isolation.py`: studio code never imports the archive,
+  and pytest, the uv workspace and TypeScript builds never include it.
+
+---
+
 ## MBB DisposalSystem Integration — COMPLETED
 
 **Date:** August 15, 2026
