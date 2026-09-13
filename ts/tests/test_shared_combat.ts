@@ -95,7 +95,9 @@ describe('test_shared_combat_matches_original', () => {
  * specifically since it's the one that was extracted to shared —
  * CorpWorld's own copy should remain untouched.
  */
-describe('test_corpworld_untouched', () => {
+// examples/corpworld is untracked (only local checkouts have it), so this
+// skips in a fresh clone or CI.
+describe.skipIf(!existsSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'examples', 'corpworld')))('test_corpworld_untouched', () => {
   const __filename = fileURLToPath(import.meta.url);
   const repoRoot = resolve(dirname(__filename), '..', '..');
 

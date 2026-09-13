@@ -33,7 +33,8 @@ describe('GameShell adoption (ADR-006)', () => {
       // of ">" (the JSX children start after it) — safer than the
       // first raw ">" in the block, which can appear inside a nested
       // element's props (e.g. statusArea={<SegmentHeader ... />}).
-      const closeTagMatch = block.match(/\n\s*>\n/);
+      // \r? keeps this working when git checks the file out with CRLF.
+      const closeTagMatch = block.match(/\r?\n\s*>\r?\n/);
       expect(closeTagMatch).not.toBeNull();
       const propsSection = block.slice(0, closeTagMatch!.index);
       expect(propsSection).toContain('mainClassName="game-shell-main--scrollable"');

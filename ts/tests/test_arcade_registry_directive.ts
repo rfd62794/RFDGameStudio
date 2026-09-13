@@ -141,7 +141,9 @@ describe('Arcade Registry Directive — July 2026', () => {
     expect(entry!.description).toContain('Dissonance Depths');
   });
 
-  it('test_dissonance_prototype_source_intact', () => {
+  // tmp/ is gitignored: the original AI Studio source only exists in a local
+  // checkout, so this skips in a fresh clone or CI.
+  it.skipIf(!existsSync(resolve(import.meta.dirname, '../../tmp/dissonance-src')))('test_dissonance_prototype_source_intact', () => {
     const repoRoot = resolve(import.meta.dirname, '../..');
     const dir = resolve(repoRoot, 'tmp/dissonance-src');
     expect(existsSync(dir), 'tmp/dissonance-src missing').toBe(true);
