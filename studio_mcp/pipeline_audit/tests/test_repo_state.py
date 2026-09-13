@@ -48,7 +48,9 @@ def test_repo_state_cross_references_metadata():
 def test_repo_state_examples_is_a_list():
     state = read_repo_state()
     assert isinstance(state["examples"], list)
-    assert "slimeworld" in state["examples"]
+    # examples/ is mostly untracked; ledger is one of the tracked demos, so it
+    # is present in every checkout (examples/slimeworld only exists locally).
+    assert "ledger" in state["examples"]
 
 
 def test_repo_state_handles_missing_metadata(tmp_path: Path):

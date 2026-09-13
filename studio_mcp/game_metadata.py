@@ -11,12 +11,14 @@ import json
 import subprocess
 from pathlib import Path
 
+from studio_mcp.paths import sibling_repo
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # External repos whose git history is the source of truth for a game.
 # Keys must match GAME_PATHS.
 _EXTERNAL_REPOS: dict[str, Path] = {
-    "slimebreeder": Path(r"C:\Github\SlimeBreeder"),
+    "slimebreeder": sibling_repo("SlimeBreeder"),
 }
 
 # One entry per game, pointing at every real path that constitutes it.
@@ -69,6 +71,11 @@ GAME_PATHS: dict[str, list[str]] = {
     "dissonance_prototype": ["ts/src/games/dissonance_prototype"],
     "slimegarden": ["ts/src/games/slimegarden"],
     "factory_idle": ["ts/src/games/factory_idle"],
+    # Added Sep 13 2026: registered in ts/src/games/registry.ts without a
+    # GAME_PATHS entry, so they were absent from game-metadata.json.
+    "wire_rust": ["games/wire_rust", "ts/src/games/wire_rust"],
+    "choke_point": ["games/choke_point", "ts/src/games/choke_point"],
+    "filipino_bpo_simulator": ["ts/src/games/filipino_bpo_simulator", "intake/filipino-bpo-simulator"],
 }
 
 

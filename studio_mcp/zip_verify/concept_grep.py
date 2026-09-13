@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DIRECTIVE_DIRS = [REPO_ROOT / "docs" / "directives", REPO_ROOT / "docs" / "gdd"]
+DIRECTIVE_DIRS = [
+    REPO_ROOT / "docs" / "directives",
+    REPO_ROOT / "docs" / "gdd",
+    # Older directives moved here; searched last so current ones win.
+    REPO_ROOT / "docs" / "directives" / "archive",
+]
 
 _STOP_WORDS = {
     "the", "and", "for", "are", "but", "not", "you", "all", "can", "had",

@@ -10,6 +10,15 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 INTAKE_DIR = REPO_ROOT / "intake"
 
 
+def _has_intake_zip(slug: str) -> bool:
+    """Intake zips are gitignored (intake/**/*.zip); only MANIFEST.md files are
+    tracked. Tests that need a real zip skip in a fresh clone or CI."""
+    for name in {slug, slug.replace("_", "-")}:
+        if any((INTAKE_DIR / name).glob("*.zip")):
+            return True
+    return False
+
+
 @pytest.mark.parametrize("slug", [
     "facility-escape",
     "antsim-redux",
@@ -18,6 +27,8 @@ INTAKE_DIR = REPO_ROOT / "intake"
 ])
 def test_source_resolver_reports_both_for_dual_source(slug: str) -> None:
     """Slugs with both an intake zip and a tracked examples/ dir are `both`."""
+    if not _has_intake_zip(slug):
+        pytest.skip(f"local-only intake zip not present for {slug}")
     result = resolve_source(slug)
     assert result["source_type"] == SourceType.BOTH
     assert result["intake_dir"] is not None
@@ -52,6 +63,7 @@ def test_source_resolver_handles_naming_mismatch() -> None:
     assert result["resolved_examples_name"] == "SlimeBreeder"
 
 
+@pytest.mark.skipif(not _has_intake_zip("corpworld"), reason="local-only intake zip not present for corpworld")
 def test_source_resolver_finds_zip_source_only(monkeypatch) -> None:
     """If only an intake zip exists, the result is `zip_source`."""
     # Force the examples lookup to miss for a slug known to have an intake zip.

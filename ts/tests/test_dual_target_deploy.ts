@@ -32,7 +32,11 @@ function findCssAsset(dir: string): string | undefined {
   return readdirSync(dir).find((f) => f.startsWith('index-') && f.endsWith('.css'));
 }
 
-describe('test_git_state_clean_both_games', () => {
+// These read the local git checkout (clean tree, branch vs origin, specific
+// commit hashes in recent history), so they describe the machine rather than
+// the code and fail on any branch or with work in progress. Opt in before a
+// deploy with RFD_CHECK_GIT_STATE=1.
+describe.skipIf(!process.env.RFD_CHECK_GIT_STATE)('test_git_state_clean_both_games', () => {
   it('Working tree is clean — no uncommitted or partially applied changes', () => {
     // Note: this test file itself, other test files, and docs may be
     // uncommitted if auto-commit hasn't run yet. We check that no
@@ -142,7 +146,9 @@ describe('test_registry_current', () => {
   });
 });
 
-describe('test_arcade_deploy_live', () => {
+// Build-output checks below read local vite builds (ts/dist*, gitignored),
+// so each group skips when its build folder is absent (fresh clone, CI).
+describe.skipIf(!existsSync(resolve(tsRoot, 'dist')))('test_arcade_deploy_live', () => {
   it('Arcade SPA dist exists and is fresh', () => {
     const distPath = resolve(tsRoot, 'dist');
     expect(existsSync(distPath)).toBe(true);
@@ -182,7 +188,7 @@ describe('test_arcade_deploy_live', () => {
   });
 });
 
-describe('test_shoal_standalone_build_fresh', () => {
+describe.skipIf(!existsSync(resolve(tsRoot, 'dist-shoal')))('test_shoal_standalone_build_fresh', () => {
   it('dist-shoal exists with built assets', () => {
     const distPath = resolve(tsRoot, 'dist-shoal');
     expect(existsSync(distPath)).toBe(true);
@@ -214,7 +220,7 @@ describe('test_shoal_standalone_build_fresh', () => {
   });
 });
 
-describe('test_shoal_standalone_no_lua_execution', () => {
+describe.skipIf(!existsSync(resolve(tsRoot, 'dist-shoal')))('test_shoal_standalone_no_lua_execution', () => {
   it('Shoal built JS contains tick_game only as raw Lua source string, not as executable call', () => {
     const distDir = resolve(tsRoot, 'dist-shoal/assets');
     const jsFiles = readdirSync(distDir).filter((f) => f.endsWith('.js'));
@@ -243,7 +249,7 @@ describe('test_shoal_standalone_no_lua_execution', () => {
   });
 });
 
-describe('test_planetofgreed_standalone_builds', () => {
+describe.skipIf(!existsSync(resolve(tsRoot, 'dist-planetofgreed')))('test_planetofgreed_standalone_builds', () => {
   it('dist-planetofgreed exists with built assets', () => {
     const distPath = resolve(tsRoot, 'dist-planetofgreed');
     expect(existsSync(distPath)).toBe(true);
@@ -322,7 +328,7 @@ describe('test_planetofgreed_standalone_runs', () => {
     expect(app).not.toContain('session.call');
   });
 
-  it('PoG standalone build was verified playable via local static server', () => {
+  it.skipIf(!existsSync(resolve(tsRoot, 'dist-planetofgreed')))('PoG standalone build was verified playable via local static server', () => {
     // Verification was performed by serving dist-planetofgreed via
     // python -m http.server and confirming:
     //   - HTML: HTTP 200, root div + script present

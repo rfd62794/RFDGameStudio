@@ -1,7 +1,7 @@
 # RFD Game Studio
 
 ## Project Bible
-- **29 games documented** (GDDs, mechanics, ADRs).
+- **12 games documented** (GDDs, mechanics, ADRs), plus 17 genre templates in `bible/templates/`.
 - **Nightly pipeline** validates and syncs all content.
 
 ## Studio Tools
@@ -12,7 +12,7 @@
 | `3d-modeler` | gpt-4o | 3D modeling component. |
 
 ## Nightly Pipeline
-- **GDD Validation**: All 29 GDDs validated.
+- **GDD Validation**: All 12 game GDDs validated.
 - **Memory Sync**: All GDDs synced to RFD Memory MCP.
 - **Tool Validation**: All tools validated and synced.
 

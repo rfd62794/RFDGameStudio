@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from studio_mcp.paths import sibling_repo
 from studio_mcp.zip_verify.openrouter_client import OpenRouterClient
 
 from .blind_reader import read_gate_1
@@ -32,7 +33,7 @@ def _log(msg: str) -> None:
     even while waiting on long API calls or subprocesses."""
     print(f"[gate_runner] {msg}", flush=True)
 
-ANYCREATURE_ROOT = Path(r"C:\Github\anyCreature")
+ANYCREATURE_ROOT = sibling_repo("anyCreature", "ANYCREATURE_ROOT")
 ENGINE_CLI = ANYCREATURE_ROOT / "engine" / "cli.js"
 SILMETRICS = ANYCREATURE_ROOT / "harness" / "silmetrics.mjs"
 MASKMETRICS = ANYCREATURE_ROOT / "harness" / "maskmetrics.py"

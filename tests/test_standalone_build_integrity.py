@@ -93,6 +93,12 @@ def run_vite_build(game_id: str) -> None:
 
 def assert_dist_files(game_id: str) -> None:
     dist = TS_DIR / f"dist-{game_id}"
+    if not (GAMES_DIR / game_id).is_dir():
+        # TypeScript-only game: no games/{id}/ YAML or Lua to bundle, so the
+        # build only has to produce its page.
+        assert (dist / "index.html").exists(), f"{game_id}: missing index.html in dist"
+        return
+
     game_dist = dist / "games" / game_id
     engine_dir = dist / "engine" / "primitives"
 

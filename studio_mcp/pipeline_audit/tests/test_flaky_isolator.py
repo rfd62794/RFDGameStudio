@@ -1,5 +1,6 @@
-"""Tests for flaky_isolator.py using real currently-flaky and genuinely
-failing tests in this repo."""
+"""Tests for flaky_isolator.py: a real passing test in this repo, and a
+synthetic test that always fails (so the check does not depend on some repo
+test happening to be broken)."""
 
 from pathlib import Path
 
@@ -20,16 +21,14 @@ def test_flaky_isolator_classifies_real_flaky_test() -> None:
     assert result["not_run"] == []
 
 
-def test_flaky_isolator_classifies_real_failure_as_real() -> None:
-    result = isolate_failures(
-        ["tests/test_chimera_wilds.py::test_data_yaml_parts_match_mbb_source_values"],
-        cwd=REPO_ROOT,
-        timeout=60.0,
-    )
+def test_flaky_isolator_classifies_real_failure_as_real(tmp_path: Path) -> None:
+    failing = tmp_path / "test_always_fails.py"
+    failing.write_text("def test_always_fails():\n    assert False\n", encoding="utf-8")
+    test_id = f"{failing.as_posix()}::test_always_fails"
 
-    assert (
-        "tests/test_chimera_wilds.py::test_data_yaml_parts_match_mbb_source_values"
-        in result["real"]
-    )
+    # Run from the repo so `uv run pytest` uses the project environment.
+    result = isolate_failures([test_id], cwd=REPO_ROOT, timeout=60.0)
+
+    assert test_id in result["real"]
     assert result["flaky"] == []
     assert result["not_run"] == []

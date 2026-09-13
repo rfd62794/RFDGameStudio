@@ -277,6 +277,8 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     site_repo.mkdir()
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
+    # Use the fake examples/ demos above, not a real sibling SlimeBreeder build.
+    monkeypatch.setattr(tools, "_DEMO_EXTERNAL_PATHS", {})
 
     # Don't let metadata/verification hit git or the network in this test.
     monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
@@ -324,6 +326,8 @@ def _make_deploy_fixture(tmp_path, monkeypatch):
     site_repo.mkdir()
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
+    # Use the fake examples/ demos above, not a real sibling SlimeBreeder build.
+    monkeypatch.setattr(tools, "_DEMO_EXTERNAL_PATHS", {})
     monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
     monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
 

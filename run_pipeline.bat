@@ -1,3 +1,3 @@
 @echo off
-cd /d C:\GitHub\RFDGameStudio
+cd /d "%~dp0"
 python refine_pipeline.py

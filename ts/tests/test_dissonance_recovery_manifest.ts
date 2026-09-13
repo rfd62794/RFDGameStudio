@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import yaml from 'js-yaml';
 import { auditExports, type SymbolStatus } from '../tools/framework_gen/audit';
@@ -76,7 +76,9 @@ const RECOVERED_FUNCTIONS = [
   'generateOpeningPack',
 ];
 
-describe('Dissonance Recovery Manifest — Framework Generation Layer', () => {
+// tmp/dissonance-src (the original AI Studio source) is gitignored and only
+// exists in a local checkout, so this skips in a fresh clone or CI.
+describe.skipIf(!existsSync(DISSONANCE_SRC))('Dissonance Recovery Manifest — Framework Generation Layer', () => {
   it('produces a valid manifest with only the three allowed statuses', () => {
     const result = runAudit();
     const allowed: SymbolStatus[] = ['RECOVERED', 'DEFINED_NOT_CALLED', 'NEEDS_HUMAN_REVIEW'];

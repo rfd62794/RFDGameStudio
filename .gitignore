@@ -213,3 +213,11 @@ temp_slimegarden_zip/
 
 # Dist folders (generated build outputs)
 dist*/
+
+# Local build output, caches and one-off artifacts (untracked 2026-09-13)
+local-arcade-preview/
+.vite/
+*.timestamp-*.mjs
+ts/tsc-errors.txt
+ts/*.zip
+*.bak

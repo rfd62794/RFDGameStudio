@@ -22,6 +22,10 @@ function jsContent(game: string) {
   return readFileSync(resolve(dist(game), 'assets', jsName(game)), 'utf8');
 }
 
+// Build output (ts/dist*, gitignored) only exists after a local vite build,
+// so these checks skip for any game that hasn't been built (fresh clone, CI).
+const unbuilt = (game: string) => !existsSync(dist(game));
+
 const GAMES = [
   'shoal',
   'slimeworld',
@@ -32,28 +36,28 @@ const GAMES = [
 ];
 
 describe('Per-game standalone builds', () => {
-  it('test_shoal_standalone_build_produces_output', () => {
+  it.skipIf(unbuilt('shoal'))('test_shoal_standalone_build_produces_output', () => {
     expect(existsSync(resolve(dist('shoal'), 'index.html'))).toBe(true);
     const a = assets('shoal');
     expect(a.some((f) => f.endsWith('.js'))).toBe(true);
     expect(a.some((f) => f.endsWith('.css'))).toBe(true);
   });
 
-  it('test_slimeworld_standalone_build_produces_output', () => {
+  it.skipIf(unbuilt('slimeworld'))('test_slimeworld_standalone_build_produces_output', () => {
     expect(existsSync(resolve(dist('slimeworld'), 'index.html'))).toBe(true);
     const a = assets('slimeworld');
     expect(a.some((f) => f.endsWith('.js'))).toBe(true);
     expect(a.some((f) => f.endsWith('.css'))).toBe(true);
   });
 
-  it('test_shoal_build_excludes_other_games_code', () => {
+  it.skipIf(unbuilt('shoal'))('test_shoal_build_excludes_other_games_code', () => {
     const js = jsContent('shoal');
     expect(js).not.toContain('resolve_brew');
     expect(js).not.toContain('create_seed_slime');
     expect(js).not.toContain('spawn_fruit');
   });
 
-  it('test_slimeworld_build_excludes_other_games_code', () => {
+  it.skipIf(unbuilt('slimeworld'))('test_slimeworld_build_excludes_other_games_code', () => {
     const js = jsContent('slimeworld');
     expect(js).not.toContain('resolve_brew');
     expect(js).not.toContain('compute_fish_forces');
@@ -61,14 +65,14 @@ describe('Per-game standalone builds', () => {
   });
 
   for (const game of ['chimera_wilds', 'mutant_battle_ball', 'scrapcrawl', 'slime_coin']) {
-    it(`test_${game}_standalone_build_produces_output`, () => {
+    it.skipIf(unbuilt(game))(`test_${game}_standalone_build_produces_output`, () => {
       expect(existsSync(resolve(dist(game), 'index.html'))).toBe(true);
       const a = assets(game);
       expect(a.some((f) => f.endsWith('.js'))).toBe(true);
       expect(a.some((f) => f.endsWith('.css'))).toBe(true);
     });
 
-    it(`test_${game}_build_excludes_other_games_code`, () => {
+    it.skipIf(unbuilt(game))(`test_${game}_build_excludes_other_games_code`, () => {
       const js = jsContent(game);
       expect(js).not.toContain('resolve_brew');
       expect(js).not.toContain('compute_fish_forces');
@@ -77,7 +81,7 @@ describe('Per-game standalone builds', () => {
     });
   }
 
-  it('test_unified_arcade_build_unaffected', () => {
+  it.skipIf(!existsSync(unifiedDist()))('test_unified_arcade_build_unaffected', () => {
     expect(existsSync(resolve(unifiedDist(), 'index.html'))).toBe(true);
     const a = readdirSync(resolve(unifiedDist(), 'assets'));
     expect(a.some((f) => f.startsWith('index-') && f.endsWith('.js'))).toBe(true);
