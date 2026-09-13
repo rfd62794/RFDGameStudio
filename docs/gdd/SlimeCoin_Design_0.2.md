@@ -256,7 +256,7 @@ system. Swap coin types in the Hand queue. Deferred if complex — confirm scope
 ---
 
 ## Platform Targets
-- Primary: RFDGameStudio TypeScript renderer (in-browser via RFDArcadeServe)
+- Primary: RFDGameStudio TypeScript renderer (in-browser via the arcade on port 5173)
 - Secondary: PyGame renderer (follows slither_rogue real-time port pattern)
 - Build: Vite → dist/ → served via RFDArcadeDev :5173
 

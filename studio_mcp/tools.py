@@ -531,9 +531,11 @@ def studio_screenshot(
 def studio_build() -> dict:
     """Run vite build and return structured output.
 
-    Builds `ts/dist/`.  `RFDArcadeServe` now reads from `local-arcade-preview/`,
-    so the build must also be copied there (e.g. `robocopy /PURGE` or
-    `studio_deploy_arcade`) before the service picks it up.
+    Builds `ts/dist/`.  The local arcade runs on one port: the RFDArcadeDev
+    service (Vite dev server, port 5173) serves the live app and serves built
+    embed games straight from `local-arcade-preview/arcade/`, so a build must
+    also be copied there (e.g. `robocopy /PURGE` or `studio_deploy_arcade`)
+    before the local arcade shows it.
 
     Returns: {"success": bool, "output": str, "duration_ms": int}
     """

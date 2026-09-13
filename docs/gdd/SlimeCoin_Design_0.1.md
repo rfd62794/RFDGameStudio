@@ -212,7 +212,7 @@ collection vat indicator at the bottom. Drop queue count visible (top right). Sc
 ---
 
 ## Platform Targets
-- Primary: RFDGameStudio TypeScript renderer (in-browser via RFDArcadeServe)
+- Primary: RFDGameStudio TypeScript renderer (in-browser via the arcade on port 5173)
 - Secondary: PyGame renderer (follow slither_rogue real-time port pattern)
 - Build: Vite → dist/ → served via RFDArcadeDev :5173
 

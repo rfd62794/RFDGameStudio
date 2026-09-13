@@ -10,5 +10,5 @@ export const filipinoBpoSimulatorConfig: GameConfig = {
   status: 'dev',
   genre: 'management-sim',
   tags: ['call-center', 'bpo', 'management', 'sim'],
-  embedUrl: 'http://localhost:5174/arcade/filipino_bpo_simulator/',
+  embedUrl: '/arcade/filipino_bpo_simulator/',
 };
