@@ -12,7 +12,7 @@ Test anchors:
   4. test_screenshot_artifacts_saved
   5. test_no_regression (delegated to TS floor — this script checks CSS rules exist)
 
-Usage: python test_character_viewer_scroll.py
+Usage: python scripts/diagnostics/test_character_viewer_scroll.py
 Exit code: 0 = all pass, 1 = any fail
 """
 import json
@@ -24,7 +24,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 URL = "http://localhost:5173/arcade/rfdgamestudio/?game=character_viewer"
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SCREENSHOT_DIR = REPO_ROOT / "docs" / "state" / "screenshots"
 CSS_PATH = REPO_ROOT / "ts" / "src" / "standalone" / "character_viewer" / "styles.css"
 

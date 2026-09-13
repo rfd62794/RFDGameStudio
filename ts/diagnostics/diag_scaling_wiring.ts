@@ -8,12 +8,12 @@
  *   - Which BIOLOGICAL_SCALING constants are actually referenced
  *   - Real proportion ratios (head/body, limb/torso, etc.)
  *
- * Usage: npx tsx diag_scaling_wiring.ts
+ * Usage (from ts/): npx tsx diagnostics/diag_scaling_wiring.ts
  */
-import { composeFigure, humanoidBilateral } from './src/engine/paperDoll/index';
-import { BIOLOGICAL_SCALING } from './src/engine/paperDoll/types';
-import { PART_SLOTS } from './src/engine/shared/partSlots';
-import type { CompositionInput, PartForComposition } from './src/engine/paperDoll/types';
+import { composeFigure, humanoidBilateral } from '../src/engine/paperDoll/index';
+import { BIOLOGICAL_SCALING } from '../src/engine/paperDoll/types';
+import { PART_SLOTS } from '../src/engine/shared/partSlots';
+import type { CompositionInput, PartForComposition } from '../src/engine/paperDoll/types';
 
 // ── Build a real CompositionInput (same as Character Viewer's BIONICLE preset) ──
 function makeDummyParts(): Record<string, PartForComposition | null> {

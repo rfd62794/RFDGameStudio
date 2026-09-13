@@ -1,6 +1,7 @@
 // Quick diagnostic: generate SVG with the fix and verify viewBox
-import { renderFigureSvg, humanoidBilateral, chimeraAsymmetric } from './src/engine/paperDoll/index';
-import { PART_SLOTS } from './src/engine/shared/partSlots';
+// Usage (from ts/): npx tsx diagnostics/diag_frame_fix.ts
+import { renderFigureSvg, humanoidBilateral, chimeraAsymmetric } from '../src/engine/paperDoll/index';
+import { PART_SLOTS } from '../src/engine/shared/partSlots';
 import * as fs from 'fs';
 
 function makeDummyParts() {

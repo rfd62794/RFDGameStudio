@@ -8,14 +8,14 @@
  *
  * Saves a screenshot artifact to docs/state/screenshots/.
  *
- * Usage: npx tsx diag_scroll_metrics.ts
+ * Usage (from ts/): npx tsx diagnostics/diag_scroll_metrics.ts
  */
 import { chromium } from 'playwright';
 import { mkdirSync } from 'fs';
 import { join } from 'path';
 
 const URL = 'http://localhost:5173/arcade/rfdgamestudio/src/standalone/character_viewer/index.html';
-const SCREENSHOT_DIR = join(__dirname, '..', 'docs', 'state', 'screenshots');
+const SCREENSHOT_DIR = join(__dirname, '..', '..', 'docs', 'state', 'screenshots');
 
 async function main() {
   const browser = await chromium.launch();

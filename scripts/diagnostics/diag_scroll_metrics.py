@@ -9,7 +9,7 @@ Uses Playwright's page.evaluate() to pull real computed CSS values:
 
 Saves screenshot artifacts to docs/state/screenshots/.
 
-Usage: python diag_scroll_metrics.py
+Usage: python scripts/diagnostics/diag_scroll_metrics.py
 """
 import json
 import os
@@ -21,7 +21,8 @@ from playwright.sync_api import sync_playwright
 
 URL = "http://localhost:5173/arcade/rfdgamestudio/?game=character_viewer"
 SCRIPT_DIR = Path(__file__).resolve().parent
-SCREENSHOT_DIR = SCRIPT_DIR / "docs" / "state" / "screenshots"
+REPO_ROOT = SCRIPT_DIR.parents[1]
+SCREENSHOT_DIR = REPO_ROOT / "docs" / "state" / "screenshots"
 
 
 def run_measurement(browser, viewport_w, viewport_h, label):
