@@ -197,6 +197,7 @@ examples/*
 !examples/factory-idle-precision-armory-phase2/
 !examples/SlimeBreeder/
 !examples/slimegarden/
+!examples/systemic-extract/
 
 # Screenshots
 screenshots/
