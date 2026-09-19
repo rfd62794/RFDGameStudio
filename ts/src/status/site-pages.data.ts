@@ -43,6 +43,7 @@ export const SITE_STATUS_ENTRIES: SiteStatusEntry[] = [
   // --- Card 1: Shoal ---
   {
     id: 'studio-status-shoal',
+    gameId: 'shoal', updated: '2026-08-15',
     name: 'Shoal',
     statusBadge: 'Live',
     tagline:
@@ -100,6 +101,7 @@ Live on itch.io with a posted devlog. Real traceable Reddit-driven traffic confi
   // --- Card 2: Planet of Greed ---
   {
     id: 'studio-status-planet-of-greed',
+    gameId: 'planetofgreed', updated: '2026-08-15',
     name: 'Planet of Greed',
     statusBadge: 'Live',
     tagline:
@@ -163,6 +165,7 @@ Two items are real, explicitly deferred — not forgotten, not stalled, delibera
   // --- Card 3: Mutant Battle Ball ---
   {
     id: 'studio-status-mutant-battle-ball',
+    gameId: 'mutant_battle_ball', updated: '2026-08-15',
     name: 'Mutant Battle Ball',
     statusBadge: 'In Progress',
     tagline:
@@ -239,6 +242,7 @@ The actual roster-meaning question — what does it mean for a mutant to be "on 
   // --- Card 4: Facility Escape ---
   {
     id: 'studio-status-facility-escape',
+    gameId: 'facility_escape', updated: '2026-08-15',
     name: 'Facility Escape (Chapter 2)',
     statusBadge: 'Designed',
     tagline:
@@ -315,6 +319,7 @@ A real thread was proposed to the wider canon via Signal. This is a design propo
   // --- Card 5: Studio Infrastructure ---
   {
     id: 'studio-status-infrastructure',
+    updated: '2026-08-15',
     name: 'Studio Infrastructure',
     statusBadge: 'Complete',
     tagline:

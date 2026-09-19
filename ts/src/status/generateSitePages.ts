@@ -73,8 +73,12 @@ export function generateHubMarkdown(hub: SiteStatusHub, entries: SiteStatusEntry
     // Card summary
     lines.push(`        <p class="text-gray-300 mb-6">${entry.cardSummary}</p>`);
     // Link to detail page
-    lines.push(`        <a href="/projects/${entry.id}/" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">`);
-    lines.push('            Full Breakdown <span class="ml-2">&rarr;</span>');
+    const href = entry.gameId
+      ? `/games/${entry.gameId.replace(/_/g, '-')}/#devlog`
+      : `/projects/${entry.id}/`;
+    const linkText = entry.gameId ? 'Game page &amp; devlog' : 'Full Breakdown';
+    lines.push(`        <a href="${href}" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">`);
+    lines.push(`            ${linkText} <span class="ml-2">&rarr;</span>`);
     lines.push('        </a>');
     lines.push('    </div>');
     lines.push('</article>');
@@ -144,7 +148,7 @@ export function generateAllSitePages(
 ): Map<string, string> {
   const pages = new Map<string, string>();
   pages.set(`${hub.id}.md`, generateHubMarkdown(hub, entries));
-  for (const entry of entries) {
+  for (const entry of entries.filter(e => !e.gameId)) {
     pages.set(`${entry.id}.md`, generateDetailMarkdown(entry, hub.id));
   }
   return pages;
