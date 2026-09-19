@@ -7,7 +7,8 @@ import type { GameConfig } from '../../engine/types';
 // not as a new game competing with the one it led to.
 const config: GameConfig = {
   gameId: 'kingmaker_squads',
-  label: 'Kingmaker Squads (Origin)',
+  label: 'Kingmaker Squads',
+  supersededBy: 'planetofgreed',
   description: 'Origin project — Planet of Greed\'s wheel/culture-identity design source, superseded by the current, live Planet of Greed (ts/src/games/planetofgreed/). A tactical squad strategy game.',
   color: '#6c8ef7',
   status: 'external',

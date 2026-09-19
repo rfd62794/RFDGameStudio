@@ -152,6 +152,9 @@ export default function GameSelector() {
                 <div className="arcade-card-frame">
                   <div className="arcade-card-header">
                     <span className="arcade-card-title">{config.label}</span>
+                    {config.supersededBy && (
+                      <span className="arcade-card-origin" data-testid={`arcade-card-origin-${config.gameId}`}>Origin</span>
+                    )}
                     <span className={`arcade-status arcade-status--${config.status ?? 'stable'}`}>
                       {(config.status ?? 'stable').toUpperCase()}
                     </span>
