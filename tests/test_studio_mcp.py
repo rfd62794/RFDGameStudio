@@ -283,6 +283,7 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     # Don't let metadata/verification hit git or the network in this test.
     monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
     monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
+    monkeypatch.setattr(tools, "_prepare_site_arcade", lambda: {"ok": True, "steps": []})
 
     mock_build = MagicMock(returncode=0, stdout="", stderr="")
     mock_deploy = MagicMock(returncode=0, stdout="160 files uploaded")
@@ -330,6 +331,7 @@ def _make_deploy_fixture(tmp_path, monkeypatch):
     monkeypatch.setattr(tools, "_DEMO_EXTERNAL_PATHS", {})
     monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
     monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
+    monkeypatch.setattr(tools, "_prepare_site_arcade", lambda: {"ok": True, "steps": []})
 
     metadata_path = tmp_path / "game-metadata.json"
     metadata_path.write_text(

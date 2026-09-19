@@ -176,6 +176,7 @@ def test_studio_deploy_arcade_records_deployed_version_on_success(tmp_path, monk
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
     monkeypatch.setattr(tools, "write_game_metadata", fake_write_metadata)
     monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
+    monkeypatch.setattr(tools, "_prepare_site_arcade", lambda: {"ok": True, "steps": []})
     monkeypatch.setattr(gm, "_METADATA_PATH", metadata_path)
 
     mock_build = MagicMock(returncode=0, stdout="", stderr="")

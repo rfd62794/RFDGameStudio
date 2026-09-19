@@ -694,6 +694,37 @@ def _is_dist_stale(dist_dir: Path, source_dir: Path) -> bool:
     return dist_newest < source_newest
 
 
+def _prepare_site_arcade(run=None) -> dict:
+    """Export the arcade manifest, inject return pills, and refresh build health.
+
+    Runs after builds are copied into the site and before the site build, so
+    data/arcade.json is always generated from fresh health (the cartridge
+    contract), never from a stale arcade_health.json.
+    Returns {"ok": bool, "steps": [{"step", "returncode", "output"}]}.
+    """
+    import os
+    import subprocess
+
+    run = run or subprocess.run
+    repo_root = Path(__file__).parent.parent
+    site_python = str(_SITE_REPO_PATH / ".venv" / "Scripts" / "python.exe")
+    steps = [
+        # shell=True: npx is a .cmd file on Windows
+        ("export_manifest", "npx vite-node tools/export-arcade-manifest.ts", repo_root / "ts", True),
+        ("inject_return", [site_python, "scripts/site/inject_return.py"], _SITE_REPO_PATH, False),
+        ("check_arcade", [site_python, "scripts/site/check_arcade.py"], _SITE_REPO_PATH, False),
+    ]
+    results = []
+    for name, cmd, cwd, shell in steps:
+        proc = run(cmd, cwd=str(cwd), shell=shell, capture_output=True, text=True,
+                   encoding="utf-8", errors="replace", env={**os.environ, "PYTHONUTF8": "1"})
+        output = ((proc.stdout or "") + (proc.stderr or ""))[-1500:]
+        results.append({"step": name, "returncode": proc.returncode, "output": output})
+        if proc.returncode != 0:
+            return {"ok": False, "steps": results}
+    return {"ok": True, "steps": results}
+
+
 def studio_deploy_arcade() -> dict:
     """Copy ts/dist/ into the site repo's static/arcade/rfdgamestudio/,
     copy each example demo's dist/ into static/arcade/{gameId}/,
@@ -815,6 +846,11 @@ def studio_deploy_arcade() -> dict:
                 }
 
             copied_files += sum(1 for _ in demo_target.rglob("*") if _.is_file())
+
+        prepare = _prepare_site_arcade()
+        if not prepare["ok"]:
+            return {"error": "site arcade preparation failed (manifest, return pills or health check)",
+                    "tool": "studio_deploy_arcade", "prepare": prepare}
 
         # The site builds two Hugo sites (main + games studio). Arcade builds are
         # deployed with the games site's config once it exists; before that the
