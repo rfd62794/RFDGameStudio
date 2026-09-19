@@ -175,6 +175,7 @@ sim_results/
 
 # Generated arcade metadata (built from git history at build time)
 ts/src/games/game-metadata.json
+ts/src/games/arcade-manifest.json
 
 # Intake zips are raw AI Studio exports; MANIFEST.md is tracked.
 intake/**/*.zip
