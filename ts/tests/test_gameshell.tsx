@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { GameShell } from '../src/components/GameShell';
 import * as routing from '../src/arcade/routing';
+import { isEmbed } from '../src/arcade/routing';
 
 describe('GameShell', () => {
   it('renders the gameLabel and gameId in the marquee header', async () => {
@@ -82,5 +83,31 @@ describe('GameShell', () => {
     const title = container.querySelector('.game-shell-title');
     expect(title).toBeTruthy();
     root.unmount();
+  });
+});
+
+describe('GameShell embed mode', () => {
+  const setUrl = (u: string) => window.history.replaceState({}, '', u);
+
+  it('isEmbed reads embed=1 from the URL', () => {
+    setUrl('/arcade/rfdgamestudio/?game=shoal&embed=1');
+    expect(isEmbed()).toBe(true);
+    setUrl('/arcade/rfdgamestudio/?game=shoal');
+    expect(isEmbed()).toBe(false);
+    setUrl('/');
+  });
+
+  it('hides the back button when embedded and shows it otherwise', async () => {
+    for (const [url, expected] of [['/?game=scrapcrawl&embed=1', 0], ['/?game=scrapcrawl', 1]] as const) {
+      setUrl(url);
+      const container = document.createElement('div');
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(<GameShell gameLabel="SCRAPCRAWL" gameId="scrapcrawl"><div /></GameShell>);
+      });
+      expect(container.querySelectorAll('.game-shell-back').length).toBe(expected);
+      root.unmount();
+    }
+    setUrl('/');
   });
 });
