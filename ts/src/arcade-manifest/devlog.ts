@@ -44,8 +44,9 @@ export function parseChangelog(text: string): ParseResult {
     const heading = /^## (.+?)\s*$/.exec(line);
     if (heading) {
       flush();
+      const inHeading = /\(([A-Za-z]+\s+\d{1,2},?\s+\d{4})\)\s*$/.exec(heading[1]);
+      date = inHeading ? parseLongDate(inHeading[1]) : null;
       title = heading[1].replace(/\s+—\s+COMPLETED.*$/i, '').trim();
-      date = null;
       continue;
     }
     const dateLine = /^\*\*Date:\*\*\s*(.+?)\s*$/.exec(line);

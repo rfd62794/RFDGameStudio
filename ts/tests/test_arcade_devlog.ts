@@ -30,6 +30,11 @@ describe('parseChangelog', () => {
   it('reports headings without a date instead of inventing one', () => {
     expect(parseChangelog(text).skipped).toEqual(['Undated Work']);
   });
+  it('takes a full date from the heading when there is no Date line, but not a month-only one', () => {
+    const r = parseChangelog('## Spatial-Hash Optimisation — COMPLETED (August 13 2026)\nbody\n## Wasmoon Swap-Test (August 2026)\nbody\n');
+    expect(r.entries).toEqual([{ date: '2026-08-13', title: 'Spatial-Hash Optimisation', source: 'changelog' }]);
+    expect(r.skipped).toEqual(['Wasmoon Swap-Test (August 2026)']);
+  });
 });
 
 describe('parsePatchNotes', () => {
