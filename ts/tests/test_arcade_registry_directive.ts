@@ -22,6 +22,7 @@ const EXPECTED_ORDER = [
   '7_days_to_fry',
   'antsim_redux',
   'facility_escape',
+  'systemic_extract',
   'factory_idle',
   'planetofgreed',
   'planetforge',
@@ -155,7 +156,8 @@ describe('Arcade Registry Directive — July 2026', () => {
 
   it('test_registry_total_count_includes_legacy_origin_projects', () => {
     // 27 pre-existing entries + 5 Legacy/Origin Projects (ADR-023)
-    // + filipino_bpo_simulator (Call Center Tycoon, Sep 2026).
-    expect(GAME_REGISTRY.length).toBe(33);
+    // + filipino_bpo_simulator (Call Center Tycoon, Sep 2026)
+    // + systemic_extract (AI Studio intake, Sep 18 2026).
+    expect(GAME_REGISTRY.length).toBe(34);
   });
 });

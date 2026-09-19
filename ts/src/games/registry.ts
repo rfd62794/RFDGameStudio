@@ -17,6 +17,7 @@ import trinitySiegeConfig from './trinity_siege/config';
 import sevenDaysToFryConfig from './7_days_to_fry/config';
 import antsimReduxConfig from './antsim_redux/config';
 import facilityEscapeConfig from './facility_escape/config';
+import systemicExtractConfig from './systemic_extract/config';
 import factoryIdleConfig from './factory_idle/config';
 import { planetofgreedConfig } from './planetofgreed/config';
 import planetforgeConfig from './planetforge/config';
@@ -65,6 +66,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   sevenDaysToFryConfig,
   antsimReduxConfig,
   facilityEscapeConfig,
+  systemicExtractConfig,
   factoryIdleConfig,
   planetofgreedConfig,
   planetforgeConfig,

@@ -644,7 +644,7 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
-_EXAMPLE_DEMOS = ["ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads", "antsim-redux", "facility-escape"]
+_EXAMPLE_DEMOS = ["ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads", "antsim-redux", "facility-escape", "systemic-extract"]
 # folder name → deployed static subpath (gameId convention uses underscores)
 _DEMO_STATIC_NAME = {
     "brewfield": "brewfield",
@@ -658,6 +658,7 @@ _DEMO_STATIC_NAME = {
     "kingmaker-squads": "kingmaker_squads",
     "antsim-redux": "antsim_redux",
     "facility-escape": "facility_escape",
+    "systemic-extract": "systemic_extract",
 }
 
 _DEMO_EXTERNAL_PATHS: dict[str, Path] = {
