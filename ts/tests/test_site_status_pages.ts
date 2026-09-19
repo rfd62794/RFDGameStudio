@@ -21,6 +21,9 @@ const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
 const stagingDir = resolve(repoRoot, 'docs', 'site-status-pages');
 
+const DETAIL_ENTRIES = SITE_STATUS_ENTRIES.filter(e => !e.gameId);
+const GAME_ENTRIES = SITE_STATUS_ENTRIES.filter(e => e.gameId);
+
 // --- Test 1: Existing pattern read and reused ---
 
 describe('test_existing_pattern_read_and_reused', () => {
@@ -73,16 +76,23 @@ describe('test_all_cards_present_and_clickable', () => {
     }
   });
 
-  it('each card links to its real dedicated page permalink', () => {
+  it('non-game cards link to their detail page; game cards link to the game page devlog', () => {
     const hubMd = generateHubMarkdown(SITE_STATUS_HUB, SITE_STATUS_ENTRIES);
-    for (const entry of SITE_STATUS_ENTRIES) {
-      // Hugo permalink: /projects/{slug}/
-      expect(hubMd).toContain(`/projects/${entry.id}/`);
+    for (const entry of DETAIL_ENTRIES) expect(hubMd).toContain(`/projects/${entry.id}/`);
+    for (const entry of GAME_ENTRIES) {
+      expect(hubMd).toContain(`/games/${entry.gameId!.replace(/_/g, '-')}/#devlog`);
+      expect(hubMd).not.toContain(`/projects/${entry.id}/`);
     }
   });
 
+  it('the four game threads carry their gameId and every entry has an updated date', () => {
+    expect(GAME_ENTRIES.map(e => e.gameId).sort()).toEqual(
+      ['facility_escape', 'mutant_battle_ball', 'planetofgreed', 'shoal']);
+    for (const e of SITE_STATUS_ENTRIES) expect(e.updated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
   it('each detail page file exists in the staging directory', () => {
-    for (const entry of SITE_STATUS_ENTRIES) {
+    for (const entry of DETAIL_ENTRIES) {
       const filePath = resolve(stagingDir, `${entry.id}.md`);
       expect(existsSync(filePath)).toBe(true);
     }
@@ -98,7 +108,7 @@ describe('test_all_cards_present_and_clickable', () => {
 
 describe('test_dedicated_pages_use_full_content', () => {
   it('detail pages contain the full bodyContent, not the compressed cardSummary', () => {
-    for (const entry of SITE_STATUS_ENTRIES) {
+    for (const entry of DETAIL_ENTRIES) {
       const detailMd = generateDetailMarkdown(entry, SITE_STATUS_HUB.id);
       // The full bodyContent must be present
       expect(detailMd).toContain(entry.bodyContent);
@@ -149,7 +159,7 @@ describe('test_dedicated_pages_use_full_content', () => {
 
 describe('test_navigation_back_to_hub_works', () => {
   it('each detail page has a back link to the hub', () => {
-    for (const entry of SITE_STATUS_ENTRIES) {
+    for (const entry of DETAIL_ENTRIES) {
       const detailMd = generateDetailMarkdown(entry, SITE_STATUS_HUB.id);
       // Back link to hub: /projects/studio-status/
       expect(detailMd).toContain(`/projects/${SITE_STATUS_HUB.id}/`);
@@ -159,7 +169,7 @@ describe('test_navigation_back_to_hub_works', () => {
   });
 
   it('each detail page also has a back link to the projects list', () => {
-    for (const entry of SITE_STATUS_ENTRIES) {
+    for (const entry of DETAIL_ENTRIES) {
       const detailMd = generateDetailMarkdown(entry, SITE_STATUS_HUB.id);
       expect(detailMd).toContain('/projects/');
       expect(detailMd).toContain('Back to Projects');
@@ -176,13 +186,14 @@ describe('test_navigation_back_to_hub_works', () => {
 // --- Test 5: No regression ---
 
 describe('test_no_regression', () => {
-  it('generateAllSitePages produces exactly 6 pages (1 hub + 5 detail)', () => {
+  it('generateAllSitePages produces the hub plus one page per non-game entry', () => {
     const pages = generateAllSitePages(SITE_STATUS_HUB, SITE_STATUS_ENTRIES);
-    expect(pages.size).toBe(6);
+    expect(pages.size).toBe(1 + DETAIL_ENTRIES.length);
     expect(pages.has(`${SITE_STATUS_HUB.id}.md`)).toBe(true);
-    for (const entry of SITE_STATUS_ENTRIES) {
+    for (const entry of DETAIL_ENTRIES) {
       expect(pages.has(`${entry.id}.md`)).toBe(true);
     }
+    for (const e of GAME_ENTRIES) expect(pages.has(`${e.id}.md`)).toBe(false);
   });
 
   it('all generated markdown files have valid Hugo front matter (start with ---)', () => {
@@ -197,9 +208,9 @@ describe('test_no_regression', () => {
     }
   });
 
-  it('staging directory contains exactly 6 files', () => {
+  it('staging directory contains exactly the generated pages', () => {
     const files = readdirSync(stagingDir).filter(f => f.endsWith('.md'));
-    expect(files.length).toBe(6);
+    expect(files.length).toBe(1 + DETAIL_ENTRIES.length);
   });
 
   it('existing status board data and tests are unaffected (STATUS_BOARD still has its entries)', () => {

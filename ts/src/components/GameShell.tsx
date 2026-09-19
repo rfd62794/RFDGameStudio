@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { navigateHome } from '../arcade/routing';
+import { navigateHome, isEmbed } from '../arcade/routing';
 
 export interface GameShellProps {
   /** Display name used in the marquee title treatment */
@@ -48,14 +48,16 @@ export function GameShell({
       <header className="game-shell-header">
         <div className="game-shell-header-inner">
           <div className="game-shell-back-group">
-            <button
-              type="button"
-              className="game-shell-back"
-              onClick={() => navigateHome(mode, arcadeBaseUrl)}
-              aria-label="Back to Arcade"
-            >
-              ← Arcade
-            </button>
+            {!isEmbed() && (
+              <button
+                type="button"
+                className="game-shell-back"
+                onClick={() => navigateHome(mode, arcadeBaseUrl)}
+                aria-label="Back to Arcade"
+              >
+                ← Arcade
+              </button>
+            )}
             {headerExtra}
           </div>
 

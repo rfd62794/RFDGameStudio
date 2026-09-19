@@ -7,7 +7,8 @@ import type { GameConfig } from '../../engine/types';
 // as a new game competing with the one it led to.
 const config: GameConfig = {
   gameId: 'dissonance_prototype',
-  label: 'Dissonance Loop Prototype (Origin)',
+  label: 'Dissonance Loop Prototype',
+  supersededBy: 'dissonance',
   description: 'Origin project — the original AI Studio (Gemini API) core-loop prototype that became the live Dissonance Depths (ts/src/games/dissonance/). Tested turn-based combat, relation-based combination mechanics, and Locked/Hinted/Discovered stabilization.',
   color: '#78716c',
   status: 'external',

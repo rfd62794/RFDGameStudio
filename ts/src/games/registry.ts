@@ -40,8 +40,9 @@ import kingmakerSquadsConfig from './kingmaker_squads/config';
 //   - dissonance_prototype: original AI Studio source → Dissonance Depths
 //   - slimegarden + slimebreeder: merged → SlimeWorld
 //   - corpworld + kingmaker_squads: superseded → Planet of Greed
-// Reuses status: 'external' with honest "(Origin)" labeling in both the
-// label and description — no new GameStatus value; see the ADR for why.
+// Reuses status: 'external'; lineage is the `supersededBy` field (Sep 18 2026),
+// which the studio app shows as an "Origin" tag and the site uses for its
+// Origins section — no new GameStatus value; see the ADR for why.
 
 /**
  * Formal game registry. Add new games here.

@@ -35,8 +35,8 @@ Each card below links to a dedicated breakdown page with the full real history a
         </div>
         <p class="text-gray-400 mb-4">Wa-Tor-inspired reef sandbox — six-stage performance investigation to production TS-native migration</p>
         <p class="text-gray-300 mb-6">Live on itch.io + rfditservices.com arcade. TS-native migration complete (151.7x speedup). artGen fully consumed. Devlog posted. No current open items.</p>
-        <a href="/projects/studio-status-shoal/" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
-            Full Breakdown <span class="ml-2">&rarr;</span>
+        <a href="/games/shoal/#devlog" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
+            Game page &amp; devlog <span class="ml-2">&rarr;</span>
         </a>
     </div>
 </article>
@@ -50,8 +50,8 @@ Each card below links to a dedicated breakdown page with the full real history a
         </div>
         <p class="text-gray-400 mb-4">Dark-corporate boardroom strategy game — the fusion of CorpWorld, KingMaker Squads, and Genesis Ore narrative</p>
         <p class="text-gray-300 mb-6">Live on itch.io + rfditservices.com arcade. Five-chapter canon locked. CorpWorld and KingMaker Squads retired (source preserved). Devlog posted. Two items explicitly deferred: culture stat asymmetry, Signal's authored Boardroom Event content.</p>
-        <a href="/projects/studio-status-planet-of-greed/" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
-            Full Breakdown <span class="ml-2">&rarr;</span>
+        <a href="/games/planetofgreed/#devlog" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
+            Game page &amp; devlog <span class="ml-2">&rarr;</span>
         </a>
     </div>
 </article>
@@ -65,8 +65,8 @@ Each card below links to a dedicated breakdown page with the full real history a
         </div>
         <p class="text-gray-400 mb-4">Mutant sports combat game mid major creative overhaul — Neo Battlopolis, six-Brand Trinity, Body Part Synergy</p>
         <p class="text-gray-300 mb-6">Not deployed. Match engine bugs fixed, TS-native migration done, Minimal Real Game Loop built. Paper Doll module with 8 ChimeraLab patterns ported, Character Viewer built, 10-technique comparison completed. Real designed-not-built game systems: Brand/Trinity naming, OEM Quality tiers, Frame/Forge economy, Gravekeeper, Tournament structure. Roster-meaning question deliberately left open.</p>
-        <a href="/projects/studio-status-mutant-battle-ball/" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
-            Full Breakdown <span class="ml-2">&rarr;</span>
+        <a href="/games/mutant-battle-ball/#devlog" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
+            Game page &amp; devlog <span class="ml-2">&rarr;</span>
         </a>
     </div>
 </article>
@@ -80,8 +80,8 @@ Each card below links to a dedicated breakdown page with the full real history a
         </div>
         <p class="text-gray-400 mb-4">Stealth-infiltration chapter with locked July infrastructure and new Loud/Rush design from tonight's session</p>
         <p class="text-gray-300 mb-6">Real, locked infrastructure from July: turnEngine, guardAI, physicsEngine, roomGenerator, levelSolver (real Dijkstra). New design: Loud meter (FF7 Shinra Tower model), Rush system (fortify room, goal never changes), Trinity Siege RPS skeleton reused for Rush-enemy resolution. Real open items: exit-reachability during Rush, intensity curve, discrete-juncture placement.</p>
-        <a href="/projects/studio-status-facility-escape/" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
-            Full Breakdown <span class="ml-2">&rarr;</span>
+        <a href="/games/facility-escape/#devlog" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center">
+            Game page &amp; devlog <span class="ml-2">&rarr;</span>
         </a>
     </div>
 </article>

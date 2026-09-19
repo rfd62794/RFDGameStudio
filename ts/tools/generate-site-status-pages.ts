@@ -14,7 +14,7 @@
  * Or from repo root:
  *   npx vite-node ts/tools/generate-site-status-pages.ts
  */
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { SITE_STATUS_HUB, SITE_STATUS_ENTRIES } from '../src/status/site-pages.data';
 import { generateAllSitePages } from '../src/status/generateSitePages';
@@ -25,12 +25,17 @@ const pages = generateAllSitePages(SITE_STATUS_HUB, SITE_STATUS_ENTRIES);
 const outputDir = resolve(__dirname, '..', '..', 'docs', 'site-status-pages');
 mkdirSync(outputDir, { recursive: true });
 
+// Remove pages from earlier runs so dropped detail pages don't linger.
+for (const f of readdirSync(outputDir)) {
+  if (f.endsWith('.md')) unlinkSync(resolve(outputDir, f));
+}
+
 for (const [filename, content] of pages) {
   const outputPath = resolve(outputDir, filename);
   writeFileSync(outputPath, content, 'utf-8');
   console.log(`Generated: ${outputPath}`);
 }
 
-console.log(`\nTotal pages: ${pages.size} (1 hub + ${SITE_STATUS_ENTRIES.length} detail)`);
+console.log(`\nTotal pages: ${pages.size}`);
 console.log(`Staging dir: ${outputDir}`);
 console.log(`\nNext step: run scripts/site/sync_status_pages.py in RFD_IT_Services_Site to port to content/projects/`);

@@ -24,6 +24,10 @@ export type StatusBadge = 'Live' | 'In Progress' | 'Designed' | 'Complete';
 export interface SiteStatusEntry {
   /** Slug used for the Hugo page filename and permalink. */
   id: string;
+  /** Registry gameId when this thread is one game; its report then lives on the game page. */
+  gameId?: string;
+  /** Date the report content was last verified (YYYY-MM-DD). */
+  updated: string;
   /** Display name shown on the card and detail page title. */
   name: string;
   /** Status badge (Live / In Progress / Designed / Complete). */

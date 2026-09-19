@@ -136,9 +136,28 @@ export interface GameConfig {
   genre?: PrimaryGenre;       // single, curated primary genre
   tags?: string[];            // looser, optional secondary tags (itch.io Genre+Tags precedent)
   patchNotesPath?: string;    // path relative to ts/src/games/, e.g. 'succession/PATCH_NOTES_v0.2.0.md'
+
+  // Arcade reorganization (Sep 18 2026). All optional/additive.
+  supersededBy?: string;      // gameId this game became (Origins section, Lineage row)
+  controlsHint?: string;      // Controls card on the game page
+  stack?: string[];           // Stack row on the game page
+  platforms?: string[];       // Platforms row (site default: ['Browser'])
+  devlogTag?: string;         // WordPress tag slug; default = gameId with '_' → '-'
+  arcadeSection?: ArcadeSection; // override for the derived arcade section
+  itch?: { url: string; gameId?: number }; // itch.io page + numeric id (ownership checks later)
+  leaderboards?: LeaderboardDef[];        // player seam: boards declared as data
+  saves?: boolean;                        // player seam: game uses protocol saves
 }
 
 export type GameStatus = 'stable' | 'beta' | 'dev' | 'external' | 'tool';
+
+export type ArcadeSection = 'featured' | 'development' | 'prototype' | 'origin';
+
+export interface LeaderboardDef {
+  id: string;
+  label: string;
+  order: 'higher' | 'lower';
+}
 
 // Curated primary genre taxonomy, grounded in the real catalog
 // (drafted during arcade-structure research, Aug 2026). One primary
