@@ -17,7 +17,7 @@
 |---|---|---|---|---|---|---|
 | 1 | Shoal | Ecosystem Sim | Emergent Sandbox | STABLE | Lua/Python | Boids-based reef — fish, sharks, algae pressure |
 | 2 | Derby Sim | Management Sim | Breeding / Sports | STABLE | PyGame | Race, breed, bet. Win/Place/Show, career tracking |
-| 3 | Brewfield | Roguelike | Emergent Sandbox | STABLE | Lua/Python | Element × Component, Wa-Tor trophic chemistry |
+| 3 | Brewfield | Roguelike | Emergent Sandbox | **RETIRED** | Lua/Python | Retired per Robert 2026-09-20, superseded by Dissonance Depths. Source read-only. Its Element × Component brewing and Wa-Tor trophic chemistry are being merged into Dissonance |
 | 4 | Snake Roguelike | Arcade Roguelite | Card / Synergy | BETA | PyGame | Steal segments, 9 evolution cards |
 | 5 | Mutant Battle Ball | Tactics / Auto Battler | Sports Sim | DEV | React/TS | Assemble mutants, 2v2, Anatomy Module shared infra |
 | 6 | SlimeCoin | Arcade / Casual | Economy | DEV | React/TS | Real-time coin pusher, 15 rounds, 12 chip cards |
@@ -49,8 +49,8 @@
 |---|---|
 | Deck Builder | Wire & Rust |
 | Ecosystem Sim | Shoal, VoidRift, AntSim Redux |
-| Emergent Sandbox | Shoal, Brewfield |
-| Roguelike / Roguelite | Brewfield, Snake Roguelike, Chimera Wilds, ScrapCrawl |
+| Emergent Sandbox | Shoal (Brewfield retired) |
+| Roguelike / Roguelite | Snake Roguelike, Chimera Wilds, ScrapCrawl, Dissonance Depths (Brewfield retired) |
 | Management Sim | Derby Sim, Gladiator Arena |
 | Breeding / Creature Collector | Derby Sim, SlimeBreeder, SlimeGarden |
 | Sports Sim | Derby Sim, Mutant Battle Ball |
@@ -103,7 +103,7 @@
 | Succession | ✅ | ✅ | Live — August 16 2026 |
 | Gladiator Arena | ✅ | ❌ | Verified, pipeline ready, not yet published |
 | Derby Sim | 🟡 | ❌ | STABLE but needs packaging assessment |
-| Brewfield | 🟡 | ❌ | STABLE but needs packaging assessment |
+| Brewfield | — | — | RETIRED 2026-09-20. Do not package or publish |
 | All others | ❌ | ❌ | DEV/EXTERNAL — not itch-ready |
 
 ---
@@ -123,6 +123,7 @@
 
 ## Changelog
 | Date | Change |
+| Sep 20 2026 | Brewfield RETIRED, confirmed by Robert. docs/state/StatusBoard.md had said retired since Aug 15; this file said STABLE from Aug 16 and config.ts said 'stable' until today. StatusBoard was right. Best parts merging into Dissonance Depths. |
 |---|---|
 | Aug 16 2026 | Initial tracker created. 21 games catalogued. Genre map, gap analysis, itch status |
 | Aug 16 2026 | Succession published to itch.io. Status updated to EXTERNAL. |

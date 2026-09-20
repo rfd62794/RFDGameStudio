@@ -149,7 +149,11 @@ export interface GameConfig {
   saves?: boolean;                        // player seam: game uses protocol saves
 }
 
-export type GameStatus = 'stable' | 'beta' | 'dev' | 'external' | 'tool';
+// 'retired' added 2026-09-20: Brewfield was retired in docs/state/StatusBoard.md on
+// Aug 15 and stayed 'stable' in config for a month because the type had no way to
+// say otherwise. A status vocabulary that cannot express retirement guarantees
+// retired games keep advertising themselves as publishable.
+export type GameStatus = 'stable' | 'beta' | 'dev' | 'external' | 'tool' | 'retired';
 
 export type ArcadeSection = 'featured' | 'development' | 'prototype' | 'origin';
 
