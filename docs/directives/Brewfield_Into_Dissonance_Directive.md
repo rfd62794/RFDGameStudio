@@ -135,10 +135,14 @@ there is more to it.
 
 | Field | Value |
 |---|---|
-| Status | Draft |
-| Assigned to | - |
-| Branch | - |
+| Status | Review |
+| Assigned to | devin |
+| Branch | directive/rfdgamestudio-brewfield-into-dissonance-directive |
 | Base branch | - |
 
 **Status log**
+- 2026-09-19 22:20 · robert-claude · Draft → Queued — residue layer + advanced effects into Dissonance's Lua/YAML; Brewfield source stays read-only
+- 2026-09-19 22:20 · robert-claude · Queued → Approved
+- 2026-09-19 22:20 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-brewfield-into-dissonance-directive
+- 2026-09-20 07:09 · devin · In progress → Review
 <!-- queue:end -->

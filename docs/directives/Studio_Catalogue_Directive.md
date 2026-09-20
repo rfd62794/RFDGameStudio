@@ -140,10 +140,14 @@ ambiguous, and any judgement you made that it did not cover.
 
 | Field | Value |
 |---|---|
-| Status | Draft |
-| Assigned to | - |
-| Branch | - |
+| Status | Review |
+| Assigned to | devin |
+| Branch | directive/rfdgamestudio-studio-catalogue-directive |
 | Base branch | - |
 
 **Status log**
+- 2026-09-19 22:14 · robert-claude · Draft → Queued — makes the studio addressable so cross-game directives become predicates
+- 2026-09-19 22:15 · robert-claude · Queued → Approved
+- 2026-09-19 22:15 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-catalogue-directive
+- 2026-09-19 22:35 · devin · In progress → Review
 <!-- queue:end -->

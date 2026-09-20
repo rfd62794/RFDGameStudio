@@ -113,10 +113,14 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 
 | Field | Value |
 |---|---|
-| Status | Draft |
-| Assigned to | - |
-| Branch | - |
+| Status | Blocked |
+| Assigned to | devin |
+| Branch | directive/rfdgamestudio-shared-ui-wave1-directive |
 | Base branch | - |
 
 **Status log**
+- 2026-09-19 22:26 · robert-claude · Draft → Queued — 3 published games have no arcade exit; GameShell adoption + shared primitives, no palette or log changes
+- 2026-09-19 22:26 · robert-claude · Queued → Approved
+- 2026-09-19 22:26 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-ui-wave1-directive
+- 2026-09-20 08:37 · claude-heartbeat · In progress → Blocked — run pid 24316 is gone and the directive never moved; started 2026-09-19T22:26:26
 <!-- queue:end -->
