@@ -147,6 +147,7 @@ export interface GameConfig {
   itch?: { url: string; gameId?: number }; // itch.io page + numeric id (ownership checks later)
   leaderboards?: LeaderboardDef[];        // player seam: boards declared as data
   saves?: boolean;                        // player seam: game uses protocol saves
+  source?: DemoSource;                    // single source of truth for demo lists (studio_mcp.demos)
 }
 
 // 'retired' added 2026-09-20: Brewfield was retired in docs/state/StatusBoard.md on
@@ -162,6 +163,11 @@ export interface LeaderboardDef {
   label: string;
   order: 'higher' | 'lower';
 }
+
+/** Where a standalone demo's build comes from. Absent = a game built inside the studio app. */
+export type DemoSource =
+  | { kind: 'example'; slug: string }   // examples/<slug>/ (AI Studio exports)
+  | { kind: 'sibling'; repo: string };  // a sibling repository, e.g. SlimeBreeder
 
 // Curated primary genre taxonomy, grounded in the real catalog
 // (drafted during arcade-structure research, Aug 2026). One primary
