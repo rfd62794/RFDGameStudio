@@ -71,9 +71,9 @@ def test_studio_deploy_arcade_fails_on_stale_dist():
         fake_tools_path = str(repo_root / "studio_mcp" / "tools.py")
         with patch("studio_mcp.tools.__file__", fake_tools_path), \
              patch("studio_mcp.tools._SITE_REPO_PATH", repo_root / "site"), \
-             patch("studio_mcp.tools._EXAMPLE_DEMOS", ["ledger"]), \
-             patch("studio_mcp.tools.GAME_PATHS", {}), \
-             patch("studio_mcp.tools._EXTERNAL_REPOS", {}), \
+             patch("studio_mcp.tools._example_demos", lambda: ["ledger"]), \
+             patch("studio_mcp.tools.game_paths", lambda: {}), \
+             patch("studio_mcp.tools.external_repos", lambda: {}), \
              patch("studio_mcp.tools.write_game_metadata"):
             result = studio_deploy_arcade()
 
@@ -169,10 +169,11 @@ def test_studio_deploy_arcade_records_deployed_version_on_success(tmp_path, monk
             encoding="utf-8",
         )
 
-    monkeypatch.setattr(tools, "_EXAMPLE_DEMOS", ["ledger"])
-    monkeypatch.setattr(tools, "GAME_PATHS", {"demo_game": ["games/demo_game"]})
-    monkeypatch.setattr(gm, "GAME_PATHS", {"demo_game": ["games/demo_game"]})
-    monkeypatch.setattr(tools, "_EXTERNAL_REPOS", {})
+    monkeypatch.setattr(tools, "_example_demos", lambda: ["ledger"])
+    monkeypatch.setattr(tools, "game_paths", lambda: {"demo_game": ["games/demo_game"]})
+    monkeypatch.setattr(gm, "game_paths", lambda: {"demo_game": ["games/demo_game"]})
+    monkeypatch.setattr(gm, "external_repos", lambda: {})
+    monkeypatch.setattr(tools, "external_repos", lambda: {})
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
     monkeypatch.setattr(tools, "write_game_metadata", fake_write_metadata)
     monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})

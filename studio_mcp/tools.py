@@ -41,14 +41,15 @@ import yaml
 from studio.executor import LuaError
 from studio.runtime import load_game
 from studio_mcp.game_metadata import (
-    GAME_PATHS,
+    game_paths,
     PIPELINE_STAGE_WEBSITE_COLLECTION,
-    _EXTERNAL_REPOS,
+    external_repos,
     _read_version,
     advance_pipeline_stage,
     record_deployed_version,
     write_game_metadata,
 )
+from studio_mcp.demos import registry as demo_registry
 from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
 from studio_mcp.scaffold import studio_scaffold_game
 from studio_mcp.session_store import create_session, get_session
@@ -644,26 +645,17 @@ def studio_write_arcade_page(
         return {"error": str(exc), "tool": "studio_write_arcade_page"}
 
 
-_EXAMPLE_DEMOS = ["ledger", "trinity-siege", "slimebreeder", "corpworld", "slimegarden", "slimeworld", "7-days-to-fry", "kingmaker-squads", "antsim-redux", "facility-escape", "systemic-extract"]
-# folder name → deployed static subpath (gameId convention uses underscores)
-_DEMO_STATIC_NAME = {
-    "brewfield": "brewfield",
-    "ledger": "ledger",
-    "trinity-siege": "trinity_siege",
-    "slimebreeder": "slimebreeder",
-    "corpworld": "corpworld",
-    "slimegarden": "slimegarden",
-    "slimeworld": "slimeworld",
-    "7-days-to-fry": "7_days_to_fry",
-    "kingmaker-squads": "kingmaker_squads",
-    "antsim-redux": "antsim_redux",
-    "facility-escape": "facility_escape",
-    "systemic-extract": "systemic_extract",
-}
+def _example_demos() -> list[str]:
+    """Demo folder keys deployed to the arcade (derived from GameConfig.source; spec §4)."""
+    return demo_registry.example_demos(demo_registry.load_registry())
 
-_DEMO_EXTERNAL_PATHS: dict[str, Path] = {
-    "slimebreeder": sibling_repo("SlimeBreeder"),
-}
+
+def _demo_static_names() -> dict[str, str]:
+    return demo_registry.demo_static_names(demo_registry.load_registry())
+
+
+def _external_demo_paths() -> dict[str, Path]:
+    return demo_registry.external_demo_paths(demo_registry.load_registry())
 
 
 def _demo_source_path(demo_slug: str, repo_root: Path) -> Path:
@@ -673,8 +665,9 @@ def _demo_source_path(demo_slug: str, repo_root: Path) -> Path:
     This is a function rather than a module-level dict so tests that
     monkeypatch __file__ get the expected temp repo paths.
     """
-    if demo_slug in _DEMO_EXTERNAL_PATHS:
-        return _DEMO_EXTERNAL_PATHS[demo_slug]
+    external = _external_demo_paths()
+    if demo_slug in external:
+        return external[demo_slug]
     return repo_root / "examples" / demo_slug
 
 
@@ -751,7 +744,8 @@ def studio_deploy_arcade() -> dict:
         }
 
     # Verify all example demo dists exist before copying anything
-    for demo_slug in _EXAMPLE_DEMOS:
+    demos = _example_demos()
+    for demo_slug in demos:
         demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
         if not demo_dist.exists():
             return {
@@ -767,7 +761,7 @@ def studio_deploy_arcade() -> dict:
         }
 
     stale_demo: str | None = None
-    for demo_slug in _EXAMPLE_DEMOS:
+    for demo_slug in demos:
         demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
         demo_source = repo_root / "examples" / demo_slug / "src"
         if _is_dist_stale(demo_dist, demo_source):
@@ -827,9 +821,9 @@ def studio_deploy_arcade() -> dict:
             copied_files += sum(1 for _ in standalone_target.rglob("*") if _.is_file())
 
         # Copy each example demo
-        for demo_slug in _EXAMPLE_DEMOS:
+        for demo_slug in demos:
             demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
-            static_name = _DEMO_STATIC_NAME[demo_slug]
+            static_name = _demo_static_names()[demo_slug]
             demo_target = _SITE_REPO_PATH / "static" / "arcade" / static_name
             if demo_target.exists():
                 shutil.rmtree(demo_target)
@@ -901,12 +895,14 @@ def studio_deploy_arcade() -> dict:
         # the main ts/dist bundle plus every example demo — since
         # studio_deploy_arcade succeeds or fails as one unit, not per-game.
         if deploy_proc.returncode == 0:
-            for tracked_game_id in GAME_PATHS:
+            paths_by_game = game_paths()
+            repos = external_repos()
+            for tracked_game_id in paths_by_game:
                 advance_pipeline_stage(tracked_game_id, PIPELINE_STAGE_WEBSITE_COLLECTION)
-                if tracked_game_id in _EXTERNAL_REPOS:
-                    deployed_version = _read_version(_EXTERNAL_REPOS[tracked_game_id], ["."])
+                if tracked_game_id in repos:
+                    deployed_version = _read_version(repos[tracked_game_id], ["."])
                 else:
-                    deployed_version = _read_version(repo_root, GAME_PATHS[tracked_game_id])
+                    deployed_version = _read_version(repo_root, paths_by_game[tracked_game_id])
                 record_deployed_version(tracked_game_id, deployed_version)
 
         return {

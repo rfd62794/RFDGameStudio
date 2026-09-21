@@ -268,7 +268,7 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     (dist_dir / "assets" / "game.js").write_text("console.log('hi')", encoding="utf-8")
 
     # Create fake example demo dist/ directories
-    for demo_slug in tools._EXAMPLE_DEMOS:
+    for demo_slug in tools._example_demos():
         demo_dist = tmp_path / "examples" / demo_slug / "dist"
         demo_dist.mkdir(parents=True)
         (demo_dist / "index.html").write_text(f"<h1>{demo_slug}</h1>", encoding="utf-8")
@@ -278,7 +278,7 @@ def test_deploy_arcade_copies_files_when_dist_exists(tmp_path, monkeypatch) -> N
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
     # Use the fake examples/ demos above, not a real sibling SlimeBreeder build.
-    monkeypatch.setattr(tools, "_DEMO_EXTERNAL_PATHS", {})
+    monkeypatch.setattr(tools, "_external_demo_paths", lambda: {})
 
     # Don't let metadata/verification hit git or the network in this test.
     monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
@@ -318,7 +318,7 @@ def _make_deploy_fixture(tmp_path, monkeypatch):
     dist_dir.mkdir(parents=True)
     (dist_dir / "index.html").write_text("<h1>Game</h1>", encoding="utf-8")
 
-    for demo_slug in tools._EXAMPLE_DEMOS:
+    for demo_slug in tools._example_demos():
         demo_dist = tmp_path / "examples" / demo_slug / "dist"
         demo_dist.mkdir(parents=True)
         (demo_dist / "index.html").write_text(f"<h1>{demo_slug}</h1>", encoding="utf-8")
@@ -328,14 +328,14 @@ def _make_deploy_fixture(tmp_path, monkeypatch):
     monkeypatch.setattr(tools, "__file__", str(fake_module_dir / "tools.py"))
     monkeypatch.setattr(tools, "_SITE_REPO_PATH", site_repo)
     # Use the fake examples/ demos above, not a real sibling SlimeBreeder build.
-    monkeypatch.setattr(tools, "_DEMO_EXTERNAL_PATHS", {})
+    monkeypatch.setattr(tools, "_external_demo_paths", lambda: {})
     monkeypatch.setattr(tools, "write_game_metadata", lambda: None)
     monkeypatch.setattr(tools, "verify_arcade_deploy", lambda: {"ok": True, "games": {}})
     monkeypatch.setattr(tools, "_prepare_site_arcade", lambda: {"ok": True, "steps": []})
 
     metadata_path = tmp_path / "game-metadata.json"
     metadata_path.write_text(
-        json.dumps({gid: {"pipeline_stage": "ai_studio"} for gid in tools.GAME_PATHS}),
+        json.dumps({gid: {"pipeline_stage": "ai_studio"} for gid in tools.game_paths()}),
         encoding="utf-8",
     )
 
@@ -362,7 +362,7 @@ def test_arcade_deploy_sets_website_collection_on_real_success(tmp_path, monkeyp
 
     assert "error" not in result
     data = json.loads(metadata_path.read_text(encoding="utf-8"))
-    for game_id in tools.GAME_PATHS:
+    for game_id in tools.game_paths():
         assert data[game_id]["pipeline_stage"] == "website_collection"
 
 
@@ -380,5 +380,5 @@ def test_arcade_deploy_does_not_advance_stage_on_real_failure(tmp_path, monkeypa
         tools.studio_deploy_arcade()
 
     data = json.loads(metadata_path.read_text(encoding="utf-8"))
-    for game_id in tools.GAME_PATHS:
+    for game_id in tools.game_paths():
         assert data[game_id]["pipeline_stage"] == "ai_studio"

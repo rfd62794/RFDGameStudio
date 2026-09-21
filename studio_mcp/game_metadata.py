@@ -11,73 +11,19 @@ import json
 import subprocess
 from pathlib import Path
 
-from studio_mcp.paths import sibling_repo
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# External repos whose git history is the source of truth for a game.
-# Keys must match GAME_PATHS.
-_EXTERNAL_REPOS: dict[str, Path] = {
-    "slimebreeder": sibling_repo("SlimeBreeder"),
-}
+from studio_mcp.demos import registry as demo_registry
 
-# One entry per game, pointing at every real path that constitutes it.
-# Standalone (embedUrl) demos only have an examples/ path. Lua-ported
-# games have both games/{slug}/ and ts/src/games/{slug}/.
-GAME_PATHS: dict[str, list[str]] = {
-    "horse_racing": ["games/horse_racing", "ts/src/games/horse_racing"],
-    "slither_rogue": ["games/slither_rogue", "ts/src/games/slither_rogue"],
-    "mutant_battle_ball": ["games/mutant_battle_ball", "ts/src/games/mutant_battle_ball"],
-    "slime_coin": ["games/slime_coin", "ts/src/games/slime_coin"],
-    "chimera_wilds": ["games/chimera_wilds", "ts/src/games/chimera_wilds"],
-    "scrapcrawl": ["games/scrapcrawl", "ts/src/games/scrapcrawl"],
-    "brewfield": ["games/brewfield", "ts/src/games/brewfield"],
-    "voiddrift": ["ts/src/games/voiddrift"],  # config only, real source is external
-    "ledger": ["examples/ledger"],
-    "shoal": ["games/shoal", "ts/src/games/shoal"],
-    "trinity_siege": ["examples/trinity-siege"],
-    "slimebreeder": [],  # external repo, see _EXTERNAL_REPOS
-    # Added: these 7 are real GAME_REGISTRY entries (see ts/src/games/registry.ts)
-    # that were never given a GAME_PATHS entry, so they silently never appeared
-    # in game-metadata.json at all (not tracked=false -- just absent).
-    "dissonance": ["games/dissonance", "ts/src/games/dissonance"],
-    "slimeworld": ["games/slimeworld", "ts/src/games/slimeworld", "examples/slimeworld"],
-    "corpworld": ["ts/src/games/corpworld", "examples/corpworld"],
-    "7_days_to_fry": ["ts/src/games/7_days_to_fry", "examples/7-days-to-fry"],
-    "kingmaker_squads": ["ts/src/games/kingmaker_squads", "examples/kingmaker-squads"],
-    "antsim_redux": ["ts/src/games/antsim_redux", "examples/antsim-redux"],
-    "facility_escape": ["ts/src/games/facility_escape", "examples/facility-escape"],
-    "systemic_extract": ["ts/src/games/systemic_extract", "examples/systemic-extract"],
-    "house_of_kings_collab": ["ts/src/games/house_of_kings_collab"],
-    "voiddrift_redux": ["ts/src/games/voiddrift_redux"],
-    "succession": ["ts/src/games/succession"],
-    # Added Aug 23 2026 (Arcade Metadata Expansion date-accuracy pass):
-    # these 9 are real GAME_REGISTRY entries that were never given a
-    # GAME_PATHS entry either -- same real gap as the "Added" block
-    # above. `planetofgreed` previously had a hand-written
-    # game-metadata.json entry with real dates that a full regeneration
-    # silently dropped entirely (not tracked=false -- fully absent from
-    # the dict), since generate_game_metadata() only ever emits
-    # GAME_PATHS keys. examples/tmp source dirs for the config.ts-only
-    # entries below (planetforge, dissonance_prototype, slimegarden,
-    # factory_idle) are confirmed untracked by git (0 files via
-    # `git ls-files`), so only the real, tracked ts/src/games/ path is
-    # listed -- the config.ts fallback in _git_dates covers these.
-    "planetofgreed": ["ts/src/games/planetofgreed"],
-    "gladiator_arena": ["ts/src/games/gladiator_arena"],
-    "planetforge": ["ts/src/games/planetforge"],
-    "character_viewer": ["ts/src/games/character_viewer"],
-    "technique_showcase": ["ts/src/games/technique_showcase"],
-    "role_symbol_viewer": ["ts/src/games/role_symbol_viewer"],
-    "dissonance_prototype": ["ts/src/games/dissonance_prototype"],
-    "slimegarden": ["ts/src/games/slimegarden"],
-    "factory_idle": ["ts/src/games/factory_idle"],
-    # Added Sep 13 2026: registered in ts/src/games/registry.ts without a
-    # GAME_PATHS entry, so they were absent from game-metadata.json.
-    "wire_rust": ["games/wire_rust", "ts/src/games/wire_rust"],
-    "choke_point": ["games/choke_point", "ts/src/games/choke_point"],
-    "filipino_bpo_simulator": ["ts/src/games/filipino_bpo_simulator", "intake/filipino-bpo-simulator"],
-}
+
+def game_paths() -> dict[str, list[str]]:
+    """Every registered game → the paths whose git history dates it (derived; spec §4)."""
+    return demo_registry.game_paths(demo_registry.load_registry(), REPO_ROOT)
+
+
+def external_repos() -> dict[str, Path]:
+    """Games whose history lives in a sibling repo (derived from `source.kind == 'sibling'`)."""
+    return demo_registry.external_repos(demo_registry.load_registry())
 
 
 def _run_git(cwd: Path, args: list[str]) -> str:
@@ -265,13 +211,14 @@ def generate_game_metadata(
     existing_deployed_versions = existing_deployed_versions or {}
     result: dict[str, dict[str, object]] = {}
 
-    for game_id, paths in GAME_PATHS.items():
+    repos = external_repos()
+    for game_id, paths in game_paths().items():
         created = ""
         last_updated = ""
         version = "0.1.0"
         tracked = False
 
-        external_repo = _EXTERNAL_REPOS.get(game_id)
+        external_repo = repos.get(game_id)
         if external_repo and external_repo.exists() and (external_repo / ".git").exists():
             created, last_updated = _git_dates(external_repo, ["."])
             version = _read_version(external_repo, ["."])
