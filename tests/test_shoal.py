@@ -12,6 +12,7 @@ def test_shoal_init_and_tick() -> None:
     """Load the game, initialize, and run a few ticks without crashing."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
 
     render_state = call(session, "init_game", data)
     assert "world" in render_state
@@ -32,6 +33,7 @@ def test_shoal_spawning_and_culling() -> None:
     """Click-spawn and cull tools modify the simulation."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
 
     call(session, "init_game", data)
     render_state = call(session, "tick_game", 0.05, { "tool": "fish", "x": 100, "y": 100, "clicked": True })
@@ -99,6 +101,7 @@ def test_fish_school_align_headings() -> None:
 
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -174,6 +177,7 @@ def test_fish_escape_chance_scales_with_speed() -> None:
     """A fast fish should survive contact more often than a stationary one."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     trials = 60
 
     slow_survives = sum(1 for _ in range(trials) if _run_contact_trial(session, data, 0))
@@ -188,6 +192,7 @@ def test_escaped_fish_is_knocked_back() -> None:
 
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -216,6 +221,7 @@ def test_breed_thresholds_read_from_data() -> None:
     """Fish and shark breeding thresholds are driven by data, not hardcoded values."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -250,6 +256,7 @@ def test_fish_breeds_reliably_below_carrying_capacity() -> None:
     """A fish well below carrying capacity breeds almost certainly on the first graze."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -274,6 +281,7 @@ def test_fish_does_not_breed_at_or_above_carrying_capacity() -> None:
     """A fish at carrying capacity has a zero breed probability and cannot spawn."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -298,6 +306,7 @@ def test_failed_breed_roll_does_not_reset_fed_or_age() -> None:
     """A failed logistic breed roll leaves fed and age unchanged; the fish stays ready."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -327,6 +336,7 @@ def test_shark_sunlit_surface_hits_exposure_threshold() -> None:
     """A shark parked at the true surface reaches exposure threshold in ~2.5s."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -353,6 +363,7 @@ def test_flesh_chunk_sinks_after_burst_decay() -> None:
     """A chunk keeps sinking from its own sink rate even after burst velocity decays."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -394,6 +405,7 @@ def test_chunk_despawns_when_it_reaches_floor() -> None:
     """A chunk sinks to the floor and is removed."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -428,6 +440,7 @@ def test_chunk_does_not_despawn_before_reaching_floor() -> None:
     """A shallow chunk does not despawn within the old decay window."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -449,6 +462,7 @@ def test_fish_cold_accumulates_and_dies_in_deep_water() -> None:
     """A fish held in the hadopelagic reaches cold threshold, then dies from cold damage."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -477,6 +491,7 @@ def test_depth_bias_scales_with_cold_danger() -> None:
     """Deep fish feel a stronger upward pull than shallow fish."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -506,6 +521,7 @@ def test_fish_ignores_unsafe_algae() -> None:
     """Fish do not seek algae whose depth exceeds the safe cold rate."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -526,6 +542,7 @@ def test_shark_prefers_nearby_chunk_over_farther_fish() -> None:
     """Sharks seek a closer chunk even when a live fish is also visible."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -549,6 +566,7 @@ def test_shark_targets_chunk_at_same_range_as_fish() -> None:
     """A chunk inside the (now equal) flesh perception is targeted even when a fish is farther away."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -581,6 +599,7 @@ def test_fish_slows_inside_slowing_radius() -> None:
     """Fish within slowing_radius approach algae at a lower speed than one outside."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -610,6 +629,7 @@ def test_turn_rate_limits_direction_change() -> None:
     """A creature cannot turn instantly; a hard turn takes multiple ticks."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -642,6 +662,7 @@ def test_drag_slows_over_time() -> None:
     """A drifting creature loses speed when no force is applied."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -672,6 +693,7 @@ def test_turn_rate_scales_with_speed() -> None:
 
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -728,6 +750,7 @@ def test_discrete_eating_prefers_nearest_chunk() -> None:
     """When a shark overlaps both a fish and a chunk, the closer chunk is eaten."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -775,6 +798,7 @@ def test_chunk_eat_range_is_larger_than_body_collision() -> None:
     """A shark 15 units from a chunk (between old 12 and new 20 range) now eats it."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -976,6 +1000,7 @@ def test_fish_kill_uses_configured_hunger_refund() -> None:
     """A fish kill subtracts data.creatures.shark.fish_hunger_refund (4), not a hardcoded value."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1057,6 +1082,7 @@ def test_chunk_despawns_after_floor_grace_period() -> None:
     """A chunk reaching the floor survives until floor_grace_time has elapsed."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1262,6 +1288,7 @@ def test_shark_exposure_decays_in_safe_water() -> None:
     """Exposure recovers in a zero-rate band and damage stops once below threshold."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
@@ -1298,6 +1325,7 @@ def test_fish_cold_exposure_decays_in_safe_water() -> None:
     """Fish cold exposure recovers in shallow water and damage stops once below threshold."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["steering_weights"]["fish"]["wander"] = 0
     data["steering_weights"]["fish"]["seek_algae"] = 0
     data["steering_weights"]["fish"]["flee_shark"] = 0
@@ -1338,6 +1366,7 @@ def test_exposure_decay_invisible_to_healthy_creature() -> None:
     """A shark already at zero exposure in safe water stays at zero."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
@@ -1369,6 +1398,7 @@ def test_exposure_retreat_moves_shark_deeper() -> None:
     """A critical shark's depth genuinely increases over subsequent ticks."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
@@ -1404,6 +1434,7 @@ def test_exposure_retreat_hysteresis() -> None:
     """A shark in the hysteresis band (40-70) stays in its previous state."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
@@ -1457,6 +1488,7 @@ def test_exposure_retreat_exits_below_resume_threshold() -> None:
     """A shark only leaves retreat once exposure drops below the resume threshold."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["steering_weights"]["shark"]["wander"] = 0
     data["steering_weights"]["shark"]["seek_fish"] = 0
     data["steering_weights"]["shark"]["seek_flesh"] = 0
@@ -1501,6 +1533,7 @@ def test_shark_settles_at_home_depth() -> None:
     """A deep shark with no target climbs back and settles near home_depth."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1539,6 +1572,7 @@ def test_fish_settles_at_home_depth_from_both_directions() -> None:
     """A fish too shallow moves down; a fish too deep moves up and both settle."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1597,6 +1631,7 @@ def test_algae_hubs_spawn_with_valid_count_and_depth() -> None:
     regression guard (Seeded Procedural Reef Generation, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 6
@@ -1617,6 +1652,7 @@ def test_algae_core_has_eight_spoke_nodules_and_no_center_overlap() -> None:
     """spawn_algae_core creates exactly 8 nodules and none overlap the core."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1728,6 +1764,7 @@ def test_live_color_deduplication_keeps_creatures_distinct() -> None:
     """Two creatures spawned with the same live color set avoid each other."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1746,6 +1783,7 @@ def test_dead_creature_color_becomes_available_for_reuse() -> None:
     """Once a creature is no longer alive, its color is not excluded from reuse."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1762,6 +1800,7 @@ def test_creature_colors_avoid_reserved_colors() -> None:
     """Spawned fish and sharks avoid the reserved core/nodule/background colors."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 60
     data["spawn"]["initial_sharks"] = 20
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1801,6 +1840,7 @@ def test_algae_nodules_present_in_spatial_hash() -> None:
     """rebuild_spatial_hash indexes live algae nodules under hash.algae, not just fish/shark."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1821,6 +1861,7 @@ def test_fish_finds_algae_at_full_perception_range_via_hash() -> None:
     real correctness risk flagged for the 3x3-bucket search vs. a 250-unit radius."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1851,6 +1892,7 @@ def test_shark_population_plateaus_near_carrying_capacity() -> None:
     """Unbounded shark breeding is throttled by carrying_capacity, mirroring fish."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 80
     data["spawn"]["initial_sharks"] = 30
     data["spawn"]["initial_algae_hubs"] = 6
@@ -1870,6 +1912,7 @@ def test_shark_breeds_reliably_below_carrying_capacity() -> None:
     """A shark well below carrying capacity breeds almost certainly once eligible."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -1896,6 +1939,7 @@ def test_shark_does_not_breed_at_or_above_carrying_capacity() -> None:
     """A shark at carrying capacity has a zero breed probability and cannot spawn."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2087,6 +2131,7 @@ def test_bucket_coords_computed_once() -> None:
     recomputing them a second time (which would show 4 math.floor calls)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2121,6 +2166,7 @@ def test_nodule_danger_cache_matches_live_computation() -> None:
     fresh, immediately after update_algae_core has run for the tick."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2146,6 +2192,7 @@ def test_nodule_danger_cache_updates_after_depth_change() -> None:
     (which reads it) reads stale, one-tick-old data."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2346,6 +2393,7 @@ def test_decomposing_chunk_near_depleted_core_reduces_nodule_cooldowns() -> None
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 1
@@ -2380,6 +2428,7 @@ def test_decomposing_chunk_with_no_core_nearby_spawns_new_core() -> None:
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 1
@@ -2405,6 +2454,7 @@ def test_decomposition_does_not_affect_cores_outside_decompose_radius() -> None:
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2447,6 +2497,7 @@ def test_core_empty_for_less_than_starvation_seconds_survives() -> None:
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 1
@@ -2476,6 +2527,7 @@ def test_core_empty_for_longer_than_starvation_seconds_is_removed() -> None:
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 1
@@ -2505,6 +2557,7 @@ def test_core_that_regrows_one_nodule_resets_starvation_timer() -> None:
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 1
@@ -2545,6 +2598,7 @@ def test_chunk_render_state_exposes_valid_decay_ratio() -> None:
     (Reef Decomposition Loop, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2728,6 +2782,7 @@ def test_fish_steering_includes_measurable_deflection_near_chunk() -> None:
     (Reef Tuning & Chunk Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2778,6 +2833,7 @@ def test_fish_flee_shark_hash_matches_scan() -> None:
     for seed in (1, 42, 99, 123, 777):
         session = load_game("shoal", seed=seed)
         data = session.files.data
+        data["spawn"]["seed"] = seed
         call(session, "init_game", data)
         for _ in range(30):
             call(session, "tick_game", 0.1, {})
@@ -2802,6 +2858,7 @@ def test_shark_seek_fish_hash_matches_scan() -> None:
     for seed in (1, 42, 99, 123, 777):
         session = load_game("shoal", seed=seed)
         data = session.files.data
+        data["spawn"]["seed"] = seed
         call(session, "init_game", data)
         for _ in range(30):
             call(session, "tick_game", 0.1, {})
@@ -2828,6 +2885,7 @@ def test_shark_hunt_hash_matches_scan() -> None:
     for seed in (1, 42, 99, 123, 777):
         session = load_game("shoal", seed=seed)
         data = session.files.data
+        data["spawn"]["seed"] = seed
         call(session, "init_game", data)
         for _ in range(30):
             call(session, "tick_game", 0.1, {})
@@ -2849,6 +2907,7 @@ def test_hunt_equivalence_at_world_boundary() -> None:
     by the hash-based hunting loop."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -2879,6 +2938,7 @@ def test_pairwise_checks_reduced() -> None:
     (60 fish, 8 sharks)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     # Default entity counts per data.yaml
     assert data["spawn"]["initial_fish"] == 60
     assert data["spawn"]["initial_sharks"] == 8
@@ -2921,6 +2981,7 @@ def test_tick_time_improved() -> None:
 
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     call(session, "init_game", data)
     # Warm up
     for _ in range(10):
@@ -2957,6 +3018,7 @@ def test_tick_time_at_high_load() -> None:
 
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 83
     data["spawn"]["initial_sharks"] = 19
     call(session, "init_game", data)
@@ -2987,6 +3049,7 @@ def test_fish_hunger_unaffected() -> None:
     appears in the render state."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     call(session, "init_game", data)
 
     # Tick once and check hunger is present in render state
@@ -3018,6 +3081,7 @@ def test_hunting_shark_still_avoids_non_targeted_chunks() -> None:
     (Reef Tuning & Chunk Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -3107,6 +3171,7 @@ def test_fish_near_two_overlapping_cores_grazes_exactly_one_nodule_per_tick() ->
     (Grazing Loop Hash Query, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -3186,6 +3251,7 @@ def test_grazing_via_hash_query_same_outcome_as_before_single_core() -> None:
     (Grazing Loop Hash Query, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -3253,6 +3319,7 @@ def test_fish_avoids_nearby_nodules_other_than_seek_target() -> None:
     (General Obstacle Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -3330,6 +3397,7 @@ def test_fish_avoidance_excludes_only_actual_seek_target() -> None:
     (General Obstacle Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -3403,6 +3471,7 @@ def test_shark_avoids_nearby_nodules_while_pursuing_fish() -> None:
     (General Obstacle Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
@@ -3469,6 +3538,7 @@ def test_shark_still_excludes_pursued_chunk_from_avoidance() -> None:
     (General Obstacle Avoidance, July 2026)."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     data["spawn"]["initial_fish"] = 0
     data["spawn"]["initial_sharks"] = 0
     data["spawn"]["initial_algae_hubs"] = 0
