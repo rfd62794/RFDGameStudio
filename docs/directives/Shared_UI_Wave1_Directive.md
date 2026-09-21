@@ -113,7 +113,7 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-shared-ui-wave1-directive |
 | Base branch | - |
@@ -123,4 +123,8 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 - 2026-09-19 22:26 · robert-claude · Queued → Approved
 - 2026-09-19 22:26 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-ui-wave1-directive
 - 2026-09-20 08:37 · claude-heartbeat · In progress → Blocked — run pid 24316 is gone and the directive never moved; started 2026-09-19T22:26:26
+- 2026-09-21 14:57 · robert-claude · Blocked → Queued — branch has all 3 per-game commits; the run died after the work
+- 2026-09-21 14:57 · robert-claude · Queued → Approved — closing out the finished run
+- 2026-09-21 14:57 · robert-claude · Approved → In progress — laptop Claude verifying
+- 2026-09-21 14:57 · robert-claude · In progress → Review — verified by laptop Claude: tsc --noEmit clean, vitest 139 files / 1639 tests pass on the branch. Not verified: that each game still plays and looks the same - Robert, check in the browser.
 <!-- queue:end -->

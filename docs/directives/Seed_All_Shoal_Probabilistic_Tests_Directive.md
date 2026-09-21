@@ -104,26 +104,11 @@ three full-suite results, and any test that failed once seeded — that last lis
 valuable part, because each entry is a real behaviour that only ever passed by luck.
 
 <!-- queue:start -->
-## Recovery note — 2026-09-20, Claude Code
-
-**The work is done and committed**, on `directive/rfdgamestudio-seed-shoal-tests` as `3f559ac5`.
-
-The dispatch completed the task and was then killed at the `git commit` step: no rule in
-`DirectiveQueueMCP/devin_rules.json` allows `Exec(git commit)`, so a non-interactive run has
-no way to save what it just built. The log reads like the agent gave up at the last moment;
-it did not. Two of three dispatches on 2026-09-20 died this exact way.
-
-Verified independently before committing: `uv run pytest tests/test_shoal.py -q` gives **111 passed**. Diff is 70 insertions, seed lines only. The dispatch itself had already run the non-slow suite three times at 724 passed / 0 reruns each.
-
-The queue block below still reads Queued/Blocked because the run never reached the call that
-would have moved it, and the state machine has no transition from there to Review. Left as
-found rather than forced. Robert reviews and merges as usual.
-
 ## Queue
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-seed-all-shoal-probabilistic-tests-direc |
 | Base branch | directive/rfdgamestudio-flaky-shoal-shark-chunk-directive |
@@ -133,4 +118,6 @@ found rather than forced. Robert reviews and merges as usual.
 - 2026-09-20 21:44 · robert-claude · Queued → Approved
 - 2026-09-20 21:44 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seed-all-shoal-probabilistic-tests-direc
 - 2026-09-20 22:30 · claude-heartbeat · In progress → Blocked — run pid 3856 is gone and the directive never moved; started 2026-09-20T21:44:03
+- 2026-09-21 14:57 · robert-claude · Blocked → Queued — retry: the run died on 09-19/20, before the dispatch fixes (venv/node_modules junctions); the branch keeps its work
+- 2026-09-21 14:57 · robert-claude · Queued → Approved — Robert approved the retry (2026-09-21); the tick dispatches it within the concurrency limit
 <!-- queue:end -->

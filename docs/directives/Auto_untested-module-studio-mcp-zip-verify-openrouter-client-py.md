@@ -78,7 +78,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-studio-mcp-zip-veri |
 | Base branch | - |
@@ -89,4 +89,6 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-20 13:31 · backlog-policy · Queued → Approved
 - 2026-09-20 13:31 · dispatcher · Approved → In progress — dispatched devin in C:\Github\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-studio-mcp-zip-veri
 - 2026-09-20 14:00 · claude-heartbeat · In progress → Blocked — run pid 22884 is gone and the directive never moved; started 2026-09-20T13:31:08
+- 2026-09-21 14:57 · robert-claude · Blocked → Queued — retry: the run died on 09-19/20, before the dispatch fixes (venv/node_modules junctions); the branch keeps its work
+- 2026-09-21 14:57 · robert-claude · Queued → Approved — Robert approved the retry (2026-09-21); the tick dispatches it within the concurrency limit
 <!-- queue:end -->

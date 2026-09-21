@@ -78,7 +78,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engine-paper |
 | Base branch | - |
@@ -97,4 +97,6 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-20 20:49 · robert-claude · Queued → Approved
 - 2026-09-20 20:49 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
 - 2026-09-20 22:30 · claude-heartbeat · In progress → Blocked — run pid 22992 is gone and the directive never moved; started 2026-09-20T20:49:22
+- 2026-09-21 14:57 · robert-claude · Blocked → Queued — retry: the run died on 09-19/20, before the dispatch fixes (venv/node_modules junctions); the branch keeps its work
+- 2026-09-21 14:57 · robert-claude · Queued → Approved — Robert approved the retry (2026-09-21); the tick dispatches it within the concurrency limit
 <!-- queue:end -->
