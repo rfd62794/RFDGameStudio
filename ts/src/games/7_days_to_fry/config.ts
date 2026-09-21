@@ -2,6 +2,7 @@ import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
   gameId: '7_days_to_fry',
+  source: { kind: 'example', slug: '7-days-to-fry' },
   label: '7 Days To Fry',
   description: '7 Days to Fry - a cooking survival game',
   color: '#6c8ef7',
