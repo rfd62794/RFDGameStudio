@@ -68,6 +68,12 @@
 
 ---
 
+> **STATUS 2026-09-20: Tasks 1 and 2 are DONE** on branch `feature/demo-importer`
+> (commits `7c4a7196`, `a6fdf35b`). Verified: 26 targeted tests pass; the full TS suite
+> is 1674 passed / 1 failed, and that one failure
+> (`test_game_loader_back_button_returns_clean_url`) also fails on `main`, so it is
+> pre-existing. Resume at Task 3.
+
 ## Task 1: `GameConfig.source`, the registry export, optional metadata
 
 **Files:**
@@ -93,7 +99,7 @@ The 11 sources (from today's `_EXAMPLE_DEMOS` and `_DEMO_EXTERNAL_PATHS` in `stu
 | `facility_escape` | `{ kind: 'example', slug: 'facility-escape' }` |
 | `systemic_extract` | `{ kind: 'example', slug: 'systemic-extract' }` |
 
-- [ ] **Step 1: Write the failing test** `ts/tests/test_registry_export.ts`:
+- [x] **Step 1: Write the failing test** `ts/tests/test_registry_export.ts`:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -136,12 +142,12 @@ describe('registry export', () => {
 });
 ```
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
 Run: `cd ts && npx vitest run tests/test_registry_export.ts`
 Expected: FAIL (module not found).
 
-- [ ] **Step 3: Add the type.** In `ts/src/engine/types.ts`, after the `LeaderboardDef` interface, add:
+- [x] **Step 3: Add the type.** In `ts/src/engine/types.ts`, after the `LeaderboardDef` interface, add:
 
 ```ts
 /** Where a standalone demo's build comes from. Absent = a game built inside the studio app. */
@@ -156,14 +162,14 @@ and in `GameConfig`, after `saves?: boolean;`:
   source?: DemoSource;                    // single source of truth for demo lists (studio_mcp.demos)
 ```
 
-- [ ] **Step 4: Add `source` to the 11 configs** from the table. In each file insert the `source` line directly under the `gameId: …,` line, e.g. in `ts/src/games/systemic_extract/config.ts`:
+- [x] **Step 4: Add `source` to the 11 configs** from the table. In each file insert the `source` line directly under the `gameId: …,` line, e.g. in `ts/src/games/systemic_extract/config.ts`:
 
 ```ts
   gameId: 'systemic_extract',
   source: { kind: 'example', slug: 'systemic-extract' },
 ```
 
-- [ ] **Step 5: Implement** `ts/src/arcade-manifest/registryExport.ts`:
+- [x] **Step 5: Implement** `ts/src/arcade-manifest/registryExport.ts`:
 
 ```ts
 /**
@@ -220,7 +226,7 @@ writeFileSync(out, `${JSON.stringify(buildRegistryExport(GAME_REGISTRY), null, 2
 console.log(`Wrote ${out} (${GAME_REGISTRY.length} games)`);
 ```
 
-- [ ] **Step 6: Make the manifest CLI work without metadata.** In `ts/tools/export-arcade-manifest.ts`, replace the block that exits when `game-metadata.json` is missing:
+- [x] **Step 6: Make the manifest CLI work without metadata.** In `ts/tools/export-arcade-manifest.ts`, replace the block that exits when `game-metadata.json` is missing:
 
 ```ts
 if (!existsSync(metadataPath)) {
@@ -238,9 +244,9 @@ if (!haveMetadata) console.warn(`No ${metadataPath}; versions and dates will be 
 
 and change `metadata: JSON.parse(readFileSync(metadataPath, 'utf-8')),` to `metadata: haveMetadata ? JSON.parse(readFileSync(metadataPath, 'utf-8')) : {},`.
 
-- [ ] **Step 7: Ignore the export.** In `.gitignore`, under `ts/src/games/arcade-manifest.json`, add `ts/src/games/registry-export.json`.
+- [x] **Step 7: Ignore the export.** In `.gitignore`, under `ts/src/games/arcade-manifest.json`, add `ts/src/games/registry-export.json`.
 
-- [ ] **Step 8: Run tests and the tool**
+- [x] **Step 8: Run tests and the tool**
 
 ```bash
 cd ts && npx vitest run tests/test_registry_export.ts tests/test_arcade_manifest.ts tests/test_arcade_lineage.tsx
@@ -250,7 +256,7 @@ git -C .. status --short ts/src/games/registry-export.json
 
 Expected: tests PASS; `Wrote …registry-export.json (34 games)`; `git status` prints nothing (ignored).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add ts/src/engine/types.ts ts/src/games/*/config.ts ts/src/arcade-manifest/registryExport.ts ts/tools/export-registry.ts ts/tools/export-arcade-manifest.ts ts/tests/test_registry_export.ts .gitignore
@@ -267,7 +273,7 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 **Interfaces:**
 - Produces: marker lines Task 5 edits: `// demos:imports:begin` / `// demos:imports:end` (after the last import) and `  // demos:begin` / `  // demos:end` inside `GAME_REGISTRY` around the contiguous demo block (`ledgerConfig` … `systemicExtractConfig`).
 
-- [ ] **Step 1: Replace the pinned tests.** In `ts/tests/test_arcade_registry_directive.ts`, delete the `EXPECTED_ORDER` constant, the test `test_registry_order_matches_spec`, and the test `test_registry_total_count_includes_legacy_origin_projects`. Add `readdirSync, readFileSync` to the `node:fs` import, and append:
+- [x] **Step 1: Replace the pinned tests.** In `ts/tests/test_arcade_registry_directive.ts`, delete the `EXPECTED_ORDER` constant, the test `test_registry_order_matches_spec`, and the test `test_registry_total_count_includes_legacy_origin_projects`. Add `readdirSync, readFileSync` to the `node:fs` import, and append:
 
 ```ts
 // Game folders with a config.ts that are intentionally NOT in GAME_REGISTRY.
@@ -316,12 +322,12 @@ describe('Registry invariants (replace the pinned order/count, Sep 19 2026)', ()
 });
 ```
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
 Run: `cd ts && npx vitest run tests/test_arcade_registry_directive.ts`
 Expected: FAIL on the marker tests (markers not present yet); the other invariants PASS.
 
-- [ ] **Step 3: Add the markers** in `ts/src/games/registry.ts`. After the last `import … from './kingmaker_squads/config';` line add:
+- [x] **Step 3: Add the markers** in `ts/src/games/registry.ts`. After the last `import … from './kingmaker_squads/config';` line add:
 
 ```ts
 // demos:imports:begin — imports added by `studio_mcp.demos import` (keep this pair)
@@ -330,12 +336,12 @@ Expected: FAIL on the marker tests (markers not present yet); the other invarian
 
 In `GAME_REGISTRY`, put `  // demos:begin — AI Studio example demos; the importer appends above demos:end` on the line before `  ledgerConfig,` and `  // demos:end` on the line after `  systemicExtractConfig,`.
 
-- [ ] **Step 4: Run the registry tests**
+- [x] **Step 4: Run the registry tests**
 
 Run: `cd ts && npx vitest run tests/test_arcade_registry_directive.ts tests/test_arcade_routing.ts tests/test_registry_export.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add ts/src/games/registry.ts ts/tests/test_arcade_registry_directive.ts
