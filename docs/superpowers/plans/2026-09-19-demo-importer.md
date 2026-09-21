@@ -68,11 +68,11 @@
 
 ---
 
-> **STATUS 2026-09-20: Tasks 1 and 2 are DONE** on branch `feature/demo-importer`
+> **STATUS 2026-09-20: Tasks 1, 2 and 3 are DONE** on branch `feature/demo-importer`
 > (commits `7c4a7196`, `a6fdf35b`). Verified: 26 targeted tests pass; the full TS suite
 > is 1674 passed / 1 failed, and that one failure
 > (`test_game_loader_back_button_returns_clean_url`) also fails on `main`, so it is
-> pre-existing. Resume at Task 3.
+> pre-existing. Task 3 adds studio_mcp/demos (8 tests, parity holds). Resume at Task 4.
 
 ## Task 1: `GameConfig.source`, the registry export, optional metadata
 
@@ -367,7 +367,7 @@ Derivation rules (spec §4):
 - Static folder name = `gameId`. Sibling path = `sibling_repo(source.repo)`.
 - `game_paths`: for every registry game, in order: `games/<id>` if that directory exists; `ts/src/games/<id>`; `examples/<slug>` for `example` sources; `intake/<id with - for _>` if that directory exists.
 
-- [ ] **Step 1: Capture the snapshot BEFORE anything changes.** From the repo root:
+- [x] **Step 1: Capture the snapshot BEFORE anything changes.** From the repo root:
 
 ```bash
 uv run python -c "
@@ -386,7 +386,7 @@ print(len(snap['example_demos']), 'demos,', len(snap['game_paths']), 'game path 
 
 Expected: `11 demos, 35 game path entries` (the dict includes the unregistered `brewfield`).
 
-- [ ] **Step 2: Write the unit-test fixture** `tests/fixtures/registry_export_sample.json`:
+- [x] **Step 2: Write the unit-test fixture** `tests/fixtures/registry_export_sample.json`:
 
 ```json
 {
@@ -403,7 +403,7 @@ Expected: `11 demos, 35 game path entries` (the dict includes the unregistered `
 }
 ```
 
-- [ ] **Step 3: Write the failing unit tests** `tests/test_demos_registry.py`:
+- [x] **Step 3: Write the failing unit tests** `tests/test_demos_registry.py`:
 
 ```python
 import json
@@ -454,7 +454,7 @@ def test_load_registry_refreshes_only_when_stale(tmp_path, monkeypatch):
     assert calls == [1]
 ```
 
-- [ ] **Step 4: Write the failing parity test** `tests/test_demos_registry_parity.py`:
+- [x] **Step 4: Write the failing parity test** `tests/test_demos_registry_parity.py`:
 
 ```python
 """Parity: the derived lists reproduce the hand-kept lists they replace (spec §4 migration)."""
@@ -504,12 +504,12 @@ def test_game_paths_cover_every_old_path(games):
         assert not missing, f"{game_id}: derived paths lack {missing}"
 ```
 
-- [ ] **Step 5: Run and confirm failure**
+- [x] **Step 5: Run and confirm failure**
 
 Run: `uv run pytest -q -p pytest_rerunfailures tests/test_demos_registry.py tests/test_demos_registry_parity.py`
 Expected: FAIL (`studio_mcp.demos` does not exist).
 
-- [ ] **Step 6: Implement.** `studio_mcp/demos/__init__.py`:
+- [x] **Step 6: Implement.** `studio_mcp/demos/__init__.py`:
 
 ```python
 """studio_mcp.demos — import AI Studio demos and derive demo lists from the registry."""
@@ -631,12 +631,12 @@ def find_by_slug(games: list[dict], slug: str) -> dict | None:
     return None
 ```
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `uv run pytest -q -p pytest_rerunfailures tests/test_demos_registry.py tests/test_demos_registry_parity.py`
 Expected: PASS. If a parity test fails, do not change the snapshot: report the exact difference (it is a real behavior change the controller must rule on).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add studio_mcp/demos tests/fixtures/demo_lists_snapshot.json tests/fixtures/registry_export_sample.json tests/test_demos_registry.py tests/test_demos_registry_parity.py
