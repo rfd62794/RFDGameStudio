@@ -86,6 +86,21 @@ that turned out not to be true in the repo. If you had to deviate, say where and
 silent deviation is worse than a reported one.
 
 <!-- queue:start -->
+## Recovery note — 2026-09-20, Claude Code
+
+**The work is done and committed**, on `directive/rfdgamestudio-demo-importer-t5-naming-register` as `0a4077a4`.
+
+The dispatch completed the task and was then killed at the `git commit` step: no rule in
+`DirectiveQueueMCP/devin_rules.json` allows `Exec(git commit)`, so a non-interactive run has
+no way to save what it just built. The log reads like the agent gave up at the last moment;
+it did not. Two of three dispatches on 2026-09-20 died this exact way.
+
+Verified independently before committing: `uv run pytest tests/test_demos_naming_register.py -q` gives **15 passed**. Additive only: two new modules and one new test file, nothing existing modified.
+
+The queue block below still reads Queued/Blocked because the run never reached the call that
+would have moved it, and the state machine has no transition from there to Review. Left as
+found rather than forced. Robert reviews and merges as usual.
+
 ## Queue
 
 | Field | Value |
