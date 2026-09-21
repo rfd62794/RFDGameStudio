@@ -165,3 +165,17 @@ State: the five `[point cap]` lines verbatim; the final suite numbers; whether
 `GameEngine.ts:391` had a seeded PRNG available or needed the explicit `Math.random`; and
 any test that still flakes after threading, since that means a second unseeded source
 exists and naming it is the most useful thing this run can produce.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-21 04:22 · robert-claude · none → Queued — Flaky TS test blocks the pre-push hook for every branch; CombatSystem ignores the seeded PRNG the sim already builds. Directive committed as 335fed03 before queueing.
+<!-- queue:end -->
