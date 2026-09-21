@@ -89,4 +89,12 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-20 15:30 · backlog-policy · Queued → Approved
 - 2026-09-20 15:30 · dispatcher · Approved → In progress — dispatched devin in C:\Github\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
 - 2026-09-20 16:00 · claude-heartbeat · In progress → Blocked — run pid 4780 is gone and the directive never moved; started 2026-09-20T15:30:33
+- 2026-09-20 20:46 · robert-claude · Blocked → Queued — re-queued: the worktree had no node_modules, so npx tried to download vitest and the confirmation was rejected. Fixed in DirectiveQueueMCP 55a12ee (junction to the main checkout's node_modules).
+- 2026-09-20 20:46 · robert-claude · Queued → Approved
+- 2026-09-20 20:46 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
+- 2026-09-20 20:49 · robert-claude · In progress → Blocked — run died at the same npx confirmation; worktree now has node_modules junctioned, re-queueing
+- 2026-09-20 20:49 · robert-claude · Blocked → Queued — worktree now has node_modules + ts/node_modules junctioned (vitest resolves); DirectiveQueueMCP 3f8e2db makes this automatic for future dispatches
+- 2026-09-20 20:49 · robert-claude · Queued → Approved
+- 2026-09-20 20:49 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
+- 2026-09-20 22:30 · claude-heartbeat · In progress → Blocked — run pid 22992 is gone and the directive never moved; started 2026-09-20T20:49:22
 <!-- queue:end -->

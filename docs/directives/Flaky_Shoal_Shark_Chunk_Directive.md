@@ -104,7 +104,7 @@ simulation bug rather than a test bug, say so plainly and do not fix it here.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-flaky-shoal-shark-chunk-directive |
 | Base branch | - |
@@ -113,4 +113,5 @@ simulation bug rather than a test bug, say so plainly and do not fix it here.
 - 2026-09-20 21:13 · robert-claude · none → Queued — flaky test blocks the pre-push hook on every branch; written to the new writing-devin-directives standard
 - 2026-09-20 21:13 · robert-claude · Queued → Approved
 - 2026-09-20 21:13 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-flaky-shoal-shark-chunk-directive
+- 2026-09-20 21:43 · robert-claude · In progress → Review — Root cause was unseeded spawn PRNG (os.time()), fixed with seed 42 matching the suite's own pattern; commit 6b482cda. Target test fixed and 111 passed. Full suite NOT green twice: run 2 failed on test_fish_school_align_headings, a different test with the same defect. 76 probabilistic shoal tests have no seed vs 15 that do - that class needs its own directive.
 <!-- queue:end -->
