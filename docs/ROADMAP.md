@@ -174,4 +174,72 @@ milestones:
         detail: Named (with VoidDrift) as a genuine cross-language-origin Lua exception, but unconfirmed recently. Check the real files, then update board.data.ts + regenerate StatusBoard.md.
         accept:
           - grep: {path: "ts/src/status/board.data.ts", pattern: "id: 'turboshells'.*status: '(active|shipped_mature|shipped_deliberately_paused|blocked|retired)'"}
+  - id: M4
+    title: "The studio side of the arcade meta layer: collectibles, hooks, creature content"
+    status: pending
+    exit:
+      - file: "docs/children.json"
+      - grep: {path: "ts/src/games/arcade-manifest.json", pattern: "collectibles"}
+      - test: "cd ts && npx vitest run"
+    steps:
+      - id: M4.1
+        title: "Every demo is an addressable child project"
+        kind: refactor
+        size: M
+        value: 5
+        needs: []
+        status: pending
+        directive: "docs/directives/Demo_Children_Module_Directive.md"
+        detail: >-
+          Robert, 2026-09-22: per-demo wherever possible, each demo a child of the studio. The
+          module lists demos from the arcade manifest and the tracking metadata, gives each
+          demo its own paths and its own one-demo check command, and writes docs/children.json.
+          The swarm then addresses work as RFDGameStudio/<demo> instead of one repo-wide blob.
+        accept:
+          - file: "docs/children.json"
+      - id: M4.2
+        title: "Collectible fields in the arcade manifest, studio side"
+        kind: refactor
+        size: S
+        value: 5
+        needs: ["M4.1"]
+        status: pending
+        directive: ""
+        detail: >-
+          Mirrors RFD_IT_Services_Site roadmap M4.1. The manifest the studio generates is what
+          the site reads, so the collectibles field has to exist on this side first. Pulls are
+          stored as part id plus variant id references, never a combined key, or extending a
+          set later means migrating every player's history.
+        accept:
+          - grep: {path: "ts/src/games/arcade-manifest.json", pattern: "collectibles"}
+      - id: M4.3
+        title: "The hook a demo exposes, once Robert answers report-versus-grant"
+        kind: design
+        size: S
+        value: 5
+        needs: ["M4.2"]
+        status: pending
+        directive: ""
+        detail: >-
+          Blocked on the site roadmap's M5.1 decision. If the hub grants progress from
+          attendance and play events, no demo changes at all and this step is documentation
+          only. If demos report events, each one needs a tiny SDK call and this step splits
+          per demo. Do not build either until the decision is recorded.
+        accept:
+          - grep: {path: "docs/ROADMAP.md", pattern: "hub-grant|game-report"}
+      - id: M4.4
+        title: "Creature content pipeline: variants, not new art"
+        kind: docs
+        size: M
+        value: 4
+        needs: ["M4.2"]
+        status: pending
+        directive: ""
+        detail: >-
+          The research is blunt: creature content is 50-70% of a game budget and it is the real
+          constraint here, not code. Write the pipeline that makes a set affordable for one
+          person - palette swaps and accessory variants over a small base, small sets, seasonal
+          batches - and record which existing demos can supply a base creature.
+        accept:
+          - file: "docs/CREATURE_PIPELINE.md"
 ```
