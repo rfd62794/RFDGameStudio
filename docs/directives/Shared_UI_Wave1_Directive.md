@@ -113,7 +113,7 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-shared-ui-wave1-directive |
 | Base branch | - |
@@ -124,4 +124,5 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 - 2026-09-19 22:26 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-ui-wave1-directive
 - 2026-09-20 08:37 · claude-heartbeat · In progress → Blocked — run pid 24316 is gone and the directive never moved; started 2026-09-19T22:26:26
 - 2026-09-22 16:08 · agentflow-tick · Blocked → Queued — auto-retry 1/1: run pid 24316 is gone and the directive never moved
+- 2026-09-22 16:08 · agentflow-tick · Queued → Approved — auto-retry 1/1: run pid 24316 is gone and the directive never moved
 <!-- queue:end -->
