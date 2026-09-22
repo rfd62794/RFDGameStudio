@@ -108,7 +108,7 @@ valuable part, because each entry is a real behaviour that only ever passed by l
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-seed-all-shoal-probabilistic-tests-direc |
 | Base branch | directive/rfdgamestudio-flaky-shoal-shark-chunk-directive |
@@ -120,4 +120,6 @@ valuable part, because each entry is a real behaviour that only ever passed by l
 - 2026-09-20 22:30 · claude-heartbeat · In progress → Blocked — run pid 3856 is gone and the directive never moved; started 2026-09-20T21:44:03
 - 2026-09-21 14:57 · robert-claude · Blocked → Queued — retry: the run died on 09-19/20, before the dispatch fixes (venv/node_modules junctions); the branch keeps its work
 - 2026-09-21 14:57 · robert-claude · Queued → Approved — Robert approved the retry (2026-09-21); the tick dispatches it within the concurrency limit
+- 2026-09-22 11:40 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seed-all-shoal-probabilistic-tests-direc
+- 2026-09-22 11:57 · devin · In progress → Review
 <!-- queue:end -->

@@ -1,4 +1,4 @@
-# ts/src/engine/paperDoll/colorResolution.ts has no tests while its neighbours do
+# ts/src/engine/shared/componentTypes.ts has no tests while its neighbours do
 
 ## 1. Why this exists
 
@@ -14,7 +14,7 @@ claim to verify, not as an instruction - §5 says what to do if it is wrong.
 ## 2. Scope
 
 ```
-ts/src/engine/paperDoll/colorResolution.ts
+ts/src/engine/shared/componentTypes.ts
 ```
 
 At most 2 file(s). A change that needs more than that is a
@@ -22,7 +22,7 @@ different task: stop and report it rather than widening this one.
 
 ## 3. The work
 
-`ts/src/engine/paperDoll/colorResolution.ts` has no tests, while other modules in the same folder do. Read it, then write
+`ts/src/engine/shared/componentTypes.ts` has no tests, while other modules in the same folder do. Read it, then write
 tests for the behaviour it actually has - not the behaviour its name suggests.
 
 Cover the real branches: the success path, each error or empty case the code explicitly
@@ -31,6 +31,9 @@ asserts the module imports, and do not assert on a value you had to read off the
 implementation without understanding why it is that value.
 
 Follow the existing test file conventions in this repo. Read a neighbouring test first.
+
+Verification: `cd ts && npx vitest run` ends with 0 failed, 0 skipped. Run exactly this command to
+verify; do not run builds, type-checkers, process listings or other commands.
 
 ## Rules for this run
 
@@ -61,7 +64,7 @@ fixed, and it is worth more than the work would have been.
 
 ## 6. Completion criteria
 
-- [ ] `python -m pytest -q` passes.
+- [ ] `cd ts && npx vitest run` passes.
 - [ ] Nothing outside §2 was modified.
 - [ ] Nothing was deleted.
 - [ ] If anything was refused or the finding was wrong, it is reported rather than worked around.
@@ -71,35 +74,23 @@ fixed, and it is worth more than the work would have been.
 What you changed and why. The real output of the check command, pasted. Anything about
 the finding that was inaccurate. And any refused command, verbatim.
 
-<!-- check: python -m pytest -q -->
+<!-- check: cd ts && npx vitest run -->
 
 <!-- queue:start -->
 ## Queue
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engine-paper |
+| Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engin-5aed85 |
 | Base branch | - |
+| Base commit | 03af762d2937dfd78f74d56ea30275dfcc42dcfa |
 | Policy | untested-module |
 
 **Status log**
-- 2026-09-20 15:30 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
-- 2026-09-20 15:30 · backlog-policy · Queued → Approved
-- 2026-09-20 15:30 · dispatcher · Approved → In progress — dispatched devin in C:\Github\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
-- 2026-09-20 16:00 · claude-heartbeat · In progress → Blocked — run pid 4780 is gone and the directive never moved; started 2026-09-20T15:30:33
-- 2026-09-20 20:46 · robert-claude · Blocked → Queued — re-queued: the worktree had no node_modules, so npx tried to download vitest and the confirmation was rejected. Fixed in DirectiveQueueMCP 55a12ee (junction to the main checkout's node_modules).
-- 2026-09-20 20:46 · robert-claude · Queued → Approved
-- 2026-09-20 20:46 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
-- 2026-09-20 20:49 · robert-claude · In progress → Blocked — run died at the same npx confirmation; worktree now has node_modules junctioned, re-queueing
-- 2026-09-20 20:49 · robert-claude · Blocked → Queued — worktree now has node_modules + ts/node_modules junctioned (vitest resolves); DirectiveQueueMCP 3f8e2db makes this automatic for future dispatches
-- 2026-09-20 20:49 · robert-claude · Queued → Approved
-- 2026-09-20 20:49 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
-- 2026-09-20 22:30 · claude-heartbeat · In progress → Blocked — run pid 22992 is gone and the directive never moved; started 2026-09-20T20:49:22
-- 2026-09-21 14:57 · robert-claude · Blocked → Queued — retry: the run died on 09-19/20, before the dispatch fixes (venv/node_modules junctions); the branch keeps its work
-- 2026-09-21 14:57 · robert-claude · Queued → Approved — Robert approved the retry (2026-09-21); the tick dispatches it within the concurrency limit
-- 2026-09-22 11:30 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engine-paper
-- 2026-09-22 11:39 · agentflow-tick · In progress → Blocked — a tool call was rejected: npm run build; resume cap reached (2/2)
-- 2026-09-22 12:19 · robert-claude · Blocked → Queued — Robert 2026-09-22: retry after Stall_Guard merges (branch name collides with proportionpresets).
+- 2026-09-22 15:14 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
+- 2026-09-22 15:17 · backlog-policy · Queued → Approved
+- 2026-09-22 15:17 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engin-5aed85; base origin/main (local main differs)
+- 2026-09-22 15:25 · devin-overseer · In progress → Review — Added ts/tests/test_shared_component_types.ts (15 tests, all pass). Finding was accurate: module had no test file. Since componentTypes.ts is type-only, tests cover its real contract: zero runtime exports, combat re-export identity, required-vs-optional fields as consumed by shared components, GameEventChoice.action signature, and Planet of Greed structural compatibility. npx vitest run: my file green; suite shows 6 failed files / 30 skipped — ALL pre-existing, caused by gitignored generated ts/src/games/game-metadata.json being absent in a fresh worktree (cannot fix within scope; generator scripts are outside 'run exactly this command'). Refused command: git check-ignore -v ts/src/games/game-metadata.json (verified gitignore entry by reading .gitignore instead — line 177 confirms it). Nothing outside scope modified; nothing deleted.
 <!-- queue:end -->

@@ -78,13 +78,16 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engin-35cecc |
 | Base branch | - |
 | Policy | untested-module |
 
 **Status log**
 - 2026-09-20 16:00 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
 - 2026-09-20 16:00 · backlog-policy · Queued → Approved
+- 2026-09-22 12:58 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engin-35cecc
+- 2026-09-22 13:16 · devin · In progress → Review
+- 2026-09-22 14:09 · robert-claude · Review → Done
 <!-- queue:end -->

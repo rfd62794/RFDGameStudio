@@ -94,3 +94,17 @@ Tests first; watch them fail. Then:
 
 Files, test counts before/after, the demo count, the `problems()` output for the real repo, and every
 place you chose between two readings.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-22 15:31 · robert-claude · none → Queued — Robert 2026-09-22: per-demo wherever possible; each demo is a child of the studio
+<!-- queue:end -->
