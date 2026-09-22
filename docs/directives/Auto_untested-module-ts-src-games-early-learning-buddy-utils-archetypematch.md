@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-f0087b |
 | Base branch | - |
@@ -92,4 +92,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 19:32 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
 - 2026-09-22 19:38 · backlog-policy · Queued → Approved
 - 2026-09-22 19:39 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-f0087b; base origin/main (local main differs)
+- 2026-09-22 19:47 · devin-overseer · In progress → Blocked — Work committed (test file passes 18/18), but `npx vitest run` fails the 0-failed/0-skipped gate on pre-existing issues: 6 test files can't resolve gitignored ts/src/games/game-metadata.json (generated file absent in this worktree) and 30 tests are pre-existing skips. Fixing either is out of §2 scope. Refused cmd: git -C "C:/Github/RFDGameStudio" ls-files --error-unmatch ts/src/games/game-metadata.json
 <!-- queue:end -->
