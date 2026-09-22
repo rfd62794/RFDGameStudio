@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engin-5aed85 |
 | Base branch | - |
@@ -93,4 +93,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 15:17 · backlog-policy · Queued → Approved
 - 2026-09-22 15:17 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engin-5aed85; base origin/main (local main differs)
 - 2026-09-22 15:25 · devin-overseer · In progress → Review — Added ts/tests/test_shared_component_types.ts (15 tests, all pass). Finding was accurate: module had no test file. Since componentTypes.ts is type-only, tests cover its real contract: zero runtime exports, combat re-export identity, required-vs-optional fields as consumed by shared components, GameEventChoice.action signature, and Planet of Greed structural compatibility. npx vitest run: my file green; suite shows 6 failed files / 30 skipped — ALL pre-existing, caused by gitignored generated ts/src/games/game-metadata.json being absent in a fresh worktree (cannot fix within scope; generator scripts are outside 'run exactly this command'). Refused command: git check-ignore -v ts/src/games/game-metadata.json (verified gitignore entry by reading .gitignore instead — line 177 confirms it). Nothing outside scope modified; nothing deleted.
+- 2026-09-22 19:32 · robert-claude · Review → Done
 <!-- queue:end -->
