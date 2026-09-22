@@ -145,7 +145,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-missing-roadmap-roadmap |
 | Base branch | - |
@@ -156,4 +156,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 14:09 · robert-claude · Queued → Approved
 - 2026-09-22 14:09 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-missing-roadmap-roadmap
 - 2026-09-22 14:14 · devin · In progress → Review — Wrote docs/DIRECTION.md + docs/ROADMAP.md (yaml roadmap, status draft, 3 milestones). Scan caveat: repo already has a prose roadmap at /ROADMAP.md per ADR-017 - docs/ROADMAP.md defers to it; only the yaml block was missing.
+- 2026-09-22 19:28 · robert-claude · Review → Done
 <!-- queue:end -->
