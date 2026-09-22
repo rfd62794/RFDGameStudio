@@ -242,4 +242,171 @@ milestones:
           batches - and record which existing demos can supply a base creature.
         accept:
           - file: "docs/CREATURE_PIPELINE.md"
+  - id: M5
+    title: "Creature generation is one documented system every demo can call"
+    status: pending
+    exit:
+      - file: "docs/CREATURE_SYSTEM.md"
+      - test: "cd ts && npx vitest run"
+      - grep: {path: "docs/CREATURE_SYSTEM.md", pattern: "paperDoll"}
+    steps:
+      - id: M5.1
+        title: "Map the three creature modules and name the contract between them"
+        kind: docs
+        size: M
+        value: 5
+        needs: []
+        status: pending
+        directive: ""
+        detail: >-
+          Measured 2026-09-22: creature generation lives in three places with no stated
+          relationship. ts/src/engine/artGen (shape primitives, seeded PRNG, SVG shapes
+          including glow filters and true ellipses); ts/src/engine/paperDoll (20 files, about
+          5k lines - body plans, a SkeletonManifest bone schema, 12 proportion multipliers with
+          8 presets, FK rotation accumulation, hierarchical colour resolution, painter
+          Z-ordering, the chimera SVG renderer, part drawers, brand assets and an animation
+          engine); and ts/src/engine/creatureArt (loader plus fixtures). Its own header names
+          only two consumers, Mutant Battle Ball and Chimera Wilds, while the arcade meta layer
+          needs every demo able to draw a creature. Write docs/CREATURE_SYSTEM.md - what each
+          module owns, the call path from seed to rendered figure, and the one public entry
+          point a demo uses.
+        accept:
+          - file: "docs/CREATURE_SYSTEM.md"
+      - id: M5.2
+        title: "Golden-snapshot determinism harness: same seed, same creature, forever"
+        kind: tests
+        size: M
+        value: 5
+        needs: ["M5.1"]
+        status: pending
+        directive: ""
+        detail: >-
+          Shared systems are only safe to change when a change that alters output fails a test.
+          Render a small set of fixed seeds through the public entry point and commit the SVG
+          output as golden files; any diff is either intended and re-blessed in the same commit,
+          or a regression. This is what lets one person refactor the renderer without hand
+          checking 27 demos.
+        accept:
+          - test: "cd ts && npx vitest run"
+      - id: M5.3
+        title: "Variant generation over new art: palettes, accessories, proportion presets"
+        kind: feature
+        size: M
+        value: 4
+        needs: ["M5.2"]
+        status: pending
+        directive: ""
+        detail: >-
+          The economics from the meta-layer research: creature content is 50 to 70 percent of a
+          game budget and it is the real constraint for one person. The system already has the
+          levers (hierarchical colour resolution, 8 proportion presets, sockets and an
+          attachment graph); this step turns them into a documented recipe for producing a set
+          from one base creature, and records which existing demos supply a base.
+        accept:
+          - file: "docs/CREATURE_PIPELINE.md"
+  - id: M6
+    title: "Graphics types have a stated boundary: SVG by default, raster where it earns it"
+    status: pending
+    exit:
+      - file: "docs/GRAPHICS.md"
+      - test: "cd ts && npx vitest run"
+    steps:
+      - id: M6.1
+        title: "Write the boundary: what is vector, what is raster, and why"
+        kind: docs
+        size: S
+        value: 5
+        needs: []
+        status: pending
+        directive: ""
+        detail: >-
+          Today both exist with no rule. SVG: artGen shapes, the chimera renderer, brand assets,
+          RoleSymbol. Raster and canvas: the creatureArt wolf.png fixture, PlanetMap,
+          PlaygroundScene, the dissonance art config, and scripts/generate_dissonance_art.py.
+          State the rule - vector for anything composed, recoloured or scaled per player
+          (creatures, icons, UI); raster for painted backdrops and texture; canvas only where a
+          per-frame redraw is the point - plus the file-size and load budget each side gets.
+        accept:
+          - file: "docs/GRAPHICS.md"
+      - id: M6.2
+        title: "One export path from vector to sprite sheet, deterministic"
+        kind: feature
+        size: M
+        value: 4
+        needs: ["M6.1"]
+        status: pending
+        directive: ""
+        detail: >-
+          A creature composed as SVG sometimes has to ship as frames: pixel-styled demos,
+          animation, and anything performance bound. One documented, seeded export path means a
+          demo never hand-draws what the generator can produce, and the same seed yields the
+          same sheet.
+        accept:
+          - test: "cd ts && npx vitest run"
+      - id: M6.3
+        title: "Pixel-art style as a renderer option, not a second art set"
+        kind: refactor
+        size: M
+        value: 3
+        needs: ["M6.2"]
+        status: pending
+        directive: ""
+        detail: >-
+          Pixel demos should consume the same creature definition through a style layer (palette
+          quantisation, grid snapping, outline rules), so a creature exists once and renders in
+          either style. The alternative, parallel art sets, doubles the content budget that is
+          already the constraint.
+        accept:
+          - grep: {path: "docs/GRAPHICS.md", pattern: "pixel"}
+  - id: M7
+    title: "Every shared engine system has an owner doc, a contract test and a consumer list"
+    status: pending
+    exit:
+      - file: "docs/ENGINE_SYSTEMS.md"
+      - test: "cd ts && npx vitest run"
+    steps:
+      - id: M7.1
+        title: "Inventory ts/src/engine/shared and record who consumes each system"
+        kind: docs
+        size: M
+        value: 4
+        needs: []
+        status: pending
+        directive: ""
+        detail: >-
+          The shared layer already holds anatomy, combat, sportsSim, personGenerator, aiBehavior,
+          portalAdapter, firestoreBackend, componentTypes, partSlots and seededRandom - each
+          feeding several demos, none with a stated contract. One table: system, entry point,
+          demos that import it, test file, and whether its output is seeded.
+        accept:
+          - file: "docs/ENGINE_SYSTEMS.md"
+      - id: M7.2
+        title: "Finish the seededRandom consolidation and make the pattern the rule"
+        kind: refactor
+        size: S
+        value: 3
+        needs: ["M7.1"]
+        status: pending
+        directive: ""
+        detail: >-
+          artGen/seededRandom.ts is already a thin re-export of shared/seededRandom.ts, which is
+          the right shape: one canonical implementation, a re-export for existing callers. Apply
+          that pattern anywhere else the inventory finds two copies, and say in the doc that a
+          second implementation of a shared system is a defect.
+        accept:
+          - test: "cd ts && npx vitest run"
+      - id: M7.3
+        title: "Contract tests for the systems the meta layer will lean on"
+        kind: tests
+        size: M
+        value: 4
+        needs: ["M7.1"]
+        status: pending
+        directive: ""
+        detail: >-
+          Collections and site-wide points will read from combat outcomes, anatomy parts and the
+          person generator. Each of those gets a contract test at its public entry point, so a
+          change that breaks a demo fails here first rather than in a player's browser.
+        accept:
+          - test: "cd ts && npx vitest run"
 ```
