@@ -64,3 +64,17 @@ one-directional and mechanical to fix.
 - Branch `directive/rfdgs-engine-types-boundary-directive` from `main`.
   Never commit to `main`, never push.
 - If a tool call is genuinely blocked, stop and write why in the Status row.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin-laptop |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 11:08 · devin-overseer · none → Queued — spec docs/superpowers/specs/2026-09-23-engine-shared-modules.md; smallest of the three, good first dispatch; awaiting Robert approval
+<!-- queue:end -->
