@@ -155,3 +155,17 @@ review already found.
 
 *RFD Method | Stage 2 Real-World Test | RFDGameStudio | August 2026*
 *Director → Pipeline → Agent. The first time this tool has been pointed at anything from outside its own pipeline.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:16 · agentflow-tick · none → Queued — suggested by heartbeat: No queue status found; recommending claude due to local Downloads/.env dependency and verbatim-scope judgment calls unsuited to a Devin worktree dispatch.
+<!-- queue:end -->
