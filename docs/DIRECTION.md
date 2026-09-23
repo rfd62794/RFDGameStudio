@@ -96,3 +96,20 @@ machine-readable milestones in `docs/ROADMAP.md`:
   on disagreement).
 - `ts/src/games/registry.ts` — the live catalog.
 - `AGENTS.md` — build/test commands and conventions.
+
+```yaml direction
+version: 1
+answered: 2026-09-23 robert-claude
+purpose: The factory that turns game ideas and AI Studio drops into finished, playable games published to the arcade and itch.
+done_when:
+- An AI Studio drop becomes a playable, tested arcade game with one command
+- Every published game shares the UI, including a way back to the arcade
+- The suite passes with no skips and the untested-module backlog is cleared
+- Arcade and itch publishing runs without manual steps
+do_not:
+- Never publish a game that doesn't load, or break one that is already live
+- No paid art or asset generation without approval
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```
