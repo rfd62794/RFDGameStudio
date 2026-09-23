@@ -107,13 +107,15 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-auto-skipped-test-skips |
 | Base branch | - |
+| Base commit | 38913270b98e64655d3a345e2cb77bd33d66b8cc |
 | Policy | skipped-test |
 
 **Status log**
 - 2026-09-23 12:02 · backlog-policy · none → Queued — generated from a skipped-test finding authorised in backlog_policy.yaml
 - 2026-09-23 12:06 · backlog-policy · Queued → Approved
+- 2026-09-23 12:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-skipped-test-skips; copied ts/src/games/game-metadata.json
 <!-- queue:end -->
