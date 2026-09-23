@@ -4,15 +4,18 @@ import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
 import { TaskDoc, resolveActionsState } from './types';
-import { Header } from './components/Header';
+import { GameShell } from '../../components';
 import { AuthModal } from './components/AuthModal';
 import { TaskView } from './components/TaskView';
 import { VerificationPanel } from './components/VerificationPanel';
 import { AdminPanel } from './components/AdminPanel';
-import { Shield, Sparkles } from 'lucide-react';
+import { Shield, Sparkles, User as UserIcon, LogOut, CheckCircle2, ShieldCheck, Crown } from 'lucide-react';
 
 export default function App({ session }: GameRendererProps) {
   void session; // destructured per contract; game is self-contained
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<'task' | 'verification' | 'admin'>('task');
@@ -175,29 +178,117 @@ export default function App({ session }: GameRendererProps) {
     signOut(auth);
   };
 
+  const adminEmail = env.VITE_ADMIN_EMAIL || 'cheater2478@gmail.com';
+  const showAdminTab = !!user?.email && user.email.toLowerCase() === adminEmail.toLowerCase();
+
+  const tabBtnCls = (tab: 'task' | 'verification' | 'admin', activeCls: string, idleCls: string) =>
+    `px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+      activeTab === tab ? activeCls : idleCls
+    }`;
+
   if (loadingAuth) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-3">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 animate-pulse">
-            <Shield className="w-8 h-8" />
+      <GameShell
+        gameLabel="House of Kings: Collab"
+        gameId="house_of_kings_collab"
+        phase="Phase 2"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        className="bg-slate-950 text-slate-100 font-sans antialiased"
+      >
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="flex flex-col items-center gap-3">
+            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 animate-pulse">
+              <Shield className="w-8 h-8" />
+            </div>
+            <span className="text-xs text-amber-300 font-mono">Initializing Kingdom Auth...</span>
           </div>
-          <span className="text-xs text-amber-300 font-mono">Initializing Kingdom Auth...</span>
         </div>
-      </div>
+      </GameShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200">
-      <Header
-        user={user}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onSignOut={handleSignOut}
-        houseName={houseName}
-      />
-
+    <GameShell
+      gameLabel="House of Kings: Collab"
+      gameId="house_of_kings_collab"
+      phase="Phase 2"
+      mode={mode}
+      arcadeBaseUrl={arcadeBaseUrl}
+      className="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200"
+      mainClassName="game-shell-main--scrollable"
+      headerExtra={
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="bg-amber-500/10 p-2 rounded-lg border border-amber-500/30 text-amber-400 shrink-0">
+            <Shield className="w-5 h-5" />
+          </div>
+          {user && (
+            <nav className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 space-x-1 overflow-x-auto">
+              <button
+                onClick={() => setActiveTab('task')}
+                className={tabBtnCls('task', 'bg-amber-500 text-slate-950 font-semibold shadow-sm', 'text-slate-400 hover:text-slate-200')}
+              >
+                <Shield className="w-3.5 h-3.5" />
+                Special Task
+              </button>
+              <button
+                onClick={() => setActiveTab('verification')}
+                className={tabBtnCls('verification', 'bg-amber-500 text-slate-950 font-semibold shadow-sm', 'text-slate-400 hover:text-slate-200')}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Verification Suite
+              </button>
+              {showAdminTab && (
+                <button
+                  onClick={() => setActiveTab('admin')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeTab === 'admin'
+                      ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20'
+                      : 'text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/30'
+                  }`}
+                >
+                  <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  Game Master Panel
+                </button>
+              )}
+            </nav>
+          )}
+          {user ? (
+            <div className="flex items-center space-x-3 shrink-0">
+              <div className="hidden sm:flex items-center space-x-2 text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60">
+                <UserIcon className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-slate-200 truncate max-w-[120px]">
+                  {user.displayName || user.email || 'Noble Lord'}
+                </span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="text-xs text-amber-400 flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20 shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Sign In Required
+            </div>
+          )}
+        </div>
+      }
+      statusArea={
+        <span className="text-xs text-slate-400 hidden sm:block whitespace-nowrap">
+          {houseName ? `House: ${houseName}` : 'Server-Authoritative Task Engine'}
+        </span>
+      }
+      footer={
+        <div className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500/60" />
+          <span>House of Kings: Collab — Phase 1 First Real Content (August 2026)</span>
+        </div>
+      }
+    >
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         {!user ? (
           <AuthModal />
@@ -242,11 +333,6 @@ export default function App({ session }: GameRendererProps) {
           </div>
         )}
       </main>
-
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-amber-500/60" />
-        <span>House of Kings: Collab — Phase 1 First Real Content (August 2026)</span>
-      </footer>
-    </div>
+    </GameShell>
   );
 }
