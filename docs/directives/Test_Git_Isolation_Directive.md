@@ -75,7 +75,7 @@ Before/after counts, commit hashes, and the list of test files changed.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-test-git-isolation-directive |
 | Base branch | - |
@@ -86,4 +86,5 @@ Before/after counts, commit hashes, and the list of test files changed.
 - 2026-09-22 22:23 · robert-claude · Queued → Approved
 - 2026-09-22 22:23 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-test-git-isolation-directive; base origin/main (local main differs)
 - 2026-09-22 22:34 · devin-overseer · In progress → Review — Done. Tests: 4F/101P/9S before -> 4F/102P/9S after (same 4 pre-existing env failures; +1 regression test). Commits 0f2595e0 (red), ba2983f8 (green).
+- 2026-09-22 22:50 · robert-claude · Review → Done
 <!-- queue:end -->
