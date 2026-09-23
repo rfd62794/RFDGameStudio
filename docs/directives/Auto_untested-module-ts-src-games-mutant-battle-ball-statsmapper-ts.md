@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-dd9c0a |
 | Base branch | - |
@@ -97,4 +97,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 22:42 · robert-claude · Queued → Approved
 - 2026-09-23 00:08 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-dd9c0a
 - 2026-09-23 00:12 · devin · In progress → Review — Work already committed on branch (ea9a84c): new ts/tests/test_mbb_stats_mapper.ts, 16/16 pass. Finding was accurate. npx vitest run baseline: 6 pre-existing test_arcade* suite failures (missing gitignored generated ts/src/games/game-metadata.json; regeneration step previously refused), 1 pre-existing deterministic failure in test_mbb_balanced_zero_score (unrelated to statsMapper), 28 pre-existing skips. No commands refused this run; nothing outside scope modified; nothing deleted.
+- 2026-09-23 01:14 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [90m652| [39m [34mexpect[39m([33mMath[39m[33m.[39m[34mabs[39m(playerWins [33m-[39m opponentWins))[33m.[39m[34mtoBeLessThanOrEqual[39m([34m8[39m)[33m;[39m | [90m | [39m [31m^[39m | [90m653| [39m })[33m;[39m | [90m654| [39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯[22m[39m
 <!-- queue:end -->
