@@ -157,3 +157,17 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 *PlanetForge | Phase 2 | Correction in place | RFDGameStudio*
 *Not this phase: reconciling gameLogic.ts with the live engine, cosmetic naming alignment, UI rewrite.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:25 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified correction in standalone examples/planetforge project (own vitest); good Devin fit — verify worktree gets node_modules before dispatch.
+<!-- queue:end -->
