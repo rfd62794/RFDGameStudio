@@ -236,3 +236,17 @@ executing agent once collected, not assumed here.
 *RFD Method | Phase 1 | RFDGameStudio Pipeline Audit Module | August 2026*
 *Director → Pipeline → Agent. Spec first. Test floor always real.*
 *This phase produces evidence. It does not produce conclusions about Stage 2+.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:19 · agentflow-tick · none → Queued — suggested by heartbeat: Read-only, TDD-spec'd, zero-blast-radius build work — fits Devin's directive queue.
+<!-- queue:end -->
