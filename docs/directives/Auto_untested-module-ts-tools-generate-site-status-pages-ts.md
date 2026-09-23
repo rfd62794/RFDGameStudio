@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-tools-gen-ae69ee |
 | Base branch | - |
@@ -93,4 +93,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 10:01 · backlog-policy · Queued → Approved
 - 2026-09-23 11:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-tools-gen-ae69ee; base origin/main (local main differs); copied ts/src/games/game-metadata.json
 - 2026-09-23 11:39 · devin-overseer · In progress → Review — Added ts/tests/test_generate_site_status_pages.ts (6 tests, all pass). Standalone npx vitest run showed intermittent failures in pre-existing flaky tests (test_arcade_routing timeout, mbb sim-variance assertions) across 4 runs; pre-push gate run was clean: 0 failed, 28 pre-existing it.skip skips.
+- 2026-09-23 12:05 · robert-claude · Review → Done
 <!-- queue:end -->
