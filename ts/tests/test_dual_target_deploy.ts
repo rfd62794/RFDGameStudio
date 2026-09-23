@@ -93,13 +93,13 @@ describe('test_git_state_clean_both_games', () => {
   });
 
   it('Branch is up to date with origin/main', () => {
-    // Accept "up to date with" OR "ahead of" — local commits that
-    // haven't been pushed yet are normal during development and
-    // shouldn't fail the test. The real concern is being "behind",
-    // which would mean the local branch is stale.
-    const status = execSync('git status', { cwd: repoRoot, encoding: 'utf-8' });
-    expect(status).toMatch(/up to date with|ahead of/);
-    expect(status).not.toContain('behind');
+    // -sb prints '## branch...origin/branch [ahead N, behind M]' when the
+    // branch tracks a remote. The real concern is being "behind" — local
+    // commits not yet pushed ("ahead") are normal during development, and
+    // a branch with no upstream yet (fresh directive branch) has nothing
+    // to be behind.
+    const status = execSync('git status -sb', { cwd: repoRoot, encoding: 'utf-8' });
+    expect(status.split('\n')[0]).not.toContain('behind');
   });
 });
 
