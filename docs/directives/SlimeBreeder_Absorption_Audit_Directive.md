@@ -64,12 +64,14 @@ The feature table's counts (absorbed / port / data only / drop) and the proposed
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimebreeder-absorption-audit-directive |
 | Base branch | - |
+| Base commit | ee207f4b18660742eddf67b1517184f29b56e488 |
 
 **Status log**
 - 2026-09-22 23:05 · robert-claude · none → Queued — Robert 2026-09-22: absorb SlimeBreeder fully into the Studio, then retire it. Step 1: audit.
 - 2026-09-22 23:38 · robert-claude · Queued → Approved
+- 2026-09-22 23:39 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimebreeder-absorption-audit-directive; base origin/main (local main differs)
 <!-- queue:end -->
