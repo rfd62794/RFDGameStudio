@@ -108,7 +108,7 @@ valuable part, because each entry is a real behaviour that only ever passed by l
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-seed-all-shoal-probabilistic-tests-direc |
 | Base branch | directive/rfdgamestudio-flaky-shoal-shark-chunk-directive |
@@ -122,4 +122,5 @@ valuable part, because each entry is a real behaviour that only ever passed by l
 - 2026-09-21 14:57 · robert-claude · Queued → Approved — Robert approved the retry (2026-09-21); the tick dispatches it within the concurrency limit
 - 2026-09-22 11:40 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seed-all-shoal-probabilistic-tests-direc
 - 2026-09-22 11:57 · devin · In progress → Review
+- 2026-09-22 20:04 · robert-claude · Review → Done
 <!-- queue:end -->
