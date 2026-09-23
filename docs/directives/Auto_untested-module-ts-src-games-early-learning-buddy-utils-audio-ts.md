@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-44f8cb |
 | Base branch | - |
@@ -92,4 +92,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 20:03 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
 - 2026-09-22 20:06 · backlog-policy · Queued → Approved
 - 2026-09-22 20:06 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-44f8cb; base origin/main (local main differs)
+- 2026-09-22 20:11 · devin-overseer · In progress → Review — Added ts/tests/test_early_learning_buddy_audio.ts (27 tests, all pass). Caveat: full 'npx vitest run' shows 6 pre-existing suite failures — gitignored generated file ts/src/games/game-metadata.json is absent from fresh worktrees — and 30 pre-existing skips; none related to this change. Scan detail was partly wrong: neighbours speech.ts/archetypeMatcher.ts are also untested (tests live in ts/tests/, not co-located).
 <!-- queue:end -->
