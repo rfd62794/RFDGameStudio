@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-ac5b91 |
 | Base branch | - |
@@ -100,4 +100,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 10:05 · agentflow-tick · Review → Blocked — pre-check: no commits beyond main
 - 2026-09-23 10:17 · robert-claude · Blocked → Queued
 - 2026-09-23 10:17 · robert-claude · Queued → Approved
+- 2026-09-23 11:17 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-ac5b91
 <!-- queue:end -->
