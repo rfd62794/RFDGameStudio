@@ -135,7 +135,7 @@ there is more to it.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-brewfield-into-dissonance-directive |
 | Base branch | - |
@@ -145,4 +145,5 @@ there is more to it.
 - 2026-09-19 22:20 · robert-claude · Queued → Approved
 - 2026-09-19 22:20 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-brewfield-into-dissonance-directive
 - 2026-09-20 07:09 · devin · In progress → Review
+- 2026-09-22 23:20 · devin-overseer · Review → Blocked — Review claim unverifiable: branch directive/rfdgamestudio-brewfield-into-dissonance-directive does not exist on origin, no worktree, no PR. Work lost; needs re-dispatch.
 <!-- queue:end -->
