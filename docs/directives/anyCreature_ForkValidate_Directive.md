@@ -127,3 +127,17 @@ new tests to RFDGameStudio's suite.
 
 *RFD Method | anyCreature Fork & Validate | September 2026*
 *The cheapest real test before any real decision — one known-good image, not a promise.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:45 · agentflow-tick · none → Queued — suggested by heartbeat: Needs local gh auth as Robert's own identity + running unvetted 3rd-party setup.sh/cli.js on this machine — outside Devin's sandboxed worktree dispatch model
+<!-- queue:end -->
