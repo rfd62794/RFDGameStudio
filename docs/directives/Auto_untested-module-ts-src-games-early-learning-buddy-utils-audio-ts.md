@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-44f8cb |
 | Base branch | - |
@@ -98,4 +98,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 22:42 · robert-claude · Queued → Approved
 - 2026-09-23 00:06 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-44f8cb
 - 2026-09-23 00:23 · devin-overseer · In progress → Review — Work: ts/tests/test_early_learning_buddy_audio.ts (27 tests, committed 14c1ca6b) — all pass every run (✓ 65ms). Covers mute gate, lazy/webkit/suspended AudioContext, all 5 synth paths + actionSound's 3 branches, error fallbacks, stopSpeech, speakText (voice pick, mute, resolve paths). Finding accurate. Environment fix: gitignored ts/src/games/game-metadata.json was absent in this fresh worktree (6 test files failed to import). Refused command: python -c "from studio_mcp.game_metadata import write_game_metadata; write_game_metadata()" — so I copied the real generated file verbatim from C:\GitHub\RFDGameStudio\ts\src\games\game-metadata.json via file tools (identical generator output; gitignored, nothing tracked modified). That unblocked all 6 files. Second refused command: fc /b "<main>\ts\src\games\game-metadata.json" "<worktree>\ts\src\games\game-metadata.json" (byte-compare attempt; verified via read instead). Final check output (npx vitest run): Test Files 1 failed | 142 passed | 1 skipped (144); Tests 1 failed | 1712 passed | 28 skipped (1741); exit 1. Sole failure: test_arcade_routing.ts > test_game_loader_back_button_returns_clean_url — exceeds vitest's 5000ms default cap (its inner waitFor is 30s but the test-level cap wins); deterministic on this laptop across 3 consecutive runs — heavy React.lazy App import + fengari executor under parallel load. Unrelated to audio.ts; fixing it means editing that test or vite.config.ts testTimeout — outside this directive's additive-only scope. 28 skips + 1 skipped file are pre-existing describe.skipIf guards for absent build dirs (dist/, dist-planetofgreed). Also seen then resolved: 3 dist-shoal ENOENT (parallel race with test_shoal_y8_integration's live vite build — passed once build settled) and 1 mbb probabilistic symmetry flake (passed later runs). Untracked stray file 'nul' at worktree root predates this run; left per no-delete rule. Scan caveat stands: neighbours speech.ts/archetypeMatcher.ts also untested; tests live in ts/tests/, not co-located.
+- 2026-09-23 01:10 · robert-claude · Review → Done
 <!-- queue:end -->
