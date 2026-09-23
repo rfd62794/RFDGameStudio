@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-tools-suc-fbc688 |
 | Base branch | - |
@@ -93,4 +93,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 13:14 · backlog-policy · Queued → Approved
 - 2026-09-23 14:25 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-tools-suc-fbc688; copied ts/src/games/game-metadata.json; lane=strong
 - 2026-09-23 14:51 · devin · In progress → Review — New test file ts/tests/test_succession_balance_sim.ts: 10/10 pass in every run; module untouched. Suite shows pre-existing flakes unrelated to the change (test_arcade_routing 5s-timeout under parallel load — passes standalone; one probabilistic mbb point-cap assert; ~28 conditional skips). Pre-push hook's own vitest run: 0 failed.
+- 2026-09-23 15:14 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [90m398| [39m [34mexpect[39m(ticks5)[33m.[39m[34mtoBeGreaterThanOrEqual[39m(ticks3)[33m;[39m | [90m | [39m [31m^[39m | [90m399| [39m })[33m;[39m | [90m400| [39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
 <!-- queue:end -->
