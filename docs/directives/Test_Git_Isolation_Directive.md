@@ -75,12 +75,14 @@ Before/after counts, commit hashes, and the list of test files changed.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-test-git-isolation-directive |
 | Base branch | - |
+| Base commit | 66c96a33b383a0377633cdbddc5ae6c2cfe4a402 |
 
 **Status log**
 - 2026-09-22 22:21 · robert-claude · none → Queued — Fix after the PR #10 wipe: isolate git env in tests and check.ps1. Top priority for the Studio.
 - 2026-09-22 22:23 · robert-claude · Queued → Approved
+- 2026-09-22 22:23 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-test-git-isolation-directive; base origin/main (local main differs)
 <!-- queue:end -->
