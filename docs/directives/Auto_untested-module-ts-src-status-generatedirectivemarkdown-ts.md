@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-statu-3c3ff6 |
 | Base branch | - |
@@ -93,4 +93,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 01:13 · backlog-policy · Queued → Approved
 - 2026-09-23 09:00 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-statu-3c3ff6; base origin/main (local main differs); copied ts/src/games/game-metadata.json
 - 2026-09-23 09:10 · devin · In progress → Review — Created ts/tests/test_directive_tracker.ts (11 tests, all pass) covering generateDirectiveMarkdown: skeleton, summary counts/state labels/order, round-history symbols, empty-entry and zero-round cases, pipe escaping, and a real DIRECTIVE_TRACKER smoke test. Purely additive; nothing else modified or deleted. npx vitest run: my file passes; suite overall shows 6 pre-existing failures unrelated to this change (test_dual_target_deploy.ts x5 ENOENT on gitignored ts/dist-shoal build artifacts - would need npm run build:shoal, which the directive forbids; test_arcade_routing.ts x1 flaky 5s timeout under full-suite load, passes in isolation) plus 28 pre-existing skipped tests.
+- 2026-09-23 10:05 · agentflow-tick · Review → Blocked — pre-check: no commits beyond main
 <!-- queue:end -->
