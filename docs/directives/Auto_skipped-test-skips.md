@@ -155,7 +155,7 @@ isolation and in both subsequent full runs — pre-existing RNG flakiness, untou
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-skipped-test-skips |
 | Base branch | - |
@@ -169,4 +169,5 @@ isolation and in both subsequent full runs — pre-existing RNG flakiness, untou
 - 2026-09-23 12:33 · agentflow-tick · In progress → Blocked — Died on rejected file-copy confirmations in non-interactive mode (needs --permission-mode dangerous) after correctly diagnosing 4 real vs 26 environment-artifact skips.
 - 2026-09-23 15:20 · robert-claude-laptop · Blocked → Review — Merged to main via PR #20 after merged-tree verification; awaiting Robert's Done
 - 2026-09-23 16:09 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [90m381| [39m [34mexpect[39m(severities[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m | [90m | [39m [31m^[39m | [90m382| [39m [90m// Should include at least one severity from the four-tier ladder[39m | [90m383| [39m [35mconst[39m validSeverities [33m=[39m [[32m'stunned'[39m[33m,[39m [32m'down'[39m[33m,[39m [32m'casualty'[39m[33m,[39m [32m'fatal'[39m][33m;[39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+- 2026-09-23 16:09 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->
