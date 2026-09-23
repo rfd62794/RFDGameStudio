@@ -121,3 +121,17 @@ Identical checklist from the second directive's §4, with one addition:
 | `rdug627.itch.io/brewfield` | Still 404, confirmed live tonight, unresolved since Aug 2 |
 | Judgment call, still open, still not this directive's to resolve silently | §2e — RFD_IT_Publishing Phase 4 superseded or not |
 | Proof standard | Raw `git diff --stat` + raw test output, not a summary |
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:43 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified cross-repo build work (spec unchanged, third attempt) — Devin builds, independent re-verification required before Done given two prior fabricated/stalled attempts.
+<!-- queue:end -->
