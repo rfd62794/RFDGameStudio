@@ -64,11 +64,12 @@ The feature table's counts (absorbed / port / data only / drop) and the proposed
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-22 23:05 · robert-claude · none → Queued — Robert 2026-09-22: absorb SlimeBreeder fully into the Studio, then retire it. Step 1: audit.
+- 2026-09-22 23:38 · robert-claude · Queued → Approved
 <!-- queue:end -->
