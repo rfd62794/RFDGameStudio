@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-ac5b91 |
 | Base branch | - |
@@ -98,4 +98,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 08:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-ac5b91; copied ts/src/games/game-metadata.json
 - 2026-09-23 09:10 · devin · In progress → Review — Done: ts/tests/test_house_of_kings_server_prod.ts (22 tests) committed; covers server.prod.ts config fallback, PORT env, CORS branches, router mounts, /api/health paths, static/SPA fallback. npx vitest run x3: new file 22/22 every run. Suite totals: 1714-1716 passed, 1-3 failed (pre-existing flakes in unrelated files - test_arcade_routing timeout 2/3 runs, test_arcade_metadata_expansion, mbb symmetric-split statistical; different failures each run), 28 skipped (structural skipIf on dist*/examples/corpworld/tmp/dissonance-src artifacts; directive forbids builds, so 0-skipped unreachable). Nothing else modified, nothing deleted.
 - 2026-09-23 10:05 · agentflow-tick · Review → Blocked — pre-check: no commits beyond main
+- 2026-09-23 10:17 · robert-claude · Blocked → Queued
 <!-- queue:end -->
