@@ -58,3 +58,17 @@ The feature table's counts (absorbed / port / data only / drop) and the proposed
 - Update this directive's Status row when you finish or stop partway.
 - If a tool call is genuinely blocked, stop and write why in the Status row instead of trying
   another way around it.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-22 23:05 · robert-claude · none → Queued — Robert 2026-09-22: absorb SlimeBreeder fully into the Studio, then retire it. Step 1: audit.
+<!-- queue:end -->
