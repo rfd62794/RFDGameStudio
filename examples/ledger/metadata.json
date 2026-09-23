@@ -1,0 +1,6 @@
+{
+  "name": "Ledger",
+  "description": "A high-tension trading and appraisal game of compounding debt, partial information, and volatile markets. Inspect walk-ins, bid on Dutch auctions, and clear your loan in 10 days.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

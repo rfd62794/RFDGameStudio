@@ -1,0 +1,6 @@
+{
+  "name": "AntSim Redux",
+  "description": "Top-down ant colony simulation with pheromone signaling, direct food sensing, and emergent population dynamics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

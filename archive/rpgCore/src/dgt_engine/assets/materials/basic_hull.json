@@ -1,0 +1,16 @@
+{
+    "asset_id": "mat_basic_hull",
+    "name": "Standard Hull Plating",
+    "material_type": "metal",
+    "surface_properties": [
+        "normal"
+    ],
+    "base_color": [
+        100,
+        100,
+        100
+    ],
+    "hardness": 5.0,
+    "density": 2.5,
+    "durability": 100.0
+}

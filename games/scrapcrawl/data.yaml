@@ -1,0 +1,124 @@
+game:
+  id: scrapcrawl
+  name: ScrapCrawl
+  version: "Phase A"
+  studio: RFDGameStudio
+  description: >-
+    Core loop port — room navigation, the Scrap→Craft→Equipment economy with
+    durability, D20 combat, and win-only weapon Proficiency.
+
+rooms:
+  home_base:
+    id: home_base
+    name: Home Base
+    interaction_types: [home, craft, rest]
+    connections: [scrap_pit, furnace_core]
+  scrap_pit:
+    id: scrap_pit
+    name: Scrap Pit
+    interaction_types: [fight]
+    connections: [home_base, vent_stack]
+    difficulty: 8
+  vent_stack:
+    id: vent_stack
+    name: Vent Stack
+    interaction_types: [fight]
+    connections: [scrap_pit, chemical_leak]
+    difficulty: 12
+  chemical_leak:
+    id: chemical_leak
+    name: Chemical Leak
+    interaction_types: [fight]
+    connections: [vent_stack, furnace_core]
+    difficulty: 15
+  furnace_core:
+    id: furnace_core
+    name: Furnace Core
+    interaction_types: [fight]
+    connections: [chemical_leak, home_base]
+    difficulty: 18
+
+catalog:
+  beatStick:
+    id: beatStick
+    name: Beat Stick
+    slot: weapon
+    tierCost:
+      1: 10
+      2: 25
+    baseStats:
+      1:
+        hp: 0
+        atk: 5
+        def: 0
+      2:
+        hp: 0
+        atk: 10
+        def: 0
+    maxLife:
+      1: 10
+      2: 18
+  shield:
+    id: shield
+    name: Shield
+    slot: shield
+    tierCost:
+      1: 10
+      2: 25
+    baseStats:
+      1:
+        hp: 0
+        atk: 0
+        def: 3
+      2:
+        hp: 0
+        atk: 0
+        def: 7
+    maxLife:
+      1: 10
+      2: 18
+  bodyArmor:
+    id: bodyArmor
+    name: Body Armor
+    slot: armor
+    tierCost:
+      1: 10
+      2: 25
+    baseStats:
+      1:
+        hp: 15
+        atk: 0
+        def: 2
+      2:
+        hp: 30
+        atk: 0
+        def: 5
+    maxLife:
+      1: 10
+      2: 18
+  tool:
+    id: tool
+    name: Tier-2 Tool
+    tierCost:
+      1: 20
+      2: 20
+    baseStats:
+      1:
+        hp: 0
+        atk: 0
+        def: 0
+      2:
+        hp: 0
+        atk: 0
+        def: 0
+    maxLife:
+      1: 999
+      2: 999
+
+constants:
+  proficiency_xp_ceiling: 500
+  scrap_reward_min: 3
+  scrap_reward_max: 8
+  unarmed_baseline_atk: 2
+  proficiency_win_xp: 15
+  tier2_cap: 2

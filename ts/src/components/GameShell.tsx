@@ -1,0 +1,85 @@
+import type { ReactNode } from 'react';
+import { navigateHome, isEmbed } from '../arcade/routing';
+import { getGlossary, GlossaryPanel, glossaryPanelRequested } from '../foundation/glossary';
+
+export interface GameShellProps {
+  /** Display name used in the marquee title treatment */
+  gameLabel: string;
+  /** Machine-readable game id rendered in monospace */
+  gameId: string;
+  /** Optional build phase badge (e.g. "PHASE A.1") */
+  phase?: string;
+  /** Game-specific status readout — funds, roster, room, score, etc. */
+  statusArea?: ReactNode;
+  /** Main content — tabs, canvas, or free layout */
+  children: ReactNode;
+  /** Optional footer region */
+  footer?: ReactNode;
+  /** Optional extra content rendered next to the back button (e.g. game-specific nav) */
+  headerExtra?: ReactNode;
+  /** 'arcade' (embedded, strips ?game=) or 'standalone' (navigates to arcadeBaseUrl) */
+  mode?: 'arcade' | 'standalone';
+  /** External arcade URL for standalone/itch builds */
+  arcadeBaseUrl?: string;
+  className?: string;
+  /** Optional class applied to .game-shell-main (e.g. for scrollable overflow) */
+  mainClassName?: string;
+}
+
+/**
+ * Structural wrapper for a game's App component.
+ * Renders the shared cabinet-marquee header (title, phase, back link) and
+ * leaves the actual stat readout to each game via `statusArea`.
+ */
+export function GameShell({
+  gameLabel,
+  gameId,
+  phase,
+  statusArea,
+  children,
+  footer,
+  headerExtra,
+  mode = 'arcade',
+  arcadeBaseUrl,
+  className = '',
+  mainClassName = '',
+}: GameShellProps) {
+  return (
+    <div className={`game-shell ${className}`}>
+      <header className="game-shell-header">
+        <div className="game-shell-header-inner">
+          <div className="game-shell-back-group">
+            {!isEmbed() && (
+              <button
+                type="button"
+                className="game-shell-back"
+                onClick={() => navigateHome(mode, arcadeBaseUrl)}
+                aria-label="Back to Arcade"
+              >
+                ← Arcade
+              </button>
+            )}
+            {headerExtra}
+          </div>
+
+          <div className="game-shell-brand">
+            <h1 className="game-shell-title">{gameLabel}</h1>
+            <span className="game-shell-id">{gameId}</span>
+            {phase && <span className="game-shell-phase">{phase}</span>}
+          </div>
+
+          {statusArea && <div className="game-shell-status">{statusArea}</div>}
+        </div>
+      </header>
+
+      <div className={`game-shell-main ${mainClassName}`}>{children}</div>
+
+      {typeof window !== 'undefined' && glossaryPanelRequested(window.location.search) && (() => {
+        const result = getGlossary(gameId);
+        return result ? <GlossaryPanel result={result} /> : null;
+      })()}
+
+      {footer && <div className="game-shell-footer">{footer}</div>}
+    </div>
+  );
+}

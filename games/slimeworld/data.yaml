@@ -1,0 +1,319 @@
+# RFDGameStudio — SlimeWorld
+# Data Layer — extracted from SlimeGarden's types.ts and gameLogic.ts
+# Renderer-agnostic. TypeScript, Python, Rust all read this.
+
+game:
+  id: slimeworld
+  name: SlimeWorld
+  version: "0.1"
+  studio: RFDGameStudio
+
+# --- LAB / ROSTER ---
+lab:
+  starting_cycle: 1
+  starting_credits: 100
+  starting_roster_count: 3
+  starting_roster_cap: 10
+  starting_breeding_success_rate_modifier: 0
+  color_relationships:
+    Red: 50
+    Blue: 50
+    Yellow: 50
+    Purple: 50
+    Orange: 50
+    Green: 50
+    Gray: 50
+  starter_slimes:
+    - name: Specimen-Cinder-Alpha
+      color: Red
+      pattern: Solid
+    - name: Specimen-Sulphur-Beta
+      color: Yellow
+      pattern: Solid
+    - name: Specimen-Abyssal-Gamma
+      color: Blue
+      pattern: Solid
+
+constants:
+  WORKER_BASE_INCOME: 5
+  RECYCLE_CREDIT_VALUE: 15
+  CAPITOL_HARDENED_BONUS: 15
+
+# --- SLIME SCHEMA ---
+slime:
+  fields:
+    id: string
+    name: string
+    color: [Red, Blue, Yellow, Purple, Orange, Green, Gray]
+    pattern: [Solid, Stripe, Polka, Glow, Crown, Ringed, Nebula, Obsidian]
+    level: integer
+    xp: integer
+    stats:
+      hp: number
+      atk: number
+      def: number
+      agi: number
+      int: number
+      chm: number
+    role: [idle, dispatch, corporate]
+    generation: integer
+    color_saturation: {min: 0, max: 100, optional: true, description: Legacy saturation field retained by the source state}
+    hue: {min: 0, max: 360, optional: true, description: Continuous genetic hue angle}
+    saturation: {min: 0, max: 100, optional: true, description: Genetic color purity}
+    diffusion_ratio: {min: 0, max: 100, optional: true, description: Continuous Accent type coordinate}
+    amplitude: {min: 0, max: 100, optional: true, description: Continuous Accent visibility coordinate}
+    accent_hue: {min: 0, max: 360, optional: true, description: Accent display hue derived from Color output and amplitude}
+    vertex_count: {min: 3, max: 22, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
+    irregularity: {min: 0, max: 100, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
+    parent_a: {type: string, optional: true}
+    parent_b: {type: string, optional: true}
+    created_at: timestamp
+    locked_role: {values: [dispatch, mediation, worker, exploration, garrison, null], optional: true}
+    garrisoned_at: {type: timestamp, optional: true}
+    stage: {values: [Hatchling, Juvenile, Young, Prime, Veteran, Elder], optional: true, description: Computed dynamically in the source}
+
+petition:
+  fields:
+    id: string
+    source: [wanderer]
+    requested_color: {type: string, optional: true}
+    requested_shape: {type: string, optional: true}
+    payout_multiplier: number
+    expires_cycle: integer
+
+# --- COLOR GENETICS ---
+color_genetics:
+  wheel_order: [Red, Orange, Yellow, Green, Purple, Blue]
+  faction_anchors:
+    Red: 0
+    Orange: 60
+    Yellow: 120
+    Green: 180
+    Purple: 240
+    Blue: 300
+    Gray: 0
+  base_saturation_loss_coefficient: 0.12
+  repetition_penalty_floor: 0.15
+  repetition_penalty_per_streak: 0.12
+  gray_saturation_threshold: 15
+  target_nudge_strength: 0.6
+
+shape_genetics:
+  vertex_count_min: 3
+  vertex_count_max: 22
+  distance_spike_coefficient: 0.5
+  target_nudge_strength: 0.6
+
+# --- ACCENT GENETICS ---
+# Real grounding: Turing reaction-diffusion morphogenesis (1952).
+# Diffusion Ratio determines pattern TYPE (real ordered regime sequence).
+# Amplitude determines pattern INTENSITY (real, independent parameter).
+# Shape (vertex_count/irregularity) biases Diffusion Ratio — real
+# surface-geometry effect on pattern formation. Color determines the
+# rendered accent hue via true complementary-color contrast.
+accent_genetics:
+  diffusion_ratio_min: 0
+  diffusion_ratio_max: 100
+  amplitude_min: 0
+  amplitude_max: 100
+  shape_bias_strength: 0.3
+  distance_spike_coefficient: 0.4
+  target_nudge_strength: 0.6
+
+accent_targets:
+  - {id: accent_solid, name: Solid, diffusion_min: 0, diffusion_max: 10}
+  - {id: accent_polka, name: Polka, diffusion_min: 10, diffusion_max: 30}
+  - {id: accent_stripe, name: Stripe, diffusion_min: 45, diffusion_max: 65}
+  - {id: accent_nebula, name: Nebula, diffusion_min: 65, diffusion_max: 85}
+  - {id: accent_ringed, name: Ringed, diffusion_min: 85, diffusion_max: 100}
+  - {id: accent_glow, name: Glow, amplitude_min: 0, amplitude_max: 35}
+  - {id: accent_obsidian, name: Obsidian, amplitude_min: 70, amplitude_max: 100}
+  - {id: accent_metallic, name: Metallic, diffusion_min: 43, diffusion_max: 47, amplitude_min: 68, amplitude_max: 72}
+
+# --- SIX CULTURES ---
+cultures:
+  ember:
+    color: Red
+    hue: 0
+    specialty: High HP & ATK (Cinder Strain)
+    rgb: "rgb(239, 68, 68)"
+    base_stats: {hp: 120, atk: 18, def: 8, agi: 6, int: 5, chm: 6}
+    growth: {hp: 15, atk: 3, def: 1, agi: 0.8, int: 0.5, chm: 0.6}
+  marsh:
+    color: Orange
+    hue: 60
+    specialty: Extreme ATK & AGI (Solar Strain)
+    rgb: "rgb(249, 115, 22)"
+    base_stats: {hp: 110, atk: 22, def: 5, agi: 14, int: 6, chm: 8}
+    growth: {hp: 12, atk: 3.5, def: 0.5, agi: 1.8, int: 0.6, chm: 0.8}
+  gale:
+    color: Yellow
+    hue: 120
+    specialty: High AGI & ATK (Sulphur Strain)
+    rgb: "rgb(234, 179, 8)"
+    base_stats: {hp: 80, atk: 15, def: 6, agi: 18, int: 8, chm: 10}
+    growth: {hp: 9, atk: 2.2, def: 0.8, agi: 2.4, int: 1, chm: 1}
+  tundra:
+    color: Green
+    hue: 180
+    specialty: Extreme HP & DEF (Jungle Strain)
+    rgb: "rgb(34, 197, 94)"
+    base_stats: {hp: 160, atk: 8, def: 16, agi: 4, int: 7, chm: 14}
+    growth: {hp: 22, atk: 1, def: 2.5, agi: 0.5, int: 0.8, chm: 1.6}
+  crystal:
+    color: Purple
+    hue: 240
+    specialty: Ultra-High INT & Balanced (Nebula Strain)
+    rgb: "rgb(168, 85, 247)"
+    base_stats: {hp: 100, atk: 12, def: 10, agi: 10, int: 20, chm: 15}
+    growth: {hp: 11, atk: 1.5, def: 1.2, agi: 1.2, int: 3, chm: 2}
+  tide:
+    color: Blue
+    hue: 300
+    specialty: High DEF & INT (Abyssal Strain)
+    rgb: "rgb(59, 130, 246)"
+    base_stats: {hp: 90, atk: 10, def: 14, agi: 5, int: 15, chm: 12}
+    growth: {hp: 10, atk: 1.2, def: 2, agi: 0.6, int: 2.5, chm: 1.5}
+
+# Gray is a non-culture neutral trait used for saturation interpolation.
+neutral_traits:
+  gray:
+    hue: 0
+    specialty: Balanced Mysterious Trait (Void Strain)
+    rgb: "rgb(107, 114, 128)"
+    base_stats: {hp: 110, atk: 14, def: 11, agi: 11, int: 14, chm: 11}
+    growth: {hp: 13, atk: 2, def: 1.5, agi: 1.5, int: 2, chm: 1.2}
+
+# --- SEED SHAPE DEFAULTS ---
+seed_shape_defaults:
+  Red: {vertex_count: 3, irregularity: 10}
+  Orange: {vertex_count: 3, irregularity: 15}
+  Yellow: {vertex_count: 6, irregularity: 10}
+  Green: {vertex_count: 6, irregularity: 15}
+  Purple: {vertex_count: 4, irregularity: 15}
+  Blue: {vertex_count: 4, irregularity: 10}
+  Gray: {vertex_count: 4, irregularity: 20}
+
+# --- COLOR CODEX TARGETS ---
+color_targets:
+  - {id: guild_ember_marsh, tier: guild, name: Thornward, center_hues: [30], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_marsh_gale, tier: guild, name: "Guild: Amberglow", center_hues: [90], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_gale_tundra, tier: guild, name: Frostwind, center_hues: [150], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_tundra_crystal, tier: guild, name: "Guild: Mossy Crystal", center_hues: [210], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_crystal_tide, tier: guild, name: Tidereign, center_hues: [270], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: guild_tide_ember, tier: guild, name: "Guild: Abyssal Ember", center_hues: [330], tolerance: 15, saturation_min: 65, saturation_max: 100}
+  - {id: rival_ember_tundra, tier: rival, name: The Fault Line, center_hues: [90, 270], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: rival_marsh_crystal, tier: rival, name: "Rival: Eclipse Void", center_hues: [150, 330], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: rival_gale_tide, tier: rival, name: "Rival: Stormsurge", center_hues: [210, 30], tolerance: 10, saturation_min: 35, saturation_max: 65}
+  - {id: arc_ember_marsh_gale, tier: arc_triad, name: "Arc: Ember-Marsh-Gale", center_hues: [60], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_marsh_gale_tundra, tier: arc_triad, name: "Arc: Marsh-Gale-Tundra", center_hues: [120], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_gale_tundra_crystal, tier: arc_triad, name: "Arc: Gale-Tundra-Crystal", center_hues: [180], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_tundra_crystal_tide, tier: arc_triad, name: "Arc: Tundra-Crystal-Tide", center_hues: [240], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_crystal_tide_ember, tier: arc_triad, name: "Arc: Crystal-Tide-Ember", center_hues: [300], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: arc_tide_ember_marsh, tier: arc_triad, name: "Arc: Tide-Ember-Marsh", center_hues: [0], tolerance: 15, saturation_min: 20, saturation_max: 35}
+  - {id: skip_ember_gale_crystal, tier: skip_triad, name: "Skip: Ember-Gale-Crystal", center_hues: [0, 120, 240], tolerance: 10, saturation_min: 15, saturation_max: 20}
+  - {id: skip_marsh_tundra_tide, tier: skip_triad, name: "Skip: Marsh-Tundra-Tide", center_hues: [60, 180, 300], tolerance: 10, saturation_min: 15, saturation_max: 20}
+
+# --- SHAPE TARGETS ---
+# Real grounding: polygon constructibility complexity tiers per Galois
+# theory (constructible iff φ(n) is a power of 2). Tier 3/5/6 entries
+# use Schläfli {n/k} star-polygon notation — a single vertex count can
+# have multiple real, distinct star forms depending on step.
+# "Base" (lower step) vs "Great" (higher step) is real, attested
+# terminology (Heptagram/Great Heptagram, Enneagram/Great Enneagram).
+#
+# Corrected taxonomy (6 tiers, 17 vertex counts):
+#   Tier 1 — Trivial:    3, 4, 6
+#   Tier 2 — Simple:     5, 8, 10, 12
+#   Tier 3 — Elaborate:  15, 16, 20  (constructible, two nested quadratic steps)
+#   Tier 4 — Master:     17          (hardest constructible polygon, Gauss 1796)
+#   Tier 5 — Cubic:      7, 9, 14, 18  (non-constructible, needs angle trisection)
+#   Tier 6 — Quintic:    11, 22        (non-constructible, unsolvable by radicals)
+#
+# NOTE: existing entries retain their original tier labels (some star
+# polygons were labelled tier 3/5 before the Galois correction). The
+# 6 new clean-polygon entries use the corrected tier numbers per §0.
+# Pentadecagon/Hexadecagon/Heptadecagon use vertex_tolerance 0.49 (not
+# 0.5) to prevent overlap at midpoints 15.5 and 16.5 — all three share
+# the same irregularity band (0-15), so 0.5 tolerance would create
+# ambiguous matches. 0.49 eliminates the overlap with minimal tightening.
+# Full research trail: RFDGameStudio_SlimeWorld_ShapeTaxonomy_Full_Directive.md
+shape_targets:
+  - {id: shape_triangle, tier: 1, name: Triangle, vertex_count: 3, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_square, tier: 1, name: Square, vertex_count: 4, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_diamond, tier: 1, name: Diamond, vertex_count: 4, vertex_tolerance: 0.5, irregularity_min: 40, irregularity_max: 100}
+  - {id: shape_pentagon, tier: 2, name: Pentagon, vertex_count: 5, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_hexagon, tier: 1, name: Hexagon, vertex_count: 6, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_octagon, tier: 2, name: Octagon, vertex_count: 8, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_decagon, tier: 2, name: Decagon, vertex_count: 10, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_dodecagon, tier: 2, name: Dodecagon, vertex_count: 12, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_pentadecagon, tier: 3, name: Pentadecagon, vertex_count: 15, vertex_tolerance: 0.49, irregularity_max: 15}
+  - {id: shape_hexadecagon, tier: 3, name: Hexadecagon, vertex_count: 16, vertex_tolerance: 0.49, irregularity_max: 15}
+  - {id: shape_heptadecagon, tier: 4, name: Heptadecagon, vertex_count: 17, vertex_tolerance: 0.49, irregularity_max: 15}
+  - {id: shape_icosagon, tier: 3, name: Icosagon, vertex_count: 20, vertex_tolerance: 0.5, irregularity_max: 15}
+  - {id: shape_star, tier: 3, name: Star, vertex_count: 7, vertex_tolerance: 0.5, step: 2, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_spiked, tier: 3, name: Spiked, vertex_count: 7, vertex_tolerance: 0.5, step: 3, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_crescent, tier: 3, name: Crescent, vertex_count: 9, vertex_tolerance: 0.5, step: 2, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_crown, tier: 3, name: Crown, vertex_count: 9, vertex_tolerance: 0.5, step: 4, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_prism, tier: 3, name: Prism, vertex_count: 14, vertex_tolerance: 0.5, step: 3, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_arrow, tier: 3, name: Arrow, vertex_count: 14, vertex_tolerance: 0.5, step: 5, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_teardrop, tier: 3, name: Teardrop, vertex_count: 18, vertex_tolerance: 0.5, step: 5, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_crystal, tier: 3, name: Crystal, vertex_count: 18, vertex_tolerance: 0.5, step: 7, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_void_form, tier: 5, name: Void-Form, vertex_count: 11, vertex_tolerance: 0.5, step: 2, irregularity_min: 40, irregularity_max: 70}
+  - {id: shape_celestial, tier: 5, name: Celestial, vertex_count: 11, vertex_tolerance: 0.5, step: 5, irregularity_min: 70, irregularity_max: 100}
+  - {id: shape_prismatic, tier: 5, name: Prismatic, vertex_count: 22, vertex_tolerance: 0.5, step: 9, irregularity_min: 70, irregularity_max: 100}
+
+# --- PLANET NODE SCHEMA ---
+planet_node:
+  fields:
+    id: string
+    name: string
+    cell_shape: string
+    label_x: number
+    label_y: number
+    neighbors: [string]
+    owner_color: [Red, Blue, Yellow, Purple, Orange, Green, Gray, null]
+    pressure: {type: map, keys: [Red, Blue, Yellow, Purple, Orange, Green, Gray], values: number}
+    strength: {min: 0, max: 1}
+    is_capitol: boolean
+    is_supplied: boolean
+    distance_from_center: number
+    discovered: boolean
+    garrison_slime_id: {type: string, optional: true}
+
+# --- PLANET REGION SCHEMA ---
+planet_region:
+  fields:
+    nodes: [planet_node]
+    generated_at: timestamp
+    geometry_version: {type: integer, optional: true}
+
+# --- REGION LOCKS ---
+# Breeding-gated access: a region unlocks permanently when the player breeds
+# a slime matching its composite lock (color target + shape tier + accent band).
+# Reuses real color_targets, shape_targets, and accent_targets by ID.
+# Convergence requires all other non-capitol regions unlocked + Metallic accent.
+region_locks:
+  # Ring 1 — Guild (6 Frontier nodes, Shape Tier 1, diffusion 0-30: Solid/Polka)
+  - {node_id: node_frontier_a, color_target_id: guild_ember_marsh, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_b, color_target_id: guild_marsh_gale, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_c, color_target_id: guild_gale_tundra, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_d, color_target_id: guild_tundra_crystal, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_e, color_target_id: guild_crystal_tide, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  - {node_id: node_frontier_f, color_target_id: guild_tide_ember, shape_tier: 1, accent_type: diffusion, accent_target_ids: [accent_solid, accent_polka]}
+  # Ring 2 — Rival (3 new nodes, Shape Tier 2, diffusion 45-85: Stripe/Nebula)
+  - {node_id: node_rival_a, color_target_id: rival_ember_tundra, shape_tier: 2, accent_type: diffusion, accent_target_ids: [accent_stripe, accent_nebula]}
+  - {node_id: node_rival_b, color_target_id: rival_marsh_crystal, shape_tier: 2, accent_type: diffusion, accent_target_ids: [accent_stripe, accent_nebula]}
+  - {node_id: node_rival_c, color_target_id: rival_gale_tide, shape_tier: 2, accent_type: diffusion, accent_target_ids: [accent_stripe, accent_nebula]}
+  # Ring 3 — Arc (6 Midpoint nodes, Shape Tier 3, diffusion 85-100: Ringed)
+  - {node_id: node_mid_a, color_target_id: arc_tide_ember_marsh, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_b, color_target_id: arc_ember_marsh_gale, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_c, color_target_id: arc_marsh_gale_tundra, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_d, color_target_id: arc_gale_tundra_crystal, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_e, color_target_id: arc_tundra_crystal_tide, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  - {node_id: node_mid_f, color_target_id: arc_crystal_tide_ember, shape_tier: 3, accent_type: diffusion, accent_target_ids: [accent_ringed]}
+  # Ring 4 — Skip (2 Midpoint nodes, Shape Tier 4/5, amplitude split: Glow vs Obsidian)
+  - {node_id: node_mid_g, color_target_id: skip_ember_gale_crystal, shape_tier: 4, accent_type: amplitude, accent_target_ids: [accent_glow]}
+  - {node_id: node_mid_h, color_target_id: skip_marsh_tundra_tide, shape_tier: 5, accent_type: amplitude, accent_target_ids: [accent_obsidian]}
+  # Capstone — Convergence (1 new node, Metallic accent only, all other non-capitol regions as prerequisites)
+  - {node_id: node_convergence, color_target_id: null, shape_tier: null, accent_type: metallic, accent_target_ids: [accent_metallic], prerequisites: [node_frontier_a, node_frontier_b, node_frontier_c, node_frontier_d, node_frontier_e, node_frontier_f, node_rival_a, node_rival_b, node_rival_c, node_mid_a, node_mid_b, node_mid_c, node_mid_d, node_mid_e, node_mid_f, node_mid_g, node_mid_h]}

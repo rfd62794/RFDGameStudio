@@ -1,0 +1,17 @@
+name: "docstring"
+role: "Expert Python documentation assistant using Google-style docstrings."
+department: "execution"
+model_preference: "remote"
+prompts:
+  system: "docs/agents/prompts/docstring_system.md"
+  fewshot: "docs/agents/prompts/docstring_fewshot.md"
+schema: "DocstringResult"
+fallback:
+  symbol_name: "unknown"
+  file_path: "unknown"
+  line_number: 0
+  docstring: '"""Docstring generation failed."""'
+  confidence: "low"
+  reasoning: "Fallback triggered."
+save_output: true
+log_quality: true

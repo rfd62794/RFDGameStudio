@@ -1,0 +1,14 @@
+{
+  "scrap_counts": {
+    "common": 1370,
+    "rare": 525,
+    "epic": 105
+  },
+  "total_scrap": 2000,
+  "session_stats": {
+    "scrap_collected": 2000,
+    "asteroids_destroyed": 0,
+    "session_start": 1770608947.608824
+  },
+  "achievements": []
+}

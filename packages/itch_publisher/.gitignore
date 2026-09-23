@@ -1,0 +1,7 @@
+.env
+*.key
+*.json.key
+__pycache__/
+*.pyc
+dist/
+build/

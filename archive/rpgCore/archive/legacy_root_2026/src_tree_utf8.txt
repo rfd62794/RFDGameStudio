@@ -1,0 +1,1815 @@
+﻿Folder PATH listing for volume Acer
+Volume serial number is 1A9B-1708
+C:\GITHUB\RPGCORE\SRC
++---apps
+|   |   dgt_launcher.py
+|   |   
+|   +---interface
+|   |   |   adaptive_workspace.py
+|   |   |   dashboard.py
+|   |   |   large_workspace.py
+|   |   |   manual_control_widget.py
+|   |   |   menu_system.py
+|   |   |   size_control_widget.py
+|   |   |   
+|   |   \---__pycache__
+|   |           adaptive_workspace.cpython-314.pyc
+|   |           dashboard.cpython-314.pyc
+|   |           large_workspace.cpython-314.pyc
+|   |           manual_control_widget.cpython-314.pyc
+|   |           menu_system.cpython-314.pyc
+|   |           size_control_widget.cpython-314.pyc
+|   |           
+|   +---slime_clan
+|   |   |   territorial_grid.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           territorial_grid.cpython-314.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---space
+|   |   |   arcade_visual_asteroids.py
+|   |   |   asteroids_clone_sdk.py
+|   |   |   asteroids_slice.py
+|   |   |   asteroids_strategy.py
+|   |   |   combatant_evolution.py
+|   |   |   cultural_evolution.py
+|   |   |   input_handler.py
+|   |   |   physics_body.py
+|   |   |   scrap_entity.py
+|   |   |   sentient_scavenger.py
+|   |   |   ship_genetics.py
+|   |   |   simple_visual_asteroids.py
+|   |   |   space_di.py
+|   |   |   space_physics.py
+|   |   |   space_voyager_engine.py
+|   |   |   terminal_handshake.py
+|   |   |   tournament_mode.py
+|   |   |   training_loop.py
+|   |   |   turbo_scout_demo.py
+|   |   |   visual_asteroids.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---entities
+|   |   |   |   space_entity.py
+|   |   |   |   vector2.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           space_entity.cpython-312.pyc
+|   |   |           space_entity.cpython-314.pyc
+|   |   |           vector2.cpython-314.pyc
+|   |   |           
+|   |   +---logic
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           ai_controller.cpython-312.pyc
+|   |   |           ai_controller.cpython-314.pyc
+|   |   |           knowledge_library.cpython-312.pyc
+|   |   |           knowledge_library.cpython-314.pyc
+|   |   |           short_term_memory.cpython-312.pyc
+|   |   |           short_term_memory.cpython-314.pyc
+|   |   |           technique_extractor.cpython-312.pyc
+|   |   |           technique_extractor.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---scenarios
+|   |   |       premiere_voyage.json
+|   |   |       __init__.py
+|   |   |       
+|   |   \---__pycache__
+|   |           arcade_visual_asteroids.cpython-312.pyc
+|   |           arcade_visual_asteroids.cpython-314.pyc
+|   |           asteroids_slice.cpython-312.pyc
+|   |           asteroids_slice.cpython-314.pyc
+|   |           asteroids_strategy.cpython-312.pyc
+|   |           asteroids_strategy.cpython-314.pyc
+|   |           combatant_evolution.cpython-314.pyc
+|   |           physics_body.cpython-312.pyc
+|   |           physics_body.cpython-314.pyc
+|   |           scrap_entity.cpython-312.pyc
+|   |           scrap_entity.cpython-314.pyc
+|   |           ship_genetics.cpython-312.pyc
+|   |           ship_genetics.cpython-314.pyc
+|   |           space_entity.cpython-314.pyc
+|   |           space_physics.cpython-314.pyc
+|   |           space_voyager_engine.cpython-312.pyc
+|   |           space_voyager_engine.cpython-314.pyc
+|   |           tournament_mode.cpython-314.pyc
+|   |           training_loop.cpython-312.pyc
+|   |           vector2.cpython-314.pyc
+|   |           visual_asteroids.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   \---tycoon
+|       |   dashboard.py
+|       |   
+|       +---components
+|       |   |   kinetic_body.py
+|       |   |   
+|       |   \---__pycache__
+|       |           kinetic_body.cpython-314.pyc
+|       |           
+|       +---entities
+|       |   |   turtle.py
+|       |   |   
+|       |   \---__pycache__
+|       |           turtle.cpython-314.pyc
+|       |           
+|       +---rendering
+|       |   |   turtle_renderer.py
+|       |   |   
+|       |   \---__pycache__
+|       |           turtle_renderer.cpython-314.pyc
+|       |           
+|       +---systems
+|       |   |   cycle_manager.py
+|       |   |   economy_engine.py
+|       |   |   stable_manager.py
+|       |   |   
+|       |   \---__pycache__
+|       |           cycle_manager.cpython-314.pyc
+|       |           economy_engine.cpython-314.pyc
+|       |           stable_manager.cpython-314.pyc
+|       |           
+|       +---ui
+|       |   \---views
+|       |           breeding_view.py
+|       |           market_view.py
+|       |           roster_view.py
+|       |           
+|       \---__pycache__
+|               dashboard.cpython-314.pyc
+|               
++---demos
+|   |   __init__.py
+|   |   
+|   +---rpg
+|   |   |   __init__.py
+|   |   |   
+|   |   +---scenarios
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---sandbox
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---space_combat
+|   |   |   __init__.py
+|   |   |   
+|   |   +---scenarios
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---tycoon
+|   |   |   __init__.py
+|   |   |   
+|   |   +---config
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   \---__pycache__
+|           __init__.cpython-314.pyc
+|           
++---dgt_engine
+|   |   c_style_facades.py
+|   |   factories.py
+|   |   main.py
+|   |   __compat__.py
+|   |   __init__.py
+|   |   
+|   +---assets
+|   |   |   fabricator.py
+|   |   |   fabricator_tkinter.py
+|   |   |   parser.py
+|   |   |   raw_loader.py
+|   |   |   registry.py
+|   |   |   sovereign_schema.py
+|   |   |   starter_loader.py
+|   |   |   tiny_farm_asset_loader.py
+|   |   |   tiny_farm_bridge.py
+|   |   |   tiny_farm_ingestor.py
+|   |   |   tiny_farm_processor.py
+|   |   |   tiny_farm_rendering_loader.py
+|   |   |   tiny_farm_sheet_loader.py
+|   |   |   tiny_farm_simple_loader.py
+|   |   |   
+|   |   +---entities
+|   |   |       asteroid_brown.json
+|   |   |       ship_default.json
+|   |   |       
+|   |   +---materials
+|   |   |       basic_hull.json
+|   |   |       
+|   |   +---stories
+|   |   \---__pycache__
+|   |           fabricator.cpython-314.pyc
+|   |           fabricator_tkinter.cpython-314.pyc
+|   |           parser.cpython-314.pyc
+|   |           raw_loader.cpython-314.pyc
+|   |           registry.cpython-314.pyc
+|   |           sovereign_schema.cpython-314.pyc
+|   |           starter_loader.cpython-314.pyc
+|   |           tiny_farm_asset_loader.cpython-314.pyc
+|   |           tiny_farm_bridge.cpython-314.pyc
+|   |           tiny_farm_ingestor.cpython-314.pyc
+|   |           tiny_farm_processor.cpython-314.pyc
+|   |           tiny_farm_sheet_loader.cpython-314.pyc
+|   |           tiny_farm_simple_loader.cpython-314.pyc
+|   |           
+|   +---common
+|   |   |   types.py
+|   |   |   
+|   |   \---__pycache__
+|   |           types.cpython-314.pyc
+|   |           
+|   +---config
+|   |       config_manager.py
+|   |       
+|   +---dgt_core
+|   |   +---compat
+|   |   |   |   pygame_shim.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           pygame_shim.cpython-312.pyc
+|   |   |           pygame_shim.cpython-314.pyc
+|   |   |           
+|   |   +---engines
+|   |   |   \---viewport
+|   |   |       |   adaptive_renderer.py
+|   |   |       |   logical_viewport.py
+|   |   |       |   
+|   |   |       \---__pycache__
+|   |   |               adaptive_renderer.cpython-312.pyc
+|   |   |               adaptive_renderer.cpython-314.pyc
+|   |   |               logical_viewport.cpython-312.pyc
+|   |   |               logical_viewport.cpython-314.pyc
+|   |   |               
+|   |   +---registry
+|   |   |       dgt_registry.py
+|   |   |       __init__.py
+|   |   |       
+|   |   +---rendering
+|   |   |       lod_manager.py
+|   |   |       __init__.py
+|   |   |       
+|   |   +---systems
+|   |   |       day_cycle_manager.py
+|   |   |       
+|   |   +---ui
+|   |   |   |   proportional_layout.py
+|   |   |   |   
+|   |   |   +---components
+|   |   |   |   |   adaptive_turtle_card.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           adaptive_turtle_card.cpython-314.pyc
+|   |   |   |           
+|   |   |   +---views
+|   |   |   |   |   breeding_view.py
+|   |   |   |   |   shop_view.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           breeding_view.cpython-314.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           proportional_layout.cpython-312.pyc
+|   |   |           proportional_layout.cpython-314.pyc
+|   |   |           
+|   |   \---verification
+|   |           zero_friction_loop.py
+|   |           __init__.py
+|   |           
+|   +---di
+|   |       container.py
+|   |       exceptions.py
+|   |       __init__.py
+|   |       
+|   +---engine
+|   |   |   arbiter_engine.py
+|   |   |   chronicler.py
+|   |   |   chronicler_engine.py
+|   |   |   chronos.py
+|   |   |   d20_core.py
+|   |   |   deterministic_arbiter.py
+|   |   |   engine.py
+|   |   |   game_loop.py
+|   |   |   game_state.py
+|   |   |   semantic_engine.py
+|   |   |   sync_engines.py
+|   |   |   
+|   |   \---__pycache__
+|   |           chronos.cpython-314.pyc
+|   |           game_state.cpython-314.pyc
+|   |           
+|   +---exceptions
+|   |   |   core.py
+|   |   |   
+|   |   \---__pycache__
+|   |           core.cpython-314.pyc
+|   |           
+|   +---foundation
+|   |   |   base.py
+|   |   |   constants.py
+|   |   |   legacy_bridge.py
+|   |   |   protocols.py
+|   |   |   registry.py
+|   |   |   system_clock.py
+|   |   |   types.py
+|   |   |   vector.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---assets
+|   |   |   \---ml
+|   |   |           intent_vectors.safetensors
+|   |   |           __init__.py
+|   |   |           
+|   |   +---genetics
+|   |   |   |   crossover.py
+|   |   |   |   genome_engine.py
+|   |   |   |   schema.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           crossover.cpython-312.pyc
+|   |   |           crossover.cpython-314.pyc
+|   |   |           genome_engine.cpython-314.pyc
+|   |   |           schema.cpython-312.pyc
+|   |   |           schema.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---interfaces
+|   |   |   |   entity_protocol.py
+|   |   |   |   protocols.py
+|   |   |   |   visuals.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           entity_protocol.cpython-312.pyc
+|   |   |           entity_protocol.cpython-314.pyc
+|   |   |           protocols.cpython-312.pyc
+|   |   |           protocols.cpython-314.pyc
+|   |   |           visuals.cpython-312.pyc
+|   |   |           visuals.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---persistence
+|   |   |   |   knowledge_library.json
+|   |   |   |   successor_queue.json
+|   |   |   |   successor_registry.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           successor_registry.cpython-314.pyc
+|   |   |           
+|   |   +---types
+|   |   |   |   race.py
+|   |   |   |   result.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           race.cpython-312.pyc
+|   |   |           race.cpython-314.pyc
+|   |   |           result.cpython-312.pyc
+|   |   |           result.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---type_system
+|   |   +---utils
+|   |   |   |   asset_baker.py
+|   |   |   |   asset_loader_stub.py
+|   |   |   |   bake_embeddings.py
+|   |   |   |   circuit_breaker.py
+|   |   |   |   config_manager.py
+|   |   |   |   context_manager.py
+|   |   |   |   delta_save.py
+|   |   |   |   historian.py
+|   |   |   |   logger.py
+|   |   |   |   mmap_assets.py
+|   |   |   |   performance_monitor.py
+|   |   |   |   persistence.py
+|   |   |   |   verify_world.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           asset_loader.cpython-314.pyc
+|   |   |           circuit_breaker.cpython-314.pyc
+|   |   |           config_manager.cpython-314.pyc
+|   |   |           logger.cpython-314.pyc
+|   |   |           performance_monitor.cpython-312.pyc
+|   |   |           performance_monitor.cpython-314.pyc
+|   |   |           persistence.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           base.cpython-312.pyc
+|   |           base.cpython-314.pyc
+|   |           constants.cpython-312.pyc
+|   |           constants.cpython-314.pyc
+|   |           protocols.cpython-312.pyc
+|   |           protocols.cpython-314.pyc
+|   |           registry.cpython-312.pyc
+|   |           registry.cpython-314.pyc
+|   |           system_clock.cpython-312.pyc
+|   |           system_clock.cpython-314.pyc
+|   |           types.cpython-314.pyc
+|   |           vector.cpython-312.pyc
+|   |           vector.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---game_engine
+|   |   |   breeding_logic.py
+|   |   |   character_factory.py
+|   |   |   combat_resolver.py
+|   |   |   dd_engine.py
+|   |   |   location_factory.py
+|   |   |   loot_system.py
+|   |   |   market_logic.py
+|   |   |   model_factory.py
+|   |   |   objective_factory.py
+|   |   |   probe_models.py
+|   |   |   probe_ship_genetics.py
+|   |   |   quartermaster.py
+|   |   |   roster_logic.py
+|   |   |   scenarios.py
+|   |   |   ship_genetics.py
+|   |   |   survival_game.py
+|   |   |   tri_brain.py
+|   |   |   world_engine.py
+|   |   |   world_factory.py
+|   |   |   world_ledger.py
+|   |   |   world_map.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---actors
+|   |   |   |   ai_controller.py
+|   |   |   |   asteroid_pilot.py
+|   |   |   |   intent_engine.py
+|   |   |   |   navigator.py
+|   |   |   |   pawn_navigation.py
+|   |   |   |   shell.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           ai_controller.cpython-314.pyc
+|   |   |           asteroid_pilot.cpython-312.pyc
+|   |   |           asteroid_pilot.cpython-314.pyc
+|   |   |           intent_engine.cpython-314.pyc
+|   |   |           navigator.cpython-314.pyc
+|   |   |           pawn_navigation.cpython-314.pyc
+|   |   |           shell.cpython-314.pyc
+|   |   |           voyager.cpython-314.pyc
+|   |   |           voyager_navigation.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---body
+|   |   |   |   kinetic_pawn.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           cockpit.cpython-312.pyc
+|   |   |           cockpit.cpython-314.pyc
+|   |   |           dispatcher.cpython-312.pyc
+|   |   |           dispatcher.cpython-314.pyc
+|   |   |           kinetic_pawn.cpython-314.pyc
+|   |   |           ppu.cpython-312.pyc
+|   |   |           ppu.cpython-314.pyc
+|   |   |           simple_ppu.cpython-314.pyc
+|   |   |           terminal.cpython-312.pyc
+|   |   |           terminal.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---logic
+|   |   |   |   knowledge_library.py
+|   |   |   |   short_term_memory.py
+|   |   |   |   technique_extractor.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           knowledge_library.cpython-312.pyc
+|   |   |           short_term_memory.cpython-312.pyc
+|   |   |           technique_extractor.cpython-312.pyc
+|   |   |           
+|   |   +---neat
+|   |   |   |   fitness.py
+|   |   |   |   neat_engine.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           fitness.cpython-312.pyc
+|   |   |           fitness.cpython-314.pyc
+|   |   |           neat_engine.cpython-312.pyc
+|   |   |           neat_engine.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---world
+|   |   |   |   glade_of_trials.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           glade_of_trials.cpython-314.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           breeding_logic.cpython-312.pyc
+|   |           combat_resolver.cpython-314.pyc
+|   |           dd_engine.cpython-312.pyc
+|   |           dd_engine.cpython-314.pyc
+|   |           loot_system.cpython-314.pyc
+|   |           market_logic.cpython-312.pyc
+|   |           roster_logic.cpython-312.pyc
+|   |           world_engine.cpython-314.pyc
+|   |           world_ledger.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---graphics
+|   |   |   character_sprites.py
+|   |   |   environmental_polish.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           character_sprites.cpython-314.pyc
+|   |           enhanced_ppu_dual_layer.cpython-314.pyc
+|   |           environmental_polish.cpython-314.pyc
+|   |           ppu.cpython-312.pyc
+|   |           ppu.cpython-314.pyc
+|   |           ppu_modes.cpython-314.pyc
+|   |           ppu_tk_native.cpython-312.pyc
+|   |           ppu_tk_native.cpython-314.pyc
+|   |           ppu_tk_native_enhanced.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---interfaces
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           protocols.cpython-312.pyc
+|   |           protocols.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---logic
+|   |   |   animator.py
+|   |   |   artifacts.py
+|   |   |   director.py
+|   |   |   entity_ai.py
+|   |   |   faction_system.py
+|   |   |   legacy.py
+|   |   |   location_resolver.py
+|   |   |   orientation.py
+|   |   |   pathfinding.py
+|   |   |   perception.py
+|   |   |   playbook.py
+|   |   |   scenic_anchor.py
+|   |   |   
+|   |   \---__pycache__
+|   |           animator.cpython-314.pyc
+|   |           artifacts.cpython-312.pyc
+|   |           artifacts.cpython-314.pyc
+|   |           director.cpython-314.pyc
+|   |           entity_ai.cpython-314.pyc
+|   |           faction_system.cpython-312.pyc
+|   |           faction_system.cpython-314.pyc
+|   |           legacy.cpython-314.pyc
+|   |           location_resolver.cpython-314.pyc
+|   |           orientation.cpython-312.pyc
+|   |           orientation.cpython-314.pyc
+|   |           pathfinding.cpython-314.pyc
+|   |           perception.cpython-314.pyc
+|   |           playbook.cpython-314.pyc
+|   |           scenic_anchor.cpython-314.pyc
+|   |           
+|   +---mechanics
+|   |   |   d20_system.py
+|   |   |   
+|   |   \---__pycache__
+|   |           d20_system.cpython-314.pyc
+|   |           
+|   +---models
+|   |   |   asset_loader.py
+|   |   |   asset_schemas.py
+|   |   |   cache_manager.py
+|   |   |   container.py
+|   |   |   instantiation_factory.py
+|   |   |   interfaces.py
+|   |   |   metasprite.py
+|   |   |   prefab_factory.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           asset_loader.cpython-314.pyc
+|   |           asset_schemas.cpython-314.pyc
+|   |           cache_manager.cpython-314.pyc
+|   |           container.cpython-314.pyc
+|   |           instantiation_factory.cpython-314.pyc
+|   |           interfaces.cpython-314.pyc
+|   |           metasprite.cpython-312.pyc
+|   |           metasprite.cpython-314.pyc
+|   |           prefab_factory.cpython-314.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---narrative
+|   |   |   chronos.py
+|   |   |   narrative_bridge.py
+|   |   |   narrative_engine.py
+|   |   |   narrator.py
+|   |   |   persona.py
+|   |   |   predictive_narrative.py
+|   |   |   
+|   |   \---__pycache__
+|   |           chronos.cpython-314.pyc
+|   |           persona.cpython-314.pyc
+|   |           
+|   +---systems
+|   |   |   base.py
+|   |   |   protocols.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---body
+|   |   |   |   animation.py
+|   |   |   |   cockpit.py
+|   |   |   |   component_renderer.py
+|   |   |   |   dispatcher.py
+|   |   |   |   graphics_engine.py
+|   |   |   |   kinetics.py
+|   |   |   |   legacy_adapter.py
+|   |   |   |   ppu_adapter.py
+|   |   |   |   ppu_input.py
+|   |   |   |   ppu_vector.py
+|   |   |   |   ship_compositor.py
+|   |   |   |   ship_renderer.py
+|   |   |   |   terminal.py
+|   |   |   |   tri_modal_engine.py
+|   |   |   |   unified_ppu.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---cinematics
+|   |   |   |   |   movie_engine.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           movie_engine.cpython-314.pyc
+|   |   |   |           __init__.cpython-314.pyc
+|   |   |   |           
+|   |   |   +---components
+|   |   |   |   |   game_state.py
+|   |   |   |   |   genetic_component.py
+|   |   |   |   |   kinetic_body.py
+|   |   |   |   |   shell_ship.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           game_state.cpython-314.pyc
+|   |   |   |           genetic_component.cpython-314.pyc
+|   |   |   |           kinetic_body.cpython-314.pyc
+|   |   |   |           shell_ship.cpython-314.pyc
+|   |   |   |           
+|   |   |   +---pipeline
+|   |   |   |   |   asset_loader.py
+|   |   |   |   |   building_registry.py
+|   |   |   |   |   sprite_sheet_importer.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           asset_loader.cpython-312.pyc
+|   |   |   |           asset_loader.cpython-314.pyc
+|   |   |   |           building_registry.cpython-314.pyc
+|   |   |   |           sprite_sheet_importer.cpython-312.pyc
+|   |   |   |           sprite_sheet_importer.cpython-314.pyc
+|   |   |   |           __init__.cpython-312.pyc
+|   |   |   |           __init__.cpython-314.pyc
+|   |   |   |           
+|   |   |   +---systems
+|   |   |   |   |   collision.py
+|   |   |   |   |   collision_shim.py
+|   |   |   |   |   entity_manager.py
+|   |   |   |   |   fracture_system.py
+|   |   |   |   |   knowledge_library.py
+|   |   |   |   |   projectile_system.py
+|   |   |   |   |   race_runner.py
+|   |   |   |   |   race_translator.py
+|   |   |   |   |   spawner.py
+|   |   |   |   |   status_manager.py
+|   |   |   |   |   sub_stepping_engine.py
+|   |   |   |   |   terrain_engine.py
+|   |   |   |   |   wave_spawner.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           collision.cpython-312.pyc
+|   |   |   |           collision.cpython-314.pyc
+|   |   |   |           entity_manager.cpython-312.pyc
+|   |   |   |           entity_manager.cpython-314.pyc
+|   |   |   |           fracture_system.cpython-314.pyc
+|   |   |   |           knowledge_library.cpython-314.pyc
+|   |   |   |           projectile_system.cpython-314.pyc
+|   |   |   |           race_runner.cpython-314.pyc
+|   |   |   |           race_translator.cpython-314.pyc
+|   |   |   |           spawner.cpython-312.pyc
+|   |   |   |           spawner.cpython-314.pyc
+|   |   |   |           status_manager.cpython-312.pyc
+|   |   |   |           status_manager.cpython-314.pyc
+|   |   |   |           sub_stepping_engine.cpython-314.pyc
+|   |   |   |           terrain_engine.cpython-314.pyc
+|   |   |   |           wave_spawner.cpython-314.pyc
+|   |   |   |           __init__.cpython-312.pyc
+|   |   |   |           __init__.cpython-314.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           animation.cpython-312.pyc
+|   |   |           animation.cpython-314.pyc
+|   |   |           cockpit.cpython-312.pyc
+|   |   |           cockpit.cpython-314.pyc
+|   |   |           dispatcher.cpython-312.pyc
+|   |   |           dispatcher.cpython-314.pyc
+|   |   |           graphics_engine.cpython-312.pyc
+|   |   |           graphics_engine.cpython-314.pyc
+|   |   |           kinetics.cpython-312.pyc
+|   |   |           kinetics.cpython-314.pyc
+|   |   |           legacy_adapter.cpython-312.pyc
+|   |   |           legacy_adapter.cpython-314.pyc
+|   |   |           particle_effects.cpython-314.pyc
+|   |   |           ppu.cpython-312.pyc
+|   |   |           ppu.cpython-314.pyc
+|   |   |           ppu_input.cpython-314.pyc
+|   |   |           ppu_vector.cpython-312.pyc
+|   |   |           ppu_vector.cpython-314.pyc
+|   |   |           ship_compositor.cpython-314.pyc
+|   |   |           ship_renderer.cpython-314.pyc
+|   |   |           terminal.cpython-312.pyc
+|   |   |           terminal.cpython-314.pyc
+|   |   |           tri_modal_engine.cpython-312.pyc
+|   |   |           tri_modal_engine.cpython-314.pyc
+|   |   |           unified_ppu.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---graphics
+|   |   |   |   pixel_renderer.py
+|   |   |   |   tile_bank.py
+|   |   |   |   __compat__.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---core
+|   |   |   |       material_analyzer.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---fx
+|   |   |   |   |   exhaust_system.py
+|   |   |   |   |   fx_system.py
+|   |   |   |   |   particle_effects.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           exhaust_system.cpython-312.pyc
+|   |   |   |           exhaust_system.cpython-314.pyc
+|   |   |   |           particle_effects.cpython-312.pyc
+|   |   |   |           particle_effects.cpython-314.pyc
+|   |   |   |           __init__.cpython-312.pyc
+|   |   |   |           __init__.cpython-314.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           pixel_renderer.cpython-314.pyc
+|   |   |           tile_bank.cpython-314.pyc
+|   |   |           __compat__.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---kernel
+|   |   |   |   batch_processor.py
+|   |   |   |   components.py
+|   |   |   |   config.py
+|   |   |   |   constants.py
+|   |   |   |   controller.py
+|   |   |   |   fleet_roles.py
+|   |   |   |   gatekeeper.py
+|   |   |   |   models.py
+|   |   |   |   persistence.py
+|   |   |   |   post_battle_reporter.py
+|   |   |   |   spawner.py
+|   |   |   |   universal_registry.py
+|   |   |   |   viewport_manager.py
+|   |   |   |   world_state.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---state
+|   |   |   |   |   constants.py
+|   |   |   |   |   effects.py
+|   |   |   |   |   enums.py
+|   |   |   |   |   exceptions.py
+|   |   |   |   |   intents.py
+|   |   |   |   |   models.py
+|   |   |   |   |   validation.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           constants.cpython-312.pyc
+|   |   |   |           constants.cpython-314.pyc
+|   |   |   |           effects.cpython-312.pyc
+|   |   |   |           effects.cpython-314.pyc
+|   |   |   |           enums.cpython-312.pyc
+|   |   |   |           enums.cpython-314.pyc
+|   |   |   |           exceptions.cpython-312.pyc
+|   |   |   |           exceptions.cpython-314.pyc
+|   |   |   |           intents.cpython-312.pyc
+|   |   |   |           intents.cpython-314.pyc
+|   |   |   |           models.cpython-312.pyc
+|   |   |   |           models.cpython-314.pyc
+|   |   |   |           validation.cpython-312.pyc
+|   |   |   |           validation.cpython-314.pyc
+|   |   |   |           __init__.cpython-312.pyc
+|   |   |   |           __init__.cpython-314.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           batch_processor.cpython-312.pyc
+|   |   |           batch_processor.cpython-314.pyc
+|   |   |           components.cpython-314.pyc
+|   |   |           config.cpython-312.pyc
+|   |   |           config.cpython-314.pyc
+|   |   |           constants.cpython-312.pyc
+|   |   |           constants.cpython-314.pyc
+|   |   |           controller.cpython-312.pyc
+|   |   |           controller.cpython-314.pyc
+|   |   |           fleet_roles.cpython-314.pyc
+|   |   |           gatekeeper.cpython-314.pyc
+|   |   |           models.cpython-312.pyc
+|   |   |           models.cpython-314.pyc
+|   |   |           persistence.cpython-312.pyc
+|   |   |           persistence.cpython-314.pyc
+|   |   |           post_battle_reporter.cpython-312.pyc
+|   |   |           post_battle_reporter.cpython-314.pyc
+|   |   |           state.cpython-312.pyc
+|   |   |           state.cpython-314.pyc
+|   |   |           universal_registry.cpython-314.pyc
+|   |   |           viewport_manager.cpython-312.pyc
+|   |   |           viewport_manager.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---mind
+|   |   |   |   dd_engine.py
+|   |   |   |   neat_config.txt
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---neat
+|   |   |   \---__pycache__
+|   |   |           dd_engine.cpython-312.pyc
+|   |   |           dd_engine.cpython-314.pyc
+|   |   |           tri_brain.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---models
+|   |   |   |   asset_schemas.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           asset_schemas.cpython-314.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---race
+|   |   |   |   physics_engine.py
+|   |   |   |   race_arbiter.py
+|   |   |   |   terrain_system.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           physics_engine.cpython-312.pyc
+|   |   |           physics_engine.cpython-314.pyc
+|   |   |           race_arbiter.cpython-312.pyc
+|   |   |           race_arbiter.cpython-314.pyc
+|   |   |           terrain_system.cpython-312.pyc
+|   |   |           terrain_system.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---view
+|   |   |   |   render_panel.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           render_panel.cpython-314.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           base.cpython-312.pyc
+|   |           base.cpython-314.pyc
+|   |           dd_engine.cpython-312.pyc
+|   |           dd_engine.cpython-314.pyc
+|   |           protocols.cpython-314.pyc
+|   |           world_engine.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---tools
+|   |   |   asset_exporter.py
+|   |   |   asset_ingestor_intelligent.py
+|   |   |   asset_models.py
+|   |   |   cartographer.py
+|   |   |   design_lab.py
+|   |   |   developer_console.py
+|   |   |   dithering_engine.py
+|   |   |   dna_exporter.py
+|   |   |   error_handling.py
+|   |   |   image_processor.py
+|   |   |   optimized_image_processor.py
+|   |   |   palette_extractor.py
+|   |   |   python_version_manager.py
+|   |   |   README.md
+|   |   |   studio_launcher.py
+|   |   |   weaver.py
+|   |   |   
+|   |   \---__pycache__
+|   |           asset_exporter.cpython-312.pyc
+|   |           asset_exporter.cpython-314.pyc
+|   |           asset_ingestor.cpython-314.pyc
+|   |           asset_ingestor_intelligent.cpython-312.pyc
+|   |           asset_ingestor_intelligent.cpython-314.pyc
+|   |           asset_ingestor_refactored.cpython-314.pyc
+|   |           asset_models.cpython-312.pyc
+|   |           asset_models.cpython-314.pyc
+|   |           design_lab.cpython-314.pyc
+|   |           developer_console.cpython-314.pyc
+|   |           dithering_engine.cpython-314.pyc
+|   |           dna_exporter.cpython-314.pyc
+|   |           image_processor.cpython-312.pyc
+|   |           image_processor.cpython-314.pyc
+|   |           optimized_image_processor.cpython-314.pyc
+|   |           palette_extractor.cpython-314.pyc
+|   |           python_version_manager.cpython-312.pyc
+|   |           
+|   +---ui
+|   |   |   character_renderer.py
+|   |   |   cinematic_camera.py
+|   |   |   cinematic_pauses.py
+|   |   |   dashboard.py
+|   |   |   director_hud.py
+|   |   |   font_manager.py
+|   |   |   iso_renderer.py
+|   |   |   layout_manager.py
+|   |   |   narrative_scroll.py
+|   |   |   palette_manager.py
+|   |   |   phosphor_terminal.py
+|   |   |   pixel_renderer.py
+|   |   |   pixel_viewport.py
+|   |   |   raycasting_engine.py
+|   |   |   raycasting_profiler.py
+|   |   |   raycasting_types.py
+|   |   |   renderer_3d.py
+|   |   |   shape_avatar.py
+|   |   |   sprite_billboard.py
+|   |   |   sprite_factory.py
+|   |   |   sprite_registry.py
+|   |   |   static_canvas.py
+|   |   |   tile_bank.py
+|   |   |   virtual_ppu.py
+|   |   |   
+|   |   +---adapters
+|   |   |       gameboy_parity.py
+|   |   |       tk_adapter.py
+|   |   |       tk_metasprite.py
+|   |   |       tk_test.py
+|   |   |       
+|   |   +---components
+|   |   |   |   dashboard_ui.py
+|   |   |   |   goals.py
+|   |   |   |   inventory.py
+|   |   |   |   viewport.py
+|   |   |   |   vitals.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           dashboard_ui.cpython-314.pyc
+|   |   |           goals.cpython-314.pyc
+|   |   |           inventory.cpython-314.pyc
+|   |   |           viewport.cpython-314.pyc
+|   |   |           vitals.cpython-314.pyc
+|   |   |           
+|   |   +---render_passes
+|   |   |   |   ansi_vitals.py
+|   |   |   |   braille_radar.py
+|   |   |   |   geometric_profile.py
+|   |   |   |   pixel_viewport.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           ansi_vitals.cpython-314.pyc
+|   |   |           braille_radar.cpython-314.pyc
+|   |   |           geometric_profile.cpython-314.pyc
+|   |   |           pixel_viewport.cpython-312.pyc
+|   |   |           pixel_viewport.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           character_renderer.cpython-314.pyc
+|   |           cinematic_camera.cpython-314.pyc
+|   |           cinematic_pauses.cpython-314.pyc
+|   |           dashboard.cpython-314.pyc
+|   |           director_hud.cpython-314.pyc
+|   |           font_manager.cpython-314.pyc
+|   |           iso_renderer.cpython-314.pyc
+|   |           layout_manager.cpython-314.pyc
+|   |           layout_manager_new.cpython-314.pyc
+|   |           narrative_scroll.cpython-314.pyc
+|   |           palette_manager.cpython-314.pyc
+|   |           phosphor_terminal.cpython-314.pyc
+|   |           pixel_renderer.cpython-312.pyc
+|   |           pixel_renderer.cpython-314.pyc
+|   |           pixel_viewport.cpython-314.pyc
+|   |           raycasting_engine.cpython-314.pyc
+|   |           raycasting_types.cpython-314.pyc
+|   |           renderer_3d.cpython-314.pyc
+|   |           shape_avatar.cpython-314.pyc
+|   |           sprite_billboard.cpython-314.pyc
+|   |           sprite_factory.cpython-314.pyc
+|   |           sprite_registry.cpython-312.pyc
+|   |           sprite_registry.cpython-314.pyc
+|   |           static_canvas.cpython-314.pyc
+|   |           tile_bank.cpython-312.pyc
+|   |           tile_bank.cpython-314.pyc
+|   |           virtual_ppu.cpython-312.pyc
+|   |           virtual_ppu.cpython-314.pyc
+|   |           
+|   +---vector_libraries
+|   |   |   trait_library.py
+|   |   |   
+|   |   \---__pycache__
+|   |           trait_library.cpython-314.pyc
+|   |           
+|   +---views
+|   |   |   gui_view.py
+|   |   |   terminal_view.py
+|   |   |   
+|   |   \---__pycache__
+|   |           gui_view.cpython-314.pyc
+|   |           terminal_view.cpython-314.pyc
+|   |           
+|   \---__pycache__
+|           __init__.cpython-312.pyc
+|           __init__.cpython-314.pyc
+|           
++---dgt_engine.egg-info
+|       dependency_links.txt
+|       PKG-INFO
+|       requires.txt
+|       SOURCES.txt
+|       top_level.txt
+|       
++---dgt_platform.egg-info
+|       dependency_links.txt
+|       PKG-INFO
+|       requires.txt
+|       SOURCES.txt
+|       top_level.txt
+|       
++---foundation
+|   \---persistence
+|           knowledge_library.json
+|           
++---game_engine
+|   |   bootstrap.py
+|   |   __init__.py
+|   |   
+|   +---assets
+|   |   |   __init__.py
+|   |   |   
+|   |   +---loaders
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---config
+|   |   |   __init__.py
+|   |   |   
+|   |   +---schemas
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---core
+|   |   |   clock.py
+|   |   |   types.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---utilities
+|   |   \---__pycache__
+|   |           clock.cpython-312.pyc
+|   |           clock.cpython-314.pyc
+|   |           types.cpython-312.pyc
+|   |           types.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---engines
+|   |   |   base_engine.py
+|   |   |   chronos.py
+|   |   |   d20_core.py
+|   |   |   godot_bridge.py
+|   |   |   narrative_engine.py
+|   |   |   pygame_bridge.py
+|   |   |   semantic_engine.py
+|   |   |   synthetic_reality.py
+|   |   |   terminal_bridge.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           base_engine.cpython-312.pyc
+|   |           base_engine.cpython-314.pyc
+|   |           chronos.cpython-312.pyc
+|   |           chronos.cpython-314.pyc
+|   |           d20_core.cpython-312.pyc
+|   |           d20_core.cpython-314.pyc
+|   |           godot_bridge.cpython-312.pyc
+|   |           godot_bridge.cpython-314.pyc
+|   |           narrative_engine.cpython-312.pyc
+|   |           narrative_engine.cpython-314.pyc
+|   |           pygame_bridge.cpython-314.pyc
+|   |           semantic_engine.cpython-312.pyc
+|   |           semantic_engine.cpython-314.pyc
+|   |           synthetic_reality.cpython-312.pyc
+|   |           synthetic_reality.cpython-314.pyc
+|   |           terminal_bridge.cpython-314.pyc
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---foundation
+|   |   |   asset_cache.py
+|   |   |   asset_loaders.py
+|   |   |   base_system.py
+|   |   |   config_manager.py
+|   |   |   config_schemas.py
+|   |   |   protocols.py
+|   |   |   registry.py
+|   |   |   result.py
+|   |   |   __init__.py
+|   |   |   
+|   |   +---asset_system
+|   |   |   |   asset_cache.py
+|   |   |   |   asset_loaders.py
+|   |   |   |   asset_registry.py
+|   |   |   |   entity_templates.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           asset_cache.cpython-314.pyc
+|   |   |           asset_loaders.cpython-314.pyc
+|   |   |           asset_registry.cpython-314.pyc
+|   |   |           entity_templates.cpython-314.pyc
+|   |   |           
+|   |   +---config_system
+|   |   |   |   config_manager.py
+|   |   |   |   config_schemas.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           config_manager.cpython-314.pyc
+|   |   |           config_schemas.cpython-314.pyc
+|   |   |           
+|   |   +---__pycache__
+|   |   |       base_system.cpython-312.pyc
+|   |   |       base_system.cpython-314.pyc
+|   |   |       protocols.cpython-312.pyc
+|   |   |       protocols.cpython-314.pyc
+|   |   |       registry.cpython-312.pyc
+|   |   |       registry.cpython-314.pyc
+|   |   |       result.cpython-312.pyc
+|   |   |       result.cpython-314.pyc
+|   |   |       __init__.cpython-312.pyc
+|   |   |       __init__.cpython-314.pyc
+|   |   |       
+|   |   \---{asset_system,config_system}
+|   +---godot
+|   |   |   asteroids_clone_sdk.py
+|   |   |   asteroids_game.py
+|   |   |   asteroids_neat_game.py
+|   |   |   GODOT_ARCHITECTURE.md
+|   |   |   input_handler.py
+|   |   |   project.godot
+|   |   |   rpgCore.Godot.csproj
+|   |   |   __init__.py
+|   |   |   
+|   |   +---.godot
+|   |   |   |   .gdignore
+|   |   |   |   global_script_class_cache.cfg
+|   |   |   |   scene_groups_cache.cfg
+|   |   |   |   uid_cache.bin
+|   |   |   |   
+|   |   |   +---editor
+|   |   |   |       editor_layout.cfg
+|   |   |   |       editor_script_doc_cache.res
+|   |   |   |       editor_script_doc_cache.res-folding-a7de57390d6e786984ca20c70a831128.cfg
+|   |   |   |       filesystem_cache10
+|   |   |   |       project_metadata.cfg
+|   |   |   |       script_editor_cache.cfg
+|   |   |   |       
+|   |   |   +---imported
+|   |   |   \---shader_cache
+|   |   |       +---BestFitNormalShaderRD
+|   |   |       |   \---c44f4ab98ed0bad58187d364fb3c837166cb7b6ec6d0f099523c6e6024b22d1b
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---BlitShaderRD
+|   |   |       |   \---70cc53cab0575e0db6c0ddeaaf4d72f264f933f6807f17dade6fb3502afc3e1e
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---BokehDofShaderRD
+|   |   |       |   \---f2c9646179990df62ae1aa7304820db84ff133d9d86dcad7d62903bf99a5690d
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CanvasOcclusionShaderRD
+|   |   |       |   \---a6308584bd5fa4e3fc90f08561013c2d643f34582b2162c41fb857191ed4cd46
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CanvasSdfShaderRD
+|   |   |       |   \---b2b38563d7912e21671babd8f096b5bcd067a8bc31a9be7a42dd418cfbc7089d
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CanvasShaderRD
+|   |   |       |   \---e12cc79542567eb256a367a1b065ebf61b1f7125978de9085887a1879bae56c3
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           45fb1ddc6499e56682916a355ce2839e61f42dfe.vulkan.cache
+|   |   |       |           4d35b4f1b981d75cb121b24f26aba4271d0d7a2f.vulkan.cache
+|   |   |       |           8a7277c8d3ac029b087c3fa9c55de85560be5119.vulkan.cache
+|   |   |       |           c0a681ae42aa3e0b5abba232ccae0b036be455e4.vulkan.cache
+|   |   |       |           f3e258e8f7ec2e7e740b62f3bc48ecf5c99fb0db.vulkan.cache
+|   |   |       |           
+|   |   |       +---ClusterDebugShaderRD
+|   |   |       |   \---2fb34708b9b7057776d96a55f199da37471430d6879d781c05909e06dfae69ef
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ClusterRenderShaderRD
+|   |   |       |   \---82e8ab19fc6ffeb862afacd533d28e350e43924525a842a7fa978ed1889a83af
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ClusterStoreShaderRD
+|   |   |       |   \---561f14535837abda7165feef640f886c8a57bc0f7e4fbe191446d89ab1a51bd6
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CopyShaderRD
+|   |   |       |   \---f52d572bccf3aad6815b382b6cb59250f964e9731fe037869571a3b13e97717b
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CopyToFbShaderRD
+|   |   |       |   \---3b72584c7ec23c1c28a60cd6f0ad1e9b3691e02a0d397a900c0039715ca6c185
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CubeToDpShaderRD
+|   |   |       |   \---bc5ab1cdea059b149a6d33f4c08d74b2477eeb6ab32e5f694edbb43261a74eda
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---CubeToOctmapShaderRD
+|   |   |       |   \---2d944141feeea96df7c9349c7dd99046dcc685fc6f3ffd6e5926df643a3a7c3c
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---Fsr2AccumulatePassShaderRD
+|   |   |       |   \---f322278d5dab894ba05155192b27a42e49e777c26c99bf14799cb57035a9b520
+|   |   |       +---Fsr2AutogenReactivePassShaderRD
+|   |   |       |   \---4f842072995edb006eafad09b15d1e43ab5f680377fe284e869b66dd0ca119d0
+|   |   |       +---Fsr2ComputeLuminancePyramidPassShaderRD
+|   |   |       |   \---310bd0aa99a5c54f7870464016ee59f333b0b5b14d9fc4fd0b62b3b5a5c702ac
+|   |   |       +---Fsr2DepthClipPassShaderRD
+|   |   |       |   \---78dfeb6dd0e3f60f675ca3a693aa8c9a7c441bc4c55ffec7f6a91f4e9ff30400
+|   |   |       +---Fsr2LockPassShaderRD
+|   |   |       |   \---2ab83f53d7b4a26d04cee34c890c5d15bcc63eb45e7d0a6a68ae96d6ee73c89e
+|   |   |       +---Fsr2RcasPassShaderRD
+|   |   |       |   \---577356a7e1ad46686ba1de52eb1a36c1716c5761a2c8bd035d92d7c8126931bc
+|   |   |       +---Fsr2ReconstructPreviousDepthPassShaderRD
+|   |   |       |   \---83267ea144fecfd7d2ad2b5c7c7e7d76f96feabdd062cab97cb1854f6f905494
+|   |   |       +---Fsr2TcrAutogenPassShaderRD
+|   |   |       |   \---e96b2142a16e5fdc0ac841b98bf3fcfbeaa9a86d73f9bb79dc83e8b899b0249b
+|   |   |       +---FsrUpscaleShaderRD
+|   |   |       |   \---1f8918b1aacd9a5fbe1b632a87816b4c53905dc0ed73ea3485408a0064e62cbe
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---GiShaderRD
+|   |   |       |   +---16f32daf9c72d87bbae4e1ff6f27296e6ff025f6d52bf298287843959dfebc32
+|   |   |       |   |       087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |   |       
+|   |   |       |   \---cf2797ec10f0e6186e0db5d1638266af7e21d2b330cc04e4ea980f2fc6b53129
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---IntegrateDfgShaderRD
+|   |   |       |   \---e3e0d64b971e32b5cd8c6cf924827501c0bb0ef607ae9027d0144bcaee330833
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---LuminanceReduceShaderRD
+|   |   |       |   \---641bc51ca2c0f9cb86d4bc503f7c7e6097c614bc41ee40f3b582a3b78dc1d56f
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---MotionVectorsShaderRD
+|   |   |       |   \---fa8e3ec74a86d3ed4b2d8810b324476e0c1c207b1b95439e349f33c70c331a4f
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---OctmapDownsamplerShaderRD
+|   |   |       |   \---0b7dcf917234a3f85fb1350267cf36fef3a19a477a66b295d4f5f474427d7b58
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---OctmapFilterShaderRD
+|   |   |       |   \---b64b447020068bffa138c05ef7c701bd755e5e28dd4130d7fe9a4869d893a151
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---OctmapRoughnessShaderRD
+|   |   |       |   \---d8b6ba9b8ad2feaacc3600c0ddfa386a1946e00368c654c2e6d120de30fd37a7
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ParticlesCopyShaderRD
+|   |   |       |   \---e9aec98aa9c0e621e7b9c7290950f0cded624717c1abb5b16bb6adc3c80e809e
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ParticlesShaderRD
+|   |   |       |   \---9b275b7da29c819507092c91e3b11d24d25ff105ea0f2c768fd930e6e38db7a5
+|   |   |       |           f128cab0b22fb7e0d9f023d6cdb81309be392d95.vulkan.cache
+|   |   |       |           
+|   |   |       +---ResolveShaderRD
+|   |   |       |   \---e540026b52d2ce6e5c066bb4c4654eb9350106356086cb609fdb171e70be3986
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SceneForwardClusteredShaderRD
+|   |   |       |   +---0e0dd27802d349c165ae1b52183bc5c4a6c427f1e0d0518b42c3b2bd254f8383
+|   |   |       |   +---a9466e0bb5cb1f01daa671b3407c84a9ac85ad875866de4698310cb51b8ae38c
+|   |   |       |   +---afe1ccaa524f31115fde68e966f878e56f1d298fa70718df1cdb66f89dfb4b1b
+|   |   |       |   |       111f8cfd3c260d918df85827eb251dc36a43cb13.vulkan.cache
+|   |   |       |   |       35a078cb7dc07df55e460ed1a913486a68ab6bb0.vulkan.cache
+|   |   |       |   |       3d6fc53bad5e871b1b878eb1a4ed0a0fcec449cb.vulkan.cache
+|   |   |       |   |       7412c254abd0f944fb53942228920fe187f1d723.vulkan.cache
+|   |   |       |   |       7a57964a6a80c226a1011fb78edbda41d2219632.vulkan.cache
+|   |   |       |   |       7a6b05ba6ca90f8a542e0d1fcc3360f7d52c6e09.vulkan.cache
+|   |   |       |   |       7d4c2429f20db9b651852713d31971380f209eec.vulkan.cache
+|   |   |       |   |       89044bace37a3ce54cf2cc5190e11bed6d14f97a.vulkan.cache
+|   |   |       |   |       a38af1e47720abf30ca44f3d3c099c07b046df81.vulkan.cache
+|   |   |       |   |       ab0b960474f1491b42ef9f2ca13dbd4ccaf64911.vulkan.cache
+|   |   |       |   |       f88424e725a3bb50f358e9b042552af7b1c2f921.vulkan.cache
+|   |   |       |   |       f89c365b12d7e2d46fb2e1f6ace46a76b6cd5e89.vulkan.cache
+|   |   |       |   |       
+|   |   |       |   \---e755970fbc932826479095ce9aa224f976a442d72230e142565e1a8e7aaffa4c
+|   |   |       +---ScreenSpaceReflectionDownsampleShaderRD
+|   |   |       |   \---8c81279786a740e0378706a934ecf729e7d816c52ab7ba92f3c902fd7e57338c
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ScreenSpaceReflectionFilterShaderRD
+|   |   |       |   \---24675c282387b16bd4dbcee7ab5f877ceca5638e039305e8f84fe95528c1c97c
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ScreenSpaceReflectionHizShaderRD
+|   |   |       |   \---d392282fe7da43a34aa3db1627d9487035ce03ec31bedeaef80be0a6abdef90c
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ScreenSpaceReflectionResolveShaderRD
+|   |   |       |   \---9d3d9e29a56d1fe996170ef3c390c3799a5121870590c3ae50e2021925595591
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ScreenSpaceReflectionShaderRD
+|   |   |       |   \---0341856c05a4a765b1fea15571478ba72d33c266f9944f5f4637bf4d98ca5b96
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SdfgiDebugProbesShaderRD
+|   |   |       |   \---3803638b20896491187f603049bf8a2253ff67ea47599916ca5539f0f1d93a69
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SdfgiDebugShaderRD
+|   |   |       |   \---2958456ff5fd97ca55891e03c19d8c63adf8334e9260d43c844444d04385bf38
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SdfgiDirectLightShaderRD
+|   |   |       |   \---bad813c472179b6502371f263f475137063c706ea73ff9b33cdaf56b5738dbde
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SdfgiIntegrateShaderRD
+|   |   |       |   \---1dd7ed1a5722f7058142a736280362c8f7f48c030c2eddcac5976b96a4c273d7
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SdfgiPreprocessShaderRD
+|   |   |       |   \---fadad35114cde819c0665ccd98ca77901f7f8f551bc291f69c753455c66d182e
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---ShadowFrustumShaderRD
+|   |   |       |   \---023d97f7f1c5717260e31f75a48fbf9d60396e6369c90849a668e15f46381ff1
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SkeletonShaderRD
+|   |   |       |   \---1215ec971ac43b3f029705bc39caf6589e795c71272583b78b7ca0f1ae429ed9
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SkyShaderRD
+|   |   |       |   \---8320ccf233baa31156c84f1cb22157775b81c5e426c0cf41b552ac6b39ef0977
+|   |   |       |           03e3b11c69e24394b2d955a8c0ba85587bb70839.vulkan.cache
+|   |   |       |           6b847b83944af8d9a9af91a0871566e6070998ca.vulkan.cache
+|   |   |       |           de678811d1bad3cad4892a8db7b6ea0be197d51d.vulkan.cache
+|   |   |       |           e105b1e014f9523daf8d734c2f2dc115ba341902.vulkan.cache
+|   |   |       |           
+|   |   |       +---SmaaBlendingShaderRD
+|   |   |       |   \---087e89f9e034ef8f14ded75df2e54da56c050ccc02f3a92053d142df7c2bbb97
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SmaaEdgeDetectionShaderRD
+|   |   |       |   \---6a3956179603a982e82c38f5dfd8059e7c3b0ff5eda1ef28cedcb924b1d7723a
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SmaaWeightCalculationShaderRD
+|   |   |       |   \---d1e55d440f54955dae72cfcc2d22835ea7a1727fee70aeaceb25bf907dd3414e
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SortShaderRD
+|   |   |       |   \---d30bb32e5e237c918dccbb9c134e7ac0085ba3cf2730f44eb791dbc61e3c677f
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SpecularMergeShaderRD
+|   |   |       |   \---c9906c4f05cdfbd2b0f9f9b0cb23e026980289388831dd86a9b1e91d822c9bdf
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsaoBlurShaderRD
+|   |   |       |   \---584ef9d38d575386213a22c5762ca15e5ad7bd48d2ec4867844237d3048ada9a
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsaoImportanceMapShaderRD
+|   |   |       |   \---e76e45852aa1053d66a3dd5dacde3b480250087ea51e679d7c6ee594f65e3302
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsaoInterleaveShaderRD
+|   |   |       |   \---0282bdfc5b8fa3b9ef59fc3bbd252c3b74f28419651f3456db872081bda88ee0
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsaoShaderRD
+|   |   |       |   \---80e3a24b4f37990e1d1ac23c518880516781b46026b5397cf868af21b5383580
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsEffectsDownsampleShaderRD
+|   |   |       |   \---e9bc4486bb6b35eaa26fd87dd1a0f8c059dbddc24b15f905a74361ff993e1153
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsilBlurShaderRD
+|   |   |       |   \---b8d2b710db0f2f3941a73767ad1dc141a3f70446c9445ecd51f9bfe1b00ee968
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsilImportanceMapShaderRD
+|   |   |       |   \---086b0ce101d617620937dde126f9feba3698c22bdbd719a2b046561e96c1d30f
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsilInterleaveShaderRD
+|   |   |       |   \---ab14c1b31218ed18f1071aa652d87d6e4b27fcf1aa807c6a3ef2f1541f768253
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SsilShaderRD
+|   |   |       |   \---a741dc74925cd5592676b56d6b4e5847dd0fca984c77b3c9c9e25f7f913c159b
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---SubsurfaceScatteringShaderRD
+|   |   |       |   \---26852bbd9f248ac5a6aca8dff49d648a860094dcdcc59b3cfcb623596dc65f4e
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---TaaResolveShaderRD
+|   |   |       |   \---07b66103ad08d9919433dc433d667bca5794653274754f87ab26bcce35f629af
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---TonemapShaderRD
+|   |   |       |   \---49ddde10ce87ab9f87952828202096b33cc360185c517ce7e2703766511ad884
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---VolumetricFogProcessShaderRD
+|   |   |       |   +---1a1361bae1578420d0484887b707bb927ef5889afaef954c2e0523e9717c2269
+|   |   |       |   |       087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |   |       
+|   |   |       |   +---4b214e693473ce9c95ee3fd12146288399b4c61ae09df52aefab34ff7e867c04
+|   |   |       |   +---68f4468fb4614144e97f2edec491d94198a0890e60eeceea186027023a7d75d0
+|   |   |       |   \---f78025f2ae3c0f97200b5da761e9d2f853a4425cdc9848e913632ecc41da4c13
+|   |   |       +---VolumetricFogShaderRD
+|   |   |       |   +---0f3ccaeea304fbff9ef66b9e656a4a04224f68e38eb7e08ea586cae62867133b
+|   |   |       |   |       9a227745af2d65830f930370a9fbba551fbd6f60.vulkan.cache
+|   |   |       |   |       
+|   |   |       |   +---65261eeac91a02ebea499def0dca26e1a69340cd216b0abb943327fccbf800d8
+|   |   |       |   +---9553afd54d4e534bc65000a710a52dfcc81830fc44f583d147f5261309aaa120
+|   |   |       |   \---961574759816c2b4f611fe88b49c3419701673fbc86d731eda3853b783c21d49
+|   |   |       +---VoxelGiDebugShaderRD
+|   |   |       |   \---b19253aa479adf75e17932fd850c1f8fe619717d7686f41aa47ca44283a9009e
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       +---VoxelGiShaderRD
+|   |   |       |   \---cab26a3c5484ec1e7e517e72222e790d8902a75da0ec07d9f15bb8fb75179087
+|   |   |       |           087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |       |           
+|   |   |       \---VrsShaderRD
+|   |   |           \---f2e8b50f7d08d7f2fb833a3d0b79692774033784a48a58f61feaa4b7e6c48765
+|   |   |                   087916079fba7c625e62b0c2cca570e0fb87c99a.vulkan.cache
+|   |   |                   
+|   |   +---Interfaces
+|   |   |       IGameStateProvider.cs
+|   |   |       IInputHandler.cs
+|   |   |       IRenderer.cs
+|   |   |       __init__.cs
+|   |   |       
+|   |   +---Models
+|   |   |       DTOs.cs
+|   |   |       
+|   |   +---Rendering
+|   |   |       GameEntityRenderer.cs
+|   |   |       GoddotRenderer.cs
+|   |   |       
+|   |   +---scenes
+|   |   |       Main.cs
+|   |   |       Main.tscn
+|   |   |       
+|   |   +---Server
+|   |   |       GameServer.cs
+|   |   |       
+|   |   +---Utils
+|   |   |       Result.cs
+|   |   |       
+|   |   +---__pycache__
+|   |   |       asteroids_clone_sdk.cpython-314.pyc
+|   |   |       asteroids_game.cpython-314.pyc
+|   |   |       asteroids_neat_game.cpython-314.pyc
+|   |   |       input_handler.cpython-314.pyc
+|   |   |       __init__.cpython-314.pyc
+|   |   |       
+|   |   \---{Interfaces,Models,Rendering,GameLogic,Input,Utils}
+|   +---systems
+|   |   |   __init__.py
+|   |   |   
+|   |   +---ai
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---body
+|   |   |   |   collision_system.py
+|   |   |   |   entity_factories.py
+|   |   |   |   entity_manager.py
+|   |   |   |   entity_template.py
+|   |   |   |   fracture_system.py
+|   |   |   |   projectile_system.py
+|   |   |   |   status_manager.py
+|   |   |   |   wave_spawner.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---systems
+|   |   |   \---__pycache__
+|   |   |           collision_system.cpython-312.pyc
+|   |   |           collision_system.cpython-314.pyc
+|   |   |           entity_factories.cpython-314.pyc
+|   |   |           entity_manager.cpython-312.pyc
+|   |   |           entity_manager.cpython-314.pyc
+|   |   |           fracture_system.cpython-312.pyc
+|   |   |           fracture_system.cpython-314.pyc
+|   |   |           projectile_system.cpython-312.pyc
+|   |   |           projectile_system.cpython-314.pyc
+|   |   |           status_manager.cpython-312.pyc
+|   |   |           status_manager.cpython-314.pyc
+|   |   |           wave_spawner.cpython-312.pyc
+|   |   |           wave_spawner.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---game
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---graphics
+|   |   |   |   godot_render_system.py
+|   |   |   |   pixel_renderer.py
+|   |   |   |   tile_bank.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---fx
+|   |   |   |   |   exhaust_system.py
+|   |   |   |   |   fx_system.py
+|   |   |   |   |   particle_effects.py
+|   |   |   |   |   __init__.py
+|   |   |   |   |   
+|   |   |   |   \---__pycache__
+|   |   |   |           exhaust_system.cpython-312.pyc
+|   |   |   |           exhaust_system.cpython-314.pyc
+|   |   |   |           fx_system.cpython-312.pyc
+|   |   |   |           fx_system.cpython-314.pyc
+|   |   |   |           particle_effects.cpython-312.pyc
+|   |   |   |           particle_effects.cpython-314.pyc
+|   |   |   |           __init__.cpython-312.pyc
+|   |   |   |           __init__.cpython-314.pyc
+|   |   |   |           
+|   |   |   \---__pycache__
+|   |   |           fx_system.cpython-314.pyc
+|   |   |           godot_render_system.cpython-312.pyc
+|   |   |           godot_render_system.cpython-314.pyc
+|   |   |           pixel_renderer.cpython-312.pyc
+|   |   |           pixel_renderer.cpython-314.pyc
+|   |   |           tile_bank.cpython-312.pyc
+|   |   |           tile_bank.cpython-314.pyc
+|   |   |           __init__.cpython-312.pyc
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---kernel
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   +---narrative
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   \---__pycache__
+|   |   |           __init__.cpython-314.pyc
+|   |   |           
+|   |   \---__pycache__
+|   |           __init__.cpython-312.pyc
+|   |           __init__.cpython-314.pyc
+|   |           
+|   +---ui
+|   |   |   __init__.py
+|   |   |   
+|   |   +---adapters
+|   |   +---modes
+|   |   \---__pycache__
+|   |           __init__.cpython-314.pyc
+|   |           
+|   \---__pycache__
+|           __init__.cpython-312.pyc
+|           __init__.cpython-314.pyc
+|           
+\---__pycache__
+        arbiter_engine.cpython-312.pyc
+        arbiter_engine.cpython-314.pyc
+        character_factory.cpython-312.pyc
+        character_factory.cpython-314.pyc
+        chronicler.cpython-314.pyc
+        chronicler_engine.cpython-312.pyc
+        chronicler_engine.cpython-314.pyc
+        chronos.cpython-314.pyc
+        d20_core.cpython-312.pyc
+        d20_core.cpython-314.pyc
+        deterministic_arbiter.cpython-314.pyc
+        engine.cpython-312.pyc
+        engine.cpython-314.pyc
+        factories.cpython-314.pyc
+        final_sanity_check.cpython-314.pyc
+        game_state.cpython-312.pyc
+        game_state.cpython-314.pyc
+        location_factory.cpython-314.pyc
+        loot_system.cpython-312.pyc
+        loot_system.cpython-314.pyc
+        main.cpython-314.pyc
+        model_factory.cpython-312.pyc
+        model_factory.cpython-314.pyc
+        narrative_bridge.cpython-314.pyc
+        narrative_engine.cpython-314.pyc
+        narrator.cpython-312.pyc
+        narrator.cpython-314.pyc
+        objective_factory.cpython-314.pyc
+        quartermaster.cpython-312.pyc
+        quartermaster.cpython-314.pyc
+        scenarios.cpython-314.pyc
+        semantic_engine.cpython-312.pyc
+        semantic_engine.cpython-314.pyc
+        survival_game_simple.cpython-314.pyc
+        sync_engines.cpython-312.pyc
+        sync_engines.cpython-314.pyc
+        voyager_agent.cpython-314.pyc
+        voyager_logic.cpython-314.pyc
+        voyager_sync.cpython-314.pyc
+        world_factory.cpython-312.pyc
+        world_factory.cpython-314.pyc
+        world_ledger.cpython-312.pyc
+        world_ledger.cpython-314.pyc
+        world_map.cpython-314.pyc
+        
+Folder PATH listing for volume Acer
+Volume serial number is 1A9B-1708
+C:\GITHUB\RPGCORE\TOOLS
+    deploy.py
+    production_validation.py
+    
+No subfolders exist 
+
+Folder PATH listing for volume Acer
+Volume serial number is 1A9B-1708
+C:\GITHUB\RPGCORE\SCRIPTS
+|   benchmark_performance.py
+|   benchmark_solid_architecture.py
+|   benchmark_turn_around.py
+|   cross_load_test.py
+|   debug_eval.py
+|   debug_imports.py
+|   debug_kinetics.txt
+|   dgt_optimization.py
+|   final_sanity_check.py
+|   hardware_stress_test.py
+|   launch_asteroids_slice.py
+|   launch_miyoo.py
+|   launch_miyoo.sh
+|   launch_rpg.py
+|   launch_sovereign_scout.py
+|   launch_space.py
+|   newtonian_physics_report.json
+|   run_tests.py
+|   scrap_extraction_report.json
+|   setup_python_312.py
+|   sovereign_constraints_report.md
+|   sweeper.py
+|   sweeper_report.json
+|   sweeper_report_final.json
+|   sweeper_report_phase3.json
+|   sweeper_report_post.json
+|   sweeper_report_sprint2.json
+|   test_genome_validation.py
+|   test_import.py
+|   test_newtonian_physics.py
+|   test_phase_a.py
+|   test_phase_b.py
+|   test_phase_c.py
+|   test_phase_d_step1.py
+|   test_phase_d_step3_collision.py
+|   test_phase_d_step4_projectile.py
+|   test_phase_d_step5_5_fracture.py
+|   test_phase_d_step5_5_wave.py
+|   test_phase_d_step5_status.py
+|   test_phase_d_step6_exhaust_system.py
+|   test_phase_d_step6_fx_system.py
+|   test_phase_d_step6_particle_effects.py
+|   test_phase_d_step6_pixel_renderer.py
+|   test_phase_d_step6_tile_bank.py
+|   test_scrap_extraction.py
+|   test_sub_stepping.py
+|   test_viewport_integration.py
+|   tier_enforcement_check.py
+|   universal_launcher.py
+|   validate_deterministic.py
+|   validate_rust_build.py
+|   validate_sovereign_constraints.py
+|   validate_tri_modal.py
+|   verify_kinetics.py
+|   verify_sprint2.py
+|   viewport_integration_report.json
+|   
++---build
++---demos
+|   |   demo_5v5_skirmish.py
+|   |   demo_automated_space_battle.py
+|   |   demo_composite_sprites.py
+|   |   demo_final_loot_test.py
+|   |   demo_fleet_skirmish.py
+|   |   demo_game_boy_parity.py
+|   |   demo_multi_pass_rendering.py
+|   |   demo_neuro_evolution.py
+|   |   demo_phosphor_terminal.py
+|   |   demo_pixel_art.py
+|   |   demo_pure_tkinter_ppu.py
+|   |   demo_refactored_tri_modal.py
+|   |   demo_sector_refactor.py
+|   |   demo_semantic_resolver.py
+|   |   demo_space_battle_standalone.py
+|   |   demo_theater_architecture.py
+|   |   demo_tri_modal_dispatcher.py
+|   |   demo_tri_modal_verification.py
+|   |   
+|   \---__pycache__
+|           demo_final_loot_test.cpython-314.pyc
+|           demo_phosphor_terminal.cpython-314.pyc
+|           demo_tri_modal_verification.cpython-314.pyc
+|           
++---final
+|   |   final_verification.py
+|   |   locker_verification.py
+|   |   neural_sync_success.py
+|   |   
+|   \---__pycache__
+|           final_verification.cpython-314.pyc
+|           locker_verification.cpython-314.pyc
+|           neural_sync_success.cpython-314.pyc
+|           
++---setup
+|   |   import_fonts.py
+|   |   import_fonts_fixed.py
+|   |   setup_font_system.py
+|   |   
+|   \---__pycache__
+|           import_fonts_fixed.cpython-314.pyc
+|           setup_font_system.cpython-314.pyc
+|           
+\---__pycache__
+        test_phase_d_step1.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step3_collision.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step4_projectile.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step5_5_fracture.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step5_5_wave.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step5_status.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step6_exhaust_system.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step6_fx_system.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step6_particle_effects.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step6_pixel_renderer.cpython-314-pytest-9.0.2.pyc
+        test_phase_d_step6_tile_bank.cpython-314-pytest-9.0.2.pyc
+        
+Folder PATH listing for volume Acer
+Volume serial number is 1A9B-1708
+C:\GITHUB\RPGCORE\LEGACY_LOGIC_EXTRACTION
+    breeding_logic.py
+    roster_logic.py
+    shop_logic.py
+    
+No subfolders exist 
+

@@ -1,0 +1,18 @@
+﻿/* index.css -- DO NOT ADD STYLES HERE
+   This file will be deleted in Phase 2f.4.
+   Import from ui/tokens.css, ui/base.css, or games/{id}/styles.css */
+@import "tailwindcss";
+@source "./games/**/*.tsx";
+@source "./standalone/**/*.tsx";
+@source "./arcade/**/*.tsx";
+@source "./ui/**/*.tsx";
+@source "./engine/**/*.tsx";
+@import './ui/tokens.css';
+@import './ui/base.css';
+@import './games/horse_racing/styles.css';
+
+@layer utilities {
+  h-screen { height: 100svh; }
+  min-h-screen { min-height: 100svh; }
+  max-h-screen { max-height: 100svh; }
+}

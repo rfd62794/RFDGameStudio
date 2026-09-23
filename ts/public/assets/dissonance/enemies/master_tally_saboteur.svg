@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="14" fill="#0f172a"/>
+  <filter id="boss-glow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <polygon points="60.0,0.0 70.3,35.1 102.4,17.6 84.9,49.7 120.0,60.0 84.9,70.3 102.4,102.4 70.3,84.9 60.0,120.0 49.7,84.9 17.6,102.4 35.1,70.3 0.0,60.0 35.1,49.7 17.6,17.6 49.7,35.1" fill="#7c3aed" stroke="#fbbf24" stroke-width="5" stroke-linejoin="round" filter="url(#boss-glow)"/>
+</svg>

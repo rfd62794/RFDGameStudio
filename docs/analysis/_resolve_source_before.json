@@ -1,0 +1,182 @@
+{
+  "dissonance": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "slimeworld": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "shoal": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\shoal",
+    "resolved_examples_name": "shoal"
+  },
+  "voiddrift": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "horse_racing": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\horse-racing-&-breeding",
+    "resolved_examples_name": "horse-racing-&-breeding"
+  },
+  "slither_rogue": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\slither-rogue_-evolution",
+    "resolved_examples_name": "slither-rogue_-evolution"
+  },
+  "mutant_battle_ball": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "slime_coin": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "chimera_wilds": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "scrapcrawl": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "ledger": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\ledger",
+    "resolved_examples_name": "ledger"
+  },
+  "trinity_siege": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\trinity-siege",
+    "resolved_examples_name": "trinity-siege"
+  },
+  "7_days_to_fry": {
+    "source_type": "both",
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake\\7-days-to-fry",
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\7-days-to-fry",
+    "resolved_examples_name": "7-days-to-fry"
+  },
+  "antsim_redux": {
+    "source_type": "both",
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake\\antsim-redux",
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\antsim-redux",
+    "resolved_examples_name": "antsim-redux"
+  },
+  "facility_escape": {
+    "source_type": "both",
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake\\facility-escape",
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\facility-escape",
+    "resolved_examples_name": "facility-escape"
+  },
+  "factory_idle": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\factory-idle-precision-armory-phase2",
+    "resolved_examples_name": "factory-idle-precision-armory-phase2"
+  },
+  "planetofgreed": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "planetforge": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\planetforge",
+    "resolved_examples_name": "planetforge"
+  },
+  "gladiator_arena": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "voiddrift_redux": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "succession": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "house_of_kings_collab": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "character_viewer": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "technique_showcase": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "role_symbol_viewer": {
+    "source_type": "no_source_found",
+    "intake_dir": null,
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "dissonance_prototype": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\dissonance-prototype",
+    "resolved_examples_name": "dissonance-prototype"
+  },
+  "slimegarden": {
+    "source_type": "both",
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake\\slimegarden",
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\slimegarden",
+    "resolved_examples_name": "slimegarden"
+  },
+  "slimebreeder": {
+    "source_type": "tracked_dir_source",
+    "intake_dir": null,
+    "examples_dir": "C:\\Github\\RFDGameStudio\\examples\\SlimeBreeder",
+    "resolved_examples_name": "SlimeBreeder"
+  },
+  "corpworld": {
+    "source_type": "zip_source",
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake\\corpworld",
+    "examples_dir": null,
+    "resolved_examples_name": null
+  },
+  "kingmaker_squads": {
+    "source_type": "zip_source",
+    "intake_dir": "C:\\Github\\RFDGameStudio\\intake\\kingmaker-squads",
+    "examples_dir": null,
+    "resolved_examples_name": null
+  }
+}

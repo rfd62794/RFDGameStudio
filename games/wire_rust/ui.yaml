@@ -1,0 +1,40 @@
+layout_tree:
+  - id: header
+    type: row
+    height: 60
+    children:
+      - id: title
+        type: text
+        content: "WIRE & RUST"
+
+  - id: main_content
+    type: row
+    flex: 1
+    children:
+      - id: left_panel
+        type: column
+        flex: 1
+        children:
+          - id: current_room_display
+            type: text
+            content: "Location: {current_room_id}"
+          - id: hp_display
+            type: stat_display
+            label: HP
+            value: "{hp}"
+          - id: scrap_display
+            type: stat_display
+            label: Scrap
+            value: "{scrap}"
+          - id: action_panel
+            type: panel
+            children:
+              - id: explore_button
+                type: action_button
+                label: Explore
+              - id: play_card_button
+                type: action_button
+                label: Play Card
+              - id: chemistry_display
+                type: text
+                content: "Synergies: {synergies}"

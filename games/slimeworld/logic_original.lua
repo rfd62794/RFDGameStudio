@@ -1,0 +1,1777 @@
+function clamp(value, minimum, maximum)
+  if value < minimum then return minimum end
+  if value > maximum then return maximum end
+  return value
+end
+
+function circular_distance(hue_a, hue_b)
+  local difference = math.abs(hue_a - hue_b) % 360
+  return math.min(difference, 360 - difference)
+end
+
+function circular_hue_midpoint(hue_a, hue_b)
+  local difference = ((hue_b - hue_a + 540) % 360) - 180
+  return (hue_a + difference / 2 + 360) % 360
+end
+
+function snap_to_faction(hue)
+  local anchors = {
+    { color = "Red", value = 0 },
+    { color = "Orange", value = 60 },
+    { color = "Yellow", value = 120 },
+    { color = "Green", value = 180 },
+    { color = "Purple", value = 240 },
+    { color = "Blue", value = 300 },
+  }
+  local closest = anchors[1].color
+  local minimum_distance = 360
+  for _, anchor in ipairs(anchors) do
+    local distance = circular_distance(hue, anchor.value)
+    if distance < minimum_distance then
+      closest = anchor.color
+      minimum_distance = distance
+    end
+  end
+  return closest
+end
+
+function snap_to_shape_name(vertex_count, irregularity)
+  local anchors = {
+    { shape = "Triangle", vertex = 3, irregularity = 5 },
+    { shape = "Square", vertex = 4, irregularity = 5 },
+    { shape = "Circle", vertex = 12, irregularity = 0 },
+    { shape = "Star", vertex = 5, irregularity = 60 },
+    { shape = "Diamond", vertex = 4, irregularity = 40 },
+    { shape = "Teardrop", vertex = 6, irregularity = 50 },
+    { shape = "Pentagon", vertex = 5, irregularity = 10 },
+    { shape = "Crescent", vertex = 7, irregularity = 70 },
+    { shape = "Hexa", vertex = 6, irregularity = 15 },
+    { shape = "Crown", vertex = 8, irregularity = 85 },
+  }
+  local closest = anchors[1].shape
+  local minimum_distance = math.huge
+  for _, anchor in ipairs(anchors) do
+    local vertex_distance = vertex_count - anchor.vertex
+    local irregularity_distance = irregularity - anchor.irregularity
+    local distance = vertex_distance * vertex_distance + irregularity_distance * irregularity_distance
+    if distance < minimum_distance then
+      closest = anchor.shape
+      minimum_distance = distance
+    end
+  end
+  return closest
+end
+
+local COLOR_TIERS = { Red = 1, Yellow = 1, Blue = 1, Orange = 2, Green = 2, Purple = 2, Gray = 1 }
+local SHAPE_TIERS = { Triangle = 1, Square = 1, Circle = 1, Star = 2, Diamond = 2, Teardrop = 2, Pentagon = 3, Crescent = 3, Hexa = 3, Crown = 4 }
+local TIER_VALUE = { [1] = 5, [2] = 22, [3] = 95, [4] = 300 }
+
+function get_color_tier(color_name)
+  return COLOR_TIERS[color_name] or 1
+end
+
+function get_shape_tier(shape_name)
+  return SHAPE_TIERS[shape_name] or 1
+end
+
+function calculate_tier_value(color_name, shape_name, variance)
+  variance = variance or 0
+  local color_value = TIER_VALUE[get_color_tier(color_name)] or 5
+  local shape_value = TIER_VALUE[get_shape_tier(shape_name)] or 5
+  return math.max(1, math.floor((color_value + shape_value) * (1 + variance) + 0.5))
+end
+
+-- Compounding breeding tax by offspring generation.
+-- base_cost=10 and rate=1.5 are balance-testing placeholders; they mirror
+-- the reasoning in the August 2026 directive but lack real SlimeWorld data.
+function calculate_breeding_cost(generation)
+  if generation == nil or generation <= 2 then return 0 end
+  return math.floor(10 * (1.5 ^ (generation - 2)) + 0.5)
+end
+
+function find_color_target(color_targets, target_id)
+  if color_targets == nil or target_id == nil then return nil end
+  for _, target in ipairs(color_targets) do
+    if target.id == target_id then return target end
+  end
+  return nil
+end
+
+function match_color_target(hue, saturation, color_targets)
+  if color_targets == nil then return nil end
+  for _, target in ipairs(color_targets) do
+    if saturation >= target.saturation_min and saturation < target.saturation_max then
+      for _, center in ipairs(target.center_hues) do
+        if circular_distance(hue, center) <= target.tolerance then
+          return target.id
+        end
+      end
+    end
+  end
+  return nil
+end
+
+function match_shape_target(vertex_count, irregularity, shape_targets)
+  if shape_targets == nil then return nil end
+  for _, target in ipairs(shape_targets) do
+    local tolerance = target.vertex_tolerance or 0.5
+    if math.abs(vertex_count - target.vertex_count) <= tolerance then
+      local irr_min = target.irregularity_min or 0
+      local irr_max = target.irregularity_max or 100
+      if irregularity >= irr_min and irregularity <= irr_max then
+        return target.id
+      end
+    end
+  end
+  return nil
+end
+
+function find_shape_target(shape_targets, target_id)
+  if shape_targets == nil or target_id == nil then return nil end
+  for _, target in ipairs(shape_targets) do
+    if target.id == target_id then return target end
+  end
+  return nil
+end
+
+function breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
+  local vertex_a = parent_a.vertex_count or 4
+  local vertex_b = parent_b.vertex_count or 4
+  local irregularity_a = parent_a.irregularity or 10
+  local irregularity_b = parent_b.irregularity or 10
+  local offspring_vertex = (vertex_a + vertex_b) / 2
+  local normalized_distance = math.abs(vertex_a - vertex_b) / 19
+  local average_irregularity = (irregularity_a + irregularity_b) / 2
+  local spiked_irregularity = clamp(average_irregularity + normalized_distance * 0.5 * 100, 0, 100)
+  local final_vertex = offspring_vertex
+  local final_irregularity = spiked_irregularity
+  local target = find_shape_target(shape_targets, active_shape_target)
+  if target ~= nil then
+    final_vertex = offspring_vertex + (target.vertex_count - offspring_vertex) * 0.6
+    local target_irregularity_midpoint = ((target.irregularity_min or 0) + target.irregularity_max) / 2
+    final_irregularity = clamp(spiked_irregularity + (target_irregularity_midpoint - spiked_irregularity) * 0.6, 0, 100)
+  end
+  return { vertex_count = final_vertex, irregularity = final_irregularity }
+end
+
+function find_accent_type(accent_targets, diffusion_ratio)
+  for _, target in ipairs(accent_targets or {}) do
+    if target.id ~= "accent_metallic" and target.diffusion_min ~= nil and diffusion_ratio >= target.diffusion_min and diffusion_ratio <= target.diffusion_max then
+      return target
+    end
+  end
+  return nil
+end
+
+function find_accent_intensity(accent_targets, amplitude)
+  for _, target in ipairs(accent_targets or {}) do
+    if target.id ~= "accent_metallic" and target.amplitude_min ~= nil and amplitude >= target.amplitude_min and amplitude <= target.amplitude_max then
+      return target
+    end
+  end
+  return nil
+end
+
+function find_metallic_accent(accent_targets, diffusion_ratio, amplitude)
+  for _, target in ipairs(accent_targets or {}) do
+    if target.id == "accent_metallic" and diffusion_ratio >= target.diffusion_min and diffusion_ratio <= target.diffusion_max and amplitude >= target.amplitude_min and amplitude <= target.amplitude_max then
+      return target
+    end
+  end
+  return nil
+end
+
+function breed_accent(parent_a, parent_b, offspring_vertex_count, offspring_irregularity, offspring_hue)
+  local diffusion_a = parent_a.diffusion_ratio or 20
+  local diffusion_b = parent_b.diffusion_ratio or 20
+  local amplitude_a = parent_a.amplitude or 40
+  local amplitude_b = parent_b.amplitude or 40
+  local offspring_diffusion = (diffusion_a + diffusion_b) / 2
+  local offspring_amplitude = (amplitude_a + amplitude_b) / 2
+  local shape_complexity = ((offspring_vertex_count - 3) / 19) * 0.5 + (offspring_irregularity / 100) * 0.5
+  offspring_diffusion = clamp(offspring_diffusion + (shape_complexity * 100 - offspring_diffusion) * 0.3, 0, 100)
+  local diffusion_distance = math.abs(diffusion_a - diffusion_b) / 100
+  offspring_amplitude = clamp(offspring_amplitude - diffusion_distance * 0.4 * 100, 0, 100)
+  local accent_hue = (offspring_hue + 180 * (offspring_amplitude / 100)) % 360
+  return { diffusion_ratio = offspring_diffusion, amplitude = offspring_amplitude, accent_hue = accent_hue }
+end
+
+-- Seed shape defaults (ported from SEED_SHAPE_DEFAULTS in gameLogic.ts)
+local SEED_SHAPE_DEFAULTS = {
+  Red    = { vertex_count = 3, irregularity = 10 },
+  Orange = { vertex_count = 3, irregularity = 15 },
+  Yellow = { vertex_count = 6, irregularity = 10 },
+  Green  = { vertex_count = 6, irregularity = 15 },
+  Purple = { vertex_count = 4, irregularity = 15 },
+  Blue   = { vertex_count = 4, irregularity = 10 },
+  Gray   = { vertex_count = 4, irregularity = 20 },
+}
+
+-- Ported exactly from getInterpolatedSpecs in gameLogic.ts.
+-- Finds the two adjacent color anchors the hue falls between, linearly
+-- interpolates base_stats and growth by sector position, then blends
+-- toward Gray by saturation/100.
+function get_interpolated_specs(hue, saturation, color_specs)
+  local norm_hue = ((hue % 360) + 360) % 360
+
+  local anchors = {
+    { color = "Red",    hue = 0   },
+    { color = "Orange", hue = 60  },
+    { color = "Yellow", hue = 120 },
+    { color = "Green",  hue = 180 },
+    { color = "Purple", hue = 240 },
+    { color = "Blue",   hue = 300 },
+    { color = "Red",    hue = 360 },
+  }
+
+  local i = 0
+  for j = 1, #anchors - 1 do
+    if norm_hue >= anchors[j].hue and norm_hue <= anchors[j + 1].hue then
+      i = j
+      break
+    end
+  end
+
+  local a1 = anchors[i]
+  local a2 = anchors[i + 1]
+  local sector_range = a2.hue - a1.hue
+  local t = 0
+  if sector_range ~= 0 then t = (norm_hue - a1.hue) / sector_range end
+
+  local spec1 = color_specs[a1.color]
+  local spec2 = color_specs[a2.color]
+
+  local function lerp(v1, v2, f) return v1 * (1 - f) + v2 * f end
+
+  local base_hp  = lerp(spec1.base_stats.hp,  spec2.base_stats.hp,  t)
+  local base_atk = lerp(spec1.base_stats.atk, spec2.base_stats.atk, t)
+  local base_def = lerp(spec1.base_stats.def, spec2.base_stats.def, t)
+  local base_agi = lerp(spec1.base_stats.agi, spec2.base_stats.agi, t)
+  local base_int = lerp(spec1.base_stats.int, spec2.base_stats.int, t)
+  local base_chm = lerp(spec1.base_stats.chm, spec2.base_stats.chm, t)
+
+  local grow_hp  = lerp(spec1.growth.hp,  spec2.growth.hp,  t)
+  local grow_atk = lerp(spec1.growth.atk, spec2.growth.atk, t)
+  local grow_def = lerp(spec1.growth.def, spec2.growth.def, t)
+  local grow_agi = lerp(spec1.growth.agi, spec2.growth.agi, t)
+  local grow_int = lerp(spec1.growth.int, spec2.growth.int, t)
+  local grow_chm = lerp(spec1.growth.chm, spec2.growth.chm, t)
+
+  local sat_factor = saturation / 100
+  local gray = color_specs.Gray
+
+  local final_base = {
+    hp  = gray.base_stats.hp  * (1 - sat_factor) + base_hp  * sat_factor,
+    atk = gray.base_stats.atk * (1 - sat_factor) + base_atk * sat_factor,
+    def = gray.base_stats.def * (1 - sat_factor) + base_def * sat_factor,
+    agi = gray.base_stats.agi * (1 - sat_factor) + base_agi * sat_factor,
+    int = gray.base_stats.int * (1 - sat_factor) + base_int * sat_factor,
+    chm = gray.base_stats.chm * (1 - sat_factor) + base_chm * sat_factor,
+  }
+
+  local final_growth = {
+    hp  = gray.growth.hp  * (1 - sat_factor) + grow_hp  * sat_factor,
+    atk = gray.growth.atk * (1 - sat_factor) + grow_atk * sat_factor,
+    def = gray.growth.def * (1 - sat_factor) + grow_def * sat_factor,
+    agi = gray.growth.agi * (1 - sat_factor) + grow_agi * sat_factor,
+    int = gray.growth.int * (1 - sat_factor) + grow_int * sat_factor,
+    chm = gray.growth.chm * (1 - sat_factor) + grow_chm * sat_factor,
+  }
+
+  return { base_stats = final_base, growth = final_growth }
+end
+
+-- Ported exactly from getShapeStatModifiers in gameLogic.ts.
+-- Weighted linear ramps (not step functions), each capped at 10% bonus.
+function get_shape_stat_modifiers(vertex_count, irregularity)
+  local low_vertex_weight = math.max(0, math.min(1, (6 - vertex_count) / 3))
+  local low_irr_weight = math.max(0, math.min(1, (35 - irregularity) / 35))
+  local simple_stable_weight = low_vertex_weight * low_irr_weight
+
+  local high_vertex_weight = math.max(0, math.min(1, (vertex_count - 6) / 8))
+  local clean_complex_weight = high_vertex_weight * low_irr_weight
+
+  local jagged_weight = math.max(0, math.min(1, (irregularity - 15) / 35))
+
+  return {
+    hp_bonus  = simple_stable_weight * 0.10,
+    def_bonus = simple_stable_weight * 0.10,
+    int_bonus = clean_complex_weight * 0.10,
+    chm_bonus = clean_complex_weight * 0.10,
+    atk_bonus = jagged_weight * 0.10,
+    agi_bonus = jagged_weight * 0.10,
+  }
+end
+
+-- Ported from calculateStats in gameLogic.ts, minus the retired Pattern switch.
+-- Computes base stats from interpolated color specs + level growth, then
+-- applies shape modifiers as multiplicative bonuses.
+-- NOTE: 'int' is used as a table key matching the existing convention in
+-- create_seed_slime's stats table. It is a valid Lua identifier.
+function calculate_stats(color, level, hue, saturation, vertex_count, irregularity, color_specs)
+  local spec = get_interpolated_specs(hue, saturation, color_specs)
+  local l = level - 1
+
+  local stats = {
+    hp  = math.floor(spec.base_stats.hp  + spec.growth.hp  * l),
+    atk = math.floor(spec.base_stats.atk + spec.growth.atk * l),
+    def = math.floor(spec.base_stats.def + spec.growth.def * l),
+    agi = math.floor(spec.base_stats.agi + spec.growth.agi * l),
+    int = math.floor(spec.base_stats.int + spec.growth.int * l),
+    chm = math.floor(spec.base_stats.chm + spec.growth.chm * l),
+  }
+
+  local mod = get_shape_stat_modifiers(vertex_count, irregularity)
+  stats.hp  = math.floor(stats.hp  * (1 + mod.hp_bonus))
+  stats.atk = math.floor(stats.atk * (1 + mod.atk_bonus))
+  stats.def = math.floor(stats.def * (1 + mod.def_bonus))
+  stats.agi = math.floor(stats.agi * (1 + mod.agi_bonus))
+  stats.int = math.floor(stats.int * (1 + mod.int_bonus))
+  stats.chm = math.floor(stats.chm * (1 + mod.chm_bonus))
+
+  return stats
+end
+
+function breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
+  local hue_a = parent_a.hue or 0
+  local hue_b = parent_b.hue or 0
+  local saturation_a = parent_a.saturation
+  local saturation_b = parent_b.saturation
+  if saturation_a == nil then saturation_a = parent_a.color == "Gray" and 0 or 100 end
+  if saturation_b == nil then saturation_b = parent_b.color == "Gray" and 0 or 100 end
+  same_pair_streak = same_pair_streak or 0
+
+  local offspring_hue = circular_hue_midpoint(hue_a, hue_b)
+  local normalized_distance = circular_distance(hue_a, hue_b) / 180
+  local repetition_penalty = math.max(0.15, 1 - same_pair_streak * 0.12)
+  local effective_k = 0.12 * repetition_penalty
+  local average_saturation = (saturation_a + saturation_b) / 2
+  local offspring_saturation = clamp(average_saturation * (1 - effective_k * normalized_distance), 0, 100)
+  local final_hue = offspring_hue
+  local final_saturation = offspring_saturation
+
+  local target = find_color_target(color_targets, active_target_regent)
+  if target ~= nil then
+    local closest_center = target.center_hues[1]
+    local minimum_distance = 360
+    for _, center in ipairs(target.center_hues) do
+      local distance = circular_distance(offspring_hue, center)
+      if distance < minimum_distance then
+        closest_center = center
+        minimum_distance = distance
+      end
+    end
+    local difference = ((closest_center - offspring_hue + 540) % 360) - 180
+    final_hue = (offspring_hue + difference * 0.6 + 360) % 360
+    local target_saturation_midpoint = (target.saturation_min + target.saturation_max) / 2
+    final_saturation = clamp(offspring_saturation + (target_saturation_midpoint - offspring_saturation) * 0.6, 0, 100)
+  end
+
+  local color = final_saturation < 15 and "Gray" or snap_to_faction(final_hue)
+  return {
+    id = "slime_" .. os.time() .. "_" .. math.random(1000),
+    color = color,
+    hue = final_hue,
+    saturation = final_saturation,
+    color_saturation = final_saturation,
+    pattern = parent_a.pattern,
+    level = 1,
+    xp = 0,
+    generation = generation,
+    role = "idle",
+    parent_a = parent_a.id,
+    parent_b = parent_b.id,
+  }
+end
+
+function find_by_id(items, id)
+  for _, item in ipairs(items or {}) do
+    if item.id == id then return item end
+  end
+  return nil
+end
+
+function select_slimes(slimes, slime_ids)
+  local selected = {}
+  local wanted = {}
+  for _, id in ipairs(slime_ids or {}) do wanted[id] = true end
+  for _, slime in ipairs(slimes or {}) do
+    if wanted[slime.id] then table.insert(selected, slime) end
+  end
+  return selected
+end
+
+function dominant_color(party)
+  local counts = {}
+  local highest_count = 0
+  local result = party[1] and party[1].color or "Gray"
+  for _, slime in ipairs(party or {}) do
+    counts[slime.color] = (counts[slime.color] or 0) + 1
+    if counts[slime.color] > highest_count then
+      highest_count = counts[slime.color]
+      result = slime.color
+    end
+  end
+  return result
+end
+
+function claim_success_chance(power, target_power)
+  local chance = power / target_power
+  if chance > 1 then
+    chance = 0.85 + (chance - 1) * 0.1
+  else
+    chance = 0.2 + chance * 0.6
+  end
+  return clamp(chance, 0.15, 0.98)
+end
+
+function claim_grudge_color(node, excluded_color)
+  if node.owner_color ~= nil and not node.player_aligned then return node.owner_color end
+  local result = nil
+  local maximum_pressure = -1
+  for color, value in pairs(node.pressure or {}) do
+    if color ~= "Gray" and color ~= excluded_color and value > maximum_pressure then
+      result = color
+      maximum_pressure = value
+    end
+  end
+  return result
+end
+
+function copy_pressure(pressure)
+  local copied = {}
+  for color, value in pairs(pressure or {}) do copied[color] = value end
+  return copied
+end
+
+function resolve_force_claim(node, party, is_discovered, roll)
+  if #party == 0 then return { success = false, updated_node = node } end
+  local force = 0
+  for _, slime in ipairs(party) do
+    force = force + slime.level * 10 + slime.stats.atk + slime.stats.def
+  end
+  local strength = is_discovered and node.strength or 0.8
+  local chance = claim_success_chance(force, 50 + math.floor(strength * 100 + 0.5))
+  roll = roll or math.random()
+  if roll > chance then return { success = false, updated_node = node, chance = chance } end
+  local pressure = copy_pressure(node.pressure)
+  local grudge = claim_grudge_color(node, dominant_color(party))
+  if grudge ~= nil then pressure[grudge] = 85 end
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", player_aligned = true, strength = 0.4, pressure = pressure, discovered = true } }
+end
+
+function resolve_bribe_claim(node, credits_spent, is_discovered, roll)
+  local strength = is_discovered and node.strength or 0.8
+  local target_power = 50 + math.floor(strength * 100 + 0.5)
+  local chance = claim_success_chance(credits_spent, math.floor(target_power * 2 + 0.5))
+  roll = roll or math.random()
+  if roll > chance then return { success = false, updated_node = node, chance = chance } end
+  local pressure = copy_pressure(node.pressure)
+  local grudge = claim_grudge_color(node, nil)
+  if grudge ~= nil then pressure[grudge] = 45 end
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = "Gray", player_aligned = true, strength = 0.5, pressure = pressure, discovered = true } }
+end
+
+function resolve_convert_claim(node, party, culture_relationship, is_discovered, roll)
+  if #party == 0 then return { success = false, updated_node = node } end
+  culture_relationship = culture_relationship or 50
+  local charm = 0
+  for _, slime in ipairs(party) do charm = charm + slime.stats.chm end
+  local adjusted_charm = math.floor(charm * (1 + (culture_relationship - 50) / 100) + 0.5)
+  local strength = is_discovered and node.strength or 0.8
+  local chance = claim_success_chance(adjusted_charm, 40 + math.floor(strength * 80 + 0.5))
+  roll = roll or math.random()
+  if roll > chance then return { success = false, updated_node = node, chance = chance } end
+  local pressure = copy_pressure(node.pressure)
+  local grudge = claim_grudge_color(node, dominant_color(party))
+  if grudge ~= nil then pressure[grudge] = 5 end
+  local preserved_color = node.owner_color
+  return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = preserved_color, player_aligned = true, strength = 0.6, pressure = pressure, discovered = true } }
+end
+
+function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets)
+  if parent_a_id == parent_b_id then return nil, "Parents must differ" end
+  if #(state.slimes or {}) >= state.roster_cap then return nil, "Roster capacity reached" end
+  local parent_a = find_by_id(state.slimes, parent_a_id)
+  local parent_b = find_by_id(state.slimes, parent_b_id)
+  if parent_a == nil or parent_b == nil then return nil, "Parent not found" end
+  local generation = math.max(parent_a.generation or 0, parent_b.generation or 0) + 1
+
+  -- Generation-keyed breeding tax: generations 1 and 2 are free; deeper
+  -- lineages cost more to protect the Tier 3/4 value curve. base_cost and
+  -- rate are placeholders pending real balance data (see directive).
+  local breeding_cost = calculate_breeding_cost(generation)
+  local credits = state.credits or 0
+  if credits < breeding_cost then
+    return nil, string.format("Insufficient credits: breeding generation %d costs %d credits (need %d more)", generation, breeding_cost, breeding_cost - credits)
+  end
+
+  local child = breed_slimes(parent_a, parent_b, generation, same_pair_streak, color_targets, active_target_regent)
+  local shape = breed_shape(parent_a, parent_b, shape_targets, active_shape_target)
+  child.vertex_count = shape.vertex_count
+  child.irregularity = shape.irregularity
+  local accent = breed_accent(parent_a, parent_b, child.vertex_count, child.irregularity, child.hue)
+  child.diffusion_ratio = accent.diffusion_ratio
+  child.amplitude = accent.amplitude
+  child.accent_hue = accent.accent_hue
+  child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
+  child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
+  child.stats = calculate_stats(child.color, child.level or 1, child.hue, child.saturation, child.vertex_count, child.irregularity, color_specs)
+  -- Elder breeding tax (locked at 0.85x per SlimeWorld_Design.md Rev 1).
+  -- Applied to the offspring's computed stat block — the only concrete,
+  -- already-computed "yield" of breeding this function produces. Rev 1's
+  -- text names a "breeding tax" without specifying its exact target;
+  -- reducing offspring stat quality is the most direct reading of a tax
+  -- on breeding with worn-out (Elder) genetics.
+  if parent_a.stage == "Elder" or parent_b.stage == "Elder" then
+    local ELDER_BREEDING_TAX = 0.85
+    for key, value in pairs(child.stats) do
+      child.stats[key] = math.floor(value * ELDER_BREEDING_TAX)
+    end
+  end
+  -- created_at must be cycle-based (matching Stage's clock), not left nil —
+  -- otherwise the offspring's own Stage would compute incorrectly on the
+  -- very next advance_cycle tick.
+  child.created_at = state.cycle
+  table.insert(state.slimes, child)
+  for index, slime in ipairs(state.slimes) do
+    if slime.id == parent_b_id then
+      table.remove(state.slimes, index)
+      break
+    end
+  end
+  child.consumed_slime_id = parent_b_id
+  state.credits = credits - breeding_cost
+  child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
+
+  -- Post-first-breed reward: when the first breed unlocks the first region,
+  -- grant two additional Strays matching the player's assigned starting color.
+  -- Fires exactly once per game via the same region-unlock event the Target
+  -- Regent first-breed fix already guarantees.
+  child.added_strays = {}
+  if not state.has_received_first_breed_reward and #child.region_unlocks > 0 then
+    state.has_received_first_breed_reward = true
+    local starting_color = state.starting_color or "Red"
+    for i = 1, 2 do
+      if #(state.slimes or {}) < (state.roster_cap or 8) then
+        local stray = create_seed_slime(starting_color, "Solid", color_specs)
+        stray.id = "stray_breed_" .. os.time() .. "_" .. math.random(1000) .. "_" .. i
+        stray.locked_role = "worker"
+        stray.name = "Stray " .. stray.name
+        table.insert(state.slimes, stray)
+        table.insert(child.added_strays, stray)
+      end
+    end
+  end
+
+  return child, nil
+end
+
+function force_claim_action(state, node_id, slime_ids, roll)
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
+  if node == nil then return nil, "Node not found" end
+  local result = resolve_force_claim(node, select_slimes(state.slimes, slime_ids), node.discovered, roll)
+  if result.success then
+    for index, current in ipairs(state.planet_region.nodes) do
+      if current.id == node_id then state.planet_region.nodes[index] = result.updated_node end
+    end
+  end
+  return result, nil
+end
+
+function bribe_claim_action(state, node_id, credits_spent, roll)
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
+  if node == nil or (state.credits or 0) < credits_spent then return nil, "Claim unavailable" end
+  local result = resolve_bribe_claim(node, credits_spent, node.discovered, roll)
+  state.credits = state.credits - credits_spent
+  if result.success then
+    for index, current in ipairs(state.planet_region.nodes) do
+      if current.id == node_id then state.planet_region.nodes[index] = result.updated_node end
+    end
+  end
+  return result, nil
+end
+
+function convert_target_color(node)
+  if node.owner_color ~= nil then return node.owner_color end
+  local target_color = "Gray"
+  local maximum_pressure = -1
+  for color, pressure in pairs(node.pressure or {}) do
+    if pressure > maximum_pressure then
+      target_color = color
+      maximum_pressure = pressure
+    end
+  end
+  return target_color
+end
+
+function convert_claim_action(state, node_id, slime_ids, culture_relationship, roll)
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
+  if node == nil then return nil, "Node not found" end
+  if culture_relationship == nil then
+    local relationships = state.color_relationships or {}
+    culture_relationship = relationships[convert_target_color(node)] or 50
+  end
+  local result = resolve_convert_claim(node, select_slimes(state.slimes, slime_ids), culture_relationship, node.discovered, roll)
+  if result.success then
+    for index, current in ipairs(state.planet_region.nodes) do
+      if current.id == node_id then state.planet_region.nodes[index] = result.updated_node end
+    end
+  end
+  return result, nil
+end
+
+function launch_dispatch(state, zone_id, slime_ids)
+  state.active_dispatch = { id = "dispatch", zone_id = zone_id, slime_ids = slime_ids, cycles_remaining = 1, status = "active" }
+  return state.active_dispatch
+end
+
+function retrieve_completed_dispatch(state)
+  local dispatch = state.active_dispatch
+  if dispatch == nil or dispatch.status ~= "completed" then return nil, "No completed dispatch" end
+  state.active_dispatch = nil
+  return dispatch, nil
+end
+
+function launch_exploration(state, node_id, slime_ids, region_locks)
+  local accessible, err = is_node_accessible(state, node_id, region_locks)
+  if not accessible then return nil, err or "Region is locked" end
+  state.active_exploration = { id = "exploration", target_node_id = node_id, slime_ids = slime_ids, cycles_remaining = 1, status = "active" }
+  return state.active_exploration, nil
+end
+
+function launch_mediation(state, node_id, slime_ids, region_locks)
+  local accessible, err = is_node_accessible(state, node_id, region_locks)
+  if not accessible then return nil, err or "Region is locked" end
+  state.active_mediation = { id = "mediation", target_node_id = node_id, slime_ids = slime_ids, cycles_remaining = 1, status = "active" }
+  return state.active_mediation, nil
+end
+
+function assign_garrison(state, node_id, slime_id)
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if node == nil or slime == nil or node.owner_color == nil then return nil, "Garrison unavailable" end
+  node.garrison_slime_id = slime_id
+  slime.locked_role = "garrison"
+  slime.garrisoned_at = node_id
+  return node, nil
+end
+
+function recall_garrison(state, slime_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil or slime.locked_role ~= "garrison" then return nil, "Slime is not garrisoned" end
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, slime.garrisoned_at)
+  if node ~= nil then node.garrison_slime_id = nil end
+  slime.locked_role = nil
+  slime.garrisoned_at = nil
+  return slime, nil
+end
+
+function deliver_contract(state, contract_id, slime_id)
+  local contract = find_by_id(state.contracts, contract_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if contract == nil or slime == nil then return nil, "Contract or slime not found" end
+  state.credits = (state.credits or 0) + contract.credits_reward
+  for index, current in ipairs(state.contracts) do if current.id == contract_id then table.remove(state.contracts, index) break end end
+  for index, current in ipairs(state.slimes) do if current.id == slime_id then table.remove(state.slimes, index) break end end
+  return contract.credits_reward, nil
+end
+
+function sell_on_market(state, slime_id, price)
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil then return nil, "Slime not found" end
+  state.credits = (state.credits or 0) + price
+  state.recent_market_sales = state.recent_market_sales or {}
+  table.insert(state.recent_market_sales, { color = slime.color, cycle = state.cycle })
+  for index, current in ipairs(state.slimes) do if current.id == slime_id then table.remove(state.slimes, index) break end end
+  return price, nil
+end
+
+function buy_upgrade(state, upgrade_type)
+  local costs = { capacity = 150, stabilizer = 200, autofeeder = 250 }
+  local cost = costs[upgrade_type]
+  if cost == nil or (state.credits or 0) < cost then return false end
+  if upgrade_type == "autofeeder" and state.has_auto_feeder then return false end
+  state.credits = state.credits - cost
+  if upgrade_type == "capacity" then state.roster_cap = state.roster_cap + 5 end
+  if upgrade_type == "stabilizer" then state.breeding_success_rate_modifier = (state.breeding_success_rate_modifier or 0) + 0.1 end
+  if upgrade_type == "autofeeder" then state.has_auto_feeder = true end
+  return true
+end
+
+function toggle_worker_role(state, slime_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil then return false end
+  if slime.locked_role == "worker" then
+    slime.locked_role = nil
+  elseif slime.locked_role == nil then
+    slime.locked_role = "worker"
+  else
+    return false
+  end
+  return true
+end
+
+function recycle_slime(state, slime_id)
+  if #(state.slimes or {}) <= 1 then return nil, "Cannot recycle final slime" end
+  for index, slime in ipairs(state.slimes or {}) do
+    if slime.id == slime_id then
+      table.remove(state.slimes, index)
+      state.credits = (state.credits or 0) + 15
+      return 15, nil
+    end
+  end
+  return nil, "Slime not found"
+end
+
+function rename_slime(state, slime_id, new_name)
+  if new_name == nil then return nil, "Name required" end
+  local trimmed_name = string.match(new_name, "^%s*(.-)%s*$")
+  if trimmed_name == "" then return nil, "Name required" end
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil then return nil, "Slime not found" end
+  slime.name = trimmed_name
+  return slime, nil
+end
+
+-- PLACEHOLDER — pending Robert's confirmation. Number of cycles that must pass
+-- between seed purchases. Currently 3 cycles; treated as provisional until
+-- Robert sets the final value.
+local SEED_PURCHASE_COOLDOWN_CYCLES = 3
+
+-- Canonical faction anchor hues (matches color_genetics.faction_anchors in data.yaml).
+local FACTION_ANCHORS = {
+  { color = "Red",    hue = 0   },
+  { color = "Orange", hue = 60  },
+  { color = "Yellow", hue = 120 },
+  { color = "Green",  hue = 180 },
+  { color = "Purple", hue = 240 },
+  { color = "Blue",   hue = 300 },
+}
+
+function find_color_target_by_id(color_targets, target_id)
+  if color_targets == nil or target_id == nil then return nil end
+  for _, target in ipairs(color_targets) do
+    if target.id == target_id then return target end
+  end
+  return nil
+end
+
+-- Derive the set of seed-purchasable colors from the player's currently
+-- unlocked regions. For each unlocked region, look up its color_target and
+-- include every faction-anchor color within 60 degrees of any of the target's
+-- center hues. Re-derived every call; never cached.
+function derive_purchasable_colors(state, region_locks, color_targets)
+  local colors = {}
+  local seen = {}
+  local region_unlocks = state.region_unlocks or {}
+
+  for _, lock in ipairs(region_locks or {}) do
+    if region_unlocks[lock.node_id] == true then
+      local target = find_color_target_by_id(color_targets, lock.color_target_id)
+      if target and target.center_hues then
+        for _, center in ipairs(target.center_hues) do
+          for _, anchor in ipairs(FACTION_ANCHORS) do
+            local distance = circular_distance(center, anchor.hue)
+            if distance <= 60 then
+              if not seen[anchor.color] then
+                seen[anchor.color] = true
+                table.insert(colors, anchor.color)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  return colors
+end
+
+function purchase_seed_slime(state, color, color_specs, region_locks, color_targets)
+  local cost = 50
+  if (state.credits or 0) < cost then return nil, "Insufficient credits" end
+  if #(state.slimes or {}) >= (state.roster_cap or 8) then return nil, "Roster capacity reached" end
+
+  -- Color eligibility gate: only colors reachable from currently unlocked regions.
+  local purchasable = derive_purchasable_colors(state, region_locks, color_targets)
+  local color_allowed = false
+  for _, allowed in ipairs(purchasable) do
+    if allowed == color then color_allowed = true break end
+  end
+  if not color_allowed then
+    return nil, "Color not available from unlocked regions"
+  end
+
+  -- Cooldown gate: independent of color eligibility.
+  local cycle = state.cycle or 0
+  local last_cycle = state.last_seed_purchase_cycle or -SEED_PURCHASE_COOLDOWN_CYCLES
+  if cycle - last_cycle < SEED_PURCHASE_COOLDOWN_CYCLES then
+    return nil, "Seed purchase on cooldown"
+  end
+
+  local seed = create_seed_slime(color, "Solid", color_specs)
+  table.insert(state.slimes, seed)
+  state.credits = (state.credits or 0) - cost
+  state.last_seed_purchase_cycle = cycle
+  -- Bridge the cooldown timestamp back to TypeScript on the returned slime
+  -- so the UI can persist it without a separate return-shape change.
+  seed.last_seed_purchase_cycle = cycle
+  return seed, nil
+end
+
+function is_slime_in_matching_culture_environment(slime, nodes)
+  for _, node in ipairs(nodes or {}) do
+    if node.owner_color == slime.color then return true end
+  end
+  return false
+end
+
+function calculate_worker_income(slime, has_auto_feeder, nodes)
+  local income = 5
+  if has_auto_feeder then income = income * 2 end
+  if is_slime_in_matching_culture_environment(slime, nodes) then income = income * 2 end
+  return income
+end
+
+function is_capitol_hardened(node, nodes)
+  if not node.is_capitol or node.owner_color == nil then return false end
+  for _, neighbor_id in ipairs(node.neighbors or {}) do
+    local neighbor = find_by_id(nodes, neighbor_id)
+    if neighbor == nil or neighbor.owner_color ~= node.owner_color then return false end
+  end
+  return true
+end
+
+function has_secure_capitol_garrison(state, node)
+  if not node.is_capitol or node.owner_color == nil or node.strength < 1 then return false end
+  for color, pressure in pairs(node.pressure or {}) do
+    if color ~= node.owner_color and pressure > 0 then return false end
+  end
+  for _, slime in ipairs(state.slimes or {}) do
+    if slime.locked_role == "garrison" and slime.garrisoned_at == node.id then return true end
+  end
+  return false
+end
+
+local CONTRACT_FLAVORS = {
+  "Requesting high-density organic insulation cores. Do not ask for details regarding the thermal payload.",
+  "Specimen requested to act as immediate chemical neutralizer in standard waste tanks.",
+  "Urgent laboratory trial requirement for sub-cellular membrane shearing. Specimen will be disassembled.",
+  "Corporate compliance requires bio-mass buffer reserves to meet annual asteroid operations quotas.",
+  "Requested specimen matches target criteria for experimental neuro-network mapping. Energy discharge expected.",
+  "A private investor demands a specimen of pristine coloration to decorate their terminal reservoir.",
+  "Sub-orbital testing requires low-gravity biological payloads. High probability of orbital separation.",
+}
+
+local ASTRONAUT_THOUGHTS = {
+  "LOG: Day 312. I watched the black hole devour a communication node today. The static lasted three minutes. Standard corporate response received immediately after: \"Keep breeding.\"",
+  "LOG: Day 445. The slimes are the only warm things on this rock. They hum when I rest my hand on the glass. I wonder if they know we are both just debris.",
+  "LOG: Day 519. The Corporation paid my monthly credits, but there is nothing to buy here except nutrient pellets and gene splicing regulators. They are literally paying me to feed their food.",
+  "LOG: Day 608. One of the slimes was looking at the star charts today. Or maybe it was just reacting to the screen flicker. I choose to believe it wanted to see Earth.",
+  "LOG: Day 722. It is quiet. So quiet that I can hear the refrigeration unit on the containment cells clicking. Cycle after cycle. We make slimes, we send them to the dark, and we repeat.",
+  "LOG: Day 803. I called the corporate hotline. The automated voice informed me that my soul was a valuable regional asset. Then it played elevator music for three hours.",
+}
+
+function generate_contract(cycle)
+  local colors = { "Red", "Blue", "Yellow", "Purple", "Orange", "Green" }
+  local patterns = { "Solid", "Stripe", "Polka", "Glow", "Crown", "Ringed" }
+  local color = colors[math.random(#colors)]
+  local pattern = patterns[math.random(#patterns)]
+  local reward_multiplier = 1
+  if color == "Purple" or color == "Orange" or color == "Green" then reward_multiplier = reward_multiplier + 0.5 end
+  if pattern ~= "Solid" then reward_multiplier = reward_multiplier + 0.5 end
+  if pattern == "Glow" or pattern == "Crown" or pattern == "Ringed" then reward_multiplier = reward_multiplier + 0.8 end
+  local base_credits = 100
+  local credits_reward = math.floor(base_credits * reward_multiplier + math.random() * 30)
+  local total_cycles = math.random(5, 8)
+  local title_code = "RQ-" .. math.random(1000, 8999)
+  return {
+    id = "contract_" .. os.time() .. "_" .. math.random(100),
+    title = "CONTRACT " .. title_code,
+    required_color = color,
+    required_pattern = pattern,
+    credits_reward = credits_reward,
+    cycles_remaining = total_cycles,
+    total_cycles = total_cycles,
+    flavor_text = CONTRACT_FLAVORS[math.random(#CONTRACT_FLAVORS)],
+  }
+end
+
+local WANDERER_REQUEST_MAX = 3
+local WANDERER_PREMIUM_MULTI = 3.0
+
+function create_wanderer_petition(cycle, active_petitions)
+  if #(active_petitions or {}) >= WANDERER_REQUEST_MAX then return nil, "Wanderer petition capacity reached" end
+  local colors = { "Red", "Blue", "Yellow", "Purple", "Orange", "Green", "Gray" }
+  local shapes = { "Triangle", "Square", "Circle", "Star", "Diamond", "Teardrop", "Pentagon", "Crescent", "Hexa", "Crown" }
+  local require_color = math.random() > 0.3
+  local require_shape = math.random() > 0.3
+  local has_color = require_color or not require_shape
+  local has_shape = require_shape or not require_color
+  local target_color = has_color and colors[math.random(#colors)] or nil
+  local target_shape = has_shape and shapes[math.random(#shapes)] or nil
+  local color_tier = target_color and get_color_tier(target_color) or 1.5
+  local shape_tier = target_shape and get_shape_tier(target_shape) or 1.5
+  local reward = math.floor(color_tier * shape_tier * 10 * WANDERER_PREMIUM_MULTI)
+  local total_cycles = math.random(5, 8)
+  return {
+    id = "petition_wanderer_" .. os.time() .. "_" .. math.random(1000),
+    source = "wanderer",
+    requested_color = target_color,
+    requested_shape = target_shape,
+    payout_multiplier = WANDERER_PREMIUM_MULTI,
+    reward = reward,
+    expires_cycle = cycle + total_cycles,
+  }, nil
+end
+
+function fulfill_petition(state, petition_id, slime_id)
+  local petition = find_by_id(state.petitions, petition_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if petition == nil or slime == nil then return nil, "Petition or slime not found" end
+  if (state.cycle or 0) > petition.expires_cycle then return nil, "Petition expired" end
+  if petition.requested_color ~= nil and slime.color ~= petition.requested_color then return nil, "Slime does not match petition color" end
+  if petition.requested_shape ~= nil and snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10) ~= petition.requested_shape then return nil, "Slime does not match petition shape" end
+  local payout = petition.reward or math.floor(100 * petition.payout_multiplier)
+  state.credits = (state.credits or 0) + payout
+  for index, current in ipairs(state.petitions) do
+    if current.id == petition_id then
+      table.remove(state.petitions, index)
+      break
+    end
+  end
+  return { payout = payout, fulfilled_slime_id = slime_id }, nil
+end
+
+function get_random_melancholic_log(cycle)
+  return {
+    id = "log_mel_" .. os.time(),
+    cycle = cycle,
+    text = ASTRONAUT_THOUGHTS[math.random(#ASTRONAUT_THOUGHTS)],
+    type = "melancholy",
+  }
+end
+
+local SLIME_NAME_PREFIXES = {
+  "Specimen", "Subject", "Orbital", "Cinder", "Dusty", "Rusty", "Void",
+  "Gloop", "Solder", "Glitch", "Slick", "Vapor", "Anode", "Cathode",
+  "Zero", "Ion", "Debris", "Vector", "Echo", "Drift"
+}
+local SLIME_NAME_SUFFIXES = {
+  "A-01", "B-12", "X", "Beta", "Omega", "Prime", "Zero", "09", "402",
+  "77", "Core", "V", "Dampener", "Isotope", "Sol", "Flux", "Drifter", "Echo"
+}
+
+function generate_slime_name()
+  local p = SLIME_NAME_PREFIXES[math.random(#SLIME_NAME_PREFIXES)]
+  local s = SLIME_NAME_SUFFIXES[math.random(#SLIME_NAME_SUFFIXES)]
+  return p .. "-" .. s
+end
+
+local HUE_MAP = { Red = 0, Orange = 60, Yellow = 120, Green = 180, Purple = 240, Blue = 300, Gray = 0 }
+
+function create_seed_slime(color, pattern, color_specs)
+  color = color or "Red"
+  pattern = pattern or "Solid"
+  local hue = HUE_MAP[color] or 0
+  local saturation = color == "Gray" and 0 or 100
+  local seed_shape = SEED_SHAPE_DEFAULTS[color] or { vertex_count = 4, irregularity = 10 }
+  local stats
+  if color_specs ~= nil then
+    stats = calculate_stats(color, 1, hue, saturation, seed_shape.vertex_count, seed_shape.irregularity, color_specs)
+  else
+    stats = { hp = 100, atk = 10, def = 10, agi = 10, int = 10, chm = 10 }
+  end
+  return {
+    id = "slime_" .. os.time() .. "_" .. math.random(1000),
+    name = generate_slime_name(),
+    color = color,
+    pattern = pattern,
+    level = 1,
+    xp = 0,
+    stats = stats,
+    role = "idle",
+    generation = 1,
+    hue = hue,
+    saturation = saturation,
+    color_saturation = saturation,
+    locked_role = nil,
+  }
+end
+
+local BASE_REVOLT_FACTOR = 0.002
+local GARRISON_RISK_REDUCTION_MULTIPLIER = 0.5
+
+function update_planet_supply_and_pressure(nodes)
+  if nodes == nil then return {}, {} end
+  local logs = {}
+
+  -- 1. Accumulate pressure (skip fealty-locked nodes — they exited the
+  -- pressure simulation permanently per Fealty spec)
+  local pressure_changes = {}
+  for _, node in ipairs(nodes) do
+    if node.owner_color and node.is_supplied and not node.fealty_locked and not node.player_aligned then
+      local pressure_amount = math.floor(5 + (node.strength or 0) * 10)
+      for _, neighbor_id in ipairs(node.neighbors or {}) do
+        local neighbor = find_by_id(nodes, neighbor_id)
+        if neighbor and not neighbor.fealty_locked and not neighbor.player_aligned and neighbor.owner_color ~= node.owner_color then
+          if pressure_changes[neighbor_id] == nil then pressure_changes[neighbor_id] = {} end
+          local current = pressure_changes[neighbor_id][node.owner_color] or 0
+          pressure_changes[neighbor_id][node.owner_color] = current + pressure_amount
+        end
+      end
+    end
+  end
+
+  -- Apply pressure changes & decay (skip fealty-locked nodes; clear their
+  -- pressure since they are permanently stable)
+  for _, node in ipairs(nodes) do
+    if node.fealty_locked or node.player_aligned then
+      node.pressure = {}
+    else
+      local deltas = pressure_changes[node.id]
+      if deltas then
+        for color, amount in pairs(deltas) do
+          node.pressure = node.pressure or {}
+          node.pressure[color] = (node.pressure[color] or 0) + amount
+        end
+      end
+      if node.pressure then
+        for color, val in pairs(node.pressure) do
+          if val > 0 then node.pressure[color] = math.max(0, val - 2) end
+        end
+      end
+    end
+  end
+
+  -- 2. Check for ownership flips and revolts (skip fealty-locked nodes)
+  local threshold = 100
+  for _, node in ipairs(nodes) do
+    if node.fealty_locked or node.player_aligned then
+      -- Fealty-locked / player-aligned nodes are permanently stable: no flips, no revolts
+    else
+    local highest_foreign_color = nil
+    local highest_foreign_pressure = 0
+    if node.pressure then
+      for color, val in pairs(node.pressure) do
+        if color ~= node.owner_color and val > highest_foreign_pressure then
+          highest_foreign_pressure = val
+          highest_foreign_color = color
+        end
+      end
+    end
+    local defense = node.owner_color and math.floor((node.strength or 0) * 100) or 0
+    if highest_foreign_pressure >= threshold and highest_foreign_pressure > defense then
+      local old_owner = node.owner_color or "Unclaimed"
+      table.insert(logs, "TERRITORY FLIP: Node [" .. (node.name or node.id) .. "] has collapsed under external pressure. Control transferred from " .. old_owner .. " to " .. (highest_foreign_color or "?") .. ".")
+      node.owner_color = highest_foreign_color
+      node.strength = 0.3
+      node.pressure = {}
+      node.is_capitol = false
+      node.garrison_slime_id = nil
+    else
+      -- Revolt risk
+      if node.owner_color then
+        local is_garrisoned = node.garrison_slime_id ~= nil
+        local total_foreign_pressure = 0
+        if node.pressure then
+          for color, val in pairs(node.pressure) do
+            if color ~= node.owner_color then total_foreign_pressure = total_foreign_pressure + val end
+          end
+        end
+        if total_foreign_pressure > 0 then
+          local base_revolt_prob = total_foreign_pressure * BASE_REVOLT_FACTOR
+          local final_revolt_prob = is_garrisoned and base_revolt_prob * GARRISON_RISK_REDUCTION_MULTIPLIER or base_revolt_prob
+          local capped_revolt_prob = math.min(0.9, final_revolt_prob)
+          if math.random() < capped_revolt_prob then
+            table.insert(logs, "REVOLT: Node [" .. (node.name or node.id) .. "] has revolted due to unmitigated cultural pressure! Control reverted to Unclaimed.")
+            node.owner_color = nil
+            node.strength = 0
+            node.pressure = {}
+            node.is_capitol = false
+            node.garrison_slime_id = nil
+          end
+        end
+      end
+      -- Steady stabilization or decay
+      if node.owner_color then
+        if node.is_supplied then
+          node.strength = math.min(1.0, (node.strength or 0) + 0.02)
+        else
+          node.strength = math.max(0.1, (node.strength or 0) - 0.08)
+        end
+        node.strength = math.floor(node.strength * 1000) / 1000
+      end
+    end
+    end
+  end
+
+  -- 3. BFS Supply Chain from Capitols (fealty-locked nodes are always
+  -- supplied — they are permanently the player's territory)
+  for _, n in ipairs(nodes) do
+    if n.fealty_locked or n.player_aligned then
+      n.is_supplied = true
+    else
+      n.is_supplied = false
+    end
+  end
+  for _, capitol in ipairs(nodes) do
+    if capitol.is_capitol and capitol.owner_color then
+      capitol.is_supplied = true
+      local color = capitol.owner_color
+      local queue = { capitol }
+      local visited = { [capitol.id] = true }
+      while #queue > 0 do
+        local current = table.remove(queue, 1)
+        for _, neighbor_id in ipairs(current.neighbors or {}) do
+          local neighbor = find_by_id(nodes, neighbor_id)
+          if neighbor and neighbor.owner_color == color and not visited[neighbor.id] then
+            neighbor.is_supplied = true
+            visited[neighbor.id] = true
+            table.insert(queue, neighbor)
+          end
+        end
+      end
+    end
+  end
+
+  -- 4. Cascade collapse: unsupplied owned non-capitol nodes revert to
+  -- Unclaimed (skip fealty-locked nodes — permanently supplied)
+  for _, node in ipairs(nodes) do
+    if not node.fealty_locked and not node.player_aligned and node.owner_color and not node.is_supplied and not node.is_capitol then
+      table.insert(logs, "SUPPLY COLLAPSE: Node [" .. (node.name or node.id) .. "] lost same-color supply line connection to its Capitol. Node reverted to Unclaimed.")
+      node.owner_color = nil
+      node.strength = 0
+      node.pressure = {}
+    end
+  end
+
+  return nodes, logs
+end
+
+function check_wilds_unlock_condition(slimes)
+  for _, slime in ipairs(slimes or {}) do
+    if slime.color == "Purple" or slime.color == "Orange" or slime.color == "Green" then
+      return true
+    end
+  end
+  return false
+end
+
+-- favors.lua — Culture Favors: procedural requests generated from real
+-- per-node pressure state. The on-ramp to Fealty.
+--
+-- Design (per SlimeWorld_Design_Rev2.md):
+--   Favors are generated after each cycle's supply/pressure simulation,
+--   reflecting the real, just-updated state of the map. A Favor targets
+--   a single node where a color is under foreign pressure. Fulfilling
+--   it via Mediation (extend existing resolver) or Disposal (sacrifice a
+--   slime) increments color_relationships toward 100%.
+--
+-- Increment values (proposed, pending Robert's review — same discipline
+-- as Stage-Make-Real's Elder breeding tax):
+--   Mediation fulfillment: +5  (slow, quiet path)
+--   Disposal fulfillment:  +15 (stronger, costs a real slime)
+--   Fealty triggers at:     100
+--
+-- §2c design choice: Extend Mediation (option a). Mediation already
+-- targets a single node with a party of slimes — a Favor maps 1:1 to a
+-- node. On successful Mediation of a node with an active Favor, also
+-- reduce pressure and increment color_relationships. This reuses
+-- tested code with a minimal extension rather than building a parallel
+-- resolution system.
+
+local FAVOR_CAP = 4
+local FAVOR_PRESSURE_THRESHOLD = 20
+local MEDIATION_FAVOR_INCREMENT = 5
+local DISPOSAL_FAVOR_INCREMENT = 15
+local FEALTY_THRESHOLD = 100
+
+function generate_favors(nodes, existing_favors)
+  if #existing_favors >= FAVOR_CAP then return existing_favors end
+  local favors = {}
+  for _, f in ipairs(existing_favors) do table.insert(favors, f) end
+  for _, node in ipairs(nodes or {}) do
+    if #favors >= FAVOR_CAP then break end
+    if not node.fealty_locked and not node.player_aligned and node.owner_color then
+      for pressure_color, amount in pairs(node.pressure or {}) do
+        if pressure_color ~= node.owner_color and amount >= FAVOR_PRESSURE_THRESHOLD then
+          local exists = false
+          for _, f in ipairs(favors) do
+            if f.node_id == node.id then exists = true break end
+          end
+          if not exists then
+            table.insert(favors, {
+              id = "favor_" .. os.time() .. "_" .. math.random(1000),
+              owner_color = node.owner_color,
+              node_id = node.id,
+              node_name = node.name or node.id,
+              pressure_color = pressure_color,
+              pressure_amount = amount,
+            })
+          end
+          break
+        end
+      end
+    end
+  end
+  return favors
+end
+
+function find_favor_for_node(favors, node_id)
+  for _, f in ipairs(favors or {}) do
+    if f.node_id == node_id then return f end
+  end
+  return nil
+end
+
+function fulfill_favor_via_mediation(state, node, favor)
+  local owner_color = favor.owner_color
+  local pressure_color = favor.pressure_color
+  if node.pressure and node.pressure[pressure_color] then
+    node.pressure[pressure_color] = math.max(0, node.pressure[pressure_color] - 30)
+  end
+  if not state.color_relationships then state.color_relationships = {} end
+  local current = state.color_relationships[owner_color] or 0
+  if current < FEALTY_THRESHOLD then
+    state.color_relationships[owner_color] = math.min(FEALTY_THRESHOLD, current + MEDIATION_FAVOR_INCREMENT)
+  end
+  for i, f in ipairs(state.favors or {}) do
+    if f.id == favor.id then
+      table.remove(state.favors, i)
+      break
+    end
+  end
+  return true
+end
+
+function resolve_disposal(state, slime_id, favor_id)
+  local slime = find_by_id(state.slimes, slime_id)
+  if slime == nil then return false, "Slime not found" end
+  local favor = nil
+  for _, f in ipairs(state.favors or {}) do
+    if f.id == favor_id then favor = f break end
+  end
+  if favor == nil then return false, "Favor not found" end
+  for i, s in ipairs(state.slimes) do
+    if s.id == slime_id then
+      table.remove(state.slimes, i)
+      break
+    end
+  end
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, favor.node_id)
+  if node and node.pressure then
+    for color, _ in pairs(node.pressure) do
+      if color ~= node.owner_color then
+        node.pressure[color] = 0
+      end
+    end
+  end
+  if not state.color_relationships then state.color_relationships = {} end
+  local current = state.color_relationships[favor.owner_color] or 0
+  if current < FEALTY_THRESHOLD then
+    state.color_relationships[favor.owner_color] = math.min(FEALTY_THRESHOLD, current + DISPOSAL_FAVOR_INCREMENT)
+  end
+  for i, f in ipairs(state.favors or {}) do
+    if f.id == favor_id then
+      table.remove(state.favors, i)
+      break
+    end
+  end
+  return state, nil
+end
+
+function check_fealty_transition(state)
+  local transitions = {}
+  if not state.color_relationships then return transitions end
+  for color, rel in pairs(state.color_relationships) do
+    if rel >= FEALTY_THRESHOLD then
+      local nodes = state.planet_region and state.planet_region.nodes or {}
+      for _, node in ipairs(nodes) do
+        if node.owner_color == color and not node.fealty_locked then
+          node.fealty_locked = true
+          node.player_aligned = true
+          node.strength = 1.0
+          node.pressure = {}
+          table.insert(transitions, {
+            color = color,
+            node_id = node.id,
+            node_name = node.name or node.id,
+          })
+        end
+      end
+    end
+  end
+  return transitions
+end
+
+
+-- regionlock.lua — Region Lock-Down resolution
+-- Checks a bred slime's genetics against region_locks data.
+-- On match, marks the region permanently unlocked in state.region_unlocks.
+-- Reuses match_color_target, match_shape_target, find_accent_type,
+-- find_accent_intensity, find_metallic_accent from breeding.lua.
+
+-- Check if a region is already unlocked (permanence: once unlocked, never re-locked).
+function is_region_unlocked(state, node_id)
+  if state.region_unlocks == nil then return false end
+  return state.region_unlocks[node_id] == true
+end
+
+-- Check if a node is a free Capitol (always accessible, no lock needed).
+function is_capitol_node(node)
+  return node ~= nil and node.is_capitol == true
+end
+
+-- Check if a target node is accessible: either unlocked, a capitol, or has no lock.
+function is_node_accessible(state, node_id, region_locks)
+  local node = find_by_id(state.planet_region and state.planet_region.nodes, node_id)
+  if node == nil then return false, "Node not found" end
+  if is_capitol_node(node) then return true, nil end
+  if is_region_unlocked(state, node_id) then return true, nil end
+  -- Check if this node even has a region lock
+  if region_locks ~= nil then
+    for _, lock in ipairs(region_locks) do
+      if lock.node_id == node_id then return false, "Region is locked" end
+    end
+  end
+  -- No lock entry means no restriction
+  return true, nil
+end
+
+-- Check if a slime's accent matches any of the required accent target IDs.
+-- For diffusion-type locks: check find_accent_type (excludes Metallic).
+-- For amplitude-type locks: check find_accent_intensity (excludes Metallic).
+-- For metallic-type locks: check find_metallic_accent (dual-axis).
+function check_accent_match(slime, lock, accent_targets)
+  if accent_targets == nil then return false end
+  local diffusion = slime.diffusion_ratio or 0
+  local amplitude = slime.amplitude or 0
+  if lock.accent_type == "metallic" then
+    local match = find_metallic_accent(accent_targets, diffusion, amplitude)
+    return match ~= nil
+  end
+  for _, target_id in ipairs(lock.accent_target_ids or {}) do
+    for _, target in ipairs(accent_targets) do
+      if target.id == target_id then
+        if lock.accent_type == "diffusion" then
+          if target.diffusion_min ~= nil and diffusion >= target.diffusion_min and diffusion <= target.diffusion_max then
+            return true
+          end
+        elseif lock.accent_type == "amplitude" then
+          if target.amplitude_min ~= nil and amplitude >= target.amplitude_min and amplitude <= target.amplitude_max then
+            return true
+          end
+        end
+      end
+    end
+  end
+  return false
+end
+
+-- Check if a slime's shape matches a given shape tier.
+function check_shape_tier_match(slime, shape_tier, shape_targets)
+  if shape_tier == nil then return true end -- No shape requirement
+  if shape_targets == nil then return false end
+  local matched_id = match_shape_target(slime.vertex_count or 4, slime.irregularity or 10, shape_targets)
+  if matched_id == nil then return false end
+  for _, target in ipairs(shape_targets) do
+    if target.id == matched_id and target.tier == shape_tier then
+      return true
+    end
+  end
+  return false
+end
+
+-- Check Convergence prerequisites: all 17 other non-capitol regions must be unlocked.
+function check_convergence_prerequisites(state, lock)
+  if lock.prerequisites == nil then return true end
+  for _, prereq_node_id in ipairs(lock.prerequisites) do
+    if not is_region_unlocked(state, prereq_node_id) then
+      return false
+    end
+  end
+  return true
+end
+
+-- Check a single bred slime against a single region lock.
+-- Returns true if the slime matches all components of the lock.
+function check_slime_against_lock(slime, lock, color_targets, shape_targets, accent_targets, state)
+  -- Convergence: no color/shape requirement, but needs prerequisites + Metallic accent
+  if lock.accent_type == "metallic" then
+    if not check_convergence_prerequisites(state, lock) then return false end
+    return check_accent_match(slime, lock, accent_targets)
+  end
+  -- Standard lock: color target + shape tier + accent band
+  local color_match = false
+  if lock.color_target_id ~= nil and color_targets ~= nil then
+    local matched_id = match_color_target(slime.hue or 0, slime.saturation or 0, color_targets)
+    color_match = (matched_id == lock.color_target_id)
+  end
+  local shape_match = check_shape_tier_match(slime, lock.shape_tier, shape_targets)
+  local accent_match = check_accent_match(slime, lock, accent_targets)
+  return color_match and shape_match and accent_match
+end
+
+-- Check a newly bred slime against all region locks.
+-- If any match, mark those regions as permanently unlocked.
+-- Returns the list of newly unlocked node_ids.
+function check_region_unlocks(state, slime, region_locks, color_targets, shape_targets, accent_targets)
+  if region_locks == nil then return {} end
+  if state.region_unlocks == nil then state.region_unlocks = {} end
+  local newly_unlocked = {}
+  for _, lock in ipairs(region_locks) do
+    -- Skip already-unlocked regions (permanence: no re-locking, no duplicate work)
+    if not is_region_unlocked(state, lock.node_id) then
+      if check_slime_against_lock(slime, lock, color_targets, shape_targets, accent_targets, state) then
+        state.region_unlocks[lock.node_id] = true
+        table.insert(newly_unlocked, lock.node_id)
+      end
+    end
+  end
+  return newly_unlocked
+end
+
+
+function check_level_up(slime, color_specs)
+  while (slime.xp or 0) >= 100 do
+    slime.xp = (slime.xp or 0) - 100
+    slime.level = (slime.level or 1) + 1
+    slime.stats = calculate_stats(slime.color, slime.level, slime.hue, slime.saturation, slime.vertex_count, slime.irregularity, color_specs)
+  end
+end
+
+-- Stage cycle thresholds — FIRST-PASS PLACEHOLDER, not derived from real
+-- playtesting data. Flagged per this project's standing discipline for
+-- un-validated numbers (same treatment already given to Boon pricing,
+-- enemy HP bands, and Balance Checker windows elsewhere in the studio).
+-- Pending Robert's review before being treated as locked.
+local STAGE_THRESHOLDS = {
+  { stage = "Hatchling", min_cycles = 0 },
+  { stage = "Juvenile",  min_cycles = 5 },
+  { stage = "Young",     min_cycles = 15 },
+  { stage = "Prime",     min_cycles = 30 },
+  { stage = "Veteran",   min_cycles = 60 },
+  { stage = "Elder",     min_cycles = 100 },
+}
+
+-- Stage is a function of cycles-in-service (current_cycle - created_at),
+-- deliberately NOT level/xp — aging is a clock independent of how hard a
+-- slime has been worked.
+function compute_stage(current_cycle, created_at)
+  local cycles_alive = (current_cycle or 0) - (created_at or 0)
+  local result = "Hatchling"
+  for _, entry in ipairs(STAGE_THRESHOLDS) do
+    if cycles_alive >= entry.min_cycles then
+      result = entry.stage
+    end
+  end
+  return result
+end
+
+function advance_cycle(state, color_specs)
+  state.cycle = (state.cycle or 0) + 1
+
+  -- Recompute lifecycle Stage for every roster slime based on real cycles
+  -- in service. created_at defaults to the current cycle if missing (new
+  -- or legacy-unset slimes start as Hatchling rather than aging instantly).
+  for _, slime in ipairs(state.slimes or {}) do
+    slime.stage = compute_stage(state.cycle, slime.created_at or state.cycle)
+  end
+
+  -- Expire contracts
+  for _, contract in ipairs(state.contracts or {}) do
+    contract.cycles_remaining = contract.cycles_remaining - 1
+  end
+  for index = #(state.contracts or {}), 1, -1 do
+    if state.contracts[index].cycles_remaining <= 0 then table.remove(state.contracts, index) end
+  end
+
+  -- Spawn new contracts (65% chance, cap 4, minimum 2)
+  local contracts = state.contracts or {}
+  if #contracts < 4 and (math.random() < 0.65 or #contracts < 2) then
+    table.insert(contracts, generate_contract(state.cycle))
+  end
+  state.contracts = contracts
+
+  for index = #(state.petitions or {}), 1, -1 do
+    if state.petitions[index].expires_cycle < state.cycle then table.remove(state.petitions, index) end
+  end
+
+  -- Spawn new wanderer petitions (deterministic, up to WANDERER_REQUEST_MAX)
+  if #(state.petitions or {}) < WANDERER_REQUEST_MAX then
+    local new_petition = create_wanderer_petition(state.cycle, state.petitions or {})
+    if new_petition ~= nil then
+      state.petitions = state.petitions or {}
+      table.insert(state.petitions, new_petition)
+    end
+  end
+
+  -- Dual logging: deterministic cycle log + 45% chance flavor log
+  if state.logs == nil then state.logs = {} end
+  table.insert(state.logs, {
+    id = "log_cycle_" .. os.time(),
+    cycle = state.cycle,
+    text = "CYCLE ADVANCED: Lab cycle " .. state.cycle .. " initiated. All energy cells replenished.",
+    type = "system",
+  })
+  if math.random() < 0.45 then
+    table.insert(state.logs, get_random_melancholic_log(state.cycle))
+  end
+
+  -- Worker income
+  local nodes = state.planet_region and state.planet_region.nodes or {}
+  for _, slime in ipairs(state.slimes or {}) do
+    if slime.locked_role == "worker" then
+      state.credits = (state.credits or 0) + calculate_worker_income(slime, state.has_auto_feeder == true, nodes)
+    end
+  end
+
+  -- Capitol hardening bonus
+  for _, node in ipairs(nodes) do
+    if has_secure_capitol_garrison(state, node) and is_capitol_hardened(node, nodes) then
+      state.credits = (state.credits or 0) + 15
+    end
+  end
+
+  -- Fealty transitions BEFORE pressure sim: 100% relationship locks nodes to player_aligned
+  for _, t in ipairs(check_fealty_transition(state)) do
+    table.insert(state.logs, { id = "log_fealty_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
+      text = "FEALTY: [" .. (t.node_name or t.node_id) .. "] has sworn permanent loyalty. " .. t.color .. " territory joined your domain — the pressure simulation releases its hold.", type = "system" })
+  end
+
+  -- Planet territory simulation: supply/pressure, flips, revolts, cascade collapse
+  local region = state.planet_region
+  if region and region.nodes and #region.nodes > 0 then
+    local sim_nodes, sim_logs = update_planet_supply_and_pressure(region.nodes)
+    region.nodes = sim_nodes
+    for _, sim_log in ipairs(sim_logs) do
+      table.insert(state.logs, { id = "log_sim_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle, text = sim_log, type = "system" })
+    end
+
+    -- Stray generation on node flips: parse sim_logs for TERRITORY FLIP entries
+    local slimes = state.slimes or {}
+    for _, sim_log in ipairs(sim_logs) do
+      if string.find(sim_log, "TERRITORY FLIP:") then
+        local new_color = string.match(sim_log, "to (%a+)%.")
+        if new_color and #slimes < (state.roster_cap or 8) then
+          local stray = create_seed_slime(new_color, "Solid", color_specs)
+          stray.id = "stray_flip_" .. os.time() .. "_" .. math.random(1000)
+          stray.locked_role = "worker"
+          stray.name = "Refugee " .. stray.name
+          table.insert(slimes, stray)
+          table.insert(state.logs, { id = "log_stray_flip_" .. os.time() .. "_" .. math.random(1000), cycle = state.cycle,
+            text = "STRAY DETECTION: A stray " .. new_color .. " refugee fled the conflict zone and arrived at containment. lockedRole assigned to WORKER.", type = "combat" })
+        end
+      end
+    end
+    state.slimes = slimes
+  end
+
+  -- Generate Culture Favors from just-updated node pressure state
+  state.favors = generate_favors(state.planet_region and state.planet_region.nodes or {}, state.favors or {})
+
+  -- Resolve active exploration
+  if state.active_exploration and state.active_exploration.status == "active" then
+    local exploration = state.active_exploration
+    local region = state.planet_region
+    local target_node = nil
+    if region and region.nodes then
+      for _, node in ipairs(region.nodes) do
+        if node.id == exploration.target_node_id then target_node = node break end
+      end
+    end
+
+    local scout_power = 0
+    local party = {}
+    for _, id in ipairs(exploration.slime_ids or {}) do
+      for _, slime in ipairs(state.slimes or {}) do
+        if slime.id == id then
+          table.insert(party, slime)
+          scout_power = scout_power + (slime.stats.int or 0) + (slime.stats.agi or 0)
+          break
+        end
+      end
+    end
+
+    local success = false
+    if target_node and #party > 0 then
+      local target_power = 40 + math.floor((target_node.strength or 0) * 60 + 0.5)
+      if target_power < 1 then target_power = 60 end
+      local ratio = scout_power / target_power
+      local chance
+      if ratio > 1 then chance = 0.85 + (ratio - 1) * 0.1 else chance = 0.2 + ratio * 0.6 end
+      chance = math.min(0.98, math.max(0.15, chance))
+      success = math.random() <= chance
+
+      if success and region and region.nodes then
+        for _, node in ipairs(region.nodes) do
+          if node.id == exploration.target_node_id then node.discovered = true break end
+        end
+      end
+    end
+
+    -- Award XP and return scouts to idle
+    for _, slime in ipairs(state.slimes or {}) do
+      for _, id in ipairs(exploration.slime_ids or {}) do
+        if slime.id == id then
+          slime.xp = (slime.xp or 0) + (success and 45 or 20)
+          check_level_up(slime, color_specs)
+          slime.role = "idle"
+          break
+        end
+      end
+    end
+
+    table.insert(state.logs, {
+      id = "log_exp_res_" .. os.time(),
+      cycle = state.cycle,
+      text = "EXPLORATION CONCLUDED: Scouting expedition at [" .. (target_node and target_node.name or "unknown") .. "] resolved. " .. (success and "Sector revealed." or "Mission failed."),
+      type = "corporate",
+    })
+
+    state.active_exploration = nil
+  end
+
+  -- Resolve active mediation
+  if state.active_mediation and state.active_mediation.status == "active" then
+    local mediation = state.active_mediation
+    local node = find_by_id(state.planet_region and state.planet_region.nodes, mediation.target_node_id)
+    local party = select_slimes(state.slimes, mediation.slime_ids)
+
+    if #party == 0 then
+      -- empty party: abort with no stability change
+    elseif node ~= nil then
+      local total_chm = 0
+      for _, slime in ipairs(party) do
+        total_chm = total_chm + (slime.stats and slime.stats.chm or 0)
+      end
+      local strength = node.strength or 0
+      local target_power = 40 + (strength > 0 and math.floor((1 - strength) * 60 + 0.5) or 35)
+      local ratio = target_power > 0 and (total_chm / target_power) or 0
+      local chance
+      if ratio > 1 then chance = 0.85 + (ratio - 1) * 0.1
+      else chance = 0.2 + ratio * 0.6 end
+      chance = math.min(0.98, math.max(0.15, chance))
+
+      local success = math.random() <= chance
+      local stability_change
+      if success then
+        stability_change = math.floor(15 + total_chm / 6 + math.random() * 8)
+      else
+        stability_change = math.floor(5 + math.random() * 5)
+      end
+      node.strength = math.min(1, strength + stability_change / 100)
+
+      -- Favor fulfillment via Mediation (§2c option a: extend existing
+      -- resolver). On successful mediation of a node with an active Favor,
+      -- also reduce foreign pressure and increment color_relationships.
+      if success then
+        local favor = find_favor_for_node(state.favors, node.id)
+        if favor then
+          fulfill_favor_via_mediation(state, node, favor)
+          table.insert(state.logs, {
+            id = "log_favor_med_" .. os.time(),
+            cycle = state.cycle,
+            text = "FAVOR FULFILLED: Cultural favor for " .. favor.owner_color .. " at [" .. (node.name or node.id) .. "] resolved via mediation. Relationship strengthened.",
+            type = "corporate",
+          })
+        end
+      end
+
+      table.insert(state.logs, {
+        id = "log_med_res_" .. os.time(),
+        cycle = state.cycle,
+        text = "MEDIATION CONCLUDED: Diplomatic mission at [" .. (node.name or node.id) .. "] resolved. " .. (success and "Stability restored." or "Progress made, though tensions remain."),
+        type = "corporate",
+      })
+    end
+
+    for _, slime in ipairs(party) do slime.locked_role = nil end
+    state.active_mediation = nil
+  end
+
+  -- Resolve active dispatch
+  if state.active_dispatch and state.active_dispatch.status == "active" then
+    local dispatch = state.active_dispatch
+    local zone = find_by_id(state.zones, dispatch.zone_id)
+    local party = select_slimes(state.slimes, dispatch.slime_ids)
+
+    if #party == 0 or zone == nil then
+      dispatch.status = "completed"
+      dispatch.result = { success = false, xp_gained = 0, credits_gained = 0 }
+    else
+      local combat_rating = 0
+      for _, slime in ipairs(party) do
+        local match_bonus = (slime.color == zone.requiredColor) and 2.0 or 1.0
+        combat_rating = combat_rating + (slime.level * 10 + (slime.stats.hp or 0) / 15 + (slime.stats.atk or 0) + (slime.stats.def or 0)) * match_bonus
+      end
+      local power_target = zone.recommendedLevel * 30 + zone.difficulty * 25
+      local ratio = power_target > 0 and (combat_rating / power_target) or 0
+      local chance
+      if ratio > 1 then chance = 0.85 + (ratio - 1) * 0.1
+      else chance = 0.2 + ratio * 0.6 end
+      chance = math.min(0.98, math.max(0.1, chance))
+
+      local success = math.random() <= chance
+      local xp, credits, unlocked = 0, 0, nil
+      if success then
+        xp = zone.xpReward
+        credits = zone.creditsReward
+        if not zone.isFirstClearCompleted then
+          zone.isFirstClearCompleted = true
+          if zone.id == "zone_cinder" then unlocked = "zone_sulphur"
+          elseif zone.id == "zone_sulphur" then unlocked = "zone_abyssal"
+          elseif zone.id == "zone_abyssal" then unlocked = "zone_jungle" end
+        end
+      else
+        xp = 15
+      end
+
+      for _, slime in ipairs(state.slimes or {}) do
+        for _, id in ipairs(dispatch.slime_ids or {}) do
+          if slime.id == id then
+            slime.xp = (slime.xp or 0) + xp
+            check_level_up(slime, color_specs)
+            slime.role = "idle"
+            break
+          end
+        end
+      end
+
+      state.credits = (state.credits or 0) + credits
+
+      if unlocked then
+        for _, z in ipairs(state.zones or {}) do
+          if z.id == unlocked then z.isUnlocked = true break end
+        end
+      end
+
+      dispatch.status = "completed"
+      dispatch.result = { success = success, xp_gained = xp, credits_gained = credits, unlocked_zone_id = unlocked }
+    end
+
+    for _, slime in ipairs(party) do slime.locked_role = nil end
+  end
+
+  -- Wilds unlock check
+  if not state.wilds_unlocked and check_wilds_unlock_condition(state.slimes) then
+    state.wilds_unlocked = true
+    table.insert(state.logs, {
+      id = "log_wilds_unlock_" .. os.time(),
+      cycle = state.cycle,
+      text = "PLANETARY TELEMETRY: Secondary color genetic signature detected in containment cells. Ring-2 [The Wilds] region orbital connection established!",
+      type = "system",
+    })
+  end
+
+  -- Prune recent_market_sales to 5-cycle window
+  local kept_sales = {}
+  for _, record in ipairs(state.recent_market_sales or {}) do
+    if record.cycle >= state.cycle - 4 then table.insert(kept_sales, record) end
+  end
+  state.recent_market_sales = kept_sales
+
+  return state
+end

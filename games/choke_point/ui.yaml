@@ -1,0 +1,31 @@
+layout_tree:
+  - id: header
+    type: row
+    height: 60
+    children:
+      - id: title
+        type: text
+        content: "CHOKE POINT"
+
+  - id: main_content
+    type: row
+    flex: 1
+    children:
+      - id: left_panel
+        type: column
+        flex: 1
+        children:
+          - id: round_display
+            type: text
+            content: "Round {round} / Wave {wave}"
+          - id: hp_display
+            type: stat_display
+            label: Core HP
+            value: "{core_hp}"
+          - id: energy_display
+            type: stat_display
+            label: Energy
+            value: "{energy}"
+          - id: commit_button
+            type: action_button
+            label: Commit Turn

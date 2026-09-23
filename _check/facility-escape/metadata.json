@@ -1,0 +1,6 @@
+{
+  "name": "Facility Escape",
+  "description": "A turn-based puzzle prototype testing property-based physical interaction rules and telecasted guard sightlines.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

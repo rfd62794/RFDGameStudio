@@ -1,0 +1,20 @@
+name: scribe
+role: "Read git diff, draft journal entry summarizing what changed this session."
+department: memory
+model_preference: local
+backend_override: null
+prompts:
+  system: docs/agents/prompts/scribe_system.md
+  fewshot: docs/agents/prompts/scribe_fewshot.md
+schema: ScribeDraft
+fallback:
+  session_id: "S000"
+  session_date: "1970-01-01"
+  test_floor: 0
+  summary: "[FALLBACK — could not draft journal entry]"
+  committed: []
+  tasks_completed: []
+  tasks_added: []
+  confidence: "low"
+save_output: true
+log_quality: true

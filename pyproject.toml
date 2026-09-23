@@ -1,0 +1,56 @@
+[project]
+name = "rfdgamestudio"
+version = "0.1.0"
+description = "A game definition format and multi-runtime contract."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = "==3.12.*"
+
+dependencies = [
+    "lupa>=2.0",
+    "pyyaml>=6.0",
+    "fastapi>=0.111.0",
+    "uvicorn>=0.29.0",
+    "mcp>=1.0.0,<2",
+    "pygame>=2.5",
+    "pygame_gui>=0.6.9,<0.6.10",
+    "playwright>=1.61.0",
+    "itch-publisher",
+]
+
+[tool.uv.sources]
+itch-publisher = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/itch_publisher"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-rerunfailures>=16.6.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "studio_mcp/pipeline_audit/tests", "studio_mcp/zip_verify/tests", "packages/itch_publisher/tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "e2e: L3 headless playthrough smoke tests — real browser, real dev server (deselect with '-m \"not e2e\"')",
+    "shared: engine-level / studio-mcp-tooling tests that must run regardless of which game changed (see docs/gdd/TEST_SUITE_CLASSIFICATION.md)",
+    "brewfield: Brewfield-specific tests",
+    "chimera_wilds: Chimera Wilds-specific tests",
+    "dissonance: Dissonance Depths-specific tests",
+    "scrapcrawl: ScrapCrawl-specific tests",
+    "shoal: Shoal-specific tests",
+    "slimeworld: SlimeWorld-specific tests",
+    "slither_rogue: Slither Rogue-specific tests",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["studio", "studio_mcp"]
+
+[project.scripts]
+studio-mcp = "studio_mcp.server:asgi_app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

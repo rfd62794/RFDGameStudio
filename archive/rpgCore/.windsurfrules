@@ -1,0 +1,216 @@
+# DGT Platform - Sovereign Rule Hierarchy
+# Immutable Kernel for Architectural Guardrails
+
+## 🏆 PRIME DIRECTIVE
+# This file is the ABSOLUTE AUTHORITY for all DGT Platform development.
+# Every action must be validated against these rules.
+# Violations are CRITICAL ARCHITECTURAL VIOLATIONS that must halt work.
+
+---
+
+## 🎯 THREE-TIER ARCHITECTURE ENFORCEMENT
+
+### Tier 1: Foundation Layer (Shared Components)
+- **Location**: `pyproject.toml`, `requirements.txt`, core infrastructure
+- **RULE**: CANNOT import from Tier 2 or Tier 3
+- **Components**: Type systems, validation, logging, configuration
+- **Violation**: Any import from `src/engines/`, `src/ui/`, genre-specific systems
+
+### Tier 2: Engine Layer (Shared Systems)  
+- **Location**: `src/dgt_core/`, `src/core/`, shared engines
+- **RULE**: CANNOT import from Tier 3 (Application Layer)
+- **Components**: Semantic engine, narrative engine, game state, rendering
+- **Violation**: Any import from genre-specific RPG, space, or narrative systems
+
+### Tier 3: Application Layer (Genre-Specific)
+- **Location**: `src/engines/dd_engine.py`, `src/survival_game.py`, etc.
+- **RULE**: CAN import from Tier 1 and Tier 2 only
+- **Components**: RPG mechanics, space combat, specific game logic
+
+---
+
+## 🔧 INTERFACE DEFINITION MANDATE (Phase 1 Recovery)
+
+### Protocol First Policy
+- **RULE**: No new implementations without Protocol definition
+- **Location**: All protocols in `src/interfaces/`
+- **Naming**: `ComponentNameProtocol` (e.g., `EngineProtocol`, `RenderProtocol`)
+- **Violation**: Adding concrete classes without corresponding Protocol
+
+### Abstract Base Class Requirements
+- **RULE**: All engines must inherit from appropriate ABC
+- **Location**: `src/abc/base.py`
+- **Methods**: `initialize()`, `shutdown()`, `get_state()` required
+- **Violation**: Direct concrete class instantiation without ABC inheritance
+
+### Dependency Injection Enforcement
+- **RULE**: All dependencies must be injected through constructors
+- **Container**: `src/di/container.py` for resolution
+- **Violation**: Hard-coded imports or direct instantiation in business logic
+
+---
+
+## 📟 RESULT[T] PATTERN MANDATE
+
+### Error Handling Standardization
+- **RULE**: All core engine methods must return `Result[T]` or `ValidationResult`
+- **Prohibited**: Raw `try/except` blocks for core logic flow
+- **Template**:
+```python
+@dataclass
+class Result[T]:
+    success: bool
+    value: Optional[T] = None
+    error: Optional[str] = None
+
+def process_intent(self, intent: Intent) -> Result[GameState]:
+    try:
+        # Core logic here
+        return Result(success=True, value=new_state)
+    except Exception as e:
+        return Result(success=False, error=str(e))
+```
+
+### Exception Hierarchy
+- **Location**: `src/exceptions/core.py`
+- **Base**: `DGTException` for all custom exceptions
+- **Specialized**: `StateException`, `EngineException`, `RenderException`
+- **Violation**: Throwing raw `Exception` without custom hierarchy
+
+---
+
+## 🧬 DEBT MANAGEMENT PROTOCOL
+
+### TODO/FIXME/HACK Resolution
+- **RULE**: Every file modified must resolve at least 1 TODO marker
+- **Tracking**: Update `docs/production/MANIFEST.md` with debt reduction
+- **Target**: Reduce from 576 to <50 TODOs (90% reduction)
+- **Violation**: Adding new TODOs without resolving existing ones
+
+### Circular Dependency Prevention
+- **RULE**: Perform circular dependency check before any new import
+- **Tools**: Use `src/tools/dependency_checker.py`
+- **Resolution**: Refactor to Protocol in `src/interfaces/`
+- **Violation**: Introducing circular imports between tiers
+
+---
+
+## 🌌 FIXED-POINT RENDERING STANDARD (ADR 192)
+
+### Sovereign Resolution Mandate
+- **RULE**: All rendering strategies must output to 160×144 logical buffer
+- **Location**: `src/dgt_core/engines/body/unified_ppu.py` implements standard
+- **Validation**: `scripts/validate_sovereign_constraints.py` enforces compliance
+- **Violation**: Any rendering outside sovereign resolution
+
+### Constraint-Driven Engineering
+- **Miyoo Mini**: Hardware parity forces clean code optimization
+- **Game Boy Style**: 1-bit/2-bit logic focuses attention on physics and narrative
+- **Fixed-Point Reality**: Mathematical parity across all deployment targets
+
+### Physical Upscaling
+- **UnifiedPPU**: Handles physical scaling (1x for handheld, 4x for desktop)
+- **Deterministic Behavior**: Collision detection identical across platforms
+- **Performance**: If it runs on 1.2GHz ARM, it's optimized on i9
+
+### Type Safety Requirements
+- **RULE**: 100% type hint coverage on all public APIs
+- **Tools**: mypy with strict configuration
+- **Validation**: Runtime type checking with `typeguard`
+- **Violation**: Untyped function parameters or return values
+
+### Performance Standards
+- **Boot Time**: <5ms (maintain current achievement)
+- **Turn-Around**: <300ms (maintain current achievement)  
+- **Memory**: <100MB total usage
+- **Violation**: Performance regression in core metrics
+
+### Testing Requirements
+- **RULE**: All new components must have contract tests
+- **Coverage**: 95% minimum test coverage
+- **Types**: Unit, integration, and property-based tests
+- **Violation**: Committing untested code to core systems
+
+---
+
+## 🎬 SKEPTICAL AUDITOR MODE
+
+### Code Review Standards
+- **Primary Metric**: "Is it hardened?" not "Does it run?"
+- **Focus**: Edge cases, type safety, error handling
+- **Gatekeeping**: Block commits that violate architectural rules
+
+### Infrastructure Overhead Analysis
+- **Memory**: Track component memory usage
+- **Performance**: Profile critical path execution
+- **Dependencies**: Minimize import overhead
+- **Violation**: Adding components without resource analysis
+
+---
+
+## 🚀 PHASE 1 P0 PRIORITIES (Current Focus)
+
+1. **Protocol Definitions in `src/interfaces/`**
+   - `EngineProtocol` for all engine implementations
+   - `RenderProtocol` for all rendering systems  
+   - `StateProtocol` for state management
+   - `DIProtocol` for dependency injection
+
+2. **Dependency Injection Container**
+   - `src/di/container.py` implementation
+   - Registration and resolution methods
+   - Lifecycle management (initialize/shutdown)
+
+3. **Exception Hierarchy & Result Pattern**
+   - `src/exceptions/core.py` complete hierarchy
+   - `Result[T]` pattern implementation
+   - Migration of existing error handling
+
+---
+
+## 🍿 SESSION PERSISTENCE
+
+### Manifest Updates Required
+- **Location**: `docs/production/MANIFEST.md`
+- **Triggers**: After each major refactor completion
+- **Content**: Current status, blockers, TODO reduction count
+- **Purpose**: Long-term memory across session resets
+
+### Startup Validation
+- **RULE**: Read MANIFEST.md at session start
+- **Alignment**: Verify current understanding matches latest state
+- **Blockers**: Identify and address any drift from documented state
+
+---
+
+## 🏁 CRITICAL VIOLATION RESPONSES
+
+### When Rules Are Violated:
+1. **HALT** all work immediately
+2. **FLAG** as "Critical Architectural Violation"
+3. **DOCUMENT** violation in `docs/production/VIOLATIONS.md`
+4. **ESCALATE** to lead architect review
+5. **RESOLVE** before continuing any work
+
+### Violation Categories:
+- **P0**: Tier architecture violations
+- **P1**: Missing Protocol definitions
+- **P2**: Sovereign resolution violations (160×144 constraint)
+- **P3**: Type safety violations  
+- **P4**: Performance regressions
+
+---
+
+## 🌟 ACKNOWLEDGEMENT
+
+By proceeding with any work in this repository, you acknowledge that:
+1. These rules are the absolute authority for development
+2. Violations will halt work and require formal resolution
+3. The Three-Tier Architecture is immutable
+4. The 160×144 Sovereign Resolution is non-negotiable
+5. Phase 2 Component Consolidation is the current priority
+6. The Skeptical Auditor mode governs all code quality decisions
+
+**Last Updated**: 2026-02-08 (Phase 2 - Fixed-Point Standard)  
+**Next Review**: After PPU Consolidation completion  
+**Authority**: DGT Platform Lead Architect

@@ -1,0 +1,23 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Github\rpgCore
+configfile: pyproject.toml
+collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+______________ ERROR collecting tests/unit/configuration_test.py ______________
+ImportError while importing test module 'C:\Github\rpgCore\tests\unit\configuration_test.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\cheat\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\configuration_test.py:4: in <module>
+    from game_engine.foundation.config_manager import ConfigManager
+src\game_engine\foundation\config_manager.py:9: in <module>
+    from game_engine.foundation.asset_registry import AssetRegistry
+E   ModuleNotFoundError: No module named 'game_engine.foundation.asset_registry'
+=========================== short test summary info ===========================
+ERROR tests/unit/configuration_test.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+============================== 1 error in 0.28s ===============================

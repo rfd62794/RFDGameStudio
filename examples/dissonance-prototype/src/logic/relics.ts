@@ -1,0 +1,26 @@
+import { Relic } from '../types';
+
+export const RELIC_POOL: Relic[] = [
+  { id: 'cracked_core', name: 'Cracked Core', category: 'economy',
+    description: '+1 hand size for this run.' },
+  { id: 'steadfast_ember', name: 'Steadfast Ember', category: 'safety-net',
+    description: 'Survive a lethal hit at 1 HP instead of dying, once per run.' },
+  { id: 'merchants_ledger', name: "Merchant's Ledger", category: 'economy',
+    description: 'Treasure Rooms grant +50% Essence.' },
+  { id: 'fractured_lens', name: 'Fractured Lens', category: 'info',
+    description: "Reward slots show their tier's odds before choosing." },
+  { id: 'loaded_ledger', name: 'Loaded Ledger', category: 'utility',
+    description: "Rest Or's rolled attachment is always the current Floor's weighted-favorite type." },
+  { id: 'cracked_mirror', name: 'Cracked Mirror', category: 'risk',
+    description: 'Opposed plays\' success and fail multipliers both increase by +0.25x.' },
+  { id: 'anchor_of_ash', name: 'Anchor of Ash', category: 'economy',
+    description: 'Guard actions also grant +1 Essence.' },
+  { id: 'oracles_eye', name: "Oracle's Eye", category: 'utility',
+    description: 'Automatically reveals the next branch\'s detail at every future hub for the rest of this run.' },
+  { id: 'echos_insight', name: "Echo's Insight", category: 'info', master: true,
+    description: 'Reveals one random undiscovered combination permanently, on acquisition.' },
+  { id: 'embers_momentum', name: "Ember's Momentum", category: 'synergy',
+    description: 'Burster Build: Same plays increase combo damage and build momentum.' },
+  { id: 'steadfast_ward', name: 'Steadfast Ward', category: 'synergy',
+    description: 'Steward Build: Guard actions stack defensive ward barrier and reflect damage.' },
+];

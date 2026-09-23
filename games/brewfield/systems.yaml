@@ -1,0 +1,30 @@
+engine_version: "1.0"
+engine_systems: []   # self-contained port — no shared engine system wiring
+
+systems:
+  - id: brewfield_core
+    description: "Brewfield core loop: brewing, combat resolution, residue field, deck management"
+    functions:
+      - get_relation
+      - solve_brew
+      - update_residue_field
+      - instantiate_enemy
+      - get_enemy_intent
+      - resolve_brew
+      - resolve_enemy_turn
+      - apply_residue_tick
+      - advance_hand
+      - resolve_turn
+      - init_run
+      - init_fight
+      - init_player
+
+entities:
+  player:
+    description: "Brewfield player state: hp, shield, dodge/retaliate/decaying-shield charges, burn debuff, deck/hand/draw/discard"
+    systems: [brewfield_core]
+    schema_ref: data.yaml#constants
+  enemy:
+    description: "Brewfield enemy state: archetype, hp, shield, telegraphed intent"
+    systems: [brewfield_core]
+    schema_ref: data.yaml#enemies

@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GDD Schema",
+  "description": "Schema for Game Design Documents (GDDs) in RFD Game Studio.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the GDD (e.g., 'VoidRift GDD')."
+    },
+    "game": {
+      "type": "string",
+      "description": "Game ID (e.g., 'voiddrift-redux-core-loop')."
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the GDD (e.g., '0.1')."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "complete", "deprecated"],
+      "description": "Status of the GDD."
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last updated date (YYYY-MM-DD)."
+    },
+    "core_loop": {
+      "type": "string",
+      "description": "Core gameplay loop (e.g., 'Scavenge → Upgrade → Explore → Survive')."
+    },
+    "win_condition": {
+      "type": "string",
+      "description": "Condition for winning the game."
+    },
+    "loss_condition": {
+      "type": "string",
+      "description": "Condition for losing the game."
+    },
+    "mechanics": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "List of core mechanics (e.g., 'Resource Scavenging')."
+      }
+    },
+    "theme": {
+      "type": "string",
+      "description": "Theme of the game (e.g., 'Sci-fi survival')."
+    }
+  },
+  "required": [
+    "title",
+    "game",
+    "version",
+    "status",
+    "last_updated",
+    "core_loop",
+    "win_condition",
+    "loss_condition"
+  ]
+}

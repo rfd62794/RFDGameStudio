@@ -1,0 +1,6 @@
+sentence-transformers==2.3.1
+pydantic-ai==0.0.13
+pydantic==2.6.0
+loguru==0.7.2
+rich==13.7.0
+pytest==7.4.4

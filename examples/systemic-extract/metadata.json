@@ -1,0 +1,6 @@
+{
+  "name": "Systemic Extract",
+  "description": "A 2D top-down systemic extraction sandbox with Bevy-style ECS simulation and an Abiotic Factor & SS13-inspired research and deconstruction hideout loop.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

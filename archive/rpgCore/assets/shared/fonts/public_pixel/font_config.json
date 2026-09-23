@@ -1,0 +1,39 @@
+{
+  "font_system": {
+    "version": "1.0",
+    "source": "Public Pixel Font 1.24",
+    "created": "2026-02-08"
+  },
+  "variants": {
+    "terminal_green": {
+      "sprite_sheet": "png/terminal_green.png",
+      "atlas": "atlas/terminal_green_atlas.json",
+      "color": "#00FF00",
+      "energy_threshold": 75
+    },
+    "terminal_amber": {
+      "sprite_sheet": "png/terminal_amber.png",
+      "atlas": "atlas/terminal_amber_atlas.json",
+      "color": "#FFFF00",
+      "energy_threshold": 50
+    },
+    "terminal_red": {
+      "sprite_sheet": "png/terminal_red.png",
+      "atlas": "atlas/terminal_red_atlas.json",
+      "color": "#FF0000",
+      "energy_threshold": 25
+    },
+    "ui_normal": {
+      "sprite_sheet": "png/ui_normal.png",
+      "atlas": "atlas/ui_normal_atlas.json",
+      "color": "#FFFFFF",
+      "energy_threshold": 0
+    }
+  },
+  "rendering": {
+    "char_width": 16,
+    "char_height": 16,
+    "chars_per_row": 16,
+    "scale_factor": 1.0
+  }
+}

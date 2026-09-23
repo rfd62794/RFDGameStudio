@@ -1,0 +1,20 @@
+{
+  "name": "DocumentationAgent",
+  "role": "analyzer",
+  "description": "Generates and maintains project documentation",
+  "capabilities": [
+    "generate_docs",
+    "update_readme",
+    "create_api_docs"
+  ],
+  "dependencies": [
+    "analyzer"
+  ],
+  "output_format": "documentation_report",
+  "prompt_template": "\nYou are the DocumentationAgent, responsible for Generates and maintains project documentation.\n\nYour task is to: {task}\n\nCurrent project context:\n{context}\n\n{description}\n\nFocus on practical, actionable results.\n",
+  "validation_rules": [
+    "Must be accurate",
+    "Must be actionable",
+    "Must follow best practices"
+  ]
+}

@@ -1,0 +1,59 @@
+game:
+  id: choke_point
+  name: "Choke Point"
+  version: "0.1.0"
+  studio: RFDGameStudio
+  description: >-
+    Turn-based tactical tower defense. Preview enemy pathing and attacks
+    before committing your moves to defend the core.
+
+constants:
+  grid_w: 6
+  grid_h: 5
+  core_x: 1
+  core_y: 3
+  start_core_hp: 10
+  start_energy: 10
+  turn_energy_gain: 5
+
+towers:
+  blocker:
+    type: blocker
+    name: "Barricade"
+    cost: 3
+    hp: 12
+    description: "High health wall. Blocks enemy movement."
+  turret:
+    type: turret
+    name: "Autocannon"
+    cost: 5
+    hp: 6
+    damage: 3
+    range: 3
+    description: "Deals 3 damage to the nearest enemy in its lane."
+
+waves:
+  1:
+    enemies:
+      - type: crawler
+        spawn_turn: 1
+        spawn_y: 2
+        hp: 4
+      - type: crawler
+        spawn_turn: 2
+        spawn_y: 4
+        hp: 4
+  2:
+    enemies:
+      - type: crawler
+        spawn_turn: 1
+        spawn_y: 1
+        hp: 6
+      - type: blaster
+        spawn_turn: 1
+        spawn_y: 3
+        hp: 8
+      - type: crawler
+        spawn_turn: 2
+        spawn_y: 5
+        hp: 6

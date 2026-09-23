@@ -1,0 +1,436 @@
+import { useCallback, useMemo, useState } from 'react';
+import {
+  Dices,
+  Compass,
+  Terminal,
+  Sword,
+  Shield,
+  Heart,
+  Wrench,
+  Lock,
+  ChevronRight,
+} from 'lucide-react';
+import { GameShell } from '../../components';
+import { Badge, Button, Card, EmptyState, ErrorBox, MoreGamesByMe, Panel } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
+import { useLuaCall, useGameState } from '../../hooks';
+import { navigateTo } from '../../arcade/routing';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
+import type { GameRendererProps, GameSession } from '../../engine/types';
+import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
+import './styles.css';
+
+const SLOTS: { key: GearSlot; label: string; icon: typeof Sword }[] = [
+  { key: 'weapon', label: 'WEAP', icon: Sword },
+  { key: 'shield', label: 'SHLD', icon: Shield },
+  { key: 'armor', label: 'ARMR', icon: Heart },
+];
+
+const CATALOG_ORDER = [
+  { id: 'beatStick', slot: 'weapon', icon: Sword },
+  { id: 'shield', slot: 'shield', icon: Shield },
+  { id: 'bodyArmor', slot: 'armor', icon: Heart },
+  { id: 'tool', slot: undefined, icon: Wrench },
+];
+
+function buildInitialState(session: GameSession): ScrapCrawlGameState {
+  const data = session.files.data as Record<string, unknown>;
+  const rooms = (data.rooms ?? {}) as Record<string, Room>;
+  const player = session.executor.call('init_player')[0] as PlayerState;
+  return {
+    player,
+    currentRoom: rooms[player.currentRoomId] ?? rooms.home_base,
+    combatHistory: [],
+    message: '',
+  };
+}
+
+function getCatalogName(data: Record<string, unknown>, catalogId: string): string {
+  const catalog = (data.catalog ?? {}) as Record<string, { name?: string }>;
+  return catalog[catalogId]?.name ?? catalogId;
+}
+
+function getCatalogEntry(data: Record<string, unknown>, catalogId: string) {
+  const catalog = (data.catalog ?? {}) as Record<string, {
+    name: string;
+    slot?: GearSlot;
+    tierCost: Record<string | number, number>;
+  }>;
+  return catalog[catalogId];
+}
+
+function getTierCost(entry: { tierCost: Record<string | number, number> } | undefined, tier: number): number {
+  if (!entry) return Infinity;
+  return entry.tierCost[tier] ?? entry.tierCost[String(tier)] ?? Infinity;
+}
+
+function getGrowthFactor(session: GameSession, data: Record<string, unknown>, xp: number): number {
+  try {
+    return (session.executor.call('growth_factor', data, xp)[0] as number) ?? 0.8;
+  } catch {
+    return 0.8;
+  }
+}
+
+function pushLog(prev: ScrapCrawlGameState | null, entry: string): string[] {
+  if (!prev) return [entry];
+  return [entry, ...prev.combatHistory.slice(0, 49)];
+}
+
+export default function App({ session }: GameRendererProps) {
+  const { state, setState, isInitialized } = useGameState(session, buildInitialState);
+  const { call, error } = useLuaCall(session);
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const [showTitle, setShowTitle] = useState(true);
+  const data = session.files.data as Record<string, unknown>;
+  const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
+
+  const canFight = state?.currentRoom.interaction_types?.includes('fight') ?? false;
+  const canCraft = state?.currentRoom.interaction_types?.includes('craft') ?? false;
+
+  const handleFight = useCallback(() => {
+    if (!state || !canFight) return;
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const result = call('resolve_fight', data, state.player, state.currentRoom, roll) as FightResult | null;
+    if (!result) return;
+
+    const roomName = state.currentRoom.name;
+    const log = result.won
+      ? `[WIN] ${roomName}: D20 ${result.roll} + modifier = ${result.score.toFixed(1)} vs ${result.difficulty} — gained ${result.scrapGained} scrap`
+      : `[LOSS] ${roomName}: D20 ${result.roll} + modifier = ${result.score.toFixed(1)} vs ${result.difficulty}`;
+
+    setState(prev => prev ? {
+      ...prev,
+      player: result.player,
+      lastResult: result,
+      combatHistory: pushLog(prev, log),
+      message: result.won ? 'Combat won' : 'Combat lost',
+    } : prev);
+  }, [state, canFight, call, data, setState]);
+
+  const handleMove = useCallback((roomId: string) => {
+    if (!state) return;
+    const next = call('move_player', data, state.player, roomId) as PlayerState | null;
+    if (!next) return;
+    setState(prev => prev ? {
+      ...prev,
+      player: next,
+      currentRoom: rooms[next.currentRoomId] ?? prev.currentRoom,
+      combatHistory: pushLog(prev, `[MOVE] ${prev.currentRoom.name} → ${rooms[roomId]?.name ?? roomId}`),
+      message: `Moved to ${rooms[roomId]?.name ?? roomId}`,
+    } : prev);
+  }, [state, call, data, rooms, setState]);
+
+  const handleCraft = useCallback((catalogId: string, tier?: number) => {
+    if (!state || !canCraft) return;
+    const next = call('craft', data, state.player, state.currentRoom, catalogId, tier) as PlayerState | null;
+    if (!next) return;
+    const entry = getCatalogEntry(data, catalogId);
+    const resolvedTier = catalogId === 'tool' ? 1 : (tier ?? (next.tier2Unlocked ? 2 : 1));
+    const name = entry?.name ?? catalogId;
+    setState(prev => prev ? {
+      ...prev,
+      player: next,
+      combatHistory: pushLog(prev, `[CRAFT] ${name} (Tier ${resolvedTier}) equipped`),
+      message: `Crafted ${name} Tier ${resolvedTier}`,
+    } : prev);
+  }, [state, canCraft, call, data, setState]);
+
+  if (showTitle) {
+    return (
+      <GameShell
+        gameLabel="SCRAPCRAWL"
+        gameId="scrapcrawl"
+        phase="PHASE A.1"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <TitleScreen
+          title="ScrapCrawl"
+          tagline="Room navigation · scrap economy · D20 combat"
+          pitch="Room navigation, scrap economy, craft, and D20 combat with win-only proficiency."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
+  if (!isInitialized || !state) {
+    return (
+      <GameShell
+        gameLabel="SCRAPCRAWL"
+        gameId="scrapcrawl"
+        phase="PHASE A.1"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <EmptyState message="Loading ScrapCrawl…" />
+      </GameShell>
+    );
+  }
+
+  const { player, currentRoom, lastResult, combatHistory } = state;
+
+  return (
+    <GameShell
+      gameLabel="SCRAPCRAWL"
+      gameId="scrapcrawl"
+      phase="PHASE A.1"
+      statusArea={
+        <div className="sc-header-stats">
+          <Badge label={`Scrap ${String(player.scrap).padStart(3, '0')}`} variant="accent" />
+          <Badge label={player.tier2Unlocked ? 'Tier 2 ACTIVE' : 'Tier 2 LOCKED'} variant={player.tier2Unlocked ? 'green' : 'muted'} />
+          <Badge label={`Room ${currentRoom.name}`} variant="accent" />
+          {error && <ErrorBox message={error} />}
+        </div>
+      }
+      footer={
+        <>
+          <div className="sc-footer">
+            Disposable equipment, win-only proficiency, no repair. Fight only where hostiles exist.
+          </div>
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        </>
+      }
+    >
+      <div className="sc-dashboard">
+        <div className="sc-grid">
+          {/* Left column — World Graph */}
+          <Panel className="sc-panel sc-world">
+            <h2 className="sc-panel-title"><Compass size={12} /> World Graph</h2>
+
+            <div className="sc-current-room">
+              <div className="sc-current-room-header">
+                <span className="sc-current-room-label">Current Node</span>
+                <span className="sc-current-room-id">{currentRoom.id}</span>
+              </div>
+              <div className="sc-current-room-name">{currentRoom.name}</div>
+              <div className="sc-room-tags">
+                {currentRoom.interaction_types.map(type => (
+                  <Badge
+                    key={type}
+                    label={type}
+                    variant={type === 'fight' ? 'red' : type === 'craft' ? 'amber' : 'green'}
+                  />
+                ))}
+                {currentRoom.difficulty !== undefined && (
+                  <Badge label={`DIFF ${currentRoom.difficulty}`} variant="muted" />
+                )}
+              </div>
+            </div>
+
+            <div className="sc-interact">
+              <div className="sc-interact-label">Interact Node</div>
+              <Button
+                id="scrapcrawl-fight-button"
+                className="sc-fight-button"
+                icon={<Dices size={14} />}
+                label={canFight ? 'Resolve Combat (D20)' : 'No Combat Here'}
+                onClick={handleFight}
+                disabled={!canFight}
+                title={canFight ? 'Resolve a D20 combat encounter' : 'No combat encounters detected in this node'}
+                variant="primary"
+              />
+            </div>
+
+            {lastResult && (
+              <div className="sc-last-roll">
+                <div className="sc-last-roll-header">
+                  <span>Combat Roll</span>
+                  <span className={lastResult.won ? 'sc-text-win' : 'sc-text-loss'}>
+                    {lastResult.won ? 'WIN' : 'LOSS'}
+                  </span>
+                </div>
+                <div className="sc-last-roll-body">
+                  <div>D20 Roll: <span>{lastResult.roll}</span></div>
+                  <div>Score: <span>{lastResult.score.toFixed(1)}</span> vs <span>{lastResult.difficulty}</span></div>
+                </div>
+              </div>
+            )}
+
+            <div className="sc-connections">
+              <div className="sc-interact-label">Adjacent Connections</div>
+              <div className="sc-connection-list">
+                {currentRoom.connections.map(targetId => {
+                  const target = rooms[targetId];
+                  const isFight = target?.interaction_types?.includes('fight') ?? false;
+                  return (
+                    <Button
+                      key={targetId}
+                      id={`scrapcrawl-move-${targetId}`}
+                      className="sc-connection"
+                      icon={<ChevronRight size={12} />}
+                      label={`${targetId} — ${isFight ? 'Fight' : 'Safe'}`}
+                      onClick={() => handleMove(targetId)}
+                      variant={isFight ? 'danger' : 'neutral'}
+                      size="sm"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </Panel>
+
+          {/* Center column — Equipment & Trace */}
+          <Panel className="sc-panel sc-loadout">
+            <h2 className="sc-panel-title"><Terminal size={12} /> Equipment Life & Growth</h2>
+
+            <div className="sc-equipment-table">
+              <div className="sc-equipment-row sc-equipment-header">
+                <span>Slot</span>
+                <span>Asset</span>
+                <span>Tier</span>
+                <span>Durability</span>
+                <span>Proficiency</span>
+              </div>
+              {SLOTS.map(({ key, label, icon: Icon }) => {
+                const item = player.equipped[key];
+                const ratio = item ? item.life / item.maxLife : 0;
+                const low = item ? ratio <= 0.2 || item.life === 0 : false;
+                const xp = player.proficiencyXp[key];
+                const factor = getGrowthFactor(session, data, xp);
+                return (
+                  <div key={key} className="sc-equipment-row">
+                    <span className="sc-slot-label"><Icon size={14} /> {label}</span>
+                    <span className="sc-asset-name">{item ? getCatalogName(data, item.catalogId) : 'EMPTY'}</span>
+                    <span>{item ? `T${item.tier}` : '-'}</span>
+                    <span className="sc-durability-cell">
+                      {item ? (
+                        <>
+                          <div className="sc-durability-bar">
+                            <div
+                              className={`sc-durability-fill ${low ? 'sc-durability-low' : ''}`}
+                              style={{ width: `${Math.max(0, Math.min(1, ratio)) * 100}%` }}
+                            />
+                          </div>
+                          <span className="sc-durability-text">
+                            {item.life}/{item.maxLife}
+                            {item.life === 0 && <span className="sc-broken">BROKEN</span>}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="sc-durability-empty">--/--</span>
+                      )}
+                    </span>
+                    <span className="sc-proficiency-cell">
+                      <span className="sc-proficiency-factor">x{factor.toFixed(2)}</span>
+                      <div className="sc-proficiency-bar">
+                        <div
+                          className="sc-proficiency-fill"
+                          style={{ width: `${Math.min(1, xp / 500) * 100}%` }}
+                        />
+                      </div>
+                      <span className="sc-proficiency-text">{xp} / 500</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="sc-rule">
+              <strong>Rule §2</strong> When life reaches 0, fall back to unarmed baseline. Broken state is not an error.
+            </div>
+          </Panel>
+
+          {/* Right column — Crafting Catalog */}
+          <Panel className="sc-panel sc-crafting">
+            <h2 className="sc-panel-title"><Wrench size={12} /> Crafting Catalog</h2>
+            <div className="sc-recipe-list">
+              {CATALOG_ORDER.map(({ id, slot, icon: Icon }) => {
+                const entry = getCatalogEntry(data, id);
+                const tier1Cost = getTierCost(entry, 1);
+                const tier2Cost = getTierCost(entry, 2);
+                const isTool = id === 'tool';
+                return (
+                  <Card key={id} className="sc-recipe-card">
+                    <div className="sc-recipe-header">
+                      <div>
+                        <div className="sc-recipe-name">{entry?.name ?? id}</div>
+                        <div className="sc-recipe-slot">{slot ? `${slot.toUpperCase()} SLOT` : 'ACCESS KEY'}</div>
+                      </div>
+                      <Icon size={16} className="sc-recipe-icon" />
+                    </div>
+                    <div className="sc-recipe-buttons">
+                      <Button
+                        id={`scrapcrawl-craft-${id}-1`}
+                        className="sc-craft-button"
+                        label={`Tier 1 — ${tier1Cost} Scrap`}
+                        onClick={() => handleCraft(id, 1)}
+                        disabled={!canCraft || (isTool ? player.tier2Unlocked : player.scrap < tier1Cost)}
+                        title={canCraft ? 'Craft at Home Base workbench' : 'No workbench detected in this node'}
+                        variant="primary"
+                        size="sm"
+                      />
+                      <Button
+                        id={`scrapcrawl-craft-${id}-2`}
+                        className="sc-craft-button"
+                        icon={!player.tier2Unlocked && !isTool ? <Lock size={10} /> : undefined}
+                        label={`Tier 2 — ${tier2Cost} Scrap`}
+                        onClick={() => handleCraft(id, 2)}
+                        disabled={!canCraft || (isTool ? player.tier2Unlocked : (!player.tier2Unlocked || player.scrap < tier2Cost))}
+                        title={canCraft ? 'Craft at Home Base workbench' : 'No workbench detected in this node'}
+                        variant="primary"
+                        size="sm"
+                      />
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </Panel>
+        </div>
+
+        {/* Terminal trace */}
+        <Panel className="sc-trace">
+          <h2 className="sc-panel-title"><Terminal size={12} /> Manual Trace Log</h2>
+          <div className="sc-trace-body">
+            {combatHistory.length === 0 && (
+              <EmptyState message="System loaded. Player initialized at Home Base." />
+            )}
+            {combatHistory.map((entry, i) => {
+              let modifier = 'sc-trace-info';
+              if (entry.startsWith('[WIN]')) modifier = 'sc-trace-win';
+              else if (entry.startsWith('[LOSS]')) modifier = 'sc-trace-loss';
+              else if (entry.startsWith('[CRAFT]')) modifier = 'sc-trace-craft';
+              else if (entry.startsWith('[MOVE]')) modifier = 'sc-trace-move';
+              return (
+                <div key={i} className={`sc-trace-line ${modifier}`}>
+                  {entry}
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      </div>
+    </GameShell>
+  );
+}
+

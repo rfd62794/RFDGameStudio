@@ -1,0 +1,675 @@
+import './styles.css';
+import { useEffect, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Coins } from 'lucide-react';
+import { call, getSchema } from '../../engine/runtime';
+import type { GameRendererProps, GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
+import { RuntimeError } from '../../engine/types';
+import { useCooldownTicker, useLuaCall } from '../../hooks';
+import StableTab from './components/StableTab';
+import BettingTab from './components/BettingTab';
+import BreederTab from './components/BreederTab';
+import RaceTrack from './components/RaceTrack';
+import { GameShell } from '../../components';
+import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
+import { TitleScreen } from '../../ui/components/TitleScreen';
+import { resolveViewport, buildBoundsMap, type LayoutNode } from '../../engine/ui_resolver';
+import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
+
+const SAVE_KEY = 'derby_sim_state_v1';
+
+const safeGetStorage = (key: string): string | null => {
+  try { return localStorage.getItem(key); } catch { return null; }
+};
+const safeSetStorage = (key: string, value: string): void => {
+  try { localStorage.setItem(key, value); } catch { }
+};
+
+function luaHorseToTs(raw: Record<string, unknown>): Horse {
+  return {
+    id: raw['id'] as string,
+    name: raw['name'] as string,
+    gender: (raw['gender'] as string) as 'Stallion' | 'Mare',
+    generation: raw['generation'] as number,
+    speed: raw['speed'] as number,
+    stamina: raw['stamina'] as number,
+    acceleration: raw['acceleration'] as number,
+    temperament: raw['temperament'] as number,
+    color_body: raw['color_body'] as string,
+    color_mane: raw['color_mane'] as string,
+    color_socks: raw['color_socks'] as string,
+    color_silk: raw['color_silk'] as string,
+    runs: (raw['runs'] as number) ?? 0,
+    wins: (raw['wins'] as number) ?? 0,
+    places: (raw['places'] as number) ?? 0,
+    thirds: (raw['thirds'] as number) ?? 0,
+    earnings: (raw['earnings'] as number) ?? 0,
+    cooldown_until: (raw['cooldown_until'] as number) ?? 0,
+    player_owned: (raw['player_owned'] as boolean) ?? false,
+    price: (raw['price'] as number) ?? 0,
+  };
+}
+
+function luaRaceToTs(raw: Record<string, unknown>): CurrentRace {
+  const rawParticipants = Object.values(
+    raw['participants'] as Record<string, unknown>
+  ) as Array<Record<string, unknown>>;
+
+  const participants = rawParticipants.map((p, i) => ({
+    horse: luaHorseToTs({
+      ...(p['horse'] as Record<string, unknown>),
+      player_owned: false,
+    }),
+    gate: (p['gate'] as number) ?? i + 1,
+    odds: (p['odds'] as number) ?? 4.0,
+    progress: 0,
+    current_distance: 0,
+    current_speed: 0,
+    energy: 100,
+    is_finished: false,
+  }));
+
+  return {
+    id: raw['id'] as string,
+    name: raw['name'] as string,
+    description: raw['description'] as string,
+    distance: raw['distance'] as number,
+    race_class: raw['race_class'] as string,
+    prize_pool: raw['prize_pool'] as number,
+    prize_split: Object.values(raw['prize_split'] as Record<string, number>),
+    participants,
+    status: 'scheduled',
+    ai_only: raw['ai_only'] as boolean ?? false,
+  };
+}
+
+function buildInitialState(session: GameSession): GameState {
+  const data = session.files.data as Record<string, unknown>;
+  const stable = data['stable'] as Record<string, unknown>;
+  const funds = (stable['starting_funds'] as number) ?? 1000;
+  const starterHorses = data['starter_horses'] as Array<Record<string, unknown>>;
+  const horses: Horse[] = (starterHorses ?? []).map(h => luaHorseToTs(h));
+  return { funds, horses, current_race: null, race_history: [], emergency_grant_shown: false };
+}
+
+function buildRace(session: GameSession, playerHorses: Horse[], horseId?: string): CurrentRace | null {
+  const data = session.files.data as Record<string, unknown>;
+  const playerHorse = (horseId ? playerHorses.find(h => h.id === horseId) : null)
+    ?? playerHorses.find(h => h.cooldown_until < Date.now())
+    ?? playerHorses[0];
+  if (!playerHorse) return null;
+
+  const result = call(session, 'create_race', playerHorse, data) as unknown;
+  const resultArr = Array.isArray(result) ? result : [result, null];
+  const raceObj = resultArr[0] as Record<string, unknown> | null;
+  const errMsg = resultArr[1] as string | null;
+
+  if (!raceObj || errMsg) {
+    console.warn('create_race error:', errMsg);
+    return null;
+  }
+
+  const rawParticipants = Object.values(
+    raceObj['participants'] as Record<string, unknown>
+  ) as Array<Record<string, unknown>>;
+
+  const participants = rawParticipants.map((p, i) => ({
+    horse: luaHorseToTs({
+      ...(p['horse'] as Record<string, unknown>),
+      player_owned: i === 0,
+    }),
+    gate: (p['gate'] as number) ?? i + 1,
+    odds: (p['odds'] as number) ?? 4.0,
+    progress: 0,
+    current_distance: 0,
+    current_speed: 0,
+    energy: 100,
+    is_finished: false,
+  }));
+
+  return {
+    id: raceObj['id'] as string,
+    name: raceObj['name'] as string,
+    description: raceObj['description'] as string,
+    distance: raceObj['distance'] as number,
+    race_class: raceObj['race_class'] as string,
+    prize_pool: raceObj['prize_pool'] as number,
+    prize_split: Object.values(raceObj['prize_split'] as Record<string, number>),
+    participants,
+    status: 'scheduled',
+  };
+}
+
+export default function App({ session }: GameRendererProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [showTitle, setShowTitle] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('stable');
+  const [isRacingActive, setIsRacingActive] = useState(false);
+  const [pendingBets, setPendingBets] = useState<Bet[]>([]);
+  const [pendingNetPayout, setPendingNetPayout] = useState(0);
+  const [lastRaceNetPayout, setLastRaceNetPayout] = useState<number | null>(null);
+  const [lastRaceBets, setLastRaceBets] = useState<Bet[]>([]);
+  const [unlockedSlots, setUnlockedSlots] = useState(3);
+  const ticker = useCooldownTicker();
+  const { error: luaError } = useLuaCall(session);
+
+  useEffect(() => {
+    const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
+    const defaultSlots = (stableCfg['starting_slots'] as number) ?? 3;
+
+    const saved = safeGetStorage(SAVE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as {
+          funds: number;
+          horses: Horse[];
+          race_history: RaceHistoryEntry[];
+          unlocked_slots: number;
+        };
+        if (Array.isArray(parsed.horses) && parsed.horses.length > 0) {
+          setUnlockedSlots(parsed.unlocked_slots ?? defaultSlots);
+          setGameState({
+            funds: parsed.funds,
+            horses: parsed.horses,
+            current_race: null,
+            race_history: parsed.race_history ?? [],
+            emergency_grant_shown: false,
+          });
+          return;
+        }
+      } catch {
+        // invalid save — fall through
+      }
+    }
+    setUnlockedSlots(defaultSlots);
+    setGameState(buildInitialState(session));
+  }, [session]);
+
+  useEffect(() => {
+    if (!gameState) return;
+    safeSetStorage(SAVE_KEY, JSON.stringify({
+      funds: gameState.funds,
+      horses: gameState.horses,
+      race_history: gameState.race_history,
+      unlocked_slots: unlockedSlots,
+    }));
+  }, [gameState, unlockedSlots]);
+
+  const handleNewRace = useCallback((horseId?: string) => {
+    if (!session || !gameState) return;
+
+    const playerHorses = gameState.horses.filter(h => h.player_owned);
+    const target = horseId
+      ? playerHorses.find(h => h.id === horseId)
+      : playerHorses.find(h => (h.cooldown_until ?? 0) < Date.now())
+        ?? playerHorses[0];
+
+    if (!target) {
+      _buildAiOnlyRace();
+      return;
+    }
+
+    const isResting = (target.cooldown_until ?? 0) > Date.now();
+    if (isResting) {
+      _buildAiOnlyRace(target);
+      return;
+    }
+
+    try {
+      const race = buildRace(session, gameState.horses, horseId);
+      setGameState(prev => prev ? { ...prev, current_race: race } : prev);
+      setActiveTab('betting');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [session, gameState]);
+
+  const handleSkipRace = useCallback((horseId?: string) => {
+    if (!session || !gameState) return;
+
+    const playerHorses = gameState.horses.filter(h => h.player_owned);
+    const target = horseId
+      ? playerHorses.find(h => h.id === horseId)
+      : playerHorses.find(h => (h.cooldown_until ?? 0) < Date.now())
+        ?? playerHorses[0];
+
+    if (!target) {
+      _buildAiOnlyRace();
+      return;
+    }
+
+    const isResting = (target.cooldown_until ?? 0) > Date.now();
+    if (isResting) {
+      _buildAiOnlyRace(target);
+      return;
+    }
+
+    try {
+      const race = buildRace(session, gameState.horses, horseId);
+      setGameState(prev => prev ? { ...prev, current_race: race } : prev);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [session, gameState]);
+
+  const _buildAiOnlyRace = useCallback((forHorse?: Horse) => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const raceClasses = data['race_classes'] as Array<Record<string, unknown>>;
+
+    let raceClass = raceClasses[0];
+    if (forHorse) {
+      const avg = (forHorse.speed + forHorse.stamina +
+                   forHorse.acceleration + forHorse.temperament) / 4;
+      raceClass = raceClasses.find(rc =>
+        avg >= (rc['stat_min'] as number) && avg <= (rc['stat_max'] as number)
+      ) ?? raceClasses[0];
+    }
+
+    const result = call(session, 'create_ai_race', raceClass, data) as [Record<string, unknown>, string | null];
+    const [race] = result;
+    if (race) {
+      setGameState(prev => prev ? {
+        ...prev,
+        current_race: { ...luaRaceToTs(race), ai_only: true },
+      } : prev);
+    }
+  }, [session, gameState]);
+
+  const handleStartRace = useCallback((enrichedParticipants: RaceParticipant[], bets: Bet[], netPayout: number) => {
+    if (!gameState) return;
+    setGameState(prev => {
+      if (!prev || !prev.current_race) return prev;
+      return { ...prev, current_race: { ...prev.current_race, participants: enrichedParticipants } };
+    });
+    setPendingBets(bets);
+    setPendingNetPayout(netPayout);
+    setIsRacingActive(true);
+  }, [gameState]);
+
+  const handleRaceComplete = useCallback((results: RaceResult[], netPayout: number, _betsPlaced: Bet[]) => {
+    if (!session || !gameState || !gameState.current_race) return;
+    const race = gameState.current_race;
+    const data = session.files.data as Record<string, unknown>;
+    const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+    const raceCooldownMs = (stableCfg['race_cooldown_ms'] as number) ?? 90000;
+
+    const entry: RaceHistoryEntry = {
+      race_name: race.name,
+      distance: race.distance,
+      prize_pool: race.prize_pool,
+      results,
+      timestamp: Date.now(),
+    };
+    const cooldownUntil = Date.now() + raceCooldownMs;
+
+    setGameState(prev => {
+      if (!prev) return prev;
+
+      // AI-only race: skip career updates, only settle bets
+      if (race.ai_only) {
+        let next = {
+          ...prev,
+          funds: prev.funds + netPayout,
+          current_race: { ...race, status: 'completed' as const, results },
+          race_history: [entry, ...prev.race_history],
+        };
+        if (next.funds < 50 && next.horses.filter(h => h.player_owned).length === 0) {
+          next = { ...next, funds: next.funds + 250, emergency_grant_shown: true };
+        }
+        return next;
+      }
+
+      // Normal race: update horse career stats
+      const horseEarnings: Record<string, number> = {};
+      results.forEach(r => { if (r.player_owned) horseEarnings[r.horse_id] = r.payout; });
+
+      const updatedHorses = prev.horses.map(h => {
+        const r = results.find(res => res.horse_id === h.id);
+        if (!r) return h;
+        const updated = call(session!, 'update_horse_after_race', h, r.rank, horseEarnings[h.id] ?? 0) as unknown as Record<string, unknown>;
+        return { ...luaHorseToTs(updated), cooldown_until: cooldownUntil };
+      });
+      let next = {
+        ...prev,
+        funds: prev.funds + netPayout,
+        horses: updatedHorses,
+        current_race: { ...race, status: 'completed' as const, results },
+        race_history: [entry, ...prev.race_history],
+      };
+      if (next.funds < 50 && next.horses.filter(h => h.player_owned).length === 0) {
+        next = { ...next, funds: next.funds + 250, emergency_grant_shown: true };
+      }
+      return next;
+    });
+  }, [session, gameState]);
+
+  const handleCloseRaceTrack = useCallback((_results: RaceResult[]) => {
+    setLastRaceNetPayout(pendingNetPayout);
+    setLastRaceBets(pendingBets);
+    handleRaceComplete(_results, pendingNetPayout, pendingBets);
+    setIsRacingActive(false);
+    setPendingBets([]);
+    setPendingNetPayout(0);
+    setActiveTab('betting');
+  }, [handleRaceComplete, pendingNetPayout, pendingBets]);
+
+  const handleRenameHorse = useCallback((id: string, newName: string) => {
+    setGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        horses: prev.horses.map(h => h.id === id ? { ...h, name: newName.trim() } : h),
+      };
+    });
+  }, []);
+
+  const handleSellHorse = useCallback((id: string) => {
+    if (!session || !gameState) return;
+    const horse = gameState.horses.find(h => h.id === id);
+    if (!horse) return;
+    const price = call(session, 'calculate_horse_price', horse) as unknown as number;
+    setGameState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        funds: prev.funds + price,
+        horses: prev.horses.filter(h => h.id !== id),
+      };
+    });
+  }, [session, gameState]);
+
+  const handlePurchaseStarter = useCallback((gender: 'Stallion' | 'Mare', price: number) => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const stable = (data['stable'] as Record<string, unknown>) ?? {};
+    const minStat = (stable['starter_min_stat'] as number) ?? 35;
+    const maxStat = (stable['starter_max_stat'] as number) ?? 55;
+    const prefixes = data['name_prefixes'];
+    const suffixes = data['name_suffixes'];
+    const coatColors = data['coat_colors'];
+    const silkColors = data['silk_colors'];
+    const options = { min_stat: minStat, max_stat: maxStat, generation: 1, player_owned: true, gender };
+    const raw = call(session, 'generate_horse', options, coatColors, silkColors, prefixes, suffixes) as unknown as Record<string, unknown>;
+    const horse = luaHorseToTs({ ...raw, player_owned: true, id: `horse_${Date.now()}` });
+    setGameState(prev => {
+      if (!prev) return prev;
+      return { ...prev, funds: prev.funds - price, horses: [...prev.horses, horse] };
+    });
+  }, [session, gameState]);
+
+  const handleAddOffspring = useCallback((foal: Horse, cost: number) => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+    const breedCooldownMs = (stableCfg['breed_cooldown_ms'] as number) ?? 180000;
+    const cooldownUntil = Date.now() + breedCooldownMs;
+    setGameState(prev => {
+      if (!prev) return prev;
+      const foalWithId = { ...foal, id: `horse_${Date.now()}`, cooldown_until: cooldownUntil };
+      return {
+        ...prev,
+        funds: prev.funds - cost,
+        horses: [...prev.horses, foalWithId],
+      };
+    });
+  }, [session, gameState]);
+
+  const handleUnlockSlot = useCallback(() => {
+    if (!session || !gameState) return;
+    const data = session.files.data as Record<string, unknown>;
+    const stableCfg = (data['stable'] as Record<string, unknown>) ?? {};
+    const maxSlots = (stableCfg['max_slots'] as number) ?? 12;
+    const unlockCost = (stableCfg['unlock_cost_per_slot'] as number) ?? 500;
+    const canResult = call(session, 'can_unlock_slot', unlockedSlots, maxSlots, gameState.funds, unlockCost) as unknown;
+    const resultArr = Array.isArray(canResult) ? canResult : [canResult, null];
+    const ok = resultArr[0] as boolean;
+    const reason = resultArr[1] as string | null;
+    if (!ok) {
+      setError(reason ?? 'Cannot unlock slot');
+      return;
+    }
+    setUnlockedSlots(prev => prev + 1);
+    setGameState(prev => prev ? { ...prev, funds: prev.funds - unlockCost } : prev);
+  }, [session, gameState, unlockedSlots]);
+
+  const uiLayout = (session.files.ui as Record<string, unknown>)['layout'] as Record<string, unknown>;
+  const tabs = (uiLayout['tabs'] as Array<Record<string, unknown>>) ?? [];
+
+  // UI resolver and interpreter
+  const ui = session.files.ui as Record<string, unknown>;
+  const layoutTree = ui['layout_tree'] as LayoutNode | undefined;
+  const regions = ui['regions'] as RegionsMap | undefined;
+
+  const resolved = layoutTree
+    ? resolveViewport(layoutTree, window.innerWidth, window.innerHeight)
+    : [];
+  const boundsMap = buildBoundsMap(resolved);
+
+  const { elements: rawUiElements, slots: rawSlots } = regions
+    ? interpretLayout(boundsMap, regions, gameState, {
+        activeTab,
+        tabs: tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string })),
+        onSelectTab: setActiveTab,
+      })
+    : { elements: [], slots: {} };
+
+  // GameShell owns the title, bank, tabs, and footer; hide the interpreter's copies.
+  const uiElements = rawUiElements.filter(el => {
+    const className = String((el.props as { className?: string }).className ?? '');
+    return !className.includes('ui-header') && !className.includes('ui-tab-bar') && !className.includes('ui-footer');
+  });
+
+  const fullBounds = { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight };
+  const slots = rawSlots['content']
+    ? { ...rawSlots, content: { ...rawSlots['content'], bounds: fullBounds } }
+    : rawSlots;
+
+  if (showTitle) {
+    return (
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <TitleScreen
+          title="Derby Sim"
+          tagline="Race · Breed · Bet"
+          pitch="Race, breed, and bet on horses. Win/Place/Show betting, genetics system, career tracking."
+          menuItems={[
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+          ]}
+        />
+      </GameShell>
+    );
+  }
+
+  if (error || luaError) {
+    return (
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <div style={{ padding: '2rem' }}>
+          <ErrorBox message={`Startup error: ${error ?? luaError}`} />
+        </div>
+      </GameShell>
+    );
+  }
+  if (!gameState) {
+    return (
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading game state…</div>
+      </GameShell>
+    );
+  }
+
+  const schemaErr = (() => {
+    try { getSchema(session, 'horse'); return null; }
+    catch (e) { return e instanceof RuntimeError ? e.message : null; }
+  })();
+
+  if (isRacingActive && gameState.current_race) {
+    return (
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+        <RaceTrack
+          race={gameState.current_race}
+          bets={pendingBets}
+          onRaceFinish={handleCloseRaceTrack}
+          onClose={() => {
+            setIsRacingActive(false);
+            setActiveTab('stable');
+          }}
+        />
+      </GameShell>
+    );
+  }
+
+  return (
+    <GameShell
+      gameLabel="DERBY SIM"
+      gameId="horse_racing"
+      statusArea={
+        <div className="header-bank">
+          <div className="bank-icon"><Coins size={14} /></div>
+          <div>
+            <div className="bank-label">STABLE BANK</div>
+            <div className="bank-amount">${gameState.funds.toLocaleString()}</div>
+          </div>
+        </div>
+      }
+    >
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* Interpreter renders structural scaffold */}
+      {uiElements}
+
+      {/* Game renders its own content in slot bounds */}
+      {slots['content'] && (
+        <div style={{
+          position: 'absolute',
+          left: slots['content'].bounds.x,
+          top: slots['content'].bounds.y,
+          width: slots['content'].bounds.w,
+          height: slots['content'].bounds.h,
+        }}>
+          <div className="app-shell">
+
+      {!isRacingActive && (
+        <TabBar
+          tabs={tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string }))}
+          active={activeTab}
+          onSelect={setActiveTab}
+          variant="default"
+        />
+      )}
+
+      {!isRacingActive && (
+        <TabBar
+          tabs={tabs.map(t => ({ id: t['id'] as string, label: t['label'] as string }))}
+          active={activeTab}
+          onSelect={setActiveTab}
+          variant="mobile"
+        />
+      )}
+
+      <main className="tab-content">
+        {schemaErr && <div style={{ marginBottom: '1rem' }}><ErrorBox message={schemaErr} /></div>}
+
+        {gameState.emergency_grant_shown && (
+          <div className="emergency-grant-banner">
+            You're broke and horseless. Here's $250. Don't waste it.
+            <button
+              className="btn-dismiss"
+              onClick={() => setGameState(prev => prev ? { ...prev, emergency_grant_shown: false } : prev)}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+          >
+            {activeTab === 'stable' && (
+              <StableTab
+                horses={gameState.horses}
+                session={session}
+                funds={gameState.funds}
+                unlockedSlots={unlockedSlots}
+                ticker={ticker}
+                onNewRace={handleNewRace}
+                onUnlockSlot={handleUnlockSlot}
+                onRenameHorse={handleRenameHorse}
+                onSellHorse={handleSellHorse}
+              />
+            )}
+            {activeTab === 'betting' && (
+              <BettingTab
+                race={gameState.current_race}
+                funds={gameState.funds}
+                horses={gameState.horses}
+                unlockedSlots={unlockedSlots}
+                lastRaceNetPayout={lastRaceNetPayout}
+                lastRaceBets={lastRaceBets}
+                onNewRace={(id?: string) => { setLastRaceNetPayout(null); setLastRaceBets([]); handleNewRace(id); }}
+                onSkipRace={(id?: string) => { setLastRaceNetPayout(null); setLastRaceBets([]); handleSkipRace(id); }}
+                onStartRace={handleStartRace}
+                onPurchaseStarter={handlePurchaseStarter}
+                session={session}
+              />
+            )}
+            {activeTab === 'history' && (
+              <div>
+                <h2 style={{ marginBottom: '1rem' }}>Race History</h2>
+                {gameState.race_history.length === 0
+                  ? <EmptyState message="No races completed yet." />
+                  : gameState.race_history.map((entry, i) => (
+                    <Card key={i} className="history-card">
+                      <div className="history-card-header">
+                        <div>
+                          <span className="history-race-name">{entry.race_name}</span>
+                          <span className="history-distance-badge">{entry.distance}m</span>
+                        </div>
+                        <span className="history-purse">Purse: ${entry.prize_pool}</span>
+                      </div>
+                      <div className="history-standings">
+                        {entry.results.slice(0, 3).map(r => (
+                          <div key={r.rank} className="history-standing-row">
+                            <span className={`rank-badge rank-${r.rank}`}>#{r.rank}</span>
+                            <span className="history-horse-name">{r.horse_name}</span>
+                            {r.player_owned && <Badge label="You" variant="accent" />}
+                            {r.payout > 0 && <span className="history-payout">+${r.payout}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  ))
+                }
+              </div>
+            )}
+            {activeTab === 'breed' && (
+              <BreederTab
+                horses={gameState.horses}
+                session={session}
+                funds={gameState.funds}
+                onAddOffspring={handleAddOffspring}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      <footer className="app-footer">
+        <span className="footer-copy">© 2026 DERBY SIMULATOR. ALL RIGHTS RESERVED.</span>
+        <div className="footer-links">
+          <span>GAME RULES</span>
+          <span className="footer-sep">•</span>
+          <span>PEDIGREE GENETICS DATA</span>
+        </div>
+      </footer>
+    </div>
+        </div>
+      )}
+    </div>
+    </GameShell>
+  );
+}

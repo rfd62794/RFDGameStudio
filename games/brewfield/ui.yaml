@@ -1,0 +1,47 @@
+layout_tree:
+  - id: header
+    type: row
+    height: 60
+    children:
+      - {id: title, type: text, content: BREWFIELD}
+      - {id: map_progress, type: progress_track, source: run_nodes}
+
+  - id: main_content
+    type: row
+    flex: 1
+    children:
+      - id: left_column
+        type: column
+        children:
+          - {id: deck_display, type: data_table, source: deck}
+          - {id: objective_readout, type: text, content: "{activeNode.type}"}
+
+      - id: center_column
+        type: column
+        flex: 2
+        children:
+          - {id: enemy_panel, type: panel, source: enemy}
+          - id: cauldron_section
+            type: panel
+            children:
+              - {id: element_slot_1, type: selectable_slot}
+              - {id: element_slot_2, type: selectable_slot}
+              - {id: component_selector, type: selectable_row, source: components}
+              - {id: residue_display, type: data_table, source: residues}
+              - {id: brew_button, type: action_button, label: Brew}
+          - id: player_panel
+            type: panel
+            children:
+              - {id: hp_display, type: stat_display, label: HP}
+              - {id: hand_display, type: card_row, source: hand}
+
+      - id: right_column
+        type: column
+        children:
+          - {id: logbook, type: history_list, source: gameLogs}
+
+  - id: footer
+    type: row
+    height: 30
+    children:
+      - {id: copyright, type: text, content: "© 2026 Brewfield"}

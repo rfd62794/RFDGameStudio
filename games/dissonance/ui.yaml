@@ -1,0 +1,207 @@
+# RFDGameStudio — Dissonance Depths
+# UI Layer — describes WHAT the UI means, not HOW it looks.
+
+game: dissonance
+
+layout_tree:
+  direction: column
+  children:
+    - id: header
+      height: 0.10
+    - id: tab_nav
+      height: 0.06
+    - id: content
+      flex: 1
+    - id: footer
+      height: 0.05
+
+regions:
+  header:
+    component: app_header
+    bindings:
+      title: "Dissonance Depths"
+      subtitle: "PHASE A.1 — Ember Culture Prototype"
+      phase: game_state.phase
+  tab_nav:
+    component: tab_bar
+    tabs_from: layout.tabs
+  content:
+    component: tab_content
+  footer:
+    component: app_footer
+    text: "© 2026 RFDGameStudio"
+
+layout:
+  type: tabbed
+  tabs:
+    - id: title
+      label: Title
+      icon: flame
+      phase: title
+    - id: map
+      label: Map
+      icon: map
+      phase: map
+    - id: combat
+      label: Combat
+      icon: sword
+      phase: combat
+    - id: rest
+      label: Rest
+      icon: heart
+      phase: rest
+    - id: reward
+      label: Reward
+      icon: gift
+      phase: reward
+    - id: treasure
+      label: Treasure
+      icon: gem
+      phase: treasure
+    - id: store
+      label: Store
+      icon: coins
+      phase: store
+    - id: anomaly
+      label: Anomaly
+      icon: zap
+      phase: anomaly
+    - id: roster
+      label: Codex
+      icon: book
+      phase: roster
+
+header:
+  components:
+    - type: label
+      text: "Dissonance Depths"
+      style: title
+    - type: label
+      text: "PHASE A.1 — Ember Culture Prototype"
+      style: subtitle
+    - type: stat_display
+      label: "ESSENCE"
+      field: game_state.essence
+      format: number
+      icon: gem
+
+title_screen:
+  components:
+    - type: label
+      text: "Dissonance Depths"
+      style: title
+    - type: label
+      text: "Five floors. Four elements. One deck."
+      style: description
+    - type: button
+      id: start_run
+      label: "Begin Descent"
+      action: start_run
+
+map:
+  components:
+    - type: label
+      text: "Branching Map"
+      style: section_title
+    - type: graph
+      source: game_state.nodes
+      selected: game_state.currentNodeId
+
+combat:
+  components:
+    - type: label
+      text: "Combat"
+      style: section_title
+    - type: stat_display
+      label: "HP"
+      field: game_state.playerHp
+    - type: stat_display
+      label: "SHIELD"
+      field: game_state.playerShield
+    - type: hand
+      source: game_state.deckState.hand
+    - type: intent_panel
+      source: game_state.enemy.intent
+
+rest:
+  components:
+    - type: label
+      text: "Rest & Craft"
+      style: section_title
+    - type: button
+      id: rest
+      label: "Rest (+40% HP)"
+      action: rest
+    - type: button
+      id: attachment
+      label: "Use Attachment"
+      action: attachment
+
+reward:
+  components:
+    - type: label
+      text: "Reward"
+      style: section_title
+    - type: reward_slots
+      source: game_state.rewardSlots
+
+treasure:
+  components:
+    - type: label
+      text: "Treasure"
+      style: section_title
+    - type: button
+      id: take_essence
+      label: "Take Essence"
+      action: take_essence
+    - type: button
+      id: claim_relic
+      label: "Claim Relic"
+      action: claim_relic
+
+store:
+  components:
+    - type: label
+      text: "Store"
+      style: section_title
+    - type: boon_list
+      source: game_state.storeBoons
+      currency: game_state.essence
+
+anomaly:
+  components:
+    - type: label
+      text: "Void Anomaly"
+      style: section_title
+    - type: choice_list
+      source: game_state.anomalyChoices
+
+roster:
+  components:
+    - type: label
+      text: "Codex"
+      style: section_title
+    - type: codex_tabs
+      categories_from: layout.codex_categories
+
+codex_categories:
+  - id: cards
+    label: Cards
+    source: data.named_cards
+    discovered_field: discovery.discoveredCards
+  - id: boons
+    label: Boons
+    source: data.boons
+    discovered_field: discovery.discoveredBoons
+  - id: relics
+    label: Relics
+    source: data.relics
+    discovered_field: discovery.discoveredRelics
+  - id: enemies
+    label: Enemies
+    source: data.enemies.enemy_pool_order
+    discovered_field: discovery.discoveredEnemies
+  - id: room_types
+    label: Rooms
+    source: data.room_element_lean
+    discovered_field: discovery.discoveredRoomTypes

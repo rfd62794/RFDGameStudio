@@ -1,0 +1,134 @@
+# Default Scene Configuration - Externalized Hardcoded Values
+# This file replaces hardcoded coordinates in the source code
+
+# System Settings
+target_fps: 60
+enable_graphics: true
+enable_persistence: true
+enable_logging: true
+enable_console: true
+log_level: "INFO"
+
+# World Engine Configuration
+world:
+  size_x: 50
+  size_y: 50
+  chunk_size: 10
+  interest_point_density: 0.1
+  noise_scale: 0.1
+  noise_octaves: 4
+  noise_persistence: 0.5
+  noise_lacunarity: 2.0
+
+# Mind Engine Configuration
+mind:
+  enable_d20_rolls: true
+  critical_success_threshold: 20
+  critical_failure_threshold: 1
+  default_difficulty_class: 10
+
+# Body Engine Configuration
+body:
+  viewport_width: 160
+  viewport_height: 144
+  tile_size: 8
+  target_fps: 60
+  enable_rendering: true
+  assets_path: "assets/"
+
+# Chronos Engine Configuration
+chronos:
+  max_active_quests: 5
+  quest_timeout_seconds: 300.0
+  enable_procedural_quests: true
+  quest_generation_interval: 60.0
+
+# Persona Engine Configuration
+persona:
+  max_personas_per_location: 10
+  persona_memory_depth: 50
+  enable_faction_dynamics: true
+
+# Voyager Configuration
+voyager:
+  movement_range: 1
+  pathfinding_timeout: 30.0
+  pondering_timeout: 5.0
+  enable_autonomous_mode: true
+
+# Scene Defaults (previously hardcoded coordinates)
+scenes:
+  spawn_points:
+    tavern: [10, 25]
+    forest: [25, 25]
+    town: [10, 10]
+    mountain: [40, 40]
+    desert: [5, 45]
+  
+  interest_points:
+    tavern:
+      - [10, 25, "forest_edge"]
+      - [10, 20, "town_gate"]
+      - [10, 10, "town_square"]
+      - [20, 10, "tavern_entrance"]
+      - [25, 30, "tavern_interior"]
+      - [32, 32, "iron_chest"]
+    
+    forest:
+      - [15, 30, "forest_clearing"]
+      - [20, 35, "ancient_tree"]
+      - [25, 25, "hidden_path"]
+      - [30, 20, "herb_grove"]
+      - [35, 15, "mushroom_circle"]
+    
+    town:
+      - [10, 10, "town_square"]
+      - [15, 15, "market"]
+      - [20, 10, "tavern_entrance"]
+      - [10, 20, "town_gate"]
+      - [25, 25, "guild_hall"]
+      - [30, 30, "temple"]
+    
+    mountain:
+      - [40, 40, "peak"]
+      - [35, 35, "cave_entrance"]
+      - [45, 45, "abandoned_mine"]
+      - [30, 40, "dragon_lair"]
+    
+    desert:
+      - [5, 45, "oasis"]
+      - [10, 40, "ancient_ruins"]
+      - [15, 35, "caravan_route"]
+      - [20, 30, "mirage"]
+
+# Biome-based Quest Generation Rules
+quest_generation_rules:
+  FOREST:
+    - "gather_herbs"
+    - "hunt_creatures"
+    - "explore_ruins"
+    - "find_lost_path"
+  
+  TAVERN:
+    - "speak_to_informant"
+    - "buy_drinks"
+    - "listen_to_rumors"
+    - "meet_mysterious_stranger"
+  
+  TOWN:
+    - "visit_market"
+    - "meet_guild_master"
+    - "attend_town_meeting"
+    - "deliver_package"
+  
+  MOUNTAIN:
+    - "climb_peak"
+    - "explore_cave"
+    - "find_minerals"
+    - "track_creature"
+  
+  DESERT:
+    - "find_oasis"
+    - "explore_ruins"
+    - "follow_caravan"
+    - "survive_storm"

@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+}
+
+/* Custom Bento Utilities */
+.bento-wrapper {
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: 'Inter', 'Space Grotesk', sans-serif;
+}
+
+.bento-card {
+  background-color: #ffffff;
+  border: 3px solid #0f172a;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.bento-card-interactive {
+  background-color: #ffffff;
+  border: 3px solid #0f172a;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.15s ease-in-out;
+}
+
+.bento-card-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #0f172a;
+}
+
+.bento-card-interactive:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px 0px #0f172a;
+}
+
+.bento-btn {
+  border: 3px solid #0f172a;
+  box-shadow: 3px 3px 0px 0px #0f172a;
+  border-radius: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.1s ease-in-out;
+}
+
+.bento-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px #0f172a;
+}
+
+.bento-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px #0f172a;
+}
+
+.bento-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bento-badge {
+  border: 2px solid #0f172a;
+  box-shadow: 1px 1px 0px 0px #0f172a;
+  border-radius: 9999px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.bento-stat-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.bento-stat-val {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0f172a;
+}

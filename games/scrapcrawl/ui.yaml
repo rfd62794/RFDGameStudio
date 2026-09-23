@@ -1,0 +1,50 @@
+layout_tree:
+  - id: header
+    type: row
+    height: 60
+    children:
+      - id: title
+        type: text
+        content: SCRAPCRAWL
+
+  - id: main_content
+    type: row
+    flex: 1
+    children:
+      - id: hud
+        type: column
+        flex: 1
+        children:
+          - id: room_badge
+            type: text
+            content: "Room: {currentRoomId}"
+          - id: scrap_display
+            type: stat_display
+            label: Scrap
+            value: "{scrap}"
+          - id: equipment_table
+            type: data_table
+            source: equipped
+          - id: action_panel
+            type: panel
+            children:
+              - id: fight_button
+                type: action_button
+                label: Fight
+              - id: craft_button
+                type: action_button
+                label: Craft
+              - id: rest_button
+                type: action_button
+                label: Rest
+          - id: history_list
+            type: history_list
+            source: combat_history
+
+  - id: footer
+    type: row
+    height: 30
+    children:
+      - id: copyright
+        type: text
+        content: "© 2026 ScrapCrawl"

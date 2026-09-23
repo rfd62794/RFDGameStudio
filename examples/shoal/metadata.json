@@ -1,0 +1,6 @@
+{
+  "name": "Shoal",
+  "description": "An open-ended ecosystem sandbox featuring a toroidal reef with fish, sharks, algae hubs, and flesh chunks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

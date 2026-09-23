@@ -1,0 +1,25 @@
+name: archivist
+role: "Read project corpus, find drift, flag constitutional violations with specific evidence."
+department: analysis
+model_preference: remote
+backend_override: "deepseek/deepseek-r1"
+prompts:
+  system: docs/agents/prompts/archivist_system.md
+  fewshot: docs/agents/prompts/archivist_fewshot.md
+schema: CoherenceReport
+fallback:
+  session_primer: "[FALLBACK — Ollama unreachable]"
+  open_risks: []
+  queued_focus: "Verify Ollama is running."
+  constitutional_flags: []
+  corpus_hash: ""
+save_output: true
+log_quality: true
+
+corpus_paths:
+  - docs/VISION.md
+  - docs/WORLD.md
+  - docs/GOALS.md
+  - docs/MILESTONES.md
+  - docs/TASKS.md
+  - docs/agents/memory/agent_memory.md
