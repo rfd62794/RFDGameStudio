@@ -6,3 +6,11 @@ export function placeholders(text: string): string[] {
   for (const m of text.matchAll(PLACEHOLDER)) if (!seen.includes(m[1])) seen.push(m[1]);
   return seen;
 }
+
+/** Replace each {name} with its value; a missing or null value shows as '?'. */
+export function fillTemplate(text: string, values: Record<string, unknown>): string {
+  return text.replace(PLACEHOLDER, (_, name: string) => {
+    const v = values[name];
+    return v === undefined || v === null ? '?' : String(v);
+  });
+}
