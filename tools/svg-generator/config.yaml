@@ -1,4 +1,0 @@
-# SVG Generator Config
-name: "svg-generator"
-description: "Generates SVG assets from prompts."
-model: "claude-3.5-sonnet"

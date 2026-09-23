@@ -1,6 +1,0 @@
-{
-  "name": "7 Days to Fry",
-  "description": "Fast-food kitchen utility AI simulation — managing policy, backpressure, food safety, and worker crew sync during lunch rush.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

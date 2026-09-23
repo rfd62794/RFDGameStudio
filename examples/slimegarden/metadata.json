@@ -1,6 +1,0 @@
-{
-  "name": "SlimeGarden",
-  "description": "An asteroid lab where you breed unique slimes and assign them to corporate contracts or combat dispatches.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
