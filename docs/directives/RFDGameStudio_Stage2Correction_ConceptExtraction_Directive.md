@@ -236,3 +236,17 @@ that's explicitly deferred (§0).
 
 *RFD Method | Stage 2 Correction | RFDGameStudio | August 2026*
 *Director → Pipeline → Agent. The tool found a real bug in itself, on the first real thing it was pointed at outside its own fixtures — fix the tool, not the test.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 00:46 · agentflow-tick · none → Queued — suggested by heartbeat: Deliverables already implemented in code (superseded by Stage2Correction2's 95/0 floor); queued for Devin to verify §3/§4 completion criteria, not to rebuild.
+<!-- queue:end -->
