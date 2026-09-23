@@ -51,3 +51,17 @@ Before/after vitest counts, the five commit hashes, and anything in the plan you
 - Update this directive's Status row when you finish or stop partway.
 - If a tool call is genuinely blocked, stop and write why in the Status row instead of trying
   another way around it.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-22 21:41 · robert-claude · none → Queued — Robert: go (Studio foundation step 1, plan c3c9baab)
+<!-- queue:end -->
