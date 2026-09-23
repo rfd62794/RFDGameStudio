@@ -1408,3 +1408,78 @@ residue:
     spark: ember
     ash: cinder
     cinder: ash
+  # Brewfield chemistry layer — merged from games/brewfield (2026-09 directive).
+  # Elemental residue statuses on the enemy + the 4x4 (component x element)
+  # effect matrix, expressed as data. Element mapping follows the shared wheel
+  # position: ember=fire, ash=air, spark=water, cinder=earth — the opposed_pairs
+  # above are the same structure as Brewfield's fire<->water and air<->earth.
+  # Gated behind min_floor like the Residue Field itself; lowering it is a
+  # data edit, not a code change.
+  chemistry:
+    min_floor: 4
+    # Residue statuses deposited on the enemy by a card's primary element.
+    # level scales the per-turn effect (cap max_level); turnsLeft is the
+    # duration — decremented once per turn after ticking, refreshed on amplify.
+    statuses:
+      burning:
+        element: ember
+        duration: 2
+        tick_damage: 2          # per level, dealt to the enemy each turn
+      soaked:
+        element: spark
+        duration: 2
+        intent_reduction: 1     # per level, reduces the enemy's next attack intent
+      windswept:
+        element: ash
+        duration: 2
+        amplify_factor: 2       # multiplies the other statuses' per-turn magnitudes
+      fortified:
+        element: cinder
+        duration: 4             # the enduring residue — lasts twice as long
+        shield_per_level: 1     # per level, carried into next turn's player shield
+        resists_overwrite: true     # last slot to be overwritten at capacity
+        absorbs_annihilation: true  # opposed element strips one level, not the tag
+    # The 4x4 matrix — Brewfield's solve_brew values carried over as additive
+    # effect bundles. Dissonance's own base+modifier scalar still computes the
+    # card's primary value; these cells only add the secondary effects.
+    matrix:
+      sever:
+        ember: {}
+        ash:
+          strikes: 2                    # air strike: split into two hits
+        spark:
+          intent_reduction: 3           # water strike: slows the next intent
+        cinder:
+          bonus_shield: 3               # earth strike
+      guard:
+        ember:
+          retaliate: 3                  # fire ward
+        ash:
+          dodge: 1                      # air ward: evasion charge
+        spark:
+          bonus_shield: 2               # water ward
+          bonus_heal: 2
+        cinder:
+          bonus_shield: 4               # earth ward
+          decaying_shield: 4
+      mend:
+        ember:
+          cauterize: true               # fire mend
+        ash:
+          cauterize: true               # air mend
+        spark:
+          bonus_heal: 3                 # water mend
+        cinder:
+          bonus_shield: 2               # earth mend
+      unmake:
+        ember:
+          detonate:                     # fire blight: fuse, not rot
+            damage: 8
+            turns: 1
+          suppress_dot: true
+        ash:
+          ticks_active_dots: true       # air blight: forces DoTs to tick now
+        spark:
+          strip_enemy_shield: true      # water blight: clears enemy wards
+        cinder:
+          weakness: 2                   # earth blight: roots the next intent

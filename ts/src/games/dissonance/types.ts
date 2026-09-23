@@ -26,6 +26,12 @@ export interface CombatIntent {
   description: string;
 }
 
+export interface EnemyResidue {
+  tag: string;
+  level: number;
+  turnsLeft: number;
+}
+
 export interface EnemyState {
   name: string;
   hp: number;
@@ -38,6 +44,16 @@ export interface EnemyState {
   resistant?: string | null;
   behaviorPattern?: string;
   behaviorTypeIds?: string[];
+  residues?: EnemyResidue[] | null;
+  fuse?: { damage: number; turnsLeft: number } | null;
+  shield?: number | null;
+}
+
+export interface PlayerEffects {
+  retaliate: number;
+  dodge: number;
+  decayingShield: number;
+  burn: number;
 }
 
 export interface RunNode {
@@ -130,6 +146,7 @@ export interface RunState {
   restCraftResolvedNodeId?: string;
   lastAttachmentOutcome?: 'peek' | 'gift' | 'treasure';
   residue?: { marks: ResidueMark[]; fortifiedCharges: number };
+  playerEffects?: PlayerEffects;
   currentTreasure?: TreasureOffer | null;
   currentStoreSlots?: StoreSlot[] | null;
   currentAnomaly?: string | null;

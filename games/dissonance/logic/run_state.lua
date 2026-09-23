@@ -48,6 +48,21 @@ local function copy_residue(residue)
   return out
 end
 
+-- === Brewfield chemistry: player-side effect pool ===
+-- retaliate / dodge / decayingShield mirror Brewfield's player state fields;
+-- burn is the negative debuff cauterize cleanses.
+
+local function copy_player_effects(fx)
+  local out = { retaliate = 0, dodge = 0, decayingShield = 0, burn = 0 }
+  if type(fx) == "table" then
+    out.retaliate = fx.retaliate or 0
+    out.dodge = fx.dodge or 0
+    out.decayingShield = fx.decayingShield or 0
+    out.burn = fx.burn or 0
+  end
+  return out
+end
+
 local function update_residue_field(run_state, played_card, data)
   local residue = copy_residue(run_state.residue)
   local max_slots = (data and data.residue and data.residue.max_slots) or 2
@@ -565,6 +580,7 @@ function create_run(deck_card_ids, seed, current_floor, starting_essence_bonus, 
     giftSkippedCount = 0,
     lastMapBalance = balance,
     residue = { marks = {}, fortifiedCharges = 0 },
+    playerEffects = { retaliate = 0, dodge = 0, decayingShield = 0, burn = 0 },
     currentTreasure = nil,
     currentStoreSlots = nil,
     currentAnomaly = nil,
@@ -623,8 +639,10 @@ function enter_active_node(run_state, deck_card_ids, data)
     local next_state = shallow_copy(run_state)
     next_state.status = "combat"
     next_state.playerShield = 0
+    next_state.playerEffects = { retaliate = 0, dodge = 0, decayingShield = 0, burn = 0 }
     next_state.enemy = {
       name = enemy_name, hp = enemy_hp, maxHp = enemy_hp, dot = nil,
+      residues = {},
       intent = intent, tier = enemy_tier,
       secondaryType = enemy_def and enemy_def.secondaryType or nil,
       vulnerable = enemy_def and enemy_def.vulnerable or nil,
@@ -877,6 +895,22 @@ function resolve_combat_turn(run_state, played_card, data)
   local next_enemy_hp = enemy.hp
   local next_enemy_dot = enemy.dot
 
+  -- Brewfield chemistry layer (data.residue.chemistry, floor-gated).
+  -- Inert below min_floor: no residues, no matrix effects, identical output.
+  local chem = chemistry_active(run_state, data)
+  local cell = chem and residue_matrix_cell(played_card.component, played_card.el1, data) or nil
+  local player_fx = copy_player_effects(run_state.playerEffects)
+  local next_enemy_residues = nil
+  local next_enemy_fuse = nil
+  if enemy.fuse then
+    next_enemy_fuse = { damage = enemy.fuse.damage, turnsLeft = enemy.fuse.turnsLeft }
+  end
+  local next_enemy_shield = enemy.shield
+  local fuse_planted = false
+  local pending_intent_reduction = 0
+  local soak_reduction = 0
+  local next_turn_count = (run_state.turnCount or 1) + 1
+
   local combo_key = getComboKey and getComboKey(played_card.el1, played_card.el2, played_card.component)
     or string.format("%s_%s_%s", played_card.el1, played_card.el2 or "none", played_card.component)
   local combo_counts = {}
@@ -910,6 +944,9 @@ function resolve_combat_turn(run_state, played_card, data)
   if component == "sever" then
     next_enemy_hp = math.max(0, next_enemy_hp - final_value)
     table.insert(logs, string.format("Dealt %d damage to %s.", final_value, enemy.name))
+    if cell and (cell.strikes or 0) > 1 then
+      table.insert(logs, string.format("-> Air aspect: the strike lands as %d rapid hits.", cell.strikes))
+    end
   elseif component == "mend" then
     next_player_hp = math.min(run_state.playerMaxHp, next_player_hp + final_value)
     table.insert(logs, string.format("Healed player for %d HP (Current: %d/%d).", final_value, next_player_hp, run_state.playerMaxHp))
@@ -917,9 +954,79 @@ function resolve_combat_turn(run_state, played_card, data)
     next_player_shield = next_player_shield + final_value
     table.insert(logs, string.format("Shielded player for +%d (Total Shield: %d).", final_value, next_player_shield))
   elseif component == "unmake" then
-    local dot_duration = result.dotDuration or 3
-    next_enemy_dot = { duration = dot_duration, damage = final_value }
-    table.insert(logs, string.format("Afflicted %s with Void Rot DoT (%d damage/turn for %d turns).", enemy.name, final_value, dot_duration))
+    if cell and cell.suppress_dot then
+      table.insert(logs, "-> Fire aspect: no rot is left behind — a volatile fuse is planted instead.")
+    else
+      local dot_duration = result.dotDuration or 3
+      next_enemy_dot = { duration = dot_duration, damage = final_value }
+      table.insert(logs, string.format("Afflicted %s with Void Rot DoT (%d damage/turn for %d turns).", enemy.name, final_value, dot_duration))
+    end
+  end
+
+  -- Brewfield matrix cell: additive secondary effects for (component, el1).
+  -- Numbers scale by the resolved multiplier, booleans do not (Brewfield rule).
+  if cell then
+    local mult = result.multiplier or 1
+    if cell.bonus_shield then
+      local v = scale_matrix_effect(cell.bonus_shield, mult)
+      next_player_shield = next_player_shield + v
+      table.insert(logs, string.format("-> Earth aspect: +%d Shield (Total Shield: %d).", v, next_player_shield))
+    end
+    if cell.bonus_heal then
+      local v = scale_matrix_effect(cell.bonus_heal, mult)
+      next_player_hp = math.min(run_state.playerMaxHp, next_player_hp + v)
+      table.insert(logs, string.format("-> Water aspect: +%d HP restored (Current: %d/%d).", v, next_player_hp, run_state.playerMaxHp))
+    end
+    if cell.retaliate then
+      local v = scale_matrix_effect(cell.retaliate, mult)
+      player_fx.retaliate = player_fx.retaliate + v
+      table.insert(logs, string.format("-> Retaliation primed: %d damage rebounds on the next enemy hit.", v))
+    end
+    if cell.dodge then
+      player_fx.dodge = player_fx.dodge + cell.dodge
+      table.insert(logs, "-> Evasion granted: 50% chance to dodge the next attack.")
+    end
+    if cell.decaying_shield then
+      local v = scale_matrix_effect(cell.decaying_shield, mult)
+      player_fx.decayingShield = player_fx.decayingShield + v
+      table.insert(logs, string.format("-> %d Shield persists into the next turn.", v))
+    end
+    if cell.cauterize then
+      player_fx.burn = 0
+      table.insert(logs, "-> Cauterize: all negative debuffs cleansed.")
+    end
+    if cell.intent_reduction then
+      local v = scale_matrix_effect(cell.intent_reduction, mult)
+      pending_intent_reduction = pending_intent_reduction + v
+      table.insert(logs, string.format("-> Slow: the enemy's next attack intent is reduced by %d.", v))
+    end
+    if cell.weakness then
+      local v = scale_matrix_effect(cell.weakness, mult)
+      pending_intent_reduction = pending_intent_reduction + v
+      table.insert(logs, string.format("-> Root: the enemy's next attack intent is reduced by %d.", v))
+    end
+    if cell.detonate then
+      next_enemy_fuse = { damage = cell.detonate.damage or 8, turnsLeft = cell.detonate.turns or 1 }
+      fuse_planted = true
+      table.insert(logs, string.format("-> Volatile fuse planted: %d damage in %d turn(s).", next_enemy_fuse.damage, next_enemy_fuse.turnsLeft))
+    end
+    if cell.strip_enemy_shield then
+      if (next_enemy_shield or 0) > 0 then
+        table.insert(logs, string.format("-> Strip: cleared %d enemy Shield.", next_enemy_shield))
+      end
+      next_enemy_shield = 0
+    end
+    if cell.ticks_active_dots then
+      if next_enemy_dot and (next_enemy_dot.duration or 0) > 0 then
+        next_enemy_hp = math.max(0, next_enemy_hp - next_enemy_dot.damage)
+        table.insert(logs, string.format("-> Gale force: Void Rot ticks immediately for %d damage.", next_enemy_dot.damage))
+      end
+      local flare = residue_immediate_burn(next_enemy_residues or enemy.residues, data)
+      if flare > 0 then
+        next_enemy_hp = math.max(0, next_enemy_hp - flare)
+        table.insert(logs, string.format("-> Gale force: residue flares immediately for %d damage.", flare))
+      end
+    end
   end
 
   if result.bonusEffect then
@@ -934,6 +1041,14 @@ function resolve_combat_turn(run_state, played_card, data)
       next_player_hp = math.min(run_state.playerMaxHp, next_player_hp + bonus.value)
       table.insert(logs, string.format("-> Adjacent Bonus: Healed +%d extra HP.", bonus.value))
     end
+  end
+
+  -- Brewfield chemistry: the card's primary element interacts with the
+  -- residues already on the target. Opposed-relation plays deposit nothing.
+  if chem then
+    local dep = deposit_enemy_residue(enemy.residues, played_card.el1, result.relationType == "opposed", data)
+    next_enemy_residues = dep.residues
+    for _, msg in ipairs(dep.logs) do table.insert(logs, msg) end
   end
 
   -- Residue Field: update persistent marks after resolving the card effect.
@@ -974,6 +1089,7 @@ function resolve_combat_turn(run_state, played_card, data)
   local next_state = shallow_copy(run_state)
   next_state.combinationCounts = combo_counts
   next_state.residue = next_residue
+  next_state.playerEffects = player_fx
 
   -- Enemy defeated by the played card itself
   if next_enemy_hp <= 0 then
@@ -1034,11 +1150,34 @@ function resolve_combat_turn(run_state, played_card, data)
   local intent = enemy.intent
   if intent.type == "attack" or intent.type == "heavy_attack" then
     local dmg = intent.value
-    local blocked = math.min(next_player_shield, dmg)
-    local final_dmg = dmg - blocked
-    next_player_shield = next_player_shield - blocked
-    next_player_hp = math.max(0, next_player_hp - final_dmg)
-    table.insert(logs, string.format("Enemy used %s (%d dmg). Blocked %d shield. Took %d damage!", intent.description, dmg, blocked, final_dmg))
+    -- Brewfield chemistry: Evasion charges roll to dodge the strike entirely.
+    local dodged = false
+    if player_fx.dodge > 0 then
+      local dodge_temp = (seed * 1103515245 + 12345) % 2147483648
+      local dodge_roll = dodge_temp / 2147483648
+      if dodge_roll < 0.5 then
+        dodged = true
+        table.insert(logs, "Evasion Success! Dodged the entire attack cleanly.")
+      else
+        table.insert(logs, "Evasion FAILED! The attack lands through the fog.")
+      end
+      player_fx.dodge = math.max(0, player_fx.dodge - 1)
+    end
+    if dodged then
+      table.insert(logs, string.format("Enemy used %s — evaded completely.", intent.description))
+    else
+      local blocked = math.min(next_player_shield, dmg)
+      local final_dmg = dmg - blocked
+      next_player_shield = next_player_shield - blocked
+      next_player_hp = math.max(0, next_player_hp - final_dmg)
+      table.insert(logs, string.format("Enemy used %s (%d dmg). Blocked %d shield. Took %d damage!", intent.description, dmg, blocked, final_dmg))
+      -- Brewfield chemistry: Retaliation rebounds on any attack that lands.
+      if player_fx.retaliate > 0 then
+        next_enemy_hp = math.max(0, next_enemy_hp - player_fx.retaliate)
+        table.insert(logs, string.format("Retaliation! %d damage rebounds onto %s.", player_fx.retaliate, enemy.name))
+        player_fx.retaliate = math.max(0, player_fx.retaliate - 1)
+      end
+    end
   elseif intent.type == "shield" then
     table.insert(logs, string.format("Enemy used %s, gaining %d Shield.", intent.description, intent.value))
   elseif intent.type == "dot_attack" then
@@ -1058,9 +1197,74 @@ function resolve_combat_turn(run_state, played_card, data)
     return { nextState = next_state, fightWon = false, isBoss = is_boss_node }
   end
 
-  next_player_shield = 0
+  -- Enemy destroyed by Retaliation rebound.
+  if next_enemy_hp <= 0 then
+    local victory_bonus = is_boss_node and 30 or 15
+    table.insert(logs, string.format("Enemy destroyed by Retaliation! Granting +%d victory Essence.", victory_bonus))
+    next_deck_state = draw_hand(next_deck_state, 5)
+
+    next_state.playerHp = next_player_hp
+    next_state.playerShield = next_player_shield
+    next_state.essence = next_essence + victory_bonus
+    next_state.deckState = next_deck_state
+    next_state.enemy = { name = enemy.name, hp = 0, maxHp = enemy.maxHp, dot = nil, intent = enemy.intent, tier = enemy.tier }
+    next_state.status = "reward"
+    next_state.logs = logs
+    return { nextState = next_state, fightWon = true, isBoss = is_boss_node }
+  end
+
+  -- Brewfield chemistry: residue statuses tick, then the fuse burns down.
+  if chem and next_enemy_residues then
+    local tick = tick_enemy_residues(next_enemy_residues, data)
+    if tick.enemyDamage > 0 then
+      next_enemy_hp = math.max(0, next_enemy_hp - tick.enemyDamage)
+    end
+    -- Fortified shield carries forward via the decaying-shield mechanism.
+    player_fx.decayingShield = player_fx.decayingShield + tick.playerShield
+    soak_reduction = tick.intentReduction
+    for _, msg in ipairs(tick.logs) do table.insert(logs, msg) end
+  end
+  if next_enemy_fuse and not fuse_planted then
+    next_enemy_fuse.turnsLeft = (next_enemy_fuse.turnsLeft or 1) - 1
+    if next_enemy_fuse.turnsLeft <= 0 then
+      local boom = next_enemy_fuse.damage or 8
+      next_enemy_hp = math.max(0, next_enemy_hp - boom)
+      table.insert(logs, string.format("Volatile fuse detonates — %d damage to %s!", boom, enemy.name))
+      next_enemy_fuse = nil
+    else
+      table.insert(logs, string.format("The volatile fuse burns down (%d turn(s) left).", next_enemy_fuse.turnsLeft))
+    end
+  end
+
+  -- Enemy consumed by burning residues or the fuse.
+  if chem and next_enemy_hp <= 0 then
+    local victory_bonus = is_boss_node and 30 or 15
+    table.insert(logs, string.format("Enemy dissolved under the residue chemistry! Granting +%d victory Essence.", victory_bonus))
+    next_deck_state = draw_hand(next_deck_state, 5)
+
+    next_state.playerHp = next_player_hp
+    next_state.playerShield = next_player_shield
+    next_state.essence = next_essence + victory_bonus
+    next_state.deckState = next_deck_state
+    next_state.enemy = { name = enemy.name, hp = 0, maxHp = enemy.maxHp, dot = nil, intent = enemy.intent, tier = enemy.tier }
+    next_state.status = "reward"
+    next_state.logs = logs
+    return { nextState = next_state, fightWon = true, isBoss = is_boss_node }
+  end
+
+  -- Residues expire by duration after ticking.
+  if chem and next_enemy_residues then
+    local decayed = decay_enemy_residues(next_enemy_residues, data)
+    next_enemy_residues = decayed.residues
+    for _, tag in ipairs(decayed.expired) do
+      table.insert(logs, string.format("[Residue] %s burned out and expired.", string.upper(tag)))
+    end
+  end
+
+  -- Shield decays each turn; decaying-shield (Earth/Fortified) carries over.
+  next_player_shield = player_fx.decayingShield or 0
+  player_fx.decayingShield = 0
   next_deck_state = draw_hand(next_deck_state, 5)
-  local next_turn_count = (run_state.turnCount or 1) + 1
   local next_intent = get_enemy_intent(enemy.name, next_turn_count)
 
   if is_boss_node then
@@ -1070,6 +1274,22 @@ function resolve_combat_turn(run_state, played_card, data)
       next_intent = { type = "heavy_attack", value = 16, description = "Shattered Scream!!! (16 Dmg)" }
     elseif next_enemy_hp <= thresh66 then
       next_intent = { type = "shield", value = 12, description = "Stabilized Ward (12 Shield)" }
+    end
+  end
+
+  -- Brewfield chemistry: Soaked/Slow/Root reductions bite on the next intent.
+  local total_intent_reduction = soak_reduction + pending_intent_reduction
+  if total_intent_reduction > 0
+    and (next_intent.type == "attack" or next_intent.type == "heavy_attack" or next_intent.type == "dot_attack") then
+    local reduced = math.max(0, next_intent.value - total_intent_reduction)
+    if reduced ~= next_intent.value then
+      local desc = next_intent.description
+      local base_desc = string.match(desc, "^(.-)%s*%(")
+      if base_desc then
+        desc = string.format("%s (%d Dmg)", base_desc, reduced)
+      end
+      next_intent = { type = next_intent.type, value = reduced, duration = next_intent.duration, description = desc }
+      table.insert(logs, string.format("[Residue] The enemy's next intent is weakened to %d.", reduced))
     end
   end
 
@@ -1087,6 +1307,7 @@ function resolve_combat_turn(run_state, played_card, data)
     intent = next_intent, tier = enemy.tier,
     secondaryType = next_secondary_type, vulnerable = next_vulnerable, resistant = next_resistant,
     behaviorPattern = enemy.behaviorPattern, behaviorTypeIds = enemy.behaviorTypeIds,
+    residues = next_enemy_residues, fuse = next_enemy_fuse, shield = next_enemy_shield,
   }
   next_state.logs = logs
 
