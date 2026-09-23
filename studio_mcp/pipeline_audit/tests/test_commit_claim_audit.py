@@ -9,6 +9,7 @@ from studio_mcp.pipeline_audit.commit_claim_audit import (
     audit_addition_claim,
     audit_file_list,
 )
+from tests._git_env import isolated_git_env
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 COMMIT_WITH_REAL_FEATURE = "4e3ceb0"
@@ -60,7 +61,8 @@ def test_commit_claim_audit_addition_claim_true_positive() -> None:
 
 def _full_hash(ref: str) -> str:
     return subprocess.run(
-        ["git", "rev-parse", ref], cwd=REPO_ROOT, capture_output=True, text=True, check=True
+        ["git", "rev-parse", ref], cwd=REPO_ROOT, capture_output=True, text=True,
+        check=True, env=isolated_git_env(REPO_ROOT),
     ).stdout.strip()
 
 
