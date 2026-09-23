@@ -341,3 +341,233 @@ function get_enemy_intent(enemy_name, turn)
     return patterns[t + 1] or patterns[1]
   end
 end
+
+-- ============================================================
+-- BREWFIELD CHEMISTRY LAYER
+-- Elemental residue statuses on the enemy + the 4x4 component x element
+-- effect matrix, driven entirely by data.residue.chemistry. Semantics come
+-- from games/brewfield/logic.lua (solve_brew, update_residue_field,
+-- apply_residue_tick); the shape is Dissonance's data-driven style.
+-- These are pure helpers — run_state.resolve_combat_turn applies the results.
+-- ============================================================
+
+local function chem_config(data)
+  return data and data.residue and data.residue.chemistry or nil
+end
+
+function chemistry_active(run_state, data)
+  local cfg = chem_config(data)
+  if not cfg then return false end
+  return (run_state.currentFloor or 1) >= (cfg.min_floor or 4)
+end
+
+local function chem_statuses(data)
+  local cfg = chem_config(data)
+  return (cfg and cfg.statuses) or {}
+end
+
+local function residue_list(residues)
+  if type(residues) ~= "table" then return {} end
+  if collect then return collect(residues) end
+  return residues
+end
+
+function residue_tag_for_element(element, data)
+  for tag, def in pairs(chem_statuses(data)) do
+    if def.element == element then return tag end
+  end
+  return nil
+end
+
+function residue_matrix_cell(component, element, data)
+  local cfg = chem_config(data)
+  local matrix = cfg and cfg.matrix
+  local row = matrix and matrix[component]
+  return (row and row[element]) or {}
+end
+
+function scale_matrix_effect(v, multiplier)
+  return math.floor((v or 0) * (multiplier or 1) + 0.5)
+end
+
+-- Deposit the residue status of `element` onto the enemy's residue list.
+-- Mirrors Brewfield's update_residue_field rules, adapted to on-target
+-- statuses: same element amplifies, opposed element annihilates, unrelated
+-- adds (replacing oldest at capacity); fortified resists removal.
+-- Returns { residues = <new list>, logs = {..} }.
+function deposit_enemy_residue(residues, element, is_opposed, data)
+  local defs = chem_statuses(data)
+  local updated = {}
+  for _, r in ipairs(residue_list(residues)) do
+    table.insert(updated, {
+      tag = r.tag,
+      level = r.level or 1,
+      turnsLeft = r.turnsLeft or (defs[r.tag] and defs[r.tag].duration) or 2,
+    })
+  end
+  local logs = {}
+
+  if is_opposed then
+    table.insert(logs, "[Residue] Opposed reaction — no residue could settle on the target.")
+    return { residues = updated, logs = logs }
+  end
+  if not element then
+    return { residues = updated, logs = logs }
+  end
+
+  local tag = residue_tag_for_element(element, data)
+  if not tag then
+    return { residues = updated, logs = logs }
+  end
+
+  local duration = (defs[tag] and defs[tag].duration) or 2
+  local max_slots = (data and data.residue and data.residue.max_slots) or 2
+  local max_level = (data and data.residue and data.residue.max_level) or 3
+  local opposed_pairs = (data and data.residue and data.residue.opposed_pairs) or {}
+  local opposed_el = opposed_pairs[element]
+  local opposed_tag = opposed_el and residue_tag_for_element(opposed_el, data) or nil
+
+  -- Same element amplifies an existing status and refreshes its duration.
+  for _, r in ipairs(updated) do
+    if r.tag == tag then
+      local old = r.level
+      r.level = math.min(max_level, old + 1)
+      r.turnsLeft = duration
+      if r.level > old then
+        table.insert(logs, string.format("[Residue] %s amplified to Level %d!", string.upper(tag), r.level))
+      else
+        table.insert(logs, string.format("[Residue] %s refreshed at Level %d.", string.upper(tag), r.level))
+      end
+      return { residues = updated, logs = logs }
+    end
+  end
+
+  -- Opposed element annihilates the opposed status (no new deposit).
+  if opposed_tag then
+    for i, r in ipairs(updated) do
+      if r.tag == opposed_tag then
+        local def = defs[opposed_tag] or {}
+        if def.absorbs_annihilation and (r.level or 1) > 1 then
+          r.level = r.level - 1
+          table.insert(logs, string.format("[Residue] %s absorbed the annihilation — diminished to Level %d.", string.upper(opposed_tag), r.level))
+        else
+          table.remove(updated, i)
+          table.insert(logs, string.format("[Residue] %s annihilated the opposed %s!", string.upper(tag), string.upper(opposed_tag)))
+        end
+        return { residues = updated, logs = logs }
+      end
+    end
+  end
+
+  -- Unrelated element: add, or replace at capacity (resists_overwrite last).
+  if #updated < max_slots then
+    table.insert(updated, { tag = tag, level = 1, turnsLeft = duration })
+    table.insert(logs, string.format("[Residue] %s settled on the target (Level 1).", string.upper(tag)))
+    return { residues = updated, logs = logs }
+  end
+
+  for i, r in ipairs(updated) do
+    local def = defs[r.tag] or {}
+    if not def.resists_overwrite then
+      local replaced = r.tag
+      updated[i] = { tag = tag, level = 1, turnsLeft = duration }
+      table.insert(logs, string.format("[Residue] %s replaced %s on the target.", string.upper(tag), string.upper(replaced)))
+      return { residues = updated, logs = logs }
+    end
+  end
+
+  -- Every slot resists overwrite: wear the oldest down one level instead.
+  local first = updated[1]
+  if (first.level or 1) > 1 then
+    first.level = first.level - 1
+    table.insert(logs, string.format("[Residue] %s shell absorbed the overwrite — diminished to Level %d.", string.upper(first.tag), first.level))
+  else
+    local worn = first.tag
+    updated[1] = { tag = tag, level = 1, turnsLeft = duration }
+    table.insert(logs, string.format("[Residue] %s was finally worn down and replaced by %s.", string.upper(worn), string.upper(tag)))
+  end
+  return { residues = updated, logs = logs }
+end
+
+-- Per-turn residue behaviour. Returns effect magnitudes; the caller applies
+-- them to enemy/player state so victory checks stay in one place.
+function tick_enemy_residues(residues, data)
+  local defs = chem_statuses(data)
+  local list = residue_list(residues)
+
+  local factor = 1
+  for _, r in ipairs(list) do
+    local def = defs[r.tag]
+    if def and def.amplify_factor then
+      factor = def.amplify_factor
+      break
+    end
+  end
+
+  local enemy_damage = 0
+  local player_shield = 0
+  local intent_reduction = 0
+  local logs = {}
+
+  for _, r in ipairs(list) do
+    local def = defs[r.tag] or {}
+    local lvl = r.level or 1
+    if def.tick_damage then
+      local dmg = lvl * def.tick_damage * factor
+      enemy_damage = enemy_damage + dmg
+      table.insert(logs, string.format("[Residue] %s ticks — %d damage to the enemy.", string.upper(r.tag), dmg))
+    end
+    if def.intent_reduction then
+      local red = lvl * def.intent_reduction * factor
+      intent_reduction = intent_reduction + red
+      table.insert(logs, string.format("[Residue] %s chills the enemy — next attack intents -%d.", string.upper(r.tag), red))
+    end
+    if def.shield_per_level then
+      local sh = lvl * def.shield_per_level * factor
+      player_shield = player_shield + sh
+      table.insert(logs, string.format("[Residue] %s hardens around you — +%d Shield carried into next turn.", string.upper(r.tag), sh))
+    end
+  end
+
+  return { enemyDamage = enemy_damage, playerShield = player_shield, intentReduction = intent_reduction, logs = logs }
+end
+
+-- Burning residues flare immediately (air blight's ticks_active_dots).
+function residue_immediate_burn(residues, data)
+  local defs = chem_statuses(data)
+  local list = residue_list(residues)
+
+  local factor = 1
+  for _, r in ipairs(list) do
+    local def = defs[r.tag]
+    if def and def.amplify_factor then
+      factor = def.amplify_factor
+      break
+    end
+  end
+
+  local damage = 0
+  for _, r in ipairs(list) do
+    local def = defs[r.tag] or {}
+    if def.tick_damage then
+      damage = damage + (r.level or 1) * def.tick_damage * factor
+    end
+  end
+  return damage
+end
+
+-- Residues expire by turnsLeft — one turn is consumed per combat turn,
+-- after the tick. Returns the surviving list.
+function decay_enemy_residues(residues, data)
+  local out = {}
+  local expired = {}
+  for _, r in ipairs(residue_list(residues)) do
+    local left = (r.turnsLeft or 0) - 1
+    if left > 0 then
+      table.insert(out, { tag = r.tag, level = r.level or 1, turnsLeft = left })
+    else
+      table.insert(expired, r.tag)
+    end
+  end
+  return { residues = out, expired = expired }
+end

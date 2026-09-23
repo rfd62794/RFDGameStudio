@@ -5,6 +5,100 @@ Studio-wide summary: [`/CHANGELOG.md`](../../CHANGELOG.md)
 
 ---
 
+## Dissonance Depths — Brewfield Chemistry Merge — COMPLETED
+
+**Date:** September 20 2026
+
+### What was taken from Brewfield
+
+- **Four elemental residues** (`data.yaml` → `residue.chemistry.statuses`):
+  `burning` (ember/fire), `soaked` (spark/water), `fortified` (cinder/earth),
+  `windswept` (ash/air). The element mapping follows wheel position —
+  Dissonance's opposed pairs (ember↔spark, ash↔cinder) are position-identical
+  to Brewfield's (fire↔water, air↔earth). Statuses deposit on the enemy
+  (`enemy.residues`), tick once per turn, and expire on their configured
+  durations.
+- **Residue interaction**: a played card's primary element interacts with
+  residues already on the target — same tag amplifies (+1 level, duration
+  refresh), the opposed element's tag annihilates, capacity is bounded by
+  `residue.max_slots`, and `fortified` resists overwrite and absorbs a level
+  of annihilation (Brewfield's absorb semantics).
+- **Six advanced effects** as matrix cell values: `retaliate`, `dodge`,
+  `decaying_shield`, `cauterize`, `detonate`, `weakness`, plus Brewfield's
+  `ticks_active_dots`, `strip_enemy_shield`, `suppress_dot`, `strikes`,
+  `intent_reduction`, `bonus_shield`, and `bonus_heal`.
+- **The 4×4 matrix** (component × primary element) ported from `solveBrew`
+  into `residue.chemistry.matrix` — data, not code.
+
+### Deliberately left behind
+
+- Brewfield's free-form brew recipes, card economy, and enemy pacing —
+  Dissonance keeps its own card/frame model.
+- The TypeScript source in `ts/src/games/brewfield/` — read-only, untouched.
+- Dissonance's persistent player-side `run_state.residue` marks stay exactly
+  as they were; the chemistry residues are a separate, enemy-targeted layer.
+
+### Architecture findings (directive §2 confirmed)
+
+- **Confirmed**: Dissonance computes all game logic in Lua/YAML;
+  `ts/src/games/dissonance/types.ts` is types/UI only ("No game logic is
+  computed here"). The merge lives in `data.yaml`, `logic/combat.lua`, and
+  `logic/run_state.lua`; the TS file gained only the matching state shapes
+  (`EnemyResidue`, `PlayerEffects`, enemy `residues`/`fuse`/`shield`,
+  `RunState.playerEffects`).
+- **The YAML-data instruction held up**: the matrix is looked up at runtime
+  via `residue_matrix_cell(component, element, data)` — no component×element
+  conditionals were added to Lua. One correction to the directive's letter:
+  `combat.lua` is a pure-helper module — the turn pipeline lives in
+  `run_state.lua::resolve_combat_turn`, so effect application landed there
+  while `combat.lua` hosts the chemistry helpers.
+
+### Test harness
+
+- There is **no Lua test harness**; tests drive Lua through the existing
+  Python bridge (`studio.runtime.load_game`/`call`, Lupa). New coverage is
+  `tests/test_dissonance_chemistry.py` (22 tests): each residue applies /
+  ticks / expires, fire-on-soaked and water-on-burning annihilation, all six
+  advanced effects in isolation (matrix effects verified with statuses
+  stripped), and the additive guarantee — `resolve_combination` snapshot plus
+  floor-1 combat output identical, since chemistry is gated behind
+  `residue.chemistry.min_floor: 4`.
+
+### Directive-vs-code contradictions
+
+- The directive describes "existing residue" as target-side; the only
+  pre-existing residue (`run_state.residue.marks`) is **player-side**. Both
+  now coexist: persistent player marks (unchanged) and per-enemy chemistry
+  residues (new).
+- The directive implies the chemistry wiring belongs inside `combat.lua`'s
+  turn resolution; combat turns are actually resolved in `run_state.lua` —
+  `combat.lua` holds pure helpers only. Semantics unaffected.
+
+### Files changed
+
+- `games/dissonance/data.yaml` — `residue.chemistry` block: `min_floor`,
+  status definitions, the 4×4 matrix.
+- `games/dissonance/logic/combat.lua` — chemistry helpers
+  (`chemistry_active`, `residue_matrix_cell`, `scale_matrix_effect`,
+  `deposit_enemy_residue`, `tick_enemy_residues`, `residue_immediate_burn`,
+  `decay_enemy_residues`).
+- `games/dissonance/logic/run_state.lua` — `playerEffects` state, enemy
+  `residues`/`fuse`/`shield`, matrix-effect application, residue
+  deposit/tick/expiry, dodge/retaliate/detonate resolution.
+- `games/dissonance/systems.yaml` — registered the new combat functions.
+- `ts/src/games/dissonance/types.ts` — `EnemyResidue`, `PlayerEffects`, and
+  the new enemy/run-state fields (types only).
+- `tests/test_dissonance_chemistry.py` — new, 22 tests.
+
+### Test floor
+
+- `uv run pytest -m "dissonance and not e2e"`: **77 passed** (22 new).
+- `uv run pytest -m "not e2e and not slow"`: **746 passed, 8 skipped**.
+- The e2e `test_dissonance_new_run_to_map` errors at setup — it needs a live
+  Vite dev server, which the directive's no-servers rule excludes.
+
+---
+
 ## Dissonance Depths — Live Deployment — COMPLETED (HANDOFF)
 
 **Date:** August 14 2026

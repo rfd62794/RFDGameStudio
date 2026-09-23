@@ -9,7 +9,7 @@ engine_systems: []
 
 systems:
   combat:
-    components: [combination, intent]
+    components: [combination, intent, residue_status, matrix_effect]
     functions:
       - resolve_combination
       - get_secondary_type
@@ -17,6 +17,14 @@ systems:
       - canonicalize_elements
       - get_behavior_type_intent
       - get_enemy_intent
+      - chemistry_active
+      - residue_tag_for_element
+      - residue_matrix_cell
+      - scale_matrix_effect
+      - deposit_enemy_residue
+      - tick_enemy_residues
+      - residue_immediate_burn
+      - decay_enemy_residues
   builds:
     components: [active_build, build_gate]
     functions:
