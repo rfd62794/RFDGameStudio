@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-63977b |
 | Base branch | - |
@@ -93,4 +93,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 22:39 · backlog-policy · Queued → Approved
 - 2026-09-23 00:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-63977b; base origin/main (local main differs)
 - 2026-09-23 00:55 · devin · In progress → Review — Added ts/tests/test_succession_courtFigures.ts (6 tests, all pass). Full vitest run: 1649 passed, 6 files failed / 35 skipped — all documented main baseline (missing gitignored generated game-metadata.json + pre-existing skips), no new failures.
+- 2026-09-23 01:15 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [90m [2m❯[22m ../../../../GitHub/RFDGameStudio/ts/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64439:39[22m[39m | [90m [2m❯[22m TransformPluginContext.transform ../../../../GitHub/RFDGameStudio/ts/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64366:7[22m[39m | [90m [2m❯[22m PluginContainer.transform ../../../../GitHub/RFDGameStudio/ts/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49099:18[22m[39m | [90m [2m❯[22m loadAndTransform ../../../../GitHub/RFDGameStudio/ts/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51978:27[22m[39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
 <!-- queue:end -->
