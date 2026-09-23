@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-63977b |
 | Base branch | - |
@@ -92,4 +92,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 22:36 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
 - 2026-09-22 22:39 · backlog-policy · Queued → Approved
 - 2026-09-23 00:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-63977b; base origin/main (local main differs)
+- 2026-09-23 00:55 · devin · In progress → Review — Added ts/tests/test_succession_courtFigures.ts (6 tests, all pass). Full vitest run: 1649 passed, 6 files failed / 35 skipped — all documented main baseline (missing gitignored generated game-metadata.json + pre-existing skips), no new failures.
 <!-- queue:end -->
