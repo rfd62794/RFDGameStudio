@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-dd9c0a |
 | Base branch | - |
@@ -95,4 +95,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 21:25 · devin-overseer · In progress → Blocked — Refused command: `uv run --no-sync python -m studio_mcp.game_metadata` (repo's own pre-test step per scripts/check.ps1 that regenerates gitignored ts/src/games/game-metadata.json). Work itself is done and committed on the directive branch: new ts/tests/test_mbb_stats_mapper.ts, 16/16 tests pass. Full `npx vitest run` baseline shows 6 pre-existing suite failures (test_arcade*) all failing to resolve the missing generated game-metadata.json, plus 30 pre-existing skips — none caused by this change. Run stopped per refusal rule.
 - 2026-09-22 22:42 · robert-claude · Blocked → Queued
 - 2026-09-22 22:42 · robert-claude · Queued → Approved
+- 2026-09-23 00:08 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-dd9c0a
 <!-- queue:end -->
