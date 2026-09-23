@@ -107,7 +107,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-skipped-test-skips |
 | Base branch | - |
@@ -118,4 +118,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 12:02 · backlog-policy · none → Queued — generated from a skipped-test finding authorised in backlog_policy.yaml
 - 2026-09-23 12:06 · backlog-policy · Queued → Approved
 - 2026-09-23 12:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-skipped-test-skips; copied ts/src/games/game-metadata.json
+- 2026-09-23 12:33 · agentflow-tick · In progress → Blocked — Died on rejected file-copy confirmations in non-interactive mode (needs --permission-mode dangerous) after correctly diagnosing 4 real vs 26 environment-artifact skips.
 <!-- queue:end -->
