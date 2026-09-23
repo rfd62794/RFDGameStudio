@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-tools-suc-fbc688 |
 | Base branch | - |
@@ -92,4 +92,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-23 13:03 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
 - 2026-09-23 13:14 · backlog-policy · Queued → Approved
 - 2026-09-23 14:25 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-tools-suc-fbc688; copied ts/src/games/game-metadata.json; lane=strong
+- 2026-09-23 14:51 · devin · In progress → Review — New test file ts/tests/test_succession_balance_sim.ts: 10/10 pass in every run; module untouched. Suite shows pre-existing flakes unrelated to the change (test_arcade_routing 5s-timeout under parallel load — passes standalone; one probabilistic mbb point-cap assert; ~28 conditional skips). Pre-push hook's own vitest run: 0 failed.
 <!-- queue:end -->
