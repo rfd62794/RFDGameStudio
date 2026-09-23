@@ -227,3 +227,17 @@ it and do not summarize it.
 
 *RFD Method | Phase 2 | RFDGameStudio Zip Verifier Module | August 2026*
 *Director → Pipeline → Agent. Spec first. Verdicts are real or they're UNVERIFIABLE — never assumed clean.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:22 · agentflow-tick · none → Queued — suggested by heartbeat: zip_verify code+tests already on disk from prior work; only the live OpenRouter smoke test + report remain, which is credentialed/judgment work — routing to claude, not devin
+<!-- queue:end -->
