@@ -57,11 +57,12 @@ Before/after vitest counts, the five commit hashes, and anything in the plan you
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-22 21:41 · robert-claude · none → Queued — Robert: go (Studio foundation step 1, plan c3c9baab)
+- 2026-09-22 21:41 · robert-claude · Queued → Approved
 <!-- queue:end -->
