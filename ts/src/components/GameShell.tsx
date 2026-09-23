@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { navigateHome, isEmbed } from '../arcade/routing';
+import { getGlossary, GlossaryPanel, glossaryPanelRequested } from '../foundation/glossary';
 
 export interface GameShellProps {
   /** Display name used in the marquee title treatment */
@@ -72,6 +73,11 @@ export function GameShell({
       </header>
 
       <div className={`game-shell-main ${mainClassName}`}>{children}</div>
+
+      {typeof window !== 'undefined' && glossaryPanelRequested(window.location.search) && (() => {
+        const result = getGlossary(gameId);
+        return result ? <GlossaryPanel result={result} /> : null;
+      })()}
 
       {footer && <div className="game-shell-footer">{footer}</div>}
     </div>
