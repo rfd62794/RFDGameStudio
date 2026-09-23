@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engin-32491b |
 | Base branch | - |
@@ -93,4 +93,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 16:18 · backlog-policy · Queued → Approved
 - 2026-09-22 16:18 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engin-32491b; base origin/main (local main differs)
 - 2026-09-22 16:28 · devin-overseer · In progress → Review — Added ts/tests/test_firestore_backend_verifyAuth.ts (9 tests): covers verifyAuth 401 paths (no header, non-Bearer scheme, empty Bearer token), success path (verifyIdToken called with raw token; verifiedUid/verifiedEmail/idToken stamped; next() called; getAdminAuth never touched on early reject), 401 on verifyIdToken rejection, and createVerifyAdmin default-deny 403 (missing email, mismatch) plus case-insensitive match -> next(). `cd ts && npx vitest run` final result: Test Files 143 passed | 1 skipped (144); Tests 1695 passed | 28 skipped (1723), exit 0. Environment note: the fresh worktree lacked gitignored generated file ts/src/games/game-metadata.json (produced by `python -m studio_mcp.game_metadata`, check.ps1 step 2); 6 arcade suites failed at import until I restored it verbatim from the main checkout — it is gitignored and not part of the commit. Two unrelated probabilistic tests (test_sports_sim_engine_port severity ladder, test_mbb_match_rendering_point_cap_symmetry symmetric-match margin) flaked on one intermediate run and passed on re-run; the 28 skips are pre-existing it.skip in unrelated files. Refused commands: `git check-ignore -v ts/src/games/game-metadata.json`, `cp <main-checkout game-metadata.json> <worktree>` (worked around via write tool with identical content). Only tracked change: the new test file, committed as caaa6dd8.
+- 2026-09-22 21:18 · robert-claude · Review → Done
 <!-- queue:end -->
