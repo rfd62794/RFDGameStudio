@@ -33,10 +33,10 @@ function findCssAsset(dir: string): string | undefined {
 }
 
 // These read the local git checkout (clean tree, branch vs origin, specific
-// commit hashes in recent history), so they describe the machine rather than
-// the code and fail on any branch or with work in progress. Opt in before a
-// deploy with RFD_CHECK_GIT_STATE=1.
-describe.skipIf(!process.env.RFD_CHECK_GIT_STATE)('test_git_state_clean_both_games', () => {
+// commit hashes in history), so they describe the machine rather than the
+// code and will fail with uncommitted source changes or on a branch that is
+// behind its origin tracking branch.
+describe('test_git_state_clean_both_games', () => {
   it('Working tree is clean — no uncommitted or partially applied changes', () => {
     // Note: this test file itself, other test files, and docs may be
     // uncommitted if auto-commit hasn't run yet. We check that no
@@ -72,9 +72,9 @@ describe.skipIf(!process.env.RFD_CHECK_GIT_STATE)('test_git_state_clean_both_gam
   });
 
   it('Shoal TS-native migration commits are all present', () => {
-    // Use a wide range — commits accumulate over time and these
-    // migration commits may be far back in history.
-    const log = gitLog('log --oneline -500');
+    // Search the full history — commits accumulate over time and these
+    // migration commits are far back in history.
+    const log = gitLog('log --oneline');
     // The final migration commit
     expect(log).toContain('dacca69');
     // The simulation module commit
@@ -82,8 +82,8 @@ describe.skipIf(!process.env.RFD_CHECK_GIT_STATE)('test_git_state_clean_both_gam
   });
 
   it('Planet of Greed full thread commits are present', () => {
-    // Use a wide range — PoG commits span a large range of history.
-    const log = gitLog('log --oneline -500');
+    // Search the full history — PoG commits span a large range of history.
+    const log = gitLog('log --oneline');
     // Softlock fix
     expect(log).toContain('13cbb7e');
     // Attack capability fix
