@@ -1,4 +1,0 @@
-# Pixel Art Converter Config
-name: "pixel-art-converter"
-description: "Converts images to pixel art."
-model: "dall-e-3"

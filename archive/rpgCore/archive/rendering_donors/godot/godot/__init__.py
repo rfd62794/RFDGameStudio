@@ -1,3 +1,0 @@
-"""
-Godot integration package.
-"""
