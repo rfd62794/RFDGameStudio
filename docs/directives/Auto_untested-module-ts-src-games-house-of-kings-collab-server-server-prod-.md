@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-ac5b91 |
 | Base branch | - |
@@ -95,4 +95,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 21:30 · devin-overseer · In progress → Blocked — Refused command: python -c "from studio_mcp.game_metadata import write_game_metadata; write_game_metadata()". Work done: new ts/tests/test_house_of_kings_server_prod.ts committed on branch (22/22 tests pass). Check `npx vitest run` = 1635 passed, 30 skipped, 6 pre-existing suite failures: all fail resolving gitignored ts/src/games/game-metadata.json (missing in fresh worktree; only generation path refused), plus 30 skipIf skips needing dist*/ builds which the directive forbids. 0-failed/0-skipped criterion unreachable in this worktree; finding itself was accurate.
 - 2026-09-22 22:42 · robert-claude · Blocked → Queued
 - 2026-09-22 22:42 · robert-claude · Queued → Approved
+- 2026-09-23 08:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-ac5b91; copied ts/src/games/game-metadata.json
 <!-- queue:end -->
