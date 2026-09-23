@@ -27,3 +27,17 @@ pytest files show no new failures against `main`; report before/after counts and
 - Work only on your `directive/<slug>` branch. **Never commit to main, never push, never deploy.**
 - Update this directive's Status row when you finish or stop partway.
 - If a tool call is genuinely blocked, stop and write why in the Status row.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 09:08 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified port with verified source/target files and a tests-first spec; matches Devin's build-work profile.
+<!-- queue:end -->
