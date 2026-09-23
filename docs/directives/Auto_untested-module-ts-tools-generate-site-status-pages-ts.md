@@ -81,13 +81,15 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-auto-untested-module-ts-tools-gen-ae69ee |
 | Base branch | - |
+| Base commit | 2ff8f1b99a07fe509d73defe83ff90f9b38ded6f |
 | Policy | untested-module |
 
 **Status log**
 - 2026-09-23 09:59 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
 - 2026-09-23 10:01 · backlog-policy · Queued → Approved
+- 2026-09-23 11:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-tools-gen-ae69ee; base origin/main (local main differs); copied ts/src/games/game-metadata.json
 <!-- queue:end -->
