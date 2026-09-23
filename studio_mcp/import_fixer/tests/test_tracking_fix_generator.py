@@ -8,13 +8,14 @@ from pathlib import Path
 from studio_mcp.import_fixer.pattern_catalog import PatternName
 from studio_mcp.import_fixer.pattern_detector import DetectionResult, MatchStatus
 from studio_mcp.import_fixer.tracking_fix_generator import generate_tracking_fix
+from tests._git_env import isolated_git_env
 
 
 def test_tracking_fix_generator_flags_node_modules_leak(tmp_path: Path) -> None:
     """A directory containing node_modules/ should downgrade to ambiguous."""
     scratch_repo = tmp_path / "repo"
     scratch_repo.mkdir()
-    subprocess.run(["git", "init"], cwd=scratch_repo, capture_output=True)
+    subprocess.run(["git", "init"], cwd=scratch_repo, capture_output=True, env=isolated_git_env(scratch_repo))
 
     target = scratch_repo / "examples" / "game" / "src"
     target.mkdir(parents=True)

@@ -15,6 +15,7 @@ from studio_mcp.import_fixer.pattern_detector import (
     detect_mislabeled_add_claim,
 )
 from studio_mcp.import_fixer.pattern_catalog import PatternName
+from tests._git_env import isolated_git_env
 
 
 # ---------------------------------------------------------------------------
@@ -277,7 +278,8 @@ def test_detect_untracked_registry_source_finds_scratch_reverted_case(
     the index — simulating pre-fix state. Should return clean_match."""
     scratch_repo = tmp_path / "repo"
     scratch_repo.mkdir()
-    subprocess.run(["git", "init"], cwd=scratch_repo, capture_output=True)
+    env = isolated_git_env(scratch_repo)
+    subprocess.run(["git", "init"], cwd=scratch_repo, capture_output=True, env=env)
 
     examples_dir = scratch_repo / "examples" / "planetforge" / "src"
     examples_dir.mkdir(parents=True)
@@ -287,8 +289,8 @@ def test_detect_untracked_registry_source_finds_scratch_reverted_case(
     ts_dir.mkdir(parents=True)
     (ts_dir / "config.ts").write_text("export const gameId = 'planetforge';\n", encoding="utf-8")
 
-    subprocess.run(["git", "add", "ts/src/games/planetforge/config.ts"], cwd=scratch_repo, capture_output=True)
-    subprocess.run(["git", "commit", "-m", "init"], cwd=scratch_repo, capture_output=True)
+    subprocess.run(["git", "add", "ts/src/games/planetforge/config.ts"], cwd=scratch_repo, capture_output=True, env=env)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=scratch_repo, capture_output=True, env=env)
 
     result = detect_untracked_registry_source("planetforge", repo_root=scratch_repo)
 
@@ -319,7 +321,8 @@ def test_detect_untracked_registry_source_multiple_candidates_is_ambiguous(
     """Two untracked candidate dirs matching the same slug → ambiguous."""
     scratch_repo = tmp_path / "repo"
     scratch_repo.mkdir()
-    subprocess.run(["git", "init"], cwd=scratch_repo, capture_output=True)
+    env = isolated_git_env(scratch_repo)
+    subprocess.run(["git", "init"], cwd=scratch_repo, capture_output=True, env=env)
 
     # Two dirs that both match slug "fakegame" via different variants.
     d1 = scratch_repo / "examples" / "fakegame"
@@ -335,8 +338,8 @@ def test_detect_untracked_registry_source_multiple_candidates_is_ambiguous(
     ts_dir = scratch_repo / "ts" / "src" / "games" / "fakegame"
     ts_dir.mkdir(parents=True)
     (ts_dir / "config.ts").write_text("export const gameId = 'fakegame';\n", encoding="utf-8")
-    subprocess.run(["git", "add", "ts/src/games/fakegame/config.ts"], cwd=scratch_repo, capture_output=True)
-    subprocess.run(["git", "commit", "-m", "init"], cwd=scratch_repo, capture_output=True)
+    subprocess.run(["git", "add", "ts/src/games/fakegame/config.ts"], cwd=scratch_repo, capture_output=True, env=env)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=scratch_repo, capture_output=True, env=env)
 
     result = detect_untracked_registry_source("fakegame", repo_root=scratch_repo)
 

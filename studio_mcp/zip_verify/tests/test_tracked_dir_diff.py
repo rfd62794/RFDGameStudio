@@ -12,32 +12,31 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _make_two_commit_repo(repo: Path) -> Path:
-    """Build a scratch repo whose examples/demo dir has two real commits."""
+    """Build a scratch repo whose examples/demo dir has two real commits.
+
+    Every git call runs under isolated_git_env so an inherited GIT_DIR (or
+    any other GIT_* var) can never redirect them at a real repository, and
+    identity comes from GIT_AUTHOR_*/GIT_COMMITTER_* instead of `git config`
+    so no git config file is ever written.
+    """
     source_dir = repo / "examples" / "demo"
     source_dir.mkdir(parents=True)
+    env = isolated_git_env(repo)
 
     # Initialize a real git repo.
-    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
-    subprocess.run(
-        ["git", "config", "user.email", "test@test.com"],
-        cwd=repo, check=True, capture_output=True,
-    )
-    subprocess.run(
-        ["git", "config", "user.name", "Test"],
-        cwd=repo, check=True, capture_output=True,
-    )
+    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True, env=env)
 
     # First commit.
     (source_dir / "main.ts").write_text("function main() { return 1; }", encoding="utf-8")
-    subprocess.run(["git", "add", "."], cwd=repo, check=True, capture_output=True)
-    subprocess.run(["git", "commit", "-m", "first"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "add", "."], cwd=repo, check=True, capture_output=True, env=env)
+    subprocess.run(["git", "commit", "-m", "first"], cwd=repo, check=True, capture_output=True, env=env)
 
     # Second commit: change and add a function.
     (source_dir / "main.ts").write_text(
         "function main() { return 2; }\nfunction helper() { return 3; }", encoding="utf-8"
     )
-    subprocess.run(["git", "add", "."], cwd=repo, check=True, capture_output=True)
-    subprocess.run(["git", "commit", "-m", "second"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "add", "."], cwd=repo, check=True, capture_output=True, env=env)
+    subprocess.run(["git", "commit", "-m", "second"], cwd=repo, check=True, capture_output=True, env=env)
     return source_dir
 
 

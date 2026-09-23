@@ -25,6 +25,13 @@ $ErrorActionPreference = "Continue"
 $RepoRoot = Split-Path $PSScriptRoot -Parent
 Set-Location $RepoRoot
 
+# When this script runs under a git hook (e.g. .githooks/pre-push), git exports
+# GIT_DIR and friends into the environment. Any test or tool we spawn that calls
+# `git` would then operate on the REAL repository instead of its own fixture —
+# see docs/directives/Test_Git_Isolation_Directive.md. Strip every GIT_* var
+# before pytest and vitest run.
+Get-ChildItem Env:GIT_* | Remove-Item
+
 function Invoke-Step([string]$Name, [scriptblock]$Command) {
     Write-Host ""
     Write-Host "== $Name ==" -ForegroundColor Cyan
