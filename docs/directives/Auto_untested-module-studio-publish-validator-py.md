@@ -78,7 +78,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-studio-publish-vali |
 | Base branch | - |
@@ -89,4 +89,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-20 13:02 · backlog-policy · Queued → Approved
 - 2026-09-20 13:02 · dispatcher · Approved → In progress — dispatched devin in C:\Github\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-studio-publish-vali
 - 2026-09-20 13:15 · devin · In progress → Review — Added tests/test_publish_validator.py (27 tests, all pass). Full `python -m pytest -q` cannot pass in this bare worktree: itch_publisher workspace pkg not installed (2 collection errors) and ts/node_modules absent (12 standalone-build fails, 18 e2e errors). Pre-existing env gaps, unrelated to the new file; run rules forbid uv sync/venv.
+- 2026-09-22 21:18 · robert-claude · Review → Done
 <!-- queue:end -->
