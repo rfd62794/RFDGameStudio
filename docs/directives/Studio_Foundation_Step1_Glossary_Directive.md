@@ -57,12 +57,14 @@ Before/after vitest counts, the five commit hashes, and anything in the plan you
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-studio-foundation-step1-glossary--0e1628 |
 | Base branch | - |
+| Base commit | 42f9f2a8539fa64fe2e86cf1ecff654e06abe380 |
 
 **Status log**
 - 2026-09-22 21:41 · robert-claude · none → Queued — Robert: go (Studio foundation step 1, plan c3c9baab)
 - 2026-09-22 21:41 · robert-claude · Queued → Approved
+- 2026-09-22 21:41 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-foundation-step1-glossary--0e1628; base origin/main (local main differs)
 <!-- queue:end -->
