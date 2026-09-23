@@ -453,3 +453,17 @@ describe('monument construction', () => {
 
 *PlanetForge | Phase 1 | RFDGameStudio-adjacent, TS-native*
 *Next phase, not this one: Global Core regen pool, elemental flux wave propagation, AutonomousSettlement phase state machine.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-23 01:24 · agentflow-tick · none → Queued — suggested by heartbeat: Fully-specified build (exact code/tests given, locked design decisions); target dir ts/src/games/planetforge/ already exists with config.ts only
+<!-- queue:end -->
