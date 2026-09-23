@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-games-f0087b |
 | Base branch | - |
@@ -96,4 +96,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 22:42 · robert-claude · Blocked → Queued
 - 2026-09-22 22:42 · robert-claude · Queued → Approved
 - 2026-09-22 23:52 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-games-f0087b
+- 2026-09-23 00:03 · devin-overseer · In progress → Blocked — Gate unreachable in worktree: gitignored ts/src/games/game-metadata.json absent, 6 suites fail import; generator refused twice (python -m studio_mcp.game_metadata; uv run --no-sync python -m studio_mcp.game_metadata). 28 pre-existing env skipIf skips also remain.
 <!-- queue:end -->
