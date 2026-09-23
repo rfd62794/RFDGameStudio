@@ -81,7 +81,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-untested-module-ts-src-engin-2b1c64 |
 | Base branch | - |
@@ -96,4 +96,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-22 19:04 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [90m381| [39m [34mexpect[39m(severities[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m | [90m | [39m [31m^[39m | [90m382| [39m [90m// Should include at least one severity from the four-tier ladder[39m | [90m383| [39m [35mconst[39m validSeverities [33m=[39m [[32m'stunned'[39m[33m,[39m [32m'down'[39m[33m,[39m [32m'casualty'[39m[33m,[39m [32m'fatal'[39m][33m;[39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯[22m[39m
 - 2026-09-22 22:43 · robert-claude · Blocked → Queued
 - 2026-09-22 22:43 · robert-claude · Queued → Approved
+- 2026-09-22 23:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-ts-src-engin-2b1c64
 <!-- queue:end -->
