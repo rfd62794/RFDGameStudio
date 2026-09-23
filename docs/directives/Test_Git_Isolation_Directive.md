@@ -75,11 +75,12 @@ Before/after counts, commit hashes, and the list of test files changed.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-22 22:21 · robert-claude · none → Queued — Fix after the PR #10 wipe: isolate git env in tests and check.ps1. Top priority for the Studio.
+- 2026-09-22 22:23 · robert-claude · Queued → Approved
 <!-- queue:end -->
