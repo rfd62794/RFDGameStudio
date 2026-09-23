@@ -69,3 +69,17 @@ Before/after counts, commit hashes, and the list of test files changed.
 - Update this directive's Status row when you finish or stop partway.
 - If a tool call is genuinely blocked, stop and write why in the Status row instead of trying
   another way around it.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-22 22:21 · robert-claude · none → Queued — Fix after the PR #10 wipe: isolate git env in tests and check.ps1. Top priority for the Studio.
+<!-- queue:end -->
