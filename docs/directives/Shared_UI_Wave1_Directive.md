@@ -113,7 +113,7 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-shared-ui-wave1-directive |
 | Base branch | - |
@@ -127,4 +127,5 @@ so name them precisely. And say whether the arcade-exit defect was as described 
 - 2026-09-22 16:08 · agentflow-tick · Queued → Approved — auto-retry 1/1: run pid 24316 is gone and the directive never moved
 - 2026-09-22 16:09 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-ui-wave1-directive
 - 2026-09-22 16:17 · robert-claude · In progress → Review — Back to Review: the branch already holds 3 finished commits (GameShell adopted in the games) and needs Robert's visual check. The 16:08 auto-retry should not have fired; guards added in PR #46 (no retry past 12h, none over existing commits).
+- 2026-09-22 23:20 · devin-overseer · Review → Blocked — Review claim unverifiable: branch directive/rfdgamestudio-shared-ui-wave1-directive does not exist on origin, no worktree, no PR. Work lost; needs re-dispatch.
 <!-- queue:end -->
