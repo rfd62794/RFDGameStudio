@@ -135,7 +135,7 @@ there is more to it.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-brewfield-into-dissonance-directive |
 | Base branch | - |
@@ -146,4 +146,5 @@ there is more to it.
 - 2026-09-19 22:20 · dispatcher · Approved → In progress — dispatched devin in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-brewfield-into-dissonance-directive
 - 2026-09-20 07:09 · devin · In progress → Review
 - 2026-09-22 23:20 · devin-overseer · Review → Blocked — Review claim unverifiable: branch directive/rfdgamestudio-brewfield-into-dissonance-directive does not exist on origin, no worktree, no PR. Work lost; needs re-dispatch.
+- 2026-09-23 11:07 · robert-claude · Blocked → Queued — re-dispatch: work lost pre push-grant (AgentFlow PR #63 lets runs push their branch)
 <!-- queue:end -->
