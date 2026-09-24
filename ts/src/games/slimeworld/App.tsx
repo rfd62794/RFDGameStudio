@@ -7,6 +7,7 @@ import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
+import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
 import { LabTab } from './components/LabTab';
 import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, prepopulateAllTutorials, getT1RegionsAwaitBody, getOpeningBeatText } from './tutorial';
 import { RosterTab } from './components/RosterTab';
@@ -114,15 +115,11 @@ const INITIAL_CONTRACTS: CorporateContract[] = [
 const SAVE_KEY = 'slimeworld_save';
 
 function saveState(state: LabState): void {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {}
+  writeSave(SAVE_KEY, state);
 }
 
 function loadSavedState(): LabState | null {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as LabState;
-  } catch { return null; }
+  return loadSave<LabState>(SAVE_KEY);
 }
 
 export function initialState(session: GameRendererProps['session']): LabState {
@@ -322,7 +319,7 @@ export default function App({ session }: GameRendererProps) {
   }, [session, state]);
 
   const handleHardReset = useCallback(() => {
-    try { localStorage.removeItem(SAVE_KEY); } catch {}
+    clearSave(SAVE_KEY);
     setState(initialState(session));
     setGamePhase('opening');
     setPendingHardReset(false);

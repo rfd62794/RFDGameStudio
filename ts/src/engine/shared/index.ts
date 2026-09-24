@@ -26,6 +26,7 @@
  * rather than a special-cased fallback rule. MBB is the first intended
  * consumer, not yet wired; consuming it is a deliberate separate phase.
  */
+export * from './persistence';
 export * from './seededRandom';
 export * from './wheelRelation';
 export * from './partSlots';
