@@ -163,7 +163,7 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase2-correction-directive |
 | Base branch | - |
@@ -173,4 +173,5 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 - 2026-09-23 01:23 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, test-anchored corrective task; no protected-repo or design-judgment blockers.
 - 2026-09-24 11:06 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 11:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase2-correction-directive; copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 11:32 · agentflow-tick · In progress → Blocked — a tool call was rejected: ../../ts/node_modules/.bin/vitest run --config vitest.tmp.config.mjs; resume cap reached (2/2)
 <!-- queue:end -->
