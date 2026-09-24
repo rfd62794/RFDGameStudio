@@ -100,7 +100,7 @@ place you chose between two readings.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-demo-children-module-directive |
 | Base branch | - |
@@ -110,4 +110,5 @@ place you chose between two readings.
 - 2026-09-22 15:31 · robert-claude · none → Queued — Robert 2026-09-22: per-demo wherever possible; each demo is a child of the studio
 - 2026-09-24 12:17 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 12:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-demo-children-module-directive; copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 13:01 · devin · In progress → Review — Added studio/demos.py (Demo dataclass, list_demos, demo_paths, demo_check, write_children_index, problems) + `python -m studio.demos` CLI (list/paths/check/index/problems), tests/test_demos.py (9 tests: tmp fixture + real-repo children.json byte-match), docs/children.json (36 demos), conftest.py +1 line (test_demos.py -> shared bucket). pytest: 820->829 passed, 0 failures. vitest: 1916 total unchanged; 0 failures post-commit (baseline flakies passed). list_demos() found 36 demos (arcade-manifest.json is gitignored/absent here, so manifest checks degrade like studio_catalogue). problems() on the real repo reports 20 findings: 18 demos with no test file + early_learning_buddy (deliberately unlisted) flagged twice: folder in no index + missing from game-metadata.json. [origin] spent: devin 34 min est. n/a
 <!-- queue:end -->
