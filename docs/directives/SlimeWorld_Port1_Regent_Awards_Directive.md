@@ -33,11 +33,12 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-23 09:05 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained Lua/TS logic port with explicit test commands and a non-interactive tool allowlist — matches Devin's dispatch contract.
+- 2026-09-24 10:20 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
