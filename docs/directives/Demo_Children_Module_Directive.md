@@ -100,12 +100,14 @@ place you chose between two readings.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-demo-children-module-directive |
 | Base branch | - |
+| Base commit | 7e10c9acd1afeb9810dcfcec91ed9c72de1c55e0 |
 
 **Status log**
 - 2026-09-22 15:31 · robert-claude · none → Queued — Robert 2026-09-22: per-demo wherever possible; each demo is a child of the studio
 - 2026-09-24 12:17 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 12:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-demo-children-module-directive; copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
