@@ -92,6 +92,29 @@ LCG constants in a test).
 - If a tool call is genuinely blocked, stop and write why in the Status row.
 
 <!-- queue:start -->
+## Salvage note (laptop Claude, 2026-09-24 13:05) - read before doing anything
+
+The first run died on a confirmation prompt after it had written the extraction but before
+`git commit`. That work is now committed on this branch as `0687f8ac` (WIP): `ts/src/engine/shared/math.ts`
+(clamp/dist2/distance/normalize/limitVector/lerp + the split-multiplication LCG), the barrel export in
+`ts/src/engine/shared/index.ts`, and `mbbMath.ts` / `shoalSimulation.ts` now import from it. Do NOT redo
+that; start from the branch as it is (`git log --oneline -2` shows the WIP commit).
+
+What remains, in order:
+1. Write `ts/tests/test_shared_math.ts` per section 2 (LCG reference sequence for a fixed seed; the
+   helpers' byte-identical behavior).
+2. `ts/tests/test_shoal_ts_native_migration.ts` lines 55-56 assert the LCG constants are IN
+   `shoalSimulation.ts` (`expect(simSource).toContain('LCG_MULT = 1103515245')` and `'LCG_MULT_HI'`).
+   After the extraction they live in `ts/src/engine/shared/math.ts`. Change those two assertions to read
+   the shared module's source (`readFileSync('src/engine/shared/math.ts')`) and assert the constants
+   there, plus assert `simSource` contains `from '../../engine/shared/math'` (check the exact import path
+   the WIP commit uses). Do not weaken the other assertions in that test.
+3. Run `cd ts && npx vitest run` - the current tally on this branch is 2 failed / 1867 passed. The
+   `test_dual_target_deploy.ts` "Branch is up to date with origin/main" failure is because this branch is
+   behind main; it is not yours to fix and is expected to remain until merge - report it, do not touch it.
+   The shoal migration failure must be gone after step 2. Everything else must stay green.
+4. Commit on this branch. Do not push (the repo's pre-push hook runs the whole suite and blocks).
+
 ## Queue
 
 | Field | Value |
