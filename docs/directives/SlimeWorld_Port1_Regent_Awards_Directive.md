@@ -33,12 +33,14 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-port1-regent-awards-directive |
 | Base branch | - |
+| Base commit | a5e0de4124252a812d08b41678dc0fce35e96f22 |
 
 **Status log**
 - 2026-09-23 09:05 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained Lua/TS logic port with explicit test commands and a non-interactive tool allowlist — matches Devin's dispatch contract.
 - 2026-09-24 10:20 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 10:21 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port1-regent-awards-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
