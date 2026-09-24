@@ -100,11 +100,12 @@ place you chose between two readings.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-22 15:31 · robert-claude · none → Queued — Robert 2026-09-22: per-demo wherever possible; each demo is a child of the studio
+- 2026-09-24 12:17 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
