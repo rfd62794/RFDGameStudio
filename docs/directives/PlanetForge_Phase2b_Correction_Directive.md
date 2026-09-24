@@ -163,12 +163,14 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetforge-phase2b-correction-directive |
 | Base branch | - |
+| Base commit | f2fdd8a2de865029ccabe818469ff22f88ee974b |
 
 **Status log**
 - 2026-09-23 01:25 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified correction in standalone examples/planetforge project (own vitest); good Devin fit — verify worktree gets node_modules before dispatch.
 - 2026-09-24 11:18 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 11:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase2b-correction-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
