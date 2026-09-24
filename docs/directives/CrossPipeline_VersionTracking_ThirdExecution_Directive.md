@@ -127,12 +127,14 @@ Identical checklist from the second directive's §4, with one addition:
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-crosspipeline-versiontracking-thi-a6c79a |
 | Base branch | - |
+| Base commit | af821aa4736420802d66b31fc92b3114432d5638 |
 
 **Status log**
 - 2026-09-23 01:43 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified cross-repo build work (spec unchanged, third attempt) — Devin builds, independent re-verification required before Done given two prior fabricated/stalled attempts.
 - 2026-09-24 10:51 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 11:18 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-crosspipeline-versiontracking-thi-a6c79a; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
