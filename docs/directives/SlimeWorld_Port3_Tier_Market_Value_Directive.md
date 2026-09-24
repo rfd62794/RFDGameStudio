@@ -33,12 +33,14 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-port3-tier-market-valu-4db720 |
 | Base branch | - |
+| Base commit | bec77460d65ef854df4873230569ff60c0cc7962 |
 
 **Status log**
 - 2026-09-23 09:04 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained build, exact formula/tests/tool-profile spec'd; Robert already approved audit+step-2 order 2026-09-23; balance/VR sign-off still needed at merge, not build
 - 2026-09-24 10:33 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 10:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port3-tier-market-valu-4db720; copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
