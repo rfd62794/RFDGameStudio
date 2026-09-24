@@ -8,9 +8,80 @@ function deliver_contract(state, contract_id, slime_id)
   return contract.credits_reward, nil
 end
 
-function sell_on_market(state, slime_id, price)
+-- Market sale pricing (SlimeBreeder absorption step 2.3).
+-- price = tier value x level scaling x flood multiplier, where the tier value
+-- is calculate_tier_value (breeding.lua) applied to the slime's snapped
+-- color/shape names and a per-slime variance. Tuning numbers live in
+-- data.yaml `market:`; the defaults below mirror it and apply when the
+-- caller does not pass a market config table.
+local MARKET_DEFAULTS = {
+  level_value_step = 0.125,
+  value_variance_range = 0.10,
+  flood_decay_per_sale = 0.12,
+  flood_multiplier_floor = 0.3,
+  flood_window_cycles = 5,
+}
+
+-- Pure-arithmetic equivalent of hashStringToSeed
+-- (ts/src/engine/shared/seededRandom.ts): h = h*31 + byte (mod 2^32).
+-- Bitwise-free so it behaves identically under fengari and lupa.
+function hash_string_to_seed(text)
+  local hash = 0
+  for i = 1, #text do
+    hash = (hash * 31 + string.byte(text, i)) % 4294967296
+  end
+  return hash
+end
+
+-- Deterministic per-slime sale variance seeded from the slime id. Produces
+-- the archive's 21 discrete outcomes spanning +/-range (0.01 steps at the
+-- default 0.10 range, matching slimeGenerator.ts's toFixed(2) roll).
+function slime_value_variance(slime_id, variance_range)
+  variance_range = variance_range or MARKET_DEFAULTS.value_variance_range
+  return (hash_string_to_seed(slime_id or "") % 21 - 10) * (variance_range / 10)
+end
+
+function recent_sales_count_for_color(state, color, window_cycles)
+  local count = 0
+  local min_cycle = (state.cycle or 0) - (window_cycles - 1)
+  for _, sale in ipairs(state.recent_market_sales or {}) do
+    if sale.color == color and (sale.cycle or 0) >= min_cycle then
+      count = count + 1
+    end
+  end
+  return count
+end
+
+-- calculate_tier_value x level scaling x the flood multiplier.
+-- `market` is the optional data.yaml `market:` block; missing keys fall
+-- back to MARKET_DEFAULTS.
+function calculate_market_price(slime, recent_sales_for_color, market)
+  local config = MARKET_DEFAULTS
+  if type(market) == "table" then
+    config = {
+      level_value_step = market.level_value_step or MARKET_DEFAULTS.level_value_step,
+      value_variance_range = market.value_variance_range or MARKET_DEFAULTS.value_variance_range,
+      flood_decay_per_sale = market.flood_decay_per_sale or MARKET_DEFAULTS.flood_decay_per_sale,
+      flood_multiplier_floor = market.flood_multiplier_floor or MARKET_DEFAULTS.flood_multiplier_floor,
+      flood_window_cycles = market.flood_window_cycles or MARKET_DEFAULTS.flood_window_cycles,
+    }
+  end
+  local shape_name = snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10)
+  local variance = slime.variance
+  if variance == nil then variance = slime_value_variance(slime.id, config.value_variance_range) end
+  local tier_value = calculate_tier_value(slime.color or "Gray", shape_name, variance)
+  local level_scale = 1 + ((slime.level or 1) - 1) * config.level_value_step
+  local flood_multiplier = math.max(config.flood_multiplier_floor, 1 - (recent_sales_for_color or 0) * config.flood_decay_per_sale)
+  return math.floor(tier_value * level_scale * flood_multiplier)
+end
+
+function sell_on_market(state, slime_id, market)
   local slime = find_by_id(state.slimes, slime_id)
   if slime == nil then return nil, "Slime not found" end
+  if type(market) ~= "table" then market = nil end
+  local window = MARKET_DEFAULTS.flood_window_cycles
+  if market ~= nil and market.flood_window_cycles ~= nil then window = market.flood_window_cycles end
+  local price = calculate_market_price(slime, recent_sales_count_for_color(state, slime.color, window), market)
   state.credits = (state.credits or 0) + price
   state.recent_market_sales = state.recent_market_sales or {}
   table.insert(state.recent_market_sales, { color = slime.color, cycle = state.cycle })

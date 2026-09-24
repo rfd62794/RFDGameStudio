@@ -116,6 +116,10 @@ systems:
     components: [credits, contracts, recent_market_sales, slimes]
     functions:
       - deliver_contract
+      - hash_string_to_seed
+      - slime_value_variance
+      - recent_sales_count_for_color
+      - calculate_market_price
       - sell_on_market
       - recycle_slime
       - rename_slime

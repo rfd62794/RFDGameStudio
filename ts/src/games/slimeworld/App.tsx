@@ -419,8 +419,9 @@ export default function App({ session }: GameRendererProps) {
   const handleBuyRegent = useCallback((_pattern: SlimePattern) => setWarning('Regent purchase has no Lua action.'), []);
   const handleBuyColorRegent = useCallback((_color: SlimeColor) => setWarning('Color Regent purchase has no Lua action.'), []);
   const handleBuyTargetRegent = useCallback((_id: string) => setWarning('Target Regent purchase has no Lua action.'), []);
-  const handleSellOnMarket = useCallback((slime: Slime, price: number) => {
-    const [credits, error] = call(session, 'sell_on_market', stateToLua(state), slime.id, price) as [number | null, string | null];
+  const handleSellOnMarket = useCallback((slime: Slime) => {
+    const data = session.files.data as Record<string, unknown>;
+    const [credits, error] = call(session, 'sell_on_market', stateToLua(state), slime.id, data['market']) as [number | null, string | null];
     if (error || credits === null) { setWarning(error ?? 'Market sale failed.'); return; }
     setState(previous => ({ ...previous, credits: previous.credits + credits, slimes: previous.slimes.filter(s => s.id !== slime.id), recentMarketSales: [...(previous.recentMarketSales ?? []), { color: slime.color, cycle: previous.cycle }] }));
   }, [session, state]);
@@ -537,7 +538,7 @@ export default function App({ session }: GameRendererProps) {
   ) : primaryTab === 'missions' ? (
     <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim, pendingDisposalFavorId, setPendingDisposalFavorId, disposalConfirmSlimeId, setDisposalConfirmSlimeId, handleDisposeSlime, regionLockNodeIds: ((session.files.data as Record<string, unknown>)['region_locks'] as Array<Record<string, unknown>>)?.map(l => l['node_id']) ?? [] } as any)} />
   ) : primaryTab === 'economy' ? (
-    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition } as any)} />
+    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition, marketConfig: (session.files.data as Record<string, unknown>)['market'] } as any)} />
   ) : (
     <LabTab {...({ state, handleBuyUpgrade, handlePurchaseSeedSlime, activeSubTab: 'upgrades', setActiveSubTab: () => {}, selectedSlimeId: null, setSelectedSlimeId: () => {}, setRenameSlimeId: () => {}, setNewNameInput: () => {}, handleRecycleSlime: () => {}, parentAId: null, parentBId: null, setParentAId: () => {}, setParentBId: () => {}, isBreedingHatching: false, handleInitiateBreeding: () => {}, activeRegentPattern: null, setActiveRegentPattern: () => {}, onBuyRegent: () => {}, activeRegentColor: null, setActiveRegentColor: () => {}, onBuyColorRegent: () => {}, activeTargetRegent: null, setActiveTargetRegent: () => {}, onBuyTargetRegent: () => {}, handleToggleWorkerRole, handleDeliverContract: () => {}, handleSellOnMarket: () => {} } as any)} />
   );

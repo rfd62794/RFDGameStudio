@@ -39,6 +39,18 @@ constants:
   RECYCLE_CREDIT_VALUE: 15
   CAPITOL_HARDENED_BONUS: 15
 
+# --- MARKET PRICING ---
+# Sale price = calculate_tier_value(color, snapped shape, variance)
+#              x (1 + (level - 1) x level_value_step)
+#              x max(flood_multiplier_floor, 1 - recent_same_color_sales x flood_decay_per_sale)
+# SlimeBreeder absorption step 2.3; docs/analysis/slimebreeder-absorption.md.
+market:
+  level_value_step: 0.125
+  value_variance_range: 0.10
+  flood_decay_per_sale: 0.12
+  flood_multiplier_floor: 0.3
+  flood_window_cycles: 5
+
 # --- SLIME SCHEMA ---
 slime:
   fields:
@@ -67,6 +79,7 @@ slime:
     irregularity: {min: 0, max: 100, optional: true, description: Shape genetics schema; source has no shape-inheritance breeding implementation}
     parent_a: {type: string, optional: true}
     parent_b: {type: string, optional: true}
+    variance: {min: -1, max: 1, optional: true, description: Per-specimen sale-value variance; when absent, seeded deterministically from the slime id}
     created_at: timestamp
     locked_role: {values: [dispatch, mediation, worker, exploration, garrison, null], optional: true}
     garrisoned_at: {type: timestamp, optional: true}

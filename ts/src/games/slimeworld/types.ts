@@ -22,6 +22,7 @@ export interface Slime {
   accentHue?: number;
   vertexCount?: number;
   irregularity?: number;
+  variance?: number;
   parentA?: string;
   parentB?: string;
   createdAt: number;
@@ -128,7 +129,7 @@ const array = (value: unknown): unknown[] => Array.isArray(value) ? value : Obje
 export const SLIME_EXPLICIT_LUA_FIELDS = new Set([
   'id', 'name', 'color', 'pattern', 'level', 'xp', 'stats', 'role',
   'generation', 'color_saturation', 'hue', 'saturation', 'diffusion_ratio',
-  'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'parent_a',
+  'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'variance', 'parent_a',
   'parent_b', 'created_at', 'matched_target_id', 'matched_shape_target_id',
   'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage', 'region_unlocks',
   'added_strays',
@@ -143,7 +144,9 @@ export function luaSlimeToTs(raw: Raw): Slime {
     role: string(raw, 'role', 'idle') as Slime['role'], generation: number(raw, 'generation'),
     colorSaturation: number(raw, 'color_saturation'), hue: number(raw, 'hue'), saturation: number(raw, 'saturation'),
     diffusionRatio: number(raw, 'diffusion_ratio'), amplitude: number(raw, 'amplitude'), accentHue: number(raw, 'accent_hue'),
-    vertexCount: number(raw, 'vertex_count'), irregularity: number(raw, 'irregularity'), parentA: string(raw, 'parent_a') || undefined,
+    vertexCount: number(raw, 'vertex_count'), irregularity: number(raw, 'irregularity'),
+    variance: typeof raw['variance'] === 'number' ? raw['variance'] : undefined,
+    parentA: string(raw, 'parent_a') || undefined,
     parentB: string(raw, 'parent_b') || undefined, createdAt: number(raw, 'created_at'),
     matchedTargetId: (raw['matched_target_id'] ?? null) as string | null,
     matchedShapeTargetId: (raw['matched_shape_target_id'] ?? null) as string | null,
@@ -177,7 +180,7 @@ export function luaNodeToTs(raw: Raw): PlanetNode {
 }
 
 export function slimeToLua(slime: Slime): Raw {
-  return { id: slime.id, name: slime.name, color: slime.color, pattern: slime.pattern, level: slime.level, xp: slime.xp, stats: slime.stats, role: slime.role, generation: slime.generation, color_saturation: slime.colorSaturation, hue: slime.hue, saturation: slime.saturation, diffusion_ratio: slime.diffusionRatio, amplitude: slime.amplitude, accent_hue: slime.accentHue, vertex_count: slime.vertexCount, irregularity: slime.irregularity, parent_a: slime.parentA, parent_b: slime.parentB, created_at: slime.createdAt, matched_target_id: slime.matchedTargetId, matched_shape_target_id: slime.matchedShapeTargetId, consumed_slime_id: slime.consumedSlimeId, locked_role: slime.lockedRole, garrisoned_at: slime.garrisonedAt, stage: slime.stage };
+  return { id: slime.id, name: slime.name, color: slime.color, pattern: slime.pattern, level: slime.level, xp: slime.xp, stats: slime.stats, role: slime.role, generation: slime.generation, color_saturation: slime.colorSaturation, hue: slime.hue, saturation: slime.saturation, diffusion_ratio: slime.diffusionRatio, amplitude: slime.amplitude, accent_hue: slime.accentHue, vertex_count: slime.vertexCount, irregularity: slime.irregularity, variance: slime.variance, parent_a: slime.parentA, parent_b: slime.parentB, created_at: slime.createdAt, matched_target_id: slime.matchedTargetId, matched_shape_target_id: slime.matchedShapeTargetId, consumed_slime_id: slime.consumedSlimeId, locked_role: slime.lockedRole, garrisoned_at: slime.garrisonedAt, stage: slime.stage };
 }
 
 export function nodeToLua(node: PlanetNode): Raw {

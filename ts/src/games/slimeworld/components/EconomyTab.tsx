@@ -6,7 +6,7 @@ import {
   FlaskConical, Layers, Sparkles, Briefcase, TrendingUp, AlertTriangle, Ship, Check, ArrowRight, X
 } from 'lucide-react';
 import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract, Petition } from '../types';
-import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation } from '../gameLogic';
+import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, MarketConfig } from '../gameLogic';
 import { SlimeVisual } from './SlimeVisual';
 import { SpecimenListItem } from './SpecimenListItem';
 import { SlimeDexTab } from './SlimeDexTab';
@@ -50,7 +50,8 @@ interface EconomyTabProps {
 
   // From EconomyTab
   handleDeliverContract: (contract: CorporateContract, targetSlime: Slime) => void;
-  handleSellOnMarket: (slime: Slime, price: number) => void;
+  handleSellOnMarket: (slime: Slime) => void;
+  marketConfig?: MarketConfig;
   handleFulfillPetition?: (petitionId: string, slimeId: string) => void;
 }
 
@@ -84,7 +85,8 @@ export function EconomyTab({
   handleToggleWorkerRole,
   handleDeliverContract,
   handleSellOnMarket,
-  handleFulfillPetition
+  handleFulfillPetition,
+  marketConfig
 }: LabTabProps) {
   const [economySubTab, setEconomySubTab] = useState<'contracts' | 'market' | 'petitions'>('contracts');
   const [confirmDelivery, setConfirmDelivery] = useState<{
@@ -486,7 +488,7 @@ export function EconomyTab({
                         {state.slimes.filter(s => s.role === 'idle').length > 0 ? (
                           state.slimes.filter(s => s.role === 'idle').map(slime => {
                             const count = getRecentSalesCountForColor(slime.color);
-                            const currentPrice = calculateMarketPrice(slime, count);
+                            const currentPrice = calculateMarketPrice(slime, count, marketConfig);
                             const marketAvailable = Number.isFinite(currentPrice);
                             
                             return (
@@ -643,7 +645,7 @@ export function EconomyTab({
                       <div className="p-3 bg-amber-950/10 border border-amber-900/20 rounded-lg flex items-start space-x-2 text-[10px] font-mono text-amber-300 leading-normal">
                         <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                         <div>
-                          <span className="font-bold">MARKET SATURATION WARNING:</span> {confirmMarketSale.recentCount} recent sales of {confirmMarketSale.slime.color} have depressed prices to {(Math.max(0.3, 1 - confirmMarketSale.recentCount * 0.12) * 100).toFixed(0)}% of base value. This sale will increase saturation count to {confirmMarketSale.recentCount + 1}.
+                          <span className="font-bold">MARKET SATURATION WARNING:</span> {confirmMarketSale.recentCount} recent sales of {confirmMarketSale.slime.color} have depressed prices to {(Math.max(marketConfig?.flood_multiplier_floor ?? 0.3, 1 - confirmMarketSale.recentCount * (marketConfig?.flood_decay_per_sale ?? 0.12)) * 100).toFixed(0)}% of base value. This sale will increase saturation count to {confirmMarketSale.recentCount + 1}.
                         </div>
                       </div>
                     ) : (
@@ -673,7 +675,7 @@ export function EconomyTab({
                       </button>
                       <button 
                         onClick={() => {
-                          handleSellOnMarket(confirmMarketSale.slime, confirmMarketSale.price);
+                          handleSellOnMarket(confirmMarketSale.slime);
                           setConfirmMarketSale(null);
                         }}
                         className="flex-1 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-bold uppercase tracking-wider cursor-pointer transition-all shadow-[0_0_15px_rgba(6,182,212,0.25)] flex items-center justify-center space-x-1.5"
