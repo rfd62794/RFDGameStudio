@@ -232,11 +232,12 @@ set. State plainly whether all three original `tsc` errors are gone and no new o
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin-laptop |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-24 12:59 · robert-claude-laptop · none → Queued — ROADMAP M2.1; the real global-build failure (3 tsc errors in house_of_kings_collab), measured 2026-09-24
+- 2026-09-24 13:06 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
