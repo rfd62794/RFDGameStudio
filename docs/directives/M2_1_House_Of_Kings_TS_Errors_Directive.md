@@ -232,12 +232,14 @@ set. State plainly whether all three original `tsc` errors are gone and no new o
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-m2-1-house-of-kings-ts-errors-directive |
 | Base branch | - |
+| Base commit | 25b51c9532a2aa884262e36db70c514996f2e978 |
 
 **Status log**
 - 2026-09-24 12:59 · robert-claude-laptop · none → Queued — ROADMAP M2.1; the real global-build failure (3 tsc errors in house_of_kings_collab), measured 2026-09-24
 - 2026-09-24 13:06 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 13:08 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-m2-1-house-of-kings-ts-errors-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
