@@ -459,11 +459,12 @@ describe('monument construction', () => {
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-23 01:24 · agentflow-tick · none → Queued — suggested by heartbeat: Fully-specified build (exact code/tests given, locked design decisions); target dir ts/src/games/planetforge/ already exists with config.ts only
+- 2026-09-24 11:00 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
