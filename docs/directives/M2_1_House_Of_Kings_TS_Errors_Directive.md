@@ -226,3 +226,17 @@ In the Status row: the diff summary (3 one-line edits across 2 files), the `npm 
 tail (the `built in` line), the three vitest tails (files/tests/passed/failed counts for
 each of the three commands in §5), and confirmation that the `M2.1` `directive:` field was
 set. State plainly whether all three original `tsc` errors are gone and no new ones appeared.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin-laptop |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-24 12:59 · robert-claude-laptop · none → Queued — ROADMAP M2.1; the real global-build failure (3 tsc errors in house_of_kings_collab), measured 2026-09-24
+<!-- queue:end -->
