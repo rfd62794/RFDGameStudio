@@ -30,7 +30,7 @@ stop_if: Robert parks the studio or decides the prose /ROADMAP.md stays the only
 milestones:
 - id: M1
   title: Every published game has a way back to the arcade
-  status: active
+  status: done
   exit:
   - file: ts/src/components/GameShell.tsx
   - grep:
@@ -49,7 +49,7 @@ milestones:
     kind: refactor
     size: M
     value: 4
-    status: pending
+    status: done
     directive: ''
     detail: Adopt GameShell (headerExtra/statusArea/footer props) and swap bespoke primitives for ui/components equivalents, per the Blocked Shared UI Wave 1 directive. Presentation only - keep the amber/stone palette, do not touch the combat-driving log panel, no logic changes.
     accept:
@@ -62,7 +62,7 @@ milestones:
     kind: refactor
     size: M
     value: 4
-    status: pending
+    status: done
     directive: ''
     detail: Adopt GameShell so this published game has an arcade exit, per Shared UI Wave 1. Move bespoke header/nav chrome into the shell's props; swap only one-for-one shared primitives; keep the game's own palette.
     accept:
@@ -75,7 +75,7 @@ milestones:
     kind: refactor
     size: M
     value: 4
-    status: pending
+    status: done
     directive: ''
     detail: Adopt GameShell so this published game has an arcade exit, per Shared UI Wave 1. Presentation refactor only - the orbital canvas and auto-dispatch FSM are untouched.
     accept:
@@ -169,7 +169,7 @@ milestones:
         pattern: 'id: ''turboshells''.*status: ''(active|shipped_mature|shipped_deliberately_paused|blocked|retired)'''
 - id: M4
   title: 'The studio side of the arcade meta layer: collectibles, hooks, creature content'
-  status: pending
+  status: active
   exit:
   - file: docs/children.json
   - grep:
