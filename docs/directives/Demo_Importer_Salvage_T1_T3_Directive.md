@@ -158,11 +158,10 @@ below, measured 2026-09-24 on `main` before this branch existed.
 
 - `uv run python --version` — confirm `3.12.x`.
 - Python (this is the exact command `scripts/check.ps1` runs for "Python tests (slow and
-  e2e excluded)", which is what `.githooks/pre-push` invokes; run `uv sync --frozen` and
-  `uv run --no-sync python -m studio_mcp.game_metadata` first if either is stale, same as
-  the script does):
+  e2e excluded)", which is what `.githooks/pre-push` invokes. Do NOT run `uv sync` (it is a
+  package mutation the sandbox refuses; the worktree's `.venv` is already synced). Regenerate
+  the metadata first, same as the script does):
   ```
-  uv sync --frozen
   uv run --no-sync python -m studio_mcp.game_metadata
   PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run --no-sync python -m pytest -m "not e2e and not slow" -q -p pytest_rerunfailures --reruns 2
   ```
@@ -212,7 +211,6 @@ below, measured 2026-09-24 on `main` before this branch existed.
 - Exec(npx vitest)
 - Exec(npm test)
 - Exec(uv run pytest)
-- Exec(uv sync)
 
 ## 8. Report
 
