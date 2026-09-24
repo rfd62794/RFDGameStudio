@@ -70,7 +70,7 @@ one-directional and mechanical to fix.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-engine-types-boundary-directive |
 | Base branch | - |
@@ -80,4 +80,5 @@ one-directional and mechanical to fix.
 - 2026-09-23 11:08 · devin-overseer · none → Queued — spec docs/superpowers/specs/2026-09-23-engine-shared-modules.md; smallest of the three, good first dispatch; awaiting Robert approval
 - 2026-09-24 10:10 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 10:15 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-types-boundary-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 10:48 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; resume cap reached (2/2)
 <!-- queue:end -->
