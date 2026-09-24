@@ -459,12 +459,14 @@ describe('monument construction', () => {
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetforge-phase1-ts-directive |
 | Base branch | - |
+| Base commit | f2fdd8a2de865029ccabe818469ff22f88ee974b |
 
 **Status log**
 - 2026-09-23 01:24 · agentflow-tick · none → Queued — suggested by heartbeat: Fully-specified build (exact code/tests given, locked design decisions); target dir ts/src/games/planetforge/ already exists with config.ts only
 - 2026-09-24 11:00 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 11:27 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase1-ts-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
