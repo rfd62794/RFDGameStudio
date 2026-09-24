@@ -221,3 +221,17 @@ branch (they get new hashes after cherry-pick — report the new ones), both tes
 Python pass/deselect line and both vitest pass/fail summaries), and whether the plan file
 was carried and its banner updated. If a cherry-pick conflicted, report only the aborted
 state and the conflicting paths — no further steps.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin-laptop |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-24 13:01 · robert-claude-laptop · none → Queued — salvage of feature/demo-importer Tasks 1-3 (3 clean commits) onto a fresh branch; the old branch has 5 queue-table conflicts vs main
+<!-- queue:end -->
