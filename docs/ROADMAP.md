@@ -14,8 +14,10 @@ M1 is a live defect: the Shared UI Wave 1 directive documents that
 published on the arcade with no way back, and its run went Blocked
 without landing the fix — still true by grep today. M2 is the deferred
 Studio-Wide item in `/ROADMAP.md`: the global `npm run build` fails on
-pre-existing TypeScript errors in three games, which masks real breakage
-behind per-game build workarounds. M3 clears the five `status_unconfirmed`
+pre-existing TypeScript errors, which masks real breakage behind per-game
+build workarounds. Re-measured 2026-09-24 on main: the three games that
+item names (horse_racing, mutant_battle_ball, slither_rogue) now compile;
+the only remaining `tsc` errors are three in `house_of_kings_collab`. M3 clears the five `status_unconfirmed`
 rows on the Status Board — each is an explicit "direct status check
 needed" item, and ADR-016 requires a verification method on such claims.
 
@@ -89,34 +91,15 @@ milestones:
   - test: cd ts && npx vitest run
   steps:
   - id: M2.1
-    title: Fix pre-existing TS errors in horse_racing
+    title: Fix the three pre-existing TS errors in house_of_kings_collab
     kind: fix
-    size: M
+    size: S
     value: 4
     status: pending
     directive: ''
-    detail: /ROADMAP.md (Studio-Wide) names horse_racing as one of three games whose pre-existing TypeScript errors fail the global `npm run build`. Fix the type errors in the game; the milestone exit's build output is the aggregate proof that all three are clean.
+    detail: Measured 2026-09-24 on main, `cd ts && npm run build` fails at the `tsc` step (exit 2) with exactly three errors, all in house_of_kings_collab/server/routes - houseRoutes.ts(21) TS6133 unused `evaluateHouseFestival`, taskRoutes.ts(471) TS6133 unused `dailyActionsConsumed`, taskRoutes.ts(499) TS2783 `success` specified twice. Fix them without changing server behavior. The earlier M2.1-M2.3 steps (horse_racing, mutant_battle_ball, slither_rogue) were retired the same day because those games already compile; if `tsc` names a new game later, add a step for it rather than reviving those.
     accept:
-    - test: cd ts && npx vitest run
-  - id: M2.2
-    title: Fix pre-existing TS errors in mutant_battle_ball
-    kind: fix
-    size: M
-    value: 4
-    status: pending
-    directive: ''
-    detail: Same /ROADMAP.md item. Fix the game's type errors without changing game logic or balance - the parts-summing question in /ROADMAP.md (Now) is a separate, later design item.
-    accept:
-    - test: cd ts && npx vitest run
-  - id: M2.3
-    title: Fix pre-existing TS errors in slither_rogue
-    kind: fix
-    size: M
-    value: 4
-    status: pending
-    directive: ''
-    detail: Same /ROADMAP.md item. Fix the game's type errors; slither_rogue has no standalone build script, so the global build going green is what restores its build coverage.
-    accept:
+    - test: cd ts && npm run build
     - test: cd ts && npx vitest run
 - id: M3
   title: No project on the Status Board sits at status_unconfirmed
