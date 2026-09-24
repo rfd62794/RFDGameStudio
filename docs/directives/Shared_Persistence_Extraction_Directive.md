@@ -103,12 +103,14 @@ if none do, use a minimal `globalThis.localStorage` stub.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-shared-persistence-extraction-directive |
 | Base branch | - |
+| Base commit | b75605017d6c291158059a54a62d6373202455e0 |
 
 **Status log**
 - 2026-09-23 11:08 · devin-overseer · none → Queued — spec docs/superpowers/specs/2026-09-23-engine-shared-modules.md; 8 localStorage impls to unify; awaiting Robert approval
 - 2026-09-24 09:51 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 09:57 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-persistence-extraction-directive; copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
