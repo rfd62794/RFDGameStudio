@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { Horse, GameSession } from '../../../engine/types';
+import type { GameSession } from '../../../engine/types';
+import type { Horse } from '../types';
 import { call } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
 import { ErrorBox, Button } from '../../../ui/components';
