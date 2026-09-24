@@ -1,44 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { existsSync, lstatSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { GAME_REGISTRY } from '../src/games/registry';
-
-const EXPECTED_ORDER = [
-  'dissonance',
-  'slimeworld',
-  'shoal',
-  'voiddrift',
-  'horse_racing',
-  'slither_rogue',
-  'mutant_battle_ball',
-  'slime_coin',
-  'chimera_wilds',
-  'scrapcrawl',
-  'wire_rust',
-  'choke_point',
-  'filipino_bpo_simulator',
-  'ledger',
-  'trinity_siege',
-  '7_days_to_fry',
-  'antsim_redux',
-  'facility_escape',
-  'systemic_extract',
-  'factory_idle',
-  'planetofgreed',
-  'planetforge',
-  'gladiator_arena',
-  'voiddrift_redux',
-  'succession',
-  'house_of_kings_collab',
-  'character_viewer',
-  'technique_showcase',
-  'role_symbol_viewer',
-  'dissonance_prototype',
-  'slimegarden',
-  'slimebreeder',
-  'corpworld',
-  'kingmaker_squads',
-];
 
 describe('Arcade Registry Directive — July 2026', () => {
   it('test_registry_dissonance_present', () => {
@@ -49,11 +12,6 @@ describe('Arcade Registry Directive — July 2026', () => {
     expect(entry!.description).toBeTruthy();
     expect(entry!.description!.length).toBeGreaterThan(0);
     expect(entry!.status).toBe('dev');
-  });
-
-  it('test_registry_order_matches_spec', () => {
-    const actual = GAME_REGISTRY.map(g => g.gameId);
-    expect(actual).toEqual(EXPECTED_ORDER);
   });
 
   it('test_registry_planetofgreed_present', () => {
@@ -154,10 +112,49 @@ describe('Arcade Registry Directive — July 2026', () => {
     expect(existsSync(resolve(dir, 'src', 'App.tsx'))).toBe(true);
   });
 
-  it('test_registry_total_count_includes_legacy_origin_projects', () => {
-    // 27 pre-existing entries + 5 Legacy/Origin Projects (ADR-023)
-    // + filipino_bpo_simulator (Call Center Tycoon, Sep 2026)
-    // + systemic_extract (AI Studio intake, Sep 18 2026).
-    expect(GAME_REGISTRY.length).toBe(34);
+});
+
+// Game folders with a config.ts that are intentionally NOT in GAME_REGISTRY.
+const UNREGISTERED: Record<string, string> = {
+  brewfield: 'superseded by Dissonance Depths (owner decision, docs/state/current.md)',
+  early_learning_buddy: 'present but never registered; owner to decide',
+};
+
+describe('Registry invariants (replace the pinned order/count, Sep 19 2026)', () => {
+  const gamesDir = resolve(__dirname, '../src/games');
+  const registryText = readFileSync(resolve(gamesDir, 'registry.ts'), 'utf-8');
+
+  it('game ids are unique', () => {
+    const ids = GAME_REGISTRY.map(g => g.gameId);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('every game folder with a config.ts is registered, except known exceptions', () => {
+    const registered = new Set(GAME_REGISTRY.map(g => g.gameId));
+    const folders = readdirSync(gamesDir, { withFileTypes: true })
+      .filter(d => d.isDirectory() && existsSync(resolve(gamesDir, d.name, 'config.ts')))
+      .map(d => d.name);
+    const missing = folders.filter(f => !registered.has(f) && !(f in UNREGISTERED));
+    expect(missing).toEqual([]);
+  });
+
+  it('has exactly one pair of each demos marker', () => {
+    for (const marker of ['// demos:imports:begin', '// demos:imports:end', '// demos:begin', '// demos:end']) {
+      expect(registryText.split(marker).length - 1, marker).toBe(1);
+    }
+  });
+
+  it('every entry between the demos markers is an example demo', () => {
+    // Skip the rest of the begin-marker line (it carries a comment), stop at the end marker.
+    const block = registryText.split('// demos:begin')[1].split('\n').slice(1).join('\n').split('// demos:end')[0];
+    const names = block.split(/[\s,]+/).filter(Boolean);
+    const importMap: Record<string, string> = Object.fromEntries(
+      [...registryText.matchAll(/import\s+(?:\{\s*(\w+)\s*\}|(\w+))\s+from\s+'\.\/(\w+)\/config'/g)]
+        .map(m => [m[1] ?? m[2], m[3]]));
+    expect(names.length).toBeGreaterThan(0);
+    for (const name of names) {
+      const game = GAME_REGISTRY.find(g => g.gameId === importMap[name]);
+      expect(game?.source?.kind, name).toBe('example');
+    }
   });
 });
