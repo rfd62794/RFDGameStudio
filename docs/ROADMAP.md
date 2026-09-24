@@ -85,7 +85,7 @@ milestones:
     - test: cd ts && npx vitest run
 - id: M2
   title: The global arcade build compiles clean
-  status: pending
+  status: done
   exit:
   - test: cd ts && npm run build
   - test: cd ts && npx vitest run
@@ -95,7 +95,7 @@ milestones:
     kind: fix
     size: S
     value: 4
-    status: pending
+    status: done
     directive: M2_1_House_Of_Kings_TS_Errors_Directive.md
     detail: Measured 2026-09-24 on main, `cd ts && npm run build` fails at the `tsc` step (exit 2) with exactly three errors, all in house_of_kings_collab/server/routes - houseRoutes.ts(21) TS6133 unused `evaluateHouseFestival`, taskRoutes.ts(471) TS6133 unused `dailyActionsConsumed`, taskRoutes.ts(499) TS2783 `success` specified twice. Fix them without changing server behavior. The earlier M2.1-M2.3 steps (horse_racing, mutant_battle_ball, slither_rogue) were retired the same day because those games already compile; if `tsc` names a new game later, add a step for it rather than reviving those.
     accept:
@@ -182,7 +182,7 @@ milestones:
     kind: refactor
     size: M
     value: 5
-    status: pending
+    status: done
     directive: docs/directives/Demo_Children_Module_Directive.md
     detail: 'Robert, 2026-09-22: per-demo wherever possible, each demo a child of the studio. The module lists demos from the arcade manifest and the tracking metadata, gives each demo its own paths and its own one-demo check command, and writes docs/children.json. The swarm then addresses work as RFDGameStudio/<demo> instead of one repo-wide blob.'
     accept:
