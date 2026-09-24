@@ -242,12 +242,14 @@ executing agent once collected, not assumed here.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-pipelineaudit-phase-fa27c3 |
 | Base branch | - |
+| Base commit | 85f7e987de1127fe0c1da29042d828fd4730f095 |
 
 **Status log**
 - 2026-09-23 01:19 · agentflow-tick · none → Queued — suggested by heartbeat: Read-only, TDD-spec'd, zero-blast-radius build work — fits Devin's directive queue.
 - 2026-09-24 11:29 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 11:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-pipelineaudit-phase-fa27c3; copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
