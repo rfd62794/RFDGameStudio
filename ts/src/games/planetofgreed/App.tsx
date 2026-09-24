@@ -6,6 +6,7 @@ import {
 } from './types';
 import { generateVoronoiMap } from './utils/mapGenerator';
 import { resolveCellCombat } from '../../engine/shared/combat';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { selectWeightedNeighbor } from './aiDecisions';
 import { initializeFragments, onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
@@ -308,10 +309,9 @@ export default function App({ session }: GameRendererProps) {
 
   // Load from local storage on startup if exists
   useEffect(() => {
-    const saved = localStorage.getItem('corpworld_state');
-    if (saved) {
+    const parsed = loadSave<{ selectedCellId?: number | null; isPlanningPhase?: boolean }>('corpworld_state');
+    if (parsed) {
       try {
-        const parsed = JSON.parse(saved);
         // Correct functions on choices need to be remapped if load from storage since they are omitted by JSON.stringify
         setGameState(rehydrateState(parsed));
         setSelectedCellId(parsed.selectedCellId ?? null);
@@ -369,7 +369,7 @@ export default function App({ session }: GameRendererProps) {
         isPlanningPhase,
         selectedCellId
       };
-      localStorage.setItem('corpworld_state', JSON.stringify(stateToSave));
+      writeSave('corpworld_state', stateToSave);
     }
   }, [gameState, isPlanningPhase, selectedCellId]);
 

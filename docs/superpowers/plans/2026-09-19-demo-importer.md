@@ -68,6 +68,13 @@
 
 ---
 
+> **STATUS 2026-09-24: Tasks 1, 2 and 3 salvaged onto branch
+> `directive/rfdgamestudio-demo-importer-salvage-t1-t3-directive`** via cherry-pick of `7c4a7196`,
+> `a6fdf35b`, `ead5478d` from the abandoned `feature/demo-importer` branch, which could not
+> merge to `main` (conflicts in `docs/directives/*.md` queue tables plus unrelated commits
+> mixed into its other 13 commits). Tasks 4-8 are pending as separate future directives —
+> do not resume them on this branch.
+
 ## Task 1: `GameConfig.source`, the registry export, optional metadata
 
 **Files:**
@@ -93,7 +100,7 @@ The 11 sources (from today's `_EXAMPLE_DEMOS` and `_DEMO_EXTERNAL_PATHS` in `stu
 | `facility_escape` | `{ kind: 'example', slug: 'facility-escape' }` |
 | `systemic_extract` | `{ kind: 'example', slug: 'systemic-extract' }` |
 
-- [ ] **Step 1: Write the failing test** `ts/tests/test_registry_export.ts`:
+- [x] **Step 1: Write the failing test** `ts/tests/test_registry_export.ts`:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -136,12 +143,12 @@ describe('registry export', () => {
 });
 ```
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
 Run: `cd ts && npx vitest run tests/test_registry_export.ts`
 Expected: FAIL (module not found).
 
-- [ ] **Step 3: Add the type.** In `ts/src/engine/types.ts`, after the `LeaderboardDef` interface, add:
+- [x] **Step 3: Add the type.** In `ts/src/engine/types.ts`, after the `LeaderboardDef` interface, add:
 
 ```ts
 /** Where a standalone demo's build comes from. Absent = a game built inside the studio app. */
@@ -156,14 +163,14 @@ and in `GameConfig`, after `saves?: boolean;`:
   source?: DemoSource;                    // single source of truth for demo lists (studio_mcp.demos)
 ```
 
-- [ ] **Step 4: Add `source` to the 11 configs** from the table. In each file insert the `source` line directly under the `gameId: …,` line, e.g. in `ts/src/games/systemic_extract/config.ts`:
+- [x] **Step 4: Add `source` to the 11 configs** from the table. In each file insert the `source` line directly under the `gameId: …,` line, e.g. in `ts/src/games/systemic_extract/config.ts`:
 
 ```ts
   gameId: 'systemic_extract',
   source: { kind: 'example', slug: 'systemic-extract' },
 ```
 
-- [ ] **Step 5: Implement** `ts/src/arcade-manifest/registryExport.ts`:
+- [x] **Step 5: Implement** `ts/src/arcade-manifest/registryExport.ts`:
 
 ```ts
 /**
@@ -220,7 +227,7 @@ writeFileSync(out, `${JSON.stringify(buildRegistryExport(GAME_REGISTRY), null, 2
 console.log(`Wrote ${out} (${GAME_REGISTRY.length} games)`);
 ```
 
-- [ ] **Step 6: Make the manifest CLI work without metadata.** In `ts/tools/export-arcade-manifest.ts`, replace the block that exits when `game-metadata.json` is missing:
+- [x] **Step 6: Make the manifest CLI work without metadata.** In `ts/tools/export-arcade-manifest.ts`, replace the block that exits when `game-metadata.json` is missing:
 
 ```ts
 if (!existsSync(metadataPath)) {
@@ -238,9 +245,9 @@ if (!haveMetadata) console.warn(`No ${metadataPath}; versions and dates will be 
 
 and change `metadata: JSON.parse(readFileSync(metadataPath, 'utf-8')),` to `metadata: haveMetadata ? JSON.parse(readFileSync(metadataPath, 'utf-8')) : {},`.
 
-- [ ] **Step 7: Ignore the export.** In `.gitignore`, under `ts/src/games/arcade-manifest.json`, add `ts/src/games/registry-export.json`.
+- [x] **Step 7: Ignore the export.** In `.gitignore`, under `ts/src/games/arcade-manifest.json`, add `ts/src/games/registry-export.json`.
 
-- [ ] **Step 8: Run tests and the tool**
+- [x] **Step 8: Run tests and the tool**
 
 ```bash
 cd ts && npx vitest run tests/test_registry_export.ts tests/test_arcade_manifest.ts tests/test_arcade_lineage.tsx
@@ -250,7 +257,7 @@ git -C .. status --short ts/src/games/registry-export.json
 
 Expected: tests PASS; `Wrote …registry-export.json (34 games)`; `git status` prints nothing (ignored).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add ts/src/engine/types.ts ts/src/games/*/config.ts ts/src/arcade-manifest/registryExport.ts ts/tools/export-registry.ts ts/tools/export-arcade-manifest.ts ts/tests/test_registry_export.ts .gitignore
@@ -267,7 +274,7 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 **Interfaces:**
 - Produces: marker lines Task 5 edits: `// demos:imports:begin` / `// demos:imports:end` (after the last import) and `  // demos:begin` / `  // demos:end` inside `GAME_REGISTRY` around the contiguous demo block (`ledgerConfig` … `systemicExtractConfig`).
 
-- [ ] **Step 1: Replace the pinned tests.** In `ts/tests/test_arcade_registry_directive.ts`, delete the `EXPECTED_ORDER` constant, the test `test_registry_order_matches_spec`, and the test `test_registry_total_count_includes_legacy_origin_projects`. Add `readdirSync, readFileSync` to the `node:fs` import, and append:
+- [x] **Step 1: Replace the pinned tests.** In `ts/tests/test_arcade_registry_directive.ts`, delete the `EXPECTED_ORDER` constant, the test `test_registry_order_matches_spec`, and the test `test_registry_total_count_includes_legacy_origin_projects`. Add `readdirSync, readFileSync` to the `node:fs` import, and append:
 
 ```ts
 // Game folders with a config.ts that are intentionally NOT in GAME_REGISTRY.
@@ -316,12 +323,12 @@ describe('Registry invariants (replace the pinned order/count, Sep 19 2026)', ()
 });
 ```
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run and confirm failure**
 
 Run: `cd ts && npx vitest run tests/test_arcade_registry_directive.ts`
 Expected: FAIL on the marker tests (markers not present yet); the other invariants PASS.
 
-- [ ] **Step 3: Add the markers** in `ts/src/games/registry.ts`. After the last `import … from './kingmaker_squads/config';` line add:
+- [x] **Step 3: Add the markers** in `ts/src/games/registry.ts`. After the last `import … from './kingmaker_squads/config';` line add:
 
 ```ts
 // demos:imports:begin — imports added by `studio_mcp.demos import` (keep this pair)
@@ -330,12 +337,12 @@ Expected: FAIL on the marker tests (markers not present yet); the other invarian
 
 In `GAME_REGISTRY`, put `  // demos:begin — AI Studio example demos; the importer appends above demos:end` on the line before `  ledgerConfig,` and `  // demos:end` on the line after `  systemicExtractConfig,`.
 
-- [ ] **Step 4: Run the registry tests**
+- [x] **Step 4: Run the registry tests**
 
 Run: `cd ts && npx vitest run tests/test_arcade_registry_directive.ts tests/test_arcade_routing.ts tests/test_registry_export.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add ts/src/games/registry.ts ts/tests/test_arcade_registry_directive.ts
@@ -361,7 +368,7 @@ Derivation rules (spec §4):
 - Static folder name = `gameId`. Sibling path = `sibling_repo(source.repo)`.
 - `game_paths`: for every registry game, in order: `games/<id>` if that directory exists; `ts/src/games/<id>`; `examples/<slug>` for `example` sources; `intake/<id with - for _>` if that directory exists.
 
-- [ ] **Step 1: Capture the snapshot BEFORE anything changes.** From the repo root:
+- [x] **Step 1: Capture the snapshot BEFORE anything changes.** From the repo root:
 
 ```bash
 uv run python -c "
@@ -380,7 +387,7 @@ print(len(snap['example_demos']), 'demos,', len(snap['game_paths']), 'game path 
 
 Expected: `11 demos, 35 game path entries` (the dict includes the unregistered `brewfield`).
 
-- [ ] **Step 2: Write the unit-test fixture** `tests/fixtures/registry_export_sample.json`:
+- [x] **Step 2: Write the unit-test fixture** `tests/fixtures/registry_export_sample.json`:
 
 ```json
 {
@@ -397,7 +404,7 @@ Expected: `11 demos, 35 game path entries` (the dict includes the unregistered `
 }
 ```
 
-- [ ] **Step 3: Write the failing unit tests** `tests/test_demos_registry.py`:
+- [x] **Step 3: Write the failing unit tests** `tests/test_demos_registry.py`:
 
 ```python
 import json
@@ -448,7 +455,7 @@ def test_load_registry_refreshes_only_when_stale(tmp_path, monkeypatch):
     assert calls == [1]
 ```
 
-- [ ] **Step 4: Write the failing parity test** `tests/test_demos_registry_parity.py`:
+- [x] **Step 4: Write the failing parity test** `tests/test_demos_registry_parity.py`:
 
 ```python
 """Parity: the derived lists reproduce the hand-kept lists they replace (spec §4 migration)."""
@@ -498,12 +505,12 @@ def test_game_paths_cover_every_old_path(games):
         assert not missing, f"{game_id}: derived paths lack {missing}"
 ```
 
-- [ ] **Step 5: Run and confirm failure**
+- [x] **Step 5: Run and confirm failure**
 
 Run: `uv run pytest -q -p pytest_rerunfailures tests/test_demos_registry.py tests/test_demos_registry_parity.py`
 Expected: FAIL (`studio_mcp.demos` does not exist).
 
-- [ ] **Step 6: Implement.** `studio_mcp/demos/__init__.py`:
+- [x] **Step 6: Implement.** `studio_mcp/demos/__init__.py`:
 
 ```python
 """studio_mcp.demos — import AI Studio demos and derive demo lists from the registry."""
@@ -625,12 +632,12 @@ def find_by_slug(games: list[dict], slug: str) -> dict | None:
     return None
 ```
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `uv run pytest -q -p pytest_rerunfailures tests/test_demos_registry.py tests/test_demos_registry_parity.py`
 Expected: PASS. If a parity test fails, do not change the snapshot: report the exact difference (it is a real behavior change the controller must rule on).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add studio_mcp/demos tests/fixtures/demo_lists_snapshot.json tests/fixtures/registry_export_sample.json tests/test_demos_registry.py tests/test_demos_registry_parity.py

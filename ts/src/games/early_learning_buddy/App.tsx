@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { GameRendererProps } from '../../engine/types';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { ViewMode, CategoryType, CharacterInstance, PracticeItem } from './types';
 import { INITIAL_LETTERS, INITIAL_NUMBERS, INITIAL_WORDS, ARCHETYPES } from './data/archetypes';
 import { Header } from './components/Header';
@@ -40,20 +41,15 @@ const STARTER_CHARACTERS: CharacterInstance[] = [
 export default function App({ session }: GameRendererProps) {
   void session; // destructured per contract; game is self-contained
   const [currentView, setCurrentView] = useState<ViewMode>('practice');
-  const [stars, setStars] = useState<number>(() => {
-    const saved = localStorage.getItem('eb_stars');
-    return saved ? parseInt(saved, 10) : 5;
-  });
+  const [stars, setStars] = useState<number>(() => loadSave<number>('eb_stars') ?? 5);
 
-  const [characters, setCharacters] = useState<CharacterInstance[]>(() => {
-    const saved = localStorage.getItem('eb_characters');
-    return saved ? JSON.parse(saved) : STARTER_CHARACTERS;
-  });
+  const [characters, setCharacters] = useState<CharacterInstance[]>(
+    () => loadSave<CharacterInstance[]>('eb_characters') ?? STARTER_CHARACTERS
+  );
 
-  const [activeCharacterId, setActiveCharacterId] = useState<string>(() => {
-    const saved = localStorage.getItem('eb_active_char');
-    return saved || 'starter-pony';
-  });
+  const [activeCharacterId, setActiveCharacterId] = useState<string>(
+    () => loadSave<string>('eb_active_char') ?? 'starter-pony'
+  );
 
   const [categoryFilter, setCategoryFilter] = useState<CategoryType | 'all'>('all');
   const [isMuted, setIsMuted] = useState(false);
@@ -148,15 +144,15 @@ export default function App({ session }: GameRendererProps) {
 
   // Sync to local storage
   useEffect(() => {
-    localStorage.setItem('eb_stars', stars.toString());
+    writeSave('eb_stars', stars);
   }, [stars]);
 
   useEffect(() => {
-    localStorage.setItem('eb_characters', JSON.stringify(characters));
+    writeSave('eb_characters', characters);
   }, [characters]);
 
   useEffect(() => {
-    localStorage.setItem('eb_active_char', activeCharacterId);
+    writeSave('eb_active_char', activeCharacterId);
   }, [activeCharacterId]);
 
   const handleCorrectAnswer = (_item: PracticeItem) => {

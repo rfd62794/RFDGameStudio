@@ -6,6 +6,7 @@ import type { GameConfig } from '../../engine/types';
 // history, not as a new game competing with the one it led to.
 const config: GameConfig = {
   gameId: 'slimegarden',
+  source: { kind: 'example', slug: 'slimegarden' },
   label: 'Slimegarden',
   supersededBy: 'slimeworld',
   description: 'Origin project — the original multi-tank slime breeding and genetics sandbox. Merged with SlimeBreeder to become the current, live SlimeWorld (ts/src/games/slimeworld/). Real specimen dispatch, territory claims, and garrison risk across planet nodes.',
