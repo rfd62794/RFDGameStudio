@@ -163,11 +163,12 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-23 01:23 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, test-anchored corrective task; no protected-repo or design-judgment blockers.
+- 2026-09-24 11:06 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
