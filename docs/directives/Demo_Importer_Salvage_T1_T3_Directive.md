@@ -225,12 +225,14 @@ state and the conflicting paths — no further steps.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-demo-importer-salvage-t1-t3-directive |
 | Base branch | - |
+| Base commit | 761f737a09e2a777e51676e51cc9ab7e4ef574e5 |
 
 **Status log**
 - 2026-09-24 13:01 · robert-claude-laptop · none → Queued — salvage of feature/demo-importer Tasks 1-3 (3 clean commits) onto a fresh branch; the old branch has 5 queue-table conflicts vs main
 - 2026-09-24 13:08 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 13:20 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-demo-importer-salvage-t1-t3-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
