@@ -96,10 +96,10 @@ LCG constants in a test).
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shared-math-extraction-directive |
-| Base branch | - |
+| Base branch | directive/rfdgamestudio-shared-math-extraction-directive |
 | Base commit | 60b8216926ba82f73458a265710b7c28c05f42de |
 
 **Status log**
@@ -108,4 +108,5 @@ LCG constants in a test).
 - 2026-09-24 10:05 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-math-extraction-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 10:36 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
 - 2026-09-24 12:51 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 12:53 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
