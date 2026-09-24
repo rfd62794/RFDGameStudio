@@ -242,11 +242,12 @@ executing agent once collected, not assumed here.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-23 01:19 · agentflow-tick · none → Queued — suggested by heartbeat: Read-only, TDD-spec'd, zero-blast-radius build work — fits Devin's directive queue.
+- 2026-09-24 11:29 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
