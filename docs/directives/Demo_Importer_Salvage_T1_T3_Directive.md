@@ -227,11 +227,12 @@ state and the conflicting paths — no further steps.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin-laptop |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-24 13:01 · robert-claude-laptop · none → Queued — salvage of feature/demo-importer Tasks 1-3 (3 clean commits) onto a fresh branch; the old branch has 5 queue-table conflicts vs main
+- 2026-09-24 13:08 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
