@@ -96,7 +96,7 @@ LCG constants in a test).
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shared-math-extraction-directive |
 | Base branch | - |
@@ -106,4 +106,5 @@ LCG constants in a test).
 - 2026-09-23 11:08 · devin-overseer · none → Queued — spec docs/superpowers/specs/2026-09-23-engine-shared-modules.md; byte-identical dupes verified; awaiting Robert approval
 - 2026-09-24 10:00 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 10:05 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-math-extraction-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 10:36 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
 <!-- queue:end -->
