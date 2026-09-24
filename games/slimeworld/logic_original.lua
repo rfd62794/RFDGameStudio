@@ -489,7 +489,127 @@ function resolve_convert_claim(node, party, culture_relationship, is_discovered,
   return { success = true, chance = chance, updated_node = { id = node.id, name = node.name, owner_color = preserved_color, player_aligned = true, strength = 0.6, pressure = pressure, discovered = true } }
 end
 
-function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets)
+-- All accent targets a slime's genetics currently land inside: at most one
+-- diffusion-band target plus one amplitude-band target, plus Metallic when
+-- both axes fall inside its dual-axis window. Returns a list of accent ids.
+function match_accent_targets(slime, accent_targets)
+  local matches = {}
+  if accent_targets == nil then return matches end
+  local diffusion = slime.diffusion_ratio or 0
+  local amplitude = slime.amplitude or 0
+  local by_type = find_accent_type(accent_targets, diffusion)
+  if by_type ~= nil then table.insert(matches, by_type.id) end
+  local by_intensity = find_accent_intensity(accent_targets, amplitude)
+  if by_intensity ~= nil then table.insert(matches, by_intensity.id) end
+  local metallic = find_metallic_accent(accent_targets, diffusion, amplitude)
+  if metallic ~= nil then table.insert(matches, metallic.id) end
+  return matches
+end
+
+-- Regents earned per discovery tier. tier_curve is the data.yaml positional
+-- list (index N = tier N). Missing or unknown tiers earn 0, matching the
+-- archive's "T1 earns nothing" semantics (DISCOVERY_REGENT_REWARDS has no
+-- T1 entry).
+function regent_tier_reward(tier_curve, tier)
+  if tier_curve == nil or tier == nil then return 0 end
+  return tier_curve[tier] or 0
+end
+
+-- Discovery -> Regent earn loop, ported from SlimeBreeder's award sites
+-- (archive/slimebreeder/src/store/gameStore.ts:212-226). Awards typed
+-- regents when a bred child FIRST matches a color, shape or accent target,
+-- and once for each newly unlocked region. "First" is judged against the
+-- codex maps carried on state (color_target_codex / shape_target_codex /
+-- accent_target_codex); awarding also marks them, the same way
+-- check_region_unlocks marks state.region_unlocks — the TS side persists
+-- its own copies from the child's match fields.
+-- regent_rewards comes from data.yaml's regent_rewards block; a nil table
+-- disables the loop entirely (legacy callers pass fewer args).
+-- Each award: { inventory, key, amount, name, reason } — inventory is
+-- "target" / "pattern" / "color", mapping to the TS typed inventories
+-- targetRegentInventory / regentInventory / colorRegentInventory; reason
+-- is "discovery" or "region_unlock".
+function compute_regent_awards(state, child, color_targets, shape_targets, accent_targets, region_locks, regent_rewards)
+  local awards = {}
+  if regent_rewards == nil then return awards end
+  local tier_curve = regent_rewards.tier_curve or {}
+  local color_rank = regent_rewards.color_tier_rank or {}
+  local accent_rank = regent_rewards.accent_tier or {}
+  if state.color_target_codex == nil then state.color_target_codex = {} end
+  if state.shape_target_codex == nil then state.shape_target_codex = {} end
+  if state.accent_target_codex == nil then state.accent_target_codex = {} end
+
+  -- Colour target -> Target Regents keyed by the matched target id.
+  local color_target = find_color_target(color_targets, child.matched_target_id)
+  if color_target ~= nil and not state.color_target_codex[color_target.id] then
+    state.color_target_codex[color_target.id] = true
+    local amount = regent_tier_reward(tier_curve, color_rank[color_target.tier])
+    if amount > 0 then
+      table.insert(awards, { inventory = "target", key = color_target.id, amount = amount, name = color_target.name or color_target.id, reason = "discovery" })
+    end
+  end
+
+  -- Shape target -> also Target Regents (spendable via initiate_breeding's
+  -- active_shape_target parameter).
+  local shape_target = find_shape_target(shape_targets, child.matched_shape_target_id)
+  if shape_target ~= nil and not state.shape_target_codex[shape_target.id] then
+    state.shape_target_codex[shape_target.id] = true
+    local amount = regent_tier_reward(tier_curve, shape_target.tier)
+    if amount > 0 then
+      table.insert(awards, { inventory = "target", key = shape_target.id, amount = amount, name = shape_target.name or shape_target.id, reason = "discovery" })
+    end
+  end
+
+  -- Accent targets -> Membrane (pattern) Regents keyed by the accent's
+  -- pattern name. Metallic is not a SlimePattern — its regents go to the
+  -- target pool keyed by the accent id.
+  for _, accent_id in ipairs(child.matched_accent_target_ids or {}) do
+    if not state.accent_target_codex[accent_id] then
+      state.accent_target_codex[accent_id] = true
+      local accent_name = nil
+      for _, target in ipairs(accent_targets or {}) do
+        if target.id == accent_id then accent_name = target.name break end
+      end
+      local amount = regent_tier_reward(tier_curve, accent_rank[accent_id])
+      if amount > 0 then
+        if accent_id == "accent_metallic" then
+          table.insert(awards, { inventory = "target", key = accent_id, amount = amount, name = accent_name or accent_id, reason = "discovery" })
+        else
+          table.insert(awards, { inventory = "pattern", key = accent_name or accent_id, amount = amount, name = accent_name or accent_id, reason = "discovery" })
+        end
+      end
+    end
+  end
+
+  -- Region unlock -> Chromoplasm (color) Regents of the culture the lock
+  -- gates on, scaled by the gating target's tier. Convergence has no color
+  -- target — its gate is the Metallic accent, so it pays Void/Gray
+  -- chromoplasm at the metallic tier.
+  for _, node_id in ipairs(child.region_unlocks or {}) do
+    local lock = nil
+    for _, candidate in ipairs(region_locks or {}) do
+      if candidate.node_id == node_id then lock = candidate break end
+    end
+    if lock ~= nil then
+      local gate = find_color_target(color_targets, lock.color_target_id)
+      local amount, gate_faction
+      if gate ~= nil then
+        amount = regent_tier_reward(tier_curve, color_rank[gate.tier])
+        gate_faction = snap_to_faction(((gate.center_hues or {})[1]) or 0)
+      else
+        amount = regent_tier_reward(tier_curve, accent_rank["accent_metallic"])
+      end
+      local key = gate_faction or "Gray"
+      if amount > 0 then
+        table.insert(awards, { inventory = "color", key = key, amount = amount, name = key, reason = "region_unlock", node_id = node_id })
+      end
+    end
+  end
+
+  return awards
+end
+
+function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, color_targets, active_target_regent, shape_targets, active_shape_target, color_specs, region_locks, accent_targets, regent_rewards)
   if parent_a_id == parent_b_id then return nil, "Parents must differ" end
   if #(state.slimes or {}) >= state.roster_cap then return nil, "Roster capacity reached" end
   local parent_a = find_by_id(state.slimes, parent_a_id)
@@ -516,6 +636,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.accent_hue = accent.accent_hue
   child.matched_target_id = match_color_target(child.hue, child.saturation, color_targets)
   child.matched_shape_target_id = match_shape_target(child.vertex_count, child.irregularity, shape_targets)
+  child.matched_accent_target_ids = match_accent_targets(child, accent_targets)
   child.stats = calculate_stats(child.color, child.level or 1, child.hue, child.saturation, child.vertex_count, child.irregularity, color_specs)
   -- Elder breeding tax (locked at 0.85x per SlimeWorld_Design.md Rev 1).
   -- Applied to the offspring's computed stat block — the only concrete,
@@ -543,6 +664,7 @@ function initiate_breeding(state, parent_a_id, parent_b_id, same_pair_streak, co
   child.consumed_slime_id = parent_b_id
   state.credits = credits - breeding_cost
   child.region_unlocks = check_region_unlocks(state, child, region_locks, color_targets, shape_targets, accent_targets)
+  child.regent_awards = compute_regent_awards(state, child, color_targets, shape_targets, accent_targets, region_locks, regent_rewards)
 
   -- Post-first-breed reward: when the first breed unlocks the first region,
   -- grant two additional Strays matching the player's assigned starting color.

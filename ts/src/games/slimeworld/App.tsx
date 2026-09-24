@@ -274,12 +274,13 @@ export default function App({ session }: GameRendererProps) {
     setIsBreedingHatching(true);
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets']);
+    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets'], data['regent_rewards']);
     const [raw, error] = luaResult(value);
     if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
     const childRegionUnlocks = (raw['region_unlocks'] ?? []) as string[];
     const addedStrays = ((raw['added_strays'] ?? []) as Record<string, unknown>[]).map(luaSlimeToTs);
+    const regentAwards = (raw['regent_awards'] ?? []) as Array<{ inventory: string; key: string; amount: number; name: string; reason: string }>;
     setLastConsumedSlimeId(child.consumedSlimeId ?? null);
     setState(previous => {
       const filteredSlimes = child.consumedSlimeId
@@ -289,19 +290,50 @@ export default function App({ session }: GameRendererProps) {
       if (child.matchedTargetId) newColorTargetCodex[child.matchedTargetId] = true;
       const newShapeTargetCodex = { ...(previous.shapeTargetCodex ?? {}) };
       if (child.matchedShapeTargetId) newShapeTargetCodex[child.matchedShapeTargetId] = true;
+      const newAccentTargetCodex = { ...(previous.accentTargetCodex ?? {}) };
+      for (const accentId of child.matchedAccentTargetIds ?? []) { newAccentTargetCodex[accentId] = true; }
       const newColorCodex = { ...(previous.colorCodex ?? {}), [child.color]: { discovered: true } } as Record<SlimeColor, { discovered: boolean }>;
       const newPatternCodex = { ...(previous.patternCodex ?? {}), [child.pattern]: { discovered: true } } as Record<SlimePattern, { discovered: boolean }>;
       const newRegionUnlocks = { ...(previous.regionUnlocks ?? {}) };
       for (const nodeId of childRegionUnlocks) { newRegionUnlocks[nodeId] = true; }
+      const newRegentInventory = { ...(previous.regentInventory ?? {}) };
+      const newColorRegentInventory = { ...(previous.colorRegentInventory ?? {}) };
+      const newTargetRegentInventory = { ...(previous.targetRegentInventory ?? {}) };
+      const regentLogs: LogEntry[] = [];
+      for (const award of regentAwards) {
+        if (award.inventory === 'pattern') {
+          const key = award.key as SlimePattern;
+          newRegentInventory[key] = (newRegentInventory[key] ?? 0) + award.amount;
+        } else if (award.inventory === 'color') {
+          const key = award.key as SlimeColor;
+          newColorRegentInventory[key] = (newColorRegentInventory[key] ?? 0) + award.amount;
+        } else {
+          newTargetRegentInventory[award.key] = (newTargetRegentInventory[award.key] ?? 0) + award.amount;
+        }
+        const label = award.inventory === 'pattern' ? 'Membrane' : award.inventory === 'color' ? 'Chromoplasm' : 'Target';
+        const prefix = award.reason === 'region_unlock' ? 'REGION UNLOCK:' : 'DISCOVERY:';
+        regentLogs.push({
+          id: `log_regent_${Date.now()}_${award.key}_${award.reason}`,
+          cycle: previous.cycle,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          text: `${prefix} +${award.amount} ${label} Regents (${award.name}).`,
+          type: 'system' as LogEntry['type'],
+        });
+      }
       return {
         ...previous,
         credits: Math.max(0, previous.credits - 10),
         slimes: [...filteredSlimes, child, ...addedStrays],
         colorTargetCodex: newColorTargetCodex,
         shapeTargetCodex: newShapeTargetCodex,
+        accentTargetCodex: newAccentTargetCodex,
         colorCodex: newColorCodex,
         patternCodex: newPatternCodex,
         regionUnlocks: newRegionUnlocks,
+        regentInventory: newRegentInventory,
+        colorRegentInventory: newColorRegentInventory,
+        targetRegentInventory: newTargetRegentInventory,
+        logs: [...previous.logs, ...regentLogs].slice(-50),
         hasReceivedFirstBreedReward: previous.hasReceivedFirstBreedReward || addedStrays.length > 0,
       };
     });
