@@ -242,12 +242,14 @@ that's explicitly deferred (§0).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction-co-f57741 |
 | Base branch | - |
+| Base commit | 6c709dc76e8ca4577ae71d24c4f2b942c373eeb7 |
 
 **Status log**
 - 2026-09-23 00:46 · agentflow-tick · none → Queued — suggested by heartbeat: Deliverables already implemented in code (superseded by Stage2Correction2's 95/0 floor); queued for Devin to verify §3/§4 completion criteria, not to rebuild.
 - 2026-09-24 12:00 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 12:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction-co-f57741; copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
