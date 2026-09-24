@@ -182,12 +182,14 @@ same format as the last phase's demonstration.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction2-d-371166 |
 | Base branch | - |
+| Base commit | 564e1ebbb1f7e4a2ea46b5a95107f5f760f2bb69 |
 
 **Status log**
 - 2026-09-23 01:26 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained pure-function bugfix + additive tests, zero OpenRouter spend, no ambiguity — ideal for Devin
 - 2026-09-24 10:56 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 12:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
