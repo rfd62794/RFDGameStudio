@@ -209,12 +209,14 @@ before/after floor comparison.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-importfixer-rung1-d-933e3f |
 | Base branch | - |
+| Base commit | ebaab103a00c979fe9369aee06564938a82e4af5 |
 
 **Status log**
 - 2026-09-23 01:17 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified new package with explicit tests/completion gates — good Devin candidate; confirm OpenRouter model still live before dispatch.
 - 2026-09-24 11:39 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 11:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-importfixer-rung1-d-933e3f; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 <!-- queue:end -->
