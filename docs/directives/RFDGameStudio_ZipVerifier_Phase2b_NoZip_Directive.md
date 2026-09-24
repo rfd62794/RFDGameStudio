@@ -175,7 +175,7 @@ OpenRouter response, not a summary.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-zipverifier-phase2b-6a8a60 |
 | Base branch | - |
@@ -185,4 +185,5 @@ OpenRouter response, not a summary.
 - 2026-09-23 01:16 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained Python build (studio_mcp/zip_verify/), fully specified with test anchors + completion criteria — routine Devin-first build work
 - 2026-09-24 11:51 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 11:56 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-zipverifier-phase2b-6a8a60; copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 12:10 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; resume cap reached (2/2)
 <!-- queue:end -->
