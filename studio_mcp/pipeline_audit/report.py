@@ -160,19 +160,22 @@ class PipelineAuditor:
         )
         known_issues_result = check_known_issues()
 
+        # Run suites sequentially: concurrent execution inflates timeouts and
+        # ordering flakes (observed: 6 spurious vitest failures under load vs
+        # 0 on a quiet tree), which would corrupt the floor the report exists
+        # to measure.
         py_start = start_test_run(self.repo_root, python_cmd, LOG_FILENAME, PID_FILENAME)
+        py_log = collect_test_log(
+            py_start.get("log_path") if py_start["status"] == "started" else None,
+            py_start.get("pid"),
+            python_timeout,
+        )
         ts_start = start_test_run(
             self.repo_root,
             typescript_cmd,
             TS_LOG_FILENAME,
             TS_PID_FILENAME,
             cwd=self.repo_root / "ts",
-        )
-
-        py_log = collect_test_log(
-            py_start.get("log_path") if py_start["status"] == "started" else None,
-            py_start.get("pid"),
-            python_timeout,
         )
         ts_log = collect_test_log(
             ts_start.get("log_path") if ts_start["status"] == "started" else None,
