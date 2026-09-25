@@ -232,7 +232,7 @@ set. State plainly whether all three original `tsc` errors are gone and no new o
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-m2-1-house-of-kings-ts-errors-directive |
 | Base branch | - |
@@ -246,4 +246,5 @@ set. State plainly whether all three original `tsc` errors are gone and no new o
 - 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 21:07 · robert-claude-laptop · Approved → Blocked — Work already merged (PR #31, 9fc8992e); an Approved row would re-dispatch merged work. Marking Done under Robert's 22:10 approval.
+- 2026-09-24 21:07 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->
