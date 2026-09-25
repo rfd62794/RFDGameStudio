@@ -33,7 +33,7 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slimeworld-port2-petition-decline-10b06a |
 | Base branch | - |
@@ -43,4 +43,5 @@ pytest files show no new failures against `main`; report before/after counts and
 - 2026-09-23 09:08 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified port with verified source/target files and a tests-first spec; matches Devin's build-work profile.
 - 2026-09-24 10:28 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 13:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port2-petition-decline-10b06a; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 20:00 · devin-overseer · In progress → Blocked — overseer: run pid 32128 died in place mid-exploration (same event that killed the morning dispatch wave); no errors in log - requeuing
 <!-- queue:end -->
