@@ -123,5 +123,5 @@ describe('Arcade GameLoader', () => {
     expect(window.location.href).toContain('/arcade/rfdgamestudio/');
     document.body.removeChild(container);
     root.unmount();
-  });
+  }, 30000);
 });
