@@ -33,11 +33,12 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-port1-regent-awards-directive |
 | Base branch | - |
 
 **Status log**
 - 2026-09-23 09:05 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained Lua/TS logic port with explicit test commands and a non-interactive tool allowlist — matches Devin's dispatch contract.
+- 2026-09-24 21:05 · devin · In progress → Review — Regents awarded on first colour/shape/accent target match and on region unlock, scaled by tier from data.yaml DISCOVERY_REGENT_REWARDS. New tests green: pytest tests/test_slimeworld_regent_awards.py 22/22; vitest tests/test_slimeworld_regent_awards.tsx 6/6; all 15 SlimeWorld pytest files 138/138. Commit 44522310.
 <!-- queue:end -->
