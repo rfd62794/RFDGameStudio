@@ -28,29 +28,18 @@ The full content of this retired file is preserved in git history.
 
 ## Phase 1 — Pipeline Audit Module (regenerated September 24 2026)
 
-Per the Phase 1 directive, the read-only audit module in `studio_mcp/pipeline_audit/`
-is complete. Real observed floors, measured live 2026-09-24 on the directive branch:
+`studio_mcp/pipeline_audit/` complete. Real floors measured live 2026-09-24:
 
-- Python (`uv run pytest -m "not slow"`, convention floor): 820 passed, 0 failed,
-  8 skipped (all zip_verify conditional skips), 31 deselected
-- Python (`uv run pytest`, full suite incl. e2e): 839 passed, 12 failed
-  (all `tests/e2e/*` browser tests), 8 skipped
-- TypeScript (`npx vitest run`): 1906 passed, 1 failed, 9 skipped — the failure is
-  the flaky 5s-timeout `test_game_loader_back_button_returns_clean_url`; a quiet
-  standalone run same evening was fully green at 1907 passed, 0 failed, 9 skipped.
+- Python `uv run pytest -m "not slow"`: 820/0/8 (31 deselected). Full suite incl.
+  e2e: 839 passed, 12 failed (all `tests/e2e/*` browser tests), 8 skipped.
+- TypeScript `npx vitest run`: 1906/1/9 — sole failure is the flaky 5s
+  `test_game_loader_back_button_returns_clean_url`; quiet standalone run: 1907/0/9.
+- `_ensure_node_modules`: **fixed** (real `npm install` fallback, `None` only if
+  no package.json). CrossPipeline Version Tracking: **fixed** (real hits in repo +
+  `packages/itch_publisher`, which superseded the now-absent `RFD_IT_Publishing`).
+- `C:/Github/OpenAgentMCP` no longer exists on disk; the AsyncTestRunner port in
+  `floor_runner.py` was already committed and stands alone.
+- Zip exports confirmed at `C:\Github\RFDGameStudio\intake\<slug>\` — 14 zips, all
+  imported, 0 pending.
 
-Open items (reported, not fixed — per directive):
-
-- `_ensure_node_modules` (studio_mcp/tools.py): **fixed** — real `npm install`
-  fallback at tools.py:1015-1024, returns `None` only when `package.json` is missing.
-- CrossPipeline Version Tracking: **fixed** — `_is_dist_stale`, `--userversion`,
-  `deployed_version` have real hits in both RFDGameStudio and `packages/itch_publisher`
-  (the in-repo workspace member that superseded the `C:\Github\RFD_IT_Publishing`
-  checkout, which no longer exists on disk).
-- OpenAgentMCP (`C:/Github/OpenAgentMCP`): **repo no longer exists on disk** — the
-  AsyncTestRunner port into `floor_runner.py` was already committed earlier and
-  stands alone; the `openagent` MCP service is also unreachable.
-- AI Studio zip exports confirmed at `C:\Github\RFDGameStudio\intake\<slug>\<slug>_v*.zip`
-  (gitignored): 14 exports across 8 slugs, all imported — 0 pending.
-
-Generated report: [`docs/state/PipelineAuditReport.md`](./PipelineAuditReport.md)
+Report: [`docs/state/PipelineAuditReport.md`](./PipelineAuditReport.md)
