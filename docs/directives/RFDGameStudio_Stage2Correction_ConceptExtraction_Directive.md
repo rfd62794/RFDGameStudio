@@ -242,7 +242,7 @@ that's explicitly deferred (§0).
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction-co-f57741 |
 | Base branch | - |
@@ -260,4 +260,5 @@ that's explicitly deferred (§0).
 - 2026-09-24 22:46 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 22:46 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 22:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction-co-f57741; lane=strong; model=default; persona=steady-builder
+- 2026-09-24 22:57 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
 <!-- queue:end -->
