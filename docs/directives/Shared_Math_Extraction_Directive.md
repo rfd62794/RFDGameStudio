@@ -96,7 +96,7 @@ LCG constants in a test).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shared-math-extraction-directive |
 | Base branch | directive/rfdgamestudio-shared-math-extraction-directive |
@@ -111,4 +111,5 @@ LCG constants in a test).
 - 2026-09-24 12:53 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 15:39 · robert-claude-laptop · Approved → In progress — Salvage finished on the laptop (Haiku agent, steps 1-5 of the salvage note); moving through In progress to Review.
 - 2026-09-24 15:39 · robert-claude-laptop · In progress → Review — PR #30 merged to main as 70e7373e under the permanent safe-merge approval; vitest 1916 passed / 0 failed on Windows. Done is Robert's. [origin] spent: devin 2 min est. n/a
+- 2026-09-24 21:05 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
