@@ -33,7 +33,7 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slimeworld-port1-regent-awards-directive |
 | Base branch | - |
@@ -41,4 +41,5 @@ pytest files show no new failures against `main`; report before/after counts and
 **Status log**
 - 2026-09-23 09:05 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained Lua/TS logic port with explicit test commands and a non-interactive tool allowlist — matches Devin's dispatch contract.
 - 2026-09-24 21:05 · devin · In progress → Review — Regents awarded on first colour/shape/accent target match and on region unlock, scaled by tier from data.yaml DISCOVERY_REGENT_REWARDS. New tests green: pytest tests/test_slimeworld_regent_awards.py 22/22; vitest tests/test_slimeworld_regent_awards.tsx 6/6; all 15 SlimeWorld pytest files 138/138. Commit 44522310.
+- 2026-09-24 21:20 · devin · Review → Blocked — Work complete and committed (44522310, 9c0c723); full pre-push gate ran green (pytest 842 passed; vitest 1881 passed) except test_dual_target_deploy 'Branch is up to date with origin/main' — branch tracks origin/main and is 131 behind (worktree artifact; merge/rebase/pull/fetch/unset-upstream forbidden). Refused: git push --no-verify -u origin directive/rfdgamestudio-slimeworld-port1-regent-awards-directive. Publish needs Robert (push manually, or fix branch upstream/hook).
 <!-- queue:end -->
