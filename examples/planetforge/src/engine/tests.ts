@@ -4,6 +4,7 @@
  */
 
 import {
+  AspectId,
   MONUMENT_BASE_FOCUS,
   MONUMENT_COST,
   RING_SIZE,
@@ -64,7 +65,7 @@ export function runAllEngineTests(): {
 
       // Tile 2 has LushFlora (high food) and fertile tiers
       tiles[2] = {
-        tiers: [4, 2, 0, 0],
+        tiers: [3, 2, 0, 0],
         resistances: [1, 1, 1, 1],
         aspect_slots: ['LushFlora', null, null, null],
         ticks_stable: 10,
@@ -406,6 +407,40 @@ export function runAllEngineTests(): {
         throw new Error('soil_upgrade_target did not throw on an unhandled soil type');
       }
       details.push('soil_upgrade_target throws for unhandled soil types instead of returning null/default');
+
+      assertionsCount++;
+      const probeTile: TileState = {
+        tiers: [1, 1, 1, 1],
+        resistances: [1, 1, 1, 1],
+        aspect_slots: [null, null, null, null],
+        ticks_stable: 0,
+      };
+      let soilThrew = false;
+      try {
+        evaluate_tile_yield(probeTile, 'UnknownSoil' as SoilType);
+      } catch {
+        soilThrew = true;
+      }
+      if (!soilThrew) {
+        throw new Error('evaluate_tile_yield did not throw on an unhandled soil type');
+      }
+      details.push('evaluate_tile_yield throws for unhandled SoilType instead of silently applying 1.0 multipliers');
+
+      assertionsCount++;
+      const aspectTile: TileState = {
+        ...probeTile,
+        aspect_slots: ['UnknownAspect' as AspectId, null, null, null],
+      };
+      let aspectThrew = false;
+      try {
+        evaluate_tile_yield(aspectTile, 'Clay');
+      } catch {
+        aspectThrew = true;
+      }
+      if (!aspectThrew) {
+        throw new Error('evaluate_tile_yield did not throw on an unhandled aspect');
+      }
+      details.push('evaluate_tile_yield throws for unhandled AspectId instead of silently skipping it');
     } catch (err: any) {
       passed = false;
       error = err.message || String(err);

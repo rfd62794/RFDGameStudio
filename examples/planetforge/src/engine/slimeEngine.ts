@@ -152,6 +152,10 @@ export function evaluate_tile_yield(tile: TileState, soil: SoilType): ResourceLe
         baseFood += 5;
         baseMaterial += 5;
         break;
+      default: {
+        const exhaustive: never = aspect;
+        throw new Error(`Unhandled AspectId: ${exhaustive}`);
+      }
     }
   }
 
@@ -181,6 +185,10 @@ export function evaluate_tile_yield(tile: TileState, soil: SoilType): ResourceLe
       soilMultEnergy = 2.5;
       soilMultMaterial = 1.8;
       break;
+    default: {
+      const exhaustive: never = soil;
+      throw new Error(`Unhandled SoilType: ${exhaustive}`);
+    }
   }
 
   return {
