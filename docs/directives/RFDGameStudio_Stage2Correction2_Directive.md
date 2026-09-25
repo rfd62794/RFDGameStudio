@@ -182,7 +182,7 @@ same format as the last phase's demonstration.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction2-d-371166 |
 | Base branch | - |
@@ -195,4 +195,5 @@ same format as the last phase's demonstration.
 - 2026-09-24 12:43 · agentflow-tick · In progress → Blocked — a tool call was rejected: uv run python _demo_s2c2.py; resume cap reached (2/2)
 - 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 20:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; lane=strong; model=default
 <!-- queue:end -->
