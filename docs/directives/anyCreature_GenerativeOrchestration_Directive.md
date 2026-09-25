@@ -230,7 +230,7 @@ cost).
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-anycreature-generativeorchestrati-5646dc |
 | Base branch | - |
@@ -242,4 +242,5 @@ cost).
 - 2026-09-24 12:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc; copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 12:39 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; resume cap reached (2/2)
 - 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
