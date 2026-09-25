@@ -459,7 +459,7 @@ describe('monument construction', () => {
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase1-ts-directive |
 | Base branch | - |
@@ -473,4 +473,5 @@ describe('monument construction', () => {
 - 2026-09-24 20:02 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 20:02 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 22:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase1-ts-directive; lane=strong; model=default
+- 2026-09-24 22:21 · devin-overseer · In progress → Blocked — Work committed (62a3d8cf) and verified: vitest 4 passed/0 failed/0 skipped on tests/test_planetforge_gameLogic.ts, strict tsc clean on new files. Push rejected by pre-push hook — test_dual_target_deploy 'Branch is up to date with origin/main' fails because the worktree branch tracks origin/main ([ahead 1, behind 121]); remedy 'git branch --unset-upstream' is permission-refused in headless runs. Needs interactive: git branch --unset-upstream, then git push -u origin directive/rfdgamestudio-planetforge-phase1-ts-directive.
 <!-- queue:end -->
