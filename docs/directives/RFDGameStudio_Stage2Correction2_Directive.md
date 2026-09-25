@@ -1,5 +1,12 @@
 # RFDGameStudio — Stage 2 Correction 2: Verdict Parsing & Corpus Contamination
 
+**Depends on:** AgentFlow `Safe_Inbound_Files_Directive.md` (the `Copy()` rule);
+until it merges this directive must not be approved. This directive's inbound
+zips are declared, not read from `Downloads/` directly — approving it before
+`Copy()` exists in AgentFlow's sandbox means every dispatch dies exactly the way
+tonight's two attempts did (12:16 → Blocked 12:43; 20:49 → Blocked 21:07, both
+below in the Queue log).
+
 *September 2026 | Read `docs/directives/RFDGameStudio_Stage2Correction_ConceptExtraction_Directive.md`
 in full before this one. Two separate, real bugs found during the actual
 corrected-tool re-run against the real break-streamer zips — not
@@ -9,13 +16,36 @@ pure functions.*
 
 ---
 
-> ⛔ **STOP:** Run the real current test suite (95/0 as of the last
-> certified run) and confirm before touching anything. Re-run
-> `concept_check` against the real, already-on-disk break-streamer zips
-> (`C:\Users\cheat\Downloads\break-streamer.zip`,
-> `break-streamer-mvp.zip`) and confirm the exact current numbers:
-> AI Studio 0.67, Manus 0.70, before any change — these are the honest
-> starting point, already independently verified twice.
+> ⛔ **STOP:** Run the real current test suite and confirm before touching
+> anything (baseline measured 2026-09-24 in a scratch worktree of this
+> exact repo state — `uv run pytest -q -p no:cacheprovider
+> studio_mcp/zip_verify/tests/test_verdict_synthesizer.py
+> studio_mcp/zip_verify/tests/test_concept_grep.py` → **23 passed**; this
+> is your floor, not 95/0 — confirm your own count before touching
+> anything and report it if it differs). Re-run `concept_check` against
+> the two real break-streamer zips — **do not read them from
+> `Downloads/`.** They are declared under `## Sandbox needs` below and
+> staged by the harness before this run starts, at
+> `.agentflow/inbox/break-streamer.zip` and
+> `.agentflow/inbox/break-streamer-mvp.zip`. Confirm the exact current
+> numbers: AI Studio 0.67, Manus 0.70, before any change — these are the
+> honest starting point, already independently verified twice.
+>
+> **`_allowed_verdict`'s whitespace fix and `concept_check`'s `.md`
+> exclusion are already on `main`** (commit `4d7725a8`, "fix Stage 2
+> Correction 2: exclude .md from code corpus, normalize verdict
+> whitespace" — verify this yourself with `git log --oneline -- \
+> studio_mcp/zip_verify/verdict_synthesizer.py
+> studio_mcp/zip_verify/concept_grep.py` before assuming either bug is
+> still open). What is NOT on `main`: the §3 real-zip test fixtures and
+> the live before/after demonstration — that work exists only on this
+> directive's own branch
+> (`directive/rfdgamestudio-rfdgamestudio-stage2correction2-d-371166`,
+> commit `7eee3297`) and never merged. If `main` already has both fixes
+> when you check, treat §2 as verification-only (confirm the code matches
+> what §2 describes, change nothing if it already does) and put your real
+> effort into finishing §3 and the live demonstration below — that is the
+> actual unfinished work two dispatches died on.
 
 ---
 
@@ -78,13 +108,40 @@ oversight:**
 | `studio_mcp/zip_verify/tests/test_verdict_synthesizer.py` | Modify (additive) | New tests per §3 |
 | `studio_mcp/zip_verify/tests/test_concept_grep.py` | Modify (additive) | New tests per §3, using the real break-streamer zips |
 
-**Read-only:** both real zips in `Downloads/`, everything else in
-`studio_mcp/`.
+**Read-only:** both real zips, staged by the harness at
+`.agentflow/inbox/break-streamer.zip` and
+`.agentflow/inbox/break-streamer-mvp.zip` (declared below, never read from
+`Downloads/` directly), everything else in `studio_mcp/`.
 
 > ⚠️ RULE: `.md` files still count for `find_source_directive()` — that
 > function's whole job is finding a directive written in markdown. This
 > phase only excludes `.md` from the *code corpus* `concept_check` scans
 > for matches, not from directive-finding. Do not conflate the two.
+
+---
+
+## Sandbox needs
+
+- Copy(C:/Users/cheat/Downloads/break-streamer-mvp.zip)
+- Copy(C:/Users/cheat/Downloads/break-streamer.zip)
+- Exec(uv run pytest)
+- Exec(uv run python -m zipfile)
+
+The two `Copy()` entries are staged by the harness into
+`.agentflow/inbox/break-streamer-mvp.zip` and
+`.agentflow/inbox/break-streamer.zip` before this run starts — read them
+from there, never from `C:\Users\cheat\Downloads\`, which this run cannot
+see. `Exec(uv run python -m zipfile)` is the interpreter-safe form for
+listing or extracting a zip from a shell command if you need to sanity-check
+its contents outside a test (`uv run python -m zipfile -l
+.agentflow/inbox/break-streamer.zip`); it is not a general Python escape —
+`uv run python -c ...` and any other flag form of `python`/`uv run python`
+remain refused. Prefer doing the actual extraction inside a named test or
+script (below) over ad hoc shell probes: an undeclared, improvised command
+(a scratch script run directly, e.g. last attempt's `uv run python
+_demo_s2c2.py`) is refused outright because nothing here declares it — that
+is exactly how both of tonight's dispatches died (Queue log below, 12:43
+and 21:07).
 
 ---
 
@@ -135,29 +192,98 @@ concatenates source text for match-counting) and exclude files with a
 | `test_find_source_directive_still_finds_markdown` | Existing certified fixture | Confirms `.md` exclusion didn't break directive-finding itself |
 | `test_existing_certified_fixtures_unaffected_by_md_exclusion` | Real `antsim-redux`/`corpworld` (no `.md` files in their corpus to begin with) | Coverage numbers unchanged |
 
-Target: X passing, 0 failing, 0 skipped, real count.
+Target: X passing, 0 failing, 0 skipped, real count. Baseline before you
+change anything (measured 2026-09-24 in a scratch worktree of this exact
+repo state, `uv run python --version` → `Python 3.12.12`):
 
-**Live demonstration required at completion:** re-run `concept_check`
-(not the full `ZipVerifier.verify()` — no new OpenRouter call needed or
-wanted this phase) against both real break-streamer zips, paste the
-real before/after coverage numbers and unmatched lists side by side,
-same format as the last phase's demonstration.
+```
+uv run pytest -q -p no:cacheprovider studio_mcp/zip_verify/tests/test_verdict_synthesizer.py studio_mcp/zip_verify/tests/test_concept_grep.py
+.......................                                                  [100%]
+23 passed
+```
+
+Run that exact command yourself before touching anything, and again when
+done — report both real counts, not this baseline restated.
+
+**Live demonstration required at completion — as a named test, not a
+scratch probe:** the previous two dispatches both died reaching for an
+improvised, undeclared command (`uv run python _demo_s2c2.py`, refused
+because it was never declared). Do not repeat that. Instead, add one
+additive test function to
+`studio_mcp/zip_verify/tests/test_concept_grep.py` — for example
+`test_live_demonstration_break_streamer_before_after` — that:
+
+1. Extracts `.agentflow/inbox/break-streamer.zip` (AI Studio) and
+   `.agentflow/inbox/break-streamer-mvp.zip` (Manus) using
+   `studio_mcp/zip_verify/zip_reader.extract_zip` (already in this repo —
+   do not write your own extraction code).
+2. Calls `concept_check` on each extracted directory, before AND after
+   your `.md`-exclusion change is in effect (if it is already on `main` —
+   see the STOP banner above — this may mean the "before" number is
+   whatever it is with the `.md` exclusion permanently in place; say so
+   plainly rather than fabricating a "before" that no longer exists in
+   the code).
+3. Prints (`print(...)`, captured by running pytest with `-s`) the real
+   before/after coverage numbers and unmatched-concept lists side by
+   side, same format as the last phase's demonstration.
+
+Run it with `uv run pytest -q -s -p no:cacheprovider
+studio_mcp/zip_verify/tests/test_concept_grep.py::test_live_demonstration_break_streamer_before_after`
+(this is still `uv run pytest`, already declared under `## Sandbox needs`
+above — no separate script or additional grant is needed) and paste the
+real captured output into your Report. Do not run the full
+`ZipVerifier.verify()` — no new OpenRouter call needed or wanted this
+phase.
 
 ---
 
 ## §4 Completion Criteria
 
-- [ ] Real pre-flight floor confirmed (95/0) before any change
+- [ ] Real pre-flight floor confirmed before any change — run
+      `uv run pytest -q -p no:cacheprovider
+      studio_mcp/zip_verify/tests/test_verdict_synthesizer.py
+      studio_mcp/zip_verify/tests/test_concept_grep.py` yourself and
+      report the real count (this session measured 23 passed; do not
+      assume it still is without running it)
 - [ ] `_allowed_verdict` fix implemented and confirmed against all three
-      whitespace variants
+      whitespace variants — or, if already on `main` (check `git log`
+      per the STOP banner), confirmed present and unmodified
 - [ ] `.md` exclusion implemented, confirmed `find_source_directive`
-      unaffected
-- [ ] Live demonstration run for real: before/after coverage on both
-      real zips, honest report of whether `relative` actually flips
+      unaffected — or, if already on `main`, confirmed present and
+      unmodified
+- [ ] Live demonstration run for real, as the named test in §3 (not a
+      scratch script): before/after coverage on both real zips from
+      `.agentflow/inbox/`, honest report of whether `relative` actually
+      flips
 - [ ] `antsim-redux`/`corpworld` fixtures confirmed unchanged
 - [ ] No full `ZipVerifier.verify()` re-run — no new OpenRouter spend
       this phase
 - [ ] Final full test floor reported, real count
+- [ ] Neither Downloads zip was ever read by path from `Downloads/` —
+      only from `.agentflow/inbox/`
+
+---
+
+## Rules for this run
+
+- The run is NON-INTERACTIVE and any tool call needing confirmation ends it.
+- Never read outside the worktree, and never reach for
+  `C:\Users\cheat\Downloads\` by path — the two zips are already staged at
+  `.agentflow/inbox/` before you start; if either is missing there, stop
+  and write that in the Status row rather than searching for another way
+  to reach `Downloads/`.
+- Never run an improvised, undeclared command (a scratch script invoked
+  directly, a bare `python -c`, or anything not covered by `## Sandbox
+  needs` above). If you need to do something not covered, stop and write
+  why in the Status row instead of trying another way around it.
+- Do not search, glob, or hunt. If something named in this directive is
+  missing, stop and write that in the Status row.
+- Never commit to main, never push except to this run's own `directive/*`
+  branch, never deploy.
+- Free models only. No model config is touched by this work.
+- Create no scratch or debug files outside `.devin-scratch/`, and never
+  delete files.
+- If a tool call is blocked, stop and write why in the Status row.
 
 ---
 
