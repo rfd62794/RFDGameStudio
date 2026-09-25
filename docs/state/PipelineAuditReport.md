@@ -1,6 +1,6 @@
 # Pipeline Audit Report
 
-**Generated:** 2026-09-25T01:55:22.503218+00:00
+**Generated:** 2026-09-25T02:01:21.773133+00:00
 
 ## Summary
 
@@ -22,8 +22,8 @@
 ### TypeScript (`vitest`)
 
 - Command: `npx vitest run`
-- Passed: 1904
-- Failed: 3
+- Passed: 1901
+- Failed: 6
 - Skipped: 9
 - Certified: False
 
