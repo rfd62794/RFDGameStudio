@@ -242,7 +242,7 @@ that's explicitly deferred (§0).
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction-co-f57741 |
 | Base branch | - |
@@ -253,4 +253,5 @@ that's explicitly deferred (§0).
 - 2026-09-24 12:00 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 12:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction-co-f57741; copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 12:22 · agentflow-tick · In progress → Blocked — a tool call was rejected: uv run python _stage2_demo.py; resume cap reached (2/2)
+- 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
 <!-- queue:end -->
