@@ -459,7 +459,7 @@ describe('monument construction', () => {
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase1-ts-directive |
 | Base branch | - |
@@ -472,4 +472,5 @@ describe('monument construction', () => {
 - 2026-09-24 11:53 · agentflow-tick · In progress → Blocked — a tool call was rejected: git merge-base --is-ancestor main HEAD; resume cap reached (2/2)
 - 2026-09-24 20:02 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 20:02 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 22:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase1-ts-directive; lane=strong; model=default
 <!-- queue:end -->
