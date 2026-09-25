@@ -242,7 +242,7 @@ that's explicitly deferred (§0).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction-co-f57741 |
 | Base branch | - |
@@ -259,4 +259,5 @@ that's explicitly deferred (§0).
 - 2026-09-24 22:46 · devin-overseer · In progress → Blocked — overseer 2026-09-24 ~22:45: run pid 31316 died mid-verification, no error in dispatch log (transient); requeued for retry on same branch — prior commits 842c14a0+4d7725a8 preserved
 - 2026-09-24 22:46 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 22:46 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 22:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction-co-f57741; lane=strong; model=default; persona=steady-builder
 <!-- queue:end -->
