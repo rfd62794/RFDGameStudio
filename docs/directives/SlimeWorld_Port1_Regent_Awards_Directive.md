@@ -33,7 +33,7 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slimeworld-port1-regent-awards-directive |
 | Base branch | - |
@@ -46,4 +46,5 @@ pytest files show no new failures against `main`; report before/after counts and
 - 2026-09-24 11:10 · devin · In progress → Blocked — Work complete and committed locally (44522310) with all tests green; publish blocked — pre-push test gate fails test_dual_target_deploy 'branch up to date with origin/main' (branch tracks origin/main and is behind; merge/rebase/pull/fetch/unset-upstream all forbidden).
 - 2026-09-24 20:02 · robert-claude-laptop · Blocked → Queued
 - 2026-09-24 20:02 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 20:58 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port1-regent-awards-directive; lane=strong; model=default
 <!-- queue:end -->
