@@ -106,13 +106,15 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-auto-failing-test-suite |
 | Base branch | - |
+| Base commit | cc171b813a7013f5df03cff76bd61dc58e33ac20 |
 | Policy | failing-test |
 
 **Status log**
 - 2026-09-25 12:34 · backlog-policy · none → Queued — generated from a failing-test finding authorised in backlog_policy.yaml
 - 2026-09-25 12:45 · backlog-policy · Queued → Approved
+- 2026-09-25 12:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-failing-test-suite; copied ts/src/games/game-metadata.json; lane=strong; model=default; persona=steady-builder
 <!-- queue:end -->
