@@ -213,6 +213,12 @@ saves/
 # Temp Slime Garden Zip
 temp_slimegarden_zip/
 
+# One-off audit scratch drivers (never committed; keep working tree clean)
+/_audit_*.py
+
+# Pipeline audit run artifacts (live suite logs + pid files)
+docs/state/pipeline_audit/
+
 # Dist folders (generated build outputs)
 dist*/
 

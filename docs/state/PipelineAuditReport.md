@@ -1,38 +1,38 @@
 # Pipeline Audit Report
 
-**Generated:** 2026-09-03T05:36:04.439527+00:00
+**Generated:** 2026-09-25T01:55:22.503218+00:00
 
 ## Summary
 
-- Registry entries: 32
-- Example directories: 28
-- AI Studio zip exports: 11
+- Registry entries: 34
+- Example directories: 16
+- AI Studio zip exports: 14
 - Unimported zip exports: 0
 
 ## Test Floors
 
 ### Python (`pytest`)
 
-- Command: `uv run pytest`
-- Passed: 0
+- Command: `uv run pytest -m "not slow"`
+- Passed: 820
 - Failed: 0
-- Skipped: 0
+- Skipped: 8
 - Certified: False
 
 ### TypeScript (`vitest`)
 
 - Command: `npx vitest run`
-- Passed: 0
-- Failed: 0
-- Skipped: 0
+- Passed: 1904
+- Failed: 3
+- Skipped: 9
 - Certified: False
 
 ## Registry
 
 | Game ID | Pipeline Stage | Tracked | Version | Created | Last Updated |
 |---|---|---|---|---|---|
-| dissonance | website_collection | True | 0.1.0 | 2026-07-22T19:58:40-04:00 | 2026-08-15T18:10:04-04:00 |
-| slimeworld | website_collection | True | 0.1.0 | 2026-07-14T22:09:36-04:00 | 2026-08-16T15:05:51-04:00 |
+| dissonance | website_collection | True | 0.1.0 | 2026-07-22T19:58:40-04:00 | 2026-09-23T15:19:50-04:00 |
+| slimeworld | website_collection | True | 0.1.0 | 2026-07-14T22:09:36-04:00 | 2026-09-13T09:17:44-04:00 |
 | shoal | itch_published | True | 2.31.0 | 2026-07-10T23:02:49-04:00 | 2026-08-22T22:35:51-04:00 |
 | voiddrift | itch_published | True | 1.0.0 | 2026-07-10T20:25:49-04:00 | 2026-07-11T18:39:04-04:00 |
 | horse_racing | website_collection | True | 1.0.0 | 2026-06-23T20:59:34-04:00 | 2026-08-16T15:01:09-04:00 |
@@ -41,27 +41,29 @@
 | slime_coin | website_collection | True | 1.0.0 | 2026-06-27T21:08:17-04:00 | 2026-08-16T15:05:51-04:00 |
 | chimera_wilds | website_collection | True | 1.0.0 | 2026-07-08T20:40:17-04:00 | 2026-08-16T15:05:51-04:00 |
 | scrapcrawl | website_collection | True | 1.0.0 | 2026-07-08T21:05:08-04:00 | 2026-08-16T15:05:51-04:00 |
-| wire_rust | ai_studio | False | 0.1.0 |  |  |
-| choke_point | ai_studio | False | 0.1.0 |  |  |
+| wire_rust | website_collection | True | 0.1.0 | 2026-09-03T01:26:05-04:00 | 2026-09-03T20:24:59-04:00 |
+| choke_point | website_collection | True | 0.1.0 | 2026-09-03T01:36:55-04:00 | 2026-09-03T20:24:59-04:00 |
+| filipino_bpo_simulator | website_collection | True | 0.1.0 | 2026-09-03T20:39:57-04:00 | 2026-09-13T11:43:37-04:00 |
 | ledger | website_collection | True | 1.0.0 | 2026-07-11T18:42:41-04:00 | 2026-07-11T18:42:41-04:00 |
 | trinity_siege | website_collection | True | 1.0.0 | 2026-07-11T18:42:41-04:00 | 2026-07-11T18:42:41-04:00 |
 | 7_days_to_fry | website_collection | True | 0.1.0 | 2026-08-04T22:13:41-04:00 | 2026-08-30T18:57:31-04:00 |
 | antsim_redux | website_collection | True | 0.1.0 | 2026-08-06T22:26:34-04:00 | 2026-08-30T18:57:33-04:00 |
 | facility_escape | website_collection | True | 0.1.0 | 2026-08-06T22:26:34-04:00 | 2026-08-30T18:57:31-04:00 |
+| systemic_extract | website_collection | True | 0.1.0 | 2026-09-18T21:07:25-04:00 | 2026-09-18T21:17:06-04:00 |
 | factory_idle | website_collection | True | 0.1.0 | 2026-08-22T22:02:42-04:00 | 2026-08-23T14:16:01-04:00 |
 | planetofgreed | website_collection | True | 0.1.0 | 2026-08-13T21:58:10-04:00 | 2026-08-16T15:53:27-04:00 |
 | planetforge | website_collection | True | 0.1.0 | 2026-08-22T22:02:42-04:00 | 2026-08-23T14:16:37-04:00 |
-| gladiator_arena | website_collection | True | 0.1.0 | 2026-08-15T23:16:53-04:00 | 2026-08-15T23:22:24-04:00 |
-| voiddrift_redux | website_collection | True | 0.1.0 | 2026-08-15T23:27:38-04:00 | 2026-08-15T23:30:38-04:00 |
+| gladiator_arena | website_collection | True | 0.1.0 | 2026-08-15T23:16:53-04:00 | 2026-09-20T07:14:38-04:00 |
+| voiddrift_redux | website_collection | True | 0.1.0 | 2026-08-15T23:27:38-04:00 | 2026-09-20T07:14:52-04:00 |
 | succession | itch_published | True | 0.1.0 | 2026-08-15T23:27:48-04:00 | 2026-08-22T23:04:56-04:00 |
-| house_of_kings_collab | website_collection | True | 0.1.0 | 2026-08-15T23:46:00-04:00 | 2026-08-16T00:29:17-04:00 |
+| house_of_kings_collab | website_collection | True | 0.1.0 | 2026-08-15T23:46:00-04:00 | 2026-09-20T07:14:47-04:00 |
 | character_viewer | website_collection | True | 0.1.0 | 2026-08-14T21:55:13-04:00 | 2026-08-15T18:10:04-04:00 |
 | technique_showcase | website_collection | True | 0.1.0 | 2026-08-14T23:39:46-04:00 | 2026-08-14T23:39:46-04:00 |
 | role_symbol_viewer | website_collection | True | 0.1.0 | 2026-08-22T19:34:01-04:00 | 2026-08-22T19:34:01-04:00 |
-| dissonance_prototype | website_collection | True | 0.1.0 | 2026-08-23T13:48:11-04:00 | 2026-08-23T14:18:43-04:00 |
-| slimegarden | website_collection | True | 0.1.0 | 2026-07-13T18:32:06-04:00 | 2026-08-23T14:18:43-04:00 |
-| slimebreeder | website_collection | True | 1.0.0 | 2026-04-10T21:08:42-04:00 | 2026-04-11T21:33:00-04:00 |
-| corpworld | website_collection | True | ﻿0.1.0 | 2026-07-12T21:25:26-04:00 | 2026-08-13T21:58:10-04:00 |
+| dissonance_prototype | website_collection | True | 0.1.0 | 2026-08-23T13:48:11-04:00 | 2026-09-18T22:30:49-04:00 |
+| slimegarden | website_collection | True | 0.1.0 | 2026-07-13T18:32:06-04:00 | 2026-09-18T22:30:49-04:00 |
+| slimebreeder | website_collection | False | 0.1.0 |  |  |
+| corpworld | website_collection | True | 0.1.0 | 2026-07-12T21:25:26-04:00 | 2026-08-13T21:58:10-04:00 |
 | kingmaker_squads | website_collection | True | 0.1.0 | 2026-08-04T22:13:41-04:00 | 2026-08-13T21:58:10-04:00 |
 
 ## Examples Directories
@@ -69,31 +71,19 @@
 - `7-days-to-fry`
 - `SlimeBreeder`
 - `antsim-redux`
-- `armory-storefront-spindle`
-- `brewfield`
-- `coin-pusher-arcade`
-- `corpworld`
 - `dissonance-prototype`
 - `facility-escape`
 - `factory-idle-precision-armory-phase1`
 - `factory-idle-precision-armory-phase2`
 - `horse-racing-&-breeding`
-- `kingmaker-squads`
 - `ledger`
 - `lua`
-- `mutant-battle-ball`
 - `planetforge`
-- `planetofgreed`
-- `scrapcrawl`
 - `shoal`
 - `slimegarden`
-- `slimeworld`
 - `slither-rogue_-evolution`
-- `throwaway-test`
+- `systemic-extract`
 - `trinity-siege`
-- `voiddrift-redux-core-loop`
-- `voidrift-redux-particle-sandbox`
-- `voidrift-redux-station-sim`
 
 ## Zip Inventory
 
@@ -107,9 +97,12 @@
 | corpworld | 0.1.0R4 | 2026-07-12T22:17:59 | True | corpworld | `C:\Github\RFDGameStudio\intake\corpworld\corpworld_v0.1.0R4.zip` |
 | corpworld | 0.1.0R5 | 2026-07-12T22:55:04 | True | corpworld | `C:\Github\RFDGameStudio\intake\corpworld\corpworld_v0.1.0R5.zip` |
 | facility-escape | 0.1.0R1 | 2026-08-06T22:23:07 | True | facility_escape | `C:\Github\RFDGameStudio\intake\facility-escape\facility-escape_v0.1.0R1.zip` |
+| filipino-bpo-simulator | 0.1.0R1 | 2026-09-03T20:38:42 | True | filipino_bpo_simulator | `C:\Github\RFDGameStudio\intake\filipino-bpo-simulator\filipino-bpo-simulator_v0.1.0R1.zip` |
+| filipino-bpo-simulator | 0.1.0R2 | 2026-09-03T21:43:26 | True | filipino_bpo_simulator | `C:\Github\RFDGameStudio\intake\filipino-bpo-simulator\filipino-bpo-simulator_v0.1.0R2.zip` |
 | kingmaker-squads | 0.1.0R1 | 2026-08-04T22:10:31 | True | kingmaker_squads | `C:\Github\RFDGameStudio\intake\kingmaker-squads\kingmaker-squads_v0.1.0R1.zip` |
 | slimegarden | 0.1.0R1 | 2026-07-13T18:18:28 | True | slimegarden | `C:\Github\RFDGameStudio\intake\slimegarden\slimegarden_v0.1.0R1.zip` |
 | slimegarden | 0.1.0R2 | 2026-07-18T09:33:56 | True | slimegarden | `C:\Github\RFDGameStudio\intake\slimegarden\slimegarden_v0.1.0R2.zip` |
+| systemic-extract | 0.1.0R1 | 2026-09-18T21:03:16 | True | systemic_extract | `C:\Github\RFDGameStudio\intake\systemic-extract\systemic-extract_v0.1.0R1.zip` |
 
 ## Known Issues
 
@@ -123,16 +116,16 @@
 ### CrossPipeline Version Tracking
 
 - Status: `fixed`
-- Total hits: 154
+- Total hits: 192
 
 **RFDGameStudio hits:**
-- `_is_dist_stale`: 44
-- `--userversion`: 19
-- `deployed_version`: 68
+- `_is_dist_stale`: 53
+- `--userversion`: 24
+- `deployed_version`: 92
 
-**RFD_IT_Publishing hits:**
-- `_is_dist_stale`: 10
-- `--userversion`: 4
-- `deployed_version`: 9
+**packages/itch_publisher hits:**
+- `_is_dist_stale`: 7
+- `--userversion`: 5
+- `deployed_version`: 11
 
 - Details: Version-tracking strings appear to be implemented.

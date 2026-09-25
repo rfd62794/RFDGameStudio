@@ -87,7 +87,7 @@ def test_collect_test_log_returns_empty_for_missing_path():
 def test_start_test_run_uses_popen_and_writes_files(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
-    state_dir = repo / "docs" / "state"
+    state_dir = repo / "docs" / "state" / "pipeline_audit"
     mock_proc = MagicMock()
     mock_proc.pid = 12345
 
