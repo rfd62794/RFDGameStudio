@@ -242,7 +242,7 @@ executing agent once collected, not assumed here.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-pipelineaudit-phase-fa27c3 |
 | Base branch | - |
@@ -254,4 +254,5 @@ executing agent once collected, not assumed here.
 - 2026-09-24 11:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-pipelineaudit-phase-fa27c3; copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 12:05 · agentflow-tick · In progress → Blocked — a tool call was rejected: uv run python _audit_report_gen.py; resume cap reached (2/2)
 - 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
