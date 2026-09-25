@@ -106,15 +106,17 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-failing-test-suite |
 | Base branch | - |
 | Base commit | cc171b813a7013f5df03cff76bd61dc58e33ac20 |
+| Head commit | 7db8c6eededddd7b5e322b839bc5190df2932e11 |
 | Policy | failing-test |
 
 **Status log**
 - 2026-09-25 12:34 · backlog-policy · none → Queued — generated from a failing-test finding authorised in backlog_policy.yaml
 - 2026-09-25 12:45 · backlog-policy · Queued → Approved
 - 2026-09-25 12:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-failing-test-suite; copied ts/src/games/game-metadata.json; lane=strong; model=default; persona=steady-builder
+- 2026-09-25 13:02 · devin · In progress → Review — Raised the arcade routing test timeout to match its existing 30s lazy-load wait; full Vitest suite passes with baseline intentional skips. [origin] spent: devin 14 min est. n/a
 <!-- queue:end -->
