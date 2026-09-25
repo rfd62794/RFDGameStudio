@@ -163,7 +163,7 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase2b-correction-directive |
 | Base branch | - |
@@ -175,4 +175,5 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 - 2026-09-24 11:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase2b-correction-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 11:46 · agentflow-tick · In progress → Blocked — a tool call was rejected: bun --version; resume cap reached (2/2)
 - 2026-09-24 20:02 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:02 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
