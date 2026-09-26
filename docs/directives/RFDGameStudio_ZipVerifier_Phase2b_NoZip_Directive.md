@@ -175,7 +175,7 @@ OpenRouter response, not a summary.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-zipverifier-phase2b-6a8a60 |
 | Base branch | - |
@@ -190,4 +190,5 @@ OpenRouter response, not a summary.
 - 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 22:50 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-zipverifier-phase2b-6a8a60; lane=strong; model=default; persona=steady-builder
 - 2026-09-24 23:04 · agentflow-tick · In progress → Blocked — a tool call was rejected: test -n "$OPENROUTER_API_KEY"; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-verification (transient).
 <!-- queue:end -->
