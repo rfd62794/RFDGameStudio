@@ -130,6 +130,32 @@ accent_targets:
   - {id: accent_obsidian, name: Obsidian, amplitude_min: 70, amplitude_max: 100}
   - {id: accent_metallic, name: Metallic, diffusion_min: 43, diffusion_max: 47, amplitude_min: 68, amplitude_max: 72}
 
+# --- REGENT DISCOVERY REWARDS ---
+# Earn side of the regent economy, ported from SlimeBreeder's
+# DISCOVERY_REGENT_REWARDS (archive/slimebreeder/src/config.ts:21-25):
+# {T2: 5, T3: 15, T4: 40} — tier-1 discoveries earn nothing. Tier 5 extends
+# the ~3x-per-tier curve one step for SlimeWorld's beyond-T4 targets (skip
+# triads, quintic shapes, the Metallic accent).
+regent_rewards:
+  # Positional list: index N = regents paid for a tier-N first match.
+  tier_curve: [0, 5, 15, 40, 100]
+  # Named color-target tiers map onto curve positions 2-5. Every authored
+  # color target is at least a T2-equivalent discovery — the archive's T1
+  # was the starting trait pool, which has no SlimeWorld target analog.
+  color_tier_rank: {guild: 2, rival: 3, arc_triad: 4, skip_triad: 5}
+  # Accent targets carry no tier field of their own; ranks below reflect
+  # band difficulty (width and axis count). Metallic is the dual-axis
+  # Convergence capstone.
+  accent_tier:
+    accent_solid: 1
+    accent_glow: 1
+    accent_polka: 2
+    accent_stripe: 2
+    accent_nebula: 3
+    accent_obsidian: 3
+    accent_ringed: 4
+    accent_metallic: 5
+
 # --- SIX CULTURES ---
 cultures:
   ember:
