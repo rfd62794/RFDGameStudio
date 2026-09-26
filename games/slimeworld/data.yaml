@@ -80,6 +80,10 @@ petition:
     requested_shape: {type: string, optional: true}
     payout_multiplier: number
     expires_cycle: integer
+  # Fraction of petition trait picks drawn from the player's discovered
+  # trait pools (codices + roster); the remainder are aspirational draws
+  # from the full trait lists. Approved ratio per Robert: 80/20.
+  discovered_target_ratio: 0.8
 
 # --- COLOR GENETICS ---
 color_genetics:

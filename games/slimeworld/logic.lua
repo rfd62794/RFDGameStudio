@@ -34,7 +34,7 @@ function compute_stage(current_cycle, created_at)
   return result
 end
 
-function advance_cycle(state, color_specs)
+function advance_cycle(state, color_specs, petition_config)
   state.cycle = (state.cycle or 0) + 1
 
   -- Recompute lifecycle Stage for every roster slime based on real cycles
@@ -43,6 +43,9 @@ function advance_cycle(state, color_specs)
   for _, slime in ipairs(state.slimes or {}) do
     slime.stage = compute_stage(state.cycle, slime.created_at or state.cycle)
   end
+
+  -- Persist snap-shape discovery for petition targeting.
+  record_shape_discoveries(state)
 
   -- Expire contracts
   for _, contract in ipairs(state.contracts or {}) do
@@ -63,9 +66,12 @@ function advance_cycle(state, color_specs)
     if state.petitions[index].expires_cycle < state.cycle then table.remove(state.petitions, index) end
   end
 
-  -- Spawn new wanderer petitions (deterministic, up to WANDERER_REQUEST_MAX)
+  -- Spawn new wanderer petitions (deterministic, up to WANDERER_REQUEST_MAX),
+  -- preferring traits the player has discovered.
   if #(state.petitions or {}) < WANDERER_REQUEST_MAX then
-    local new_petition = create_wanderer_petition(state.cycle, state.petitions or {})
+    local petition_ratio = (petition_config or {}).discovered_target_ratio or WANDERER_DISCOVERED_TARGET_RATIO
+    local discovered = collect_discovered_petition_traits(state)
+    local new_petition = create_wanderer_petition(state.cycle, state.petitions or {}, discovered, petition_ratio)
     if new_petition ~= nil then
       state.petitions = state.petitions or {}
       table.insert(state.petitions, new_petition)

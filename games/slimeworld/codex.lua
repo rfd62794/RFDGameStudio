@@ -79,16 +79,74 @@ end
 local WANDERER_REQUEST_MAX = 3
 local WANDERER_PREMIUM_MULTI = 3.0
 
-function create_wanderer_petition(cycle, active_petitions)
+-- Fallback for callers that do not pass petition config; the shipped value
+-- lives in data.yaml (petition.discovered_target_ratio). Port of the audit's
+-- approved 80/20: petition traits prefer what the player has discovered,
+-- with the remainder drawn globally as aspirational targets.
+local WANDERER_DISCOVERED_TARGET_RATIO = 0.8
+
+-- The lab's discovered-trait pools in petition vocabulary (faction color
+-- names, snap shape names). Sources: the persisted codices —
+-- state.color_codex entries ({ discovered = true } or plain true) and
+-- state.shape_codex name flags — unioned with the live roster, since held
+-- specimens are discovered by definition.
+function collect_discovered_petition_traits(state)
+  local seen_colors, seen_shapes = {}, {}
+  local colors, shapes = {}, {}
+  local function add_color(color)
+    if color ~= nil and not seen_colors[color] then
+      seen_colors[color] = true
+      table.insert(colors, color)
+    end
+  end
+  local function add_shape(shape)
+    if shape ~= nil and not seen_shapes[shape] then
+      seen_shapes[shape] = true
+      table.insert(shapes, shape)
+    end
+  end
+  for color, entry in pairs(state.color_codex or {}) do
+    if entry == true or (type(entry) == "table" and entry.discovered == true) then
+      add_color(color)
+    end
+  end
+  for shape, flagged in pairs(state.shape_codex or {}) do
+    if flagged then add_shape(shape) end
+  end
+  for _, slime in ipairs(state.slimes or {}) do
+    add_color(slime.color)
+    add_shape(snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10))
+  end
+  return { colors = colors, shapes = shapes }
+end
+
+-- Persist snap-shape discovery for petition targeting: every shape the
+-- roster holds counts as discovered.
+function record_shape_discoveries(state)
+  state.shape_codex = state.shape_codex or {}
+  for _, slime in ipairs(state.slimes or {}) do
+    state.shape_codex[snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10)] = true
+  end
+end
+
+local function pick_petition_trait(all_traits, discovered_traits, ratio)
+  if discovered_traits ~= nil and #discovered_traits > 0 and math.random() < ratio then
+    return discovered_traits[math.random(#discovered_traits)]
+  end
+  return all_traits[math.random(#all_traits)]
+end
+
+function create_wanderer_petition(cycle, active_petitions, discovered, discovered_ratio)
   if #(active_petitions or {}) >= WANDERER_REQUEST_MAX then return nil, "Wanderer petition capacity reached" end
   local colors = { "Red", "Blue", "Yellow", "Purple", "Orange", "Green", "Gray" }
   local shapes = { "Triangle", "Square", "Circle", "Star", "Diamond", "Teardrop", "Pentagon", "Crescent", "Hexa", "Crown" }
+  local ratio = discovered_ratio or WANDERER_DISCOVERED_TARGET_RATIO
   local require_color = math.random() > 0.3
   local require_shape = math.random() > 0.3
   local has_color = require_color or not require_shape
   local has_shape = require_shape or not require_color
-  local target_color = has_color and colors[math.random(#colors)] or nil
-  local target_shape = has_shape and shapes[math.random(#shapes)] or nil
+  local target_color = has_color and pick_petition_trait(colors, discovered and discovered.colors, ratio) or nil
+  local target_shape = has_shape and pick_petition_trait(shapes, discovered and discovered.shapes, ratio) or nil
   local color_tier = target_color and get_color_tier(target_color) or 1.5
   local shape_tier = target_shape and get_shape_tier(target_shape) or 1.5
   local reward = math.floor(color_tier * shape_tier * 10 * WANDERER_PREMIUM_MULTI)
@@ -120,6 +178,29 @@ function fulfill_petition(state, petition_id, slime_id)
     end
   end
   return { payout = payout, fulfilled_slime_id = slime_id }, nil
+end
+
+-- Archive dismissRequest semantics (archive/slimebreeder/src/store/gameStore.ts):
+-- a Decline removes the petition and a replacement is generated immediately,
+-- refilling to WANDERER_REQUEST_MAX. Unlike the archive there is no
+-- empty-pool guard — the generator falls back to global traits.
+function decline_petition(state, petition_id, petition_config)
+  local petition = find_by_id(state.petitions, petition_id)
+  if petition == nil then return nil, "Petition not found" end
+  for index, current in ipairs(state.petitions) do
+    if current.id == petition_id then
+      table.remove(state.petitions, index)
+      break
+    end
+  end
+  local ratio = (petition_config or {}).discovered_target_ratio or WANDERER_DISCOVERED_TARGET_RATIO
+  local discovered = collect_discovered_petition_traits(state)
+  while #state.petitions < WANDERER_REQUEST_MAX do
+    local replacement = create_wanderer_petition(state.cycle or 0, state.petitions, discovered, ratio)
+    if replacement == nil then break end
+    table.insert(state.petitions, replacement)
+  end
+  return { declined_id = petition_id, petitions = state.petitions }, nil
 end
 
 function get_random_melancholic_log(cycle)
