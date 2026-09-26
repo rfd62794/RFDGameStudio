@@ -36,6 +36,13 @@ lab:
 
 constants:
   WORKER_BASE_INCOME: 5
+  # Fraction of a worker slime's tier value (snapped color + snapped shape via
+  # TIER_VALUE) paid per cycle — the SlimeBreeder display-room port.
+  # WORKER_BASE_INCOME is the floor: no specimen earns below the legacy 5.
+  # At 0.1 a mid-tier specimen (tier value ~100) earns 10/cycle, a Crown-snap
+  # T4 (~305) earns ~31 — trailing petition payouts and sale value per the
+  # absorption spec's "income trails acquisition costs" tension.
+  WORKER_TIER_YIELD_RATE: 0.1
   RECYCLE_CREDIT_VALUE: 15
   CAPITOL_HARDENED_BONUS: 15
 

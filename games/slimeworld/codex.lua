@@ -5,8 +5,14 @@ function is_slime_in_matching_culture_environment(slime, nodes)
   return false
 end
 
-function calculate_worker_income(slime, has_auto_feeder, nodes)
-  local income = 5
+function calculate_worker_income(slime, has_auto_feeder, nodes, constants)
+  local income = (constants and constants.WORKER_BASE_INCOME) or 5
+  local tier_yield_rate = constants and constants.WORKER_TIER_YIELD_RATE
+  if tier_yield_rate ~= nil then
+    local color_name = slime.color or snap_to_faction(slime.hue or 0)
+    local shape_name = snap_to_shape_name(slime.vertex_count or 4, slime.irregularity or 10)
+    income = math.max(income, math.floor(calculate_tier_value(color_name, shape_name) * tier_yield_rate + 0.5))
+  end
   if has_auto_feeder then income = income * 2 end
   if is_slime_in_matching_culture_environment(slime, nodes) then income = income * 2 end
   return income
