@@ -106,7 +106,7 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-auto-failing-test-suite |
 | Base branch | - |
@@ -121,4 +121,5 @@ the finding that was inaccurate. And any refused command, verbatim.
 - 2026-09-25 13:02 · devin · In progress → Review — Raised the arcade routing test timeout to match its existing 30s lazy-load wait; full Vitest suite passes with baseline intentional skips. [origin] spent: devin 14 min est. n/a
 - 2026-09-25 13:31 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [31m[1m[7m FAIL [27m[22m[39m tests/test_shared.ts[2m > [22mHooks module[2m > [22mtest_hooks_module_exports_cooldown_ticker | [31m[1m[7m FAIL [27m[22m[39m tests/test_shared.ts[2m > [22mHooks module[2m > [22mtest_hooks_module_exports_lua_call | [31m[1mError[22m: Test timed out in 5000ms. | If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
 - 2026-09-25 22:06 · devin-overseer (delegated) · Blocked → Review — Run completed: suite green 1920 pass/0 fail, branch pushed (7db8c6e); status never landed on Review. [origin] spent: devin 14 min est. n/a
+- 2026-09-25 23:30 · agentflow-tick · Review → Blocked — pre-check: check failed (1): [90m251| [39m [35mconst[39m js [33m=[39m [34mreadFileSync[39m([34mresolve[39m(distDir[33m,[39m f)[33m,[39m [32m'utf-8'[39m)[33m;[39m | [90m | [39m [31m^[39m | [90m252| [39m [35mif[39m (js[33m.[39m[34mincludes[39m([32m'tickGame'[39m)) { | [90m253| [39m foundTsNative [33m=[39m [35mtrue[39m[33m;[39m | [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
 <!-- queue:end -->
