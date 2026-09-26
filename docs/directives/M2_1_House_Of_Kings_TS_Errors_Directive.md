@@ -232,8 +232,8 @@ set. State plainly whether all three original `tsc` errors are gone and no new o
 
 | Field | Value |
 |---|---|
-| Status | In progress |
-| Assigned to | devin-laptop |
+| Status | Done |
+| Assigned to | devin |
 | Branch | directive/rfdgamestudio-m2-1-house-of-kings-ts-errors-directive |
 | Base branch | - |
 | Base commit | 25b51c9532a2aa884262e36db70c514996f2e978 |
@@ -242,4 +242,9 @@ set. State plainly whether all three original `tsc` errors are gone and no new o
 - 2026-09-24 12:59 · robert-claude-laptop · none → Queued — ROADMAP M2.1; the real global-build failure (3 tsc errors in house_of_kings_collab), measured 2026-09-24
 - 2026-09-24 13:06 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 13:08 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-m2-1-house-of-kings-ts-errors-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 13:34 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; resume cap reached (2/2)
+- 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 21:07 · robert-claude-laptop · Approved → Blocked — Work already merged (PR #31, 9fc8992e); an Approved row would re-dispatch merged work. Marking Done under Robert's 22:10 approval.
+- 2026-09-24 21:07 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->

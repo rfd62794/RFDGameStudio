@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const slimeworldConfig: GameConfig = {
   gameId:      'slimeworld',
+  source: { kind: 'example', slug: 'slimeworld' },
   label:       'SlimeWorld',
   description: 'Breed, dispatch, and conquer planet nodes with slime specimens. Color/shape/accent genetics, territory claims, garrison mechanics.',
   color:       '#22c55e',
