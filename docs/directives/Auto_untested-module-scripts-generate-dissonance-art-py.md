@@ -78,12 +78,17 @@ the finding that was inaccurate. And any refused command, verbatim.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-auto-untested-module-scripts-gene-8108d5 |
 | Base branch | - |
+| Base commit | 2b3078b676d1973e66e7e6b520c2d1b9e80025d7 |
 | Policy | untested-module |
 
 **Status log**
 - 2026-09-20 08:59 · backlog-policy · none → Queued — generated from a untested-module finding authorised in backlog_policy.yaml
+- 2026-09-24 12:27 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 12:32 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-auto-untested-module-scripts-gene-8108d5; copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 13:11 · devin · In progress → Review — [origin] spent: devin 33 min est. n/a
+- 2026-09-24 21:05 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

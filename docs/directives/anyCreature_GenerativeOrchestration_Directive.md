@@ -230,11 +230,21 @@ cost).
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-anycreature-generativeorchestrati-5646dc |
 | Base branch | - |
+| Base commit | 564e1ebbb1f7e4a2ea46b5a95107f5f760f2bb69 |
 
 **Status log**
 - 2026-09-23 00:43 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained build work; implementation files already exist and need state verification + live demo run per spec.
+- 2026-09-24 12:09 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 12:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc; copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 12:39 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; resume cap reached (2/2)
+- 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 20:57 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc; lane=strong; model=default
+- 2026-09-24 21:06 · agentflow-tick · In progress → Blocked — a tool call was rejected: C:/Github/AgentFlow/.venv/Scripts/python.exe -m agentflow_loop.cli news; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection while reading prereqs (transient).
+- 2026-09-25 22:14 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->

@@ -96,14 +96,20 @@ LCG constants in a test).
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shared-math-extraction-directive |
-| Base branch | - |
+| Base branch | directive/rfdgamestudio-shared-math-extraction-directive |
 | Base commit | 60b8216926ba82f73458a265710b7c28c05f42de |
 
 **Status log**
 - 2026-09-23 11:08 · devin-overseer · none → Queued — spec docs/superpowers/specs/2026-09-23-engine-shared-modules.md; byte-identical dupes verified; awaiting Robert approval
 - 2026-09-24 10:00 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 10:05 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-math-extraction-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 10:36 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
+- 2026-09-24 12:51 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 12:53 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 15:39 · robert-claude-laptop · Approved → In progress — Salvage finished on the laptop (Haiku agent, steps 1-5 of the salvage note); moving through In progress to Review.
+- 2026-09-24 15:39 · robert-claude-laptop · In progress → Review — PR #30 merged to main as 70e7373e under the permanent safe-merge approval; vitest 1916 passed / 0 failed on Windows. Done is Robert's. [origin] spent: devin 2 min est. n/a
+- 2026-09-24 21:05 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

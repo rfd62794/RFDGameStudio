@@ -7,6 +7,7 @@ import type { GameConfig } from '../../engine/types';
 // it led to.
 const config: GameConfig = {
   gameId: 'corpworld',
+  source: { kind: 'example', slug: 'corpworld' },
   label: 'CorpWorld',
   supersededBy: 'planetofgreed',
   description: 'Origin project — Planet of Greed\'s fork ancestor, superseded by the current, live Planet of Greed (ts/src/games/planetofgreed/). A cold-corporate land-grab on a newly-discovered planet — Voronoi-tessellated territory, symmetric fog-of-war, deterministic Circle/Square/Triangle combat, multi-action weekly orders, and per-sector Civic Directives.',

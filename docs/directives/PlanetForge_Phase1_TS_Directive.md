@@ -461,9 +461,18 @@ describe('monument construction', () => {
 |---|---|
 | Status | Queued |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetforge-phase1-ts-directive |
 | Base branch | - |
+| Base commit | f2fdd8a2de865029ccabe818469ff22f88ee974b |
 
 **Status log**
 - 2026-09-23 01:24 · agentflow-tick · none → Queued — suggested by heartbeat: Fully-specified build (exact code/tests given, locked design decisions); target dir ts/src/games/planetforge/ already exists with config.ts only
+- 2026-09-24 11:00 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 11:27 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase1-ts-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 11:53 · agentflow-tick · In progress → Blocked — a tool call was rejected: git merge-base --is-ancestor main HEAD; resume cap reached (2/2)
+- 2026-09-24 20:02 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:02 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 22:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase1-ts-directive; lane=strong; model=default
+- 2026-09-24 22:21 · devin-overseer · In progress → Blocked — Work committed (62a3d8cf) and verified: vitest 4 passed/0 failed/0 skipped on tests/test_planetforge_gameLogic.ts, strict tsc clean on new files. Push rejected by pre-push hook — test_dual_target_deploy 'Branch is up to date with origin/main' fails because the worktree branch tracks origin/main ([ahead 1, behind 121]); remedy 'git branch --unset-upstream' is permission-refused in headless runs. Needs interactive: git branch --unset-upstream, then git push -u origin directive/rfdgamestudio-planetforge-phase1-ts-directive.
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-push-retry; work verified complete locally.
 <!-- queue:end -->

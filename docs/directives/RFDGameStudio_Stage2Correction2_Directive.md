@@ -182,11 +182,23 @@ same format as the last phase's demonstration.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Blocked |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction2-d-371166 |
 | Base branch | - |
+| Base commit | 564e1ebbb1f7e4a2ea46b5a95107f5f760f2bb69 |
 
 **Status log**
 - 2026-09-23 01:26 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained pure-function bugfix + additive tests, zero OpenRouter spend, no ambiguity — ideal for Devin
+- 2026-09-24 10:56 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 12:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 12:43 · agentflow-tick · In progress → Blocked — a tool call was rejected: uv run python _demo_s2c2.py; resume cap reached (2/2)
+- 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 20:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; lane=strong; model=default
+- 2026-09-24 21:07 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-verification; fixes already committed (4d7725a8).
+- 2026-09-25 22:13 · robert-claude-laptop · Queued → Approved
+- 2026-09-25 22:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-25 22:51 · devin-overseer (delegated) · In progress → Blocked — Work complete & verified, publish blocked: pre-push gate fails only on git-state 'Branch up to date with origin/main' (branch upstream=origin/main, behind 144 — worktree stale upstream, not code). git branch --unset-upstream permission-denied; git push --no-verify outside sanctioned commands. Committed HEAD 81f71c86: §3 tests+real-zip fixtures (7eee3297) + demo harness. Verified: zip_verify 52p/8s; hook py-suite 823p/8s/31desel; vitest 1890p/1f(git-state only)/9s. Live demo real: AI Studio 0.67→0.63, Manus 0.70→0.53; composite flipped matched→unmatched; relative 46→45 stays matched (dead .tsx boilerplate — deferred problem). Unblock: approve unset-upstream or merge origin/hook/git-state-test-main-only, then re-push -u.
 <!-- queue:end -->

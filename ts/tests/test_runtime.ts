@@ -94,7 +94,7 @@ vi.mock('../games/horse_racing/ui.yaml?raw', () => ({ default: MOCK_UI }));
 vi.mock('../games/horse_racing/logic.lua?raw', () => ({ default: MOCK_LOGIC }));
 
 import { loadGame, call, getSchema } from '../src/engine/runtime';
-import type { GameState } from '../src/engine/types';
+import type { GameState } from '../src/games/horse_racing/types';
 import { lua } from 'fengari-web';
 
 // Mock registry for testing

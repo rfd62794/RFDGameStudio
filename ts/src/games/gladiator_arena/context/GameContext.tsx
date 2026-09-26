@@ -11,6 +11,7 @@ import { calculateSurgeryCosts, createNewFrameGladiator, generateShopInventory, 
 import { executeNextCombatTurn, initializeBout } from '../simulation/combatEngine';
 import { ARENA_TIERS } from '../simulation/championLadder';
 import { sound } from '../utils/soundEffects';
+import { clearSave, loadSave, writeSave } from '../../../engine/shared/persistence';
 
 interface GameContextType {
   gold: number;
@@ -51,6 +52,16 @@ interface GameContextType {
 
 const STORAGE_KEY = 'gladiator_arena_save_v1.0';
 
+interface PersistedGameState {
+  gold?: number;
+  roster?: Gladiator[];
+  inventory?: BodyPart[];
+  currentTierId?: number;
+  wins?: number;
+  losses?: number;
+  shopInventory?: BodyPart[];
+}
+
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -76,10 +87,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load from LocalStorage if available
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
+    const parsed = loadSave<PersistedGameState>(STORAGE_KEY);
+    if (parsed) {
+      try {
         if (parsed.gold !== undefined) setGold(parsed.gold);
         if (parsed.roster?.length) {
           const upgradedRoster = parsed.roster.map((g: Gladiator) => {
@@ -105,28 +115,24 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed.wins !== undefined) setWins(parsed.wins);
         if (parsed.losses !== undefined) setLosses(parsed.losses);
         if (parsed.shopInventory?.length) setShopInventory(parsed.shopInventory);
+      } catch (e) {
+        console.error('Failed to load local save', e);
       }
-    } catch (e) {
-      console.error('Failed to load local save', e);
     }
   }, []);
 
   // Save to LocalStorage on mutations
   useEffect(() => {
-    try {
-      const stateToSave = {
-        gold,
-        roster,
-        inventory,
-        currentTierId,
-        wins,
-        losses,
-        shopInventory,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-    } catch (e) {
-      console.error('Failed to save to localStorage', e);
-    }
+    const stateToSave = {
+      gold,
+      roster,
+      inventory,
+      currentTierId,
+      wins,
+      losses,
+      shopInventory,
+    };
+    writeSave(STORAGE_KEY, stateToSave);
   }, [gold, roster, inventory, currentTierId, wins, losses, shopInventory]);
 
   // Auto-play combat step interval
@@ -395,7 +401,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetGame = () => {
-    localStorage.removeItem(STORAGE_KEY);
+    clearSave(STORAGE_KEY);
     setGold(180);
     const starter = createNewFrameGladiator(1, 'Brutus', 'brawler');
     setRoster([starter]);

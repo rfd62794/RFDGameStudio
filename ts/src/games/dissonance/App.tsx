@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { GameShell } from '../../components';
 import { useLuaCall } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
+import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
 import type { AppPhase, CombatTurnResult, DeckCard, OpeningPackItem, RewardSlot, RunState } from './types';
 
 import TitlePhase from './phases/TitlePhase';
@@ -21,21 +22,11 @@ const UNLOCKED_KEY = 'dissonance_unlocked_cards';
 const SAVED_RUN_KEY = 'dissonance_saved_run';
 
 function loadUnlockedCards(): string[] {
-  try {
-    const raw = localStorage.getItem(UNLOCKED_KEY);
-    return raw ? (JSON.parse(raw) as string[]) : [];
-  } catch {
-    return [];
-  }
+  return loadSave<string[]>(UNLOCKED_KEY) ?? [];
 }
 
 function loadSavedRun(): RunState | null {
-  try {
-    const raw = localStorage.getItem(SAVED_RUN_KEY);
-    return raw ? (JSON.parse(raw) as RunState) : null;
-  } catch {
-    return null;
-  }
+  return loadSave<RunState>(SAVED_RUN_KEY);
 }
 
 export default function App({ session }: GameRendererProps) {
@@ -51,14 +42,14 @@ export default function App({ session }: GameRendererProps) {
   const [rewardSlots, setRewardSlots] = useState<RewardSlot[] | null>(null);
 
   useEffect(() => {
-    localStorage.setItem(UNLOCKED_KEY, JSON.stringify(unlockedCardIds));
+    writeSave(UNLOCKED_KEY, unlockedCardIds);
   }, [unlockedCardIds]);
 
   useEffect(() => {
     if (run && run.status !== 'victory' && run.status !== 'game_over') {
-      localStorage.setItem(SAVED_RUN_KEY, JSON.stringify(run));
+      writeSave(SAVED_RUN_KEY, run);
     } else if (run && (run.status === 'victory' || run.status === 'game_over')) {
-      localStorage.removeItem(SAVED_RUN_KEY);
+      clearSave(SAVED_RUN_KEY);
     }
   }, [run]);
 

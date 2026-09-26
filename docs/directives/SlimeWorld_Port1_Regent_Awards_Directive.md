@@ -33,13 +33,20 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slimeworld-port1-regent-awards-directive |
 | Base branch | - |
+| Base commit | a5e0de4124252a812d08b41678dc0fce35e96f22 |
 
 **Status log**
 - 2026-09-23 09:05 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained Lua/TS logic port with explicit test commands and a non-interactive tool allowlist — matches Devin's dispatch contract.
-- 2026-09-24 21:05 · devin · In progress → Review — Regents awarded on first colour/shape/accent target match and on region unlock, scaled by tier from data.yaml DISCOVERY_REGENT_REWARDS. New tests green: pytest tests/test_slimeworld_regent_awards.py 22/22; vitest tests/test_slimeworld_regent_awards.tsx 6/6; all 15 SlimeWorld pytest files 138/138. Commit 44522310.
-- 2026-09-24 21:20 · devin · Review → Blocked — Work complete and committed (44522310, 9c0c723); full pre-push gate ran green (pytest 842 passed; vitest 1881 passed) except test_dual_target_deploy 'Branch is up to date with origin/main' — branch tracks origin/main and is 131 behind (worktree artifact; merge/rebase/pull/fetch/unset-upstream forbidden). Refused: git push --no-verify -u origin directive/rfdgamestudio-slimeworld-port1-regent-awards-directive. Publish needs Robert (push manually, or fix branch upstream/hook).
+- 2026-09-24 10:20 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 10:21 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port1-regent-awards-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 11:10 · devin · In progress → Blocked — Work complete and committed locally (44522310) with all tests green; publish blocked — pre-push test gate fails test_dual_target_deploy 'branch up to date with origin/main' (branch tracks origin/main and is behind; merge/rebase/pull/fetch/unset-upstream all forbidden).
+- 2026-09-24 20:02 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:02 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 20:58 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port1-regent-awards-directive; lane=strong; model=default
+- 2026-09-24 21:10 · devin-overseer · In progress → Blocked — Work complete and committed (44522310 + status commits 9c0c723/b25fcb6), all tests green: pytest slimeworld files 138/138, new regent_awards pytest 22/22, vitest regent_awards 6/6; pre-push gate ran full suite green (pytest 842, vitest 1881) except test_dual_target_deploy 'Branch is up to date with origin/main' — worktree branch tracks origin/main and is 131 behind; merge/rebase/pull/fetch/unset-upstream forbidden and 'git push --no-verify -u origin <branch>' refused. Publish needs Robert: push the branch manually or fix the upstream/hook.
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection; work committed (44522310), suites green, only push/status unfinished.
 <!-- queue:end -->

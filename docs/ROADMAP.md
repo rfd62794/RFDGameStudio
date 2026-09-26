@@ -14,8 +14,10 @@ M1 is a live defect: the Shared UI Wave 1 directive documents that
 published on the arcade with no way back, and its run went Blocked
 without landing the fix — still true by grep today. M2 is the deferred
 Studio-Wide item in `/ROADMAP.md`: the global `npm run build` fails on
-pre-existing TypeScript errors in three games, which masks real breakage
-behind per-game build workarounds. M3 clears the five `status_unconfirmed`
+pre-existing TypeScript errors, which masks real breakage behind per-game
+build workarounds. Re-measured 2026-09-24 on main: the three games that
+item names (horse_racing, mutant_battle_ball, slither_rogue) now compile;
+the only remaining `tsc` errors are three in `house_of_kings_collab`. M3 clears the five `status_unconfirmed`
 rows on the Status Board — each is an explicit "direct status check
 needed" item, and ADR-016 requires a verification method on such claims.
 
@@ -28,7 +30,7 @@ stop_if: Robert parks the studio or decides the prose /ROADMAP.md stays the only
 milestones:
 - id: M1
   title: Every published game has a way back to the arcade
-  status: active
+  status: done
   exit:
   - file: ts/src/components/GameShell.tsx
   - grep:
@@ -47,7 +49,7 @@ milestones:
     kind: refactor
     size: M
     value: 4
-    status: pending
+    status: done
     directive: ''
     detail: Adopt GameShell (headerExtra/statusArea/footer props) and swap bespoke primitives for ui/components equivalents, per the Blocked Shared UI Wave 1 directive. Presentation only - keep the amber/stone palette, do not touch the combat-driving log panel, no logic changes.
     accept:
@@ -60,7 +62,7 @@ milestones:
     kind: refactor
     size: M
     value: 4
-    status: pending
+    status: done
     directive: ''
     detail: Adopt GameShell so this published game has an arcade exit, per Shared UI Wave 1. Move bespoke header/nav chrome into the shell's props; swap only one-for-one shared primitives; keep the game's own palette.
     accept:
@@ -73,7 +75,7 @@ milestones:
     kind: refactor
     size: M
     value: 4
-    status: pending
+    status: done
     directive: ''
     detail: Adopt GameShell so this published game has an arcade exit, per Shared UI Wave 1. Presentation refactor only - the orbital canvas and auto-dispatch FSM are untouched.
     accept:
@@ -83,40 +85,21 @@ milestones:
     - test: cd ts && npx vitest run
 - id: M2
   title: The global arcade build compiles clean
-  status: pending
+  status: done
   exit:
   - test: cd ts && npm run build
   - test: cd ts && npx vitest run
   steps:
   - id: M2.1
-    title: Fix pre-existing TS errors in horse_racing
+    title: Fix the three pre-existing TS errors in house_of_kings_collab
     kind: fix
-    size: M
+    size: S
     value: 4
-    status: pending
-    directive: ''
-    detail: /ROADMAP.md (Studio-Wide) names horse_racing as one of three games whose pre-existing TypeScript errors fail the global `npm run build`. Fix the type errors in the game; the milestone exit's build output is the aggregate proof that all three are clean.
+    status: done
+    directive: M2_1_House_Of_Kings_TS_Errors_Directive.md
+    detail: Measured 2026-09-24 on main, `cd ts && npm run build` fails at the `tsc` step (exit 2) with exactly three errors, all in house_of_kings_collab/server/routes - houseRoutes.ts(21) TS6133 unused `evaluateHouseFestival`, taskRoutes.ts(471) TS6133 unused `dailyActionsConsumed`, taskRoutes.ts(499) TS2783 `success` specified twice. Fix them without changing server behavior. The earlier M2.1-M2.3 steps (horse_racing, mutant_battle_ball, slither_rogue) were retired the same day because those games already compile; if `tsc` names a new game later, add a step for it rather than reviving those.
     accept:
-    - test: cd ts && npx vitest run
-  - id: M2.2
-    title: Fix pre-existing TS errors in mutant_battle_ball
-    kind: fix
-    size: M
-    value: 4
-    status: pending
-    directive: ''
-    detail: Same /ROADMAP.md item. Fix the game's type errors without changing game logic or balance - the parts-summing question in /ROADMAP.md (Now) is a separate, later design item.
-    accept:
-    - test: cd ts && npx vitest run
-  - id: M2.3
-    title: Fix pre-existing TS errors in slither_rogue
-    kind: fix
-    size: M
-    value: 4
-    status: pending
-    directive: ''
-    detail: Same /ROADMAP.md item. Fix the game's type errors; slither_rogue has no standalone build script, so the global build going green is what restores its build coverage.
-    accept:
+    - test: cd ts && npm run build
     - test: cd ts && npx vitest run
 - id: M3
   title: No project on the Status Board sits at status_unconfirmed
@@ -186,7 +169,7 @@ milestones:
         pattern: 'id: ''turboshells''.*status: ''(active|shipped_mature|shipped_deliberately_paused|blocked|retired)'''
 - id: M4
   title: 'The studio side of the arcade meta layer: collectibles, hooks, creature content'
-  status: pending
+  status: active
   exit:
   - file: docs/children.json
   - grep:
@@ -199,7 +182,7 @@ milestones:
     kind: refactor
     size: M
     value: 5
-    status: pending
+    status: done
     directive: docs/directives/Demo_Children_Module_Directive.md
     detail: 'Robert, 2026-09-22: per-demo wherever possible, each demo a child of the studio. The module lists demos from the arcade manifest and the tracking metadata, gives each demo its own paths and its own one-demo check command, and writes docs/children.json. The swarm then addresses work as RFDGameStudio/<demo> instead of one repo-wide blob.'
     accept:
@@ -302,7 +285,7 @@ milestones:
     value: 5
     status: pending
     directive: ''
-    detail: 'Today both exist with no rule. SVG: artGen shapes, the chimera renderer, brand assets, RoleSymbol. Raster and canvas: the creatureArt wolf.png fixture, PlanetMap, PlaygroundScene, the dissonance art config, and scripts/generate_dissonance_art.py. State the rule - vector for anything composed, recoloured or scaled per player (creatures, icons, UI); raster for painted backdrops and texture; canvas only where a per-frame redraw is the point - plus the file-size and load budget each side gets.'
+    detail: 'Today both exist with no rule (plan: docs/superpowers/specs/2026-09-24-graphics-and-styles-plan.md). SVG: artGen shapes, the Paper Doll chimera renderer and brand assets, RoleSymbol, SlimeVisual, SVGRacer, PlanetMap (SVG + DOM, not canvas), and the 106 Dissonance SVGs from scripts/generate_dissonance_art.py. Canvas 2D: shoal, slime_coin, slither_rogue, voiddrift_redux, and the mutant_battle_ball court. Raster: only the creatureArt wolf.png fixture. State the source/style model (one definition, drawn as vector or pixel), the rule - vector for anything composed, recoloured or scaled per player (creatures, icons, UI); raster for painted backdrops and texture; canvas only where a per-frame redraw is the point - and the file-size and load budget each side gets against the portal targets.'
     accept:
     - file: docs/GRAPHICS.md
   - id: M6.2
@@ -312,9 +295,10 @@ milestones:
     value: 4
     needs:
     - M6.1
+    - M5.2
     status: pending
     directive: ''
-    detail: 'A creature composed as SVG sometimes has to ship as frames: pixel-styled demos, animation, and anything performance bound. One documented, seeded export path means a demo never hand-draws what the generator can produce, and the same seed yields the same sheet.'
+    detail: 'A creature composed as SVG sometimes has to ship as frames: pixel-styled demos, animation, and anything performance bound. One documented, seeded export path means a demo never hand-draws what the generator can produce, and the same seed yields the same sheet. Frames come from a pose or animation (Paper Doll calculatePose) in any style; the output is sheet.png plus Aseprite-compatible JSON (frames, durations, tags) so the same loader (M6.6) plays exported and hand-drawn sheets alike.'
     accept:
     - test: cd ts && npx vitest run
   - id: M6.3
@@ -323,14 +307,77 @@ milestones:
     size: M
     value: 3
     needs:
-    - M6.2
+    - M6.5
+    - M8.1
     status: pending
     directive: ''
-    detail: Pixel demos should consume the same creature definition through a style layer (palette quantisation, grid snapping, outline rules), so a creature exists once and renders in either style. The alternative, parallel art sets, doubles the content budget that is already the constraint.
+    detail: 'Pixel demos should consume the same creature definition through a style layer (palette quantisation, grid snapping, outline rules), so a creature exists once and renders in either style. The alternative, parallel art sets, doubles the content budget that is already the constraint. This is foundation spec step 5 (2026-09-22-studio-foundation-design.md section 8): ui.yaml style (vector | pixel) and style_toggle, the choice remembered per game, the pixel overlay look (a licensed pixel font, hard 1px outlines, no blur, image-rendering pixelated, stepped easing) and creatures through the M6.5 rasteriser. First adopters: Dissonance in both styles plus one creature game (Robert picks Chimera Wilds or Mutant Battle Ball).'
     accept:
     - grep:
         path: docs/GRAPHICS.md
         pattern: pixel
+  - id: M6.4
+    title: Tone roles resolve to colours per style and theme; no baked hex in generated art
+    kind: feature
+    size: M
+    value: 4
+    needs:
+    - M6.1
+    status: pending
+    directive: ''
+    detail: 'The glossary already names tone roles (ember, spark, ash, cinder, danger, heal, neutral, gold in ts/src/foundation/glossary/schema.ts) but nothing resolves them. Start ts/src/foundation/style/ with a resolver from role to colour for vector (full palette) and pixel (the 16-colour palette), and move the hard-coded ELEMENT_COLORS in both Dissonance generators onto roles - re-blessing the byte-identical baseline in the same commit. This is what lets themes and styles recolour everything in one place, and it closes the Dissonance theme-reactivity item in /ROADMAP.md.'
+    accept:
+    - test: cd ts && npx vitest run
+    - file: ts/src/foundation/style/index.ts
+  - id: M6.5
+    title: 'Deterministic rasteriser: vector to pixel at a target size, quantised and outlined'
+    kind: feature
+    size: M
+    value: 4
+    needs:
+    - M5.2
+    - M6.4
+    status: pending
+    directive: ''
+    detail: 'artGen/shapes.ts already has svgToCanvas. Extend it into the pixel path the foundation spec describes: rasterise at 32 or 48 px (Robert picks), quantise to the style palette, run a 1px outline pass, upscale by whole multiples. Seeded in, byte-identical out: golden PNG hashes for the M5.2 fixed seeds sit next to their SVG goldens, so a change that moves a pixel fails a test.'
+    accept:
+    - test: cd ts && npx vitest run
+  - id: M6.6
+    title: A small sprite-sheet loader and player (Aseprite JSON), for exported and hand-drawn sheets
+    kind: feature
+    size: S
+    value: 3
+    needs:
+    - M6.2
+    status: pending
+    directive: ''
+    detail: 'The tooling catalog records the gap: no mature JS package imports Aseprite directly, and the right answer is a small custom loader for Aseprite''s JSON export, not a library search. One loader, a <Sprite> component for React games and a drawSprite for canvas games, frame timing from the JSON tags - so an exported sheet (M6.2) and a sheet drawn by hand later play the same way.'
+    accept:
+    - test: cd ts && npx vitest run
+  - id: M6.7
+    title: 'First adopters: Shoal sprites, SlimeVisual on shared geometry, creatureArt gets a consumer'
+    kind: refactor
+    size: M
+    value: 3
+    needs:
+    - M6.6
+    status: pending
+    directive: ''
+    detail: 'Three deferred items from /ROADMAP.md Next land on the new path: Shoal drawFish / drawSharksBatched consume generated sprites instead of raw Canvas primitives; SlimeVisual uses the shared seeded RNG and polygon utilities instead of local copies; and the creatureArt seam (built, consumed only by its test) gets its first real game, with fallbackPathFor falling back to a generated sprite and optional pixel quantisation. Shoal''s frame budget (draw time 0.4 ms today) must not regress.'
+    accept:
+    - test: cd ts && npx vitest run
+  - id: M6.8
+    title: 'Shading as a style parameter: port the ChimeraLab shade factor and edge light'
+    kind: feature
+    size: M
+    value: 2
+    needs:
+    - M6.5
+    status: pending
+    directive: ''
+    detail: 'Gated on Robert''s verdict on technique 10 of the Paper Doll technique comparison (flat vs shaded): ChimeraLab''s calculateShadeFactor / edge light was never ported, and flat colour damages every technique equally. If yes, shading becomes a parameter of the vector and pixel styles (not a third art set), applied to artGen and Paper Doll fills, with the goldens re-blessed. It is also the base the Brand / Quality styling system builds on.'
+    accept:
+    - test: cd ts && npx vitest run
 - id: M7
   title: Every shared engine system has an owner doc, a contract test and a consumer list
   status: pending
@@ -370,6 +417,48 @@ milestones:
     status: pending
     directive: ''
     detail: Collections and site-wide points will read from combat outcomes, anatomy parts and the person generator. Each of those gets a contract test at its public entry point, so a change that breaks a demo fails here first rather than in a player's browser.
+    accept:
+    - test: cd ts && npx vitest run
+- id: M8
+  title: 'The Studio foundation overlay: chips, tooltips, juice and events every game gets from its glossary'
+  status: pending
+  exit:
+  - file: ts/src/foundation/overlay/index.ts
+  - test: cd ts && npx vitest run
+  steps:
+  - id: M8.1
+    title: 'Overlay: anchors, chips, tooltips, DetailCard and the event-log panel'
+    kind: feature
+    size: L
+    value: 5
+    status: pending
+    directive: ''
+    detail: 'Foundation spec step 2 (docs/superpowers/specs/2026-09-22-studio-foundation-design.md section 5). The spec said it adds a milestone for glossary, overlay and juice; only step 1 (the glossary, mounted in GameShell) was built and neither roadmap carried the rest. One React layer GameShell places over the game area: anchors (data-anchor, ui.yaml region ids, a getter for canvas games), chips per visible status/effect/resource entry with +N overflow, one Studio-wide tooltip, a shared DetailCard. First adopter: Dissonance, whose Brewfield residues are invisible today. The pixel style (M6.3) styles this layer, so it comes first.'
+    accept:
+    - test: cd ts && npx vitest run
+    - file: ts/src/foundation/overlay/index.ts
+  - id: M8.2
+    title: 'Juice from comparing states: diff, scheduler, primitives and presets'
+    kind: feature
+    size: M
+    value: 4
+    needs:
+    - M8.1
+    status: pending
+    directive: ''
+    detail: 'Foundation spec step 3 (section 6): a pure diff(prev, next, glossary) -> JuiceRequest[]; primitives pop, flash, shake, pulse, burst, count, fade; presets hurt, heal, crit; a scheduler that coalesces within 150 ms, queues per anchor, caps simultaneous effects and honours prefers-reduced-motion. Stepped easing is left as a hook for the pixel style.'
+    accept:
+    - test: cd ts && npx vitest run
+  - id: M8.3
+    title: Events from the logic reach the overlay; Dissonance combat emits its four
+    kind: feature
+    size: M
+    value: 3
+    needs:
+    - M8.2
+    status: pending
+    directive: ''
+    detail: 'Foundation spec step 4 (section 7): the call(...) bridge splits {state, events}; a bare state keeps working. Event juice wins over comparison juice on the same anchor in the same update. Dissonance combat.lua emits dodge, retaliate, detonate and cauterize - the Brewfield mechanics a state comparison cannot see.'
     accept:
     - test: cd ts && npx vitest run
 ```
