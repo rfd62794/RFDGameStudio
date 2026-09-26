@@ -182,7 +182,7 @@ same format as the last phase's demonstration.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction2-d-371166 |
 | Base branch | - |
@@ -197,4 +197,5 @@ same format as the last phase's demonstration.
 - 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 20:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; lane=strong; model=default
 - 2026-09-24 21:07 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-verification; fixes already committed (4d7725a8).
 <!-- queue:end -->
