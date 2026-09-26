@@ -209,7 +209,7 @@ before/after floor comparison.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-importfixer-rung1-d-933e3f |
 | Base branch | - |
@@ -224,4 +224,5 @@ before/after floor comparison.
 - 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 20:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-importfixer-rung1-d-933e3f; lane=strong; model=default
 - 2026-09-24 20:42 · agentflow-tick · In progress → Blocked — a tool call was rejected: uv run python _regen_resolve_source_baseline.py; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection while fixing stale fixtures (transient).
 <!-- queue:end -->
