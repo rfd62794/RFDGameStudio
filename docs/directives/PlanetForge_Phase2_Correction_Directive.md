@@ -163,7 +163,7 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase2-correction-directive |
 | Base branch | - |
@@ -179,4 +179,5 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 - 2026-09-24 22:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase2-correction-directive; lane=strong; model=default
 - 2026-09-24 22:36 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; the worktree holds uncommitted files; resume cap reached (2/2)
 - 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection during preflight (transient).
+- 2026-09-25 22:14 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
