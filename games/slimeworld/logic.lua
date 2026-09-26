@@ -34,7 +34,7 @@ function compute_stage(current_cycle, created_at)
   return result
 end
 
-function advance_cycle(state, color_specs)
+function advance_cycle(state, color_specs, constants)
   state.cycle = (state.cycle or 0) + 1
 
   -- Recompute lifecycle Stage for every roster slime based on real cycles
@@ -88,7 +88,7 @@ function advance_cycle(state, color_specs)
   local nodes = state.planet_region and state.planet_region.nodes or {}
   for _, slime in ipairs(state.slimes or {}) do
     if slime.locked_role == "worker" then
-      state.credits = (state.credits or 0) + calculate_worker_income(slime, state.has_auto_feeder == true, nodes)
+      state.credits = (state.credits or 0) + calculate_worker_income(slime, state.has_auto_feeder == true, nodes, constants)
     end
   end
 

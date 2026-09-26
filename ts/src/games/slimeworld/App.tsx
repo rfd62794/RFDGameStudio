@@ -366,7 +366,7 @@ export default function App({ session }: GameRendererProps) {
   const handleAdvanceCycle = useCallback(() => {
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs);
+    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs, data['constants']);
     if (!raw || typeof raw !== 'object') { setWarning('Cycle advance failed.'); return; }
     const result = raw as Record<string, unknown>;
     const luaLogs = Array.isArray(result['logs']) ? (result['logs'] as Array<Record<string, unknown>>).map(l => ({
