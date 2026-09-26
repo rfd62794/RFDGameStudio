@@ -163,7 +163,7 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Draft |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase2b-correction-directive |
 | Base branch | - |
@@ -179,4 +179,5 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 - 2026-09-24 22:23 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-phase2b-correction-directive; lane=strong; model=default
 - 2026-09-24 22:29 · agentflow-tick · In progress → Blocked — a tool call was rejected: node C:/GitHub/RFDGameStudio/examples/planetforge/node_modules/vitest/vitest.mjs run --config C:/Github/.worktrees/RFDGameStudio--rfdgamestudio-planetforge-phase2b-correction-directive/.devin-scratch/planetforge-vitest.config.mjs; resume cap reached (2/2)
 - 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection while checking main (transient).
+- 2026-09-25 22:13 · robert-claude-laptop · Queued → Draft — DROPPED as a duplicate (Robert 2026-09-25 approved): its body is byte-identical to PlanetForge_Phase2_Correction_Directive.md, and neither has a pushed branch. Phase2_Correction is the one that runs.
 <!-- queue:end -->
