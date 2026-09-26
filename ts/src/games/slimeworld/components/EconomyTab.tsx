@@ -52,6 +52,7 @@ interface EconomyTabProps {
   handleDeliverContract: (contract: CorporateContract, targetSlime: Slime) => void;
   handleSellOnMarket: (slime: Slime, price: number) => void;
   handleFulfillPetition?: (petitionId: string, slimeId: string) => void;
+  handleDeclinePetition?: (petitionId: string) => void;
 }
 
 export function EconomyTab({
@@ -84,7 +85,8 @@ export function EconomyTab({
   handleToggleWorkerRole,
   handleDeliverContract,
   handleSellOnMarket,
-  handleFulfillPetition
+  handleFulfillPetition,
+  handleDeclinePetition
 }: LabTabProps) {
   const [economySubTab, setEconomySubTab] = useState<'contracts' | 'market' | 'petitions'>('contracts');
   const [confirmDelivery, setConfirmDelivery] = useState<{
@@ -414,6 +416,17 @@ export function EconomyTab({
                                   </div>
                                 )}
                               </div>
+
+                              {handleDeclinePetition && (
+                                <div className="flex justify-end pt-1.5 border-t border-slate-900">
+                                  <button
+                                    onClick={() => handleDeclinePetition(petition.id)}
+                                    className="px-2.5 py-0.5 rounded border border-red-900/50 bg-red-950/10 text-red-400/80 hover:bg-red-900/30 hover:text-red-300 transition-all font-mono text-[9px] uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Decline
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           );
                         })

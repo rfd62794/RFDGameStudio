@@ -57,7 +57,7 @@ def _income(slime, has_auto_feeder=False, nodes=None, constants="default"):
 def _advance(state, constants="default"):
     if constants == "default":
         constants = _constants()
-    return _load().executor.call("advance_cycle", state, None, constants)
+    return _load().executor.call("advance_cycle", state, None, None, constants)
 
 
 # --- data.yaml contract -----------------------------------------------------

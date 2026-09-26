@@ -366,7 +366,7 @@ export default function App({ session }: GameRendererProps) {
   const handleAdvanceCycle = useCallback(() => {
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs, data['constants']);
+    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs, data['petition'], data['constants']);
     if (!raw || typeof raw !== 'object') { setWarning('Cycle advance failed.'); return; }
     const result = raw as Record<string, unknown>;
     const luaLogs = Array.isArray(result['logs']) ? (result['logs'] as Array<Record<string, unknown>>).map(l => ({
@@ -406,6 +406,7 @@ export default function App({ session }: GameRendererProps) {
       planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
       slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
       petitions: Array.isArray(result['petitions']) ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs) : previous.petitions,
+      shapeCodex: (result['shape_codex'] ?? previous.shapeCodex) as Record<string, boolean> | undefined,
       colorRelationships: (result['color_relationships'] ?? previous.colorRelationships) as Record<SlimeColor, number> | undefined,
       favors: Array.isArray(result['favors']) ? (result['favors'] as Array<Record<string, unknown>>).map(luaFavorToTs) : previous.favors,
       logs: [...previous.logs, ...luaLogs].slice(-50),
@@ -523,6 +524,19 @@ export default function App({ session }: GameRendererProps) {
     }));
   }, [session, state]);
 
+  const handleDeclinePetition = useCallback((petitionId: string) => {
+    const data = session.files.data as Record<string, unknown>;
+    const raw = call(session, 'decline_petition', stateToLua(state), petitionId, data['petition']);
+    const [result, error] = luaResult(raw);
+    if (!result || error) { setWarning(error ?? 'Petition decline failed.'); return; }
+    setState(previous => ({
+      ...previous,
+      petitions: Array.isArray(result['petitions'])
+        ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs)
+        : (previous.petitions?.filter(p => p.id !== petitionId) ?? []),
+    }));
+  }, [session, state]);
+
   const handleDisposeSlime = useCallback((favorId: string, slimeId: string) => {
     const value = call(session, 'resolve_disposal', stateToLua(state), slimeId, favorId);
     const [ok, error] = luaResult(value);
@@ -566,7 +580,7 @@ export default function App({ session }: GameRendererProps) {
   ) : primaryTab === 'missions' ? (
     <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim, pendingDisposalFavorId, setPendingDisposalFavorId, disposalConfirmSlimeId, setDisposalConfirmSlimeId, handleDisposeSlime, regionLockNodeIds: ((session.files.data as Record<string, unknown>)['region_locks'] as Array<Record<string, unknown>>)?.map(l => l['node_id']) ?? [] } as any)} />
   ) : primaryTab === 'economy' ? (
-    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition } as any)} />
+    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition, handleDeclinePetition } as any)} />
   ) : (
     <LabTab {...({ state, handleBuyUpgrade, handlePurchaseSeedSlime, activeSubTab: 'upgrades', setActiveSubTab: () => {}, selectedSlimeId: null, setSelectedSlimeId: () => {}, setRenameSlimeId: () => {}, setNewNameInput: () => {}, handleRecycleSlime: () => {}, parentAId: null, parentBId: null, setParentAId: () => {}, setParentBId: () => {}, isBreedingHatching: false, handleInitiateBreeding: () => {}, activeRegentPattern: null, setActiveRegentPattern: () => {}, onBuyRegent: () => {}, activeRegentColor: null, setActiveRegentColor: () => {}, onBuyColorRegent: () => {}, activeTargetRegent: null, setActiveTargetRegent: () => {}, onBuyTargetRegent: () => {}, handleToggleWorkerRole, handleDeliverContract: () => {}, handleSellOnMarket: () => {} } as any)} />
   );

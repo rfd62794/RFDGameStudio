@@ -70,7 +70,7 @@ describe('SlimeWorld tier-scaled worker income', () => {
 
   it('advance_cycle credits the tier-scaled income when constants are passed', () => {
     const state = makeState([makeSlime({ color: 'Purple' })]);
-    const [raw] = call(session, 'advance_cycle', stateToLua(state), null, constants);
+    const [raw] = call(session, 'advance_cycle', stateToLua(state), null, null, constants);
     const result = raw as Record<string, unknown>;
     expect(result['credits']).toBe(112);
   });
@@ -84,7 +84,7 @@ describe('SlimeWorld tier-scaled worker income', () => {
 
   it('App.tsx wires data.yaml constants into advance_cycle', () => {
     expect(appSource).toContain("data['constants']");
-    expect(appSource).toContain("'advance_cycle', stateToLua(state), colorSpecs, data['constants']");
+    expect(appSource).toContain("'advance_cycle', stateToLua(state), colorSpecs, data['petition'], data['constants']");
   });
 
   it('RosterTab asks Lua for the real income instead of a hardcoded 5', () => {
