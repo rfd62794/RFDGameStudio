@@ -127,7 +127,7 @@ Identical checklist from the second directive's §4, with one addition:
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-crosspipeline-versiontracking-thi-a6c79a |
 | Base branch | - |
@@ -138,4 +138,5 @@ Identical checklist from the second directive's §4, with one addition:
 - 2026-09-24 10:51 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 11:18 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-crosspipeline-versiontracking-thi-a6c79a; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 11:39 · agentflow-tick · In progress → Blocked — a tool call was rejected: a webfetch call; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-preflight (transient).
 <!-- queue:end -->
