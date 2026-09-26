@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Horse, GameSession } from '../../../engine/types';
+import type { GameSession } from '../../../engine/types';
+import type { Horse } from '../types';
 import { getSchema } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
 import { EmptyState, Badge, Button, Card } from '../../../ui/components';

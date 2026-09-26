@@ -24,6 +24,7 @@ import pytest
 # as their example fixture. See the classification doc for per-file reasoning
 # on every ambiguous case.
 SHARED_TEST_FILES = {
+    "test_demos.py",
     "test_executor.py",
     "test_generic_renderer.py",
     "test_intake.py",

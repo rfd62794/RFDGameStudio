@@ -29,6 +29,16 @@ import {
   type ForceRequest,
   type StateContext,
 } from '../../../engine/shared/aiBehavior/yukaStates';
+import {
+  clamp,
+  dist2,
+  distance,
+  normalize,
+  limitVector,
+  lerp,
+  makePrng,
+  prngFloat,
+} from '../../../engine/shared';
 
 // â”€â”€ Config (from data.yaml) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -87,26 +97,9 @@ const CONFIG = {
 
 // â”€â”€ Math helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-function clamp(v: number, min: number, max: number): number { return Math.max(min, Math.min(max, v)); }
 function wrap(v: number, max: number): number { let w = v % max; if (w < 0) w += max; return w; }
 function wrapX(x: number): number { return wrap(x, CONFIG.world.width); }
 function clampDepth(d: number): number { return clamp(d, CONFIG.world.surface_depth, CONFIG.world.floor_depth); }
-function dist2(x1: number, y1: number, x2: number, y2: number): number { const dx = x1 - x2, dy = y1 - y2; return dx * dx + dy * dy; }
-function distance(ax: number, ay: number, bx: number, by: number): number { return Math.sqrt(dist2(ax, ay, bx, by)); }
-function normalize(vx: number, vy: number): [number, number] { const m = Math.sqrt(vx * vx + vy * vy); if (m === 0) return [0, 0]; return [vx / m, vy / m]; }
-function limitVector(vx: number, vy: number, max: number): [number, number] { const m2 = vx * vx + vy * vy; if (m2 > max * max) { const m = Math.sqrt(m2); return [(vx / m) * max, (vy / m) * max]; } return [vx, vy]; }
-function lerp(a: number, b: number, t: number): number { return a + (b - a) * clamp(t, 0, 1); }
-
-// â”€â”€ LCG PRNG (split-multiplication) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-const LCG_MOD = 2147483648, LCG_MULT = 1103515245, LCG_INC = 12345;
-const LCG_MULT_HI = Math.floor(LCG_MULT / 65536), LCG_MULT_LO = LCG_MULT % 65536;
-
-function makePrng(seed: number): () => number {
-  let s = seed;
-  return () => { s = (((s * LCG_MULT_HI) % LCG_MOD) * 65536 + s * LCG_MULT_LO + LCG_INC) % LCG_MOD; return s / LCG_MOD; };
-}
-function prngFloat(prng: () => number, a: number, b: number): number { return a + prng() * (b - a); }
 
 // â”€â”€ Color generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 

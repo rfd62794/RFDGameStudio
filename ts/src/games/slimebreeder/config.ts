@@ -6,6 +6,7 @@ import type { GameConfig } from '../../engine/types';
 // history, not as a new game competing with the one it led to.
 const config: GameConfig = {
   gameId: 'slimebreeder',
+  source: { kind: 'sibling', repo: 'SlimeBreeder' },
   label: 'SlimeBreeder',
   supersededBy: 'slimeworld',
   description: 'Origin project — a standalone TypeScript reimagining of the SlimeGarden core loop. Merged with SlimeGarden to become the current, live SlimeWorld (ts/src/games/slimeworld/).',

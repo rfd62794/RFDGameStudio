@@ -3,6 +3,7 @@ import { Trophy, RefreshCw, Home, Sparkles, Bookmark } from 'lucide-react';
 import { Modal } from '../../../ui/components';
 import type { GameSession } from '../../../engine/types';
 import { call } from '../../../engine/runtime';
+import { loadSave, writeSave } from '../../../engine/shared/persistence';
 import type { HighScore } from '../types';
 
 interface GameOverModalProps {
@@ -34,12 +35,10 @@ export default function GameOverModal({
       evolutionsCollected: evolutionsCount,
       date: new Date().toLocaleDateString(),
     };
-    const raw = localStorage.getItem('sr_highscores');
-    let list: HighScore[] = [];
-    if (raw) { try { list = JSON.parse(raw); } catch (e) { console.error(e); } }
+    const list = loadSave<HighScore[]>('sr_highscores') ?? [];
     list.push(entry);
     list.sort((a, b) => b.fruitsEaten !== a.fruitsEaten ? b.fruitsEaten - a.fruitsEaten : b.peakLength - a.peakLength);
-    localStorage.setItem('sr_highscores', JSON.stringify(list.slice(0, 30)));
+    writeSave('sr_highscores', list.slice(0, 30));
     setSaved(true);
   };
 

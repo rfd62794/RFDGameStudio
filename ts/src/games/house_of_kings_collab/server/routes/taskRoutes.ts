@@ -468,7 +468,7 @@ taskRouter.post('/api/retireDescendant', verifyAuth, async (req: AuthenticatedRe
       transaction.set(playerRef, playerUpdates, { merge: true });
 
       // Kingdom aggregate actions counter update
-      const { dailyActionsConsumed, needsReset: needsKingdomActionsReset } = resolveKingdomAggregateActionsState(kingdomData);
+      const { needsReset: needsKingdomActionsReset } = resolveKingdomAggregateActionsState(kingdomData);
       if (needsKingdomActionsReset) {
         transaction.set(kingdomRef, {
           dailyActionsConsumed: 1,
@@ -496,7 +496,6 @@ taskRouter.post('/api/retireDescendant', verifyAuth, async (req: AuthenticatedRe
     });
 
     return res.json({
-      success: true,
       verifiedUserId: userId,
       ...resultData,
       message: `Royal succession complete! Generation ${resultData.newHeir.generation} begins under ${resultData.newHeir.name}.`,

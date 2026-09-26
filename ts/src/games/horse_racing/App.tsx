@@ -3,9 +3,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Coins } from 'lucide-react';
 import { call, getSchema } from '../../engine/runtime';
-import type { GameRendererProps, GameSession, GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from '../../engine/types';
+import type { GameRendererProps, GameSession } from '../../engine/types';
 import { RuntimeError } from '../../engine/types';
+import type { GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from './types';
 import { useCooldownTicker, useLuaCall } from '../../hooks';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
@@ -18,12 +20,12 @@ import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
 
 const SAVE_KEY = 'derby_sim_state_v1';
 
-const safeGetStorage = (key: string): string | null => {
-  try { return localStorage.getItem(key); } catch { return null; }
-};
-const safeSetStorage = (key: string, value: string): void => {
-  try { localStorage.setItem(key, value); } catch { }
-};
+interface DerbySave {
+  funds: number;
+  horses: Horse[];
+  race_history: RaceHistoryEntry[];
+  unlocked_slots: number;
+}
 
 function luaHorseToTs(raw: Record<string, unknown>): Horse {
   return {
@@ -158,42 +160,31 @@ export default function App({ session }: GameRendererProps) {
     const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
     const defaultSlots = (stableCfg['starting_slots'] as number) ?? 3;
 
-    const saved = safeGetStorage(SAVE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as {
-          funds: number;
-          horses: Horse[];
-          race_history: RaceHistoryEntry[];
-          unlocked_slots: number;
-        };
-        if (Array.isArray(parsed.horses) && parsed.horses.length > 0) {
-          setUnlockedSlots(parsed.unlocked_slots ?? defaultSlots);
-          setGameState({
-            funds: parsed.funds,
-            horses: parsed.horses,
-            current_race: null,
-            race_history: parsed.race_history ?? [],
-            emergency_grant_shown: false,
-          });
-          return;
-        }
-      } catch {
-        // invalid save — fall through
-      }
+    const saved = loadSave<DerbySave>(SAVE_KEY);
+    if (saved && Array.isArray(saved.horses) && saved.horses.length > 0) {
+      setUnlockedSlots(saved.unlocked_slots ?? defaultSlots);
+      setGameState({
+        funds: saved.funds,
+        horses: saved.horses,
+        current_race: null,
+        race_history: saved.race_history ?? [],
+        emergency_grant_shown: false,
+      });
+      return;
     }
+    // invalid save — fall through
     setUnlockedSlots(defaultSlots);
     setGameState(buildInitialState(session));
   }, [session]);
 
   useEffect(() => {
     if (!gameState) return;
-    safeSetStorage(SAVE_KEY, JSON.stringify({
+    writeSave(SAVE_KEY, {
       funds: gameState.funds,
       horses: gameState.horses,
       race_history: gameState.race_history,
       unlocked_slots: unlockedSlots,
-    }));
+    });
   }, [gameState, unlockedSlots]);
 
   const handleNewRace = useCallback((horseId?: string) => {

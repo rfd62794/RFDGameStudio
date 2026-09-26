@@ -39,6 +39,7 @@ describe('Lua→TS Field Safety — Alarm System', () => {
       'generation', 'color_saturation', 'hue', 'saturation', 'diffusion_ratio',
       'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'parent_a',
       'parent_b', 'created_at', 'matched_target_id', 'matched_shape_target_id',
+      'matched_accent_target_ids', 'regent_awards',
       'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage', 'region_unlocks',
       'added_strays',
     ];

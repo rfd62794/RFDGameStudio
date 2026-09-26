@@ -5,6 +5,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import type { GameSession } from '../../../engine/types';
+import { loadSave } from '../../../engine/shared/persistence';
 import type { HighScore } from '../types';
 import { MenuShell, OptionSelectGroup } from '../../../components';
 
@@ -39,10 +40,8 @@ export default function MainMenu({ onStartGame }: MainMenuProps) {
   const [highScores, setHighScores] = useState<HighScore[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem('sr_highscores');
-    if (raw) {
-      try { setHighScores(JSON.parse(raw).slice(0, 5)); } catch (e) { console.error(e); }
-    }
+    const scores = loadSave<HighScore[]>('sr_highscores');
+    if (Array.isArray(scores)) setHighScores(scores.slice(0, 5));
   }, []);
 
   const handleStart = () => {
