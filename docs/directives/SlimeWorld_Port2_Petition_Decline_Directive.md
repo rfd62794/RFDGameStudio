@@ -33,7 +33,7 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slimeworld-port2-petition-decline-10b06a |
 | Base branch | - |
@@ -46,4 +46,5 @@ pytest files show no new failures against `main`; report before/after counts and
 - 2026-09-24 20:00 · devin-overseer · In progress → Blocked — overseer: run pid 32128 died in place mid-exploration (same event that killed the morning dispatch wave); no errors in log - requeuing
 - 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-exploration (transient).
 - 2026-09-25 22:14 · robert-claude-laptop · Queued → Approved
+- 2026-09-26 03:35 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port2-petition-decline-10b06a; copied ts/src/games/game-metadata.json; resynced: merged main into directive/rfdgamestudio-slimeworld-port2-petition-decline-10b06a (137 commit(s), clean); lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
