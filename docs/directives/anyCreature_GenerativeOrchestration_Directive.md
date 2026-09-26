@@ -241,4 +241,12 @@ cost).
 - 2026-09-24 12:09 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 12:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc; copied ts/src/games/game-metadata.json; lane=strong; model=default
 - 2026-09-24 12:39 · agentflow-tick · In progress → Blocked — process gone while the directive still reads In progress; resume cap reached (2/2)
+- 2026-09-24 20:03 · robert-claude-laptop · Blocked → Queued
+- 2026-09-24 20:03 · robert-claude-laptop · Queued → Approved
+- 2026-09-24 20:57 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc; lane=strong; model=default
+- 2026-09-24 21:06 · agentflow-tick · In progress → Blocked — a tool call was rejected: C:/Github/AgentFlow/.venv/Scripts/python.exe -m agentflow_loop.cli news; resume cap reached (2/2)
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection while reading prereqs (transient).
+- 2026-09-25 22:14 · robert-claude-laptop · Queued → Approved
+- 2026-09-26 01:26 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc; not resynced: RFDGameStudio--rfdgamestudio-anycreature-generativeorchestrati-5646dc has a detached HEAD checked out; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-26 01:40 · devin-overseer (delegated) · In progress → Blocked — Work already merged on main (creature_session 0dff5c40, tests 78143bd1, demo specs 461a6045/33fe7368, cleanup c2d8f394) — branch tip is base commit, nothing new to commit; Review refused (no commits beyond main). Cannot re-verify: dispatched worktree is a skeleton (no .git) and C:\Github\anyCreature is not checked out, so tests run 5 pass/2 fail (missing cards/SYNTAX.md)/1 skip and live demo + calibrate are impossible. Branch is merged — eligible for delegate/Robert mark_done, or re-dispatch on a machine with the anyCreature checkout.
 <!-- queue:end -->

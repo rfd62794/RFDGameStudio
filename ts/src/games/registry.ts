@@ -33,6 +33,8 @@ import slimegardenConfig from './slimegarden/config';
 import slimebreederConfig from './slimebreeder/config';
 import corpworldConfig from './corpworld/config';
 import kingmakerSquadsConfig from './kingmaker_squads/config';
+// demos:imports:begin — imports added by `studio_mcp.demos import` (keep this pair)
+// demos:imports:end
 
 // Legacy/Origin Projects (ADR-023, Aug 23 2026): real material that
 // predates and became a currently-live game, registered here as real
@@ -62,12 +64,14 @@ export const GAME_REGISTRY: GameConfig[] = [
   wire_rustConfig,
   chokePointConfig,
   filipinoBpoSimulatorConfig,
+  // demos:begin — AI Studio example demos; the importer appends above demos:end
   ledgerConfig,
   trinitySiegeConfig,
   sevenDaysToFryConfig,
   antsimReduxConfig,
   facilityEscapeConfig,
   systemicExtractConfig,
+  // demos:end
   factoryIdleConfig,
   planetofgreedConfig,
   planetforgeConfig,

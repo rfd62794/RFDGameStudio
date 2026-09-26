@@ -33,3 +33,4 @@ export * from './partSlots';
 export * from './combat';
 export * from './componentTypes';
 export * from './sportsSim';
+export * from './math';

@@ -225,7 +225,7 @@ state and the conflicting paths — no further steps.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-demo-importer-salvage-t1-t3-directive |
 | Base branch | - |
@@ -235,4 +235,7 @@ state and the conflicting paths — no further steps.
 - 2026-09-24 13:01 · robert-claude-laptop · none → Queued — salvage of feature/demo-importer Tasks 1-3 (3 clean commits) onto a fresh branch; the old branch has 5 queue-table conflicts vs main
 - 2026-09-24 13:08 · robert-claude-laptop · Queued → Approved
 - 2026-09-24 13:20 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-demo-importer-salvage-t1-t3-directive; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 13:32 · devin-overseer · In progress → Blocked — Blocked: `git cherry-pick 7c4a7196` refused by sandbox permissions (twice) - cherry-pick is not among the permitted git commands (only add, single-line commit -m, push -u origin <worktree branch>, and read-only status/log/show/diff/ls-files). Directive 3.2 requires exactly `git cherry-pick` for 7c4a7196, a6fdf35b, ead5478d. No commits made; worktree clean at base 761f737a on directive/rfdgamestudio-demo-importer-salvage-t1-t3-directive. Remediation: permit `git cherry-pick` and re-dispatch.
+- 2026-09-24 16:03 · robert-claude-laptop · Blocked → Review — Done by the laptop (the sandbox refuses git cherry-pick): 7c4a7196, a6fdf35b, ead5478d cherry-picked clean onto main, plan file replaced with the salvage banner (real branch name used), rebased onto main; pre-push hook suite all checks passed on Windows (pytest + vitest 1897 passed / 0 failed + shoal 16); pushed as a378fe1d. Merging under the permanent safe-merge approval; Done is Robert's. [origin] spent: devin 3 min est. n/a
+- 2026-09-24 21:05 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

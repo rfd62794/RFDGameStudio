@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { CurrentRace, RaceResult, Bet } from '../../../engine/types';
+import type { CurrentRace, RaceResult, Bet } from '../types';
 import { SVGRacer } from './SVGRacer';
 import { Badge } from '../../../ui/components';
 

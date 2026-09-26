@@ -33,12 +33,19 @@ pytest files show no new failures against `main`; report before/after counts and
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Blocked |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-port2-petition-decline-10b06a |
 | Base branch | - |
+| Base commit | 58b52c6842a2b8d8e9120a67ecf71a21c67c5b22 |
 
 **Status log**
 - 2026-09-23 09:08 · agentflow-tick · none → Queued — suggested by heartbeat: Self-contained, fully-specified port with verified source/target files and a tests-first spec; matches Devin's build-work profile.
 - 2026-09-24 10:28 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-24 13:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port2-petition-decline-10b06a; base origin/main (local main differs); copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 20:00 · devin-overseer · In progress → Blocked — overseer: run pid 32128 died in place mid-exploration (same event that killed the morning dispatch wave); no errors in log - requeuing
+- 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-exploration (transient).
+- 2026-09-25 22:14 · robert-claude-laptop · Queued → Approved
+- 2026-09-26 03:35 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-port2-petition-decline-10b06a; copied ts/src/games/game-metadata.json; resynced: merged main into directive/rfdgamestudio-slimeworld-port2-petition-decline-10b06a (137 commit(s), clean); lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-26 04:18 · devin-overseer (delegated) · In progress → Blocked — Work complete+verified, commit b5e457d0 on branch; push refused by repo pre-push hook: 3 environmental studio_mcp test failures ('git init' exits 128 inside pytest temp dirs — git init is also refused as a shell command here; test_check_cross_pipeline_counts_strings), unrelated to slimeworld diff. Command: git push -u origin directive/rfdgamestudio-slimeworld-port2-petition-decline-10b06a -> 'error: failed to push some refs'.
 <!-- queue:end -->
