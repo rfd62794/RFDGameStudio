@@ -145,6 +145,11 @@ systems:
       - create_seed_slime
       - update_planet_supply_and_pressure
       - check_wilds_unlock_condition
+      - collect_discovered_petition_traits
+      - record_shape_discoveries
+      - create_wanderer_petition
+      - fulfill_petition
+      - decline_petition
       - advance_cycle
 
 entities:
