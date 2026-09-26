@@ -70,7 +70,7 @@ one-directional and mechanical to fix.
 
 | Field | Value |
 |---|---|
-| Status | Draft |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-types-boundary-directive |
 | Base branch | - |
@@ -87,4 +87,5 @@ one-directional and mechanical to fix.
 - 2026-09-24 21:19 · devin-overseer · In progress → Blocked — Work complete and committed locally (cee5b669, verified: types moved, importers flipped, vitest green except environmental check). Publish blocked: pre-push hook fails deterministically on test_dual_target_deploy 'Branch is up to date with origin/main' (worktree branch tracks origin/main, 137 behind); refused: git push --no-verify -u origin directive/rfdgamestudio-engine-types-boundary-directive; also denied: git branch --unset-upstream.
 - 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection while resolving push hook rejection (transient).
 - 2026-09-25 22:23 · robert-claude-laptop · Queued → Draft — HOLD (not a rerun): the work is complete and was pushed to directive/rfdgamestudio-engine-types-boundary-directive at 23:55 through the green pre-push hook. The queue has no Queued->Review edge; it needs review + merge by hand. Don't dispatch.
+- 2026-09-26 00:03 · robert-claude-laptop · Draft → Done — done: merged outside a dispatch
 <!-- queue:end -->
