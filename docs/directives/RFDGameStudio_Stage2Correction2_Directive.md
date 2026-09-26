@@ -182,7 +182,7 @@ same format as the last phase's demonstration.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction2-d-371166 |
 | Base branch | - |
@@ -200,4 +200,5 @@ same format as the last phase's demonstration.
 - 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection mid-verification; fixes already committed (4d7725a8).
 - 2026-09-25 22:13 · robert-claude-laptop · Queued → Approved
 - 2026-09-25 22:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-stage2correction2-d-371166; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-25 22:51 · devin-overseer (delegated) · In progress → Blocked — Work complete & verified, publish blocked: pre-push gate fails only on git-state 'Branch up to date with origin/main' (branch upstream=origin/main, behind 144 — worktree stale upstream, not code). git branch --unset-upstream permission-denied; git push --no-verify outside sanctioned commands. Committed HEAD 81f71c86: §3 tests+real-zip fixtures (7eee3297) + demo harness. Verified: zip_verify 52p/8s; hook py-suite 823p/8s/31desel; vitest 1890p/1f(git-state only)/9s. Live demo real: AI Studio 0.67→0.63, Manus 0.70→0.53; composite flipped matched→unmatched; relative 46→45 stays matched (dead .tsx boilerplate — deferred problem). Unblock: approve unset-upstream or merge origin/hook/git-state-test-main-only, then re-push -u.
 <!-- queue:end -->
