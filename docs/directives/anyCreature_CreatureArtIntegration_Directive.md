@@ -212,3 +212,17 @@ separately.
 
 *RFD Method | anyCreature Integration | RFDGameStudio | September 2026*
 *A third option that's real without pretending it works the same way the other two do.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-27 16:08 · agentflow-tick · none → Queued — suggested by heartbeat: Needs ForkValidate done first (fork and wolf images not on disk); fix hero.mjs -> deliver.py references before dispatch
+<!-- queue:end -->

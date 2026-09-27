@@ -214,3 +214,17 @@ Target: X passing, 0 failing, 0 skipped, real count.
 
 *RFD Method | Import Fixer | Patterns 3 & 4 | RFDGameStudio*
 *Two more cataloged repairs, both mechanical enough to need no model at all — the safest kind of expansion this ladder has, because there's nothing here for a model to get wrong.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-27 16:07 · agentflow-tick · none → Queued — suggested by heartbeat: Code and tests appear to be built already; claude checks the completion list (floor, live demos, greps) and marks Done
+<!-- queue:end -->

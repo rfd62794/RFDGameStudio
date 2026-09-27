@@ -202,3 +202,17 @@ wrong with the repo state.
 
 *RFD Method | Pipeline Audit Extension | RFDGameStudio | August 2026*
 *Director → Pipeline → Agent. This phase does the part that was never judgment in the first place.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-09-27 16:06 · agentflow-tick · none → Queued — suggested by heartbeat: Code appears already built; claude verifies against §4 (floor, demos, greps) and marks Done or lists gaps
+<!-- queue:end -->
