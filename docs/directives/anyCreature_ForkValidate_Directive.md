@@ -136,12 +136,14 @@ new tests to RFDGameStudio's suite.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | claude |
-| Branch | - |
+| Branch | directive/rfdgamestudio-anycreature-forkvalidate-directive |
 | Base branch | - |
+| Base commit | 7119c9652b677b015d8bcbfe97f16add132f15fb |
 
 **Status log**
 - 2026-09-23 01:45 · agentflow-tick · none → Queued — suggested by heartbeat: Needs local gh auth as Robert's own identity + running unvetted 3rd-party setup.sh/cli.js on this machine — outside Devin's sandboxed worktree dispatch model
 - 2026-09-27 09:12 · robert-claude-laptop · Queued → Approved
+- 2026-09-27 09:13 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-forkvalidate-directive; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 <!-- queue:end -->
