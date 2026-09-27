@@ -19,7 +19,7 @@ not before.*
 ## §0 Context
 
 **Source, confirmed real but young:** `https://github.com/Ariescar/anyCreature`,
-MIT licensed, 2 commits total as of this writing, 1 star — a genuinely
+MIT licensed, 2 commits total as of this writing, 448 stars — a genuinely
 new, single-author project, not an established one. Its actual design
 philosophy — blind, context-free quality gates, never self-graded — is
 real and independently worth the fit: the tool's own README states
@@ -31,7 +31,7 @@ whether it reads."*
    upstream tracking preserved — this is an actively-versioned tool,
    future updates from the original are worth being able to pull).
 2. Confirmation the tool actually runs on this machine — `setup.sh`
-   must print `calibrate OK` before anything else is trusted.
+   must print `setup OK` before anything else is trusted.
 3. Exactly one generated image: `example/wolf.json` → `hero.png`, the
    repo's own pre-built, known-good fixture. Not a new creature design,
    not anything invented for this phase — the zero-risk smoke test that
@@ -76,12 +76,15 @@ phase is entirely self-contained in the new fork's own directory.
 1. `gh auth status` — confirm authenticated identity before forking.
 2. `gh repo fork Ariescar/anyCreature --clone=true` — real fork with
    upstream tracking, cloned locally.
-3. `cd` into the clone, `bash setup.sh` — must print `calibrate OK`.
+3. `cd` into the clone, `bash setup.sh` — must print `setup OK`.
    If it doesn't, stop and report the exact failure — do not proceed
    past a failed calibration.
 4. `node engine/cli.js example/wolf.json out/wolf.glb`
-5. Run `harness/hero.mjs` against `out/wolf.glb` to produce the real
-   `hero.png`/`hero.jpg`.
+5. `python3 harness/deliver.py out/wolf.glb out/delivery wolf --title "Wolf smoke test"`
+   (the CI's own delivery step; there is no `harness/hero.mjs`) to produce the
+   real hero image under `out/delivery`. If `setup.sh` wants to `pip install`
+   with `--break-system-packages`, stop: create a venv first (`python3 -m venv .venv`
+   and activate it) so nothing lands in the system Python.
 6. Report the real wall-clock time and, if the tool surfaces any token
    or cost figures during this run, the real number — not an estimate.
 
@@ -94,7 +97,7 @@ phase is entirely self-contained in the new fork's own directory.
 ## §3 Test Anchors
 
 None — this phase validates a third-party tool's own existing
-calibration self-check (`setup.sh`'s `calibrate OK`), it does not add
+calibration self-check (`setup.sh`'s `setup OK`), it does not add
 new tests to RFDGameStudio's suite.
 
 ---
@@ -103,7 +106,7 @@ new tests to RFDGameStudio's suite.
 
 - [ ] Real GitHub fork exists under Robert's account, upstream tracking
       confirmed (`git remote -v` shows both `origin` and `upstream`)
-- [ ] `setup.sh` ran for real, `calibrate OK` printed — raw output
+- [ ] `setup.sh` ran for real, `setup OK` printed — raw output
       pasted, not paraphrased
 - [ ] `example/wolf.json` compiled to a real `wolf.glb`
 - [ ] Real `hero.png` generated and presented — this is the actual
@@ -118,7 +121,7 @@ new tests to RFDGameStudio's suite.
 
 | Fact | Value |
 |---|---|
-| Source repo | `Ariescar/anyCreature`, MIT, 2 commits, 1 star (as of this writing) |
+| Source repo | `Ariescar/anyCreature`, MIT, 2 commits, 448 stars (as of this writing) |
 | This phase's only real output | One `hero.png` from the pre-built wolf example |
 | Not this phase's decision | Which RFDGameStudio game this targets |
 | Not this phase's action | Publishing, integrating, or designing anything new |
