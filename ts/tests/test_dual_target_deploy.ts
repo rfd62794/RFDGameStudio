@@ -92,12 +92,21 @@ describe('test_git_state_clean_both_games', () => {
     expect(log).toContain('b4640e8');
   });
 
-  it('Branch is up to date with origin/main', () => {
+  it('Branch is up to date with origin/main', (ctx) => {
     // -sb prints '## branch...origin/branch [ahead N, behind M]' when the
     // branch tracks a remote. The real concern is being "behind" — local
     // commits not yet pushed ("ahead") are normal during development, and
     // a branch with no upstream yet (fresh directive branch) has nothing
     // to be behind.
+    //
+    // Deploy readiness is a `main` concern. Directive branches in dispatch
+    // worktrees track origin/main, so they read "behind" the moment main
+    // moves — which it does every few minutes (queue commits, merges) —
+    // and the pre-push hook then fails a green branch for a reason that has
+    // nothing to do with its work (2026-09-24: three pushes lost that way).
+    if (gitLog('rev-parse --abbrev-ref HEAD') !== 'main') {
+      ctx.skip();
+    }
     const status = execSync('git status -sb', { cwd: repoRoot, encoding: 'utf-8' });
     expect(status.split('\n')[0]).not.toContain('behind');
   });
