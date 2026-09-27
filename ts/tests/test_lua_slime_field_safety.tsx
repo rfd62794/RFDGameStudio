@@ -37,7 +37,7 @@ describe('Lua→TS Field Safety — Alarm System', () => {
     const expectedFields = [
       'id', 'name', 'color', 'pattern', 'level', 'xp', 'stats', 'role',
       'generation', 'color_saturation', 'hue', 'saturation', 'diffusion_ratio',
-      'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'parent_a',
+      'amplitude', 'accent_hue', 'vertex_count', 'irregularity', 'variance', 'parent_a',
       'parent_b', 'created_at', 'matched_target_id', 'matched_shape_target_id',
       'matched_accent_target_ids', 'regent_awards',
       'consumed_slime_id', 'locked_role', 'garrisoned_at', 'stage', 'region_unlocks',
