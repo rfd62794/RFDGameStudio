@@ -35,6 +35,10 @@ const simSource = readFileSync(
   resolve(repoRoot, 'ts/src/games/shoal/simulation/shoalSimulation.ts'),
   'utf-8'
 );
+const sharedMathSource = readFileSync(
+  resolve(repoRoot, 'ts/src/engine/shared/math.ts'),
+  'utf-8'
+);
 
 describe('test_benchmark_port_recovered_or_rebuilt', () => {
   it('Benchmark port was recovered from git history (commit 65403fd^)', () => {
@@ -51,9 +55,10 @@ describe('test_benchmark_port_recovered_or_rebuilt', () => {
   it('Production module preserves the benchmark core algorithm', () => {
     // Same spatial hash with integer bucket keys
     expect(simSource).toContain('BUCKET_KEY_MULT = 100000');
-    // Same LCG PRNG with split-multiplication
-    expect(simSource).toContain('LCG_MULT = 1103515245');
-    expect(simSource).toContain('LCG_MULT_HI');
+    // Same LCG PRNG with split-multiplication (extracted to engine/shared/math.ts)
+    expect(sharedMathSource).toContain('LCG_MULT = 1103515245');
+    expect(sharedMathSource).toContain('LCG_MULT_HI');
+    expect(simSource).toContain("from '../../../engine/shared'");
     // Same world-wrap
     expect(simSource).toContain('wrapX');
     expect(simSource).toContain('clampDepth');

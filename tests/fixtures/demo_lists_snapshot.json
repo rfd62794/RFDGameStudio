@@ -1,0 +1,160 @@
+{
+  "example_demos": [
+    "ledger",
+    "trinity-siege",
+    "slimebreeder",
+    "corpworld",
+    "slimegarden",
+    "slimeworld",
+    "7-days-to-fry",
+    "kingmaker-squads",
+    "antsim-redux",
+    "facility-escape",
+    "systemic-extract"
+  ],
+  "demo_static_name": {
+    "brewfield": "brewfield",
+    "ledger": "ledger",
+    "trinity-siege": "trinity_siege",
+    "slimebreeder": "slimebreeder",
+    "corpworld": "corpworld",
+    "slimegarden": "slimegarden",
+    "slimeworld": "slimeworld",
+    "7-days-to-fry": "7_days_to_fry",
+    "kingmaker-squads": "kingmaker_squads",
+    "antsim-redux": "antsim_redux",
+    "facility-escape": "facility_escape",
+    "systemic-extract": "systemic_extract"
+  },
+  "demo_external_paths": {
+    "slimebreeder": "SlimeBreeder"
+  },
+  "game_paths": {
+    "horse_racing": [
+      "games/horse_racing",
+      "ts/src/games/horse_racing"
+    ],
+    "slither_rogue": [
+      "games/slither_rogue",
+      "ts/src/games/slither_rogue"
+    ],
+    "mutant_battle_ball": [
+      "games/mutant_battle_ball",
+      "ts/src/games/mutant_battle_ball"
+    ],
+    "slime_coin": [
+      "games/slime_coin",
+      "ts/src/games/slime_coin"
+    ],
+    "chimera_wilds": [
+      "games/chimera_wilds",
+      "ts/src/games/chimera_wilds"
+    ],
+    "scrapcrawl": [
+      "games/scrapcrawl",
+      "ts/src/games/scrapcrawl"
+    ],
+    "brewfield": [
+      "games/brewfield",
+      "ts/src/games/brewfield"
+    ],
+    "voiddrift": [
+      "ts/src/games/voiddrift"
+    ],
+    "ledger": [
+      "examples/ledger"
+    ],
+    "shoal": [
+      "games/shoal",
+      "ts/src/games/shoal"
+    ],
+    "trinity_siege": [
+      "examples/trinity-siege"
+    ],
+    "slimebreeder": [],
+    "dissonance": [
+      "games/dissonance",
+      "ts/src/games/dissonance"
+    ],
+    "slimeworld": [
+      "games/slimeworld",
+      "ts/src/games/slimeworld",
+      "examples/slimeworld"
+    ],
+    "corpworld": [
+      "ts/src/games/corpworld",
+      "examples/corpworld"
+    ],
+    "7_days_to_fry": [
+      "ts/src/games/7_days_to_fry",
+      "examples/7-days-to-fry"
+    ],
+    "kingmaker_squads": [
+      "ts/src/games/kingmaker_squads",
+      "examples/kingmaker-squads"
+    ],
+    "antsim_redux": [
+      "ts/src/games/antsim_redux",
+      "examples/antsim-redux"
+    ],
+    "facility_escape": [
+      "ts/src/games/facility_escape",
+      "examples/facility-escape"
+    ],
+    "systemic_extract": [
+      "ts/src/games/systemic_extract",
+      "examples/systemic-extract"
+    ],
+    "house_of_kings_collab": [
+      "ts/src/games/house_of_kings_collab"
+    ],
+    "voiddrift_redux": [
+      "ts/src/games/voiddrift_redux"
+    ],
+    "succession": [
+      "ts/src/games/succession"
+    ],
+    "planetofgreed": [
+      "ts/src/games/planetofgreed"
+    ],
+    "gladiator_arena": [
+      "ts/src/games/gladiator_arena"
+    ],
+    "planetforge": [
+      "ts/src/games/planetforge"
+    ],
+    "character_viewer": [
+      "ts/src/games/character_viewer"
+    ],
+    "technique_showcase": [
+      "ts/src/games/technique_showcase"
+    ],
+    "role_symbol_viewer": [
+      "ts/src/games/role_symbol_viewer"
+    ],
+    "dissonance_prototype": [
+      "ts/src/games/dissonance_prototype"
+    ],
+    "slimegarden": [
+      "ts/src/games/slimegarden"
+    ],
+    "factory_idle": [
+      "ts/src/games/factory_idle"
+    ],
+    "wire_rust": [
+      "games/wire_rust",
+      "ts/src/games/wire_rust"
+    ],
+    "choke_point": [
+      "games/choke_point",
+      "ts/src/games/choke_point"
+    ],
+    "filipino_bpo_simulator": [
+      "ts/src/games/filipino_bpo_simulator",
+      "intake/filipino-bpo-simulator"
+    ]
+  },
+  "external_repos": {
+    "slimebreeder": "SlimeBreeder"
+  }
+}

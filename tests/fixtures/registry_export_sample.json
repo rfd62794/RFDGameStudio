@@ -1,0 +1,12 @@
+{
+  "generatedAt": "T",
+  "games": [
+    {"gameId": "shoal", "label": "Shoal", "status": "stable", "hasComponent": true},
+    {"gameId": "ledger", "label": "Ledger", "status": "external", "embedUrl": "/arcade/ledger/", "hasComponent": false,
+     "source": {"kind": "example", "slug": "ledger"}},
+    {"gameId": "slimebreeder", "label": "SlimeBreeder", "status": "external", "embedUrl": "/arcade/slimebreeder/", "hasComponent": false,
+     "source": {"kind": "sibling", "repo": "SlimeBreeder"}},
+    {"gameId": "systemic_extract", "label": "Systemic Extract", "status": "external", "embedUrl": "/arcade/systemic_extract/", "hasComponent": false,
+     "source": {"kind": "example", "slug": "systemic-extract"}}
+  ]
+}

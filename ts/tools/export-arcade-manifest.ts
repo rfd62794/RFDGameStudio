@@ -16,10 +16,8 @@ import { buildArcadeManifest } from '../src/arcade-manifest/buildManifest';
 
 const repoRoot = resolve(__dirname, '..', '..');
 const metadataPath = resolve(repoRoot, 'ts', 'src', 'games', 'game-metadata.json');
-if (!existsSync(metadataPath)) {
-  console.error(`Missing ${metadataPath}. Generate it first:\n  uv run python -c "from studio_mcp.game_metadata import write_game_metadata; write_game_metadata()"`);
-  process.exit(1);
-}
+const haveMetadata = existsSync(metadataPath);
+if (!haveMetadata) console.warn(`No ${metadataPath}; versions and dates will be null.`);
 
 const readText = (rel: string): string | null => {
   const path = resolve(repoRoot, rel);
@@ -28,7 +26,7 @@ const readText = (rel: string): string | null => {
 
 const manifest = buildArcadeManifest({
   registry: GAME_REGISTRY,
-  metadata: JSON.parse(readFileSync(metadataPath, 'utf-8')),
+  metadata: haveMetadata ? JSON.parse(readFileSync(metadataPath, 'utf-8')) : {},
   statusEntries: SITE_STATUS_ENTRIES,
   readText,
 });

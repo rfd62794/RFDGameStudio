@@ -54,7 +54,7 @@ describe('SlimeWorld Options Menu + Hard Reset (Pre-Publish)', () => {
 
     // Confirm App.tsx's real reset handler clears the exact same real key
     expect(appSource).toContain("const SAVE_KEY = 'slimeworld_save';");
-    expect(appSource).toContain('localStorage.removeItem(SAVE_KEY)');
+    expect(appSource).toContain('clearSave(SAVE_KEY)');
 
     // Replicate the real handleHardReset side effect against the real localStorage
     localStorage.removeItem(SAVE_KEY);

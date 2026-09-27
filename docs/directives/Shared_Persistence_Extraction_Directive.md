@@ -103,7 +103,7 @@ if none do, use a minimal `globalThis.localStorage` stub.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shared-persistence-extraction-directive |
 | Base branch | - |
@@ -113,4 +113,6 @@ if none do, use a minimal `globalThis.localStorage` stub.
 - 2026-09-23 11:08 · devin-overseer · none → Queued — spec docs/superpowers/specs/2026-09-23-engine-shared-modules.md; 8 localStorage impls to unify; awaiting Robert approval
 - 2026-09-24 09:51 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-24 09:57 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shared-persistence-extraction-directive; copied ts/src/games/game-metadata.json; lane=strong; model=default
+- 2026-09-24 10:46 · devin-overseer · In progress → Review — Committed b594084 and pushed. New shared persistence module + 8 call sites migrated across 7 games; 9-test vitest suite green; full pre-push gate green (820 py, 1885 ts). Note: npm run build tsc has 3 pre-existing errors in out-of-scope house_of_kings_collab (present at base commit b756050). [origin] spent: devin 2 min est. n/a
+- 2026-09-24 21:06 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

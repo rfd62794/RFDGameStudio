@@ -5,7 +5,7 @@ import {
   Database, Dna, Info, Edit2, Trash2, Sliders, Beaker, Plus, RotateCcw, ChevronRight, BookOpen,
   FlaskConical, Layers, Sparkles, Briefcase, TrendingUp, AlertTriangle, Ship, Check, ArrowRight, X
 } from 'lucide-react';
-import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract } from '../types';
+import { Slime, LabState, SlimeColor, SlimePattern, CorporateContract, slimeToLua, nodeToLua } from '../types';
 import { COLOR_SPECS, PATTERN_DESCRIPTIONS, stageFromLevel, calculateMarketPrice, getHueDeviation, RawColorTarget } from '../gameLogic';
 import { call, getStaticList } from '../../../engine/runtime';
 import type { GameSession } from '../../../engine/types';
@@ -335,12 +335,15 @@ export function RosterTab({
                                     </div>
                                     
                                     {(() => {
-                                      const base = 5;
+                                      const constants = (session.files.data as Record<string, unknown>)['constants'] ?? null;
+                                      const luaNodes = state.planetRegion ? state.planetRegion.nodes.map(nodeToLua) : [];
+                                      const luaSlime = slimeToLua(currentlySelectedSlime);
+                                      const [baseRaw] = call(session, 'calculate_worker_income', luaSlime, false, [], constants) as [number];
+                                      const [realizedRaw] = call(session, 'calculate_worker_income', luaSlime, !!state.hasAutoFeeder, luaNodes, constants) as [number];
+                                      const base = typeof baseRaw === 'number' ? baseRaw : 5;
                                       const hasFeeder = !!state.hasAutoFeeder;
                                       const matchesEnv = state.planetRegion ? state.planetRegion.nodes.some(n => n.ownerColor === currentlySelectedSlime.color) : false;
-                                      const feederMult = hasFeeder ? 2 : 1;
-                                      const cultureMult = matchesEnv ? 2 : 1;
-                                      const realized = base * feederMult * cultureMult;
+                                      const realized = typeof realizedRaw === 'number' ? realizedRaw : base;
                                       
                                       return (
                                         <div className="bg-slate-950/60 p-2.5 rounded border border-slate-900 font-mono text-[10px] space-y-1">

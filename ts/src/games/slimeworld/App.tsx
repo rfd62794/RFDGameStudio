@@ -7,6 +7,7 @@ import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
+import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
 import { LabTab } from './components/LabTab';
 import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, prepopulateAllTutorials, getT1RegionsAwaitBody, getOpeningBeatText } from './tutorial';
 import { RosterTab } from './components/RosterTab';
@@ -114,15 +115,11 @@ const INITIAL_CONTRACTS: CorporateContract[] = [
 const SAVE_KEY = 'slimeworld_save';
 
 function saveState(state: LabState): void {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {}
+  writeSave(SAVE_KEY, state);
 }
 
 function loadSavedState(): LabState | null {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as LabState;
-  } catch { return null; }
+  return loadSave<LabState>(SAVE_KEY);
 }
 
 export function initialState(session: GameRendererProps['session']): LabState {
@@ -274,12 +271,13 @@ export default function App({ session }: GameRendererProps) {
     setIsBreedingHatching(true);
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets']);
+    const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets'], data['regent_rewards']);
     const [raw, error] = luaResult(value);
     if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
     const childRegionUnlocks = (raw['region_unlocks'] ?? []) as string[];
     const addedStrays = ((raw['added_strays'] ?? []) as Record<string, unknown>[]).map(luaSlimeToTs);
+    const regentAwards = (raw['regent_awards'] ?? []) as Array<{ inventory: string; key: string; amount: number; name: string; reason: string }>;
     setLastConsumedSlimeId(child.consumedSlimeId ?? null);
     setState(previous => {
       const filteredSlimes = child.consumedSlimeId
@@ -289,19 +287,50 @@ export default function App({ session }: GameRendererProps) {
       if (child.matchedTargetId) newColorTargetCodex[child.matchedTargetId] = true;
       const newShapeTargetCodex = { ...(previous.shapeTargetCodex ?? {}) };
       if (child.matchedShapeTargetId) newShapeTargetCodex[child.matchedShapeTargetId] = true;
+      const newAccentTargetCodex = { ...(previous.accentTargetCodex ?? {}) };
+      for (const accentId of child.matchedAccentTargetIds ?? []) { newAccentTargetCodex[accentId] = true; }
       const newColorCodex = { ...(previous.colorCodex ?? {}), [child.color]: { discovered: true } } as Record<SlimeColor, { discovered: boolean }>;
       const newPatternCodex = { ...(previous.patternCodex ?? {}), [child.pattern]: { discovered: true } } as Record<SlimePattern, { discovered: boolean }>;
       const newRegionUnlocks = { ...(previous.regionUnlocks ?? {}) };
       for (const nodeId of childRegionUnlocks) { newRegionUnlocks[nodeId] = true; }
+      const newRegentInventory = { ...(previous.regentInventory ?? {}) };
+      const newColorRegentInventory = { ...(previous.colorRegentInventory ?? {}) };
+      const newTargetRegentInventory = { ...(previous.targetRegentInventory ?? {}) };
+      const regentLogs: LogEntry[] = [];
+      for (const award of regentAwards) {
+        if (award.inventory === 'pattern') {
+          const key = award.key as SlimePattern;
+          newRegentInventory[key] = (newRegentInventory[key] ?? 0) + award.amount;
+        } else if (award.inventory === 'color') {
+          const key = award.key as SlimeColor;
+          newColorRegentInventory[key] = (newColorRegentInventory[key] ?? 0) + award.amount;
+        } else {
+          newTargetRegentInventory[award.key] = (newTargetRegentInventory[award.key] ?? 0) + award.amount;
+        }
+        const label = award.inventory === 'pattern' ? 'Membrane' : award.inventory === 'color' ? 'Chromoplasm' : 'Target';
+        const prefix = award.reason === 'region_unlock' ? 'REGION UNLOCK:' : 'DISCOVERY:';
+        regentLogs.push({
+          id: `log_regent_${Date.now()}_${award.key}_${award.reason}`,
+          cycle: previous.cycle,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          text: `${prefix} +${award.amount} ${label} Regents (${award.name}).`,
+          type: 'system' as LogEntry['type'],
+        });
+      }
       return {
         ...previous,
         credits: Math.max(0, previous.credits - 10),
         slimes: [...filteredSlimes, child, ...addedStrays],
         colorTargetCodex: newColorTargetCodex,
         shapeTargetCodex: newShapeTargetCodex,
+        accentTargetCodex: newAccentTargetCodex,
         colorCodex: newColorCodex,
         patternCodex: newPatternCodex,
         regionUnlocks: newRegionUnlocks,
+        regentInventory: newRegentInventory,
+        colorRegentInventory: newColorRegentInventory,
+        targetRegentInventory: newTargetRegentInventory,
+        logs: [...previous.logs, ...regentLogs].slice(-50),
         hasReceivedFirstBreedReward: previous.hasReceivedFirstBreedReward || addedStrays.length > 0,
       };
     });
@@ -322,7 +351,7 @@ export default function App({ session }: GameRendererProps) {
   }, [session, state]);
 
   const handleHardReset = useCallback(() => {
-    try { localStorage.removeItem(SAVE_KEY); } catch {}
+    clearSave(SAVE_KEY);
     setState(initialState(session));
     setGamePhase('opening');
     setPendingHardReset(false);
@@ -337,7 +366,7 @@ export default function App({ session }: GameRendererProps) {
   const handleAdvanceCycle = useCallback(() => {
     const data = session.files.data as Record<string, unknown>;
     const colorSpecs = buildColorSpecs(data);
-    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs);
+    const [raw] = call(session, 'advance_cycle', stateToLua(state), colorSpecs, data['petition'], data['constants']);
     if (!raw || typeof raw !== 'object') { setWarning('Cycle advance failed.'); return; }
     const result = raw as Record<string, unknown>;
     const luaLogs = Array.isArray(result['logs']) ? (result['logs'] as Array<Record<string, unknown>>).map(l => ({
@@ -377,6 +406,7 @@ export default function App({ session }: GameRendererProps) {
       planetRegion: luaRegion && Array.isArray(luaRegion['nodes']) ? { nodes: (luaRegion['nodes'] as Array<Record<string, unknown>>).map(luaNodeToTs), generatedAt: Number(luaRegion['generated_at'] ?? Date.now()), geometryVersion: Number(luaRegion['geometry_version'] ?? 3) } : previous.planetRegion,
       slimes: Array.isArray(result['slimes']) ? (result['slimes'] as Array<Record<string, unknown>>).map(luaSlimeToTs) : previous.slimes,
       petitions: Array.isArray(result['petitions']) ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs) : previous.petitions,
+      shapeCodex: (result['shape_codex'] ?? previous.shapeCodex) as Record<string, boolean> | undefined,
       colorRelationships: (result['color_relationships'] ?? previous.colorRelationships) as Record<SlimeColor, number> | undefined,
       favors: Array.isArray(result['favors']) ? (result['favors'] as Array<Record<string, unknown>>).map(luaFavorToTs) : previous.favors,
       logs: [...previous.logs, ...luaLogs].slice(-50),
@@ -495,6 +525,19 @@ export default function App({ session }: GameRendererProps) {
     }));
   }, [session, state]);
 
+  const handleDeclinePetition = useCallback((petitionId: string) => {
+    const data = session.files.data as Record<string, unknown>;
+    const raw = call(session, 'decline_petition', stateToLua(state), petitionId, data['petition']);
+    const [result, error] = luaResult(raw);
+    if (!result || error) { setWarning(error ?? 'Petition decline failed.'); return; }
+    setState(previous => ({
+      ...previous,
+      petitions: Array.isArray(result['petitions'])
+        ? (result['petitions'] as Array<Record<string, unknown>>).map(luaPetitionToTs)
+        : (previous.petitions?.filter(p => p.id !== petitionId) ?? []),
+    }));
+  }, [session, state]);
+
   const handleDisposeSlime = useCallback((favorId: string, slimeId: string) => {
     const value = call(session, 'resolve_disposal', stateToLua(state), slimeId, favorId);
     const [ok, error] = luaResult(value);
@@ -538,7 +581,7 @@ export default function App({ session }: GameRendererProps) {
   ) : primaryTab === 'missions' ? (
     <MissionsTab {...({ state, handleLaunchMediation, mediationDraftIds, setMediationDraftIds, selectedMediationNodeId, setSelectedMediationNodeId, activeMediationReport, setActiveMediationReport, handleLaunchExploration, explorationDraftIds, setExplorationDraftIds, selectedExplorationNodeId, setSelectedExplorationNodeId, activeExplorationReport, setActiveExplorationReport, handleAdvanceCycle, setSelectedZoneId, selectedZoneId, dispatchDraftIds, setDispatchDraftIds, realtimeRemainingMs: 0, activeDispatchReport, setActiveDispatchReport, handleLaunchDispatch, handleRetrieveCompletedPod, handleAssignGarrison, handleRecallGarrison, handleForceClaim, handleBribeClaim, handleConvertClaim, pendingDisposalFavorId, setPendingDisposalFavorId, disposalConfirmSlimeId, setDisposalConfirmSlimeId, handleDisposeSlime, regionLockNodeIds: ((session.files.data as Record<string, unknown>)['region_locks'] as Array<Record<string, unknown>>)?.map(l => l['node_id']) ?? [] } as any)} />
   ) : primaryTab === 'economy' ? (
-    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition, marketConfig: (session.files.data as Record<string, unknown>)['market'] } as any)} />
+    <EconomyTab {...({ state, handleDeliverContract, handleSellOnMarket, handleToggleWorkerRole, handleFulfillPetition, handleDeclinePetition, marketConfig: (session.files.data as Record<string, unknown>)['market'] } as any)} />
   ) : (
     <LabTab {...({ state, handleBuyUpgrade, handlePurchaseSeedSlime, activeSubTab: 'upgrades', setActiveSubTab: () => {}, selectedSlimeId: null, setSelectedSlimeId: () => {}, setRenameSlimeId: () => {}, setNewNameInput: () => {}, handleRecycleSlime: () => {}, parentAId: null, parentBId: null, setParentAId: () => {}, setParentBId: () => {}, isBreedingHatching: false, handleInitiateBreeding: () => {}, activeRegentPattern: null, setActiveRegentPattern: () => {}, onBuyRegent: () => {}, activeRegentColor: null, setActiveRegentColor: () => {}, onBuyColorRegent: () => {}, activeTargetRegent: null, setActiveTargetRegent: () => {}, onBuyTargetRegent: () => {}, handleToggleWorkerRole, handleDeliverContract: () => {}, handleSellOnMarket: () => {} } as any)} />
   );

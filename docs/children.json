@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "children": [
+    {
+      "id": "7_days_to_fry",
+      "path": "ts/src/games/7_days_to_fry",
+      "label": "7 Days To Fry"
+    },
+    {
+      "id": "antsim_redux",
+      "path": "ts/src/games/antsim_redux",
+      "label": "AntSim Redux"
+    },
+    {
+      "id": "brewfield",
+      "path": "ts/src/games/brewfield",
+      "label": "Brewfield"
+    },
+    {
+      "id": "character_viewer",
+      "path": "ts/src/games/character_viewer",
+      "label": "Character Viewer"
+    },
+    {
+      "id": "chimera_wilds",
+      "path": "ts/src/games/chimera_wilds",
+      "label": "Chimera Wilds"
+    },
+    {
+      "id": "choke_point",
+      "path": "ts/src/games/choke_point",
+      "label": "Choke Point"
+    },
+    {
+      "id": "corpworld",
+      "path": "ts/src/games/corpworld",
+      "label": "CorpWorld"
+    },
+    {
+      "id": "dissonance",
+      "path": "ts/src/games/dissonance",
+      "label": "Dissonance Depths"
+    },
+    {
+      "id": "dissonance_prototype",
+      "path": "ts/src/games/dissonance_prototype",
+      "label": "Dissonance Loop Prototype"
+    },
+    {
+      "id": "early_learning_buddy",
+      "path": "ts/src/games/early_learning_buddy",
+      "label": "Early Learning Buddy"
+    },
+    {
+      "id": "facility_escape",
+      "path": "ts/src/games/facility_escape",
+      "label": "Facility Escape"
+    },
+    {
+      "id": "factory_idle",
+      "path": "ts/src/games/factory_idle",
+      "label": "Factory Idle: Precision Armory"
+    },
+    {
+      "id": "filipino_bpo_simulator",
+      "path": "ts/src/games/filipino_bpo_simulator",
+      "label": "Call Center Tycoon"
+    },
+    {
+      "id": "gladiator_arena",
+      "path": "ts/src/games/gladiator_arena",
+      "label": "Gladiator Arena"
+    },
+    {
+      "id": "horse_racing",
+      "path": "ts/src/games/horse_racing",
+      "label": "Derby Sim"
+    },
+    {
+      "id": "house_of_kings_collab",
+      "path": "ts/src/games/house_of_kings_collab",
+      "label": "House of Kings: Collab"
+    },
+    {
+      "id": "kingmaker_squads",
+      "path": "ts/src/games/kingmaker_squads",
+      "label": "Kingmaker Squads"
+    },
+    {
+      "id": "ledger",
+      "path": "ts/src/games/ledger",
+      "label": "Ledger"
+    },
+    {
+      "id": "mutant_battle_ball",
+      "path": "ts/src/games/mutant_battle_ball",
+      "label": "Mutant Battle Ball"
+    },
+    {
+      "id": "planetforge",
+      "path": "ts/src/games/planetforge",
+      "label": "PlanetForge"
+    },
+    {
+      "id": "planetofgreed",
+      "path": "ts/src/games/planetofgreed",
+      "label": "Planet of Greed"
+    },
+    {
+      "id": "role_symbol_viewer",
+      "path": "ts/src/games/role_symbol_viewer",
+      "label": "Role Symbol Viewer"
+    },
+    {
+      "id": "scrapcrawl",
+      "path": "ts/src/games/scrapcrawl",
+      "label": "ScrapCrawl"
+    },
+    {
+      "id": "shoal",
+      "path": "ts/src/games/shoal",
+      "label": "Shoal"
+    },
+    {
+      "id": "slime_coin",
+      "path": "ts/src/games/slime_coin",
+      "label": "SlimeCoin"
+    },
+    {
+      "id": "slimebreeder",
+      "path": "ts/src/games/slimebreeder",
+      "label": "SlimeBreeder"
+    },
+    {
+      "id": "slimegarden",
+      "path": "ts/src/games/slimegarden",
+      "label": "Slimegarden"
+    },
+    {
+      "id": "slimeworld",
+      "path": "ts/src/games/slimeworld",
+      "label": "SlimeWorld"
+    },
+    {
+      "id": "slither_rogue",
+      "path": "ts/src/games/slither_rogue",
+      "label": "Snake Roguelike"
+    },
+    {
+      "id": "succession",
+      "path": "ts/src/games/succession",
+      "label": "Succession"
+    },
+    {
+      "id": "systemic_extract",
+      "path": "ts/src/games/systemic_extract",
+      "label": "Systemic Extract"
+    },
+    {
+      "id": "technique_showcase",
+      "path": "ts/src/games/technique_showcase",
+      "label": "Technique Showcase"
+    },
+    {
+      "id": "trinity_siege",
+      "path": "ts/src/games/trinity_siege",
+      "label": "Trinity Siege"
+    },
+    {
+      "id": "voiddrift",
+      "path": "ts/src/games/voiddrift",
+      "label": "VoidRift"
+    },
+    {
+      "id": "voiddrift_redux",
+      "path": "ts/src/games/voiddrift_redux",
+      "label": "VoidDrift Redux"
+    },
+    {
+      "id": "wire_rust",
+      "path": "ts/src/games/wire_rust",
+      "label": "Wire & Rust"
+    }
+  ]
+}

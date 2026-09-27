@@ -30,6 +30,7 @@ systems:
       - find_accent_type
       - find_accent_intensity
       - find_metallic_accent
+      - match_accent_targets
       - breed_accent
       - breed_slimes
 
@@ -60,6 +61,8 @@ systems:
     description: "Roster capacity and offspring creation actions"
     components: [slimes, roster_cap, credits, generation]
     functions:
+      - regent_tier_reward
+      - compute_regent_awards
       - initiate_breeding
 
   - id: dispatch
@@ -146,6 +149,11 @@ systems:
       - create_seed_slime
       - update_planet_supply_and_pressure
       - check_wilds_unlock_condition
+      - collect_discovered_petition_traits
+      - record_shape_discoveries
+      - create_wanderer_petition
+      - fulfill_petition
+      - decline_petition
       - advance_cycle
 
 entities:
