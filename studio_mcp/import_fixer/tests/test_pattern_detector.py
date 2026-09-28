@@ -299,12 +299,40 @@ def test_detect_untracked_registry_source_finds_scratch_reverted_case(
     assert "planetforge" in (result.symbol or "")
 
 
-def test_detect_untracked_registry_source_zip_source_is_no_clean_match() -> None:
-    """Real corpworld has an intake zip — untracked examples/ is expected."""
-    result = detect_untracked_registry_source("corpworld", repo_root=REPO_ROOT)
+def test_detect_untracked_registry_source_zip_source_is_no_clean_match(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    """A slug whose intake dir still holds a zip is no_clean_match — the
+    zip is a valid recoverable source, an untracked examples/ copy beside
+    it is expected.
+
+    Fixture note: when this anchor was written the real `corpworld` intake
+    dir held a zip. All intake zips have since been consumed (corpworld is
+    now properly ported — see the companion test below), so the zip branch
+    is exercised with a deterministic synthetic intake dir instead of
+    depending on which real zips remain unprocessed.
+    """
+    import studio_mcp.zip_verify.source_resolver as source_resolver
+
+    intake_dir = tmp_path / "intake" / "fakezip"
+    intake_dir.mkdir(parents=True)
+    (intake_dir / "game.zip").write_bytes(b"PK\x05\x06" + b"\x00" * 18)
+    monkeypatch.setattr(source_resolver, "INTAKE_DIR", tmp_path / "intake")
+
+    result = detect_untracked_registry_source("fakezip", repo_root=tmp_path)
 
     assert result.status == MatchStatus.NO_CLEAN_MATCH
     assert "zip" in (result.reason or "").lower()
+
+
+def test_detect_untracked_registry_source_corpworld_now_properly_ported() -> None:
+    """Real corpworld's intake zip has been consumed and ts/src/games/
+    corpworld now has real tracked files — still no_clean_match, via the
+    properly-ported branch rather than the zip branch."""
+    result = detect_untracked_registry_source("corpworld", repo_root=REPO_ROOT)
+
+    assert result.status == MatchStatus.NO_CLEAN_MATCH
+    assert "ported" in (result.reason or "").lower() or "tracked" in (result.reason or "").lower()
 
 
 def test_detect_untracked_registry_source_properly_ported_is_no_clean_match() -> None:

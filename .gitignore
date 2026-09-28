@@ -115,6 +115,10 @@ Session.vim
 .windsurf/
 .cline/
 # .devin/workflows/ intentionally tracked
+# Devin session scratch (scratch writes + tool overflow live here; never committed)
+.devin-scratch/
+# Superseded by scripts/regen_resolve_source_baseline.py — leftover scratch, kept untracked
+/_regen_resolve_source_baseline.py
 
 # =============================================================================
 # OS
