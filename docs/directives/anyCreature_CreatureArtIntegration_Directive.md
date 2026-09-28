@@ -218,11 +218,12 @@ separately.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | claude |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-27 16:08 · agentflow-tick · none → Queued — suggested by heartbeat: Needs ForkValidate done first (fork and wolf images not on disk); fix hero.mjs -> deliver.py references before dispatch
+- 2026-09-28 19:26 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
