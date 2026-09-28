@@ -208,11 +208,12 @@ wrong with the repo state.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | claude |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-09-27 16:06 · agentflow-tick · none → Queued — suggested by heartbeat: Code appears already built; claude verifies against §4 (floor, demos, greps) and marks Done or lists gaps
+- 2026-09-28 19:26 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
