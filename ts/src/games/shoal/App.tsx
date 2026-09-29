@@ -1,14 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useGameLoop } from '../../hooks';
 import { GameShell } from '../../components';
-import { Button, MoreGamesByMe } from '../../ui/components';
+import { Button, EndStateScreen, MoreGamesByMe, useOnboardingGate } from '../../ui/components';
+import { Volume2, VolumeX } from 'lucide-react';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 import type { GameRendererProps } from '../../engine/types';
 import type { RenderState, Stats, ToolMode, FleshChunk, ShoalCreature } from './types';
 import { MECHANICS_COPY } from './mechanicsCopy';
 import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
+import ReefPrimer from './components/ReefPrimer';
+import { sound } from './utils/sound';
+import { detectReefEvents } from './utils/reefEvents';
 import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
   ageStageFromCreature,
@@ -105,8 +110,30 @@ const TOOL_LABELS: Record<ToolMode, string> = {
 // The Lua source files remain in games/shoal/*.lua as reference.
 const shoalSim = createShoalSimulation();
 
+// Scenario config chosen on the title screen — set by handleStart, read
+// once by ShoalCanvas on mount. Module-level like the sim singleton.
+let pendingStartConfig: StartConfig | null = null;
+
+const TUTORIAL_SEEN_KEY = 'shoal_tutorial_seen';
+
 function initGame(): RenderState {
-  return shoalSim.initGame();
+  const cfg = pendingStartConfig;
+  const seed =
+    typeof cfg?.seed === 'number'
+      ? cfg.seed
+      : cfg?.seed === 'daily'
+        ? Math.floor(Date.now() / 86400000)
+        : undefined;
+  return shoalSim.initGame(
+    seed,
+    cfg
+      ? {
+          initialFish: cfg.initial_fish,
+          initialSharks: cfg.initial_sharks,
+          initialAlgaeHubs: cfg.initial_algae_hubs,
+        }
+      : undefined
+  );
 }
 
 export default function App({ session }: GameRendererProps) {
@@ -124,21 +151,115 @@ export default function App({ session }: GameRendererProps) {
     chunk_count: 0,
     seed: 0,
   });
+  const [reefEnded, setReefEnded] = useState(false);
+  const [endSnapshot, setEndSnapshot] = useState<{
+    seed: number;
+    ticks: number;
+    peakFish: number;
+    peakSharks: number;
+  } | null>(null);
+  const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
+
+  // First-run reef primer: fires only on a genuinely first start, via the
+  // shared OnboardingGate (boolean mode) + persisted tutorial-seen flag.
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+
+  const lifeSeenRef = useRef(false);
+  const peaksRef = useRef({ fish: 0, sharks: 0 });
+
+  const handleStats = useCallback((s: Stats, tickCount: number) => {
+    setStats(s);
+    if (s.fish_count > peaksRef.current.fish) peaksRef.current.fish = s.fish_count;
+    if (s.shark_count > peaksRef.current.sharks) peaksRef.current.sharks = s.shark_count;
+    if (s.fish_count + s.shark_count > 0) {
+      lifeSeenRef.current = true;
+    } else if (lifeSeenRef.current) {
+      lifeSeenRef.current = false;
+      setEndSnapshot({
+        seed: s.seed,
+        ticks: tickCount,
+        peakFish: peaksRef.current.fish,
+        peakSharks: peaksRef.current.sharks,
+      });
+      setReefEnded(true);
+      notifyGameplayStop();
+    }
+  }, []);
+
+  const resetReefTracking = () => {
+    lifeSeenRef.current = false;
+    peaksRef.current = { fish: 0, sharks: 0 };
+    setReefEnded(false);
+    setEndSnapshot(null);
+  };
 
   const handleStart = (config: StartConfig) => {
-    const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
-    spawn.initial_fish = config.initial_fish;
-    spawn.initial_sharks = config.initial_sharks;
-    spawn.initial_algae_hubs = config.initial_algae_hubs;
-    spawn.seed = config.seed;
+    sound.unlock();
+    sound.playUiConfirm();
+    pendingStartConfig = config;
+    resetReefTracking();
     setReefKey((k) => k + 1);
     setScreen('game');
+    if (!loadSave<boolean>(TUTORIAL_SEEN_KEY)) triggerPrimer();
     // Y8 portal integration — initialize SDK if on Y8, then signal start.
     if (detectPortalEnvironment() === 'y8') {
       initY8(SHOAL_Y8_CONFIG);
     }
     notifyGameplayStart();
   };
+
+  const handlePrimerDone = () => {
+    writeSave(TUTORIAL_SEEN_KEY, true);
+    sound.playUiConfirm();
+    completePrimer();
+  };
+
+  const handleReplay = () => {
+    sound.playUiConfirm();
+    resetReefTracking();
+    setReefKey((k) => k + 1);
+  };
+
+  const toggleSound = () => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    sound.setEnabled(!next);
+  };
+
+  const soundToggle = (
+    <button
+      type="button"
+      className="shoal-sound-toggle"
+      onClick={toggleSound}
+      aria-label={soundMuted ? 'Unmute sound' : 'Mute sound'}
+    >
+      {soundMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+    </button>
+  );
+
+  const primer = showPrimer ? <ReefPrimer onBegin={handlePrimerDone} /> : null;
+
+  const statusArea = (
+    <div className="shoal-status">
+      <span>Fish {stats.fish_count}</span>
+      <span>Sharks {stats.shark_count}</span>
+      <span>Algae {stats.algae_count}</span>
+      <span>Chunks {stats.chunk_count}</span>
+      <span>Seed {stats.seed}</span>
+      {soundToggle}
+    </div>
+  );
+
+  const footer = (
+    <MoreGamesByMe
+      mode={mode}
+      currentGameId="shoal"
+      games={STANDALONE_BUILD_GAMES}
+      onSelectGame={navigateTo}
+      arcadeBaseUrl={arcadeBaseUrl}
+    />
+  );
 
   if (screen === 'title') {
     return (
@@ -148,8 +269,51 @@ export default function App({ session }: GameRendererProps) {
         phase="2.0"
         mode={mode}
         arcadeBaseUrl={arcadeBaseUrl}
+        statusArea={soundToggle}
       >
-        <TitleScreen session={session} onStart={handleStart} />
+        <TitleScreen
+          session={session}
+          onStart={handleStart}
+          onHowToPlay={() => {
+            sound.unlock();
+            sound.playUiConfirm();
+            triggerPrimer();
+          }}
+        />
+        {primer}
+      </GameShell>
+    );
+  }
+
+  if (reefEnded && endSnapshot) {
+    return (
+      <GameShell
+        gameLabel="SHOAL"
+        gameId="shoal"
+        phase="2.0"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        headerExtra={
+          <button className="game-shell-back" onClick={() => { notifyGameplayStop(); setScreen('title'); }}>
+            ← Title
+          </button>
+        }
+        statusArea={statusArea}
+        footer={footer}
+      >
+        <EndStateScreen
+          won={false}
+          headline="The Reef Went Silent"
+          flavorLine="No fish, no sharks — just empty water and the algae waiting for whatever you seed next."
+          stats={[
+            { label: 'Ticks Survived', value: endSnapshot.ticks },
+            { label: 'Peak Fish', value: endSnapshot.peakFish },
+            { label: 'Peak Sharks', value: endSnapshot.peakSharks },
+            { label: 'Seed', value: endSnapshot.seed },
+          ]}
+          onRestart={handleReplay}
+          restartLabel="Seed a New Reef"
+        />
       </GameShell>
     );
   }
@@ -166,24 +330,8 @@ export default function App({ session }: GameRendererProps) {
           ← Title
         </button>
       }
-      statusArea={
-        <div className="shoal-status">
-          <span>Fish {stats.fish_count}</span>
-          <span>Sharks {stats.shark_count}</span>
-          <span>Algae {stats.algae_count}</span>
-          <span>Chunks {stats.chunk_count}</span>
-          <span>Seed {stats.seed}</span>
-        </div>
-      }
-      footer={
-        <MoreGamesByMe
-          mode={mode}
-          currentGameId="shoal"
-          games={STANDALONE_BUILD_GAMES}
-          onSelectGame={navigateTo}
-          arcadeBaseUrl={arcadeBaseUrl}
-        />
-      }
+      statusArea={statusArea}
+      footer={footer}
     >
       <div className="shoal-app">
         <div className="shoal-toolbar">
@@ -192,7 +340,7 @@ export default function App({ session }: GameRendererProps) {
               key={t}
               id={`shoal-tool-${t}`}
               label={TOOL_LABELS[t]}
-              onClick={() => setTool(t)}
+              onClick={() => { sound.playUiConfirm(); setTool(t); }}
               variant={tool === t ? 'primary' : 'neutral'}
               size="sm"
               className={tool === t ? 'shoal-tool active' : 'shoal-tool'}
@@ -201,12 +349,13 @@ export default function App({ session }: GameRendererProps) {
           <Button
             id="shoal-mechanics"
             label="Mechanics"
-            onClick={() => setShowMechanics(true)}
+            onClick={() => { sound.playUiConfirm(); setShowMechanics(true); }}
             variant="neutral"
             size="sm"
           />
         </div>
-        <ShoalCanvas key={reefKey} session={session} tool={tool} onStats={setStats} />
+        <ShoalCanvas key={reefKey} session={session} tool={tool} onStats={handleStats} />
+        {primer}
         {showMechanics && (
           <div className="shoal-mechanics-overlay" onClick={() => setShowMechanics(false)}>
             <div className="shoal-mechanics-popup" onClick={(e) => e.stopPropagation()}>
@@ -235,7 +384,7 @@ function ShoalCanvas({
 }: {
   session: GameRendererProps['session'];
   tool: ToolMode;
-  onStats: (stats: Stats) => void;
+  onStats: (stats: Stats, tickCount: number) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -246,6 +395,9 @@ function ShoalCanvas({
     initialized: false,
   });
   const renderStateRef = useRef<RenderState | null>(null);
+  // Per-event sound throttles — a busy reef can produce several events a
+  // second; without a floor on the interval the audio becomes noise.
+  const sfxAtRef = useRef({ feed: 0, strike: 0, core: 0 });
 
   useEffect(() => {
     const handleResize = () => {
@@ -267,7 +419,7 @@ function ShoalCanvas({
     // Initialize TS-native simulation (replaces Lua executor)
     renderStateRef.current = initGame();
     stateRef.current.initialized = true;
-    onStats(renderStateRef.current.stats);
+    onStats(renderStateRef.current.stats, renderStateRef.current.tick_count);
     if (canvasRef.current) {
       drawGame(canvasRef.current, renderStateRef.current, stateRef.current.dims, session.files.data);
     }
@@ -326,15 +478,37 @@ function ShoalCanvas({
       input.x = click.x;
       input.y = click.y;
       input.clicked = true;
+      sound.playSpawn();
     }
 
     const profiler = profilerRef.current;
+    const prevRs = renderStateRef.current;
     profiler.beginTick();
     const rs = shoalSim.tickGame(dt, input);
     profiler.endTick();
 
     renderStateRef.current = rs;
-    onStats(rs.stats);
+    onStats(rs.stats, rs.tick_count);
+
+    // SFX from render-state diffs — the sim owns no event stream.
+    if (prevRs) {
+      const now = performance.now();
+      const sfxAt = sfxAtRef.current;
+      for (const ev of detectReefEvents(prevRs, rs)) {
+        if (ev === 'feed' && now - sfxAt.feed > 350) {
+          sfxAt.feed = now;
+          sound.playNibble();
+        } else if ((ev === 'strike' || ev === 'shark_loss') && now - sfxAt.strike > 200) {
+          sfxAt.strike = now;
+          sound.playStrike(ev === 'shark_loss');
+        } else if ((ev === 'core_bloom' || ev === 'core_collapse') && now - sfxAt.core > 800) {
+          sfxAt.core = now;
+          sound.playBoundary(ev === 'core_collapse');
+        } else if (ev === 'extinction') {
+          sound.playReefEnd();
+        }
+      }
+    }
 
     profiler.beginDraw();
     drawGame(canvasRef.current, rs, s.dims, session.files.data, profiler);
