@@ -62,7 +62,7 @@ describe('SlimeWorld Petition Decline', () => {
 
   it('test_stateToLua_carries_codex_maps_for_petition_pools', () => {
     const state = makeMinimalState({
-      colorCodex: { Red: { discovered: true }, Purple: { discovered: true } },
+      colorCodex: { Red: { discovered: true }, Purple: { discovered: true } } as Record<Slime['color'], { discovered: boolean }>,
       shapeCodex: { Triangle: true },
     });
     const lua = stateToLua(state);

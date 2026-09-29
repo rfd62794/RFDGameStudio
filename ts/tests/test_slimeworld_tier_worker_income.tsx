@@ -33,7 +33,7 @@ function makeState(slimes: Slime[], overrides: Partial<LabState> = {}): LabState
     slimes, contracts: [], zones: [], activeDispatch: null,
     logs: [], activeMediation: null, activeExploration: null,
     planetRegion: null, wildsUnlocked: false, hasAutoFeeder: false,
-    colorRelationships: {}, recentMarketSales: [], petitions: [],
+    colorRelationships: {} as Record<Slime['color'], number>, recentMarketSales: [], petitions: [],
     ...overrides,
   };
 }
