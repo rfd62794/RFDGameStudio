@@ -46,11 +46,13 @@ it does not re-plan it.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-revamp-succession-continue-directive |
 | Base branch | - |
+| Base commit | 8e781ae68a10c223a6f38e4db593aeb60bbf6124 |
 
 **Status log**
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 19:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-succession-continue-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->

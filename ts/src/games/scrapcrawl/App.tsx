@@ -9,13 +9,19 @@ import {
   Wrench,
   Lock,
   ChevronRight,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { GameShell } from '../../components';
 import { Badge, Button, Card, EmptyState, ErrorBox, MoreGamesByMe, Panel } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
+import { useOnboardingGate } from '../../ui/components/OnboardingGate';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
+import { sound } from './utils/sound';
+import CrawlPrimer from './components/CrawlPrimer';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
 import './styles.css';
@@ -84,6 +90,16 @@ export default function App({ session }: GameRendererProps) {
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [showTitle, setShowTitle] = useState(true);
+  const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
+
+  // First-run crawl primer: fires only when the game has never been
+  // completed-onboarded, via the shared OnboardingGate (boolean mode).
+  const [hasOnboarded] = useState<boolean>(
+    () => loadSave<boolean>('scrapcrawl_tutorial_seen') === true
+  );
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+
   const data = session.files.data as Record<string, unknown>;
   const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
 
@@ -101,6 +117,12 @@ export default function App({ session }: GameRendererProps) {
       ? `[WIN] ${roomName}: D20 ${result.roll} + modifier = ${result.score.toFixed(1)} vs ${result.difficulty} — gained ${result.scrapGained} scrap`
       : `[LOSS] ${roomName}: D20 ${result.roll} + modifier = ${result.score.toFixed(1)} vs ${result.difficulty}`;
 
+    if (result.won) sound.playScavenge();
+    else sound.playHazard();
+    const prevWeaponLife = state.player.equipped.weapon?.life ?? 0;
+    const nextWeaponLife = result.player.equipped.weapon?.life ?? 0;
+    if (prevWeaponLife > 0 && nextWeaponLife === 0) sound.playBreak();
+
     setState(prev => prev ? {
       ...prev,
       player: result.player,
@@ -114,6 +136,7 @@ export default function App({ session }: GameRendererProps) {
     if (!state) return;
     const next = call('move_player', data, state.player, roomId) as PlayerState | null;
     if (!next) return;
+    sound.playMove();
     setState(prev => prev ? {
       ...prev,
       player: next,
@@ -130,6 +153,7 @@ export default function App({ session }: GameRendererProps) {
     const entry = getCatalogEntry(data, catalogId);
     const resolvedTier = catalogId === 'tool' ? 1 : (tier ?? (next.tier2Unlocked ? 2 : 1));
     const name = entry?.name ?? catalogId;
+    sound.playCraft();
     setState(prev => prev ? {
       ...prev,
       player: next,
@@ -137,6 +161,25 @@ export default function App({ session }: GameRendererProps) {
       message: `Crafted ${name} Tier ${resolvedTier}`,
     } : prev);
   }, [state, canCraft, call, data, setState]);
+
+  const handleNewGame = useCallback(() => {
+    sound.unlock();
+    sound.playUiConfirm();
+    if (!hasOnboarded) triggerPrimer();
+    setShowTitle(false);
+  }, [hasOnboarded, triggerPrimer]);
+
+  const handlePrimerBegin = useCallback(() => {
+    writeSave('scrapcrawl_tutorial_seen', true);
+    sound.playUiConfirm();
+    completePrimer();
+  }, [completePrimer]);
+
+  const toggleSound = useCallback(() => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    sound.setEnabled(!next);
+  }, [soundMuted]);
 
   if (showTitle) {
     return (
@@ -161,7 +204,7 @@ export default function App({ session }: GameRendererProps) {
           tagline="Room navigation · scrap economy · D20 combat"
           pitch="Room navigation, scrap economy, craft, and D20 combat with win-only proficiency."
           menuItems={[
-            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
           ]}
         />
       </GameShell>
@@ -203,6 +246,29 @@ export default function App({ session }: GameRendererProps) {
           <Badge label={`Scrap ${String(player.scrap).padStart(3, '0')}`} variant="accent" />
           <Badge label={player.tier2Unlocked ? 'Tier 2 ACTIVE' : 'Tier 2 LOCKED'} variant={player.tier2Unlocked ? 'green' : 'muted'} />
           <Badge label={`Room ${currentRoom.name}`} variant="accent" />
+          <div className="sc-gear-hud" title="Equipped gear durability — breaks at 0 life">
+            {SLOTS.map(({ key, label }) => {
+              const item = player.equipped[key];
+              const low = item ? item.life === 0 || item.life / item.maxLife <= 0.2 : false;
+              return (
+                <span
+                  key={key}
+                  className={`sc-gear-chip ${item ? (low ? 'sc-gear-chip--low' : '') : 'sc-gear-chip--empty'}`}
+                >
+                  {label} {item ? `${item.life}/${item.maxLife}` : '--'}
+                </span>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            className="sc-mute-btn"
+            onClick={toggleSound}
+            title={soundMuted ? 'Unmute Audio' : 'Mute Audio'}
+            aria-label={soundMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {soundMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
           {error && <ErrorBox message={error} />}
         </div>
       }
@@ -222,6 +288,7 @@ export default function App({ session }: GameRendererProps) {
       }
     >
       <div className="sc-dashboard">
+        {showPrimer && <CrawlPrimer onBegin={handlePrimerBegin} />}
         <div className="sc-grid">
           {/* Left column — World Graph */}
           <Panel className="sc-panel sc-world">

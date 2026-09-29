@@ -31,6 +31,7 @@ import { notifyGameplayStart, notifyGameplayStop } from '../../engine/shared/por
 import { initY8 } from '../../engine/shared/portalAdapter/adapters/y8';
 import { detectPortalEnvironment } from '../../engine/shared/portalAdapter/detection';
 import { SHOAL_Y8_CONFIG } from './y8Config';
+import { sfx } from '../../engine/shared/sfx';
 import './styles.css';
 
 // Age-aware batch color: quantizes hue to a band AND applies age saturation,
@@ -125,6 +126,9 @@ export default function App({ session }: GameRendererProps) {
     seed: 0,
   });
 
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   const handleStart = (config: StartConfig) => {
     const spawn = (session.files.data as Record<string, Record<string, unknown>>).spawn;
     spawn.initial_fish = config.initial_fish;
@@ -133,6 +137,7 @@ export default function App({ session }: GameRendererProps) {
     spawn.seed = config.seed;
     setReefKey((k) => k + 1);
     setScreen('game');
+    sfx.play('confirm');
     // Y8 portal integration — initialize SDK if on Y8, then signal start.
     if (detectPortalEnvironment() === 'y8') {
       initY8(SHOAL_Y8_CONFIG);
@@ -192,7 +197,7 @@ export default function App({ session }: GameRendererProps) {
               key={t}
               id={`shoal-tool-${t}`}
               label={TOOL_LABELS[t]}
-              onClick={() => setTool(t)}
+              onClick={() => { sfx.play('click'); setTool(t); }}
               variant={tool === t ? 'primary' : 'neutral'}
               size="sm"
               className={tool === t ? 'shoal-tool active' : 'shoal-tool'}
@@ -320,6 +325,10 @@ function ShoalCanvas({
 
     const click = s.click;
     s.click = null;
+
+    if (click) {
+      sfx.play(tool === 'cull' ? 'hit' : 'splash');
+    }
 
     const input: Record<string, unknown> = { tool };
     if (click) {

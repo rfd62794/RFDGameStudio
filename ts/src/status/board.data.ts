@@ -111,9 +111,10 @@ export const STATUS_BOARD: ProjectEntry[] = [
     capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '2026-08-15', soundEffects: 'N' },
   },
   {
-    id: 'slimegarden', name: 'SlimeGarden', category: 'retired', status: 'retired',
-    currentState: 'Origin project per ADR-023 — merged with SlimeBreeder into the live SlimeWorld. Source preserved in examples/slimegarden; 22/48 exports recovered into SlimeWorld per the July recovery manifest.',
-    supersededBy: 'SlimeWorld', lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
+    id: 'slimegarden', name: 'SlimeGarden', category: 'ai_studio_track', status: 'status_unconfirmed',
+    currentState: 'Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). Audit 2026-09-29 found it is the origin project merged with SlimeBreeder into the live SlimeWorld (ADR-023).',
+    nextAction: 'Recommendation only: retire, superseded by SlimeWorld (origin project per ADR-023; source preserved in examples/slimegarden). Retirement is Robert's call.',
+    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
   },
   {
     id: 'trinity_siege', name: 'Trinity Siege/Combat', category: 'ai_studio_track', status: 'status_unconfirmed',

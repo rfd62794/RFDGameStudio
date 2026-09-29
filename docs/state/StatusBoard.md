@@ -63,6 +63,7 @@ no recent enough confirmation to state its current state.
 | Game | Status | Current State | Next Real Action | Menu | Tutorial | Visual | Sound | Last Updated |
 |---|---|---|---|---|---|---|---|---|
 | **Succession** | Active | Persuasion-sim redesign, mid-development. Local TitleScreen implementation. | — | N | N | 2026-08-15 | N | 2026-08-15 |
+| **SlimeGarden** | Status Unconfirmed | Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). Audit 2026-09-29: origin project merged with SlimeBreeder into the live SlimeWorld (ADR-023). | Recommendation only: retire, superseded by SlimeWorld (origin project per ADR-023; source preserved in examples/slimegarden). Retirement is Robert's call. | — | — | — | — | 2026-08-15 (research/inference) |
 | **Trinity Siege/Combat** | Status Unconfirmed | Bevy vs. egui architecture question left unresolved. | Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now. | — | — | — | — | 2026-08-15 (research/inference) |
 | **7 Days to Fry** | Shipped/Mature | Complete cooking-survival sim (7-day arc, win/lose). Registered in GAME_REGISTRY as an external demo and in website_collection. Own state doc (Aug 2026) reports 241/241 vitest floor — self-reported, not re-runnable in-repo. | Promotion decision if revived — TS-native port or permanent external status; wire its own test suite into a runner the studio executes. | Y | N | 2026-08-30 | N | 2026-09-29 (direct file read) |
 
@@ -72,7 +73,6 @@ no recent enough confirmation to state its current state.
 
 | Game | Status | Superseded By | Current State | Last Updated |
 |---|---|---|---|---|
-| **SlimeGarden** | Retired | SlimeWorld | Origin project per ADR-023 — merged with SlimeBreeder into the live SlimeWorld. Source preserved in examples/slimegarden; 22/48 exports recovered into SlimeWorld per the July recovery manifest. | 2026-09-29 (direct file read) |
 | **CorpWorld** | Retired | Planet of Greed | Source preserved read-only. | 2026-08-15 |
 | **KingMaker Squads** | Retired | Planet of Greed | Source preserved read-only. | 2026-08-15 |
 | **BrewField** | Retired | Dissonance Depths | Source preserved read-only. Had IntroScreen using shared TitleScreen. | 2026-08-15 |

@@ -66,6 +66,14 @@ export const ArenaCombatView: React.FC = () => {
   const playerIsCyber = playerFighter ? (Object.values(playerFighter.parts) as BodyPart[]).some(p => p.cyberOrganicLean > 0.3) : false;
   const enemyIsCyber = enemyFighter ? (Object.values(enemyFighter.parts) as BodyPart[]).some(p => p.cyberOrganicLean > 0.3) : false;
 
+  // HUD readability: per-side part integrity & wound counts for the headers
+  const countParts = (g: typeof playerFighter, pred: (p: BodyPart) => boolean) =>
+    g ? (Object.values(g.parts) as BodyPart[]).filter(pred).length : 0;
+  const playerCrippledCount = countParts(playerFighter, p => p.currentHp <= 0);
+  const playerScarredCount = countParts(playerFighter, p => p.scarHpPenalty > 0);
+  const enemyCrippledCount = countParts(enemyFighter, p => p.currentHp <= 0);
+  const enemyScarredCount = countParts(enemyFighter, p => p.scarHpPenalty > 0);
+
   // Spatial Combat Animation Sequencer (Windup -> Travel -> Contact -> Recovery -> Idle)
   type AnimPhase = 'windup' | 'travel' | 'contact' | 'recovery' | 'idle';
   const [animPhase, setAnimPhase] = React.useState<AnimPhase>('idle');
@@ -249,6 +257,22 @@ export const ArenaCombatView: React.FC = () => {
             </div>
           </div>
 
+          {/* Turn Order — which side's action resolves next */}
+          {!activeBout.isFinished && (
+            <div
+              className="px-3 py-1 rounded-lg bg-stone-950/80 border border-amber-500/40 text-amber-300 font-bold text-xs uppercase flex items-center gap-1.5 whitespace-nowrap"
+              title="Side acting on the next combat turn"
+            >
+              <ChevronRight className="w-4 h-4" />
+              <span>
+                Up Next:{' '}
+                {activeBout.currentTurnActor === 'player'
+                  ? playerFighter?.name ?? 'Your Frame'
+                  : enemyFighter?.name ?? 'Opponent'}
+              </span>
+            </div>
+          )}
+
           {/* Crowd Favor Meter */}
           <div className="flex-1 max-w-sm flex flex-col gap-1 px-3">
             <div className="flex justify-between text-[10px] font-mono font-bold">
@@ -353,6 +377,23 @@ export const ArenaCombatView: React.FC = () => {
                   style={{ width: `${Math.min(100, (playerAnatomy?.overallHpRatio || 0) * 100)}%` }}
                 />
               </div>
+
+              {/* Part Integrity & Wounds Readout */}
+              <div className="flex items-center gap-1.5 flex-wrap text-[10px] font-mono uppercase">
+                <span className="px-1.5 py-0.5 rounded bg-stone-950/80 border border-stone-800 text-stone-400">
+                  Integrity {Math.round((playerAnatomy?.overallHpRatio ?? 0) * 100)}%
+                </span>
+                {playerCrippledCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded bg-red-950/80 border border-red-600/50 text-red-300 font-bold animate-pulse">
+                    {playerCrippledCount} Crippled
+                  </span>
+                )}
+                {playerScarredCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded bg-purple-950/80 border border-purple-600/50 text-purple-300">
+                    {playerScarredCount} Scarred (-{playerAnatomy?.totalScars ?? 0} Max HP)
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Enemy Side (Right) */}
@@ -376,6 +417,23 @@ export const ArenaCombatView: React.FC = () => {
                   className="h-full bg-red-500 transition-all duration-300"
                   style={{ width: `${Math.min(100, (enemyAnatomy?.overallHpRatio || 0) * 100)}%` }}
                 />
+              </div>
+
+              {/* Part Integrity & Wounds Readout */}
+              <div className="flex items-center gap-1.5 flex-wrap text-[10px] font-mono uppercase">
+                <span className="px-1.5 py-0.5 rounded bg-stone-950/80 border border-stone-800 text-stone-400">
+                  Integrity {Math.round((enemyAnatomy?.overallHpRatio ?? 0) * 100)}%
+                </span>
+                {enemyCrippledCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded bg-red-950/80 border border-red-600/50 text-red-300 font-bold animate-pulse">
+                    {enemyCrippledCount} Crippled
+                  </span>
+                )}
+                {enemyScarredCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded bg-purple-950/80 border border-purple-600/50 text-purple-300">
+                    {enemyScarredCount} Scarred (-{enemyAnatomy?.totalScars ?? 0} Max HP)
+                  </span>
+                )}
               </div>
             </div>
           </div>

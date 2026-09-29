@@ -57,11 +57,16 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-slither-rogue-chrome-directive |
 | Base branch | - |
+| Base commit | ebf4e7c01cddd2552641447e38c0f3105b46c1af |
+| Head commit | d45d6e2b3b1e268adec914b7699b37f36a9cb399 |
 
 **Status log**
 - 2026-09-28 21:55 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 04:50 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-slither-rogue-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-29 05:17 · devin · In progress → Review — Menu: existing MenuShell-based MainMenu kept (sibling-game pattern; TitleScreen doesn't fit the settings/how-to/scores grid wrapper). Tutorial: new TutorialPrimer.tsx (5 lines: move/grow/joint-theft/evolve/clock) gated to first launch via shared useOnboardingGate + sr_tutorial_seen / sr_highscores persistence. Visual: off-arena void fill for readable bounds, brighter NPC name labels, crosshair/user-select on canvas wrap; HUD already had length/level/timer. Sound: no engine/shared/sfx exists, so local utils/sound.ts following gladiator_arena (lazy AudioContext, muted until first gesture); wired to fruit_eaten (golden variant), segment steal/loss via metrics_update length delta, shield_consumed, evolution offer/pick, game over, launch; HUD mute toggle. Also fixed: menu Run Duration now actually reaches init_game (was hardcoded 300). Test: ts/tests/test_slither_rogue_sound.ts (12 tests). Verified: npm test 2004 pass / 0 fail, npm run build clean, arcade loader tests green. ADR-014 note: SoundEngine is now a 5th per-game copy (gladiator_arena, horse_racing, chimera_wilds, early_learning_buddy, slither_rogue) — a real, known multi-consumer candidate for engine/shared/sfx when Polish_Shared_Sfx lands; not extracted per directive §4. [origin] spent: devin 27 min est. n/a
+- 2026-09-29 05:25 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->

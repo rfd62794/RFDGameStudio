@@ -7,6 +7,7 @@ import { TitleScreen } from '../../ui/components/TitleScreen';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
+import { sfx } from '../../engine/shared/sfx';
 import BoardCanvas from './components/BoardCanvas';
 import ShopModal from './components/ShopModal';
 import PocketPicker from './components/PocketPicker';
@@ -61,7 +62,10 @@ export default function App({ session }: GameRendererProps) {
   const [renderState, setRenderState] = useState<SlimeCoinRenderState | null>(null);
   const [input, setInput] = useState<SlimeCoinInput>({ fire: false, side: 'right' });
   const [showPocketPicker, setShowPocketPicker] = useState(false);
-  
+
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   // Initialize game
   useEffect(() => {
     if (isInitialized && state) {
@@ -97,8 +101,10 @@ export default function App({ session }: GameRendererProps) {
 
       // Check for phase transition
       if (result.phase === 'card_select') {
+        sfx.play('confirm');
         setState(prev => prev ? { ...prev, phase: 'card_select', offered_cards: result.offered_cards ?? [] } : prev);
       } else if (result.phase === 'run_end') {
+        sfx.play('win');
         setState(prev => prev ? { ...prev, phase: 'run_end' } : prev);
       }
     }
@@ -115,11 +121,13 @@ export default function App({ session }: GameRendererProps) {
         case 'ArrowLeft':
           e.preventDefault();
           // Left arrow fires from RIGHT shooter, coin travels LEFT
+          sfx.play('whoosh');
           setInput({ fire: true, side: 'left', pocket_coin_type: state.pocket_coin_type ?? undefined });
           break;
         case 'ArrowRight':
           e.preventDefault();
           // Right arrow fires from LEFT shooter, coin travels RIGHT
+          sfx.play('whoosh');
           setInput({ fire: true, side: 'right', pocket_coin_type: state.pocket_coin_type ?? undefined });
           break;
         case 'p':
@@ -137,6 +145,7 @@ export default function App({ session }: GameRendererProps) {
   }, [state]);
   
   const handleSelectCard = useCallback((cardId: string) => {
+    sfx.play('click');
     call('select_card', cardId);
     setState(prev => prev ? { ...prev, selected_card: cardId } : prev);
   }, [call, setState]);
@@ -174,7 +183,7 @@ export default function App({ session }: GameRendererProps) {
           tagline="Real-time coin pusher"
           pitch="Real-time coin pusher with shooter, two-layer board, and chip synergies."
           menuItems={[
-            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => { sfx.play('confirm'); setShowTitle(false); } },
           ]}
         />
       </GameShell>
@@ -239,6 +248,7 @@ export default function App({ session }: GameRendererProps) {
             onClick={() => {
               const result = call('exchange') as { tokens: number; hand_in: number } | null;
               if (result) {
+                sfx.play('coin');
                 setState(prev => prev ? {
                   ...prev,
                   tokens: result.tokens,
@@ -263,6 +273,7 @@ export default function App({ session }: GameRendererProps) {
           onPurchase={(itemId) => {
             const result = call('shop_purchase', itemId) as { tokens: number } | null;
             if (result) {
+              sfx.play('coin');
               setState(prev => prev ? { ...prev, tokens: result.tokens } : prev);
             }
           }}

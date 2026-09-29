@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import type { CurrentRace, RaceResult, Bet } from '../types';
 import { SVGRacer } from './SVGRacer';
 import { Badge } from '../../../ui/components';
+import { sound } from '../utils/sound';
+import { isBetWin } from '../utils/bets';
 
 const TICK_RATE_MS = 50;
 const LANE_HEIGHT = 29;          // condensed
@@ -22,6 +25,8 @@ interface AnimParticipant {
 interface Props {
   race: CurrentRace;
   bets: Bet[];
+  soundMuted: boolean;
+  onToggleSound: () => void;
   onRaceFinish: (results: RaceResult[]) => void;
   onClose: () => void;
 }
@@ -32,7 +37,7 @@ function energyColor(e: number): string {
   return '#f87171';
 }
 
-export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) {
+export default function RaceTrack({ race, bets, soundMuted, onToggleSound, onRaceFinish, onClose }: Props) {
   const distance = race.distance;
 
   const [isRunning, setIsRunning] = useState(false);
@@ -64,8 +69,17 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
     setResultsDeclared(true);
     // Winner is always from Lua final_rank — never from animation order
     const winner = race.participants.find(p => p.final_rank === 1);
+    sound.playFinish();
+    const rankByHorse: Record<string, number | undefined> = {};
+    race.participants.forEach(p => { rankByHorse[p.horse.id] = p.final_rank; });
+    const playerWon =
+      winner?.horse.player_owned === true ||
+      bets.some(b => isBetWin(b.type, rankByHorse[b.horse_id]));
+    const hadStake = bets.length > 0 || race.participants.some(p => p.horse.player_owned);
+    if (playerWon) sound.playWin();
+    else if (hadStake) sound.playLoss();
     setAnnouncement(`Race complete! ${winner?.horse.name ?? 'Unknown'} wins!`);
-  }, [race.participants]);
+  }, [race.participants, bets]);
 
   // Physics tick — animation display only
   useEffect(() => {
@@ -131,6 +145,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
   }, [animParticipants, isRunning, resultsDeclared, race.participants]);
 
   const handleStart = useCallback(() => {
+    sound.playStartGun();
     setIsRunning(true);
     setAnnouncement("And they're off!");
   }, []);
@@ -192,6 +207,14 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
           {!isRunning && !resultsDeclared && (
             <button className="btn-neutral" onClick={handleSkip}>Skip ⏭</button>
           )}
+          <button
+            type="button"
+            className="hr-sound-toggle"
+            onClick={onToggleSound}
+            aria-label={soundMuted ? 'Unmute sound' : 'Mute sound'}
+          >
+            {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
         </div>
       </div>
 
@@ -216,7 +239,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
             x2={trackWidth - TRACK_PADDING_RIGHT} y2={race.participants.length * LANE_HEIGHT + 20}
             stroke="rgba(255,255,255,0.35)" strokeWidth={2} strokeDasharray="6 3"
           />
-          <text x={trackWidth - TRACK_PADDING_RIGHT + 4} y={14} fill="rgba(255,255,255,0.4)" fontSize={9}>FINISH</text>
+          <text x={trackWidth - TRACK_PADDING_RIGHT + 4} y={14} fill="rgba(255,255,255,0.55)" fontSize={9}>FINISH</text>
 
           {race.participants.map((p, laneIdx) => {
             const ap = animParticipants.find(a => a.horse_id === p.horse.id)!;
@@ -233,7 +256,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
 
                 {/* Gate number */}
                 <text x={18} y={laneY + LANE_HEIGHT / 2 + 3} textAnchor="middle"
-                  fontSize={8} fill="rgba(255,255,255,0.4)" fontFamily="monospace">
+                  fontSize={8} fill="rgba(255,255,255,0.6)" fontFamily="monospace">
                   {p.gate}
                 </text>
 
@@ -321,10 +344,7 @@ export default function RaceTrack({ race, bets, onRaceFinish, onClose }: Props) 
                       {bet ? (
                         <span style={{ fontSize: '0.8rem' }}>
                           ${bet.amount} {bet.type}
-                          {p.final_rank !== undefined && (
-                            (bet.type === 'Win' && p.final_rank === 1) ||
-                            (bet.type === 'Place' && p.final_rank <= 3)
-                          ) ? (
+                          {isBetWin(bet.type, p.final_rank) ? (
                             <span className="payout-pos"> ✓ Won</span>
                           ) : (
                             <span className="payout-neg"> ✗ Lost</span>

@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import type { GameSession } from '../../../engine/types';
 import { call } from '../../../engine/runtime';
 import { useGameLoop } from '../../../hooks';
+import { sound } from '../utils/sound';
 
 interface PlayerRender {
   segs_x: number[]; segs_y: number[]; segs_a: number[];
@@ -32,6 +33,7 @@ interface RenderState {
 interface GameCanvasProps {
   session: GameSession;
   controlType: 'mouse' | 'keyboard';
+  gameDuration: number;
   isPaused: boolean;
   activeEvolutions: Record<string, number>;
   onFruitEaten: () => void;
@@ -44,11 +46,12 @@ interface GameCanvasProps {
 const MAP_W = 2600, MAP_H = 2600;
 
 export default function GameCanvas({
-  session, controlType, isPaused, activeEvolutions,
+  session, controlType, gameDuration, isPaused, activeEvolutions,
   onFruitEaten, onUpdateMetrics, onGameOver, onTick, onShieldConsumed,
 }: GameCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const lastLenRef   = useRef<number | null>(null);
   const stateRef     = useRef({
     mouseX: 0, mouseY: 0, keys: {} as Record<string, boolean>,
     lastTime: 0, dims: { w: 800, h: 600 }, initialized: false,
@@ -65,7 +68,7 @@ export default function GameCanvas({
       npc_stats:         data['npc_stats'],
       evolution_cards:   data['evolution_cards'],
       active_evolutions: activeEvolutions,
-      game_duration:     300,
+      game_duration:     gameDuration,
     });
     stateRef.current.initialized = true;
   }, []);
@@ -127,6 +130,8 @@ export default function GameCanvas({
 
     for (const ev of (rs.events || [])) {
       if (ev.type === 'fruit_eaten') {
+        sound.playEat(!!ev.is_golden);
+        lastLenRef.current = ev.current_length ?? lastLenRef.current;
         onFruitEaten();
         onUpdateMetrics({
           currentLength: ev.current_length ?? 0,
@@ -134,12 +139,20 @@ export default function GameCanvas({
           score:         ev.score ?? 0,
         });
       } else if (ev.type === 'metrics_update') {
+        const prevLen = lastLenRef.current;
+        const newLen = ev.current_length ?? prevLen;
+        if (prevLen !== null && newLen !== null) {
+          if (newLen < prevLen) sound.playStolen();
+          else if (newLen - prevLen >= 2) sound.playSteal();
+        }
+        lastLenRef.current = newLen;
         onUpdateMetrics({
           currentLength: ev.current_length ?? 0,
           peakLength:    ev.peak_length ?? 0,
           score:         rs.score,
         });
       } else if (ev.type === 'shield_consumed') {
+        sound.playShieldBreak();
         onShieldConsumed();
       } else if (ev.type === 'game_over') {
         onGameOver();
@@ -168,11 +181,12 @@ function drawGame(canvas: HTMLCanvasElement, rs: RenderState, dims: { w: number;
   const camX  = dims.w / 2 - headX;
   const camY  = dims.h / 2 - headY;
 
-  ctx.clearRect(0, 0, dims.w, dims.h);
+  ctx.fillStyle = '#04060c';
+  ctx.fillRect(0, 0, dims.w, dims.h);
   ctx.save();
   ctx.translate(camX, camY);
 
-  ctx.fillStyle = '#090d16';
+  ctx.fillStyle = '#0a101d';
   ctx.fillRect(0, 0, MAP_W, MAP_H);
   ctx.strokeStyle = '#1e293b';
   ctx.lineWidth = 1.2;
@@ -221,8 +235,8 @@ function drawGame(canvas: HTMLCanvasElement, rs: RenderState, dims: { w: number;
     ctx.fillStyle = npc.hunting ? '#ef4444' : npc.head_color;
     ctx.beginPath(); ctx.arc(sx[0], sy[0], npc.radius * 1.3, 0, Math.PI * 2); ctx.fill();
     _drawEyes(ctx, sx[0], sy[0], npc.angle, npc.radius, false);
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(226,232,240,0.7)';
+    ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
     ctx.fillText(npc.name, sx[0], sy[0] - npc.radius * 2);
   }
 
