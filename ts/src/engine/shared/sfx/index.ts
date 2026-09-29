@@ -9,7 +9,3 @@
 export * from './types';
 export * from './events';
 export * from './engine';
-
-import { SfxEngine } from './engine';
-
-export const sfx = new SfxEngine();

@@ -219,3 +219,6 @@ export class SfxEngine {
     src.stop(t0 + env.end + 0.02);
   }
 }
+
+/** Shared singleton — one engine per page, used by every wired game. */
+export const sfx = new SfxEngine();
