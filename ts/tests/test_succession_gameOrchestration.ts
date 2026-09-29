@@ -10,9 +10,6 @@ import {
 import { resolveVerdict } from '../src/games/succession/engine/verdict';
 import { FigureState } from '../src/games/succession/engine/types';
 import {
-  WHISPER_FAVOR_GAIN,
-  APPEAL_FAVOR_GAIN,
-  EVIDENCE_FAVOR_GAIN,
   RIVAL_WHISPER_FAVOR_GAIN,
   RIVAL_SLANDER_PENALTY,
 } from '../src/games/succession/data/gameConstants';
@@ -53,8 +50,10 @@ describe('gameOrchestration', () => {
     const next = whisperTo(initial, 'chancellor', 'noble_pedigree');
 
     const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-    // Player gained WHISPER_FAVOR_GAIN (20). Only Aldric acts on odd segments (no slander).
-    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN);
+    // Whisper is not the chancellor's locked method (ADR-007): the
+    // player gains the reduced non-locked rate (20 × 0.25 = 5). Only
+    // Aldric acts on odd segments (no slander).
+    expect(chancellor.favor.player).toBe(5);
 
     const playerEntry = next.ticker.find(
       (t) => t.claimantId === 'player' && t.segment === 1
@@ -62,7 +61,7 @@ describe('gameOrchestration', () => {
     expect(playerEntry).toBeDefined();
     expect(playerEntry?.moveType).toBe('whisper');
     expect(playerEntry?.figureId).toBe('chancellor');
-    expect(playerEntry?.favorGain).toBe(WHISPER_FAVOR_GAIN);
+    expect(playerEntry?.favorGain).toBe(5);
     expect(playerEntry?.exposed).toBe(false);
   });
 
@@ -107,18 +106,19 @@ describe('gameOrchestration', () => {
 
   it('whisperTo_exposed_case_grants_no_player_favor', () => {
     const initial = createInitialGameState();
-    // Move 1: whisper noble_pedigree to chancellor
+    // Move 1: whisper noble_pedigree to chancellor — non-locked method
+    // (ADR-007), so +5 not +20. Only Aldric acts on segment 1 (no slander).
     const afterFirst = whisperTo(initial, 'chancellor', 'noble_pedigree');
-    // Player gained WHISPER_FAVOR_GAIN (20). Only Aldric acts on segment 1 (no slander).
-    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN);
+    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(5);
 
     // Move 2: whisper common_origins (opposes noble_pedigree) to chancellor
     const afterContradiction = whisperTo(afterFirst, 'chancellor', 'common_origins');
     const chancellor = afterContradiction.figures.find((f) => f.id === 'chancellor')!;
 
-    // Player favor did not increase on contradiction (stays at 20).
-    // Then Vivienne acts on segment 2, sees lead 20 >= 16, slanders (-10) = 10.
-    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN - RIVAL_SLANDER_PENALTY);
+    // Player favor did not increase on contradiction (stays at 5).
+    // Vivienne acts on segment 2, but 5 < 16 is under the slander
+    // threshold, so she whispers instead — favor stays at 5.
+    expect(chancellor.favor.player).toBe(5);
     expect(chancellor.exposedAgainst).toContain('player');
 
     const contradictionEntry = afterContradiction.ticker.find(
@@ -132,13 +132,15 @@ describe('gameOrchestration', () => {
     const initial = createInitialGameState();
     const next = appealTo(initial, 'archbishop');
 
+    // Appeal is not the archbishop's locked method (ADR-007): the
+    // guaranteed favor lands at the reduced non-locked rate (8 × 0.25 = 2).
     const archbishop = next.figures.find((f) => f.id === 'archbishop')!;
-    expect(archbishop.favor.player).toBe(APPEAL_FAVOR_GAIN);
+    expect(archbishop.favor.player).toBe(2);
 
     const playerEntry = next.ticker.find((t) => t.claimantId === 'player');
     expect(playerEntry?.moveType).toBe('appeal');
     expect(playerEntry?.figureId).toBe('archbishop');
-    expect(playerEntry?.favorGain).toBe(APPEAL_FAVOR_GAIN);
+    expect(playerEntry?.favorGain).toBe(2);
     expect(playerEntry?.exposed).toBeUndefined();
   });
 
@@ -180,14 +182,17 @@ describe('gameOrchestration', () => {
     const afterPresent = presentEvidenceTo(afterScout, 'chancellor', 'signet_proof');
     const chancellor = afterPresent.figures.find((f) => f.id === 'chancellor')!;
 
-    expect(chancellor.favor.player).toBe(EVIDENCE_FAVOR_GAIN - RIVAL_SLANDER_PENALTY); // 30 - 10 (Vivienne slanders on even segment)
+    // Evidence IS the chancellor's locked method (ADR-007): the 2×
+    // premium lifts the base 30 to 60, then Vivienne slanders on the
+    // even segment (-10) = 50.
+    expect(chancellor.favor.player).toBe(60 - RIVAL_SLANDER_PENALTY);
     expect(afterPresent.playerEvidence.length).toBe(0);
 
     const playerEntry = afterPresent.ticker.find(
       (t) => t.claimantId === 'player' && t.segment === 2
     );
     expect(playerEntry?.moveType).toBe('evidence');
-    expect(playerEntry?.favorGain).toBe(EVIDENCE_FAVOR_GAIN);
+    expect(playerEntry?.favorGain).toBe(60);
   });
 
   it('presentEvidenceTo_no_op_when_figure_mismatch', () => {
@@ -253,9 +258,10 @@ describe('gameOrchestration', () => {
 
   it('whisperTo_catches_cross_figure_contradiction', () => {
     const initial = createInitialGameState();
-    // Segment 1: Whisper noble_pedigree to chancellor -> +20 favor, records claim (no slander on odd segment)
+    // Segment 1: Whisper noble_pedigree to chancellor -> +5 favor at the
+    // non-locked rate (ADR-007), records claim (no slander on odd segment)
     const afterFirst = whisperTo(initial, 'chancellor', 'noble_pedigree');
-    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN);
+    expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(5);
     expect(afterFirst.figures.find((f) => f.id === 'chancellor')?.exposedAgainst).toEqual([]);
 
     // Segment 2: Whisper common_origins (opposing theme) to archbishop -> cross-figure contradiction
@@ -278,7 +284,9 @@ describe('gameOrchestration', () => {
     const afterSecond = whisperTo(afterFirst, 'chancellor', 'common_origins');
     const chancellor = afterSecond.figures.find((f) => f.id === 'chancellor')!;
 
-    expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN - RIVAL_SLANDER_PENALTY); // stays at first whisper favor (20), gain rejected, then Vivienne slanders (-10) = 10
+    // Stays at the first whisper's favor (5): gain rejected on
+    // contradiction; 5 < 16 so no slander from Vivienne.
+    expect(chancellor.favor.player).toBe(5);
     expect(chancellor.exposedAgainst).toContain('player');
   });
 
@@ -311,28 +319,30 @@ describe('gameOrchestration', () => {
 
   describe('Phase 10: Rival Counter-Play & Active Slander Orchestration', () => {
     it('slander reduces player favor by exactly RIVAL_SLANDER_PENALTY (10) and logs negative favorGain', () => {
-      // Segment 1 (odd): Aldric acts. Player whispers to chancellor (+20).
+      // Segment 1 (odd): Aldric acts. Player whispers to the archbishop —
+      // her locked method (ADR-007) pays the 2× premium (+40).
       const initial = createInitialGameState();
-      const afterSeg1 = whisperTo(initial, 'chancellor', 'noble_pedigree');
-      expect(afterSeg1.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(WHISPER_FAVOR_GAIN);
+      const afterSeg1 = whisperTo(initial, 'archbishop', 'divine_favor');
+      expect(afterSeg1.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(40);
 
-      // Segment 2 (even): Vivienne acts. Player appeals to chancellor (+8, total 28).
-      // Vivienne sees player lead 28 >= 16 → slanders chancellor (-10) = 18.
-      const afterSeg2 = appealTo(afterSeg1, 'chancellor');
+      // Segment 2 (even): Vivienne acts. Player appeals to the archbishop
+      // (+2 at the non-locked rate, total 42).
+      // Vivienne sees player lead 42 >= 16 → slanders archbishop (-10) = 32.
+      const afterSeg2 = appealTo(afterSeg1, 'archbishop');
 
       const slanderEntry = afterSeg2.ticker.find(
         (t) => t.moveType === 'slander' && t.segment === 2
       );
       expect(slanderEntry).toBeDefined();
       expect(slanderEntry?.claimantId).toBe('vivienne');
-      expect(slanderEntry?.figureId).toBe('chancellor');
+      expect(slanderEntry?.figureId).toBe('archbishop');
       expect(slanderEntry?.favorGain).toBe(-10);
 
-      const chancellor = afterSeg2.figures.find((f) => f.id === 'chancellor')!;
-      expect(chancellor.favor.player).toBe(WHISPER_FAVOR_GAIN + APPEAL_FAVOR_GAIN - 10); // 20 + 8 - 10 = 18
+      const archbishop = afterSeg2.figures.find((f) => f.id === 'archbishop')!;
+      expect(archbishop.favor.player).toBe(40 + 2 - RIVAL_SLANDER_PENALTY);
     });
 
-    it('formal appeal (+8) does not cross the slander threshold (16), rivals whisper instead', () => {
+    it('formal appeal at a non-favored figure (+2) does not cross the slander threshold (16), rivals whisper instead', () => {
       const initial = createInitialGameState();
       const next = appealTo(initial, 'chancellor');
 
@@ -344,8 +354,9 @@ describe('gameOrchestration', () => {
       expect(aldricEntry?.moveType).toBe('whisper');
       expect(aldricEntry?.favorGain).toBe(RIVAL_WHISPER_FAVOR_GAIN);
 
+      // Appeal is not the chancellor's locked method (ADR-007): +2 intact.
       const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-      expect(chancellor.favor.player).toBe(APPEAL_FAVOR_GAIN); // 8 intact
+      expect(chancellor.favor.player).toBe(2);
     });
   });
 

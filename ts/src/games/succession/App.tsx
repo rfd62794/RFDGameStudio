@@ -20,11 +20,18 @@ import { TurnInterlude } from './components/TurnInterlude';
 import { GossipTicker } from './components/GossipTicker';
 import { VerdictScreen } from './components/VerdictScreen';
 import { OnboardingTip } from './components/OnboardingTip';
+import CourtPrimer from './components/CourtPrimer';
 import { ONBOARDING_TIPS, OnboardingTipId } from './content/onboardingTips';
 import { determineTip } from './utils/onboardingTriggers';
+import { useOnboardingGate } from '../../ui/components/OnboardingGate';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 
 type View = 'title' | 'playing' | 'verdict';
 type PlayStage = 'chamber' | 'audience' | 'interlude';
+
+// localStorage key for the shared first-run primer gate — written once
+// when the primer is dismissed so it never re-fires on later visits.
+const PRIMER_SEEN_STORAGE_KEY = 'succession_tutorial_seen';
 
 export default function App({ session }: GameRendererProps) {
   void session; // destructured per contract; game is self-contained
@@ -42,6 +49,15 @@ export default function App({ session }: GameRendererProps) {
   const [chosenOriginId, setChosenOriginId] = useState<PlayerOriginId>('bastard_scion');
   const [activeTip, setActiveTip] = useState<OnboardingTipId | null>(null);
 
+  // First-run court primer: fires only when the game has never been
+  // completed-onboarded, via the shared OnboardingGate (boolean mode) —
+  // the same pattern as games/scrapcrawl and games/slither_rogue.
+  const [hasOnboarded, setHasOnboarded] = useState<boolean>(
+    () => loadSave<boolean>(PRIMER_SEEN_STORAGE_KEY) === true
+  );
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+
   const handleBegin = (originId: PlayerOriginId) => {
     setChosenOriginId(originId);
     setGameState(createInitialGameState(originId));
@@ -49,6 +65,13 @@ export default function App({ session }: GameRendererProps) {
     setPlayStage('chamber');
     setActiveTip(null);
     setView('playing');
+    if (!hasOnboarded) triggerPrimer();
+  };
+
+  const handlePrimerComplete = () => {
+    writeSave(PRIMER_SEEN_STORAGE_KEY, true);
+    setHasOnboarded(true);
+    completePrimer();
   };
 
   // Delegates to determineTip (utils/onboardingTriggers.ts) — the same
@@ -219,6 +242,8 @@ export default function App({ session }: GameRendererProps) {
         {activeTip && (
           <OnboardingTip tip={ONBOARDING_TIPS[activeTip]} onDismiss={() => setActiveTip(null)} />
         )}
+
+        {showPrimer && <CourtPrimer onComplete={handlePrimerComplete} />}
       </div>
     </GameShell>
   );

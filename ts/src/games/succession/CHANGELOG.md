@@ -1,5 +1,108 @@
 # Succession — CHANGELOG
 
+## 2026-09-29 — ADR-007: Figure-Locked Persuasion Methods + First-Run Court Primer
+
+Implements the design doc's own named "natural next phase" (v0.3, §
+"What This Unlocks"): the cast-building pass that assigns each
+councilor's locked persuasion method — the last open question in that
+section — plus the first-run tutorial the status board's Tutorial=N
+flag called for.
+
+### The lock
+
+Each councilor now uniquely favors one persuasion method, a thematic
+bijection (`data/courtFigures.ts` gains `lockedMethod` +
+`methodAffinity`):
+
+| Councilor | Locked method |
+|---|---|
+| Chancellor Vane | Archival Evidence |
+| Archbishop Valerius | Whispered Claims |
+| General Brand | Formal Appeal |
+
+New `engine/methodLock.ts` scales the base favor constants: the locked
+method pays **2× base**; every other method pays **¼ base, floored at
+1** — never zero, never disabled, per the design doc's locked "No
+Mathematical Dead End" safeguard. `PersuasionMethod`
+(whisper/appeal/evidence) joins `engine/types.ts` — Indictment is the
+inquiry resolution, not a persuasion method. All three player-facing
+favor moves in `gameOrchestration.ts` route through
+`persuasionMethodGain`; repeat decay still stacks on the result.
+Origin overrides compound with the lock — the Disgraced Knight's
+commander appeal pays 20 (10 × 2), his archbishop appeal pays 1
+(4 × 0.25, floored): a genuinely worse path, not a wall.
+
+### Why 2× — measured, not assumed
+
+With a flat locked value plus the ¼ off-rate, the harness produced
+**0/18 player wins** — rivals still earn 15 favor per segment, so every
+scripted strategy lost everywhere. At 1.5× the appeal-locked
+commander's own favored method still paid 12 < 15. At 2× every favored
+lane out-earns a rival whisper (whisper 40 / appeal 16 / evidence 60).
+The premium is load-bearing, exactly as the design doc's fallback knob
+predicted.
+
+### Harness — the named safeguard verified
+
+Added a 7th strategy, `LockedLanes` (7 × 3 = 21 runs): scout once for
+the chancellor's matching evidence, whisper the archbishop a safe
+theme, appeal the commander — paying the knight's archbishop-appeal
+gate cost first, exactly as a dossier-reading player would. Result:
+`LockedLanes` wins at least once for **every** origin, and a dedicated
+regression test (`method-aware play keeps every origin viable`) now
+fails the suite if a future rebalance re-breaks a lane. The six
+method-blind strategies were left unchanged — that they lose more now
+is the mechanic working: the dossier is supposed to matter.
+
+Rival AI is untouched — rivals have no method choice, so there is no
+lock to apply; contradiction risk stays symmetric (ADR-001).
+
+### Surface
+
+- `FigureCard` gains a "Respects: <method>" badge; `AudienceStage`
+  gains a "Respects" row and a "Favored Approach" dossier cell.
+- Every favor number the player sees now computes through
+  `persuasionMethodGain` — badges and buttons show real effective
+  values, labeled "Favored Approach" vs "Cool Reception".
+- Fixed a real stale-UI bug: the Appeal card hardcoded "+50% Knight
+  Perk / +12" — wrong since ADR-004 reduced it to +25%/+10.
+- ADR-005's first-use tip copy updated to real locked values.
+
+### First-run tutorial
+
+`components/CourtPrimer.tsx` — a single first-run card covering the
+five commitments new players get wrong (favored approaches,
+contradiction risk, scout-then-present, the murder triad, the verdict
+race). Wired the canonical way: `useOnboardingGate({ mode: 'boolean' })`
++ shared `loadSave`/`writeSave` under `succession_tutorial_seen`,
+triggered only from `handleBegin` when the flag is unset. ADR-005's
+contextual tips remain — the primer orients; the tips reinforce in
+context.
+
+### Tests
+
+- New `tests/test_succession_methodLock.ts` (10 tests): bijection,
+  exact premium/off-rate/floor values, strictly-strongest at every
+  figure, orchestration wiring, origin compounding, decay stacking,
+  rival unaffected.
+- New `tests/test_succession_courtPrimer.ts` (7 tests): structural
+  checks on real source — shared gate, shared persistence, once-ever
+  key, gated trigger, completion write, conditional render.
+- Updated: 16 assertions across gameOrchestration/origins/
+  zeroSumRipple suites moved to real effective values; two slander
+  tests re-anchored on the archbishop's locked whisper (a non-locked
+  +5 no longer crosses the 16-point slander threshold — an intended
+  consequence).
+- `test_succession_balance_sim.ts`: run counts 18→21 (7 strategies),
+  plus the new no-hopeless-lane bar.
+
+ADR written: `docs/adr/ADR-007-figure-locked-persuasion-methods.md`.
+Design doc bumped to v0.4 (assignment recorded, open question closed,
+changelog row added). `PATCH_NOTES_v0.3.0.md` published;
+`config.ts`'s `patchNotesPath` updated. StatusBoard/board.data.ts:
+Tutorial N→Shared (OnboardingGate consumed); Sound stays N — no
+`engine/shared/sfx/` module exists.
+
 ## 2026-08-22 — ADR-006: GameShell Adoption and Audience Progressive Disclosure
 
 Two independent, real presentation fixes, verified against real

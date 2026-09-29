@@ -61,7 +61,7 @@ no recent enough confirmation to state its current state.
 
 | Game | Status | Current State | Next Real Action | Menu | Tutorial | Visual | Sound | Last Updated |
 |---|---|---|---|---|---|---|---|---|
-| **Succession** | Active | Persuasion-sim redesign, mid-development. Local TitleScreen implementation. | — | N | N | 2026-08-15 | N | 2026-08-15 |
+| **Succession** | Active | Persuasion-sim, mid-development. ADR-007 landed figure-locked persuasion methods (Chancellor=evidence, Archbishop=whisper, Commander=appeal) plus a first-run CourtPrimer via shared OnboardingGate. | — | N | Shared | 2026-08-15 | N | 2026-09-29 |
 | **SlimeGarden** | Status Unconfirmed | Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). | Direct status check needed. | — | — | — | — | 2026-08-15 (research/inference) |
 | **Trinity Siege/Combat** | Status Unconfirmed | Bevy vs. egui architecture question left unresolved. | Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now. | — | — | — | — | 2026-08-15 (research/inference) |
 | **7 Days to Fry** | Status Unconfirmed | Imported alongside KingMaker Squads (now retired). No status since. | Direct status check needed. | — | — | — | — | 2026-08-15 (research/inference) |

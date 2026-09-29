@@ -1,5 +1,6 @@
 import { FigureId, ClaimantId, Claim, PlayerOriginId, IndictmentTriad } from '../engine/types';
 import { applyFavorGain, applyWhisper } from '../engine/favor';
+import { persuasionMethodGain } from '../engine/methodLock';
 import { chooseRivalMoves, chooseRivalWhisperTheme } from '../engine/rivalAI';
 import { resolveVerdict } from '../engine/verdict';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
@@ -149,9 +150,14 @@ export function whisperTo(state: GameState, figureId: FigureId, themeId: string)
   const figure = state.figures.find((f) => f.id === figureId)!;
   const claim: Claim = { figureId, themeId, segment: state.segment, claimantId: 'player' };
 
+  // Method lock (ADR-007): whisper is the locked method only at the
+  // archbishop; at the other two councilors it earns the reduced
+  // non-locked rate. Repeat decay then applies on the locked value.
+  const whisperGain = persuasionMethodGain(figureId, 'whisper', WHISPER_FAVOR_GAIN);
+
   // Direct, same-figure check — unchanged, existing function, existing tests.
   const { figure: figureAfterDirect, exposed: directExposed } =
-    applyWhisper(figure, 'player', claim, WHISPER_FAVOR_GAIN, CLAIM_THEMES);
+    applyWhisper(figure, 'player', claim, whisperGain, CLAIM_THEMES);
 
   // Cross-figure check against the full claim history (not yet including
   // this new claim — it hasn't been recorded yet).
@@ -208,7 +214,7 @@ export function whisperTo(state: GameState, figureId: FigureId, themeId: string)
     figureId,
     moveType: 'whisper',
     exposed,
-    favorGain: exposed ? 0 : WHISPER_FAVOR_GAIN,
+    favorGain: exposed ? 0 : whisperGain,
     ripple: rippleData,
   };
   const stateWithPlayer = { ...state, figures, allClaims, ticker: [...state.ticker, playerEntry] };
@@ -225,7 +231,15 @@ export function appealTo(state: GameState, figureId: FigureId): GameState {
   if (state.phase === 'verdict') return state;
 
   const appealModifiers = getOriginModifiers(state.playerOrigin);
-  const appealGain = appealModifiers.appealFavorGainOverride?.[figureId] ?? APPEAL_FAVOR_GAIN;
+  // Origin override first, then the figure's method lock (ADR-007) —
+  // both are multiplicative value adjustments on the same move, so the
+  // Disgraced Knight's Archbishop friction (4) compounds with the
+  // non-locked rate to a still-functional 1, never zero.
+  const appealGain = persuasionMethodGain(
+    figureId,
+    'appeal',
+    appealModifiers.appealFavorGainOverride?.[figureId] ?? APPEAL_FAVOR_GAIN
+  );
 
   const figures = state.figures.map((f) =>
     f.id === figureId ? applyFavorGain(f, 'player', appealGain) : f
@@ -251,8 +265,11 @@ export function presentEvidenceTo(state: GameState, figureId: FigureId, evidence
   if (state.phase === 'verdict') return state;
   const evidence = state.playerEvidence.find((e) => e.id === evidenceId);
   if (!evidence || evidence.relevantFigureId !== figureId) return state; // no-op on mismatch or not held
+  // Method lock (ADR-007): evidence is the locked method only at the
+  // chancellor; at the other two councilors it earns the reduced rate.
+  const evidenceGain = persuasionMethodGain(figureId, 'evidence', EVIDENCE_FAVOR_GAIN);
   let figures = state.figures.map((f) =>
-    f.id === figureId ? applyFavorGain(f, 'player', EVIDENCE_FAVOR_GAIN) : f
+    f.id === figureId ? applyFavorGain(f, 'player', evidenceGain) : f
   );
 
   // Zero-sum domain ripple friction for evidence presentation
@@ -287,7 +304,7 @@ export function presentEvidenceTo(state: GameState, figureId: FigureId, evidence
     claimantId: 'player',
     figureId,
     moveType: 'evidence',
-    favorGain: EVIDENCE_FAVOR_GAIN,
+    favorGain: evidenceGain,
     ripple: rippleData,
   };
   const stateWithPlayer = {

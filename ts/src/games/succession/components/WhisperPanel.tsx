@@ -11,7 +11,8 @@ import { FigureId, FigureState, Claim } from '../engine/types';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIM_THEMES } from '../data/claimThemes';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
-import { DOMAIN_RIPPLE_CONFLICTS } from '../data/gameConstants';
+import { isLockedMethod, persuasionMethodGain } from '../engine/methodLock';
+import { DOMAIN_RIPPLE_CONFLICTS, WHISPER_FAVOR_GAIN } from '../data/gameConstants';
 import { TickerEntry } from '../types/gameState';
 import { PlayerOriginId } from '../engine/types';
 
@@ -41,6 +42,10 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
   onToggle,
 }) => {
   const meta = COURT_FIGURES[figure.id];
+
+  // Real effective whisper value at this figure (ADR-007 method lock).
+  const whisperGain = persuasionMethodGain(figure.id, 'whisper', WHISPER_FAVOR_GAIN);
+  const isWhisperFavored = isLockedMethod(figure.id, 'whisper');
 
   const isArchbishopWhisperLocked =
     playerOrigin === 'disgraced_knight' &&
@@ -82,7 +87,7 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
 
         <div className="flex items-center gap-2.5 shrink-0">
           <span className="text-[11px] font-serif px-2.5 py-1 bg-amber-950/60 border border-amber-800/60 text-amber-300 rounded-lg font-medium">
-            High Sway (+20) | Zero-Sum Faction Friction (-4)
+            {isWhisperFavored ? 'Favored Approach' : 'Cool Reception'} (+{whisperGain}) | Zero-Sum Faction Friction (-4)
           </span>
           <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
         </div>
@@ -158,7 +163,7 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-[11px] text-stone-400">
-                        <span className="text-amber-400/90 font-serif">+20 Favor</span>
+                        <span className="text-amber-400/90 font-serif">+{whisperGain} Favor</span>
                         {opposingFigureMeta && (
                           <span className="text-stone-500 font-serif">
                             -4 {opposingFigureMeta.name.split(' ')[1]}
@@ -218,7 +223,7 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
               <span>
                 {isCurrentSelectionContradiction
                   ? `Commit Whisper: "${CLAIM_THEMES.find((t) => t.id === selectedThemeId)?.label}" (Face Exposure)`
-                  : `Commit Whisper: "${CLAIM_THEMES.find((t) => t.id === selectedThemeId)?.label}" (+20)`}
+                  : `Commit Whisper: "${CLAIM_THEMES.find((t) => t.id === selectedThemeId)?.label}" (+${whisperGain})`}
               </span>
             </button>
           </div>

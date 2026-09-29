@@ -240,6 +240,46 @@ const DiscreditHeavy: Strategy = (state, turnIndex) => {
   return { move: 'appeal', figureId: target };
 };
 
+// LockedLanes (ADR-007): the method-aware baseline — plays each
+// councilor's favored approach the way a player who reads the dossier
+// would. Scouts once for the chancellor's evidence, whispers the
+// archbishop, appeals the commander. This is the strategy that
+// verifies the design doc's "No Mathematical Dead End" rule: the
+// favored lane at every figure must out-earn a rival whisper (15).
+const LockedLanes: Strategy = (state, turnIndex) => {
+  const chanEvidence = hasMatchingEvidence(state, 'chancellor');
+  if (chanEvidence) {
+    return { move: 'evidence', figureId: 'chancellor', evidenceId: chanEvidence };
+  }
+  if (state.scoutedCount === 0) {
+    return { move: 'scout' };
+  }
+
+  // The Disgraced Knight's archbishop whispers stay gated behind one
+  // formal appeal — pay the +1 unlock cost once, like a real player.
+  const needsBishopAppeal =
+    state.playerOrigin === 'disgraced_knight' &&
+    !state.ticker.some(
+      (t) => t.claimantId === 'player' && t.figureId === 'archbishop' && t.moveType === 'appeal'
+    );
+  if (needsBishopAppeal) {
+    return { move: 'appeal', figureId: 'archbishop' };
+  }
+
+  // Alternate between the two reliable favored lanes left: the
+  // archbishop's whisper premium and the commander's appeal premium.
+  if (turnIndex % 2 === 0) {
+    const themes = CLAIM_THEMES.filter((t) => t.figureId === 'archbishop');
+    const safeTheme = themes.find(
+      (t) => !checkContradictionAgainstKnown(state.allClaims, t.id, CLAIM_THEMES)
+    );
+    if (safeTheme) {
+      return { move: 'whisper', figureId: 'archbishop', themeId: safeTheme.id };
+    }
+  }
+  return { move: 'appeal', figureId: 'commander' };
+};
+
 // ─── Simulation Loop ────────────────────────────────────────────────
 
 function applyMove(state: GameState, result: StrategyResult): GameState {
@@ -360,13 +400,14 @@ function runAll(): void {
     { name: 'ScoutThenEvidence', fn: ScoutThenEvidence },
     { name: 'WhisperHeavy', fn: WhisperHeavy },
     { name: 'DiscreditHeavy', fn: DiscreditHeavy },
+    { name: 'LockedLanes', fn: LockedLanes },
   ];
 
   const results: RunResult[] = [];
 
   console.log('═'.repeat(120));
   console.log('  SUCCESSION BALANCE SIMULATION — RAW FINDINGS');
-  console.log('  6 strategies × 3 origins = 18 runs');
+  console.log('  7 strategies × 3 origins = 21 runs');
   console.log('═'.repeat(120));
   console.log();
 
@@ -490,8 +531,8 @@ function runAll(): void {
   const runsWithExposure = results.filter((r) => r.exposureCount > 0).length;
   const totalRivalExposures = results.reduce((s, r) => s + r.rivalExposureCount, 0);
   const runsWithRivalExposure = results.filter((r) => r.rivalExposureCount > 0).length;
-  console.log(`    Player exposures: ${totalExposures} (runs with exposure: ${runsWithExposure}/18)`);
-  console.log(`    Rival exposures: ${totalRivalExposures} (runs with exposure: ${runsWithRivalExposure}/18)`);
+  console.log(`    Player exposures: ${totalExposures} (runs with exposure: ${runsWithExposure}/21)`);
+  console.log(`    Rival exposures: ${totalRivalExposures} (runs with exposure: ${runsWithRivalExposure}/21)`);
   console.log();
 
   // Dominance check

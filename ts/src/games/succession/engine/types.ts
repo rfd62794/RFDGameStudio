@@ -1,6 +1,10 @@
 export type FigureId = 'chancellor' | 'archbishop' | 'commander';
 export type ClaimantId = 'player' | 'aldric' | 'vivienne';
 export type MoveType = 'whisper' | 'appeal' | 'evidence' | 'scout' | 'slander' | 'indictment' | 'discredit';
+// The three favor-building persuasion approaches a councilor can value
+// (ADR-007). Indictment is the decisive inquiry resolution, not a
+// persuasion method; Scout and Discredit are support moves.
+export type PersuasionMethod = 'whisper' | 'appeal' | 'evidence';
 export type PlayerOriginId = 'bastard_scion' | 'disgraced_knight' | 'merchant_banker';
 
 export type ClueCategory = 'suspect' | 'method' | 'motive';
