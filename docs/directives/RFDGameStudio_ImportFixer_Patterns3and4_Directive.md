@@ -220,12 +220,14 @@ Target: X passing, 0 failing, 0 skipped, real count.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | claude |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-importfixer-pattern-8f08ab |
 | Base branch | - |
+| Base commit | 4f1db4508cfa28cce657ef7a5cf2f81e226d5ff5 |
 
 **Status log**
 - 2026-09-27 16:07 · agentflow-tick · none → Queued — suggested by heartbeat: Code and tests appear to be built already; claude checks the completion list (floor, live demos, greps) and marks Done
 - 2026-09-28 19:25 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 03:55 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-importfixer-pattern-8f08ab; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 <!-- queue:end -->
