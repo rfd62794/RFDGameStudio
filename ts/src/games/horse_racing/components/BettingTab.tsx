@@ -4,6 +4,7 @@ import type { CurrentRace, RaceParticipant, Bet, Horse } from '../types';
 import { call } from '../../../engine/runtime';
 import { SVGRacer } from './SVGRacer';
 import { Badge, Button } from '../../../ui/components';
+import { isBetWin } from '../utils/bets';
 
 interface Props {
   race: CurrentRace | null;
@@ -358,10 +359,7 @@ export default function BettingTab({ race, funds, horses, unlockedSlots, lastRac
               lastRaceBets.map((b, i) => {
                 const p = race.participants.find(x => x.horse.id === b.horse_id);
                 const finished = p?.final_rank;
-                const won =
-                  (b.type === 'Win' && finished === 1) ||
-                  (b.type === 'Place' && finished != null && finished <= 2) ||
-                  (b.type === 'Show' && finished != null && finished <= 3);
+                const won = isBetWin(b.type, finished);
                 return (
                   <div key={i} className="bet-row">
                     <span className="horse-name-short">{b.horse_name}</span>
