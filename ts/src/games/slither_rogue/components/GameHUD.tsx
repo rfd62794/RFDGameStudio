@@ -1,6 +1,6 @@
 import {
   Play, Pause, RotateCcw, Zap, Magnet, Shield, Maximize2,
-  Compass, Ghost, Sparkles, Flame, Clock
+  Compass, Ghost, Sparkles, Flame, Clock, Volume2, VolumeX
 } from 'lucide-react';
 
 interface GameHUDProps {
@@ -17,6 +17,8 @@ interface GameHUDProps {
   onReset: () => void;
   onReturnToMenu: () => void;
   activeEvolutions: Record<string, number>;
+  soundMuted: boolean;
+  onToggleMute: () => void;
 }
 
 interface MutationBadgeConfig {
@@ -48,6 +50,7 @@ export default function GameHUD({
   score, fruitsToNextEvolution, fruitsPerLevel, currentLength, peakLength,
   shieldCharges, evolutionsCount, timeLeft, isPaused,
   onTogglePause, onReset, onReturnToMenu, activeEvolutions,
+  soundMuted, onToggleMute,
 }: GameHUDProps) {
   const isTimeCritical = timeLeft <= 30;
   const earned = fruitsPerLevel - fruitsToNextEvolution;
@@ -109,6 +112,9 @@ export default function GameHUD({
             </button>
             <button onClick={onReset} className="sr-hud-btn" title="Restart">
               <RotateCcw className="sr-icon-sm" />
+            </button>
+            <button onClick={onToggleMute} className="sr-hud-btn" title={soundMuted ? 'Unmute Audio' : 'Mute Audio'}>
+              {soundMuted ? <VolumeX className="sr-icon-sm" /> : <Volume2 className="sr-icon-sm sr-color-emerald" />}
             </button>
             <button onClick={onReturnToMenu} className="sr-hud-btn sr-hud-btn--text">
               Menu

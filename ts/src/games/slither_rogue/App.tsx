@@ -2,17 +2,28 @@ import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { call } from '../../engine/runtime';
 import type { GameRendererProps } from '../../engine/types';
-import type { EvolutionCard } from './types';
+import type { EvolutionCard, HighScore } from './types';
 import { GameShell } from '../../components';
+import { useOnboardingGate } from '../../ui/components/OnboardingGate';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
+import { sound } from './utils/sound';
 import MainMenu from './components/MainMenu';
 import GameHUD from './components/GameHUD';
 import GameCanvas from './components/GameCanvas';
 import EvolutionModal from './components/EvolutionModal';
 import GameOverModal from './components/GameOverModal';
+import TutorialPrimer from './components/TutorialPrimer';
 import './styles.css';
 
+interface RunSettings {
+  controlType: 'mouse' | 'keyboard';
+  playerColor: string;
+  playerHeadColor: string;
+  gameDuration: number;
+}
+
 export default function App({ session }: GameRendererProps) {
-  const [screen, setScreen] = useState<'menu' | 'game' | 'gameover'>('menu');
+  const [screen, setScreen] = useState<'menu' | 'primer' | 'game' | 'gameover'>('menu');
 
   const [controlType, setControlType] = useState<'mouse' | 'keyboard'>('mouse');
   const [playerColor, setPlayerColor] = useState('#14b8a6');
@@ -34,18 +45,28 @@ export default function App({ session }: GameRendererProps) {
   const [showEvolutionModal, setShowEvolutionModal] = useState(false);
   const [evolutionPool, setEvolutionPool] = useState<EvolutionCard[]>([]);
   const [restartKey, setRestartKey] = useState(0);
+  const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
+  const [pendingSettings, setPendingSettings] = useState<RunSettings | null>(null);
+
+  // First-run field primer: fires only when the game has never been
+  // completed-onboarded AND no high scores exist yet, via the shared
+  // OnboardingGate (boolean mode).
+  const [hasOnboarded] = useState<boolean>(
+    () =>
+      loadSave<boolean>('sr_tutorial_seen') === true ||
+      (loadSave<HighScore[]>('sr_highscores') ?? []).length > 0
+  );
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
 
   const data = session.files.data as Record<string, unknown>;
   const evolutionCfg = (data['evolution'] as Record<string, unknown>) ?? {};
   const fruitsPerLevel = (evolutionCfg['fruits_per_level'] as number) ?? 3;
   const cardsOffered = (evolutionCfg['cards_offered'] as number) ?? 3;
 
-  const handleStartGame = (settings: {
-    controlType: 'mouse' | 'keyboard';
-    playerColor: string;
-    playerHeadColor: string;
-    gameDuration: number;
-  }) => {
+  const launchRun = (settings: RunSettings) => {
+    sound.unlock();
+    sound.playUiConfirm();
     setControlType(settings.controlType);
     setPlayerColor(settings.playerColor);
     setPlayerHeadColor(settings.playerHeadColor);
@@ -62,6 +83,28 @@ export default function App({ session }: GameRendererProps) {
     setScreen('game');
   };
 
+  const handleStartGame = (settings: RunSettings) => {
+    if (!hasOnboarded) {
+      setPendingSettings(settings);
+      triggerPrimer();
+      setScreen('primer');
+      return;
+    }
+    launchRun(settings);
+  };
+
+  const handlePrimerBegin = () => {
+    writeSave('sr_tutorial_seen', true);
+    completePrimer();
+    launchRun(pendingSettings ?? { controlType, playerColor, playerHeadColor, gameDuration });
+  };
+
+  const toggleSound = () => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    sound.setEnabled(!next);
+  };
+
   const triggerEvolutionChoice = () => {
     setIsPaused(true);
     const pool = call(session, 'select_evolution_pool', data['evolution_cards'], cardsOffered) as Array<Record<string, unknown>>;
@@ -74,6 +117,7 @@ export default function App({ session }: GameRendererProps) {
     }));
     setEvolutionPool(cards);
     setShowEvolutionModal(true);
+    sound.playEvolveOffer();
   };
 
   const handleFruitEaten = () => {
@@ -93,15 +137,19 @@ export default function App({ session }: GameRendererProps) {
     setLevel(prev => prev + 1);
     setShowEvolutionModal(false);
     setIsPaused(false);
+    sound.playEvolve();
   };
 
   const handleShieldConsumed = () => {
     setActiveEvolutions(prev => ({ ...prev, shield: Math.max(0, prev.shield - 1) }));
   };
 
-  const handleGameOver = () => setScreen('gameover');
+  const handleGameOver = () => {
+    sound.playGameOver();
+    setScreen('gameover');
+  };
 
-  const handleRestart = () => handleStartGame({ controlType, playerColor, playerHeadColor, gameDuration });
+  const handleRestart = () => launchRun({ controlType, playerColor, playerHeadColor, gameDuration });
 
   const handleGoHome = () => setScreen('menu');
 
@@ -126,6 +174,10 @@ export default function App({ session }: GameRendererProps) {
         <MainMenu session={session} onStartGame={handleStartGame} />
       )}
 
+      {screen === 'primer' && showPrimer && (
+        <TutorialPrimer onBegin={handlePrimerBegin} />
+      )}
+
       {screen === 'game' && (
         <div className="sr-game-wrap">
           <GameHUD
@@ -142,12 +194,15 @@ export default function App({ session }: GameRendererProps) {
             onReset={handleRestart}
             onReturnToMenu={handleGoHome}
             activeEvolutions={activeEvolutions}
+            soundMuted={soundMuted}
+            onToggleMute={toggleSound}
           />
 
           <GameCanvas
             key={restartKey}
             session={session}
             controlType={controlType}
+            gameDuration={gameDuration}
             isPaused={isPaused}
             activeEvolutions={activeEvolutions}
             onFruitEaten={handleFruitEaten}
