@@ -45,8 +45,11 @@ spec of record for what "done" looks like next.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
+
+**Status log**
+- 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
 <!-- queue:end -->
