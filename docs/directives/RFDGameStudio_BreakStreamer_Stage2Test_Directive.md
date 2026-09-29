@@ -161,12 +161,14 @@ review already found.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | claude |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-breakstreamer-stage-703864 |
 | Base branch | - |
+| Base commit | 3f7a4a1a7d411b07e66e0c5aea9de3549d6449c0 |
 
 **Status log**
 - 2026-09-23 01:16 · agentflow-tick · none → Queued — suggested by heartbeat: No queue status found; recommending claude due to local Downloads/.env dependency and verbatim-scope judgment calls unsuited to a Devin worktree dispatch.
 - 2026-09-28 19:25 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 19:21 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-breakstreamer-stage-703864; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 <!-- queue:end -->
