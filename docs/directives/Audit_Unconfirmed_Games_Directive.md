@@ -60,13 +60,15 @@ regenerate the board with `ts/tools/generate-status-board.ts` if it changed.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-audit-unconfirmed-games-directive |
 | Base branch | - |
 | Base commit | 1c5c53a873433981fee7ff6ac3f65d958e34e37b |
+| Head commit | db5cb513f83e3a6fa25b44829108d878efa2f1f3 |
 
 **Status log**
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 00:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-audit-unconfirmed-games-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-29 01:00 · devin-overseer (delegated) · In progress → Review — [origin] spent: devin 8 min est. n/a
 <!-- queue:end -->
