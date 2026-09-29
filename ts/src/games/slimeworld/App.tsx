@@ -8,6 +8,7 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import { Button, ErrorBox, MoreGamesByMe, TabBar } from '../../ui/components';
 import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
+import { sfx } from '../../engine/shared/sfx';
 import { LabTab } from './components/LabTab';
 import { TUTORIAL_IDS, TUTORIAL_CONTENT, shouldFireTutorial, markTutorialShown, prepopulateAllTutorials, getT1RegionsAwaitBody, getOpeningBeatText } from './tutorial';
 import { RosterTab } from './components/RosterTab';
@@ -226,6 +227,9 @@ export default function App({ session }: GameRendererProps) {
   const prevRegionUnlocksRef = useRef<Record<string, boolean> | undefined>(state.regionUnlocks);
   const t1FiredRef = useRef(false);
 
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   useEffect(() => { if (!selectedSlimeId && state.slimes[0]) setSelectedSlimeId(state.slimes[0].id); }, [selectedSlimeId, state.slimes]);
 
   // T-1: fires on first Hub view (fresh game only)
@@ -273,7 +277,7 @@ export default function App({ session }: GameRendererProps) {
     const colorSpecs = buildColorSpecs(data);
     const value = call(session, 'initiate_breeding', stateToLua(state), parentAId, parentBId, 0, data['color_targets'], activeTargetRegent, data['shape_targets'], null, colorSpecs, data['region_locks'], data['accent_targets'], data['regent_rewards']);
     const [raw, error] = luaResult(value);
-    if (!raw || error) { setWarning(error ?? 'Breeding failed.'); setIsBreedingHatching(false); return; }
+    if (!raw || error) { setWarning(error ?? 'Breeding failed.'); sfx.play('error'); setIsBreedingHatching(false); return; }
     const child = luaSlimeToTs(raw);
     const childRegionUnlocks = (raw['region_unlocks'] ?? []) as string[];
     const addedStrays = ((raw['added_strays'] ?? []) as Record<string, unknown>[]).map(luaSlimeToTs);
@@ -335,6 +339,7 @@ export default function App({ session }: GameRendererProps) {
       };
     });
     setParentAId(null); setParentBId(null); setIsBreedingHatching(false);
+    sfx.play('win');
   }, [activeTargetRegent, parentAId, parentBId, session, state]);
 
   const handleRecycleSlime = useCallback((id: string) => {
@@ -415,6 +420,7 @@ export default function App({ session }: GameRendererProps) {
     const fealtyAlerts = luaLogs.filter(l => l.type === 'system' && l.text.startsWith('FEALTY:'));
     if (strayAlerts.length > 0 || fealtyAlerts.length > 0) {
       setActiveAlerts(prev => [...prev, ...strayAlerts, ...fealtyAlerts]);
+      sfx.play('alert');
     }
   }, [session, state]);
   const handlePurchaseSeedSlime = useCallback((color: SlimeColor) => {
@@ -445,6 +451,7 @@ export default function App({ session }: GameRendererProps) {
         text: `RECRUITMENT: Dispensed starter specimen ${newSlime.name} (${color} Core).`, type: 'system' as LogEntry['type'],
       }].slice(-50),
     }));
+    sfx.play('coin');
   }, [session, state]);
   const handleBuyRegent = useCallback((_pattern: SlimePattern) => setWarning('Regent purchase has no Lua action.'), []);
   const handleBuyColorRegent = useCallback((_color: SlimeColor) => setWarning('Color Regent purchase has no Lua action.'), []);
@@ -452,8 +459,9 @@ export default function App({ session }: GameRendererProps) {
   const handleSellOnMarket = useCallback((slime: Slime) => {
     const data = session.files.data as Record<string, unknown>;
     const [credits, error] = call(session, 'sell_on_market', stateToLua(state), slime.id, data['market']) as [number | null, string | null];
-    if (error || credits === null) { setWarning(error ?? 'Market sale failed.'); return; }
+    if (error || credits === null) { setWarning(error ?? 'Market sale failed.'); sfx.play('error'); return; }
     setState(previous => ({ ...previous, credits: previous.credits + credits, slimes: previous.slimes.filter(s => s.id !== slime.id), recentMarketSales: [...(previous.recentMarketSales ?? []), { color: slime.color, cycle: previous.cycle }] }));
+    sfx.play('coin');
   }, [session, state]);
 
   const handleRenameSlime = useCallback((id: string, newName: string) => {
@@ -467,17 +475,19 @@ export default function App({ session }: GameRendererProps) {
 
   const handleDeliverContract = useCallback((contract: CorporateContract, slime: Slime) => {
     const [credits, error] = call(session, 'deliver_contract', stateToLua(state), contract.id, slime.id) as [number | null, string | null];
-    if (error || credits === null) { setWarning(error ?? 'Contract delivery failed.'); return; }
+    if (error || credits === null) { setWarning(error ?? 'Contract delivery failed.'); sfx.play('error'); return; }
     setState(previous => ({ ...previous, credits: previous.credits + credits, contracts: previous.contracts.filter(c => c.id !== contract.id), slimes: previous.slimes.filter(s => s.id !== slime.id) }));
+    sfx.play('coin');
   }, [session, state]);
 
-  const handleLaunchDispatch = useCallback(() => { if (!selectedZoneId) return; const [raw] = call(session, 'launch_dispatch', stateToLua(state), selectedZoneId, dispatchDraftIds); if (!raw) return; const r = raw as Record<string, unknown>; setState(previous => ({ ...previous, activeDispatch: { id: String(r['id']), zoneId: String(r['zone_id']), slimeIds: (r['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(r['cycles_remaining']), status: String(r['status']) as 'active' } })); }, [dispatchDraftIds, selectedZoneId, session, state]);
+  const handleLaunchDispatch = useCallback(() => { if (!selectedZoneId) return; const [raw] = call(session, 'launch_dispatch', stateToLua(state), selectedZoneId, dispatchDraftIds); if (!raw) return; sfx.play('whoosh'); const r = raw as Record<string, unknown>; setState(previous => ({ ...previous, activeDispatch: { id: String(r['id']), zoneId: String(r['zone_id']), slimeIds: (r['slime_ids'] as string[]) ?? [], cyclesRemaining: Number(r['cycles_remaining']), status: String(r['status']) as 'active' } })); }, [dispatchDraftIds, selectedZoneId, session, state]);
   const handleRetrieveCompletedPod = useCallback(() => { const value = call(session, 'retrieve_completed_dispatch', stateToLua(state)); const [raw, error] = luaResult(value); if (error || !raw) { setWarning(error ?? 'No completed dispatch.'); return; } setState(previous => ({ ...previous, activeDispatch: null })); }, [session, state]);
   const handleLaunchMediation = useCallback(() => {
     if (!selectedMediationNodeId) return;
     const data = session.files.data as Record<string, unknown>;
     const [raw, error] = call(session, 'launch_mediation', stateToLua(state), selectedMediationNodeId, mediationDraftIds, data['region_locks']) as [Record<string, unknown> | null, string | null];
-    if (error || !raw) { setWarning(error ?? 'Region is locked.'); return; }
+    if (error || !raw) { setWarning(error ?? 'Region is locked.'); sfx.play('error'); return; }
+    sfx.play('whoosh');
     const r = raw as Record<string, unknown>;
     setState(previous => ({
       ...previous,
@@ -490,7 +500,8 @@ export default function App({ session }: GameRendererProps) {
     if (!selectedExplorationNodeId || explorationDraftIds.length === 0) return;
     const data = session.files.data as Record<string, unknown>;
     const [raw, error] = call(session, 'launch_exploration', stateToLua(state), selectedExplorationNodeId, explorationDraftIds, data['region_locks']) as [Record<string, unknown> | null, string | null];
-    if (error || !raw) { setWarning(error ?? 'Region is locked.'); return; }
+    if (error || !raw) { setWarning(error ?? 'Region is locked.'); sfx.play('error'); return; }
+    sfx.play('whoosh');
     const r = raw as Record<string, unknown>;
     setState(previous => ({
       ...previous,
