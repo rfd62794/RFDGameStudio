@@ -1,15 +1,20 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameLoop, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
-import { MoreGamesByMe } from '../../ui/components';
+import { Badge, EndStateScreen, MoreGamesByMe, StatBar } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
+import { useOnboardingGate } from '../../ui/components/OnboardingGate';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
+import { sound } from './utils/sound';
 import BoardCanvas from './components/BoardCanvas';
 import ShopModal from './components/ShopModal';
 import PocketPicker from './components/PocketPicker';
+import CoinPrimer from './components/CoinPrimer';
 import './styles.css';
 
 function buildInitialState(session: unknown): SlimeCoinGameState {
@@ -57,10 +62,22 @@ export default function App({ session }: GameRendererProps) {
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [showTitle, setShowTitle] = useState(true);
+  const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
   
   const [renderState, setRenderState] = useState<SlimeCoinRenderState | null>(null);
   const [input, setInput] = useState<SlimeCoinInput>({ fire: false, side: 'right' });
   const [showPocketPicker, setShowPocketPicker] = useState(false);
+
+  // First-run pusher primer: fires only when the game has never been
+  // completed-onboarded, via the shared OnboardingGate (boolean mode).
+  const [hasOnboarded] = useState<boolean>(
+    () => loadSave<boolean>('slime_coin_tutorial_seen') === true
+  );
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+
+  const prevVatCountRef = useRef(0);
+  const prevPhaseRef = useRef<string>('playing');
   
   // Initialize game
   useEffect(() => {
@@ -83,6 +100,17 @@ export default function App({ session }: GameRendererProps) {
     const result = call('tick_game', dt, currentInput) as SlimeCoinRenderState;
     if (result) {
       setRenderState(result);
+
+      // Sound: vat collects and phase transitions
+      const vatCount = result.vat_coins?.length ?? prevVatCountRef.current;
+      if (vatCount > prevVatCountRef.current) {
+        sound.playCollect(result.combo_count ?? 0);
+      }
+      prevVatCountRef.current = vatCount;
+      if (result.phase !== prevPhaseRef.current) {
+        if (result.phase === 'card_select') sound.playCardOffer();
+        prevPhaseRef.current = result.phase;
+      }
 
       // Sync v0.3 fields into game state
       setState(prev => prev ? {
@@ -115,11 +143,15 @@ export default function App({ session }: GameRendererProps) {
         case 'ArrowLeft':
           e.preventDefault();
           // Left arrow fires from RIGHT shooter, coin travels LEFT
+          sound.unlock();
+          sound.playFire();
           setInput({ fire: true, side: 'left', pocket_coin_type: state.pocket_coin_type ?? undefined });
           break;
         case 'ArrowRight':
           e.preventDefault();
           // Right arrow fires from LEFT shooter, coin travels RIGHT
+          sound.unlock();
+          sound.playFire();
           setInput({ fire: true, side: 'right', pocket_coin_type: state.pocket_coin_type ?? undefined });
           break;
         case 'p':
@@ -138,19 +170,66 @@ export default function App({ session }: GameRendererProps) {
   
   const handleSelectCard = useCallback((cardId: string) => {
     call('select_card', cardId);
-    setState(prev => prev ? { ...prev, selected_card: cardId } : prev);
+    sound.playCardPick();
+    // Lua advances the round (or ends the run) inside select_card — pull the
+    // authoritative phase/round back so the tick loop resumes correctly.
+    const summary = call('get_state_summary') as {
+      phase: SlimeCoinGameState['phase'];
+      round?: number;
+      score?: number;
+      target_score?: number;
+      hand_in?: number;
+    } | null;
+    setState(prev => prev ? {
+      ...prev,
+      selected_card: cardId,
+      phase: summary?.phase ?? 'playing',
+      round: summary?.round ?? prev.round,
+      score: summary?.score ?? prev.score,
+      target_score: summary?.target_score ?? prev.target_score,
+      hand_in: summary?.hand_in ?? prev.hand_in,
+      offered_cards: [],
+    } : prev);
+    if (summary?.phase === 'run_end') {
+      sound.playRunEnd((summary?.score ?? 0) >= (summary?.target_score ?? 0));
+    }
+    prevPhaseRef.current = summary?.phase ?? 'playing';
   }, [call, setState]);
   
   const handleSelectPocketCoin = useCallback((coinType: string) => {
     setState(prev => prev ? { ...prev, pocket_coin_type: coinType } : prev);
     setShowPocketPicker(false);
+    sound.playUiConfirm();
   }, [setState]);
   
   const handleRestart = useCallback(() => {
     call('init_game', {});
+    prevVatCountRef.current = 0;
+    prevPhaseRef.current = 'playing';
     setState(buildInitialState(session));
     setRenderState(null);
+    sound.playUiConfirm();
   }, [call, session, setState]);
+
+  const handleNewGame = useCallback(() => {
+    sound.unlock();
+    sound.playUiConfirm();
+    if (!hasOnboarded) triggerPrimer();
+    setShowTitle(false);
+  }, [hasOnboarded, triggerPrimer]);
+
+  const handlePrimerBegin = useCallback(() => {
+    writeSave('slime_coin_tutorial_seen', true);
+    sound.unlock();
+    sound.playUiConfirm();
+    completePrimer();
+  }, [completePrimer]);
+
+  const toggleSound = useCallback(() => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    sound.setEnabled(!next);
+  }, [soundMuted]);
   
   if (showTitle) {
     return (
@@ -174,7 +253,7 @@ export default function App({ session }: GameRendererProps) {
           tagline="Real-time coin pusher"
           pitch="Real-time coin pusher with shooter, two-layer board, and chip synergies."
           menuItems={[
-            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
           ]}
         />
       </GameShell>
@@ -209,23 +288,53 @@ export default function App({ session }: GameRendererProps) {
       gameId="slime_coin"
       statusArea={
         <div className="sc-header">
-          <span className="sc-round">Round {state.round}/{state.total_rounds}</span>
-          <span className="sc-score">{state.score} / {state.target_score}</span>
-          <span className="sc-rate">×{state.score_rate.toFixed(1)}</span>
-          <span className="sc-hand">Hand: {state.hand_in}</span>
-          <span className="sc-tokens">🟢 {state.tokens}</span>
+          <Badge label={`Round ${state.round}/${state.total_rounds}`} variant="accent" />
+          <div className="sc-score-track" title="Score toward this round's target">
+            <StatBar
+              label={`Score ${state.score}/${state.target_score}`}
+              value={state.score}
+              max={state.target_score}
+              color="var(--green)"
+              showValue={false}
+            />
+          </div>
+          <Badge
+            label={`Rate ×${state.score_rate.toFixed(1)}`}
+            variant={state.score_rate > 1 ? 'amber' : 'muted'}
+          />
+          <Badge
+            label={`Hand ${state.hand_in}`}
+            variant={state.hand_in === 0 ? 'red' : 'green'}
+          />
+          <Badge label={`Tokens ${state.tokens}`} variant="green" />
+          <button
+            type="button"
+            className="sc-mute-btn"
+            onClick={toggleSound}
+            title={soundMuted ? 'Unmute Audio' : 'Mute Audio'}
+            aria-label={soundMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {soundMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
         </div>
       }
       footer={
-        <MoreGamesByMe
-          mode={mode}
-          currentGameId="slime_coin"
-          games={STANDALONE_BUILD_GAMES}
-          onSelectGame={navigateTo}
-          arcadeBaseUrl={arcadeBaseUrl}
-        />
+        <>
+          <div className="sc-footer">
+            <span>← fire left · → fire right · P pocket coins</span>
+          </div>
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="slime_coin"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        </>
       }
     >
+      {showPrimer && <CoinPrimer onBegin={handlePrimerBegin} />}
+
       <div className="sc-main">
         <BoardCanvas
           renderState={renderState}
@@ -239,6 +348,7 @@ export default function App({ session }: GameRendererProps) {
             onClick={() => {
               const result = call('exchange') as { tokens: number; hand_in: number } | null;
               if (result) {
+                sound.playExchange();
                 setState(prev => prev ? {
                   ...prev,
                   tokens: result.tokens,
@@ -263,6 +373,7 @@ export default function App({ session }: GameRendererProps) {
           onPurchase={(itemId) => {
             const result = call('shop_purchase', itemId) as { tokens: number } | null;
             if (result) {
+              sound.playExchange();
               setState(prev => prev ? { ...prev, tokens: result.tokens } : prev);
             }
           }}
@@ -278,16 +389,27 @@ export default function App({ session }: GameRendererProps) {
       )}
       
       {state.phase === 'run_end' && (
-        <div className="sc-run-end">
-          <h2>Run Complete</h2>
-          <p>Final Score: {state.score}</p>
-          <button onClick={handleRestart}>New Run</button>
+        <div className="sc-modal-overlay">
+          <EndStateScreen
+            won={state.score >= state.target_score}
+            headline={state.score >= state.target_score ? 'Vat Overflowing' : 'Run Complete'}
+            flavorLine={
+              state.score >= state.target_score
+                ? 'The pusher paid out — final target cleared.'
+                : 'The shelf went quiet before the final target fell.'
+            }
+            stats={[
+              { label: 'Final Score', value: state.score },
+              { label: 'Final Target', value: state.target_score },
+              { label: 'Rounds', value: state.total_rounds },
+              { label: 'Tokens Banked', value: state.tokens },
+              { label: 'Chips Owned', value: state.owned_chips.length },
+            ]}
+            onRestart={handleRestart}
+            restartLabel="New Run"
+          />
         </div>
       )}
-      
-      <div className="sc-footer">
-        <span>← Right shooter fires left | → Left shooter fires right | P: Pocket Coins</span>
-      </div>
     </GameShell>
   );
 }
