@@ -72,11 +72,10 @@ export const STATUS_BOARD: ProjectEntry[] = [
 
   // --- Separate Infrastructure ---
   {
-    id: 'voiddrift', name: 'VoidDrift', category: 'separate_infrastructure', status: 'status_unconfirmed',
-    currentState: 'Rust/Bevy/Android. Act 1 of a locked 3-game narrative trilogy (VoidDrift -> Dissonance Depths -> SlimeWorld).',
-    nextAction: 'Verify whether the previously-flagged OpeningCompleteEvent blocking bug is still open.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
-    capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '—', soundEffects: 'N' },
+    id: 'voiddrift', name: 'VoidDrift', category: 'separate_infrastructure', status: 'shipped_mature',
+    currentState: 'Rust/Bevy/Android + WASM. Phase 4a complete, live on itch.io — opening cinematic live, OpeningCompleteEvent wired via Phase 3b event bus (bug closed). cargo test 48/48 green (re-verified 2026-09-29). Act 1 of a locked 3-game narrative trilogy (VoidDrift -> Dissonance Depths -> SlimeWorld).',
+    lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
+    capabilities: { mainMenu: 'Y', tutorial: 'Y', graphicalUpgrade: '2026-05-17', soundEffects: 'N' },
   },
   {
     id: 'voiddrift_redux', name: 'VoidDrift Redux (web)', category: 'separate_infrastructure', status: 'active',
@@ -112,10 +111,9 @@ export const STATUS_BOARD: ProjectEntry[] = [
     capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '2026-08-15', soundEffects: 'N' },
   },
   {
-    id: 'slimegarden', name: 'SlimeGarden', category: 'ai_studio_track', status: 'status_unconfirmed',
-    currentState: 'Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree).',
-    nextAction: 'Direct status check needed.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
+    id: 'slimegarden', name: 'SlimeGarden', category: 'retired', status: 'retired',
+    currentState: 'Origin project per ADR-023 — merged with SlimeBreeder into the live SlimeWorld. Source preserved in examples/slimegarden; 22/48 exports recovered into SlimeWorld per the July recovery manifest.',
+    supersededBy: 'SlimeWorld', lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
   },
   {
     id: 'trinity_siege', name: 'Trinity Siege/Combat', category: 'ai_studio_track', status: 'status_unconfirmed',
@@ -124,16 +122,18 @@ export const STATUS_BOARD: ProjectEntry[] = [
     lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
   },
   {
-    id: '7_days_to_fry', name: '7 Days to Fry', category: 'ai_studio_track', status: 'status_unconfirmed',
-    currentState: 'Imported alongside KingMaker Squads (now retired). No status since.',
-    nextAction: 'Direct status check needed.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
+    id: '7_days_to_fry', name: '7 Days to Fry', category: 'ai_studio_track', status: 'shipped_mature',
+    currentState: 'Complete cooking-survival sim (7-day arc, win/lose). Registered in GAME_REGISTRY as an external demo and in website_collection. Own state doc (Aug 2026) reports 241/241 vitest floor — self-reported, not re-runnable in-repo.',
+    nextAction: 'Promotion decision if revived — TS-native port or permanent external status; wire its own test suite into a runner the studio executes.',
+    lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
+    capabilities: { mainMenu: 'Y', tutorial: 'N', graphicalUpgrade: '2026-08-30', soundEffects: 'N' },
   },
   {
-    id: 'turboshells', name: 'TurboShells', category: 'ai_studio_track', status: 'status_unconfirmed',
-    currentState: 'Named as a genuine cross-language-origin Lua exception (with VoidDrift). No recent confirmation.',
-    nextAction: 'Direct status check needed.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
+    id: 'turboshells', name: 'TurboShells', category: 'separate_infrastructure', status: 'blocked',
+    currentState: 'Python/pygame legacy project (turtle breeding + racing). No game code in this repo — only the Feb 2026 audit doc (archive/rpgCore TURBOSHELLS_AUDIT_REPORT) and archived rpgCore racing/genetics modules adapted from it. The Lua carve-out protecting its port was retired by ADR-013 after the port lapsed.',
+    nextAction: 'Robert decides the completion path per ADR-013 — TS-native rebuild or drop — and the legacy source repo location needs confirming before any revive.',
+    lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
+    capabilities: { mainMenu: '—', tutorial: '—', graphicalUpgrade: '—', soundEffects: '—' },
   },
 
   // --- Retired ---
