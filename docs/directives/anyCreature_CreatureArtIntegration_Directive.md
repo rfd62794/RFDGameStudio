@@ -218,12 +218,14 @@ separately.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | claude |
-| Branch | - |
+| Branch | directive/rfdgamestudio-anycreature-creatureartintegratio-dce71e |
 | Base branch | - |
+| Base commit | 70dc9149da068258e55f791081bb8657eaadcea0 |
 
 **Status log**
 - 2026-09-27 16:08 · agentflow-tick · none → Queued — suggested by heartbeat: Needs ForkValidate done first (fork and wolf images not on disk); fix hero.mjs -> deliver.py references before dispatch
 - 2026-09-28 19:26 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 00:18 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-anycreature-creatureartintegratio-dce71e; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 <!-- queue:end -->
