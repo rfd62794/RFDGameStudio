@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 
 from studio_mcp.game_metadata import (
-    GAME_PATHS,
+    game_paths,
     PIPELINE_STAGE_AI_STUDIO,
     PIPELINE_STAGE_ITCH_PUBLISHED,
     PIPELINE_STAGE_WEBSITE_COLLECTION,
@@ -22,6 +22,8 @@ from studio_mcp.game_metadata import (
     _git_dates,
     _load_existing_curated_fields,
 )
+
+GAME_PATHS = game_paths()
 
 
 def test_pipeline_stage_defaults_to_ai_studio() -> None:
