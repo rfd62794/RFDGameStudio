@@ -57,11 +57,13 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-slither-rogue-chrome-directive |
 | Base branch | - |
+| Base commit | ebf4e7c01cddd2552641447e38c0f3105b46c1af |
 
 **Status log**
 - 2026-09-28 21:55 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 04:50 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-slither-rogue-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
