@@ -10,15 +10,22 @@
 import React, { useState } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
-import { GameProvider, useGame } from './context/GameContext';
+import { GameProvider, useGame, STORAGE_KEY } from './context/GameContext';
 import { RosterView } from './components/RosterView';
 import { ShopView } from './components/ShopView';
 import { MedbayView } from './components/MedbayView';
 import { LadderView } from './components/LadderView';
 import { ArenaCombatView } from './components/ArenaCombatView';
 import { BalanceReportView } from './components/BalanceReportView';
+import { ManagerPrimer } from './components/ManagerPrimer';
 import { ARENA_TIERS } from './simulation/championLadder';
 import { sound } from './utils/soundEffects';
+import { TitleScreen } from '../../ui/components/TitleScreen';
+import { useOnboardingGate } from '../../ui/components/OnboardingGate';
+import { MoreGamesByMe } from '../../ui/components';
+import { STANDALONE_BUILD_GAMES } from '../registry';
+import { navigateTo } from '../../arcade/routing';
+import { loadSave } from '../../engine/shared/persistence';
 import {
   ShoppingBag,
   HeartPulse,
@@ -29,7 +36,8 @@ import {
   VolumeX,
   RotateCcw,
   Swords,
-  Activity
+  Activity,
+  ScrollText
 } from 'lucide-react';
 
 type ArenaTab = 'roster' | 'forge' | 'medbay' | 'ladder' | 'balance';
@@ -43,6 +51,14 @@ const GladiatorArenaApp: React.FC = () => {
   const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
+  // Title menu: shown at launch to orient the manager (stable, funds,
+  // record) before the first match. First-run primer is gated to a
+  // genuinely new stable via the shared OnboardingGate (boolean mode).
+  const [hasSave] = useState<boolean>(() => loadSave<Record<string, unknown>>(STORAGE_KEY) !== null);
+  const [showTitleScreen, setShowTitleScreen] = useState<boolean>(true);
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+
   const currentTier = ARENA_TIERS.find(t => t.id === currentTierId) || ARENA_TIERS[0];
 
   const toggleSound = () => {
@@ -51,10 +67,104 @@ const GladiatorArenaApp: React.FC = () => {
     sound.setEnabled(!next);
   };
 
+  const handleEnterArena = () => {
+    setShowTitleScreen(false);
+    if (!hasSave) triggerPrimer();
+  };
+
+  const handleShowPrimer = () => {
+    setShowTitleScreen(false);
+    triggerPrimer();
+  };
+
   const tabCls = (tab: ArenaTab, activeCls: string, idleCls: string) =>
     `flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
       currentTab === tab ? activeCls : idleCls
     }`;
+
+  if (showTitleScreen) {
+    return (
+      <GameShell
+        gameLabel="Gladiator Arena"
+        gameId="gladiator_arena"
+        phase="v1.0"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        className="bg-stone-950 text-stone-100 font-sans selection:bg-amber-500 selection:text-stone-950"
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="gladiator_arena"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <TitleScreen
+          title="Gladiator Arena"
+          tagline="Manager-driven arena combat"
+          pitch="Recruit Frames, bolt anatomy on in The Forge, and field them on the champion ladder. Bouts are turn-based and auto-resolved — you never swing the sword, you decide what it's attached to."
+          quote="You don't swing the sword. You decide what it's attached to."
+          menuItems={[
+            {
+              id: 'ga-enter-arena',
+              label: hasSave ? 'Return to the Stable' : 'Enter the Arena',
+              icon: <Swords className="w-4 h-4" />,
+              variant: 'primary',
+              onClick: handleEnterArena,
+            },
+            {
+              id: 'ga-primer',
+              label: "Manager's Primer",
+              icon: <ScrollText className="w-4 h-4" />,
+              variant: 'secondary',
+              onClick: handleShowPrimer,
+            },
+          ]}
+        >
+          <div className="flex items-center justify-center gap-2 flex-wrap font-mono text-xs text-stone-300">
+            <span className="px-2.5 py-1 rounded-lg bg-stone-950/80 border border-stone-800 flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-amber-400" />
+              {roster.length} Frame{roster.length === 1 ? '' : 's'}
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-stone-950/80 border border-stone-800 flex items-center gap-1.5">
+              <Coins className="w-3.5 h-3.5 text-amber-400" />
+              {gold}g
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-stone-950/80 border border-stone-800 flex items-center gap-1.5">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              {currentTier.name} • {wins}W-{losses}L
+            </span>
+          </div>
+        </TitleScreen>
+      </GameShell>
+    );
+  }
+
+  if (showPrimer) {
+    return (
+      <GameShell
+        gameLabel="Gladiator Arena"
+        gameId="gladiator_arena"
+        phase="v1.0"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        className="bg-stone-950 text-stone-100 font-sans selection:bg-amber-500 selection:text-stone-950"
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="gladiator_arena"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <ManagerPrimer onComplete={completePrimer} />
+      </GameShell>
+    );
+  }
 
   return (
     <>
@@ -176,6 +286,15 @@ const GladiatorArenaApp: React.FC = () => {
               <span className="font-mono text-stone-600">
                 "You don't swing the sword. You decide what it's attached to."
               </span>
+            </div>
+            <div className="max-w-7xl mx-auto mt-3">
+              <MoreGamesByMe
+                mode={mode}
+                currentGameId="gladiator_arena"
+                games={STANDALONE_BUILD_GAMES}
+                onSelectGame={navigateTo}
+                arcadeBaseUrl={arcadeBaseUrl}
+              />
             </div>
           </div>
         }
