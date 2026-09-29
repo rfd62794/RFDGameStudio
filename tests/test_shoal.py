@@ -179,6 +179,7 @@ def test_fish_escape_chance_scales_with_speed() -> None:
     """A fast fish should survive contact more often than a stationary one."""
     session = load_game("shoal", seed=42)
     data = session.files.data
+    data["spawn"]["seed"] = 42
     trials = 60
 
     slow_survives = sum(1 for i in range(trials) if _run_contact_trial(session, data, 0, seed=42 + i))
