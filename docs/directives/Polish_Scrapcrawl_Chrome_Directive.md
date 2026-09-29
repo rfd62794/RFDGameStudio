@@ -49,7 +49,7 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-scrapcrawl-chrome-directive |
 | Base branch | - |
@@ -60,4 +60,5 @@ or be clearly likely (a second live game wanting it now counts).
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 07:54 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-scrapcrawl-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 08:11 · devin · In progress → Review — [origin] spent: devin 17 min est. n/a
+- 2026-09-29 08:15 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
