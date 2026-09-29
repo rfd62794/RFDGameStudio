@@ -50,7 +50,7 @@ requires touching their seams (say so in the report if it does).
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c |
 | Base branch | - |
@@ -60,4 +60,5 @@ requires touching their seams (say so in the report if it does).
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 05:51 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 06:16 · devin-overseer (delegated) · In progress → Blocked — Run died at ~25min on a rejected tool call (non-interactive refusal) during doc exploration — zero commits, nothing pushed, nothing to salvage.
+- 2026-09-29 06:16 · devin-overseer (delegated) · Blocked → Queued — Requeue once after refusal-death (no output produced; first refusal for this directive). Second same-cause death goes Blocked pending the death-classifier fix.
 <!-- queue:end -->
