@@ -57,11 +57,13 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-shoal-chrome-directive |
 | Base branch | - |
+| Base commit | 59772166ef4487558859f5ab9c355c65ab461883 |
 
 **Status log**
 - 2026-09-28 21:55 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 18:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-shoal-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
