@@ -6,7 +6,6 @@ import {
   getShapeTier,
   snapToShapeName,
   slimeValueVariance,
-  MARKET_DEFAULTS,
 } from '../src/games/slimeworld/gameLogic';
 import type { Slime } from '../src/games/slimeworld/types';
 
