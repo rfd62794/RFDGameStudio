@@ -50,7 +50,7 @@ interface GameContextType {
   resetGame: () => void;
 }
 
-const STORAGE_KEY = 'gladiator_arena_save_v1.0';
+export const STORAGE_KEY = 'gladiator_arena_save_v1.0';
 
 interface PersistedGameState {
   gold?: number;
