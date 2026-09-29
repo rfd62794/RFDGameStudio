@@ -1,0 +1,273 @@
+{
+  "generatedAt": "2026-09-21T01:03:03.148Z",
+  "games": [
+    {
+      "gameId": "dissonance",
+      "label": "Dissonance Depths",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "slimeworld",
+      "label": "SlimeWorld",
+      "status": "stable",
+      "hasComponent": true,
+      "source": {
+        "kind": "example",
+        "slug": "slimeworld"
+      }
+    },
+    {
+      "gameId": "shoal",
+      "label": "Shoal",
+      "status": "stable",
+      "hasComponent": true
+    },
+    {
+      "gameId": "voiddrift",
+      "label": "VoidRift",
+      "status": "external",
+      "embedUrl": "https://itch.io/embed-upload/17482080?color=333333",
+      "hasComponent": false
+    },
+    {
+      "gameId": "horse_racing",
+      "label": "Derby Sim",
+      "status": "stable",
+      "hasComponent": true
+    },
+    {
+      "gameId": "slither_rogue",
+      "label": "Snake Roguelike",
+      "status": "beta",
+      "hasComponent": true
+    },
+    {
+      "gameId": "mutant_battle_ball",
+      "label": "Mutant Battle Ball",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "slime_coin",
+      "label": "SlimeCoin",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "chimera_wilds",
+      "label": "Chimera Wilds",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "scrapcrawl",
+      "label": "ScrapCrawl",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "wire_rust",
+      "label": "Wire & Rust",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "choke_point",
+      "label": "Choke Point",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "filipino_bpo_simulator",
+      "label": "Call Center Tycoon",
+      "status": "dev",
+      "embedUrl": "/arcade/filipino_bpo_simulator/",
+      "hasComponent": false
+    },
+    {
+      "gameId": "ledger",
+      "label": "Ledger",
+      "status": "external",
+      "embedUrl": "/arcade/ledger/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "ledger"
+      }
+    },
+    {
+      "gameId": "trinity_siege",
+      "label": "Trinity Siege",
+      "status": "external",
+      "embedUrl": "/arcade/trinity_siege/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "trinity-siege"
+      }
+    },
+    {
+      "gameId": "7_days_to_fry",
+      "label": "7 Days To Fry",
+      "status": "external",
+      "embedUrl": "/arcade/7_days_to_fry/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "7-days-to-fry"
+      }
+    },
+    {
+      "gameId": "antsim_redux",
+      "label": "AntSim Redux",
+      "status": "external",
+      "embedUrl": "/arcade/antsim_redux/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "antsim-redux"
+      }
+    },
+    {
+      "gameId": "facility_escape",
+      "label": "Facility Escape",
+      "status": "external",
+      "embedUrl": "/arcade/facility_escape/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "facility-escape"
+      }
+    },
+    {
+      "gameId": "systemic_extract",
+      "label": "Systemic Extract",
+      "status": "external",
+      "embedUrl": "/arcade/systemic_extract/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "systemic-extract"
+      }
+    },
+    {
+      "gameId": "factory_idle",
+      "label": "Factory Idle: Precision Armory",
+      "status": "external",
+      "embedUrl": "/arcade/factory_idle/",
+      "hasComponent": false
+    },
+    {
+      "gameId": "planetofgreed",
+      "label": "Planet of Greed",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "planetforge",
+      "label": "PlanetForge",
+      "status": "external",
+      "embedUrl": "/arcade/planetforge/",
+      "hasComponent": false
+    },
+    {
+      "gameId": "gladiator_arena",
+      "label": "Gladiator Arena",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "voiddrift_redux",
+      "label": "VoidDrift Redux",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "succession",
+      "label": "Succession",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "house_of_kings_collab",
+      "label": "House of Kings: Collab",
+      "status": "dev",
+      "hasComponent": true
+    },
+    {
+      "gameId": "character_viewer",
+      "label": "Character Viewer",
+      "status": "tool",
+      "hasComponent": true
+    },
+    {
+      "gameId": "technique_showcase",
+      "label": "Technique Showcase",
+      "status": "tool",
+      "hasComponent": true
+    },
+    {
+      "gameId": "role_symbol_viewer",
+      "label": "Role Symbol Viewer",
+      "status": "tool",
+      "hasComponent": true
+    },
+    {
+      "gameId": "dissonance_prototype",
+      "label": "Dissonance Loop Prototype",
+      "status": "external",
+      "embedUrl": "/arcade/dissonance_prototype/",
+      "hasComponent": false,
+      "supersededBy": "dissonance"
+    },
+    {
+      "gameId": "slimegarden",
+      "label": "Slimegarden",
+      "status": "external",
+      "embedUrl": "/arcade/slimegarden/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "slimegarden"
+      },
+      "supersededBy": "slimeworld"
+    },
+    {
+      "gameId": "slimebreeder",
+      "label": "SlimeBreeder",
+      "status": "external",
+      "embedUrl": "/arcade/slimebreeder/",
+      "hasComponent": false,
+      "source": {
+        "kind": "sibling",
+        "repo": "SlimeBreeder"
+      },
+      "supersededBy": "slimeworld"
+    },
+    {
+      "gameId": "corpworld",
+      "label": "CorpWorld",
+      "status": "external",
+      "embedUrl": "/arcade/corpworld/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "corpworld"
+      },
+      "supersededBy": "planetofgreed"
+    },
+    {
+      "gameId": "kingmaker_squads",
+      "label": "Kingmaker Squads",
+      "status": "external",
+      "embedUrl": "/arcade/kingmaker_squads/",
+      "hasComponent": false,
+      "source": {
+        "kind": "example",
+        "slug": "kingmaker-squads"
+      },
+      "supersededBy": "planetofgreed"
+    }
+  ]
+}
