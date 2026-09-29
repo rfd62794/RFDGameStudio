@@ -67,11 +67,13 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-shared-sfx-directive |
 | Base branch | - |
+| Base commit | ef48cebbce7744b36ff071e1378e5459a8e964e9 |
 
 **Status log**
 - 2026-09-28 21:55 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 18:33 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-shared-sfx-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
