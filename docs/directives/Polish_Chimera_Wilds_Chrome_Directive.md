@@ -52,11 +52,13 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-chimera-wilds-chrome-directive |
 | Base branch | - |
+| Base commit | 96f04a7bb9c580200d6aa05f17ac7b1cb3da9d9d |
 
 **Status log**
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-28 23:27 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-chimera-wilds-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
