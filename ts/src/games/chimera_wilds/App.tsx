@@ -1,16 +1,20 @@
 import { useCallback, useState } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
 import { navigateTo } from '../../arcade/routing';
-import { MoreGamesByMe } from '../../ui/components';
+import { MoreGamesByMe, Modal, StatBar, useOnboardingGate } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { PaperDoll } from '../../engine/paperDoll';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
+import { sound } from './utils/sound';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Part, Chimera, EncounterResult, ChimeraWildsGameState } from './types';
 import './styles.css';
 
 const SLOTS = ['head', 'chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'];
+const TUTORIAL_SEEN_KEY = 'chimera_wilds_tutorial_seen';
 
 function buildInitialState(session: GameSession): ChimeraWildsGameState {
   const baseline = (session.files.data['baseline_player'] as { power: number; endurance: number })
@@ -42,6 +46,28 @@ export default function App({ session }: GameRendererProps) {
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [showTitle, setShowTitle] = useState(true);
+  const { shouldShow: showTutorial, handleComplete: completeTutorial, trigger: triggerTutorial } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+  const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
+
+  const handleNewGame = useCallback(() => {
+    setShowTitle(false);
+    if (!loadSave<boolean>(TUTORIAL_SEEN_KEY)) {
+      triggerTutorial();
+    }
+  }, [triggerTutorial]);
+
+  const handleDismissTutorial = useCallback(() => {
+    writeSave(TUTORIAL_SEEN_KEY, true);
+    completeTutorial();
+  }, [completeTutorial]);
+
+  const toggleSound = useCallback(() => {
+    setSoundMuted(prev => {
+      sound.setEnabled(prev);
+      return !prev;
+    });
+  }, []);
 
   const handleEncounter = useCallback(() => {
     if (!state) return;
@@ -52,6 +78,7 @@ export default function App({ session }: GameRendererProps) {
     const chimera = call('generate_chimera', selectedParts) as Chimera | null;
     if (!chimera) return;
 
+    sound.playRoll();
     const roll = Math.floor(Math.random() * 20) + 1;
     const result = call('resolve_encounter', state.player.power, state.player.endurance, chimera, roll) as {
       won: boolean;
@@ -59,6 +86,9 @@ export default function App({ session }: GameRendererProps) {
       chimera_score: number;
     } | null;
     if (!result) return;
+
+    if (result.won) sound.playWin();
+    else sound.playLoss();
 
     const encounter: EncounterResult = {
       won: result.won,
@@ -98,7 +128,7 @@ export default function App({ session }: GameRendererProps) {
           tagline="One-roll D20 encounters"
           pitch="Face a single randomly-assembled six-part enemy in a one-roll D20 encounter."
           menuItems={[
-            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
           ]}
         />
       </GameShell>
@@ -127,13 +157,28 @@ export default function App({ session }: GameRendererProps) {
     );
   }
 
+  const wins = state.history.filter(e => e.won).length;
+  const losses = state.history.length - wins;
+
   return (
     <GameShell
       gameLabel="CHIMERA WILDS"
       gameId="chimera_wilds"
       statusArea={
         <div className="cw-header">
-          <span className="cw-player">Player {state.player.power} PWR / {state.player.endurance} END</span>
+          <div className="cw-hud">
+            <span className="cw-chip">PWR {state.player.power}</span>
+            <span className="cw-chip">END {state.player.endurance}</span>
+            <span className="cw-chip cw-chip-record">Record {wins}W – {losses}L</span>
+          </div>
+          <button
+            type="button"
+            className="cw-sound-toggle"
+            onClick={toggleSound}
+            aria-label={soundMuted ? 'Unmute sound' : 'Mute sound'}
+          >
+            {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
           {error && <span className="cw-error">{error}</span>}
         </div>
       }
@@ -166,9 +211,11 @@ export default function App({ session }: GameRendererProps) {
                 ))}
               </ul>
               <div className="cw-stats">
-                <span>Power: {state.currentChimera.total_power}</span>
-                <span>Endurance: {state.currentChimera.total_endurance}</span>
-                <span>Score: {state.currentChimera.total_power + state.currentChimera.total_endurance}</span>
+                <StatBar label="Power" value={state.currentChimera.total_power} max={120} />
+                <StatBar label="Endurance" value={state.currentChimera.total_endurance} max={120} />
+                <span className="cw-chip cw-chip-score">
+                  Score {state.currentChimera.total_power + state.currentChimera.total_endurance}
+                </span>
               </div>
             </>
           ) : (
@@ -203,6 +250,20 @@ export default function App({ session }: GameRendererProps) {
           </div>
         )}
       </div>
+
+      {showTutorial && (
+        <Modal title="How to Play" onClose={handleDismissTutorial} showClose={false}>
+          <ul className="cw-tutorial">
+            <li>Each press of Face the Wilds assembles a random six-part chimera.</li>
+            <li>You roll a D20 — your Power + Endurance + the roll, against the chimera's combined total.</li>
+            <li>Meet or beat its score to win; the parts list shows where that score comes from.</li>
+            <li>Every result lands in your History below.</li>
+          </ul>
+          <button className="cw-button cw-tutorial-dismiss" onClick={handleDismissTutorial}>
+            Enter the Wilds
+          </button>
+        </Modal>
+      )}
     </GameShell>
   );
 }
