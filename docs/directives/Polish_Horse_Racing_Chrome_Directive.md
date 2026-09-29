@@ -54,7 +54,7 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-horse-racing-chrome-directive |
 | Base branch | - |
@@ -65,4 +65,5 @@ or be clearly likely (a second live game wanting it now counts).
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 04:15 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-horse-racing-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 04:44 · devin-overseer (delegated) · In progress → Review — Run died in pre-push hook after committing verified work (same registry-export regen trap as Chimera/Gladiator). Salvaged: pushed through full hook gate green (231s), merged as PR #49 @79d303d5. [origin] spent: devin 22 min est. n/a
+- 2026-09-29 04:46 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
