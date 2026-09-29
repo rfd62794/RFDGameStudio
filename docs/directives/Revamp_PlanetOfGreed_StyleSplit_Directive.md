@@ -50,11 +50,13 @@ requires touching their seams (say so in the report if it does).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c |
 | Base branch | - |
+| Base commit | 1072eb9951c40a9db0713a894bf15acdf14a15ff |
 
 **Status log**
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 05:51 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
