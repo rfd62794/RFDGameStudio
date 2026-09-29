@@ -161,7 +161,7 @@ review already found.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | claude |
 | Branch | directive/rfdgamestudio-rfdgamestudio-breakstreamer-stage-703864 |
 | Base branch | - |
@@ -171,4 +171,5 @@ review already found.
 - 2026-09-23 01:16 · agentflow-tick · none → Queued — suggested by heartbeat: No queue status found; recommending claude due to local Downloads/.env dependency and verbatim-scope judgment calls unsuited to a Devin worktree dispatch.
 - 2026-09-28 19:25 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 19:21 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-breakstreamer-stage-703864; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
+- 2026-09-29 19:22 · claude-dispatched · In progress → Blocked — Refused: Test-Path "C:\Users\cheat\Downloads\break-streamer.zip" — session sandboxed to the worktree only ("may only access files in the allowed working directories... C:\GitHub\.worktrees\...RFDGameStudio...breakstreamer-stage-703864"). The directive's core action (ZipVerifier.verify() reading both zips directly from Downloads/) is impossible from this sandbox; no workaround attempted (copying the zips into the repo is out of scope per the directive itself).
 <!-- queue:end -->
