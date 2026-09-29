@@ -54,11 +54,13 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-gladiator-arena-chrome-directive |
 | Base branch | - |
+| Base commit | 9e1825d9222854cd43e7e25f54615680394d52fd |
 
 **Status log**
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 01:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-gladiator-arena-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
