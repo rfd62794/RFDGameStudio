@@ -11,6 +11,7 @@ import { SignalStrip } from './components/SignalStrip';
 import { SimulationControlsPanel } from './components/SimulationControlsPanel';
 import { PassFailDiagnosticsModal } from './components/PassFailDiagnosticsModal';
 import { SimulationConfig, SimulationStats } from './types';
+import { sfx } from '../../engine/shared/sfx';
 import { ShieldCheck, Zap, Anchor, Layers, Clock, Cpu, Flame } from 'lucide-react';
 
 export default function App({ session }: GameRendererProps) {
@@ -32,6 +33,9 @@ export default function App({ session }: GameRendererProps) {
   const [selectedDroneId, setSelectedDroneId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   // Sync state periodically from engine for React UI
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,6 +48,7 @@ export default function App({ session }: GameRendererProps) {
   const handleTogglePlayPause = () => {
     engine.stats.isRunning = !engine.stats.isRunning;
     setStats({ ...engine.stats });
+    sfx.play('click');
   };
 
   const handleSetSimSpeed = (speed: number) => {
@@ -56,6 +61,7 @@ export default function App({ session }: GameRendererProps) {
     setSelectedAsteroidId(null);
     setSelectedDroneId(null);
     setStats({ ...engine.stats });
+    sfx.play('click');
   };
 
   const handleUpdateConfig = (newConfig: Partial<SimulationConfig>) => {
@@ -72,11 +78,13 @@ export default function App({ session }: GameRendererProps) {
   const handleManualMiningDispatch = (droneId: string, asteroidId: string) => {
     engine.triggerManualMiningDispatch(droneId, asteroidId);
     setStats({ ...engine.stats });
+    sfx.play('whoosh');
   };
 
   const handleManualHaulerTug = (haulerId: string, asteroidId: string) => {
     engine.triggerManualHaulerTug(haulerId, asteroidId);
     setStats({ ...engine.stats });
+    sfx.play('pickup');
   };
 
   const handleToggleMiningDroneTier = (droneId: string) => {
@@ -87,6 +95,7 @@ export default function App({ session }: GameRendererProps) {
   const handleStartSmelt = (inputAmount: number) => {
     engine.startSmeltAluminum(inputAmount);
     setStats({ ...engine.stats });
+    sfx.play('confirm');
   };
 
   return (
