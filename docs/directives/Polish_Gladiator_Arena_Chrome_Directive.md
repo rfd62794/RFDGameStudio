@@ -2,8 +2,8 @@
 
 ## 1. Why this exists
 
-Gladiator Arena is the arcade's sound pioneer — procedural Web Audio effects
-landed — but it lacks the other chrome: Menu=N, Tutorial=N, Visual=N on the
+Gladiator Arena is the arcade's sound pioneer â€” procedural Web Audio effects
+landed â€” but it lacks the other chrome: Menu=N, Tutorial=N, Visual=N on the
 StatusBoard (Sound=Y). Polish only.
 
 ## 2. Scope
@@ -14,14 +14,14 @@ StatusBoard (Sound=Y). Polish only.
 
 ## 3. The work
 
-1. **Menu** via shared `TitleScreen` — roster management games benefit most
+1. **Menu** via shared `TitleScreen` â€” roster management games benefit most
    from a title screen that orients (your stable, your funds) before the first
    match.
 2. **First-run tutorial**: 3-5 lines on the actual loop (recruit, equip,
-   fight, anatomy damage consequences — read the game's existing copy/state
+   fight, anatomy damage consequences â€” read the game's existing copy/state
    first), gated to first launch.
 3. **Visual pass**: HUD readability for match state (turn order, part
-   integrity, wounds) — modest, consistent with arcade siblings.
+   integrity, wounds) â€” modest, consistent with arcade siblings.
 4. **Sound**: already done; if `engine/shared/sfx/` landed (Polish_Shared_Sfx)
    first, migrate the local effects to it; otherwise leave sound alone and
    note it as the reference implementation.
@@ -29,15 +29,15 @@ StatusBoard (Sound=Y). Polish only.
 ## 4. What NOT to do
 
 - Do not touch combat resolution, anatomy damage math, or the AI.
-- Do not regress the existing sound work — migrate only if the shared module
+- Do not regress the existing sound work â€” migrate only if the shared module
   exists and covers the same events.
 - No dependency on Polish_Shared_Sfx.
 
 ## Shared-component duty (ADR-014)
 
 Shared modules are the studio's default posture. If this pass produces
-something with a real, known second use � a HUD widget, a tutorial-step
-pattern, a menu variant, an audio event type � extract it into
+something with a real, known second use — a HUD widget, a tutorial-step
+pattern, a menu variant, an audio event type — extract it into
 `ts/src/ui/components/` or `ts/src/engine/shared/` instead of leaving a
 per-game copy, and name the extraction plus its second consumer in the
 report. Do not extract speculatively; a real second use must already exist

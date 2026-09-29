@@ -2,7 +2,7 @@
 
 ## 1. Why this exists
 
-Chimera Wilds is Shipped/Mature and already uses shared menu chrome — but its
+Chimera Wilds is Shipped/Mature and already uses shared menu chrome â€” but its
 StatusBoard row reads Tutorial=N, Visual=N, Sound=N. Polish only; the game is
 done mechanically.
 
@@ -15,12 +15,12 @@ done mechanically.
 ## 3. The work
 
 1. **First-run tutorial**: 3-5 lines teaching the game's core verb
-   (breeding/collection loop — read `config.ts` and the game logic first and
+   (breeding/collection loop â€” read `config.ts` and the game logic first and
    describe what the game actually teaches), gated to first launch.
 2. **Visual pass**: readable HUD for whatever the game tracks (collection
    count, day/season, resources), consistent with arcade siblings. Modest.
 3. **Sound**: `engine/shared/sfx/` if present, else minimal local Web Audio
-   per the `gladiator_arena` pattern — pick 2-5 natural events (capture,
+   per the `gladiator_arena` pattern â€” pick 2-5 natural events (capture,
    breed, discovery).
 4. `EndStateScreen` for win/lose if the game has terminal states and no
    end screen today.
@@ -35,8 +35,8 @@ done mechanically.
 ## Shared-component duty (ADR-014)
 
 Shared modules are the studio's default posture. If this pass produces
-something with a real, known second use � a HUD widget, a tutorial-step
-pattern, a menu variant, an audio event type � extract it into
+something with a real, known second use — a HUD widget, a tutorial-step
+pattern, a menu variant, an audio event type — extract it into
 `ts/src/ui/components/` or `ts/src/engine/shared/` instead of leaving a
 per-game copy, and name the extraction plus its second consumer in the
 report. Do not extract speculatively; a real second use must already exist

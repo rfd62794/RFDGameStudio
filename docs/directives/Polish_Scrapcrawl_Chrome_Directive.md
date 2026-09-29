@@ -14,12 +14,12 @@ Visual=N, Sound=N on the StatusBoard. Polish only.
 ## 3. The work
 
 1. **First-run tutorial**: 3-5 lines on the game's loop (explore/scavenge/
-   survive — read the actual game first; describe what it teaches), gated to
+   survive â€” read the actual game first; describe what it teaches), gated to
    first launch via `OnboardingGate` or the game's own persistence.
 2. **Visual pass**: readable HUD (health/resources/progress as the game
    tracks them), contrast, spacing consistent with arcade siblings.
 3. **Sound**: `engine/shared/sfx/` if present, else minimal local Web Audio
-   per `gladiator_arena` — natural events (scavenge hit, hazard, death).
+   per `gladiator_arena` â€” natural events (scavenge hit, hazard, death).
 4. `EndStateScreen` if terminal states exist without one.
 
 ## 4. What NOT to do
@@ -32,8 +32,8 @@ Visual=N, Sound=N on the StatusBoard. Polish only.
 ## Shared-component duty (ADR-014)
 
 Shared modules are the studio's default posture. If this pass produces
-something with a real, known second use � a HUD widget, a tutorial-step
-pattern, a menu variant, an audio event type � extract it into
+something with a real, known second use — a HUD widget, a tutorial-step
+pattern, a menu variant, an audio event type — extract it into
 `ts/src/ui/components/` or `ts/src/engine/shared/` instead of leaving a
 per-game copy, and name the extraction plus its second consumer in the
 report. Do not extract speculatively; a real second use must already exist

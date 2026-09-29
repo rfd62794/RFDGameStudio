@@ -2,7 +2,7 @@
 
 ## 1. Why this exists
 
-Slither Rogue is the barest game on the arcade — StatusBoard row reads
+Slither Rogue is the barest game on the arcade â€” StatusBoard row reads
 Menu=N, Tutorial=N, Visual=N, Sound=N. It is live via the Lua-backed path and
 has a TS surface at `ts/src/games/slither_rogue/` (`App.tsx`, `components/`,
 `config.ts`). This is a polish pass on the TS surface, not a redesign and not
@@ -12,17 +12,17 @@ a logic change.
 
 `ts/src/games/slither_rogue/` only. Shared chrome already exists in
 `ts/src/ui/components/` (`TitleScreen`, `OnboardingGate`, `EndStateScreen`,
-`MoreGamesByMe`) — use it. Lua-side `games/slither_rogue/` is logic; do not
+`MoreGamesByMe`) â€” use it. Lua-side `games/slither_rogue/` is logic; do not
 rebalance it.
 
 ## 3. The work
 
 1. **Menu** via shared `TitleScreen` (or the pattern a sibling game uses if
-   `TitleScreen` doesn't fit the wrapper structure — say which in the report).
+   `TitleScreen` doesn't fit the wrapper structure â€” say which in the report).
 2. **First-run tutorial**: 3-5 lines on movement/growth/death basics, gated
    to first launch (`OnboardingGate` or equivalent persistence the game
-   already uses — check `engine/shared/persistence.ts`).
-3. **Visual pass**: the board's `Visual=N` — give the play surface readable
+   already uses â€” check `engine/shared/persistence.ts`).
+3. **Visual pass**: the board's `Visual=N` â€” give the play surface readable
    contrast, a HUD (length, alive/dead, depth/level if the game has one), and
    consistent spacing with the arcade's other games. Modest, not a re-skin.
 4. **Sound**: wire `engine/shared/sfx/` if it exists (Polish_Shared_Sfx);
@@ -32,15 +32,15 @@ rebalance it.
 ## 4. What NOT to do
 
 - Do not change `logic.lua` / `systems.yaml` / game balance.
-- Do not restyle beyond readability — no new art direction.
+- Do not restyle beyond readability â€” no new art direction.
 - No audio asset files; procedural only, muted until first gesture.
 - No dependency on Polish_Shared_Sfx.
 
 ## Shared-component duty (ADR-014)
 
 Shared modules are the studio's default posture. If this pass produces
-something with a real, known second use � a HUD widget, a tutorial-step
-pattern, a menu variant, an audio event type � extract it into
+something with a real, known second use — a HUD widget, a tutorial-step
+pattern, a menu variant, an audio event type — extract it into
 `ts/src/ui/components/` or `ts/src/engine/shared/` instead of leaving a
 per-game copy, and name the extraction plus its second consumer in the
 report. Do not extract speculatively; a real second use must already exist
