@@ -54,7 +54,7 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-gladiator-arena-chrome-directive |
 | Base branch | - |
@@ -65,4 +65,5 @@ or be clearly likely (a second live game wanting it now counts).
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 01:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-gladiator-arena-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 02:19 · devin-overseer (delegated) · In progress → Review — run died mid-push-hook after full green (967 pytest + 1966 vitest + build clean, all committed); salvaged worktree commits and pushed via hook-verified push [origin] spent: devin 25 min est. n/a
+- 2026-09-29 02:20 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
