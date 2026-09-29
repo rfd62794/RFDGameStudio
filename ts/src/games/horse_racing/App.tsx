@@ -1,24 +1,28 @@
 import './styles.css';
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coins } from 'lucide-react';
+import { Coins, Volume2, VolumeX } from 'lucide-react';
 import { call, getSchema } from '../../engine/runtime';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import { RuntimeError } from '../../engine/types';
 import type { GameState, Horse, CurrentRace, RaceHistoryEntry, RaceResult, Bet, RaceParticipant } from './types';
 import { useCooldownTicker, useLuaCall } from '../../hooks';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
+import { navigateTo } from '../../arcade/routing';
+import { STANDALONE_BUILD_GAMES } from '../../games/registry';
+import { sound } from './utils/sound';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
 import RaceTrack from './components/RaceTrack';
 import { GameShell } from '../../components';
-import { ErrorBox, EmptyState, Badge, TabBar, Card } from '../../ui/components';
+import { ErrorBox, EmptyState, Badge, TabBar, Card, Modal, EndStateScreen, MoreGamesByMe, useOnboardingGate } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { resolveViewport, buildBoundsMap, type LayoutNode } from '../../engine/ui_resolver';
 import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
 
 const SAVE_KEY = 'derby_sim_state_v1';
+const TUTORIAL_SEEN_KEY = 'derby_sim_tutorial_seen';
 
 interface DerbySave {
   funds: number;
@@ -155,6 +159,12 @@ export default function App({ session }: GameRendererProps) {
   const [unlockedSlots, setUnlockedSlots] = useState(3);
   const ticker = useCooldownTicker();
   const { error: luaError } = useLuaCall(session);
+  const env = import.meta.env as Record<string, string | undefined>;
+  const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
+  const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
+  const { shouldShow: showTutorial, handleComplete: completeTutorial, trigger: triggerTutorial } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+  const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
 
   useEffect(() => {
     const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
@@ -186,6 +196,30 @@ export default function App({ session }: GameRendererProps) {
       unlocked_slots: unlockedSlots,
     });
   }, [gameState, unlockedSlots]);
+
+  const handleNewGame = useCallback(() => {
+    setShowTitle(false);
+    if (!loadSave<boolean>(TUTORIAL_SEEN_KEY)) {
+      triggerTutorial();
+    }
+  }, [triggerTutorial]);
+
+  const handleDismissTutorial = useCallback(() => {
+    writeSave(TUTORIAL_SEEN_KEY, true);
+    completeTutorial();
+  }, [completeTutorial]);
+
+  const handleDismissBankruptcy = useCallback(() => {
+    setGameState(prev => prev ? { ...prev, emergency_grant_shown: false } : prev);
+    setActiveTab('stable');
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    setSoundMuted(prev => {
+      sound.setEnabled(prev);
+      return !prev;
+    });
+  }, []);
 
   const handleNewRace = useCallback((horseId?: string) => {
     if (!session || !gameState) return;
@@ -457,15 +491,36 @@ export default function App({ session }: GameRendererProps) {
     ? { ...rawSlots, content: { ...rawSlots['content'], bounds: fullBounds } }
     : rawSlots;
 
+  const footerEl = (
+    <MoreGamesByMe
+      mode={mode}
+      currentGameId="horse_racing"
+      games={STANDALONE_BUILD_GAMES}
+      onSelectGame={navigateTo}
+      arcadeBaseUrl={arcadeBaseUrl}
+    />
+  );
+
+  const soundToggle = (
+    <button
+      type="button"
+      className="hr-sound-toggle"
+      onClick={toggleSound}
+      aria-label={soundMuted ? 'Unmute sound' : 'Mute sound'}
+    >
+      {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+    </button>
+  );
+
   if (showTitle) {
     return (
-      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing" mode={mode} arcadeBaseUrl={arcadeBaseUrl} footer={footerEl}>
         <TitleScreen
           title="Derby Sim"
           tagline="Race · Breed · Bet"
           pitch="Race, breed, and bet on horses. Win/Place/Show betting, genetics system, career tracking."
           menuItems={[
-            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
           ]}
         />
       </GameShell>
@@ -474,7 +529,7 @@ export default function App({ session }: GameRendererProps) {
 
   if (error || luaError) {
     return (
-      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing" mode={mode} arcadeBaseUrl={arcadeBaseUrl} footer={footerEl}>
         <div style={{ padding: '2rem' }}>
           <ErrorBox message={`Startup error: ${error ?? luaError}`} />
         </div>
@@ -483,8 +538,63 @@ export default function App({ session }: GameRendererProps) {
   }
   if (!gameState) {
     return (
-      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing" mode={mode} arcadeBaseUrl={arcadeBaseUrl} footer={footerEl}>
         <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Loading game state…</div>
+      </GameShell>
+    );
+  }
+
+  const ownedHorses = gameState.horses.filter(h => h.player_owned);
+  const readyCount = ownedHorses.filter(h => (h.cooldown_until ?? 0) <= ticker).length;
+  const careerWins = ownedHorses.reduce((sum, h) => sum + h.wins, 0);
+
+  const statusHud = (
+    <div className="hr-hud">
+      <div className="header-bank">
+        <div className="bank-icon"><Coins size={14} /></div>
+        <div>
+          <div className="bank-label">STABLE BANK</div>
+          <div className="bank-amount">${gameState.funds.toLocaleString()}</div>
+        </div>
+      </div>
+      <span className="hr-chip" title="Horses in your stable / unlocked slots">
+        Stable {ownedHorses.length}/{unlockedSlots}
+      </span>
+      <span className="hr-chip" title="Horses off cooldown and ready to race">
+        Ready {readyCount}
+      </span>
+      <span className="hr-chip" title="Races completed">
+        Races {gameState.race_history.length}
+      </span>
+      <span className="hr-chip hr-chip-accent" title="Career wins across your stable">
+        Wins {careerWins}
+      </span>
+      {soundToggle}
+    </div>
+  );
+
+  if (gameState.emergency_grant_shown) {
+    return (
+      <GameShell
+        gameLabel="DERBY SIM"
+        gameId="horse_racing"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        statusArea={statusHud}
+        footer={footerEl}
+      >
+        <EndStateScreen
+          won={false}
+          headline="Stable Bankrupt"
+          flavorLine="The bank is empty and the stalls are bare. The track takes pity — a $250 stake to start over."
+          stats={[
+            { label: 'Races Entered', value: gameState.race_history.length },
+            { label: 'Bankroll', value: `$${gameState.funds.toLocaleString()}` },
+            { label: 'Horses', value: ownedHorses.length },
+          ]}
+          onRestart={handleDismissBankruptcy}
+          restartLabel="Rebuild the Stable"
+        />
       </GameShell>
     );
   }
@@ -496,10 +606,12 @@ export default function App({ session }: GameRendererProps) {
 
   if (isRacingActive && gameState.current_race) {
     return (
-      <GameShell gameLabel="DERBY SIM" gameId="horse_racing">
+      <GameShell gameLabel="DERBY SIM" gameId="horse_racing" mode={mode} arcadeBaseUrl={arcadeBaseUrl} footer={footerEl}>
         <RaceTrack
           race={gameState.current_race}
           bets={pendingBets}
+          soundMuted={soundMuted}
+          onToggleSound={toggleSound}
           onRaceFinish={handleCloseRaceTrack}
           onClose={() => {
             setIsRacingActive(false);
@@ -514,15 +626,10 @@ export default function App({ session }: GameRendererProps) {
     <GameShell
       gameLabel="DERBY SIM"
       gameId="horse_racing"
-      statusArea={
-        <div className="header-bank">
-          <div className="bank-icon"><Coins size={14} /></div>
-          <div>
-            <div className="bank-label">STABLE BANK</div>
-            <div className="bank-amount">${gameState.funds.toLocaleString()}</div>
-          </div>
-        </div>
-      }
+      mode={mode}
+      arcadeBaseUrl={arcadeBaseUrl}
+      statusArea={statusHud}
+      footer={footerEl}
     >
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Interpreter renders structural scaffold */}
@@ -560,16 +667,19 @@ export default function App({ session }: GameRendererProps) {
       <main className="tab-content">
         {schemaErr && <div style={{ marginBottom: '1rem' }}><ErrorBox message={schemaErr} /></div>}
 
-        {gameState.emergency_grant_shown && (
-          <div className="emergency-grant-banner">
-            You're broke and horseless. Here's $250. Don't waste it.
-            <button
-              className="btn-dismiss"
-              onClick={() => setGameState(prev => prev ? { ...prev, emergency_grant_shown: false } : prev)}
-            >
-              ✕
+        {showTutorial && (
+          <Modal title="How to Play" onClose={handleDismissTutorial} showClose={false}>
+            <ul className="hr-tutorial">
+              <li>Pick a horse in the Betting office, place Win/Place/Show bets, and run the race.</li>
+              <li>Win pays the listed odds; Place (top 2) and Show (top 3) pay less for safer finishes.</li>
+              <li>Purses and winning bets feed your Stable Bank — horses need rest between runs.</li>
+              <li>Breed a stallion and a mare in the Breeding Lab to raise the next generation.</li>
+              <li>Your stable autosaves after every race.</li>
+            </ul>
+            <button className="btn-primary hr-tutorial-dismiss" onClick={handleDismissTutorial}>
+              To the Stables →
             </button>
-          </div>
+          </Modal>
         )}
 
         <AnimatePresence mode="wait">
