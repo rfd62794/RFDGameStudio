@@ -19,6 +19,7 @@ from .floor_runner import (
 )
 from .known_issues import check_known_issues
 from .repo_state import read_repo_state
+from .zip_inventory import INTAKE_DIR as DEFAULT_INTAKE_DIR
 from .zip_inventory import read_zip_inventory
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -148,26 +149,33 @@ class PipelineAuditor:
         typescript_cmd: str = "npx vitest run",
         python_timeout: float = 300.0,
         typescript_timeout: float = 300.0,
+        intake_dir: Path | str | None = None,
     ) -> dict[str, Any]:
         """Run the full read-only audit and return a structured report."""
         repo_state = read_repo_state()
         registry_ids = _build_registry_game_ids(repo_state)
-        zip_inventory = read_zip_inventory(registry_game_ids=registry_ids)
+        zip_inventory = read_zip_inventory(
+            intake_dir=Path(intake_dir) if intake_dir else DEFAULT_INTAKE_DIR,
+            registry_game_ids=registry_ids,
+        )
         known_issues_result = check_known_issues()
 
+        # Run suites sequentially: concurrent execution inflates timeouts and
+        # ordering flakes (observed: 6 spurious vitest failures under load vs
+        # 0 on a quiet tree), which would corrupt the floor the report exists
+        # to measure.
         py_start = start_test_run(self.repo_root, python_cmd, LOG_FILENAME, PID_FILENAME)
+        py_log = collect_test_log(
+            py_start.get("log_path") if py_start["status"] == "started" else None,
+            py_start.get("pid"),
+            python_timeout,
+        )
         ts_start = start_test_run(
             self.repo_root,
             typescript_cmd,
             TS_LOG_FILENAME,
             TS_PID_FILENAME,
             cwd=self.repo_root / "ts",
-        )
-
-        py_log = collect_test_log(
-            py_start.get("log_path") if py_start["status"] == "started" else None,
-            py_start.get("pid"),
-            python_timeout,
         )
         ts_log = collect_test_log(
             ts_start.get("log_path") if ts_start["status"] == "started" else None,

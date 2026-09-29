@@ -17,7 +17,9 @@ LOG_FILENAME = "pipeline_audit_pytest.log"
 PID_FILENAME = "pipeline_audit_pytest.pid"
 TS_LOG_FILENAME = "pipeline_audit_vitest.log"
 TS_PID_FILENAME = "pipeline_audit_vitest.pid"
-_STATE_DIR = Path("docs") / "state"
+_STATE_DIR = Path("docs") / "state" / "pipeline_audit"
+
+_PROCS: dict[int, subprocess.Popen] = {}
 
 
 def _state_dir(repo_path: Path) -> Path:
@@ -60,6 +62,7 @@ def start_test_run(
             stdout=log_file,
             stderr=log_file,
         )
+        _PROCS[proc.pid] = proc
         pid_path.write_text(str(proc.pid), encoding="utf-8")
 
         return {
@@ -80,6 +83,12 @@ def start_test_run(
 def _poll_process(pid: int | None, timeout: float = 0.5) -> bool:
     """Return True if the process is still running (or if we cannot determine)."""
     if pid is None:
+        return False
+    proc = _PROCS.get(pid)
+    if proc is not None:
+        if proc.poll() is None:
+            return True
+        _PROCS.pop(pid, None)
         return False
     try:
         import psutil
@@ -108,7 +117,7 @@ def collect_test_log(
             break
         time.sleep(0.5)
 
-    return log_path.read_text(encoding="utf-8")
+    return log_path.read_text(encoding="utf-8", errors="replace")
 
 
 def parse_pytest_summary(text: str) -> dict:

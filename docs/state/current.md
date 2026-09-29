@@ -26,20 +26,20 @@ The full content of this retired file is preserved in git history.
 
 > For the current verified floor, see [`/docs/status.md`](../status.md) (last updated September 3 2026).
 
-## Phase 1 — Pipeline Audit Module (August 30 2026)
+## Phase 1 — Pipeline Audit Module (regenerated September 24 2026)
 
-Per the Phase 1 directive, the read-only audit module in `studio_mcp/pipeline_audit/`
-is complete. Real observed floors:
+`studio_mcp/pipeline_audit/` complete. Real floors measured live 2026-09-24:
 
-- Python (`uv run pytest -m "not slow"`): 588 passed, 1 failed, 31 deselected
-- TypeScript (`npx vitest run`): 1644 passed, 2 failed
+- Python `uv run pytest -m "not slow"`: 820/0/8 (31 deselected). Full suite incl.
+  e2e: 839 passed, 12 failed (all `tests/e2e/*` browser tests), 8 skipped.
+- TypeScript `npx vitest run`: 1906/1/9 — sole failure is the flaky 5s
+  `test_game_loader_back_button_returns_clean_url`; quiet standalone run: 1907/0/9.
+- `_ensure_node_modules`: **fixed** (real `npm install` fallback, `None` only if
+  no package.json). CrossPipeline Version Tracking: **fixed** (real hits in repo +
+  `packages/itch_publisher`, which superseded the now-absent `RFD_IT_Publishing`).
+- `C:/Github/OpenAgentMCP` no longer exists on disk; the AsyncTestRunner port in
+  `floor_runner.py` was already committed and stands alone.
+- Zip exports confirmed at `C:\Github\RFDGameStudio\intake\<slug>\` — 14 zips, all
+  imported, 0 pending.
 
-Open items:
-
-- `_ensure_node_modules` (studio_mcp/tools.py): **fixed** — now runs real `npm install`
-  as a fallback and returns `None` only when `package.json` is missing.
-- CrossPipeline Version Tracking: **partial** — version-tracking strings appear only
-  in RFDGameStudio documentation; RFD_IT_Publishing has zero hits, so the real
-  implementation work is not done.
-
-Generated report: [`docs/state/PipelineAuditReport.md`](./PipelineAuditReport.md)
+Report: [`docs/state/PipelineAuditReport.md`](./PipelineAuditReport.md)
