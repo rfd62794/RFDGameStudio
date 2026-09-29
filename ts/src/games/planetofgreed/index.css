@@ -6,3 +6,21 @@
   --font-serif: "Instrument Serif", Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
+
+/* Faction theme defaults — the greed-gold ramp the game shipped with.
+   Any scope element carrying factionThemeVars() overrides these per House
+   (App.tsx applies the player's House theme on the game root). Components
+   consuming var(--faction-*) resolve to this default outside any scope. */
+:root {
+  --faction-accent: #d97706;
+  --faction-accent-hover: #f59e0b;
+  --faction-accent-bright: #fbbf24;
+  --faction-accent-strong: #fde68a;
+  --faction-accent-soft: #fbbf24;
+  --faction-accent-faint: rgba(217, 119, 6, 0.45);
+  --faction-accent-bg: rgba(120, 53, 15, 0.3);
+  --faction-accent-fill-dim: rgba(180, 83, 9, 0.6);
+  --faction-text: #fffbeb;
+  --faction-text-dim: rgba(254, 243, 199, 0.65);
+  --faction-on-accent: #1a1a2e;
+}

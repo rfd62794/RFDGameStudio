@@ -24,3 +24,8 @@ export {
   type BooleanGateResult,
   type IdTrackedGateResult,
 } from './OnboardingGate';
+export {
+  factionThemeVars,
+  FACTION_THEME_VARS,
+  type FactionTheme,
+} from './FactionTheme';
