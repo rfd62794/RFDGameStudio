@@ -54,11 +54,13 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-horse-racing-chrome-directive |
 | Base branch | - |
+| Base commit | 0a8b591f53f8eec9da4825663bc74bff9fe6f162 |
 
 **Status log**
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 04:15 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-horse-racing-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
