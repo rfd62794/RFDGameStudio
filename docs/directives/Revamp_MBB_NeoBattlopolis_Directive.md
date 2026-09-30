@@ -51,13 +51,15 @@ repo's own state files win over this directive where they disagree on detail.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-revamp-mbb-neobattlopolis-directive |
 | Base branch | - |
 | Base commit | 422f95da3a255635f5d636b4a762bc6b0ad1a787 |
+| Head commit | 42cbc78ef4cb28fb517fbe0cc78c9a4cf9f77466 |
 
 **Status log**
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 20:11 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-mbb-neobattlopolis-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-09-29 20:43 · devin-overseer (delegated) · In progress → Review — [origin] spent: devin 0 min est. n/a
 <!-- queue:end -->
