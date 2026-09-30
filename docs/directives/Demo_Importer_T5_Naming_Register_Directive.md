@@ -90,15 +90,17 @@ silent deviation is worse than a reported one.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-demo-importer-t5-naming-register--b9a213 |
 | Base branch | - |
 | Base commit | f3876bbc1d08377e4c405e09056389df3638ff6a |
+| Head commit | ee8cbe05cace4795e597f4e9b640659a88c4d74f |
 
 **Status log**
 - 2026-09-20 21:23 · robert-claude · none → Queued — Task 5 of 8; approve with base_branch set to Task 4's directive branch once Task 4 reaches Review
 - 2026-09-30 02:50 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-30 03:03 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-demo-importer-t5-naming-register--b9a213; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-30 03:09 · devin-overseer (delegated) · In progress → Blocked — run died on non-interactive permission wall, but verified Task 5 work is already merged on origin/main (0a4077a4, Sep 20); branch b9a213 has no unique commits
+- 2026-09-30 03:10 · devin-overseer (delegated) · Blocked → Review — Task 5 work was already on main as 0a4077a4 (prior dispatch completed it Sep 20 and died at the commit step; Robert recovered and committed). Verified studio_mcp/demos/naming.py, register.py and tests/test_demos_naming_register.py match the plan verbatim; demos markers untouched; working tree clean. Verification: 'uv run pytest -q -p pytest_rerunfailures tests/test_demos_naming_register.py' -> 15 passed; 'npx vitest run tests/test_arcade_registry_directive.ts tests/test_registry_export.ts' from ts/ -> 16 passed, 1 skipped. Only branch commit is the queue-table status update (ee8cbe0); earlier Blocked was a refused bare 'git push' — explicit branch push form succeeded. [origin] spent: devin 6 min est. n/a
 <!-- queue:end -->
