@@ -338,3 +338,37 @@
   font-size: 0.8rem;
   font-style: italic;
 }
+
+/* Body Part Synergy panel */
+.synergy-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #222839;
+  border: 1px solid #4a5070;
+  border-radius: 4px;
+}
+.synergy-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+.synergy-label {
+  font-weight: bold;
+  color: #ccc;
+}
+.synergy-desc {
+  color: #999;
+  font-size: 0.8rem;
+}
+.synergy-risk {
+  color: #fbbf24;
+  font-size: 0.8rem;
+}
+.trinity-row .trinity-count {
+  font-family: monospace;
+  color: #fbbf24;
+}

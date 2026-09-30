@@ -6,6 +6,92 @@ Roadmap: [`/ROADMAP.md`](../../../ROADMAP.md)
 
 ---
 
+## Mutant Battle Ball — Body Part Synergy (Neo Battlopolis, Part 1) — COMPLETED
+
+**Date:** September 29 2026
+**Directive:** Revamp_MBB_NeoBattlopolis_Directive — continue the
+six-Brand Trinity / Body Part Synergy overhaul. This is the first
+coherent increment of the deferred "Brand Sets / full synergy" work:
+cross-part mechanics on top of the existing per-part Brand / Quality /
+Cyber-Organic modifier pipeline.
+
+### What shipped
+
+**`bodyPartSynergy.ts`** (new) — `getMutantSynergy(parts)` computes the
+full synergy report in one pass:
+
+- **Brand Trinity set bonus.** 3+ equipped parts of the same Brand
+  re-applies that Brand's signature at mutant level — the signature
+  effectively doubles (per-part + mutant-level). With 6 slots, at most
+  two Trinities can be active (3+3). Counts only branded parts; null
+  slots are skipped.
+- **Cyber-Organic lean compatibility.** MBB's 0-100 lean converts to
+  the shared anatomy scale (-1..+1) and feeds the shared tier model:
+  `pure_synergy` (uniform lean → resonance bonus to speed/power,
+  organic-favored or cyber-favored by lean sign), `stable`,
+  `dissonant`, and `critical_rejection` (mixed extremes → stat penalty
+  + malfunction risk). Mutants with no lean data get a null
+  compatibility — neutral, no bonus, no risk.
+
+**Wiring — single pipeline, not a parallel one:**
+
+- `calculateStats()` (mbbAgent.ts) applies `statMultipliers` to the
+  summed part totals — Trinity × lean resonance in one multiplication.
+- `makeAgent()` rolls the dissonance `malfunctionRiskPercent` once at
+  match start — the same live-risk boundary the Malfunctioning-quality
+  roll uses. A fired roll is a severe malfunction: -25% all stats for
+  the match. The risk the Workshop displays is the risk the match
+  actually rolls — UI is not decorative.
+- `WorkshopTab` shows the synergy report on the selected mutant:
+  compatibility tier badge + description + malfunction risk %, and a
+  per-Brand count row (n/3) with a TRINITY badge when active. This is
+  where equip decisions happen, so the synergy readout lives there.
+
+### Shared extraction (ADR-014)
+
+`engine/shared/anatomy` gained `calculateLeanCompatibility(leans)` —
+the lean-only core of `calculateCompatibility`, which now delegates to
+it. Gladiator Arena keeps its existing `AnatomySubject` API unchanged
+(verified by its own tests + the shared-extraction anchor tests). MBB
+consumes the same tier math without fabricating HP/armor/damage state
+it doesn't model. MBB's slot set (`chest` vs anatomy's `torso`) stays
+MBB-local — no unsafe shared type conversion was forced.
+
+`brandModifiers.ts` gained `applyBrandSignature(stats, brand)` — the
+single signature-routing source, now used both per-part
+(`getEffectivePartStats`, byte-identical output) and per-mutant
+(Trinity).
+
+### Combat fixture fix (test_mbb_combat_system.ts)
+
+The test's "balanced stats" fixture gave every mutant 6× trueflame +
+lean 50 — post-synergy that's a Trinity-stacked + pure-resonance build
+(+26% effective power vs flat defense), which pushed the blunder
+condition (netAdvantage < -18) out of reach and zeroed the blunder
+assertions. The fixture now uses a 2×3 brand spread (no Trinity) while
+still exercising the Brand/Quality/lean pipeline — restoring the
+fixture's actual intent of a balanced matchup.
+
+### Test Updates
+
+- `test_mbb_body_part_synergy.ts` (NEW, 27 tests): Trinity threshold,
+  signature doubling, dual-Trinity cap, all four compatibility tiers,
+  stat flow-through via calculateStats, match-start dissonance roll,
+  shared-module consumption, real data.yaml mutants, wiring anchors,
+  and no-regression guards for unbranded/leanless parts.
+- `test_mbb_combat_system.ts` (12 tests): fixture corrected as above;
+  all pass.
+- `test_bezier_poc.ts`, `test_technique_comparison.ts`: isolation-test
+  allow-lists extended for the legitimately touched MBB files.
+
+### Still deferred (unchanged)
+
+- Infirmary tab (inert), Roster squad selection (presentational),
+  OEM tiers, Gravekeeper content, the data-balance asymmetry between
+  starter and opponent rosters.
+
+---
+
 ## Mutant Battle Ball — CombatSystem Integration (Part B) + Module Decomposition (Part A) — COMPLETED
 
 **Date:** August 16 2026

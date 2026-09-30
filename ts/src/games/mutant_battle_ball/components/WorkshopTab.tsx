@@ -5,6 +5,7 @@ import type { MBBGameState } from '../types';
 import type { Part, PartSlot, BrandId, QualityTier } from '../../../engine/shared/partSlots';
 import { PART_SLOTS } from '../../../engine/shared/partSlots';
 import { BRAND_SIGNATURES, QUALITY_LABELS, repairPart, repairOemLossWarning } from '../brandModifiers';
+import { getMutantSynergy, COMPATIBILITY_TIER_LABELS, TRINITY_THRESHOLD } from '../bodyPartSynergy';
 
 interface WorkshopTabProps {
   state: MBBGameState;
@@ -44,6 +45,7 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
   const [repairConfirmSlot, setRepairConfirmSlot] = useState<PartSlot | null>(null);
 
   const selectedMutant = state.roster.find(m => m.id === selectedMutantId) ?? null;
+  const synergy = selectedMutant ? getMutantSynergy(selectedMutant.parts) : null;
 
   // Build inventory parts grouped by slot
   const inventoryBySlot: Record<string, Part[]> = {};
@@ -126,6 +128,44 @@ export default function WorkshopTab({ state, setState, session }: WorkshopTabPro
               />
               <h3>{selectedMutant.name}'s Parts</h3>
             </div>
+            {synergy && (
+              <div className="synergy-panel">
+                <div className="synergy-row">
+                  <span className="synergy-label">Body Synergy</span>
+                  {synergy.compatibility ? (
+                    <>
+                      <Badge
+                        label={COMPATIBILITY_TIER_LABELS[synergy.compatibility.compatibilityTier]}
+                        variant={synergy.compatibility.compatibilityTier === 'pure_synergy' ? 'accent' : synergy.compatibility.compatibilityTier === 'stable' ? 'muted' : 'red'}
+                      />
+                      <span className="synergy-desc">{synergy.compatibility.synergyBonus.description}</span>
+                      {synergy.compatibility.malfunctionRiskPercent > 0 && (
+                        <span className="synergy-risk">
+                          Malfunction risk: {synergy.compatibility.malfunctionRiskPercent}%
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="synergy-desc">No lean data — no resonance measured.</span>
+                  )}
+                </div>
+                {(Object.keys(synergy.brandCounts) as BrandId[])
+                  .filter(brand => synergy.brandCounts[brand] > 0)
+                  .map(brand => (
+                    <div key={brand} className="synergy-row trinity-row">
+                      <span className="synergy-label">
+                        {BRAND_SIGNATURES[brand].label} — {BRAND_SIGNATURES[brand].signature}
+                      </span>
+                      <span className="trinity-count">
+                        {synergy.brandCounts[brand]}/{TRINITY_THRESHOLD}
+                      </span>
+                      {synergy.trinityBrands.includes(brand) && (
+                        <Badge label="TRINITY" variant="accent" />
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
             {PART_SLOTS.map(slot => {
               const equipped = selectedMutant.parts[slot];
               const available = inventoryBySlot[slot] ?? [];
