@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { load as parse } from 'js-yaml';
 
 import { createMbbSimulation, calculateStats, CONFIG } from '../src/games/mutant_battle_ball/simulation/mbbSimulation';
+import { makePrng } from '../src/games/mutant_battle_ball/simulation/mbbMath';
 import { partsToCreatureConfig } from '../src/engine/paperDoll/adapter';
 import type { Part, PartsBySlot, BrandId, QualityTier } from '../src/engine/shared/partSlots';
 import type { Mutant } from '../src/games/mutant_battle_ball/types';
@@ -369,28 +370,41 @@ describe('test_point_cap_ends_match_immediately', () => {
       makeMutant('slow2', 'Slow2', '#ef4444', slowParts),
     ];
 
-    // Cap 3
-    const sim3 = createMbbSimulation();
-    sim3.initMatch(fastTeam, slowTeam, { match: { ...CONFIG.match, point_cap: 3 } }, 42);
+    // Combat draws (sportsSim CombatSystem) use unseeded Math.random —
+    // without stubbing, the two matches diverge from the first combat
+    // event and cap-5 can legitimately finish before cap-3 (~coin flip).
+    // Stubbing Math.random with the sim's own PRNG for both runs makes
+    // them replay the identical trajectory until cap-3 ends, so the
+    // ordering is deterministic rather than probabilistic.
+    const origRandom = Math.random;
     let ticks3 = 0;
-    let ended3 = false;
-    while (!ended3 && ticks3 < 10000) {
-      const ms = sim3.tickMatch(1 / 60);
-      ticks3++;
-      if (ms.events.some(e => e['type'] === 'match_ended')) ended3 = true;
-      if (ms.state === 'paused_sub') sim3.resumeMatch();
-    }
-
-    // Cap 5
-    const sim5 = createMbbSimulation();
-    sim5.initMatch(fastTeam, slowTeam, { match: { ...CONFIG.match, point_cap: 5 } }, 42);
     let ticks5 = 0;
-    let ended5 = false;
-    while (!ended5 && ticks5 < 10000) {
-      const ms = sim5.tickMatch(1 / 60);
-      ticks5++;
-      if (ms.events.some(e => e['type'] === 'match_ended')) ended5 = true;
-      if (ms.state === 'paused_sub') sim5.resumeMatch();
+    try {
+      // Cap 3
+      Math.random = makePrng(777);
+      const sim3 = createMbbSimulation();
+      sim3.initMatch(fastTeam, slowTeam, { match: { ...CONFIG.match, point_cap: 3 } }, 42);
+      let ended3 = false;
+      while (!ended3 && ticks3 < 10000) {
+        const ms = sim3.tickMatch(1 / 60);
+        ticks3++;
+        if (ms.events.some(e => e['type'] === 'match_ended')) ended3 = true;
+        if (ms.state === 'paused_sub') sim3.resumeMatch();
+      }
+
+      // Cap 5 — identical Math.random stream replays the same trajectory
+      Math.random = makePrng(777);
+      const sim5 = createMbbSimulation();
+      sim5.initMatch(fastTeam, slowTeam, { match: { ...CONFIG.match, point_cap: 5 } }, 42);
+      let ended5 = false;
+      while (!ended5 && ticks5 < 10000) {
+        const ms = sim5.tickMatch(1 / 60);
+        ticks5++;
+        if (ms.events.some(e => e['type'] === 'match_ended')) ended5 = true;
+        if (ms.state === 'paused_sub') sim5.resumeMatch();
+      }
+    } finally {
+      Math.random = origRandom;
     }
 
     console.log(`[point cap] cap=3 ended at tick ${ticks3}, cap=5 ended at tick ${ticks5}`);
