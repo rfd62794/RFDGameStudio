@@ -50,7 +50,7 @@ requires touching their seams (say so in the report if it does).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c |
 | Base branch | - |
@@ -65,4 +65,5 @@ requires touching their seams (say so in the report if it does).
 - 2026-09-30 02:50 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-30 03:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c; resynced: merged main into directive/rfdgamestudio-revamp-planetofgreed-stylesplit-d-945c4c (57 commit(s), clean); lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-30 04:08 · devin-overseer (delegated) · In progress → Review — Finding: the deferred 'UI/UX style split' was the presentation counterpart of House-stat asymmetry — boardroom chrome (BoardroomHeader, GuidedWalkthrough, Guided/Manual tabs) re-dresses itself in the player's House palette while document surfaces (PlanetMap, modals, reports, intel feed) stay neutral paper. Already implemented: prior refusal-killed run was salvaged into commit a32a3b04 on main, now in this branch via resync — shared FactionTheme contract + factionThemeVars() in ts/src/ui/components (ADR-014; named second consumer: Mutant Battle Ball Brands), houseThemes.ts with six per-House palettes keyed by CultureId, index.css :root --faction-* defaults, App.tsx theme scoping + per-House culture-card previews, GuidedWalkthrough + BoardroomHeader token conversion, and test_planetofgreed_style_split.ts (17 anchors). Verified by direct file read: all anchors present, GuidedWalkthrough/OnboardingGate intact, paper surfaces untouched, no balance/mechanics changes. This branch adds one commit (b76ccfb3): status-board correction clearing the stale 'deferred' flag in board.data.ts + generated StatusBoard.md (kept in sync with generateMarkdown.ts) and recording FactionTheme in §5 Shared Engine Infrastructure. Verification: vitest 2089/2089 green via pre-push hook on committed tree (17/17 style-split, 11/11 status-board); earlier in-run suite had two transient failures — git-clean test tripped on my uncommitted edits (green post-commit) and test_mbb_balanced_zero_score flaked (its own comments document non-deterministic outcomes; 10/10 on isolated rerun). npm run build (tsc + full arcade vite build incl. planetofgreed sources) green in 17.39s. REFUSED, not retried: npm run build:planetofgreed — sandbox rejected it; standalone-build inputs are unchanged by this branch (docs/data only) and the same sources compile green in the arcade build. [origin] spent: devin 30 min est. n/a
+- 2026-09-30 05:58 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
