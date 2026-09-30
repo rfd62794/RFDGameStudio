@@ -57,7 +57,7 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-shoal-chrome-directive |
 | Base branch | - |
@@ -68,4 +68,5 @@ or be clearly likely (a second live game wanting it now counts).
 - 2026-09-28 21:55 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 18:34 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-shoal-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 19:09 · devin-overseer (delegated) · In progress → Review — Menu via shared ui/components TitleScreen (Start Reef + How to Play, scenario/seed/ReefPreview kept); first-run tutorial via OnboardingGate + ReefPrimer (4 lines, shoal_tutorial_seen key); local procedural Web Audio sfx (utils/sound.ts, feeding/strike/boundary/end hooks via render-state diff detector utils/reefEvents.ts — sim events[] never populated, sim.ts untouched); extinction EndStateScreen (canvas unmount, no pause). engine/shared/sfx absent in worktree — local set should migrate to it once Polish_Shared_Sfx lands. npm test green (2009 pass), tsc clean, build:shoal verified via y8 integration test + dist-shoal output. npm run build:shoal standalone refused by command gate; verified through the suite instead. [origin] spent: devin 26 min est. n/a
+- 2026-09-29 20:11 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
