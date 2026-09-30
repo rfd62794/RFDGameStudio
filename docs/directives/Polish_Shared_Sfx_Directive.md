@@ -67,7 +67,7 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-shared-sfx-directive |
 | Base branch | - |
@@ -78,4 +78,5 @@ or be clearly likely (a second live game wanting it now counts).
 - 2026-09-28 21:55 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 18:33 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-shared-sfx-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 19:10 · devin · In progress → Review — Shared procedural SFX engine at ts/src/engine/shared/sfx/ (tone+noise+envelope API, named-event registry, master volume, mute-until-first-gesture). ts/tests/test_sfx.ts: 22 tests covering envelope math, registry, mute/autoplay, missing-AudioContext safety. Wired 11 games (shoal, slimeworld, chimera_wilds, scrapcrawl, slither_rogue migrated to shared; mutant_battle_ball, wire_rust, choke_point, slime_coin, voiddrift_redux, succession, planetofgreed new hooks). filipino_bpo_simulator skipped: config.ts-only external embed, no TS renderer. gladiator_arena already had sound (reference impl, pinned by test); horse_racing out of scope. npm test 2026/2047 green, npm run build green, pushed. [origin] spent: devin 35 min est. n/a
+- 2026-09-29 23:27 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
