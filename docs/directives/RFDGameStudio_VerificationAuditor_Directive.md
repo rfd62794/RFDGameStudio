@@ -208,12 +208,14 @@ wrong with the repo state.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | claude |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-verificationauditor-ba1f35 |
 | Base branch | - |
+| Base commit | afa881fa6200a8717aa64d2c046a10c9884b7ddf |
 
 **Status log**
 - 2026-09-27 16:06 · agentflow-tick · none → Queued — suggested by heartbeat: Code appears already built; claude verifies against §4 (floor, demos, greps) and marks Done or lists gaps
 - 2026-09-28 19:26 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 20:54 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-verificationauditor-ba1f35; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 <!-- queue:end -->
