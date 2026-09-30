@@ -45,11 +45,13 @@ spec of record for what "done" looks like next.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-revamp-voiddriftredux-continue-directive |
 | Base branch | - |
+| Base commit | 4ea7ae1285d39a6f7901000dd0c1cf9b6a19b603 |
 
 **Status log**
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 20:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-voiddriftredux-continue-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
