@@ -45,7 +45,7 @@ spec of record for what "done" looks like next.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-revamp-voiddriftredux-continue-directive |
 | Base branch | - |
@@ -56,4 +56,5 @@ spec of record for what "done" looks like next.
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 20:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-voiddriftredux-continue-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 20:31 · devin · In progress → Review — Next steps found: StatusBoard §2 row flags Menu=N/Tutorial=N/Sound=N; directive §3.3 names the chrome path (TitleScreen, OnboardingGate, engine/shared/sfx); DirectiveTracker shows last increment was fragment-drift. Increment shipped: full chrome pass — shared TitleScreen menu gate (Initialize Simulation + How to Play, Menu button back), new DriftPrimer first-run tutorial via shared OnboardingGate + persisted voiddrift_redux_tutorial_seen flag (loadSave/writeSave), sound confirmed already on shared sfx (autoUnlock+plays) and completed with a visible mute toggle. Extractions: none — orbital zoom/pan, drift FSM, fragment-drift remain the named ADR-014 candidates but have no real second consumer in ts/ today (verified by grep). Verified: vitest 2061 green incl. new test_voiddrift_redux_chrome.ts (10 tests), npm run build clean, pre-push hook green (pytest 967). [origin] spent: devin 18 min est. n/a
+- 2026-09-29 23:27 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
