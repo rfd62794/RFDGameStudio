@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Heart,
   Dices,
@@ -10,6 +10,7 @@ import { GameShell } from '../../components';
 import { Badge, Button, Card, Panel } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useLuaCall, useGameState } from '../../hooks';
+import { sfx } from '../../engine/shared/sfx';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, EncounterResult, WireRustGameState, CardId } from './types';
 import './styles.css';
@@ -37,6 +38,10 @@ export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const { call } = useLuaCall(session);
   const [showTitle, setShowTitle] = useState(true);
+
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   const data = session.files.data as Record<string, unknown>;
   const rooms = useMemo(() => (data.rooms ?? {}) as Record<string, Room>, [data.rooms]);
 
@@ -61,7 +66,7 @@ export default function App({ session }: GameRendererProps) {
     if (!state) return;
     const nextPlayer = call('move_room', data, state.player, roomId) as PlayerState | null;
     if (!nextPlayer) return;
-    
+    sfx.play('whoosh');
     setState(prev => prev ? {
       ...prev,
       player: nextPlayer,
@@ -75,6 +80,7 @@ export default function App({ session }: GameRendererProps) {
     const roll = Math.floor(Math.random() * 20) + 1;
     const result = call('resolve_encounter', data, state.player, cardId, roll) as EncounterResult | null;
     if (!result) return;
+    sfx.play(result.won ? 'win' : 'lose');
 
     const logMsg = result.won
       ? `[WIN] ${state.currentRoom.name}: D20 ${roll} + card ${CARD_DATA[cardId].combat_mod} + chem ${result.bonus} = ${result.total_score} vs ${result.difficulty} — salvage stored!`
@@ -90,6 +96,7 @@ export default function App({ session }: GameRendererProps) {
 
   const handleReset = useCallback(() => {
     setState(buildInitialState(session));
+    sfx.play('click');
   }, [session, setState]);
 
   if (!isInitialized || !state) {
@@ -103,7 +110,7 @@ export default function App({ session }: GameRendererProps) {
         pitch="Draft scrap parts, align atomic chemistry, and survive the rogue scrapyard loops."
         quote="In the scrapyard, nothing is junk. Everything has a current."
         menuItems={[
-          { id: 'start-run', label: 'Start Run', onClick: () => setShowTitle(false) }
+          { id: 'start-run', label: 'Start Run', onClick: () => { sfx.play('confirm'); setShowTitle(false); } }
         ]}
       />
     );
