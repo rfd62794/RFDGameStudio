@@ -7,6 +7,7 @@ import {
 import { generateVoronoiMap } from './utils/mapGenerator';
 import { resolveCellCombat } from '../../engine/shared/combat';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
+import { sfx } from '../../engine/shared/sfx';
 import { selectWeightedNeighbor } from './aiDecisions';
 import { initializeFragments, onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
@@ -330,6 +331,9 @@ export default function App({ session }: GameRendererProps) {
     setShowTitleScreen(true);
   }, []);
 
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   // Reset flow re-enters culture selection rather than assuming the
   // previous culture -- a real, deliberate choice each time, same as the
   // very first game.
@@ -344,6 +348,7 @@ export default function App({ session }: GameRendererProps) {
   // loads saved state (handled by the useEffect above).
   const handleTitleNewGame = () => {
     setShowTitleScreen(false);
+    sfx.play('confirm');
     triggerOpeningSequence();
   };
 
@@ -1240,12 +1245,14 @@ export default function App({ session }: GameRendererProps) {
       };
     });
 
+    sfx.play('confirm');
     addLog(`Dilemma resolved: ${actionResult.log}`, 'success');
   };
 
   // Conclude Monthly Conflicts in Combat view
   const handleConcludeCombats = (results: { [cellId: number]: CellCombatState }) => {
     if (!gameState) return;
+    if (Object.keys(results).length > 0) sfx.play('hit');
 
     const updatedCells = [...gameState.cells];
     let updatedTransits = [...gameState.transits];
@@ -1349,6 +1356,7 @@ export default function App({ session }: GameRendererProps) {
     // Phase 3: process eliminations -- transfer Fragments from each
     // eliminated House to its eliminator. Pure transfer logic lives in
     // fragmentSystem.onHouseEliminated; attribution is done above.
+    if (eliminations.length > 0) sfx.play('alert');
     for (const { eliminatedId, eliminatorId } of eliminations) {
       const eliminatedCorp = updatedCorps.find(c => c.id === eliminatedId);
       if (!eliminatedCorp) continue;
@@ -1427,6 +1435,7 @@ export default function App({ session }: GameRendererProps) {
       // but endingEvent must be set on state for the placeholder screen).
       const ending = checkEnding(updatedCorps, PLAYER_CORP_ID);
       if (ending) {
+        sfx.play('win');
         setGameState(prev => prev ? { ...prev, endingEvent: ending, corporations: updatedCorps } : null);
         addLog(
           `ENDING TRIGGERED: Rank 1 reached. Fragment count: ${ending.fragmentCount}/${ending.total}.`,

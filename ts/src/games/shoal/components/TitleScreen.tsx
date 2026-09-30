@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { GameRendererProps } from '../../../engine/types';
-import { MenuShell, OptionSelectGroup } from '../../../components';
+import { TitleScreen as SharedTitleScreen } from '../../../ui/components';
+import { OptionSelectGroup } from '../../../components';
 import ReefPreview from './ReefPreview';
 
 export interface StartConfig {
@@ -13,6 +14,7 @@ export interface StartConfig {
 export interface TitleScreenProps {
   session: GameRendererProps['session'];
   onStart: (config: StartConfig) => void;
+  onHowToPlay: () => void;
 }
 
 interface Scenario {
@@ -31,7 +33,7 @@ const SCENARIOS: Scenario[] = [
   { value: 'lush', title: 'Lush Garden', subtitle: '70 fish / 4 sharks / 10 hubs', fish: 70, sharks: 4, hubs: 10 },
 ];
 
-export default function TitleScreen({ session, onStart }: TitleScreenProps) {
+export default function TitleScreen({ session, onStart, onHowToPlay }: TitleScreenProps) {
   const [selectedScenario, setSelectedScenario] = useState('balanced');
 
   const current = SCENARIOS.find((s) => s.value === selectedScenario)!;
@@ -46,57 +48,63 @@ export default function TitleScreen({ session, onStart }: TitleScreenProps) {
   };
 
   return (
-    <MenuShell
-      gameTitle="SHOAL"
-      subtitle="A living reef simulation"
-      ctaLabel="Start Game"
-      onCta={() => startWithScenario(current, null)}
-      heroSlot={<ReefPreview session={session} />}
-      classNames={{
-        shell: 'shoal-title-shell',
-        inner: 'shoal-title-inner',
-        titleWrap: 'shoal-title-wrap',
-        title: 'shoal-title-h1',
-        subtitle: 'shoal-title-subtitle',
-        grid: 'shoal-title-grid',
-        cta: 'shoal-title-cta',
-        launchBtn: 'shoal-title-launch-btn',
-      }}
-    >
-      <div className="shoal-title-card">
-        <OptionSelectGroup
-          label="Scenario"
-          options={SCENARIOS.map((s) => ({ value: s.value, title: s.title, subtitle: s.subtitle }))}
-          selected={selectedScenario}
-          onSelect={setSelectedScenario}
-          classNames={{
-            group: 'shoal-title-section',
-            label: 'shoal-title-label',
-            row: 'shoal-scenario-row',
-            btn: 'shoal-scenario-btn',
-            btnActive: ' shoal-scenario-btn--active',
-            title: 'shoal-scenario-title',
-            sub: 'shoal-scenario-sub',
-          }}
-        />
-        <div className="shoal-title-seed-actions">
-          <button
-            className="shoal-title-seed-btn"
-            onClick={() => startWithScenario(current, Math.floor(Math.random() * 0xFFFFFFFF))}
-          >
-            🎲 Random Seed
-          </button>
-          <button
-            className="shoal-title-seed-btn"
-            onClick={() => startWithScenario(current, 'daily')}
-          >
-            📅 Today's Reef
-          </button>
+    <div className="shoal-title-shell">
+      <ReefPreview session={session} />
+      <SharedTitleScreen
+        title="Shoal"
+        tagline="A living reef simulation"
+        pitch="Fish graze, sharks hunt, and algae rises and sinks with the pressure of grazing. You tend the water column — the reef runs itself."
+        menuItems={[
+          {
+            id: 'shoal-start-reef',
+            label: 'Start Reef',
+            variant: 'primary',
+            onClick: () => startWithScenario(current, null),
+          },
+          {
+            id: 'shoal-how-to-play',
+            label: 'How to Play',
+            variant: 'secondary',
+            onClick: onHowToPlay,
+          },
+        ]}
+        className="shoal-title-shared"
+      >
+        <div className="shoal-title-card">
+          <OptionSelectGroup
+            label="Scenario"
+            options={SCENARIOS.map((s) => ({ value: s.value, title: s.title, subtitle: s.subtitle }))}
+            selected={selectedScenario}
+            onSelect={setSelectedScenario}
+            classNames={{
+              group: 'shoal-title-section',
+              label: 'shoal-title-label',
+              row: 'shoal-scenario-row',
+              btn: 'shoal-scenario-btn',
+              btnActive: ' shoal-scenario-btn--active',
+              title: 'shoal-scenario-title',
+              sub: 'shoal-scenario-sub',
+            }}
+          />
+          <div className="shoal-title-seed-actions">
+            <button
+              className="shoal-title-seed-btn"
+              onClick={() => startWithScenario(current, Math.floor(Math.random() * 0xFFFFFFFF))}
+            >
+              🎲 Random Seed
+            </button>
+            <button
+              className="shoal-title-seed-btn"
+              onClick={() => startWithScenario(current, 'daily')}
+            >
+              📅 Today's Reef
+            </button>
+          </div>
+          <p className="shoal-title-hint">
+            Same seed reproduces the starting reef. The simulation itself is not seeded.
+          </p>
         </div>
-        <p className="shoal-title-hint">
-          Same seed reproduces the starting reef. The simulation itself is not seeded.
-        </p>
-      </div>
-    </MenuShell>
+      </SharedTitleScreen>
+    </div>
   );
 }

@@ -7,6 +7,7 @@ import type { Mutant } from '../types';
 import type { MatchState, MatchAgent } from '../types';
 import type { MbbSimulation } from '../simulation/mbbSimulation';
 import type { AnimationType } from '../../../engine/paperDoll/chimeraTypes';
+import { sfx } from '../../../engine/shared/sfx';
 
 const COURT_W = 700;
 const COURT_H = 400;
@@ -150,6 +151,7 @@ export default function MatchCanvas(
       // scored → scoring team plays 'celebration'
       if (type === 'scored') {
         const scoringTeam = ev['team'] as 'player' | 'opponent';
+        sfx.play(scoringTeam === 'player' ? 'cheer' : 'hit');
         for (const ag of ms.agents) {
           if (ag.team === scoringTeam && ag.status === 'active') {
             if (!animState[ag.id]) animState[ag.id] = makeAnimState();

@@ -84,32 +84,42 @@ export interface EffectivePartStats {
   speed: number;
 }
 
-export function getEffectivePartStats(part: Part): EffectivePartStats {
-  let { accuracy, endurance, power, speed } = part;
-
-  // 1. Brand modifier
-  if (part.brand) {
-    const sig = BRAND_SIGNATURES[part.brand];
-    if (sig.statKey === 'all') {
-      // Mirefaith: small bonus to all four stats
-      accuracy  *= 1 + sig.modifier;
-      endurance *= 1 + sig.modifier;
-      power     *= 1 + sig.modifier;
-      speed     *= 1 + sig.modifier;
-    } else if (sig.statKey === 'momentum') {
-      // Tidalcapital: Momentum = speed + power hybrid
-      speed *= 1 + sig.modifier;
-      power *= 1 + sig.modifier;
-    } else {
-      // Single-stat brands
-      switch (sig.statKey) {
-        case 'accuracy':  accuracy  *= 1 + sig.modifier; break;
-        case 'endurance': endurance *= 1 + sig.modifier; break;
-        case 'power':     power     *= 1 + sig.modifier; break;
-        case 'speed':     speed     *= 1 + sig.modifier; break;
-      }
+/**
+ * Applies a Brand's signature stat routing to a stat block and returns
+ * the modified copy. Single source for the signature switch — used both
+ * per-part (getEffectivePartStats) and per-mutant (Body Part Synergy's
+ * Trinity set bonus in bodyPartSynergy.ts).
+ */
+export function applyBrandSignature(stats: EffectivePartStats, brand: BrandId): EffectivePartStats {
+  const sig = BRAND_SIGNATURES[brand];
+  let { accuracy, endurance, power, speed } = stats;
+  if (sig.statKey === 'all') {
+    // Mirefaith: small bonus to all four stats
+    accuracy  *= 1 + sig.modifier;
+    endurance *= 1 + sig.modifier;
+    power     *= 1 + sig.modifier;
+    speed     *= 1 + sig.modifier;
+  } else if (sig.statKey === 'momentum') {
+    // Tidalcapital: Momentum = speed + power hybrid
+    speed *= 1 + sig.modifier;
+    power *= 1 + sig.modifier;
+  } else {
+    // Single-stat brands
+    switch (sig.statKey) {
+      case 'accuracy':  accuracy  *= 1 + sig.modifier; break;
+      case 'endurance': endurance *= 1 + sig.modifier; break;
+      case 'power':     power     *= 1 + sig.modifier; break;
+      case 'speed':     speed     *= 1 + sig.modifier; break;
     }
   }
+  return { accuracy, endurance, power, speed };
+}
+
+export function getEffectivePartStats(part: Part): EffectivePartStats {
+  // 1. Brand modifier
+  let { accuracy, endurance, power, speed } = part.brand
+    ? applyBrandSignature(part, part.brand)
+    : part;
 
   // 2. Quality Tier multiplier (applied to all stats uniformly)
   const qualityMult = QUALITY_MULTIPLIERS[part.qualityTier ?? 'brand_new'];

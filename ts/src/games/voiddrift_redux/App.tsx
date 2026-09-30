@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
+import { TitleScreen, useOnboardingGate } from '../../ui/components';
+import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { VoidDriftEngine } from './simulation/engine';
 import { OrbitalCanvas } from './components/OrbitalCanvas';
 import { SmelterPanel } from './components/SmelterPanel';
@@ -10,8 +12,12 @@ import { DispatchLogPanel } from './components/DispatchLogPanel';
 import { SignalStrip } from './components/SignalStrip';
 import { SimulationControlsPanel } from './components/SimulationControlsPanel';
 import { PassFailDiagnosticsModal } from './components/PassFailDiagnosticsModal';
+import DriftPrimer from './components/DriftPrimer';
 import { SimulationConfig, SimulationStats } from './types';
-import { ShieldCheck, Zap, Anchor, Layers, Clock, Cpu, Flame } from 'lucide-react';
+import { sfx } from '../../engine/shared/sfx';
+import { ShieldCheck, Zap, Anchor, Layers, Clock, Cpu, Flame, Volume2, VolumeX } from 'lucide-react';
+
+const TUTORIAL_SEEN_KEY = 'voiddrift_redux_tutorial_seen';
 
 export default function App({ session }: GameRendererProps) {
   void session; // destructured per contract; game is self-contained
@@ -31,6 +37,16 @@ export default function App({ session }: GameRendererProps) {
   const [selectedAsteroidId, setSelectedAsteroidId] = useState<string | null>(null);
   const [selectedDroneId, setSelectedDroneId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [screen, setScreen] = useState<'title' | 'sim'>('title');
+  const [soundMuted, setSoundMuted] = useState<boolean>(false);
+
+  // First-run drift primer: fires only on a genuinely first start, via the
+  // shared OnboardingGate (boolean mode) + persisted tutorial-seen flag.
+  const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
+    useOnboardingGate({ mode: 'boolean', initialShow: false });
+
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
 
   // Sync state periodically from engine for React UI
   useEffect(() => {
@@ -44,6 +60,7 @@ export default function App({ session }: GameRendererProps) {
   const handleTogglePlayPause = () => {
     engine.stats.isRunning = !engine.stats.isRunning;
     setStats({ ...engine.stats });
+    sfx.play('click');
   };
 
   const handleSetSimSpeed = (speed: number) => {
@@ -56,6 +73,7 @@ export default function App({ session }: GameRendererProps) {
     setSelectedAsteroidId(null);
     setSelectedDroneId(null);
     setStats({ ...engine.stats });
+    sfx.play('click');
   };
 
   const handleUpdateConfig = (newConfig: Partial<SimulationConfig>) => {
@@ -72,11 +90,13 @@ export default function App({ session }: GameRendererProps) {
   const handleManualMiningDispatch = (droneId: string, asteroidId: string) => {
     engine.triggerManualMiningDispatch(droneId, asteroidId);
     setStats({ ...engine.stats });
+    sfx.play('whoosh');
   };
 
   const handleManualHaulerTug = (haulerId: string, asteroidId: string) => {
     engine.triggerManualHaulerTug(haulerId, asteroidId);
     setStats({ ...engine.stats });
+    sfx.play('pickup');
   };
 
   const handleToggleMiningDroneTier = (droneId: string) => {
@@ -87,7 +107,82 @@ export default function App({ session }: GameRendererProps) {
   const handleStartSmelt = (inputAmount: number) => {
     engine.startSmeltAluminum(inputAmount);
     setStats({ ...engine.stats });
+    sfx.play('confirm');
   };
+
+  const handleStartSim = () => {
+    sfx.play('confirm');
+    setScreen('sim');
+    if (!loadSave<boolean>(TUTORIAL_SEEN_KEY)) triggerPrimer();
+  };
+
+  const handleHowToPlay = () => {
+    sfx.play('click');
+    triggerPrimer();
+  };
+
+  const handlePrimerDone = () => {
+    writeSave(TUTORIAL_SEEN_KEY, true);
+    sfx.play('confirm');
+    completePrimer();
+  };
+
+  const toggleSound = () => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    sfx.setMuted(next);
+  };
+
+  const soundToggle = (
+    <button
+      id="voiddrift-sound-toggle"
+      type="button"
+      onClick={toggleSound}
+      aria-label={soundMuted ? 'Unmute sound' : 'Mute sound'}
+      className="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-400 hover:text-slate-100 hover:border-slate-700 transition"
+    >
+      {soundMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+    </button>
+  );
+
+  const primer = showPrimer ? <DriftPrimer onBegin={handlePrimerDone} /> : null;
+
+  if (screen === 'title') {
+    return (
+      <>
+        <GameShell
+          gameLabel="VoidDrift Redux"
+          gameId="voiddrift_redux"
+          phase="PHASE 4: GAS-BEARING BRANCH & BREAKER TIER"
+          mode={mode}
+          arcadeBaseUrl={arcadeBaseUrl}
+          className="bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950"
+          statusArea={soundToggle}
+        >
+          <TitleScreen
+            title="VoidDrift Redux"
+            tagline="Idle orbital mining at the edge of the drift"
+            pitch="A scout sweeps two rings of rock around the Hub. Direct mining drones, Breaker units, and tug haulers — ore comes in, gas gets drilled, and the smelter turns it into something worth keeping."
+            menuItems={[
+              {
+                id: 'voiddrift-start-sim',
+                label: 'Initialize Simulation',
+                variant: 'primary',
+                onClick: handleStartSim,
+              },
+              {
+                id: 'voiddrift-how-to-play',
+                label: 'How to Play',
+                variant: 'secondary',
+                onClick: handleHowToPlay,
+              },
+            ]}
+          />
+        </GameShell>
+        {primer}
+      </>
+    );
+  }
 
   return (
     <>
@@ -101,6 +196,13 @@ export default function App({ session }: GameRendererProps) {
         mainClassName="game-shell-main--scrollable"
         headerExtra={
           <div className="flex items-center gap-3 min-w-0">
+            <button
+              id="voiddrift-menu-btn"
+              onClick={() => { sfx.play('click'); setScreen('title'); }}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-800 font-mono font-bold text-xs text-slate-400 hover:text-slate-100 hover:border-slate-600 transition shrink-0"
+            >
+              ← Menu
+            </button>
             <div className="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-mono font-bold text-lg shadow-[0_0_10px_rgba(236,72,153,0.3)] shrink-0">
               VD
             </div>
@@ -178,6 +280,8 @@ export default function App({ session }: GameRendererProps) {
               </span>
               <span className="text-xs font-bold text-emerald-300">{stats.avgCycleTimeSec}s</span>
             </div>
+
+            {soundToggle}
           </div>
         }
         footer={<SignalStrip logs={engine.logs} />}
@@ -250,6 +354,8 @@ export default function App({ session }: GameRendererProps) {
         onClose={() => setIsModalOpen(false)}
         stats={stats}
       />
+
+      {primer}
     </>
   );
 }

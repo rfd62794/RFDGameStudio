@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Shield,
   Zap,
@@ -11,6 +11,7 @@ import { GameShell } from '../../components';
 import { Badge, Button, Card, Panel } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useLuaCall, useGameState } from '../../hooks';
+import { sfx } from '../../engine/shared/sfx';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { ChokePointGameState, TowerType } from './types';
 import './styles.css';
@@ -30,6 +31,9 @@ export default function App({ session }: GameRendererProps) {
   const { call } = useLuaCall(session);
   const [showTitle, setShowTitle] = useState(true);
   const [selectedTower, setSelectedTower] = useState<TowerType>('blocker');
+
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
   
   const data = session.files.data as Record<string, unknown>;
 
@@ -38,6 +42,7 @@ export default function App({ session }: GameRendererProps) {
     const nextState = call('place_tower', data, state, selectedTower, x, y) as ChokePointGameState | null;
     if (nextState) {
       setState(nextState);
+      sfx.play('pickup');
     }
   }, [state, selectedTower, call, data, setState]);
 
@@ -46,6 +51,7 @@ export default function App({ session }: GameRendererProps) {
     const nextState = call('commit_turn', data, state) as ChokePointGameState | null;
     if (nextState) {
       setState(nextState);
+      sfx.play(nextState.core_hp <= 0 ? 'lose' : 'hit');
     }
   }, [state, call, data, setState]);
 
@@ -75,7 +81,7 @@ export default function App({ session }: GameRendererProps) {
         pitch="Turn-based grid defense. Intercept automated threats with perfect foresight."
         quote="Analyze their vectors. Lock their trajectories. Construct the choke point."
         menuItems={[
-          { id: 'establish-connection', label: 'Establish Connection', onClick: () => setShowTitle(false) }
+          { id: 'establish-connection', label: 'Establish Connection', onClick: () => { sfx.play('confirm'); setShowTitle(false); } }
         ]}
       />
     );
@@ -214,7 +220,7 @@ export default function App({ session }: GameRendererProps) {
               </h3>
               <div className="flex flex-col gap-3">
                 <div
-                  onClick={() => setSelectedTower('blocker')}
+                  onClick={() => { sfx.play('click'); setSelectedTower('blocker'); }}
                   className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTower === 'blocker' ? 'border-cyan-500 bg-cyan-950/20' : 'border-slate-800 bg-slate-950/40 hover:bg-slate-900/40'}`}
                 >
                   <div className="flex justify-between items-center mb-1">
@@ -225,7 +231,7 @@ export default function App({ session }: GameRendererProps) {
                 </div>
 
                 <div
-                  onClick={() => setSelectedTower('turret')}
+                  onClick={() => { sfx.play('click'); setSelectedTower('turret'); }}
                   className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTower === 'turret' ? 'border-cyan-500 bg-cyan-950/20' : 'border-slate-800 bg-slate-950/40 hover:bg-slate-900/40'}`}
                 >
                   <div className="flex justify-between items-center mb-1">
