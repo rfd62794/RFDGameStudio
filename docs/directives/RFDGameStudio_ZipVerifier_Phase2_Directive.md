@@ -233,12 +233,14 @@ it and do not summarize it.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | claude |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rfdgamestudio-zipverifier-phase2--299934 |
 | Base branch | - |
+| Base commit | cbeceb9396355a0e0e61418040925cfcbf5e21e8 |
 
 **Status log**
 - 2026-09-23 01:22 · agentflow-tick · none → Queued — suggested by heartbeat: zip_verify code+tests already on disk from prior work; only the live OpenRouter smoke test + report remain, which is credentialed/judgment work — routing to claude, not devin
 - 2026-09-28 19:26 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-29 21:30 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-zipverifier-phase2--299934; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 <!-- queue:end -->
