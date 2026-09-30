@@ -49,7 +49,7 @@ or be clearly likely (a second live game wanting it now counts).
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-slime-coin-chrome-directive |
 | Base branch | - |
@@ -60,4 +60,5 @@ or be clearly likely (a second live game wanting it now counts).
 - 2026-09-28 21:56 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 19:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-slime-coin-chrome-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 19:34 · devin · In progress → Review — Done. Tutorial: components/CoinPrimer.tsx (5-line loop briefing) via shared useOnboardingGate boolean + loadSave/writeSave('slime_coin_tutorial_seen'). Visual: header rebuilt on shared Badge/StatBar (score progress to target, round, rate, hand, tokens) + mute toggle; header/footer restyled to tokens.css vars. Sound: utils/sound.ts procedural Web Audio (gladiator_arena pattern, silent until gesture) — fire, vat collect (pitch tracks combo), card offer/pick, exchange, run-end sting, UI confirm. End screen: run_end now uses shared EndStateScreen (won = score >= final target) replacing bespoke overlay. Also fixed a pre-existing deadlock: select_card left local phase stuck at 'card_select' so the tick loop never resumed — now syncs phase/round/target via existing get_state_summary. No extraction: primer card + sound engine already match the established per-game pattern; the shared versions land with Polish_Shared_Sfx. Verify: cd ts && npm test green (2004 pass / 0 fail) and npm run build clean; pre-push hook re-ran pytest (967) + vitest green. Pushed directive/rfdgamestudio-polish-slime-coin-chrome-directive. [origin] spent: devin 23 min est. n/a
+- 2026-09-29 23:27 · devin-overseer (delegated) · Review → Done
 <!-- queue:end -->
