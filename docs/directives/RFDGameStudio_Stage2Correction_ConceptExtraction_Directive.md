@@ -242,7 +242,7 @@ that's explicitly deferred (§0).
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction-co-f57741 |
 | Base branch | - |
@@ -264,4 +264,5 @@ that's explicitly deferred (§0).
 - 2026-09-25 22:10 · devin-overseer (delegated) · Blocked → Queued — Requeue: prior run killed by non-interactive tool-call rejection while checking commit ancestry (transient).
 - 2026-09-25 22:12 · robert-claude-laptop · Queued → Draft — DROPPED (Robert 2026-09-25 approved): superseded by Stage2Correction2 (95/0 floor), per this directive's own log. Not to be dispatched.
 - 2026-09-30 06:24 · devin-overseer (delegated) · Draft → Queued
+- 2026-09-30 08:17 · devin-overseer (delegated) · Queued → Approved — force: Robert 2026-09-30 batch order: approve all queued
 <!-- queue:end -->
