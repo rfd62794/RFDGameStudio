@@ -31,7 +31,7 @@ no recent enough confirmation to state its current state.
 
 | Game | Status | Current State | Next Real Action | Menu | Tutorial | Visual | Sound | Last Updated |
 |---|---|---|---|---|---|---|---|---|
-| **Planet of Greed** | Active | Culture stat asymmetry implemented + balance-verified (60-game harness). House stats wired into all mechanics. UI/UX style split deferred. | — | Shared | Y | 2026-08-15 | N | 2026-08-16 |
+| **Planet of Greed** | Active | Culture stat asymmetry implemented + balance-verified (60-game harness). House stats wired into all mechanics. UI/UX style split landed: per-House chrome themes via shared FactionTheme tokens, document surfaces stay neutral paper. | — | Shared | Y | 2026-08-15 | N | 2026-09-30 (direct file read) |
 | **Shoal** | Shipped/Mature | TS-native migration complete (151.7x speedup). artGen fully consumed (canvas paths, hunger-aware specs, path caching). | — | N | N | 2026-08-15 | N | 2026-08-15 |
 | **Mutant Battle Ball** | Active | TS-native migration done. Mid major creative overhaul — Neo Battlopolis, six-Brand Trinity, Body Part Synergy. | Continue feature build-out — genuinely mid-build, not near done. | Shared | N | 2026-08-15 | N | 2026-08-15 |
 | **SlimeWorld** | Shipped/Mature | Live on itch.io + arcade. Survived a production crisis (missing Lua files in bundle, fixed retroactively across 5 games). artGen fully consumed. | — | N | Y | 2026-08-15 | N | 2026-08-15 |
@@ -89,6 +89,7 @@ no recent enough confirmation to state its current state.
 | Shared UI components (`ts/src/ui/components/`, ADR-008) | Active use | 6+ games |
 | OnboardingGate (`ts/src/ui/components/OnboardingGate.tsx`) | Built, 2 consumers | Shared fire-once gate mechanism extracted from SlimeWorld. Consumed by SlimeWorld (original) + Planet of Greed (validation) |
 | Guided First-Action Walkthrough | Single instance, watching | `planetofgreed/GuidedWalkthrough.tsx` — guides real gameplay decisions with state-derived defaults. Not extracted yet — watching for a second independent build |
+| FactionTheme (`ts/src/ui/components/FactionTheme.tsx`) | Built, 1 consumer | Per-faction `--faction-*` CSS-var theme contract (ADR-014) built for Planet of Greed's per-House chrome. Known second consumer: Mutant Battle Ball Brands |
 | Shared logic (`ts/src/engine/shared/`) | Active, first-class | ADR-014: shared engine modules are the default, not demand-gated |
 | `artGen` module | Built AND consumed | Consumed by Shoal (canvas paths, hunger-aware specs) and SlimeWorld (seeded random, polygon generation) — ADR-014 proof case |
 | Standalone publishing pipeline + `RFD_IT_Publishing` | Working | 7 games packaged, Butler-based, real analytics confirmed |

@@ -4,8 +4,8 @@ export const STATUS_BOARD: ProjectEntry[] = [
   // --- Live Catalog ---
   {
     id: 'planet_of_greed', name: 'Planet of Greed', category: 'live_catalog', status: 'active',
-    currentState: 'Culture stat asymmetry implemented + balance-verified (60-game harness). House stats wired into all mechanics. UI/UX style split deferred.',
-    lastUpdated: '2026-08-16',
+    currentState: 'Culture stat asymmetry implemented + balance-verified (60-game harness). House stats wired into all mechanics. UI/UX style split landed: per-House chrome themes via shared FactionTheme tokens, document surfaces stay neutral paper.',
+    lastUpdated: '2026-09-30', verificationMethod: 'direct file read',
     capabilities: { mainMenu: 'Shared', tutorial: 'Y', graphicalUpgrade: '2026-08-15', soundEffects: 'N' },
   },
   {
