@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { GameShell, TabManager } from '../../components';
 import { Badge, MoreGamesByMe } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
@@ -10,6 +10,7 @@ import type { MBBGameState, MatchState, MutantParts, Part } from './types';
 import type { BrandId, QualityTier } from '../../engine/shared/partSlots';
 import { createMbbSimulation } from './simulation/mbbSimulation';
 import type { MbbSimulation } from './simulation/mbbSimulation';
+import { sfx } from '../../engine/shared/sfx';
 import RosterTab     from './components/RosterTab';
 import WorkshopTab   from './components/WorkshopTab';
 import ShopTab       from './components/ShopTab';
@@ -84,6 +85,9 @@ export default function App({ session }: GameRendererProps) {
   const [inMatch, setInMatch] = useState(false);
   const currentOpponentMutantsRef = useRef<Array<Record<string, unknown>>>([]);
 
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   // TS-native simulation — replaces the fengari Lua executor call path
   // for init_match/tick_match/resume_match/call_timeout. The Lua source
   // files remain in games/mutant_battle_ball/*.lua as reference, per
@@ -139,6 +143,7 @@ export default function App({ session }: GameRendererProps) {
     );
     setInMatch(true);
     setActiveTab('match');
+    sfx.play('cheer');
   }, [state, session]);
 
   const handleMatchEnd = useCallback((finalState: MatchState) => {
@@ -146,6 +151,7 @@ export default function App({ session }: GameRendererProps) {
     const data = session.files.data as Record<string, unknown>;
     const opponents = data['opponents'] as Array<Record<string, unknown>>;
     const won = finalState.scorePlayer > finalState.scoreOpponent;
+    sfx.play(won ? 'win' : 'lose');
     const scoring = data['scoring'] as Record<string, number> ?? {};
     const ironEarned = (won ? (scoring['iron_per_win'] ?? 60) : (scoring['iron_per_loss'] ?? 25))
       + finalState.scorePlayer * (scoring['iron_per_score'] ?? 10);
@@ -255,7 +261,7 @@ export default function App({ session }: GameRendererProps) {
         />
       }
     >
-      <TabManager tabs={TABS} active={activeTab} onChange={setActiveTab}>
+      <TabManager tabs={TABS} active={activeTab} onChange={(id) => { setActiveTab(id); sfx.play('click'); }}>
         {activeTab === 'roster' && (
           <RosterTab state={state} setState={setGameState}
                      session={session} call={noopCall}

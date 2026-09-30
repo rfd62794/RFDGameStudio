@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
+import { sfx } from '../../engine/shared/sfx';
 import { GameState, PlayerMoveType } from './types/gameState';
 import { FigureId, PlayerOriginId, IndictmentTriad, ClaimantId } from './engine/types';
 import {
@@ -58,6 +59,9 @@ export default function App({ session }: GameRendererProps) {
   const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
     useOnboardingGate({ mode: 'boolean', initialShow: false });
 
+  // Shared SFX: muted until the first user gesture (autoplay-safe).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   const handleBegin = (originId: PlayerOriginId) => {
     setChosenOriginId(originId);
     setGameState(createInitialGameState(originId));
@@ -65,6 +69,7 @@ export default function App({ session }: GameRendererProps) {
     setPlayStage('chamber');
     setActiveTip(null);
     setView('playing');
+    sfx.play('confirm');
     if (!hasOnboarded) triggerPrimer();
   };
 
@@ -112,6 +117,7 @@ export default function App({ session }: GameRendererProps) {
   const handleProceedFromInterlude = () => {
     if (!gameState) return;
     if (gameState.phase === 'verdict') {
+      sfx.play('cheer');
       setView('verdict');
     } else {
       setPlayStage('chamber');
@@ -121,6 +127,7 @@ export default function App({ session }: GameRendererProps) {
   // Specific move dispatches using the real orchestration functions
   const handleWhisper = (figureId: FigureId, themeId: string) => {
     maybeTriggerTip('whisper', 'whisper');
+    sfx.play('whoosh');
     handleMove((s) => whisperTo(s, figureId, themeId));
   };
 
@@ -135,10 +142,12 @@ export default function App({ session }: GameRendererProps) {
 
   const handleScout = () => {
     maybeTriggerTip('scout', 'evidenceScout');
+    sfx.play('pickup');
     handleMove((s) => scoutForEvidence(s));
   };
 
   const handleDeliverIndictment = (figureId: FigureId, triad: IndictmentTriad) => {
+    sfx.play('alert');
     handleMove((s) => deliverIndictmentTo(s, figureId, triad));
   };
 

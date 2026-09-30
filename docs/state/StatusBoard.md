@@ -49,11 +49,12 @@ no recent enough confirmation to state its current state.
 
 | Game | Status | Current State | Next Real Action | Menu | Tutorial | Visual | Sound | Last Updated |
 |---|---|---|---|---|---|---|---|---|
-| **VoidDrift** | Status Unconfirmed | Rust/Bevy/Android. Act 1 of a locked 3-game narrative trilogy (VoidDrift -> Dissonance Depths -> SlimeWorld). | Verify whether the previously-flagged OpeningCompleteEvent blocking bug is still open. | N | N | — | N | 2026-08-15 (research/inference) |
+| **VoidDrift** | Shipped/Mature | Rust/Bevy/Android + WASM. Phase 4a complete, live on itch.io — opening cinematic live, OpeningCompleteEvent wired via Phase 3b event bus (bug closed). cargo test 48/48 green (re-verified 2026-09-29). Act 1 of a locked 3-game narrative trilogy (VoidDrift -> Dissonance Depths -> SlimeWorld). | — | Y | Y | 2026-05-17 | N | 2026-09-29 (direct file read) |
 | **VoidDrift Redux (web)** | Active | Fragment drift correction landed (FRAGMENT_DRIFT_RATE in engine.ts). Auto-dispatch FSM with manual toggle. Orbital canvas with zoom/pan. Web simulation, separate from native VoidDrift. | — | N | N | 2026-08-16 | N | 2026-08-16 |
 | **House of Kings: Collab** | Active | Firebase/Firestore. Phases 0-10 + full security remediation arc complete. | Direct status check — architecturally isolated, easy to lose track of. | N | N | — | N | 2026-08-15 |
 | **AntSim Redux** | Shipped/Deliberately Paused | Phase 5, 90-test floor. Closed via named engine-death-pattern acknowledgment. | — | N | N | — | N | 2026-08-15 |
 | **Early Learning Buddy** | Active | Voice-powered learning companion. Speech recognition, fuzzy matching, AI-generated story beats. Intentionally unlisted from public arcade. | — | N | N | 2026-08-16 | Partial | 2026-08-16 |
+| **TurboShells** | Blocked | Python/pygame legacy project (turtle breeding + racing). No game code in this repo — only the Feb 2026 audit doc (archive/rpgCore TURBOSHELLS_AUDIT_REPORT) and archived rpgCore racing/genetics modules adapted from it. The Lua carve-out protecting its port was retired by ADR-013 after the port lapsed. | Robert decides the completion path per ADR-013 — TS-native rebuild or drop — and the legacy source repo location needs confirming before any revive. | — | — | — | — | 2026-09-29 (direct file read) |
 
 ---
 
@@ -62,10 +63,9 @@ no recent enough confirmation to state its current state.
 | Game | Status | Current State | Next Real Action | Menu | Tutorial | Visual | Sound | Last Updated |
 |---|---|---|---|---|---|---|---|---|
 | **Succession** | Active | Persuasion-sim, mid-development. ADR-007 landed figure-locked persuasion methods (Chancellor=evidence, Archbishop=whisper, Commander=appeal) plus a first-run CourtPrimer via shared OnboardingGate. | — | N | Shared | 2026-08-15 | N | 2026-09-29 |
-| **SlimeGarden** | Status Unconfirmed | Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). | Direct status check needed. | — | — | — | — | 2026-08-15 (research/inference) |
+| **SlimeGarden** | Status Unconfirmed | Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). Audit 2026-09-29: origin project merged with SlimeBreeder into the live SlimeWorld (ADR-023). | Recommendation only: retire, superseded by SlimeWorld (origin project per ADR-023; source preserved in examples/slimegarden). Retirement is Robert's call. | — | — | — | — | 2026-08-15 (research/inference) |
 | **Trinity Siege/Combat** | Status Unconfirmed | Bevy vs. egui architecture question left unresolved. | Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now. | — | — | — | — | 2026-08-15 (research/inference) |
-| **7 Days to Fry** | Status Unconfirmed | Imported alongside KingMaker Squads (now retired). No status since. | Direct status check needed. | — | — | — | — | 2026-08-15 (research/inference) |
-| **TurboShells** | Status Unconfirmed | Named as a genuine cross-language-origin Lua exception (with VoidDrift). No recent confirmation. | Direct status check needed. | — | — | — | — | 2026-08-15 (research/inference) |
+| **7 Days to Fry** | Shipped/Mature | Complete cooking-survival sim (7-day arc, win/lose). Registered in GAME_REGISTRY as an external demo and in website_collection. Own state doc (Aug 2026) reports 241/241 vitest floor — self-reported, not re-runnable in-repo. | Promotion decision if revived — TS-native port or permanent external status; wire its own test suite into a runner the studio executes. | Y | N | 2026-08-30 | N | 2026-09-29 (direct file read) |
 
 ---
 

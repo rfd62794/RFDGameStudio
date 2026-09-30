@@ -6,6 +6,7 @@
 import type { Part, PartsBySlot } from '../../../engine/shared/partSlots';
 import type { Mutant } from '../types';
 import { getEffectivePartStats, rollMalfunctioningFailure } from '../brandModifiers';
+import { getMutantSynergy } from '../bodyPartSynergy';
 import type { Ball } from '../../../engine/shared/sportsSim';
 import { mapToPlayerStats, averageCyberOrganicLean } from '../statsMapper';
 import { PART_SLOTS, Agent } from './mbbConfig';
@@ -26,6 +27,13 @@ export function calculateStats(mutant: { parts?: PartsBySlot | Record<string, Pa
         spd += effective.speed;
       }
     }
+    // Body Part Synergy: Brand Trinity set bonus + cyber-organic lean
+    // compatibility modify the summed totals — same single pipeline.
+    const mult = getMutantSynergy(parts).statMultipliers;
+    acc *= mult.accuracy;
+    end *= mult.endurance;
+    pow *= mult.power;
+    spd *= mult.speed;
   }
   return { accuracy: acc, endurance: end, power: pow, speed: spd, maxHealth: Math.max(20, end) };
 }
@@ -58,6 +66,15 @@ export function makeAgent(mutant: Mutant | Record<string, unknown>, team: 'playe
           // per failed part (6 slots).
           malfunctionPenalty += 1 / PART_SLOTS.length;
         }
+      }
+      // Body Part Synergy dissonance roll: a mutant mixing incompatible
+      // lean parts (dissonant / critical_rejection compatibility tiers)
+      // carries a malfunction risk the Workshop displays. Roll it once
+      // here — the same match-start live-risk boundary the Malfunctioning
+      // quality roll uses. A severe malfunction cuts all stats by 25%.
+      const dissonanceRisk = getMutantSynergy(parts).compatibility?.malfunctionRiskPercent ?? 0;
+      if (dissonanceRisk > 0 && prng() * 100 < dissonanceRisk) {
+        malfunctionPenalty += 0.5;
       }
       if (malfunctionPenalty > 0) {
         const mult = 1 - malfunctionPenalty * 0.5;
