@@ -7,7 +7,6 @@ import {
 import {
   BASTARD_CHANCELLOR_STARTING_FAVOR,
   KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN,
-  KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN,
   APPEAL_FAVOR_GAIN,
   MERCHANT_SLANDER_PENALTY,
   RIVAL_SLANDER_PENALTY,
@@ -51,34 +50,36 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       });
     });
 
-    it('Commander Appeals grant +25% favor gain (+10 instead of +8)', () => {
+    it('Commander Appeals compound the +25% base with the 2× locked-method premium (+20)', () => {
       const state = createInitialGameState('disgraced_knight');
       const next = appealTo(state, 'commander');
 
+      // Appeal is the commander's locked method (ADR-007): the origin
+      // override base of 10 gains the 2× premium = 20.
       const commander = next.figures.find((f) => f.id === 'commander')!;
-      expect(commander.favor.player).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN); // 10
+      expect(commander.favor.player).toBe(20);
 
       const playerEntry = next.ticker.find((t) => t.claimantId === 'player' && t.figureId === 'commander');
-      expect(playerEntry?.favorGain).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN);
+      expect(playerEntry?.favorGain).toBe(20);
     });
 
-    it('Chancellor Appeals grant standard +8 favor gain', () => {
+    it('Chancellor Appeals land at the reduced non-locked rate (+2)', () => {
       const state = createInitialGameState('disgraced_knight');
       const next = appealTo(state, 'chancellor');
 
       const chancellor = next.figures.find((f) => f.id === 'chancellor')!;
-      expect(chancellor.favor.player).toBe(APPEAL_FAVOR_GAIN); // 8
+      expect(chancellor.favor.player).toBe(2);
     });
 
-    it('Archbishop Appeals grant -50% favor gain (4 instead of 8) — ADR-004 recurring friction', () => {
+    it('Archbishop Appeals compound ADR-004 friction with the non-locked rate (4 × 0.25 = 1)', () => {
       const state = createInitialGameState('disgraced_knight');
       const next = appealTo(state, 'archbishop');
 
       const archbishop = next.figures.find((f) => f.id === 'archbishop')!;
-      expect(archbishop.favor.player).toBe(KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN); // 4
+      expect(archbishop.favor.player).toBe(1);
 
       const playerEntry = next.ticker.find((t) => t.claimantId === 'player' && t.figureId === 'archbishop');
-      expect(playerEntry?.favorGain).toBe(KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN);
+      expect(playerEntry?.favorGain).toBe(1);
     });
 
     it('Archbishop requires 1 formal Appeal before Whispers unlock (Whisper is rejected if unappealed)', () => {
@@ -89,10 +90,11 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       expect(rejected.segment).toBe(1);
       expect(rejected.ticker.length).toBe(0);
 
-      // Deliver 1 formal appeal to Archbishop (ADR-004: reduced to -50% favor gain, 4 instead of 8)
+      // Deliver 1 formal appeal to Archbishop — the unlock gate is the
+      // appeal ticker entry itself, so the reduced +1 favor still unlocks
       const appealed = appealTo(state, 'archbishop');
       expect(appealed.segment).toBe(2);
-      expect(appealed.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(KNIGHT_ARCHBISHOP_APPEAL_FAVOR_GAIN);
+      expect(appealed.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(1);
 
       // Now whispering to Archbishop succeeds
       const whispered = whisperTo(appealed, 'archbishop', 'pious_devotion');
@@ -125,13 +127,15 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
 
     it('Slander against Merchant Banker has its penalty halved (-5 instead of -10)', () => {
       const state = createInitialGameState('merchant_banker');
-      // Segment 1 (odd, Aldric): Player whispers to Chancellor (+20). Aldric whispers to a neglected figure.
-      const afterSeg1 = whisperTo(state, 'chancellor', 'noble_pedigree');
-      expect(afterSeg1.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(20);
+      // Segment 1 (odd, Aldric): Player whispers to the Archbishop — her
+      // locked method pays the 2× premium (+40). Aldric whispers elsewhere.
+      const afterSeg1 = whisperTo(state, 'archbishop', 'divine_favor');
+      expect(afterSeg1.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(40);
 
-      // Segment 2 (even, Vivienne): Player appeals to Chancellor (+8, total 28).
-      // Vivienne sees player lead 28 >= 16 → slanders Chancellor (-5 for Merchant Banker) = 23.
-      const afterSeg2 = appealTo(afterSeg1, 'chancellor');
+      // Segment 2 (even, Vivienne): Player appeals to the Archbishop
+      // (+2 non-locked, total 42).
+      // Vivienne sees player lead 42 >= 16 → slanders Archbishop (-5 for Merchant Banker) = 37.
+      const afterSeg2 = appealTo(afterSeg1, 'archbishop');
 
       const slanderEntry = afterSeg2.ticker.find(
         (t) => t.moveType === 'slander' && t.segment === 2
@@ -139,20 +143,24 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       expect(slanderEntry).toBeDefined();
       expect(slanderEntry?.favorGain).toBe(-MERCHANT_SLANDER_PENALTY); // -5
 
-      const chancellor = afterSeg2.figures.find((f) => f.id === 'chancellor')!;
-      // 20 + 8 - 5 = 23 favor
-      expect(chancellor.favor.player).toBe(23);
+      const archbishop = afterSeg2.figures.find((f) => f.id === 'archbishop')!;
+      // 40 + 2 - 5 = 37 favor
+      expect(archbishop.favor.player).toBe(37);
     });
 
     it('Standard non-merchant origin suffers full -10 slander penalty', () => {
-      const state = createInitialGameState('disgraced_knight');
-      // Segment 1 (odd, Aldric): Player whispers to Chancellor (+20). Aldric whispers to a neglected figure.
-      const afterSeg1 = whisperTo(state, 'chancellor', 'noble_pedigree');
-      expect(afterSeg1.figures.find((f) => f.id === 'chancellor')?.favor.player).toBe(20);
+      // Bastard Scion — a standard (non-merchant) origin that can
+      // whisper the Archbishop freely (the knight must appeal first).
+      const state = createInitialGameState('bastard_scion');
+      // Segment 1 (odd, Aldric): Player whispers to the Archbishop (+40
+      // locked). Aldric whispers to a neglected figure.
+      const afterSeg1 = whisperTo(state, 'archbishop', 'divine_favor');
+      expect(afterSeg1.figures.find((f) => f.id === 'archbishop')?.favor.player).toBe(40);
 
-      // Segment 2 (even, Vivienne): Player appeals to Chancellor (+8, total 28).
-      // Vivienne sees player lead 28 >= 16 → slanders Chancellor (-10 for non-merchant) = 18.
-      const afterSeg2 = appealTo(afterSeg1, 'chancellor');
+      // Segment 2 (even, Vivienne): Player appeals to the Archbishop
+      // (+2 at the non-locked rate, total 42).
+      // Vivienne sees player lead 42 >= 16 → slanders Archbishop (-10 for non-merchant) = 32.
+      const afterSeg2 = appealTo(afterSeg1, 'archbishop');
 
       const slanderEntry = afterSeg2.ticker.find(
         (t) => t.moveType === 'slander' && t.segment === 2
@@ -160,9 +168,9 @@ describe('Player Lineage Origins & Run Modifiers (Phase 11)', () => {
       expect(slanderEntry).toBeDefined();
       expect(slanderEntry?.favorGain).toBe(-RIVAL_SLANDER_PENALTY); // -10
 
-      const chancellor = afterSeg2.figures.find((f) => f.id === 'chancellor')!;
-      // 20 + 8 - 10 = 18 favor
-      expect(chancellor.favor.player).toBe(18);
+      const archbishop = afterSeg2.figures.find((f) => f.id === 'archbishop')!;
+      // 40 + 2 - 10 = 32 favor
+      expect(archbishop.favor.player).toBe(32);
     });
   });
 });
@@ -179,12 +187,13 @@ describe('Origin Modifier Refactor (OCP Proof)', () => {
     expect(bastardState.playerEvidence.length).toBe(1);
     expect(bastardState.scoutedCount).toBe(1);
 
-    // Disgraced Knight: appeal gain override on commander, standard on others
+    // Disgraced Knight: appeal gain override on commander (locked → 2×
+    // premium = 20), reduced non-locked rate elsewhere (ADR-007)
     const knightState = createInitialGameState('disgraced_knight');
     const knightAppealCommander = appealTo(knightState, 'commander');
-    expect(knightAppealCommander.figures.find((f) => f.id === 'commander')!.favor.player).toBe(KNIGHT_COMMANDER_APPEAL_FAVOR_GAIN);
+    expect(knightAppealCommander.figures.find((f) => f.id === 'commander')!.favor.player).toBe(20);
     const knightAppealChancellor = appealTo(knightState, 'chancellor');
-    expect(knightAppealChancellor.figures.find((f) => f.id === 'chancellor')!.favor.player).toBe(APPEAL_FAVOR_GAIN);
+    expect(knightAppealChancellor.figures.find((f) => f.id === 'chancellor')!.favor.player).toBe(2);
 
     // Merchant Banker: slander penalty halved, rival first whisper bonus
     const merchantModifiers = getOriginModifiers('merchant_banker');

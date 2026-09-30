@@ -14,6 +14,7 @@ import {
   Scale,
   Swords,
   ChevronDown,
+  Gem,
 } from 'lucide-react';
 import {
   FigureState,
@@ -28,8 +29,10 @@ import { EvidenceItem } from '../data/evidence';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIM_THEMES } from '../data/claimThemes';
 import { CLAIMANTS } from '../data/claimants';
-import { RIVAL_SLANDER_PENALTY } from '../data/gameConstants';
+import { APPEAL_FAVOR_GAIN, RIVAL_SLANDER_PENALTY } from '../data/gameConstants';
+import { getOriginModifiers } from '../data/origins';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
+import { lockedMethodFor, persuasionMethodGain, PERSUASION_METHOD_LABELS } from '../engine/methodLock';
 import { getFigureQualitativeStanding } from '../utils/favorTiers';
 import { TickerEntry } from '../types/gameState';
 import { ApproachId, nextExpandedApproach } from '../utils/approachDisclosure';
@@ -82,6 +85,16 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
   const meta = COURT_FIGURES[figure.id];
   const isExposed = figure.exposedAgainst.includes('player');
   const standing = getFigureQualitativeStanding(figure);
+  const lockedMethod = lockedMethodFor(figure.id);
+
+  // Real effective appeal value at this figure: origin override first,
+  // then the method lock (ADR-007) — the same formula appealTo applies.
+  // (This also replaced a stale "+50% / +12" label that predated the
+  // ADR-004 reduction to +25% / +10.)
+  const appealBase =
+    getOriginModifiers(playerOrigin).appealFavorGainOverride?.[figure.id] ?? APPEAL_FAVOR_GAIN;
+  const appealGain = persuasionMethodGain(figure.id, 'appeal', appealBase);
+  const hasAppealOriginModifier = appealBase !== APPEAL_FAVOR_GAIN;
 
   const activeThemeId = hoveredThemeId || selectedThemeId;
   const activeTheme = CLAIM_THEMES.find((t) => t.id === activeThemeId) || CLAIM_THEMES[0];
@@ -284,6 +297,11 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
               <span>Domain:</span>
               <span className="text-stone-400 font-serif">{meta.domain}</span>
             </div>
+
+            <div className="text-[11px] text-stone-500 border-t border-stone-800/80 pt-1.5 flex items-center justify-between">
+              <span>Respects:</span>
+              <span className="text-amber-300/90 font-serif font-medium">{PERSUASION_METHOD_LABELS[lockedMethod]}</span>
+            </div>
           </div>
         </div>
 
@@ -322,7 +340,7 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
         )}
 
         {/* Deep Mystery Dossier Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 border-t border-stone-800/80">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2 border-t border-stone-800/80">
           <div className="p-3 bg-stone-950/70 border border-stone-800 rounded-xl space-y-1">
             <div className="flex items-center gap-1.5 text-amber-400 font-serif text-[11px] font-semibold uppercase tracking-wider">
               <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
@@ -350,6 +368,16 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
             </div>
             <p className="text-xs text-purple-200 italic leading-snug">
               "{meta.mysteryInquiry}"
+            </p>
+          </div>
+
+          <div className="p-3 bg-amber-950/20 border border-amber-900/50 rounded-xl space-y-1">
+            <div className="flex items-center gap-1.5 text-amber-300 font-serif text-[11px] font-semibold uppercase tracking-wider">
+              <Gem className="w-3.5 h-3.5 text-amber-400" />
+              <span>Favored Approach</span>
+            </div>
+            <p className="text-xs text-amber-200/90 leading-snug">
+              <strong>{PERSUASION_METHOD_LABELS[lockedMethod]}</strong> — {meta.methodAffinity}
             </p>
           </div>
         </div>
@@ -402,9 +430,7 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
 
             <div className="flex items-center gap-2.5 shrink-0">
               <span className="text-[11px] font-serif px-2 py-0.5 bg-sky-950/60 border border-sky-800/60 text-sky-300 rounded font-medium">
-                {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
-                  ? '+50% Knight Perk'
-                  : 'Zero-Risk'}
+                {lockedMethod === 'appeal' ? 'Favored Approach' : 'Cool Reception'} · +{appealGain} · Zero-Risk
               </span>
               <ChevronDown
                 className={`w-4 h-4 text-stone-400 transition-transform ${
@@ -422,14 +448,16 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
 
               <div className="p-3 bg-stone-950/60 border border-stone-800 rounded-xl text-xs text-stone-400 space-y-1">
                 <div className="font-serif text-stone-200 font-medium">
-                  {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
-                    ? 'Iron Knight Synergy:'
+                  {hasAppealOriginModifier
+                    ? 'Origin-Modified Outcome:'
                     : 'Guaranteed Tactical Outcome:'}
                 </div>
                 <p className="text-[11px] leading-relaxed">
-                  {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
-                    ? 'Grants +12 favor (+50% bonus) when appealing to your fellow Commander, and produces no ripple friction.'
-                    : 'Earns a reliable +8 favor without planting claims or provoking opposing faction jealousy.'}
+                  {hasAppealOriginModifier
+                    ? `Your lineage adjusts this appeal's base value to ${appealBase}; ${lockedMethod === 'appeal' ? `${meta.name.split(' ')[1]} favors formal appeals, so it lands at full weight.` : `but ${meta.name.split(' ')[1]} does not favor appeals, so it lands at +${appealGain}.`} Produces no ripple friction.`
+                    : lockedMethod === 'appeal'
+                    ? `${meta.name.split(' ')[1]} favors the open petition — earns the full +${appealGain} favor without planting claims or provoking opposing faction jealousy.`
+                    : `${meta.name.split(' ')[1]} does not favor the open petition — earns +${appealGain} favor (reduced from the usual +${APPEAL_FAVOR_GAIN}), still guaranteed and risk-free.`}
                 </p>
               </div>
 
@@ -440,11 +468,7 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
                 className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-stone-950 font-serif font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-sky-950/50"
               >
                 <Scale className="w-4 h-4" />
-                <span>
-                  {playerOrigin === 'disgraced_knight' && figure.id === 'commander'
-                    ? 'Deliver Commander Appeal (+12 Favor)'
-                    : 'Deliver Formal Council Appeal (+8 Favor)'}
-                </span>
+                <span>Deliver Formal Appeal to {meta.name.split(' ')[1]} (+{appealGain} Favor)</span>
               </button>
             </div>
           )}

@@ -106,9 +106,9 @@ export const STATUS_BOARD: ProjectEntry[] = [
   // --- AI-Studio-Origin Track ---
   {
     id: 'succession', name: 'Succession', category: 'ai_studio_track', status: 'active',
-    currentState: 'Persuasion-sim redesign, mid-development. Local TitleScreen implementation.',
-    lastUpdated: '2026-08-15',
-    capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '2026-08-15', soundEffects: 'N' },
+    currentState: 'Persuasion-sim, mid-development. ADR-007 landed figure-locked persuasion methods (Chancellor=evidence, Archbishop=whisper, Commander=appeal) plus a first-run CourtPrimer via shared OnboardingGate.',
+    lastUpdated: '2026-09-29',
+    capabilities: { mainMenu: 'N', tutorial: 'Shared', graphicalUpgrade: '2026-08-15', soundEffects: 'N' },
   },
   {
     id: 'slimegarden', name: 'SlimeGarden', category: 'ai_studio_track', status: 'status_unconfirmed',

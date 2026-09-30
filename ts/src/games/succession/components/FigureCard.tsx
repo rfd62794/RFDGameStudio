@@ -1,6 +1,7 @@
 import React from 'react';
-import { Crown, Sparkles, Shield, AlertTriangle, MessageSquare, Compass } from 'lucide-react';
+import { Crown, Sparkles, Shield, AlertTriangle, MessageSquare, Compass, Gem } from 'lucide-react';
 import { FigureState, FigureId } from '../engine/types';
+import { PERSUASION_METHOD_LABELS } from '../engine/methodLock';
 import { COURT_FIGURES } from '../data/courtFigures';
 import { CLAIM_THEMES } from '../data/claimThemes';
 import { getFigureQualitativeStanding } from '../utils/favorTiers';
@@ -129,9 +130,20 @@ export const FigureCard: React.FC<FigureCardProps> = ({
         )}
 
         {/* Domain description */}
-        <p className="text-xs text-stone-400 mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-stone-400 mb-2 line-clamp-2 leading-relaxed">
           {meta.description}
         </p>
+
+        {/* Favored persuasion method (ADR-007) — the approach this
+            councilor values most; other approaches still work at
+            reduced value. */}
+        <div className="mb-4 flex items-center gap-2 text-xs">
+          <Gem className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <span className="text-stone-400">Respects:</span>
+          <span className="text-amber-300/90 font-serif font-medium bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded text-[11px]">
+            {PERSUASION_METHOD_LABELS[meta.lockedMethod]}
+          </span>
+        </div>
 
         {/* Qualitative Standing Box (Fog-of-War) */}
         <div className="space-y-2.5 mb-4 bg-stone-950/80 border border-stone-800/80 rounded-lg p-3">

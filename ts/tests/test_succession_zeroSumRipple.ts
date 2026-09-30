@@ -12,16 +12,17 @@ describe('Zero-Sum Domain Ripple Friction (ADR-013)', () => {
   it('whisperTo_applies_domain_ripple_friction_to_opposing_councilor_with_positive_favor', () => {
     const initial = createInitialGameState();
 
-    // Step 1: Player Appeals to General Brand (Commander) -> Gains +8 favor on Commander
+    // Step 1: Player Appeals to General Brand (Commander) -> Appeal is
+    // his locked method (ADR-007), so the 2× premium grants +16
     const afterAppeal = appealTo(initial, 'commander');
     const commanderFavorBefore = afterAppeal.figures.find((f) => f.id === 'commander')!.favor.player;
-    expect(commanderFavorBefore).toBe(8);
+    expect(commanderFavorBefore).toBe(16);
 
     // Step 2: Player Whispers to Chancellor Hector -> Conflict with Commander (-4)
     const afterWhisper = whisperTo(afterAppeal, 'chancellor', 'noble_pedigree');
     const commanderFavorAfter = afterWhisper.figures.find((f) => f.id === 'commander')!.favor.player;
 
-    // Commander favor was reduced from 8 to 4 due to the zero-sum ripple friction
+    // Commander favor was reduced from 16 to 12 due to the zero-sum ripple friction
     expect(commanderFavorAfter).toBe(commanderFavorBefore - DOMAIN_RIPPLE_PENALTY);
 
     // Verify ticker entry records ripple metadata
@@ -49,10 +50,11 @@ describe('Zero-Sum Domain Ripple Friction (ADR-013)', () => {
   it('formal_appeals_produce_zero_domain_ripple_friction', () => {
     const initial = createInitialGameState();
 
-    // Set positive favor on Archbishop
+    // Set positive favor on Archbishop — appeal is not her locked
+    // method (ADR-007), so it lands at the reduced +2
     const stateWithArchbishop = appealTo(initial, 'archbishop');
     const archbishopFavorBefore = stateWithArchbishop.figures.find((f) => f.id === 'archbishop')!.favor.player;
-    expect(archbishopFavorBefore).toBe(8);
+    expect(archbishopFavorBefore).toBe(2);
 
     // Deliver appeal to Commander (which would normally conflict with Archbishop if whispered)
     const stateAfterCommanderAppeal = appealTo(stateWithArchbishop, 'commander');
@@ -68,9 +70,16 @@ describe('Zero-Sum Domain Ripple Friction (ADR-013)', () => {
   });
 
   it('presentEvidenceTo_applies_domain_ripple_friction_to_opposing_councilor', () => {
-    // Start state with an Archbishop evidence item and positive Chancellor favor
+    // Start state with an Archbishop evidence item and positive
+    // Chancellor favor — seeded directly, since a non-locked appeal
+    // would only grant +2 and the ripple floors at zero.
     let state = createInitialGameState();
-    state = appealTo(state, 'chancellor'); // Chancellor favor = 8
+    state = {
+      ...state,
+      figures: state.figures.map((f) =>
+        f.id === 'chancellor' ? { ...f, favor: { ...f.favor, player: 8 } } : f
+      ),
+    };
 
     // Add unspent Archbishop evidence
     state = {
