@@ -92,13 +92,40 @@ export function getGladiatorAnatomySummary(gladiator: AnatomySubject) {
 }
 
 /**
- * Calculates Cyber-Organic Compatibility across all equipped parts on a Frame.
- * Lean is mapped from -1.0 (Pure Organic) to +1.0 (Pure Cybernetic).
+ * Lean-only compatibility result — the game-agnostic core of
+ * Cyber-Organic Compatibility. Extracted so games with their own part
+ * model (e.g. Mutant Battle Ball's 0-100 lean scale, nullable slots)
+ * can consume the same compatibility math without fabricating a full
+ * AnatomySubject. Second real consumer added per ADR-014.
  */
-export function calculateCompatibility(gladiator: AnatomySubject): CompatibilityReport {
-  const parts = gladiator.parts;
-  const slotList = BODY_SLOTS;
-  const leans = slotList.map(slot => parts[slot].cyberOrganicLean);
+export interface LeanCompatibility {
+  averageLean: number;
+  variance: number;
+  compatibilityTier: CompatibilityReport['compatibilityTier'];
+  synergyBonus: {
+    speedPercent: number;
+    powerPercent: number;
+    description: string;
+  };
+  malfunctionRiskPercent: number; // 0 to 25% chance per turn
+}
+
+/**
+ * Calculates Cyber-Organic Compatibility from a bare list of leans.
+ * Leans are on the anatomy scale: -1.0 (Pure Organic) to +1.0 (Pure
+ * Cybernetic). Callers on a different scale convert before calling.
+ * An empty list yields a neutral 'stable' report.
+ */
+export function calculateLeanCompatibility(leans: number[]): LeanCompatibility {
+  if (leans.length === 0) {
+    return {
+      averageLean: 0,
+      variance: 0,
+      compatibilityTier: 'stable',
+      synergyBonus: { speedPercent: 0, powerPercent: 0, description: 'Stable alignment' },
+      malfunctionRiskPercent: 0,
+    };
+  }
 
   // Calculate Mean Lean
   const averageLean = leans.reduce((a, b) => a + b, 0) / leans.length;
@@ -139,6 +166,27 @@ export function calculateCompatibility(gladiator: AnatomySubject): Compatibility
     synergyBonus = { speedPercent: -15, powerPercent: -10, description: 'Severe Bio-Mechanical Rejection!' };
     malfunctionRiskPercent = 22; // 22% chance per turn of severe malfunction
   }
+
+  return {
+    averageLean,
+    variance,
+    compatibilityTier,
+    synergyBonus,
+    malfunctionRiskPercent,
+  };
+}
+
+/**
+ * Calculates Cyber-Organic Compatibility across all equipped parts on a Frame.
+ * Lean is mapped from -1.0 (Pure Organic) to +1.0 (Pure Cybernetic).
+ */
+export function calculateCompatibility(gladiator: AnatomySubject): CompatibilityReport {
+  const parts = gladiator.parts;
+  const slotList = BODY_SLOTS;
+  const leans = slotList.map(slot => parts[slot].cyberOrganicLean);
+
+  const { averageLean, variance, compatibilityTier, synergyBonus, malfunctionRiskPercent } =
+    calculateLeanCompatibility(leans);
 
   const partMismatches = slotList.map(slot => {
     const part = parts[slot];

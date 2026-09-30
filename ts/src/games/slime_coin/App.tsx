@@ -127,6 +127,7 @@ export default function App({ session }: GameRendererProps) {
       if (result.phase === 'card_select') {
         setState(prev => prev ? { ...prev, phase: 'card_select', offered_cards: result.offered_cards ?? [] } : prev);
       } else if (result.phase === 'run_end') {
+        sound.playRunEnd(result.score >= state.target_score);
         setState(prev => prev ? { ...prev, phase: 'run_end' } : prev);
       }
     }

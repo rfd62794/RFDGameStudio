@@ -4,93 +4,56 @@
  * The AudioContext is created lazily inside the first play call, which
  * only ever runs from a click handler, so audio stays silent until a
  * user gesture.
+ *
+ * Migrated to engine/shared/sfx (Polish_Shared_Sfx): the per-game class
+ * is now a thin facade over the shared SfxEngine — same public API and
+ * note parameters, no duplicated engine internals.
  */
+import { SfxEngine } from '../../../engine/shared/sfx';
 
-class SoundEngine {
-  private ctx: AudioContext | null = null;
-  private enabled: boolean = true;
-
-  private initCtx() {
-    if (!this.ctx && typeof window !== 'undefined') {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
-      }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+class ChimeraWildsSound extends SfxEngine {
+  constructor() {
+    super();
+    // This game defaults sound ON; the context is still created lazily
+    // inside the first play call (a user gesture by construction).
+    this.setMuted(false);
+    this.register('cw_roll', [
+      { type: 'square', from: 900, dur: 0.06, vol: 0.08 },
+      { type: 'square', from: 650, at: 0.07, dur: 0.06, vol: 0.08 },
+      { type: 'square', from: 400, at: 0.13, dur: 0.06, vol: 0.08 },
+    ]);
+    this.register('cw_win', [
+      { type: 'sine', from: 523, dur: 0.22, vol: 0.12 },
+      { type: 'sine', from: 659, at: 0.09, dur: 0.22, vol: 0.12 },
+      { type: 'sine', from: 784, at: 0.18, dur: 0.22, vol: 0.12 },
+    ]);
+    this.register('cw_loss', [
+      { type: 'sawtooth', from: 220, to: 90, dur: 0.4, vol: 0.12 },
+    ]);
   }
 
   public setEnabled(enabled: boolean) {
-    this.enabled = enabled;
+    this.setMuted(!enabled);
   }
 
   public isSoundEnabled(): boolean {
-    return this.enabled;
+    return !this.isMuted();
   }
 
+  /** D20 rattle — three descending square ticks. */
   public playRoll() {
-    if (!this.enabled) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const now = this.ctx.currentTime;
-    [0, 0.07, 0.13].forEach((offset, i) => {
-      const osc = this.ctx!.createOscillator();
-      const gain = this.ctx!.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(900 - i * 250, now + offset);
-      gain.gain.setValueAtTime(0.08, now + offset);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.06);
-      osc.connect(gain);
-      gain.connect(this.ctx!.destination);
-      osc.start(now + offset);
-      osc.stop(now + offset + 0.07);
-    });
+    this.play('cw_roll');
   }
 
+  /** Encounter won — ascending three-note chime. */
   public playWin() {
-    if (!this.enabled) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const now = this.ctx.currentTime;
-    [523, 659, 784].forEach((freq, i) => {
-      const osc = this.ctx!.createOscillator();
-      const gain = this.ctx!.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + i * 0.09);
-      gain.gain.setValueAtTime(0.12, now + i * 0.09);
-      gain.gain.exponentialRampToValueAtTime(0.005, now + i * 0.09 + 0.22);
-      osc.connect(gain);
-      gain.connect(this.ctx!.destination);
-      osc.start(now + i * 0.09);
-      osc.stop(now + i * 0.09 + 0.24);
-    });
+    this.play('cw_win');
   }
 
+  /** Encounter lost — descending sawtooth sting. */
   public playLoss() {
-    if (!this.enabled) return;
-    this.initCtx();
-    if (!this.ctx) return;
-
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(220, now);
-    osc.frequency.exponentialRampToValueAtTime(90, now + 0.35);
-
-    gain.gain.setValueAtTime(0.12, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + 0.42);
+    this.play('cw_loss');
   }
 }
 
-export const sound = new SoundEngine();
+export const sound = new ChimeraWildsSound();

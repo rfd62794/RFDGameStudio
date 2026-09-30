@@ -40,15 +40,23 @@ function makePart(id: string, slot: Part['slot'], stats: Partial<Part> = {}): Pa
   };
 }
 
+// Post-Body-Part-Synergy, an all-same-brand fixture is no longer a
+// "balanced" build — it's a Trinity-stacked one (brand signature
+// re-applied at mutant level on top of per-part modifiers). To keep
+// these tests' "balanced stats" intent real, the fixture uses a 2x3
+// brand spread: per-part Brand/Quality/lean modifiers still apply, but
+// no Trinity activates, so attack and defense stay in the same band.
+const FIXTURE_BRANDS: Part['brand'][] = [
+  'trueflame', 'icevault', 'quicksilver',
+  'trueflame', 'icevault', 'quicksilver',
+];
+
 function makeMutant(id: string, name: string, team: string, power: number, endurance: number): Mutant {
-  const parts: MutantParts = {
-    head: makePart(`${id}_h`, 'head', { power, endurance }),
-    chest: makePart(`${id}_c`, 'chest', { power, endurance }),
-    left_arm: makePart(`${id}_la`, 'left_arm', { power, endurance }),
-    right_arm: makePart(`${id}_ra`, 'right_arm', { power, endurance }),
-    left_leg: makePart(`${id}_ll`, 'left_leg', { power, endurance }),
-    right_leg: makePart(`${id}_rl`, 'right_leg', { power, endurance }),
-  };
+  const slots = ['head', 'chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'] as const;
+  const parts = {} as MutantParts;
+  slots.forEach((slot, i) => {
+    parts[slot] = makePart(`${id}_${slot}`, slot, { power, endurance, brand: FIXTURE_BRANDS[i] });
+  });
   return {
     id, name, color: team === 'player' ? '#3b82f6' : '#ef4444',
     parts, status: 'healthy', matchesPlayed: 0,
