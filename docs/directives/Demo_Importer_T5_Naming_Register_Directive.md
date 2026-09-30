@@ -90,12 +90,14 @@ silent deviation is worse than a reported one.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-demo-importer-t5-naming-register--b9a213 |
 | Base branch | - |
+| Base commit | f3876bbc1d08377e4c405e09056389df3638ff6a |
 
 **Status log**
 - 2026-09-20 21:23 · robert-claude · none → Queued — Task 5 of 8; approve with base_branch set to Task 4's directive branch once Task 4 reaches Review
 - 2026-09-30 02:50 · devin-overseer (delegated) · Queued → Approved
+- 2026-09-30 03:03 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-demo-importer-t5-naming-register--b9a213; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
