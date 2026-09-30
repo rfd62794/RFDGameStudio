@@ -6,6 +6,87 @@ Roadmap items: [`/ROADMAP.md`](../../../ROADMAP.md)
 
 ---
 
+## Planet of Greed — UI/UX Style Split (Per-House Chrome Themes) — COMPLETED
+
+**Date:** September 26 2026
+**Directive:** Pick up the deferred StatusBoard item "UI/UX style split."
+
+### What the deferred item was
+
+The StatusBoard carried "UI/UX style split deferred" next to the
+completed House-stat asymmetry work. The presentation layer already had
+two visual languages — dark executive-terminal chrome (`#1a1a2e` + a
+fixed greed-gold amber ramp: BoardroomHeader, GuidedWalkthrough, game
+chrome) vs neutral "boardroom document" paper (`#E4E3E0`/`#141414`
+hard-shadow panels: PlanetMap, DailyEventModal, CombatResolutionView,
+AlertQueue, WeeklyOrdersPanel, AnnualReportView, intel feed). Houses
+differed only by map color. The deferred item was the presentation
+counterpart of the culture-stat split: **the chrome re-dresses itself in
+the player's House palette, while the document surfaces stay neutral
+paper** — chrome is the House's identity, documents are its paperwork.
+
+### What was built
+
+- `ts/src/ui/components/FactionTheme.tsx` — **new shared mechanism**
+  (ADR-014): a small `FactionTheme` palette contract plus
+  `factionThemeVars()`, which emits the `--faction-*` CSS custom
+  properties for a scope element. Consumption is plain Tailwind
+  arbitrary values (`text-(--faction-accent-strong)` etc.). Second
+  consumer already known: Mutant Battle Ball's Brand identity system —
+  the same per-faction palette axis — can consume this contract when
+  its Brands get visual identity.
+- `ts/src/games/planetofgreed/houseThemes.ts` — six per-House palettes
+  keyed by `CultureId`, each built from the same hue family as the
+  House's existing wheel color; `POG_DEFAULT_THEME` = the shipped
+  greed-gold ramp for pre-House screens.
+- `ts/src/games/planetofgreed/index.css` — `:root` defaults for every
+  `--faction-*` var (the greed-gold ramp), so unscoped consumers render
+  the classic look.
+- `App.tsx` — scopes the player House's theme on the game root
+  (`style={factionThemeVars(houseTheme)}`, `data-faction`), themes the
+  Guided/Manual tabs, and gives each culture-select card its own House
+  palette as a live preview (`data-faction={cultureId}`).
+- `GuidedWalkthrough.tsx` — all amber identity classes converted to
+  `--faction-*` tokens. Semantic colors unchanged (red = danger,
+  emerald = success, sky/cyan = reinforce/info, the threat-severity
+  scale stays a fixed red→orange→amber→emerald gradient).
+- `BoardroomHeader.tsx` (shared) — amber identity classes converted to
+  `--faction-*` tokens; FRAGMENTS icon and count stay literal amber —
+  the Ore's color does not change when the boardroom does.
+- `ts/tests/test_planetofgreed_style_split.ts` — anchors for the
+  palette registry, token contract, App wiring, chrome conversion, and
+  the untouched paper layer.
+
+### Deliberately not themed
+
+- Paper/document surfaces (PlanetMap, DailyEventModal,
+  CombatResolutionView, AlertQueue, WeeklyOrdersPanel,
+  AnnualReportView, help dossier, intel feed) — the split's whole
+  point is chrome-vs-document, not everything-becomes-House-colored.
+- Ending screen — keeps the Ore-gold amber overlay as shipped.
+- Pre-House screens (title, opening, culture-select frame, loading) —
+  render with the greed-gold defaults.
+- Map ownership colors — `CULTURE_DEFINITIONS` unchanged; each House's
+  theme hue family matches its existing wheel color.
+- `houseStats.ts`, the 60-game harness, all House mechanics — out of
+  scope, untouched.
+
+### Files created
+
+- `ts/src/ui/components/FactionTheme.tsx`
+- `ts/src/games/planetofgreed/houseThemes.ts`
+- `ts/tests/test_planetofgreed_style_split.ts`
+
+### Files modified
+
+- `ts/src/ui/components/index.ts` — export the mechanism
+- `ts/src/games/planetofgreed/index.css` — `:root --faction-*` defaults
+- `ts/src/games/planetofgreed/App.tsx` — theme scope + card previews + tabs
+- `ts/src/games/planetofgreed/components/GuidedWalkthrough.tsx` — token conversion
+- `ts/src/engine/shared/components/BoardroomHeader.tsx` — token conversion
+
+---
+
 ## Planet of Greed — Standalone Build for itch.io — COMPLETED
 
 **Date:** August 14 2026

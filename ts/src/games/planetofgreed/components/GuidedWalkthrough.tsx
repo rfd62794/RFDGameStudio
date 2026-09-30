@@ -68,10 +68,10 @@ export default function GuidedWalkthrough({
 
   if (ownedRegions.length === 0) {
     return (
-      <div className="bg-[#1a1a2e] border-2 border-amber-600/40 p-6 text-amber-100 flex flex-col items-center justify-center text-center h-full min-h-[400px]">
-        <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
-        <h3 className="font-sans font-bold text-lg text-amber-200 uppercase tracking-tight mb-2">No Territories Held</h3>
-        <p className="text-xs text-amber-100/70 max-w-xs leading-relaxed">
+      <div className="bg-[#1a1a2e] border-2 border-(--faction-accent-faint) p-6 text-(--faction-text) flex flex-col items-center justify-center text-center h-full min-h-[400px]">
+        <AlertTriangle className="w-12 h-12 text-(--faction-accent-soft) mb-4" />
+        <h3 className="font-sans font-bold text-lg text-(--faction-accent-strong) uppercase tracking-tight mb-2">No Territories Held</h3>
+        <p className="text-xs text-(--faction-text-dim) max-w-xs leading-relaxed">
           Your House holds no sectors. The campaign is over.
         </p>
       </div>
@@ -89,7 +89,7 @@ export default function GuidedWalkthrough({
         </p>
         <button
           onClick={onAllRegionsProcessed}
-          className="bg-amber-600 hover:bg-amber-500 text-[#1a1a2e] font-black py-2.5 px-6 text-xs font-mono uppercase tracking-widest transition cursor-pointer border-2 border-amber-400"
+          className="bg-(--faction-accent) hover:bg-(--faction-accent-hover) text-(--faction-on-accent) font-black py-2.5 px-6 text-xs font-mono uppercase tracking-widest transition cursor-pointer border-2 border-(--faction-accent-soft)"
           data-testid="pog-authorize-all-planning"
         >
           Authorize Weekly Directives
@@ -206,10 +206,10 @@ export default function GuidedWalkthrough({
   const ownNeighbors = neighborCells.filter(n => n.ownerId === playerCorp.id);
 
   return (
-    <div className="bg-[#1a1a2e] border-2 border-amber-600/40 p-4 text-amber-50 flex flex-col h-full gap-3 select-none" data-testid="pog-guided-walkthrough">
+    <div className="bg-[#1a1a2e] border-2 border-(--faction-accent-faint) p-4 text-(--faction-text) flex flex-col h-full gap-3 select-none" data-testid="pog-guided-walkthrough">
       {/* Progress indicator */}
       <div className="flex items-center justify-between text-[10px] font-mono">
-        <span className="text-amber-100/60 uppercase tracking-widest">
+        <span className="text-(--faction-text-dim) uppercase tracking-widest">
           Region {currentRegionIndex + 1} of {ownedRegions.length}
         </span>
         <span className={`px-2 py-0.5 border ${threatColor} font-bold uppercase tracking-wider text-[9px]`} data-testid="pog-threat-level">
@@ -218,28 +218,28 @@ export default function GuidedWalkthrough({
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 bg-[#1a1a2e] border border-amber-900/40">
+      <div className="h-1 bg-[#1a1a2e] border border-(--faction-accent-faint)">
         <div
-          className="h-full bg-amber-600 transition-all duration-300"
+          className="h-full bg-(--faction-accent) transition-all duration-300"
           style={{ width: `${((currentRegionIndex + 1) / ownedRegions.length) * 100}%` }}
         />
       </div>
 
       {/* Region header */}
-      <div className="border-b border-amber-900/40 pb-2">
+      <div className="border-b border-(--faction-accent-faint) pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <span className="font-serif italic text-[10px] text-amber-100/50 uppercase tracking-widest block">
+            <span className="font-serif italic text-[10px] text-(--faction-text-dim) uppercase tracking-widest block">
               {REGION_FLAVOR_PREFIXES[currentCell.id % REGION_FLAVOR_PREFIXES.length]}
             </span>
-            <h2 className="text-lg font-bold text-amber-100 uppercase tracking-tight font-sans leading-none mt-0.5" data-testid="pog-current-region-name">
+            <h2 className="text-lg font-bold text-(--faction-accent-strong) uppercase tracking-tight font-sans leading-none mt-0.5" data-testid="pog-current-region-name">
               {currentCell.name}
             </h2>
           </div>
           <div className="flex flex-col items-end gap-0.5 text-[9px] font-mono">
-            <span className="text-amber-100/50">Garrison: <span className="text-amber-200 font-bold">{garrison}</span></span>
-            <span className="text-amber-100/50">Fort: <span className="text-amber-200 font-bold">L{currentCell.fortification}/{getHouseStats(playerCorp.cultureId).fortifyMax}</span></span>
-            <span className="text-amber-100/50">Opinion: <span className="text-amber-200 font-bold">{opinion}</span></span>
+            <span className="text-(--faction-text-dim)">Garrison: <span className="text-(--faction-accent-strong) font-bold">{garrison}</span></span>
+            <span className="text-(--faction-text-dim)">Fort: <span className="text-(--faction-accent-strong) font-bold">L{currentCell.fortification}/{getHouseStats(playerCorp.cultureId).fortifyMax}</span></span>
+            <span className="text-(--faction-text-dim)">Opinion: <span className="text-(--faction-accent-strong) font-bold">{opinion}</span></span>
           </div>
         </div>
       </div>
@@ -272,17 +272,17 @@ export default function GuidedWalkthrough({
       {/* Default action display */}
       {!showFullActions && (
         <div className="flex-1 flex flex-col gap-3">
-          <div className="bg-amber-950/30 border border-amber-700/40 p-3 flex flex-col gap-2">
-            <span className="font-serif italic text-[10px] text-amber-100/50 uppercase tracking-widest">
+          <div className="bg-(--faction-accent-bg) border border-(--faction-accent-faint) p-3 flex flex-col gap-2">
+            <span className="font-serif italic text-[10px] text-(--faction-text-dim) uppercase tracking-widest">
               Recommended Directive
             </span>
-            <div className="flex items-center gap-2 text-amber-100">
+            <div className="flex items-center gap-2 text-(--faction-text)">
               {actionIcon(activeOrder)}
               <span className="font-bold text-sm uppercase tracking-tight" data-testid="pog-default-action">
                 {actionLabel(activeOrder)}
               </span>
             </div>
-            <p className="text-[10px] text-amber-100/60 font-serif italic leading-relaxed">
+            <p className="text-[10px] text-(--faction-text-dim) font-serif italic leading-relaxed">
               {activeOrder.type === 'hold' && 'Garrison holds position. Passive production continues.'}
               {activeOrder.type === 'fortify' && `Reinforce sector shields. Cost: $${getHouseStats(playerCorp.cultureId).fortifyCost.toLocaleString()}.`}
               {activeOrder.type === 'reinforce' && `Speed-recruit a ${activeOrder.type === 'reinforce' ? activeOrder.reinforceType : ''} unit. Cost: $30,000.`}
@@ -301,7 +301,7 @@ export default function GuidedWalkthrough({
           <div className="flex flex-col gap-2">
             <button
               onClick={handleConfirm}
-              className="w-full bg-amber-600 hover:bg-amber-500 text-[#1a1a2e] font-black py-3 text-xs font-mono uppercase tracking-widest transition cursor-pointer border-2 border-amber-400 flex items-center justify-center gap-2"
+              className="w-full bg-(--faction-accent) hover:bg-(--faction-accent-hover) text-(--faction-on-accent) font-black py-3 text-xs font-mono uppercase tracking-widest transition cursor-pointer border-2 border-(--faction-accent-soft) flex items-center justify-center gap-2"
               data-testid="pog-confirm-action"
             >
               <Check className="w-4 h-4" />
@@ -310,14 +310,14 @@ export default function GuidedWalkthrough({
             <div className="flex gap-2">
               <button
                 onClick={() => setShowFullActions(true)}
-                className="flex-1 bg-transparent border border-amber-700/40 text-amber-200 hover:bg-amber-950/30 font-bold py-2 text-[10px] font-mono uppercase tracking-wider transition cursor-pointer"
+                className="flex-1 bg-transparent border border-(--faction-accent-faint) text-(--faction-accent-strong) hover:bg-(--faction-accent-bg) font-bold py-2 text-[10px] font-mono uppercase tracking-wider transition cursor-pointer"
                 data-testid="pog-change-action"
               >
                 Change Action
               </button>
               <button
                 onClick={handleSkip}
-                className="flex-1 bg-transparent border border-amber-900/40 text-amber-100/50 hover:bg-amber-950/20 font-bold py-2 text-[10px] font-mono uppercase tracking-wider transition cursor-pointer"
+                className="flex-1 bg-transparent border border-(--faction-accent-faint) text-(--faction-text-dim) hover:bg-(--faction-accent-bg) font-bold py-2 text-[10px] font-mono uppercase tracking-wider transition cursor-pointer"
               >
                 Skip (Hold)
               </button>
@@ -325,7 +325,7 @@ export default function GuidedWalkthrough({
             {currentRegionIndex > 0 && (
               <button
                 onClick={handleBack}
-                className="bg-transparent border border-amber-900/30 text-amber-100/40 hover:text-amber-100/70 font-bold py-1.5 text-[9px] font-mono uppercase tracking-wider transition cursor-pointer"
+                className="bg-transparent border border-(--faction-accent-faint) text-(--faction-text-dim) hover:text-(--faction-text) font-bold py-1.5 text-[9px] font-mono uppercase tracking-wider transition cursor-pointer"
               >
                 ← Back to Previous Region
               </button>
@@ -337,20 +337,20 @@ export default function GuidedWalkthrough({
       {/* Full action set (when "Change Action" is clicked) */}
       {showFullActions && (
         <div className="flex-1 flex flex-col gap-2 overflow-y-auto">
-          <span className="font-serif italic text-[10px] text-amber-100/50 uppercase tracking-widest">
+          <span className="font-serif italic text-[10px] text-(--faction-text-dim) uppercase tracking-widest">
             Select Directive
           </span>
 
           {/* Hold */}
           <button
             onClick={() => handleSelectCustomAction({ type: 'hold' })}
-            className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer"
+            className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer"
             data-testid="pog-action-hold"
           >
-            <Check className="w-4 h-4 text-amber-400 shrink-0" />
+            <Check className="w-4 h-4 text-(--faction-accent-soft) shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Hold Sector</span>
-              <span className="text-[9px] text-amber-100/50">Garrison holds. Passive production continues.</span>
+              <span className="font-bold text-xs text-(--faction-text) uppercase block">Hold Sector</span>
+              <span className="text-[9px] text-(--faction-text-dim)">Garrison holds. Passive production continues.</span>
             </div>
           </button>
 
@@ -358,13 +358,13 @@ export default function GuidedWalkthrough({
           <button
             onClick={() => handleSelectCustomAction({ type: 'fortify' })}
             disabled={currentCell.fortification >= getHouseStats(playerCorp.cultureId).fortifyMax || playerCorp.treasury < getHouseStats(playerCorp.cultureId).fortifyCost}
-            className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             data-testid="pog-action-fortify"
           >
             <Shield className="w-4 h-4 text-sky-400 shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Fortify (${(getHouseStats(playerCorp.cultureId).fortifyCost / 1000)}k)</span>
-              <span className="text-[9px] text-amber-100/50">+1 Shield level. {currentCell.fortification >= getHouseStats(playerCorp.cultureId).fortifyMax ? '(Max level)' : ''}</span>
+              <span className="font-bold text-xs text-(--faction-text) uppercase block">Fortify (${(getHouseStats(playerCorp.cultureId).fortifyCost / 1000)}k)</span>
+              <span className="text-[9px] text-(--faction-text-dim)">+1 Shield level. {currentCell.fortification >= getHouseStats(playerCorp.cultureId).fortifyMax ? '(Max level)' : ''}</span>
             </div>
           </button>
 
@@ -372,13 +372,13 @@ export default function GuidedWalkthrough({
           <button
             onClick={() => handleSelectCustomAction({ type: 'reinforce', reinforceType: currentCell.preferredProduction })}
             disabled={playerCorp.treasury < 30000}
-            className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             data-testid="pog-action-reinforce"
           >
             <Users className="w-4 h-4 text-emerald-400 shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Reinforce ($30k)</span>
-              <span className="text-[9px] text-amber-100/50">+1 {currentCell.preferredProduction} unit in 1 week</span>
+              <span className="font-bold text-xs text-(--faction-text) uppercase block">Reinforce ($30k)</span>
+              <span className="text-[9px] text-(--faction-text-dim)">+1 {currentCell.preferredProduction} unit in 1 week</span>
             </div>
           </button>
 
@@ -393,13 +393,13 @@ export default function GuidedWalkthrough({
                 else if (currentCell.units.triangle > 0) units.triangle = 1;
                 handleSelectCustomAction({ type: 'expand', targetCellId: target.id, unitsSent: units });
               }}
-              className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer"
+              className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer"
               data-testid="pog-action-expand"
             >
               <ArrowRight className="w-4 h-4 text-cyan-400 shrink-0" />
               <div>
-                <span className="font-bold text-xs text-amber-100 uppercase block">Expand to {neutralNeighbors[0].name}</span>
-                <span className="text-[9px] text-amber-100/50">Deploy 1 unit to claim neutral neighbor</span>
+                <span className="font-bold text-xs text-(--faction-text) uppercase block">Expand to {neutralNeighbors[0].name}</span>
+                <span className="text-[9px] text-(--faction-text-dim)">Deploy 1 unit to claim neutral neighbor</span>
               </div>
             </button>
           )}
@@ -451,13 +451,13 @@ export default function GuidedWalkthrough({
           {/* Civic: Production */}
           <button
             onClick={() => handleSelectCustomAction({ type: 'civic', focus: 'production' })}
-            className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer"
+            className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer"
             data-testid="pog-action-civic-production"
           >
-            <Hammer className="w-4 h-4 text-yellow-400 shrink-0" />
+            <Hammer className="w-4 h-4 text-(--faction-accent-soft) shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Civic: Production</span>
-              <span className="text-[9px] text-amber-100/50">Accelerate passive unit production</span>
+              <span className="font-bold text-xs text-(--faction-text) uppercase block">Civic: Production</span>
+              <span className="text-[9px] text-(--faction-text-dim)">Accelerate passive unit production</span>
             </div>
           </button>
 
@@ -465,13 +465,13 @@ export default function GuidedWalkthrough({
           <button
             onClick={() => handleSelectCustomAction({ type: 'civic', focus: 'defense' })}
             disabled={playerCorp.treasury < 10000}
-            className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             data-testid="pog-action-civic-defense"
           >
             <Shield className="w-4 h-4 text-sky-400 shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Civic: Defense ($10k)</span>
-              <span className="text-[9px] text-amber-100/50">+1 Fortification via civic investment</span>
+              <span className="font-bold text-xs text-(--faction-text) uppercase block">Civic: Defense ($10k)</span>
+              <span className="text-[9px] text-(--faction-text-dim)">+1 Fortification via civic investment</span>
             </div>
           </button>
 
@@ -479,20 +479,20 @@ export default function GuidedWalkthrough({
           <button
             onClick={() => handleSelectCustomAction({ type: 'civic', focus: 'unrest' })}
             disabled={playerCorp.treasury < 10000}
-            className="w-full p-2.5 border border-amber-800/40 bg-amber-950/20 hover:bg-amber-900/30 text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full p-2.5 border border-(--faction-accent-faint) bg-(--faction-accent-bg) hover:bg-(--faction-accent-fill-dim) text-left flex items-center gap-2.5 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             data-testid="pog-action-civic-unrest"
           >
             <Users className="w-4 h-4 text-emerald-400 shrink-0" />
             <div>
-              <span className="font-bold text-xs text-amber-100 uppercase block">Civic: Unrest ($10k)</span>
-              <span className="text-[9px] text-amber-100/50">+8 Population Balance investment</span>
+              <span className="font-bold text-xs text-(--faction-text) uppercase block">Civic: Unrest ($10k)</span>
+              <span className="text-[9px] text-(--faction-text-dim)">+8 Population Balance investment</span>
             </div>
           </button>
 
           {/* Cancel — go back to default view */}
           <button
             onClick={() => setShowFullActions(false)}
-            className="bg-transparent border border-amber-900/40 text-amber-100/50 hover:text-amber-100/80 font-bold py-2 text-[10px] font-mono uppercase tracking-wider transition cursor-pointer mt-1"
+            className="bg-transparent border border-(--faction-accent-faint) text-(--faction-text-dim) hover:text-(--faction-text) font-bold py-2 text-[10px] font-mono uppercase tracking-wider transition cursor-pointer mt-1"
           >
             ← Back to Recommendation
           </button>

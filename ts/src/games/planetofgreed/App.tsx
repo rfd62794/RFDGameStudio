@@ -12,6 +12,8 @@ import { selectWeightedNeighbor } from './aiDecisions';
 import { initializeFragments, onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
 import { getHouseStats } from './houseStats';
+import { getHouseTheme } from './houseThemes';
+import { factionThemeVars } from '../../ui/components/FactionTheme';
 
 import BoardroomHeader from '../../engine/shared/components/BoardroomHeader';
 import PlanetMap from '../../engine/shared/components/PlanetMap';
@@ -1520,16 +1522,18 @@ export default function App({ session }: GameRendererProps) {
                 key={cultureId}
                 id={`btn-select-culture-${cultureId}`}
                 data-testid={`pog-culture-${cultureId}`}
+                data-faction={cultureId}
                 onClick={() => initializeNewGame(cultureId)}
-                className="border-2 border-amber-600/40 bg-[#0f0f1a] p-4 flex flex-col items-center gap-2 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+                style={factionThemeVars(getHouseTheme(cultureId))}
+                className="border-2 border-(--faction-accent-faint) bg-[#0f0f1a] p-4 flex flex-col items-center gap-2 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
               >
                 <span
-                  className="w-6 h-6 rounded-full border border-amber-600/40"
+                  className="w-6 h-6 rounded-full border border-(--faction-accent-faint)"
                   style={{ backgroundColor: def.color }}
                 />
-                <span className="font-bold uppercase text-xs tracking-wide text-amber-200">{cultureId}</span>
-                <span className="text-[10px] font-mono text-amber-100/70 text-center">{def.corpName}</span>
-                <span className="text-[9px] font-serif italic text-amber-100/60 text-center leading-snug mt-1">{HOUSE_DESCRIPTIONS[cultureId]}</span>
+                <span className="font-bold uppercase text-xs tracking-wide text-(--faction-accent-strong)">{cultureId}</span>
+                <span className="text-[10px] font-mono text-(--faction-text-dim) text-center">{def.corpName}</span>
+                <span className="text-[9px] font-serif italic text-(--faction-text-dim) text-center leading-snug mt-1">{HOUSE_DESCRIPTIONS[cultureId]}</span>
               </button>
             );
           })}
@@ -1551,6 +1555,10 @@ export default function App({ session }: GameRendererProps) {
   }
 
   const playerCorp = gameState.corporations.find(c => c.id === PLAYER_CORP_ID)!;
+  // Per-House style split: the boardroom chrome re-dresses itself in the
+  // player's House palette. The --faction-* vars are scoped to the game
+  // root; every descendant consuming var(--faction-*) picks up this theme.
+  const houseTheme = getHouseTheme(playerCorp.cultureId);
   const playerControlledCellsCount = gameState.cells.filter(c => c.ownerId === PLAYER_CORP_ID).length;
   const selectedCell = gameState.cells.find(c => c.id === selectedCellId) || null;
   const currentOrders = selectedCellId !== null ? (gameState.playerOrders[selectedCellId] || []) : [];
@@ -1561,7 +1569,7 @@ export default function App({ session }: GameRendererProps) {
 
   return (
     <GameShell gameLabel="Planet of Greed" gameId="planetofgreed" phase="Chapter 1" mode={mode} arcadeBaseUrl={arcadeBaseUrl} mainClassName="game-shell-main--scrollable">
-    <div className="flex-1 bg-[#1a1a2e] text-amber-50 font-sans flex flex-col relative overflow-x-hidden">
+    <div className="flex-1 bg-[#1a1a2e] text-(--faction-text) font-sans flex flex-col relative overflow-x-hidden" style={factionThemeVars(houseTheme)} data-faction={playerCorp.cultureId}>
 
       {/* HEADER SECTION */}
       <BoardroomHeader
@@ -1668,13 +1676,13 @@ export default function App({ session }: GameRendererProps) {
                     <div className="flex gap-1 mb-2">
                       <button
                         onClick={() => setPlanningMode('guided')}
-                        className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border-2 border-[#141414] transition cursor-pointer ${planningMode === 'guided' ? 'bg-amber-500 text-[#141414] font-black' : 'bg-[#1a1a2e] text-amber-200 hover:bg-amber-950'}`}
+                        className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border-2 border-[#141414] transition cursor-pointer ${planningMode === 'guided' ? 'bg-(--faction-accent) text-(--faction-on-accent) font-black' : 'bg-[#1a1a2e] text-(--faction-accent-strong) hover:bg-(--faction-accent-bg)'}`}
                       >
                         Guided
                       </button>
                       <button
                         onClick={() => setPlanningMode('manual')}
-                        className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border-2 border-[#141414] transition cursor-pointer ${planningMode === 'manual' ? 'bg-amber-500 text-[#141414] font-black' : 'bg-[#1a1a2e] text-amber-200 hover:bg-amber-950'}`}
+                        className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider border-2 border-[#141414] transition cursor-pointer ${planningMode === 'manual' ? 'bg-(--faction-accent) text-(--faction-on-accent) font-black' : 'bg-[#1a1a2e] text-(--faction-accent-strong) hover:bg-(--faction-accent-bg)'}`}
                       >
                         Manual
                       </button>

@@ -128,6 +128,7 @@ export function generateMarkdown(entries: ProjectEntry[]): string {
   sections.push('| Shared UI components (`ts/src/ui/components/`, ADR-008) | Active use | 6+ games |');
   sections.push('| OnboardingGate (`ts/src/ui/components/OnboardingGate.tsx`) | Built, 2 consumers | Shared fire-once gate mechanism extracted from SlimeWorld. Consumed by SlimeWorld (original) + Planet of Greed (validation) |');
   sections.push('| Guided First-Action Walkthrough | Single instance, watching | `planetofgreed/GuidedWalkthrough.tsx` — guides real gameplay decisions with state-derived defaults. Not extracted yet — watching for a second independent build |');
+  sections.push('| FactionTheme (`ts/src/ui/components/FactionTheme.tsx`) | Built, 1 consumer | Per-faction `--faction-*` CSS-var theme contract (ADR-014) built for Planet of Greed\'s per-House chrome. Known second consumer: Mutant Battle Ball Brands |');
   sections.push('| Shared logic (`ts/src/engine/shared/`) | Active, first-class | ADR-014: shared engine modules are the default, not demand-gated |');
   sections.push('| `artGen` module | Built AND consumed | Consumed by Shoal (canvas paths, hunger-aware specs) and SlimeWorld (seeded random, polygon generation) — ADR-014 proof case |');
   sections.push('| Standalone publishing pipeline + `packages/itch_publisher` | Working | 7 games packaged, Butler-based, real analytics confirmed |');
