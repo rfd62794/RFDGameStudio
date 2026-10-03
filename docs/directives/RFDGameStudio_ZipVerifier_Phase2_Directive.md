@@ -233,7 +233,7 @@ it and do not summarize it.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Superseded |
 | Assigned to | claude |
 | Branch | directive/rfdgamestudio-rfdgamestudio-zipverifier-phase2--299934 |
 | Base branch | - |
@@ -244,4 +244,5 @@ it and do not summarize it.
 - 2026-09-28 19:26 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 21:30 · dispatcher · Approved → In progress — dispatched claude on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rfdgamestudio-zipverifier-phase2--299934; copied ts/src/games/game-metadata.json; lane=sonnet (default); model=claude-sonnet-5; persona=steady-builder
 - 2026-09-29 21:31 · claude-dispatched · In progress → Blocked — Blocked: directive's §4 completion criteria require a live OpenRouter smoke test against real antsim-redux/corpworld zips, but (a) this run's own operating rules forbid interactive smoke tests, and (b) no .zip files exist anywhere under intake/ in this worktree (only MANIFEST.md/extracted/ placeholders) — real fixtures aren't available to test against regardless. All 8 components + tests already existed on disk pre-run and pass clean: 52 passed, 8 skipped (all skips are the local-intake-zip-missing guard). Checking OPENROUTER_API_KEY via `printenv OPENROUTER_API_KEY` was itself refused (required approval), so credential status is also unconfirmed. No files touched, working tree clean.
+- 2026-10-03 18:10 · robert-claude-laptop · Blocked → Superseded — superseded_by: commit:f6e2ea80
 <!-- queue:end -->
