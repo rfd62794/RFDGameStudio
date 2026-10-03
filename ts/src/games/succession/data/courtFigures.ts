@@ -1,4 +1,4 @@
-import { FigureId } from '../engine/types';
+import { FigureId, PersuasionMethod } from '../engine/types';
 
 export interface CourtFigureData {
   id: FigureId;
@@ -10,6 +10,8 @@ export interface CourtFigureData {
   agenda: string; // Private vulnerability & background agenda
   demand: string; // Required Throne guarantee
   mysteryInquiry: string; // Key mystery question the councilor seeks answered
+  lockedMethod: PersuasionMethod; // The persuasion method this councilor values most (ADR-007)
+  methodAffinity: string; // Why this councilor values that approach — flavor for the dossier
 }
 
 export const COURT_FIGURES: Record<FigureId, CourtFigureData> = {
@@ -23,6 +25,8 @@ export const COURT_FIGURES: Record<FigureId, CourtFigureData> = {
     agenda: 'Embezzled Crown Debt — Siphoned millions in tax gold to House Montfort to fund illicit loans.',
     demand: 'Sovereign Debt Forgiveness & Exclusive Maritime Trade Monopoly',
     mysteryInquiry: 'Who forged the royal treasury seals prior to the banquet to conceal the missing gold?',
+    lockedMethod: 'evidence',
+    methodAffinity: 'A man of ledgers and seals — Hector is moved by irrefutable documentary proof, not flattery or pleading.',
   },
   archbishop: {
     id: 'archbishop',
@@ -34,6 +38,8 @@ export const COURT_FIGURES: Record<FigureId, CourtFigureData> = {
     agenda: 'The Bastard Sacrament — Secretly performed holy baptism for the King’s unacknowledged child.',
     demand: 'Ecclesiastical Immunity & Tithe Sovereignty across all parish lands',
     mysteryInquiry: 'Did King Aldous IV die in heretical sin or under holy absolution by the Sacred Order?',
+    lockedMethod: 'whisper',
+    methodAffinity: 'A keeper of confessions and secret rites — Valerius responds to truths spoken privately, in the confessional register he knows best.',
   },
   commander: {
     id: 'commander',
@@ -45,5 +51,7 @@ export const COURT_FIGURES: Record<FigureId, CourtFigureData> = {
     agenda: 'Breached Iron Gate — A corrupt garrison officer accepted a bribe to admit the banquet poisoner.',
     demand: 'Full Military Regency & Unconditional Troop Amnesty from treason trials',
     mysteryInquiry: 'How was the nightshade poison smuggled past the fortress sentries into the royal chalice?',
+    lockedMethod: 'appeal',
+    methodAffinity: 'A soldier who distrusts whispers and parchment alike — Brand respects an open, honorable appeal made plainly before the Council.',
   },
 };

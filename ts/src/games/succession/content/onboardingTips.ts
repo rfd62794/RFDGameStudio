@@ -18,16 +18,18 @@ export interface OnboardingTipContent {
 
 export const ONBOARDING_TIPS: Record<OnboardingTipId, OnboardingTipContent> = {
   // Source: engine/favor.ts applyWhisper + engine/gossip.ts
-  // checkContradictionAgainstKnown + data/gameConstants.ts
-  // WHISPER_FAVOR_GAIN (20). A Whisper is checked against every claim
-  // you've EVER made, to any councilor — not just this one — and a
-  // contradiction zeroes the gain and permanently disqualifies you from
-  // that councilor's vote (engine/verdict.ts excludes anyone in
-  // exposedAgainst from winning that figure).
+  // checkContradictionAgainstKnown + engine/methodLock.ts
+  // persuasionMethodGain (ADR-007: +40 at the whisper-locked archbishop,
+  // +5 elsewhere) + data/gameConstants.ts WHISPER_FAVOR_GAIN (20 base).
+  // A Whisper is checked against every claim you've EVER made, to any
+  // councilor — not just this one — and a contradiction zeroes the gain
+  // and permanently disqualifies you from that councilor's vote
+  // (engine/verdict.ts excludes anyone in exposedAgainst from winning
+  // that figure).
   whisper: {
     title: 'Whisper: High Reward, Real Risk',
     body: [
-      'A Whisper is the biggest single favor gain in the game (+20) — but it is checked against every claim you\'ve ever made to any councilor, not just this one.',
+      'A Whisper pays full value only where it\'s respected — +40 at the Archbishop, who favors private counsel, and just +5 elsewhere — but it is checked against every claim you\'ve ever made to any councilor, not just this one.',
       'If it contradicts an earlier claim, you gain 0 favor and are permanently disqualified from that councilor\'s vote at the final verdict. Pick themes that don\'t oppose what you\'ve already said elsewhere.',
     ],
   },
@@ -35,26 +37,28 @@ export const ONBOARDING_TIPS: Record<OnboardingTipId, OnboardingTipContent> = {
   // Source: utils/gameOrchestration.ts appealTo. Never touches
   // mostRecentClaim, allClaims, or exposedAgainst — an Appeal records no
   // claim at all, so it can never contradict anything and can never
-  // expose you. The real trade-off: guaranteed but smaller (usually +8,
-  // see data/gameConstants.ts APPEAL_FAVOR_GAIN) vs. Whisper's larger,
-  // riskier +20.
+  // expose you. The real trade-off: guaranteed but modest (+16 at the
+  // appeal-locked commander, +2 elsewhere — ADR-007 via
+  // engine/methodLock.ts on APPEAL_FAVOR_GAIN 8) vs. Whisper's larger,
+  // riskier payout.
   appeal: {
     title: 'Appeal: Guaranteed, But Smaller',
     body: [
-      'An Appeal grants a smaller, flat favor gain — but it plants no claim at all, so it can never contradict anything and can never expose you.',
+      'An Appeal grants a modest favor gain — +16 at General Brand, who respects open petition, and +2 elsewhere — but it plants no claim at all, so it can never contradict anything and can never expose you.',
       'It\'s the safe, guaranteed option when a Whisper\'s contradiction risk isn\'t worth it.',
     ],
   },
 
   // Source: utils/gameOrchestration.ts scoutForEvidence (fixed rotation
   // via scoutedCount, not player choice) + presentEvidenceTo (no-op if
-  // evidence.relevantFigureId !== figureId) + data/gameConstants.ts
-  // EVIDENCE_FAVOR_GAIN (30, the largest guaranteed gain in the game).
+  // evidence.relevantFigureId !== figureId) + engine/methodLock.ts
+  // (ADR-007: +60 at the evidence-locked chancellor, +7 elsewhere) on
+  // data/gameConstants.ts EVIDENCE_FAVOR_GAIN (30 base).
   evidenceScout: {
     title: 'Scouting: Guaranteed Leverage, Later',
     body: [
       'Scouting adds one piece of evidence to your inventory — the specific item is chosen for you in a fixed order, not picked by you.',
-      'Each item is tied to one specific councilor. Presenting it there later guarantees +30 favor with zero contradiction risk — the single largest, safest gain in the game. It does nothing if presented anywhere else.',
+      'Each item is tied to one specific councilor and pays the most where proof is respected: +60 at Chancellor Vane, +7 elsewhere — with zero contradiction risk. It does nothing if presented anywhere else.',
     ],
   },
 

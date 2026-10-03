@@ -3,6 +3,8 @@ import { FileCheck, CheckCircle2, ChevronDown } from 'lucide-react';
 import { FigureId, FigureState } from '../engine/types';
 import { EvidenceItem } from '../data/evidence';
 import { COURT_FIGURES } from '../data/courtFigures';
+import { isLockedMethod, persuasionMethodGain } from '../engine/methodLock';
+import { EVIDENCE_FAVOR_GAIN } from '../data/gameConstants';
 
 interface EvidencePanelProps {
   figure: FigureState;
@@ -32,6 +34,10 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
   const meta = COURT_FIGURES[figure.id];
   const selectedEvidence = playerEvidence.find((e) => e.id === selectedEvidenceId);
   const isEvidenceMatchingFigure = selectedEvidence?.relevantFigureId === figure.id;
+
+  // Real effective evidence value at this figure (ADR-007 method lock).
+  const evidenceGain = persuasionMethodGain(figure.id, 'evidence', EVIDENCE_FAVOR_GAIN);
+  const isEvidenceFavored = isLockedMethod(figure.id, 'evidence');
 
   return (
     <div
@@ -68,7 +74,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
 
           <div className="flex items-center gap-2.5 shrink-0">
             <span className="text-[11px] font-serif px-2 py-0.5 bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 rounded font-medium">
-              Decisive Leverage (+30)
+              {isEvidenceFavored ? 'Favored Approach' : 'Cool Reception'} (+{evidenceGain})
             </span>
             <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </div>
@@ -106,7 +112,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
                         {isMatch ? (
                           <span className="text-[10px] text-emerald-400 font-serif flex items-center gap-1 font-bold">
                             <CheckCircle2 className="w-3 h-3" />
-                            Target Match (+30)
+                            Target Match (+{evidenceGain})
                           </span>
                         ) : (
                           <span className="text-[10px] text-stone-400 font-serif">
@@ -152,7 +158,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
           <FileCheck className="w-4 h-4" />
           <span>
             {isEvidenceMatchingFigure
-              ? `Present Proof to ${meta.name.split(' ')[1]} (+30 Favor)`
+              ? `Present Proof to ${meta.name.split(' ')[1]} (+${evidenceGain} Favor)`
               : 'Present Artifact'}
           </span>
         </button>

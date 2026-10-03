@@ -11,7 +11,7 @@ const config: GameConfig = {
   status: 'dev',
   genre: 'narrative-persuasion',
   tags: ['court-intrigue', 'rival-ai'],
-  patchNotesPath: 'succession/PATCH_NOTES_v0.2.0.md',
+  patchNotesPath: 'succession/PATCH_NOTES_v0.3.0.md',
   component: React.lazy(() => import('./App')),
 };
 

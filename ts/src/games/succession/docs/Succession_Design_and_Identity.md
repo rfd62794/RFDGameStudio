@@ -1,8 +1,8 @@
 # Succession — Design & Identity
 
-*v0.3 — supersedes v0.2 (same day) | August 22 2026 | Living design reference. Companion to the ADR sequence (`docs/adr/`).*
+*v0.4 — supersedes v0.3 | September 29 2026 | Living design reference. Companion to the ADR sequence (`docs/adr/`).*
 
-*Change from v0.2: two real design principles locked in response to direct instruction — a player safeguard against the dead-strategy risk flagged in v0.2's open questions, and a real complexity ceiling for the murder-inquiry puzzle.*
+*Change from v0.3: the method-lock open question is now decided and implemented (ADR-007) — the cast pass assigned each figure's locked persuasion method, and the safeguard was verified against the real balance harness, which is what forced the locked-method premium.*
 
 ---
 
@@ -26,7 +26,26 @@ loop, not compete with it for the player's attention.
 ## Persuasion Methods — Locked to Each Figure
 
 Each of the three figures values one persuasion method uniquely.
-*(Unchanged from v0.2 — see that version's reasoning.)*
+
+**Decided in v0.4 (ADR-007 — the assignment this section left open):**
+Chancellor Vane respects **Archival Evidence** — a man of ledgers and
+seals, moved by irrefutable documentary proof. Archbishop Valerius
+respects **Whispered Claims** — a keeper of confessions, responsive to
+truths spoken privately. General Brand respects **Formal Appeal** — a
+soldier who distrusts whispers and parchment alike, moved by an open,
+honorable appeal made plainly before the Council.
+
+**New in v0.4, from direct harness evidence — the lock needs a
+premium, not just a penalty floor.** The locked method pays double the
+base favor value (2×), and every other method pays a quarter of base
+(floored at 1 — never zero, never disabled). The premium is not
+decorative: measured against the real harness, a flat locked value
+plus the reduced fallback left every scripted strategy losing every
+origin run (0/18 player wins) because rivals still earn full whisper
+value each segment — a mathematically hopeless lane, exactly the
+outcome the safeguard below exists to prevent. The premium must clear
+the rival whisper economy; at 1.5× the appeal-locked commander's own
+favored method still could not.
 
 **New in v0.3, directly closing the real risk v0.2 flagged: "locked"
 means most effective, never the only option that works.** This is the
@@ -87,7 +106,6 @@ tuning down, not the puzzle needing more systems to compensate.
 ## Open Questions — Real, Deliberately Unresolved
 
 - **The exact real hint count and delivery cadence** — "small enough" is locked as a principle; the actual number (3? 5?) and which specific existing actions surface which specific clue types is real design work, not decided here.
-- **Which method locks to which figure** — tied to the upcoming cast-building pass, not decided in isolation.
 - **What happens on a wrong accusation** under this redesign — the existing `deliverIndictmentTo` penalty predates this reframing.
 - **Does "removing a figure's value" change `verdict.ts`'s real win condition math**, or just remove them as an eligible target — needs the real function read directly.
 - **Does the murderer's identity need to be seeded/deterministic** for the balance harness to remain meaningful — almost certainly yes, real mechanism not designed yet.
@@ -96,11 +114,20 @@ tuning down, not the puzzle needing more systems to compensate.
 
 ## What This Unlocks, Once Picked Back Up
 
-The cast work — real names, personalities, each figure's locked
+~~The cast work — real names, personalities, each figure's locked
 persuasion method, all decided together rather than separately — is
 the natural next phase, now with two real, load-bearing safeguards
 already locked before any code gets written: no dead lanes, and a real
-ceiling on inquiry complexity.
+ceiling on inquiry complexity.~~
+
+**Done in v0.4 (ADR-007):** the cast pass landed — each figure has a
+real name, a locked persuasion method, and dossier copy surfacing the
+affinity. The harness now carries a method-aware strategy
+(`LockedLanes`) and a regression bar that it must win at least once
+for every origin — the no-dead-lane safeguard is enforced in CI, not
+just stated here. The natural next phase is now the murder-inquiry
+work: the ambient hint count/cadence question above, wrong-accusation
+consequences, and deterministic murderer seeding.
 
 ---
 
@@ -111,8 +138,9 @@ ceiling on inquiry complexity.
 | v0.1 | Initial. Core loop locked. Murder system locked in direction. Five open questions recorded. |
 | v0.2 | Figure-locked persuasion methods confirmed as real, locked design. Natural 3-method/3-figure mapping identified, assignment left open. Dead-strategy risk flagged as a new open question. |
 | v0.3 | Two real safeguards locked, both directly instructed: (1) non-locked methods remain functional at reduced value, never disabled — reusing Time Served's proven "No Mathematical Dead End" pillar directly rather than rediscovering the lesson; (2) the murder-inquiry puzzle gets a real complexity ceiling — small, ambient hint volume, no clue-web sprawl, solvable through ordinary political play rather than dedicated investigation. |
+| v0.4 | Method-lock assignment decided and implemented (ADR-007): Chancellor=Evidence, Archbishop=Whisper, Commander=Appeal. Locked methods pay 2× base; non-locked pay ¼ base floored at 1 — the premium forced by harness evidence showing a flat locked value produced 0/18 player wins. Method-aware strategy added to the harness with a per-origin no-hopeless-lane regression bar. First-run CourtPrimer added via shared OnboardingGate. |
 
 ---
 
-*Succession | August 22 2026 | RFD IT Services Ltd.*
+*Succession | September 29 2026 | RFD IT Services Ltd.*
 *A locked method should feel like a strength to have, not a wall to hit.*

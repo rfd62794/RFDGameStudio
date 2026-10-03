@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
  * succession-balance-sim.ts is a script module: it has no exports and runs
  * runAll() at import time. Its entire observable contract is the report it
  * prints to console.log, so these tests spy on console.log, dynamically
- * import the module (which executes all 18 deterministic simulations), and
+ * import the module (which executes all 21 deterministic simulations), and
  * then check the report's structure and internal consistency.
  */
 
@@ -15,6 +15,7 @@ const STRATEGIES = [
   'ScoutThenEvidence',
   'WhisperHeavy',
   'DiscreditHeavy',
+  'LockedLanes',
 ];
 const ORIGINS = ['bastard_scion', 'disgraced_knight', 'merchant_banker'];
 const RIVALS = ['aldric', 'vivienne'];
@@ -144,10 +145,10 @@ describe('succession-balance-sim report', () => {
   });
 
   it('per-run table has exactly one row per strategy × origin pair, in declaration order', () => {
-    expect(runRows.length).toBe(18);
+    expect(runRows.length).toBe(21);
 
     const seen = new Set(runRows.map((r) => `${r.strategy}|${r.origin}`));
-    expect(seen.size).toBe(18);
+    expect(seen.size).toBe(21);
     for (const s of STRATEGIES) {
       for (const o of ORIGINS) {
         expect(seen.has(`${s}|${o}`)).toBe(true);
@@ -172,7 +173,7 @@ describe('succession-balance-sim report', () => {
   });
 
   it('per-figure winners table mirrors run order and honours verdict rules', () => {
-    expect(figureRows.length).toBe(18);
+    expect(figureRows.length).toBe(21);
     expect(figureRows.map((r) => `${r.strategy}|${r.origin}`)).toEqual(
       runRows.map((r) => `${r.strategy}|${r.origin}`)
     );
@@ -253,7 +254,7 @@ describe('succession-balance-sim report', () => {
       expect(Number(m![1])).toBe(rows.filter((r) => r.winner === 'player').length);
       expect(Number(m![2])).toBe(rows.filter((r) => RIVALS.includes(r.winner)).length);
       expect(Number(m![3])).toBe(rows.filter((r) => r.winner === 'DRAW').length);
-      expect(Number(m![1]) + Number(m![2]) + Number(m![3])).toBe(6);
+      expect(Number(m![1]) + Number(m![2]) + Number(m![3])).toBe(7);
     }
   });
 
@@ -263,8 +264,8 @@ describe('succession-balance-sim report', () => {
     expect(playerLine).toBeDefined();
     expect(rivalLine).toBeDefined();
 
-    const pm = /Player exposures: (\d+) \(runs with exposure: (\d+)\/18\)/.exec(playerLine!);
-    const rm = /Rival exposures: (\d+) \(runs with exposure: (\d+)\/18\)/.exec(rivalLine!);
+    const pm = /Player exposures: (\d+) \(runs with exposure: (\d+)\/21\)/.exec(playerLine!);
+    const rm = /Rival exposures: (\d+) \(runs with exposure: (\d+)\/21\)/.exec(rivalLine!);
     expect(pm).not.toBeNull();
     expect(rm).not.toBeNull();
 
@@ -273,7 +274,7 @@ describe('succession-balance-sim report', () => {
     expect(Number(pm![2])).toBe(runRows.filter((r) => r.exposures > 0).length);
 
     // Rival exposures are aggregate-only: check the counting invariant.
-    expect(Number(rm![2])).toBeLessThanOrEqual(Math.min(Number(rm![1]), 18));
+    expect(Number(rm![2])).toBeLessThanOrEqual(Math.min(Number(rm![1]), 21));
     expect(Number(rm![1]) === 0).toBe(Number(rm![2]) === 0);
   });
 
@@ -299,8 +300,21 @@ describe('succession-balance-sim report', () => {
     expect(new Set(named)).toEqual(new Set(expectedNames));
   });
 
-  it('move logs exist for all 18 runs with well-formed, ordered segment tokens', () => {
-    expect(moveLogs.length).toBe(18);
+  it('method-aware play keeps every origin viable (ADR-007 no-hopeless-lane bar)', () => {
+    // The design doc's safeguard: no origin × figure-method-lock
+    // combination may create a structurally hopeless lane. LockedLanes
+    // is the method-aware baseline — it plays each councilor's favored
+    // approach — and it must win at least once for every origin.
+    for (const o of ORIGINS) {
+      const wins = runRows.filter(
+        (r) => r.strategy === 'LockedLanes' && r.origin === o && r.winner === 'player'
+      ).length;
+      expect(wins, `LockedLanes must win at least once as ${o}`).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('move logs exist for all 21 runs with well-formed, ordered segment tokens', () => {
+    expect(moveLogs.length).toBe(21);
     expect(moveLogs.map((l) => `${l.strategy}|${l.origin}`)).toEqual(
       runRows.map((r) => `${r.strategy}|${r.origin}`)
     );
