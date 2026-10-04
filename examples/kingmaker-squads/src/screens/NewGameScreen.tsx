@@ -1,5 +1,7 @@
 import React from 'react';
 import { Crown, Play, RotateCcw, Shield } from 'lucide-react';
+import { useArmedConfirm } from '../hooks/useArmedConfirm';
+import { armedLabel } from '../utils/armedConfirm';
 
 export interface NewGameScreenProps {
   onNewGame: () => void;
@@ -8,6 +10,8 @@ export interface NewGameScreenProps {
 }
 
 export function NewGameScreen({ onNewGame, onContinue, hasSaveData }: NewGameScreenProps) {
+  const armedNew = useArmedConfirm(onNewGame);
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-6 selection:bg-amber-500 selection:text-zinc-950 relative overflow-hidden">
       {/* Background Decorative Element */}
@@ -47,7 +51,7 @@ export function NewGameScreen({ onNewGame, onContinue, hasSaveData }: NewGameScr
           )}
 
           <button
-            onClick={onNewGame}
+            onClick={hasSaveData ? armedNew.trigger : onNewGame}
             className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition duration-200 ${
               hasSaveData
                 ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700'
@@ -57,7 +61,7 @@ export function NewGameScreen({ onNewGame, onContinue, hasSaveData }: NewGameScr
             {hasSaveData ? (
               <>
                 <RotateCcw className="w-4 h-4" />
-                New Campaign
+                {armedLabel(armedNew.armed, 'New Campaign', 'Confirm new campaign?')}
               </>
             ) : (
               <>
