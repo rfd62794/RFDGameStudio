@@ -18,7 +18,7 @@ const TUTORIAL_SEEN_KEY = 'chimera_wilds_tutorial_seen';
 
 function buildInitialState(session: GameSession): ChimeraWildsGameState {
   const baseline = (session.files.data['baseline_player'] as { power: number; endurance: number })
-    ?? { power: 20, endurance: 20 };
+    ?? { power: 90, endurance: 85 };
   return {
     player: baseline,
     currentChimera: null,

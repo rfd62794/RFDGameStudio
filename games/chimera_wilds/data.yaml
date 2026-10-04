@@ -129,5 +129,5 @@ parts:
     price: 60
 
 baseline_player:
-  power: 20
-  endurance: 20
+  power: 90
+  endurance: 85
