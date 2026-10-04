@@ -4,6 +4,8 @@ import { useLuaCall } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
 import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
 import type { AppPhase, CombatTurnResult, DeckCard, OpeningPackItem, RewardSlot, RunState } from './types';
+import AbandonRunButton from './components/AbandonRunButton';
+import { isRunInProgress } from './utils/runControls';
 
 import TitlePhase from './phases/TitlePhase';
 import OpeningPhase from './phases/OpeningPhase';
@@ -35,7 +37,7 @@ export default function App({ session }: GameRendererProps) {
 
   const [appPhase, setAppPhase] = useState<AppPhase>('title');
   const [unlockedCardIds, setUnlockedCardIds] = useState<string[]>(loadUnlockedCards);
-  const [savedRun] = useState<RunState | null>(loadSavedRun);
+  const [savedRun, setSavedRun] = useState<RunState | null>(loadSavedRun);
   const [run, setRun] = useState<RunState | null>(null);
   const [openingPack, setOpeningPack] = useState<OpeningPackItem[] | null>(null);
   const [pendingFloor, setPendingFloor] = useState(1);
@@ -55,6 +57,8 @@ export default function App({ session }: GameRendererProps) {
 
   const returnToTitle = useCallback(() => {
     setRun(null);
+    setRewardSlots(null);
+    setSavedRun(loadSavedRun());
     setAppPhase('title');
   }, []);
 
@@ -68,6 +72,20 @@ export default function App({ session }: GameRendererProps) {
       setAppPhase('floorChoice');
     }
   }, [unlockedCardIds, call, data]);
+
+  const handleNewRunFromEnd = useCallback(() => {
+    setRun(null);
+    setRewardSlots(null);
+    handleNewRun();
+  }, [handleNewRun]);
+
+  const handleAbandon = useCallback(() => {
+    clearSave(SAVED_RUN_KEY);
+    setSavedRun(null);
+    setRewardSlots(null);
+    setRun(null);
+    setAppPhase('title');
+  }, []);
 
   const handleContinue = useCallback(() => {
     if (!savedRun) return;
@@ -218,9 +236,12 @@ export default function App({ session }: GameRendererProps) {
   }, [run, call, data]);
 
   const statusArea = run ? (
-    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-      Floor {run.currentFloor} · Turn {run.turnCount}
-    </span>
+    <>
+      <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+        Floor {run.currentFloor} · Turn {run.turnCount}
+      </span>
+      {isRunInProgress(run.status) && <AbandonRunButton onAbandon={handleAbandon} />}
+    </>
   ) : undefined;
 
   return (
@@ -284,7 +305,7 @@ export default function App({ session }: GameRendererProps) {
         )}
 
         {appPhase === 'run' && run && (run.status === 'victory' || run.status === 'game_over') && (
-          <RunEndPhase run={run} onReturnToTitle={returnToTitle} />
+          <RunEndPhase run={run} onReturnToTitle={returnToTitle} onNewRun={handleNewRunFromEnd} />
         )}
       </div>
     </GameShell>
