@@ -10,7 +10,7 @@ const config: GameConfig = {
   source: { kind: 'sibling', repo: 'SlimeBreeder' },
   label: 'SlimeBreeder',
   supersededBy: 'slimeworld',
-  description: 'Origin project — a standalone TypeScript reimagining of the SlimeGarden core loop. Merged with SlimeGarden to become the current, live SlimeWorld (ts/src/games/slimeworld/).',
+  description: 'Frozen origin exhibit: the standalone slime-breeding prototype that was merged with SlimeGarden to become SlimeWorld. It is kept for history and is no longer developed. Progress saves in your browser. For the current game, play SlimeWorld.',
   color: '#ec4899',
   status: 'external',
   genre: 'creature-collector',
