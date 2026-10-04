@@ -11,7 +11,8 @@
     "facility-escape",
     "systemic-extract",
     "coin-pusher-arcade",
-    "voiddrift-redux-core-loop"
+    "voiddrift-redux-core-loop",
+    "planetforge"
   ],
   "demo_static_name": {
     "brewfield": "brewfield",
@@ -27,7 +28,8 @@
     "facility-escape": "facility_escape",
     "systemic-extract": "systemic_extract",
     "coin-pusher-arcade": "coin_pusher_arcade",
-    "voiddrift-redux-core-loop": "voiddrift_redux"
+    "voiddrift-redux-core-loop": "voiddrift_redux",
+    "planetforge": "planetforge"
   },
   "demo_external_paths": {
     "slimebreeder": "SlimeBreeder"
