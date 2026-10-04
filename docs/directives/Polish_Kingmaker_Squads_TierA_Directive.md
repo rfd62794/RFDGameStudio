@@ -214,12 +214,12 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-kingmaker-squads-tiera-directive |
 | Base branch | - |
-| Base commit | - |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for kingmaker_squads (Origin entry): blurb path leak, stale README, A3 note; start-screen restart blocked on intake (examples untracked); docs/demos/kingmaker_squads/SCOPE.md
+- 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
