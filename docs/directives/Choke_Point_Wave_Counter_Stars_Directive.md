@@ -175,3 +175,17 @@ Findings first: the star thresholds as shipped (3 stars at 80 percent or more co
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:25 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
