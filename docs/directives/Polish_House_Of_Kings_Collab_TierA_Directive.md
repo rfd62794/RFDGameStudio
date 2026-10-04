@@ -163,15 +163,18 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-house-of-kings-collab-tier-f00032 |
 | Base branch | - |
 | Base commit | a05b6267054158d7a3c9dd9b57dfcf8cfefd3020 |
+| Head commit | 9fa493994eb419cfc58545dde41de0049e9122b5 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/house_of_kings_collab/SCOPE.md (Robert 2026-10-04: architecture showcase)
 - 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (lib/adminGate.ts and two tests), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 - 2026-10-04 08:50 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-house-of-kings-collab-tier-f00032; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 08:51 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-house-of-kings-collab-tier-f00032; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 09:00 · devin · In progress → Review — devin: adminGate.ts fail-closed gate in App.tsx+Header.tsx (personal-email literal removed), showcase blurb in config.ts, 2 new vitest files 12/12 pass; regression test_registry_export+test_arcade_manifest 7/7 pass; gmail/adminEmail greps clean; pushed 9fa49399 [origin] spent: devin 8 min est. n/a
 <!-- queue:end -->
