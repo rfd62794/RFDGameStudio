@@ -268,7 +268,7 @@ export default function App() {
               if (updatedAgent.energy < 30) {
                 updatedAgent.state = 'BREAK';
                 updatedAgent.speechBubble = {
-                  text: 'Kape muna sa pantry! ☕',
+                  text: 'Coffee break in the pantry! ☕',
                   icon: '☕',
                   expiresAt: Date.now() + 5000,
                 };
@@ -354,9 +354,9 @@ export default function App() {
     sounds.playAlert();
     const eventPool: GameEvent[] = [
       {
-        id: 'typhoon',
-        title: '🌀 TYPHOON WARNING SIGNAL #3 ADVISORY',
-        description: 'Heavy rains and EDSA flooding across Metro Manila! Transportation is halted. Graveyard shift agents need shelter and support.',
+        id: 'storm',
+        title: '⛈️ SEVERE STORM ADVISORY',
+        description: 'Heavy rain and flooding across the city! Public transport is disrupted. Night shift agents need shelter and support.',
         severity: 'warning',
         options: [
           {
@@ -389,14 +389,14 @@ export default function App() {
       },
       {
         id: 'fiber_cut',
-        title: '🌐 PLDT SUBMARINE CABLE CUT ADVISORY',
-        description: 'Undersea fiber cable hit by anchor off Luzon! Floor VoIP ping spiking to 450ms. Calls are dropping!',
+        title: '🌐 NETWORK CARRIER OUTAGE ADVISORY',
+        description: 'A main fiber cable was damaged by roadworks! Floor VoIP ping spiking to 450ms. Calls are dropping!',
         severity: 'critical',
         options: [
           {
             label: 'Engage IT Emergency Dual-Fiber Failover',
             cost: 18000,
-            effectDescription: 'Bandwidth rerouted through Globe & Starlink within 60 seconds!',
+            effectDescription: 'Bandwidth rerouted through the backup carrier and satellite within 60 seconds!',
             action: () => {
               setMoney(m => m - 18000);
               setItConfig(it => ({ ...it, serverHealth: 100 }));
@@ -421,7 +421,7 @@ export default function App() {
           {
             label: 'Accept Client Quality SLA Bonus Award',
             cost: 0,
-            effectDescription: '+₱ 85,000 Cash Bonus credited to company account!',
+            effectDescription: '+$ 85,000 Cash Bonus credited to company account!',
             action: () => {
               sounds.playCash();
               setMoney(m => m + 85000);
@@ -432,8 +432,8 @@ export default function App() {
       },
       {
         id: 'pizza_friday',
-        title: '🍕 JOLLIBEE & PIZZA SURPRISE SPONSORED',
-        description: 'A satisfied US VIP caller sent 20 buckets of Chickenjoy and 15 Yellow Cab pizzas directly to the pantry!',
+        title: '🍕 CLIENT LUNCH SURPRISE',
+        description: 'A satisfied VIP caller sent 20 buckets of fried chicken and 15 pizzas directly to the pantry!',
         severity: 'reward',
         options: [
           {
@@ -604,7 +604,7 @@ export default function App() {
             }}
             className="w-full py-2 px-3 rounded-lg font-pixel text-[10px] tracking-wide text-white bg-sky-700 hover:bg-sky-600 border-2 border-sky-500 pixel-btn flex items-center gap-2.5 shadow-md active:scale-95 transition-all text-left"
           >
-            <span className="text-base">₱</span>
+            <span className="text-base">$</span>
             <span>WAGE MGMT</span>
           </button>
 
@@ -748,7 +748,7 @@ export default function App() {
           {/* Money with coin icon */}
           <div className="flex items-center gap-1.5 text-amber-300">
             <span className="text-sm">🪙</span>
-            <span className="font-bold">₱ {money.toLocaleString()}</span>
+            <span className="font-bold">$ {money.toLocaleString()}</span>
           </div>
 
           <div className="w-px h-4 bg-slate-700" />
@@ -895,7 +895,7 @@ export default function App() {
           setMoney(m => Math.max(0, m - cost));
           setAgents(prev => prev.map(a => {
             const updated = { ...a };
-            if (skillType === 'english') updated.englishSkill = Math.min(100, a.englishSkill + amount);
+            if (skillType === 'communication') updated.communicationSkill = Math.min(100, a.communicationSkill + amount);
             if (skillType === 'empathy') updated.empathySkill = Math.min(100, a.empathySkill + amount);
             if (skillType === 'tech') updated.techSkill = Math.min(100, a.techSkill + amount);
             if (skillType === 'speed') updated.speed = Math.min(100, a.speed + amount);

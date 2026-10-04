@@ -78,16 +78,16 @@ export const ITSupportModal: React.FC<Props> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
                 {
-                  id: 'PLDT_BASIC',
-                  title: 'PLDT Enterprise Basic Fiber',
+                  id: 'BASIC_FIBER',
+                  title: 'Enterprise Basic Fiber',
                   cost: 25000,
                   speed: '200 Mbps',
-                  desc: 'Standard commercial fiber. Susceptible to occasional Luzon submarine fiber cuts.',
+                  desc: 'Standard commercial fiber. Susceptible to occasional carrier outages.',
                   reliability: '94%',
                 },
                 {
-                  id: 'GLOBE_CORP',
-                  title: 'Globe Corporate Dedicated Leased Line',
+                  id: 'DEDICATED_LINE',
+                  title: 'Corporate Dedicated Leased Line',
                   cost: 45000,
                   speed: '500 Mbps',
                   desc: 'Dedicated CIR 1:1 business line with 4-hour SLA response time.',
@@ -95,7 +95,7 @@ export const ITSupportModal: React.FC<Props> = ({
                 },
                 {
                   id: 'DUAL_FIBER_FAILOVER',
-                  title: 'Dual-Fiber BGP Auto-Failover (PLDT + Globe)',
+                  title: 'Dual-Fiber BGP Auto-Failover (two carriers)',
                   cost: 85000,
                   speed: '1,000 Mbps',
                   desc: 'Carrier-neutral automatic switchover. If one line snaps, traffic routes seamlessly in 50ms.',
@@ -106,7 +106,7 @@ export const ITSupportModal: React.FC<Props> = ({
                   title: 'Starlink Low-Earth Satellite Backup Array',
                   cost: 140000,
                   speed: '2,000 Mbps',
-                  desc: 'Completely immune to terrestrial fiber severed cables and typhoons. Zero downtime guarantee.',
+                  desc: 'Completely immune to terrestrial fiber cuts and storms. Zero downtime guarantee.',
                   reliability: '99.99%',
                 },
               ].map(isp => {
@@ -146,7 +146,7 @@ export const ITSupportModal: React.FC<Props> = ({
                           canAfford ? 'bg-cyan-600 hover:bg-cyan-500 text-white' : 'bg-slate-800 text-slate-500'
                         }`}
                       >
-                        Upgrade (₱ {isp.cost.toLocaleString()})
+                        Upgrade ($ {isp.cost.toLocaleString()})
                       </button>
                     )}
                   </div>
@@ -194,7 +194,7 @@ export const ITSupportModal: React.FC<Props> = ({
                           canAfford ? 'bg-cyan-600 hover:bg-cyan-500 text-white' : 'bg-slate-800 text-slate-500'
                         }`}
                       >
-                        Upgrade (₱ {pc.cost.toLocaleString()})
+                        Upgrade ($ {pc.cost.toLocaleString()})
                       </button>
                     )}
                   </div>
@@ -242,7 +242,7 @@ export const ITSupportModal: React.FC<Props> = ({
                           canAfford ? 'bg-cyan-600 hover:bg-cyan-500 text-white' : 'bg-slate-800 text-slate-500'
                         }`}
                       >
-                        Equip (₱ {hs.cost.toLocaleString()})
+                        Equip ($ {hs.cost.toLocaleString()})
                       </button>
                     )}
                   </div>

@@ -32,28 +32,28 @@ export const FacilitiesModal: React.FC<Props> = ({
   const sites: SiteLocation[] = [
     {
       level: 1,
-      name: 'Eastwood City Cyberpark',
-      city: 'Libis, Quezon City',
+      name: 'Starter Office Park',
+      city: 'Business district',
       cost: 0,
       capacityMultiplier: 'Standard 20x20 Floor',
-      prestige: 'Birthplace of PH BPOs',
+      prestige: 'Where every operation begins',
       imageIcon: '🏙️',
-      description: 'The historic pioneer BPO cyberpark in Metro Manila with 24/7 convenience stores and dining.',
+      description: 'A well-known outsourcing park with 24/7 convenience stores and dining.',
     },
     {
       level: 2,
-      name: 'Ortigas Center Corporate Tower',
-      city: 'Pasig City (Emerald Ave / Julia Vargas)',
+      name: 'Corporate Tower',
+      city: 'Central business district',
       cost: 150000,
       capacityMultiplier: '+30% Seating Capacity',
-      prestige: 'Dense Metro Manila Hub',
+      prestige: 'Dense city hub',
       imageIcon: '🏢',
-      description: 'Strategic location near EDSA & MRT, huge applicant walk-in recruitment rate and faster ISP peering.',
+      description: 'Strategic location near major transit lines, a high walk-in applicant rate and faster ISP peering.',
     },
     {
       level: 3,
-      name: 'Bonifacio Global City (BGC) High Street',
-      city: 'Taguig City',
+      name: 'High Street Campus',
+      city: 'Modern business quarter',
       cost: 350000,
       capacityMultiplier: '+60% Seating Capacity',
       prestige: 'Prestige Multi-National Campus',
@@ -62,13 +62,13 @@ export const FacilitiesModal: React.FC<Props> = ({
     },
     {
       level: 4,
-      name: 'Cebu IT Park & Clark Multi-Site Mega Campus',
-      city: 'Cebu City & Clark Freeport',
+      name: 'Multi-Site Mega Campus',
+      city: 'Two linked tech parks',
       cost: 750000,
       capacityMultiplier: 'Dual-Region Geo-Redundancy',
       prestige: 'National Enterprise Giant',
       imageIcon: '🌟',
-      description: 'Multi-campus redundancy immune to regional power and typhoon disruptions. Enterprise level client trust.',
+      description: 'Multi-campus redundancy that rides out regional power and storm disruptions. Enterprise level client trust.',
     },
   ];
 
@@ -82,9 +82,9 @@ export const FacilitiesModal: React.FC<Props> = ({
             <span className="text-2xl">🏢</span>
             <div>
               <h2 className="font-bold text-lg text-purple-400 tracking-wide uppercase font-pixel text-xs">
-                FACILITIES & METRO MANILA CYBERPARKS
+                FACILITIES & OFFICE PARKS
               </h2>
-              <p className="text-xs text-slate-400">Expand your call center footprint across premier Philippine IT corridors</p>
+              <p className="text-xs text-slate-400">Expand your call center footprint across premier technology parks</p>
             </div>
           </div>
 
@@ -140,7 +140,7 @@ export const FacilitiesModal: React.FC<Props> = ({
 
                 <div className="text-right sm:shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-700">
                   <span className="font-bold text-amber-300 text-sm">
-                    {site.cost === 0 ? 'Current Starting Site' : `₱ ${site.cost.toLocaleString()}`}
+                    {site.cost === 0 ? 'Current Starting Site' : `$ ${site.cost.toLocaleString()}`}
                   </span>
 
                   {isCurrent ? (

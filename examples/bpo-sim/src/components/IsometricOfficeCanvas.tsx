@@ -14,6 +14,9 @@ interface Props {
   onPlaceBuildItem?: (x: number, y: number) => void;
 }
 
+/** Varied avatar skin tones, picked per agent from avatarSeed. */
+const AVATAR_SKIN_TONES = ['#f5d0b0', '#e8b98a', '#d99a6c', '#c68642', '#8d5524', '#6b4423'];
+
 export const IsometricOfficeCanvas: React.FC<Props> = ({
   grid,
   agents,
@@ -451,7 +454,8 @@ export const IsometricOfficeCanvas: React.FC<Props> = ({
     ctx.fillRect(sx - 1, posY - 4, 2, 6);
 
     // Head / Face
-    ctx.fillStyle = '#fed7aa'; // Pinoy skin tone
+    const skinTone = AVATAR_SKIN_TONES[Math.abs(agent.avatarSeed) % AVATAR_SKIN_TONES.length]; // varied avatar palette
+    ctx.fillStyle = skinTone;
     ctx.beginPath();
     ctx.arc(sx, posY - 12, 6, 0, Math.PI * 2);
     ctx.fill();
@@ -490,7 +494,7 @@ export const IsometricOfficeCanvas: React.FC<Props> = ({
 
     // Hands typing on keyboard if on call
     if (isTyping) {
-      ctx.fillStyle = '#fed7aa';
+      ctx.fillStyle = skinTone;
       ctx.fillRect(sx - 5 + Math.sin(tick * 0.4) * 2, posY + 2, 3, 3);
       ctx.fillRect(sx + 2 + Math.cos(tick * 0.4) * 2, posY + 2, 3, 3);
     }

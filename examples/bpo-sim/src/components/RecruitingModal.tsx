@@ -18,8 +18,8 @@ interface Candidate {
   role: AgentRole;
   shift: ShiftType;
   experienceYears: number;
-  askingSalary: number; // monthly PHP
-  englishSkill: number;
+  askingSalary: number; // monthly, in game dollars
+  communicationSkill: number;
   empathySkill: number;
   techSkill: number;
   speed: number;
@@ -41,8 +41,8 @@ export const RecruitingModal: React.FC<Props> = ({
 
     const bios: Record<AgentRole, string[]> = {
       CSR: [
-        '3 years voice account experience at Sykes/Convergys. Excellent customer rapport.',
-        'Fresh Mass Comm graduate from UST. Fluent American English, high stamina.',
+        '3 years of voice account experience at large call centers. Excellent customer rapport.',
+        'Recent communications graduate. Clear, confident speaker with high stamina.',
         'Former retail service rep transitioning to international BPO. Very polite.'
       ],
       TSR: [
@@ -59,7 +59,7 @@ export const RecruitingModal: React.FC<Props> = ({
       ],
       QA: [
         'Meticulous QA auditor with 98% score calibration accuracy.',
-        'Specializes in accent coaching, empathy statements, and compliance audits.'
+        'Specializes in call coaching, empathy statements, and compliance audits.'
       ],
       IT: [
         'Certified Cisco CCNA network admin. Keeps server racks cool and cables organized.',
@@ -86,7 +86,7 @@ export const RecruitingModal: React.FC<Props> = ({
         shift,
         experienceYears: exp,
         askingSalary: baseSal + exp * 1500,
-        englishSkill: 65 + Math.floor(Math.random() * 30),
+        communicationSkill: 65 + Math.floor(Math.random() * 30),
         empathySkill: 60 + Math.floor(Math.random() * 35),
         techSkill: role === 'TSR' || role === 'IT' ? 85 + Math.floor(Math.random() * 12) : 50 + Math.floor(Math.random() * 35),
         speed: 65 + Math.floor(Math.random() * 30),
@@ -180,10 +180,10 @@ export const RecruitingModal: React.FC<Props> = ({
 
                     <div className="text-right">
                       <div className="text-xs font-bold text-amber-300">
-                        ₱ {cand.askingSalary.toLocaleString()}/mo
+                        $ {cand.askingSalary.toLocaleString()}/mo
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        Sign bonus: ₱ {signingBonus.toLocaleString()}
+                        Sign bonus: $ {signingBonus.toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -195,10 +195,10 @@ export const RecruitingModal: React.FC<Props> = ({
                     <div>
                       <div className="flex justify-between text-slate-400 mb-0.5">
                         <span>English Fluency</span>
-                        <span className="text-sky-300 font-bold">{cand.englishSkill}%</span>
+                        <span className="text-sky-300 font-bold">{cand.communicationSkill}%</span>
                       </div>
                       <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-sky-400 h-full rounded-full" style={{ width: `${cand.englishSkill}%` }} />
+                        <div className="bg-sky-400 h-full rounded-full" style={{ width: `${cand.communicationSkill}%` }} />
                       </div>
                     </div>
 
@@ -248,7 +248,7 @@ export const RecruitingModal: React.FC<Props> = ({
                       energy: 100,
                       stress: 10,
                       morale: 88,
-                      englishSkill: cand.englishSkill,
+                      communicationSkill: cand.communicationSkill,
                       empathySkill: cand.empathySkill,
                       techSkill: cand.techSkill,
                       speed: cand.speed,

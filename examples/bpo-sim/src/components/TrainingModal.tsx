@@ -5,7 +5,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   money: number;
-  onRunTraining: (moduleTitle: string, cost: number, skillType: 'english' | 'empathy' | 'tech' | 'speed', amount: number) => void;
+  onRunTraining: (moduleTitle: string, cost: number, skillType: 'communication' | 'empathy' | 'tech' | 'speed', amount: number) => void;
 }
 
 interface TrainingCourse {
@@ -15,7 +15,7 @@ interface TrainingCourse {
   cost: number;
   duration: string;
   icon: string;
-  skillType: 'english' | 'empathy' | 'tech' | 'speed';
+  skillType: 'communication' | 'empathy' | 'tech' | 'speed';
   boostAmount: number;
   description: string;
 }
@@ -30,15 +30,15 @@ export const TrainingModal: React.FC<Props> = ({
 
   const courses: TrainingCourse[] = [
     {
-      id: 'accent',
-      title: 'American & British Accent Neutralization',
-      category: 'Language & Voice',
+      id: 'communication',
+      title: 'Clear Communication Workshop',
+      category: 'Communication & Voice',
       cost: 14000,
       duration: '4 Hours',
       icon: '🗣️',
-      skillType: 'english',
+      skillType: 'communication',
       boostAmount: 12,
-      description: 'Phonetics coaching, tongue placement, intonation, and idiom comprehension for US/UK callers.',
+      description: 'Pacing, intonation, active listening and idiom comprehension for callers from any region.',
     },
     {
       id: 'empathy',
@@ -135,7 +135,7 @@ export const TrainingModal: React.FC<Props> = ({
 
                 <div className="text-right sm:shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-700">
                   <span className="font-bold text-amber-300 text-sm">
-                    ₱ {course.cost.toLocaleString()}
+                    $ {course.cost.toLocaleString()}
                   </span>
                   <button
                     disabled={!canAfford}

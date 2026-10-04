@@ -26,7 +26,7 @@ export interface Agent {
   energy: number;
   stress: number;
   morale: number;
-  englishSkill: number;
+  communicationSkill: number;
   empathySkill: number;
   techSkill: number;
   speed: number;
@@ -38,7 +38,7 @@ export interface Agent {
   avgHandleTime: number; // in seconds
   
   // Financial
-  salary: number; // in PHP monthly
+  salary: number; // in game dollars, monthly
   bonusEarned: number;
   
   // Current Live Call Info
@@ -90,7 +90,7 @@ export interface ClientCampaign {
   name: string;
   clientCountry: string; // USA, UK, Australia, Canada
   serviceType: string;
-  payoutPerCall: number; // in PHP
+  payoutPerCall: number; // in game dollars
   targetAHT: number; // target seconds (e.g. 300)
   targetCSAT: number; // target % (e.g. 85%)
   difficulty: number; // 1 to 5
@@ -121,7 +121,7 @@ export interface GameEvent {
 }
 
 export interface GameStats {
-  money: number; // PHP
+  money: number; // game dollars
   day: number;
   gameTimeMinutes: number; // 0 to 1440 (24h)
   callsQueue: number;
@@ -133,11 +133,11 @@ export interface GameStats {
   avgHappiness: number;
   rating: number; // 1.0 to 5.0
   reputation: number; // 0 to 100
-  officeLevel: number; // 1: Eastwood, 2: Ortigas, 3: BGC, 4: Cebu IT Park
+  officeLevel: number; // 1: Starter Office Park, 2: Corporate Tower, 3: High Street Campus, 4: Multi-Site Mega Campus
 }
 
 export interface ITInfrastructure {
-  ispProvider: 'PLDT_BASIC' | 'GLOBE_CORP' | 'DUAL_FIBER_FAILOVER' | 'STARLINK_REDUNDANT';
+  ispProvider: 'BASIC_FIBER' | 'DEDICATED_LINE' | 'DUAL_FIBER_FAILOVER' | 'STARLINK_REDUNDANT';
   serverHealth: number; // 0 - 100
   serverLoad: number; // 0 - 100
   coolingActive: boolean;
@@ -172,7 +172,7 @@ export interface DialerConfig {
 export interface QuotaState {
   target: number;
   progress: number;
-  payoutPerCall: number; // PHP earned per completed call
+  payoutPerCall: number; // game dollars earned per completed call
 }
 
 export type DayVerdict = 'met' | 'missed' | 'partial';

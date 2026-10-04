@@ -131,7 +131,7 @@ export const ReportsModal: React.FC<Props> = ({
                     </div>
                     <div className="text-right">
                       <span className="text-slate-400 block text-[10px]">Rate / Call</span>
-                      <span className="font-bold text-amber-300">₱ {camp.payoutPerCall}</span>
+                      <span className="font-bold text-amber-300">$ {camp.payoutPerCall}</span>
                     </div>
                   </div>
                 </div>
@@ -147,25 +147,25 @@ export const ReportsModal: React.FC<Props> = ({
             <div className="space-y-2 text-xs">
               <div className="flex justify-between text-slate-300">
                 <span>Gross Call Revenue ({callsToday} calls resolved)</span>
-                <span className="font-bold text-emerald-400 font-mono">+ ₱ {dailyRevenue.toLocaleString()}</span>
+                <span className="font-bold text-emerald-400 font-mono">+ $ {dailyRevenue.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>Staff Payroll & Night Differential ({totalStaff} agents)</span>
-                <span className="text-rose-400 font-mono">- ₱ {dailyPayroll.toLocaleString()}</span>
+                <span className="text-rose-400 font-mono">- $ {dailyPayroll.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>Facility Rent, Power & Air Conditioning</span>
-                <span className="text-rose-400 font-mono">- ₱ {dailyFacility.toLocaleString()}</span>
+                <span className="text-rose-400 font-mono">- $ {dailyFacility.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>Telecom Leased Lines & Bandwidth</span>
-                <span className="text-rose-400 font-mono">- ₱ {dailyInternet.toLocaleString()}</span>
+                <span className="text-rose-400 font-mono">- $ {dailyInternet.toLocaleString()}</span>
               </div>
 
               <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-bold">
                 <span className="text-slate-200">Estimated Net Daily Profit</span>
                 <span className={`font-mono ${dailyProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {dailyProfit >= 0 ? `+ ₱ ${dailyProfit.toLocaleString()}` : `- ₱ ${Math.abs(dailyProfit).toLocaleString()}`}
+                  {dailyProfit >= 0 ? `+ $ ${dailyProfit.toLocaleString()}` : `- $ ${Math.abs(dailyProfit).toLocaleString()}`}
                 </span>
               </div>
             </div>

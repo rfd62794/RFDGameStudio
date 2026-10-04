@@ -39,12 +39,12 @@ export const WageModal: React.FC<Props> = ({
         {/* Header */}
         <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">₱</span>
+            <span className="text-2xl">$</span>
             <div>
               <h2 className="font-bold text-lg text-amber-400 tracking-wide uppercase font-pixel text-xs">
                 WAGE & COMPENSATION MANAGEMENT
               </h2>
-              <p className="text-xs text-slate-400">Manage base salaries, night differential, 13th month pay & HMO</p>
+              <p className="text-xs text-slate-400">Manage base salaries, night differential, year-end bonus & health plan</p>
             </div>
           </div>
 
@@ -70,11 +70,11 @@ export const WageModal: React.FC<Props> = ({
             </div>
             <div>
               <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Est. Avg Pay per Agent</span>
-              <span className="text-lg font-bold text-amber-300">₱ {Math.round(totalPerAgent).toLocaleString()} /mo</span>
+              <span className="text-lg font-bold text-amber-300">$ {Math.round(totalPerAgent).toLocaleString()} /mo</span>
             </div>
             <div>
               <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Est. Monthly Total Payroll</span>
-              <span className="text-lg font-bold text-amber-400">₱ {Math.round(totalMonthlyPayroll).toLocaleString()}</span>
+              <span className="text-lg font-bold text-amber-400">$ {Math.round(totalMonthlyPayroll).toLocaleString()}</span>
             </div>
           </div>
 
@@ -133,14 +133,14 @@ export const WageModal: React.FC<Props> = ({
           {/* 3. HMO Health Card Provider */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-              3. HMO Health Card Tier (Maxicare / Intellicare)
+              3. Health Plan Tier
             </label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { id: 'NONE', name: 'No HMO', cost: '₱0', desc: 'Saves money, but agents resign when sick' },
-                { id: 'BASIC', name: 'Basic (MBL ₱80k)', cost: '₱900/mo', desc: 'Emergency inpatient coverage only' },
-                { id: 'SILVER', name: 'Silver (MBL ₱150k)', cost: '₱1,800/mo', desc: 'Outpatient + dental + clinic consultation' },
-                { id: 'PLATINUM', name: 'Platinum + Dependents', cost: '₱3,500/mo', desc: 'Covers parents/kids, massive loyalty' },
+                { id: 'NONE', name: 'No Health Plan', cost: '$0', desc: 'Saves money, but agents resign when sick' },
+                { id: 'BASIC', name: 'Basic (up to $80k)', cost: '$900/mo', desc: 'Emergency inpatient coverage only' },
+                { id: 'SILVER', name: 'Silver (up to $150k)', cost: '$1,800/mo', desc: 'Outpatient + dental + clinic consultation' },
+                { id: 'PLATINUM', name: 'Platinum + Dependents', cost: '$3,500/mo', desc: 'Covers parents/kids, massive loyalty' },
               ].map(plan => (
                 <button
                   key={plan.id}
@@ -167,7 +167,7 @@ export const WageModal: React.FC<Props> = ({
             <div className="p-3 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-between">
               <div>
                 <span className="font-bold text-xs text-slate-200 block">Free Unlimited Coffee & Milo</span>
-                <span className="text-[10px] text-slate-400">₱400/mo per agent · Boosts floor energy</span>
+                <span className="text-[10px] text-slate-400">$400/mo per agent · Boosts floor energy</span>
               </div>
               <input
                 type="checkbox"
@@ -180,7 +180,7 @@ export const WageModal: React.FC<Props> = ({
             <div className="p-3 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-between">
               <div>
                 <span className="font-bold text-xs text-slate-200 block">Subsidized Meal / Rice Allowance</span>
-                <span className="text-[10px] text-slate-400">₱2,200/mo per agent · Lowers tardiness</span>
+                <span className="text-[10px] text-slate-400">$2,200/mo per agent · Lowers tardiness</span>
               </div>
               <input
                 type="checkbox"
@@ -191,17 +191,17 @@ export const WageModal: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* 13th Month Pay Accrual Information */}
+          {/* Year-end bonus accrual information */}
           <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               <span className="text-xl">🎁</span>
               <div>
-                <span className="font-bold text-slate-200">13th Month Pay Statutory Reserve</span>
+                <span className="font-bold text-slate-200">Year-End Bonus Reserve</span>
                 <p className="text-[11px] text-slate-400">Accrues 1/12th of annual payroll automatically. Distributed every December.</p>
               </div>
             </div>
             <span className="font-bold text-emerald-400 font-mono">
-              Accrued: ₱ {policy.monthly13thAccrued.toLocaleString()}
+              Accrued: $ {policy.monthly13thAccrued.toLocaleString()}
             </span>
           </div>
         </div>

@@ -43,11 +43,11 @@ export const BuildModal: React.FC<Props> = ({ isOpen, onClose, money, onSelectBu
     },
     {
       type: 'COFFEE_MAKER',
-      name: 'Kopiko 3-in-1 Coffee Station',
+      name: 'Instant Coffee Station',
       category: 'Pantry & Perks',
       cost: 8500,
       icon: '☕',
-      description: 'The lifeblood of Philippine call center graveyard shift workers.',
+      description: 'The lifeblood of every night shift.',
       benefits: 'Agents replenish energy 40% faster during breaks.',
     },
     {
@@ -88,12 +88,12 @@ export const BuildModal: React.FC<Props> = ({ isOpen, onClose, money, onSelectBu
     },
     {
       type: 'VENDING_MACHINE',
-      name: 'Pinoy Snack Vending Machine',
+      name: 'Snack Vending Machine',
       category: 'Pantry & Perks',
       cost: 18000,
       icon: '🥫',
-      description: 'Stocked with Chippy, Piattos, Lucky Me Pancit Canton and cold drinks.',
-      benefits: 'Generates ~₱800/day passive snack profit, keeps agents happy.',
+      description: 'Stocked with chips, instant noodles and cold drinks.',
+      benefits: 'Generates ~$800/day passive snack profit, keeps agents happy.',
     },
   ];
 
@@ -116,7 +116,7 @@ export const BuildModal: React.FC<Props> = ({ isOpen, onClose, money, onSelectBu
           <div className="flex items-center gap-4">
             <div className="bg-slate-800/90 px-3 py-1.5 rounded-lg border border-slate-700 text-amber-300 text-sm font-bold flex items-center gap-1.5">
               <span>🪙</span>
-              <span>₱ {money.toLocaleString()}</span>
+              <span>$ {money.toLocaleString()}</span>
             </div>
             <button
               onClick={() => {
@@ -160,7 +160,7 @@ export const BuildModal: React.FC<Props> = ({ isOpen, onClose, money, onSelectBu
 
                     <div className="text-right">
                       <div className="font-bold text-amber-300 text-sm">
-                        ₱ {item.cost.toLocaleString()}
+                        $ {item.cost.toLocaleString()}
                       </div>
                     </div>
                   </div>
