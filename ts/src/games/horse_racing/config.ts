@@ -7,7 +7,7 @@ export const horseRacingConfig: GameConfig = {
   label:       'Derby Sim',
   description: 'Race, breed, and bet on horses. Win/Place/Show betting, genetics system, career tracking.',
   color:       '#f59e0b',   // amber
-  status:      'stable',
+  status:      'beta',
   genre:       'racing',
   tags:        ['breeding', 'betting'],
   component:   React.lazy(() => import('./App')),
