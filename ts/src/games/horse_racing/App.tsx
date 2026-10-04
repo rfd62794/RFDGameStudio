@@ -11,6 +11,7 @@ import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { sound } from './utils/sound';
+import { SAVE_KEY, hasSavedCareer, wipeSavedCareer } from './utils/careerSave';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
@@ -21,7 +22,6 @@ import { TitleScreen } from '../../ui/components/TitleScreen';
 import { resolveViewport, buildBoundsMap, type LayoutNode } from '../../engine/ui_resolver';
 import { interpretLayout, type RegionsMap } from '../../engine/ui_interpreter';
 
-const SAVE_KEY = 'derby_sim_state_v1';
 const TUTORIAL_SEEN_KEY = 'derby_sim_tutorial_seen';
 
 interface DerbySave {
@@ -150,6 +150,8 @@ export default function App({ session }: GameRendererProps) {
   const [error, setError] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [showTitle, setShowTitle] = useState(true);
+  const [hasSave] = useState<boolean>(() => hasSavedCareer());
+  const [confirmingNewGame, setConfirmingNewGame] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('stable');
   const [isRacingActive, setIsRacingActive] = useState(false);
   const [pendingBets, setPendingBets] = useState<Bet[]>([]);
@@ -203,6 +205,20 @@ export default function App({ session }: GameRendererProps) {
       triggerTutorial();
     }
   }, [triggerTutorial]);
+
+  // New Game on a title that already has a career: a confirmed wipe, then a fresh stable.
+  const handleStartOver = useCallback(() => {
+    if (!confirmingNewGame) {
+      setConfirmingNewGame(true);
+      return;
+    }
+    const stableCfg = (session.files.data as Record<string, unknown>)['stable'] as Record<string, unknown>;
+    wipeSavedCareer();
+    setUnlockedSlots((stableCfg['starting_slots'] as number) ?? 3);
+    setGameState(buildInitialState(session));
+    setConfirmingNewGame(false);
+    handleNewGame();
+  }, [confirmingNewGame, session, handleNewGame]);
 
   const handleDismissTutorial = useCallback(() => {
     writeSave(TUTORIAL_SEEN_KEY, true);
@@ -519,7 +535,10 @@ export default function App({ session }: GameRendererProps) {
           title="Derby Sim"
           tagline="Race · Breed · Bet"
           pitch="Race, breed, and bet on horses. Win/Place/Show betting, genetics system, career tracking."
-          menuItems={[
+          menuItems={hasSave ? [
+            { id: 'continue', label: 'Continue', variant: 'primary', onClick: handleNewGame },
+            { id: 'new-game', label: confirmingNewGame ? 'Erase my stable and start over?' : 'New Game', variant: confirmingNewGame ? 'danger' : 'secondary', onClick: handleStartOver },
+          ] : [
             { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
           ]}
         />

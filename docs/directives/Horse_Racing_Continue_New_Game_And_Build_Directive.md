@@ -364,11 +364,12 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/hr-continue |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — careerSave.ts (SAVE_KEY moved + hasSavedCareer/wipeSavedCareer), title shows Continue + two-step 'Erase my stable and start over?' when a career exists, single New Game otherwise; tutorial flag preserved. Standalone vite config/entry/html + build:horse_racing. `npx vitest run test_horse_racing_new_game.ts test_horse_racing_polish.ts` → 2 files / 16 passed spec-exact; `npx tsc --noEmit` → clean exit 0 with game-metadata.json present. Controller finish: npm run build:horse_racing + Continue/two-step click-through + title screenshot.
 <!-- queue:end -->
