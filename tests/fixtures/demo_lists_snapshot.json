@@ -12,6 +12,7 @@
     "systemic-extract",
     "coin-pusher-arcade",
     "voiddrift-redux-core-loop",
+    "voidrift-redux-particle-sandbox",
     "planetforge"
   ],
   "demo_static_name": {
@@ -29,6 +30,7 @@
     "systemic-extract": "systemic_extract",
     "coin-pusher-arcade": "coin_pusher_arcade",
     "voiddrift-redux-core-loop": "voiddrift_redux",
+    "voidrift-redux-particle-sandbox": "voidrift_particle_sandbox",
     "planetforge": "planetforge"
   },
   "demo_external_paths": {
@@ -119,6 +121,10 @@
     "voiddrift_redux": [
       "ts/src/games/voiddrift_redux",
       "examples/voiddrift-redux-core-loop"
+    ],
+    "voidrift_particle_sandbox": [
+      "ts/src/games/voidrift_particle_sandbox",
+      "examples/voidrift-redux-particle-sandbox"
     ],
     "succession": [
       "ts/src/games/succession"
