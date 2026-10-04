@@ -214,12 +214,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-studio-children-fresh-test-d1-3-d-83dcf3 |
 | Base branch | - |
+| Base commit | 27848f4f4b92a845d1e17407a05832a48653c3d8 |
 
 **Status log**
 - 2026-10-04 10:47 · robert-claude-laptop · none → Queued
 - 2026-10-04 10:48 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs
+- 2026-10-04 11:37 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-children-fresh-test-d1-3-d-83dcf3; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
