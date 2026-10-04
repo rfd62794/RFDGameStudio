@@ -221,4 +221,5 @@ none. Deploying the rebuilt embed is Robert's, after review.
 - 2026-10-03 23:58 · claude · none → Queued — wave 1 Tier A directive from docs/demos/ledger/SCOPE.md
 - 2026-10-04 00:03 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (RestartButton.tsx, test_ledger_utils.ts), marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 03:55 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-ledger-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 03:56 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-ledger-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
