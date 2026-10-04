@@ -637,4 +637,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:57 · robert-claude-laptop · none → Queued
 - 2026-10-04 15:28 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534 pending); author ran baseline+after proofs; Robert 2026-10-04 BPO Sim direction; dependencies rename+country data merged (bb4ed4aa, 15c0b376)
 - 2026-10-04 15:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-check-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 15:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-check-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
