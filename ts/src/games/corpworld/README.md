@@ -12,13 +12,14 @@ Greed is the live, TS-native game in `ts/src/games/planetofgreed/`.
 
 **What is tracked here:**
 - Registry entry: `ts/src/games/corpworld/config.ts` (imported by
-  `ts/src/games/registry.ts`).
+  `ts/src/games/registry.ts`; its `source` points at the example below).
+- Source: `examples/corpworld/`, a tracked AI Studio export (tracked since
+  commit `0c416b4f`, 2026-10-04). Its `vite.config.ts` sets
+  `base: '/arcade/corpworld/'`.
 - Intake history: `intake/corpworld/MANIFEST.md` (latest recorded version
   0.1.0R5, source file `corpworld_v0.1.0R5.zip`).
 
-**Where the build source lives:** the embed is served at `/arcade/corpworld/`.
-Its source is expected at `examples/corpworld/`, but `examples/*` is
-gitignored (`.gitignore` line 193) and `examples/corpworld/` is NOT tracked
-in this repository, so it exists only in the owner's live checkout, if at
-all. Not verified: that the deployed build matches intake 0.1.0R5. Owner to
-confirm and record the answer here.
+**Which build is live:** the embed is served at `/arcade/corpworld/`. The
+tracked source is intake 0.1.0R5. Not verified: that the build currently
+served there was built from it. A build-hash comparison by the controller
+would settle it; record the answer here when done.

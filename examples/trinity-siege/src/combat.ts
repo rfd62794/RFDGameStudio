@@ -12,7 +12,6 @@ import {
   DuelLog,
   BattleResult,
   Attack,
-  Race,
 } from "./types";
 
 /**
