@@ -26,7 +26,9 @@ import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
 import { ZoomIn, ZoomOut, Maximize2, Sparkles, Award, Hammer } from 'lucide-react';
 
-export default function App(_props: GameRendererProps) {
+export type AppProps = GameRendererProps & { onRestart?: () => void };
+
+export default function App({ onRestart }: AppProps) {
   // Canvas Container & Simulation Engine Refs
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -348,13 +350,11 @@ export default function App(_props: GameRendererProps) {
   };
 
   const handleResetGrid = () => {
-    if (window.confirm('Reset the simulation sandbox and clear all materials and structures?')) {
-      gridRef.current.clearAll();
-      buildingMgrRef.current.clearAll();
-      setStoredCounts({});
-      setSelectedBuilding(null);
-      setFilterPopupPos(null);
-    }
+    gridRef.current.clearAll();
+    buildingMgrRef.current.clearAll();
+    setStoredCounts({});
+    setSelectedBuilding(null);
+    setFilterPopupPos(null);
   };
 
   const handleResetView = () => {
@@ -386,6 +386,7 @@ export default function App(_props: GameRendererProps) {
           }}
           onTriggerMeteorShower={() => asteroidMgrRef.current.spawnMeteorShower(gridRef.current, 50)}
           onResetGrid={handleResetGrid}
+          onRestart={onRestart}
           onOpenHelp={() => setIsHelpOpen(true)}
         />
 

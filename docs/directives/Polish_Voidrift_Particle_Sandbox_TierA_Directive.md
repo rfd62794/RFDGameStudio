@@ -355,11 +355,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/vps-tiera |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — TitleGate wrapper (title screen + runKey remount restart), config lazy-loads TitleGate, App.tsx onRestart prop + window.confirm dropped, Header two-tap Clear + text Restart, standalone vite config/entry/html + build:voidrift_particle_sandbox. Six-file spec command → 6 files / 63 passed; `npx tsc --noEmit` → clean exit 0 with game-metadata.json present. Greps: 0 window.confirm, 1 import('./TitleGate'), App.tsx 581 lines. Controller finish: npm run build:voidrift_particle_sandbox + desktop/390 screenshots.
 <!-- queue:end -->
