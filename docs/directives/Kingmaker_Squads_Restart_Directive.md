@@ -295,4 +295,5 @@ merge; it is not part of this run.
 - 2026-10-04 · robert-claude-laptop · none → Queued — add in-frame Restart / New Campaign two-step confirm to examples/kingmaker-squads (tracked by the intake commit on PR intake/kingmaker-squads); pure helper test only; embed rebuild and deploy are Robert's
 - 2026-10-04 08:39 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (armedConfirm.ts, useArmedConfirm.ts, RestartButton.tsx, test_kingmaker_armed_confirm.ts), marked new, and the intake files now on main; author's dispatch lint (with the intake merged) gave 0 errors
 - 2026-10-04 12:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-restart-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 12:05 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-restart-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
