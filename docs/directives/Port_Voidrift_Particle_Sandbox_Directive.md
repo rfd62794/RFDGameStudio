@@ -166,12 +166,11 @@ Findings first: what was ported, how the four oversized files were split, any be
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
-| Base commit | - |
-| Head commit | - |
 
 **Status log**
+- 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: all errors are files the run creates, each marked with new-file markers; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
