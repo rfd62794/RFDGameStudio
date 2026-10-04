@@ -159,7 +159,7 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-facility-escape-tiera-directive |
 | Base branch | - |
@@ -170,4 +170,5 @@ none. Deploying the rebuilt embed is Robert's, after review.
 - 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are the file the run creates (test_facility_escape_blurb.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 03:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-facility-escape-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 03:25 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-facility-escape-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 03:33 · devin · In progress → Blocked — Work committed (18339ffa) and all directive checks green, but git push rejected by pre-push hook: studio_mcp/zip_verify test_tracked_dir_diff_single_commit_is_no_prior_revision asserts examples/facility-escape has exactly 1 commit, and the mandated roomGenerator.ts edit necessarily adds a 2nd. Test is a 4th file outside this run's 3-file scope; Review status refused without a pushed branch.
 <!-- queue:end -->
