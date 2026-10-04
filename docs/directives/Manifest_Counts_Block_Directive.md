@@ -163,7 +163,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-manifest-counts-block-directive |
 | Base branch | - |
@@ -174,4 +174,5 @@ none.
 - 2026-10-04 09:26 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baselines
 - 2026-10-04 11:37 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-manifest-counts-block-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 11:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-manifest-counts-block-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 11:51 · devin-overseer (delegated) · In progress → Blocked — All 4 scoped files done and committed (9a664dc3, pushed); vitest 5/5 new + 7/7 regression, tsc --noEmit clean, full suite green on push. Only unmet criterion: exporter step refused — `npx vite-node tools/export-arcade-manifest.ts` is not an allowed command here, so the real `Wrote ...` counts line could not be pasted. One manual run of the exporter completes verification.
 <!-- queue:end -->
