@@ -172,11 +172,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/slither-run-tests |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review: verbatim test file only; `uv run python --version` Python 3.12.10; `uv run pytest -q tests/test_slither_rogue_runs.py` 2 passed in 0.52s; `uv run pytest -q tests/test_slither_rogue.py` 14 passed in 0.19s; no other file changed
 <!-- queue:end -->
