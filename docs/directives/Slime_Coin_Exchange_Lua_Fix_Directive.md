@@ -209,4 +209,5 @@ none.
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: Exchange calls math.pow (nil in Lua 5.3), fix one line and add the missing exchange test
 - 2026-10-04 05:47 · robert-claude-laptop · Queued → Approved — lint override: sole error is ts/tests/test_slime_coin_exchange.ts, a file the run creates and marks new; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 06:56 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-lua-fix-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 06:56 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-lua-fix-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
