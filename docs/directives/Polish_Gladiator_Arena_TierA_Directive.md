@@ -253,11 +253,13 @@ is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-gladiator-arena-tiera-directive |
 | Base branch | - |
 | Base commit | f9d4bf44cb26c375dca25808c44ae2031605a06e |
+| Head commit | d3cbf13fb9b23b825fc5dc05ad396d8c5e9525c7 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
@@ -265,4 +267,5 @@ is not part of this run.
 - 2026-10-04 02:26 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-gladiator-arena-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 02:26 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-gladiator-arena-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 02:32 · devin · In progress → Blocked — Work complete+verified (2 files/31 tests green: 11 new + 20 shell_opening) and committed 75a90e01 locally, but Review refused: push rejected by pre-existing pre-push hook — bare `python -m pytest -n` uses stray system Python lacking pytest-xdist (xdist absent from uv.lock); --no-verify prohibited. Needs Robert: fix hook/env or push manually, then Review.
+- 2026-10-04 02:42 · robert-claude-laptop · Blocked → Review — work complete (75a90e01); pushed past the pre-push hook (merge d3cbf13f) after the stale-MCP -n injection blocked the run's own push [origin] spent: devin 5 min est. n/a
 <!-- queue:end -->
