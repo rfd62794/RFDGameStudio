@@ -187,11 +187,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/voiddrift-embed-console |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 16:58 · devin-cleanroom · Queued → Review — 3 scoped files: `vitest run test_embed_console_filter.ts` → `1 file / 6 passed`; `test_arcade.ts` → `33 passed` (baseline 32 +1 main drift); `tsc --noEmit` clean; A1 line carries the sentence, `embedConsoleFilter.ts` x1
 <!-- queue:end -->
