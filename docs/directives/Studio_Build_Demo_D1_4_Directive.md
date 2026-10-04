@@ -546,4 +546,5 @@ none.
 - 2026-10-04 11:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified, verified, sandbox-safe build work; dispatch only after D1.1 (in progress) merges.
 - 2026-10-04 11:50 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs; D1.1 (dependency) merged 87961f0b
 - 2026-10-04 12:19 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-build-demo-d1-4-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 12:20 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-build-demo-d1-4-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
