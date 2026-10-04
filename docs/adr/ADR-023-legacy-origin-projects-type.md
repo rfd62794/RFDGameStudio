@@ -15,7 +15,7 @@ same real relationship already exists, already correctly identified in
 `registry.ts`'s own comments, for two more projects: CorpWorld and
 Kingmaker Squads (Planet of Greed's real ancestors, previously retired
 from the registry entirely), and for the Dissonance Loop Prototype
-(`tmp/dissonance-src/`), the real original AI Studio source behind the
+(`examples/dissonance-prototype/`), the real original AI Studio source behind the
 live Dissonance Depths.
 
 This directive's job: register these five real projects honestly, as
