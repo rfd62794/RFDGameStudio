@@ -16,9 +16,10 @@ import WorkshopTab   from './components/WorkshopTab';
 import ShopTab       from './components/ShopTab';
 import { TABS } from './tabs';
 import MatchCanvas   from './components/MatchCanvas';
+import { loadMbbSave, writeMbbSave, clearMbbSave } from './persist';
 import './styles.css';
 
-function buildInitialState(session: unknown): MBBGameState {
+function buildFreshState(session: unknown): MBBGameState {
   const data = (session as { files: { data: Record<string, unknown> } }).files.data;
   const starters = data['starter_mutants'] as Array<Record<string, unknown>>;
   const startingIron = data['starting_iron'] as number ?? 120;
@@ -66,16 +67,27 @@ function buildInitialState(session: unknown): MBBGameState {
   };
 }
 
+// Resume the saved game when there is one; otherwise start fresh from the data file.
+function buildInitialState(session: unknown): MBBGameState {
+  return loadMbbSave() ?? buildFreshState(session);
+}
+
 export default function App({ session }: GameRendererProps) {
   const { state, setState, isInitialized } = useGameState(session, buildInitialState);
   const env = import.meta.env as Record<string, string | undefined>;
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [showTitle, setShowTitle] = useState(true);
+  const [hasSave] = useState<boolean>(() => loadMbbSave() !== null);
   const [activeTab, setActiveTab] = useState('roster');
 
   const [inMatch, setInMatch] = useState(false);
   const currentOpponentMutantsRef = useRef<Array<Record<string, unknown>>>([]);
+
+  // Progress is saved after every change once the player is past the title screen.
+  useEffect(() => {
+    if (state && !showTitle) writeMbbSave(state);
+  }, [state, showTitle]);
 
   // Shared SFX: muted until the first user gesture (autoplay-safe).
   useEffect(() => { sfx.autoUnlock(); }, []);
@@ -196,7 +208,13 @@ export default function App({ session }: GameRendererProps) {
           tagline="Assemble. Squad up. Reach the end zone."
           pitch="Assemble mutants from parts. Field a 2v2 squad. Reach the end zone. Salvage the fallen."
           menuItems={[
-            { id: 'new-game', label: 'New Game', variant: 'primary', onClick: () => setShowTitle(false) },
+            ...(hasSave ? [{ id: 'continue', label: 'Continue', variant: 'primary' as const, onClick: () => setShowTitle(false) }] : []),
+            {
+              id: 'new-game',
+              label: hasSave ? 'New Game (replaces saved game)' : 'New Game',
+              variant: hasSave ? 'secondary' as const : 'primary' as const,
+              onClick: () => { clearMbbSave(); setState(buildFreshState(session)); setShowTitle(false); },
+            },
           ]}
         />
       </GameShell>

@@ -227,11 +227,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/mbb-save-progress |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified worktree-only TS build; dispatch after Mbb_Hide_Infirmary_Tab merges (shared App.tsx anchors)
+- 2026-10-04 17:12 · devin-cleanroom · Queued → Review — persist.ts + 6 App.tsx edits + verbatim test; `vitest run test_mbb_` → `13 files / 210 passed` (Infirmary merged so tabs test present); App.tsx +20/-2
 <!-- queue:end -->
