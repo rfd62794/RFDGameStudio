@@ -47,6 +47,14 @@ $started = Get-Date
 if (-not $SkipPython) {
     Invoke-Step "Sync Python environment" { uv sync --frozen }
     Invoke-Step "Generate game metadata" { uv run --no-sync python -m studio_mcp.game_metadata }
+    Invoke-Step "TypeScript type check" {
+        Push-Location (Join-Path $RepoRoot "ts")
+        try {
+            npx tsc --noEmit
+        } finally {
+            Pop-Location
+        }
+    }
     # Load the rerun plugin explicitly with autoload off, so this behaves the
     # same whether or not the machine sets PYTEST_DISABLE_PLUGIN_AUTOLOAD.
     $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
