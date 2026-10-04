@@ -159,11 +159,12 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-03 23:59 · claude · none → Queued — wave 1 Tier A directive from docs/demos/facility_escape/SCOPE.md
+- 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are the file the run creates (test_facility_escape_blurb.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
