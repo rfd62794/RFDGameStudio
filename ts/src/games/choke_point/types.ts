@@ -1,5 +1,5 @@
 export type TowerType = 'blocker' | 'turret';
-export type EnemyType = 'crawler' | 'blaster';
+export type EnemyType = 'crawler' | 'blaster' | 'brute';
 
 export interface Enemy {
   id: string;
