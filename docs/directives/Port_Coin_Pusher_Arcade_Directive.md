@@ -160,14 +160,17 @@ Findings first: what was ported, what was split and where, any behaviour you cou
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-port-coin-pusher-arcade-directive |
 | Base branch | - |
 | Base commit | b7f3ce3c9433ea94f3d7b6ab51ba5d245f241b68 |
+| Head commit | f7c3e89f382a21676b5a967cc21cb48c03ba24ff |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: all errors are files the run creates, each marked with new-file markers; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 01:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-coin-pusher-arcade-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 01:16 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-coin-pusher-arcade-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 02:01 · robert-claude-laptop · In progress → Review — port complete (7a1fd77f, cd21e099); controller regenerated docs/children.json and the parity snapshot (f7c3e89f) which the run could not do in the sandbox; pushed through the hook [origin] spent: devin 25 min est. n/a
 <!-- queue:end -->
