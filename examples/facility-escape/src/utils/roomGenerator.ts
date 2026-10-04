@@ -987,6 +987,3 @@ export function runExplicitDeadZoneRejectionTest() {
   console.log("================================================");
 }
 
-// Execute test on module load to confirm integration
-runExplicitDeadZoneRejectionTest();
-
