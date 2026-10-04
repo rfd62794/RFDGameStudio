@@ -285,7 +285,7 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-kingmaker-squads-restart-directive |
 | Base branch | - |
@@ -299,4 +299,5 @@ merge; it is not part of this run.
 - 2026-10-04 12:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-restart-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 12:05 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-restart-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 12:16 · devin · In progress → Review — test_kingmaker_armed_confirm.ts: 6 passed; test_ledger_utils.ts: 5 passed. Committed 8db5a241 on directive branch. Example's own lint/tests/build not run (no node_modules, installs banned); nothing deployed. [origin] spent: devin 9 min est. n/a
+- 2026-10-04 13:28 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
