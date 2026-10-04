@@ -89,6 +89,7 @@ built.
 
 All three preserved in `examples/`, none registered yet — real recommendation on record: three separate registry entries when picked up, not one. `voiddrift_redux_1` is the one matching the earlier "scout proximity detection, FSM drone cycles" description specifically.
 Update (intake/demo-sources-1): `voiddrift_redux_1` is already ported and registered as `voiddrift_redux`; its source is now tracked under `examples/voiddrift-redux-core-loop/`.
+Update (2026-10-04): `particle_void` is now ported and registered as `voidrift_particle_sandbox` (status `dev`). `space_mining_sandustry` (`examples/voidrift-redux-station-sim/`) is parked: it is not registered and not ported, and it stays parked until `voiddrift_redux` and `voidrift_particle_sandbox` each have a title screen, a Restart control and a save. Direction: `docs/demos/voidrift_station_sim/DIRECTION.md`.
 
 ---
 
@@ -98,15 +99,15 @@ Update (intake/demo-sources-1): `voiddrift_redux_1` is already ported and regist
 
 ### TurboShells
 
-**Real, confirmed architecture:** Rust core (PyO3 bindings) → Python game logic (real files: 24KB `main.py`, 26KB `game_state_interface.py`, 20KB `save_protection.py`) → React/TS frontend → **live Supabase database** (real, active schema: `game_state`, `turtles` with full genome/breeding lineage, `race_results`). RLS enabled but currently **no auth — anon key gets full CRUD**, a real, live security gap worth knowing about independent of any porting decision.
+**Reference only, not ported, dormant (decided 2026-10-04).** The only TurboShells source found is the ChimeraLab repo ("Turbo Shells", a pygame-ce turtle breeding and racing game with a Rust genetics core, last commit 2025-12-25; local copy at `C:\Github\reference-repos\ChimeraLab`, remote `rfd62794/ChimeraLab`). It is a desktop game, not a browser build. An earlier version of this paragraph described a React/TS frontend and a live Supabase database with open row-level access; no code or configuration for either was found in ChimeraLab or in this repo, so those claims were removed rather than carried forward. If a Supabase or React repo for TurboShells exists elsewhere, it has not been located.
 
-**Why it's Tier 3, not Tier 1:** a standard external-embed import genuinely does not work here — the game depends on a live external database and a Python backend service, not just a static bundle. Real porting path, when picked up, needs its own dedicated investigation into how much of the Rust/Python stack gets kept vs. re-implemented, not a simple registry entry.
+**Why it stays Tier 3:** a browser version would replace the whole stack (pygame UI, Python logic, Rust core). If breeding is ever wanted in the arcade, start from a one-page TypeScript genetics design note based on ChimeraLab's gene model (20 genes, Mendelian inheritance, mutation), not a port.
 
 ### VoidDrift (native + real TS web renderer)
 
 **Real, confirmed architecture, resolving a discrepancy flagged two directives ago:** the archive contains a genuine hybrid — a native Rust/Bevy core (frozen per this studio's own earlier decision) **and** a real, actively-developed TypeScript web renderer nested in the same repo's `web/src/` directory (`main.ts`, `renderer.ts`, `state.ts`, `hud.ts`, `save.ts`, `systems/{asteroids,drones,production}.ts` — confirmed present directly, not assumed). Real git history shows active, ongoing commits to this web renderer ("Refactor web renderer logic," "Update vite configuration").
 
-**Why it's Tier 3:** the native Rust core is already frozen by prior decision — no action needed there. The real, live opportunity is specifically the `web/` TypeScript renderer, which is a genuine, separate, complete game implementation (drone FSM, asteroid mining, resource processing, station building, its own save system) that could be evaluated on its own terms, independent of the frozen Rust side. Real next step, not yet done: a dedicated look at whether `web/` is a real, standalone-portable candidate or still genuinely coupled to the Rust core's data.
+**Why it's Tier 3:** the native Rust core is already frozen by prior decision — no action needed there. The real, live opportunity is specifically the `web/` TypeScript renderer, which is a genuine, separate, complete game implementation (drone FSM, asteroid mining, resource processing, station building, its own save system) that could be evaluated on its own terms, independent of the frozen Rust side. **Decision (2026-10-04): parked.** `docs/demos/voidrift_web_renderer/EVALUATION.md` found it is a 1,195-line iron-only MVP slice with no tests, hand-copied constants that already drift from `balance.toml`, and a lockfile that cannot install off Replit. `voiddrift_redux` already holds the same drone FSM as a superset, so the one unique piece, a 5-second autosave, is tracked as `voiddrift_redux` save/restore work (`docs/directives/VoidDrift_Redux_Save_Restore_Directive.md`). Un-park only if Robert wants a no-WASM idle game; then follow the copy gate in EVALUATION.md.
 
 ### AntSim Redux (noted here too, despite already being registered)
 

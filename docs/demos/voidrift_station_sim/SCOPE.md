@@ -14,3 +14,5 @@ Out of scope: Phase 3 features, merging with the particle sandbox or voiddrift_r
 Dependencies / risks: tests import ../ts/src/games/voidrift_redux and need re-pointing; three siblings share the "VoidRift Redux" name, so labels must differ visibly; the choice of source codebase must be confirmed by diff before the directive is written.
 Effort: M
 Open question for Robert: none
+
+Status (2026-10-04): PARKED. Tier A, polish and port work are N/A until voiddrift_redux and voidrift_particle_sandbox each have a title screen, a Restart control and a save. Source and tests stay where they are; nothing is deleted. See DIRECTION.md.

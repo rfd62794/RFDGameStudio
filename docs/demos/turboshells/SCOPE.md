@@ -13,3 +13,5 @@ Out of scope: porting, registering, touching the database or any anon-key policy
 Dependencies / risks: possible second copy of the game with the Supabase/React parts elsewhere; ChimeraLab has grown a ragdoll/animation sandbox beyond the racing game (recent commit messages), so scope of "TurboShells" itself is unclear.
 Effort: L
 Open question for Robert: is "TurboShells" the ChimeraLab pygame game, or a separate React/Supabase repo not on this machine, and is a browser port wanted at all? Nothing past baseline Tier A is proposed until answered.
+
+Status (2026-10-04): PARKED, reference only. Tier A, polish and port work are N/A. ChimeraLab stays outside the cabinet. See DIRECTION.md.

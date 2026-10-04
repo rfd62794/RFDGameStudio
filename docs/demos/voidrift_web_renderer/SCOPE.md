@@ -14,3 +14,5 @@ Out of scope: any change to C:\Github\VoidDrift, the Rust/Bevy game, itch pricin
 Dependencies / risks: ownership by the VoidDrift repo (its DIRECTION.md:74 lists the web rebuild as item 5, after launch blockers); duplicating voiddrift_redux work; save format and constants must stay in sync with the native game if both live.
 Effort: L
 Open question for Robert: should the web renderer become an arcade demo here, stay a VoidDrift-repo experiment, or be dropped in favour of voiddrift_redux? Nothing past baseline Tier A is proposed until answered.
+
+Status (2026-10-04): PARKED. Tier A, polish and port work are N/A. Its autosave idea is tracked as voiddrift_redux save/restore. Un-park only on Robert's word; see DIRECTION.md and EVALUATION.md.
