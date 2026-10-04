@@ -224,12 +224,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26 |
 | Base branch | - |
+| Base commit | 7c5736871e523f14d38ef357d8cf59732b2ef16c |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:04 · robert-claude-laptop · Queued → Approved — lint override: path hits are app-relative paths under the kingmaker example, a gitignored generated file and a 'do not edit' mention, verified by hand
+- 2026-10-04 19:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
