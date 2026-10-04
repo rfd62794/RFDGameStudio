@@ -6,6 +6,7 @@
 import React from 'react';
 import { Play, Pause, Sun, Moon, Landmark, Wallet, AlertCircle, TrendingUp, Info } from 'lucide-react';
 import { formatCurrency } from '../utils';
+import { RestartButton } from './RestartButton';
 
 interface HeaderProps {
   day: number;
@@ -18,6 +19,7 @@ interface HeaderProps {
   onTogglePause: () => void;
   onAdvanceDay: () => void;
   onOpenTutorial: () => void;
+  onRestart: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -31,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   onTogglePause,
   onAdvanceDay,
   onOpenTutorial,
+  onRestart,
 }) => {
   const netWorth = capital - debt;
   const isGracePeriod = graceDaysRemaining > 0;
@@ -126,6 +129,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               End Day
             </button>
+            <RestartButton onRestart={onRestart} />
           </div>
         </div>
 

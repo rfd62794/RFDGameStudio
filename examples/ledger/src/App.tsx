@@ -659,6 +659,7 @@ export default function App() {
         onTogglePause={handleTogglePause}
         onAdvanceDay={handleAdvanceDayEarly}
         onOpenTutorial={() => setShowTutorial(true)}
+        onRestart={handleRestartRun}
       />
 
       {/* Main Grid Work-surface */}
