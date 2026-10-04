@@ -4,7 +4,7 @@ const config: GameConfig = {
   gameId: 'facility_escape',
   source: { kind: 'example', slug: 'facility-escape' },
   label: 'Facility Escape',
-  description: 'A turn-based puzzle prototype testing property-based physical interaction rules and telecasted guard sightlines.',
+  description: 'Sneak through 8 generated rooms in a turn-based stealth puzzle. Guards telegraph their next move before you act: read their sightlines, use items and hazards, and reach the exit.',
   color: '#6c8ef7',
   status: 'external',
   genre: 'puzzle-stealth',
