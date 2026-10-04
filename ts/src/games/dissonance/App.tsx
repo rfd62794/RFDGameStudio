@@ -6,7 +6,10 @@ import { navigateTo } from '../../arcade/routing';
 import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
 import type { AppPhase, CombatTurnResult, DeckCard, OpeningPackItem, RewardSlot, RunState } from './types';
 import AbandonRunButton from './components/AbandonRunButton';
+import SoundToggle from './components/SoundToggle';
 import { isRunInProgress } from './utils/runControls';
+import { playSfx } from './utils/playSfx';
+import { sfx } from '../../engine/shared/sfx';
 
 import TitlePhase from './phases/TitlePhase';
 import OpeningPhase from './phases/OpeningPhase';
@@ -46,6 +49,9 @@ export default function App({ session }: GameRendererProps) {
   const [pendingFloor, setPendingFloor] = useState(1);
   const [rewardSlots, setRewardSlots] = useState<RewardSlot[] | null>(null);
 
+  // Shared SFX stays silent until the first click or key press (browser autoplay rules).
+  useEffect(() => { sfx.autoUnlock(); }, []);
+
   useEffect(() => {
     writeSave(UNLOCKED_KEY, unlockedCardIds);
   }, [unlockedCardIds]);
@@ -66,6 +72,7 @@ export default function App({ session }: GameRendererProps) {
   }, []);
 
   const handleNewRun = useCallback(() => {
+    playSfx('click');
     if (unlockedCardIds.length === 0) {
       const pack = call('generate_opening_pack', data) as OpeningPackItem[] | null;
       if (!pack) return;
@@ -141,6 +148,11 @@ export default function App({ session }: GameRendererProps) {
     if (!run) return;
     const result = call('resolve_combat_turn', run, card, data) as CombatTurnResult | null;
     if (!result) return;
+    const enemyHpBefore = run.enemy?.hp ?? 0;
+    if (result.nextState.status === 'game_over') playSfx('lose');
+    else if (result.nextState.status === 'victory' || result.fightWon === true) playSfx('win');
+    else if ((result.nextState.enemy?.hp ?? 0) < enemyHpBefore) playSfx('hit');
+    else playSfx('click');
     setRun(result.nextState);
     if (result.fightWon === true) {
       const tier = result.nextState.enemy?.tier ?? 'basic';
@@ -160,6 +172,7 @@ export default function App({ session }: GameRendererProps) {
 
   const handleClaimAllRewards = useCallback(() => {
     if (!run || !rewardSlots) return;
+    playSfx('pickup');
     let cur = run;
     const newlyUnlocked: string[] = [];
     for (const slot of rewardSlots) {
@@ -238,14 +251,17 @@ export default function App({ session }: GameRendererProps) {
     if (advanced) setRun(advanced);
   }, [run, call, data]);
 
-  const statusArea = run ? (
+  const statusArea = (
     <>
-      <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-        Floor {run.currentFloor} · Turn {run.turnCount}
-      </span>
-      {isRunInProgress(run.status) && <AbandonRunButton onAbandon={handleAbandon} />}
+      {run && (
+        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+          Floor {run.currentFloor} · Turn {run.turnCount}
+        </span>
+      )}
+      {run && isRunInProgress(run.status) && <AbandonRunButton onAbandon={handleAbandon} />}
+      <SoundToggle />
     </>
-  ) : undefined;
+  );
 
   return (
     <GameShell gameLabel="Dissonance Depths" gameId="dissonance" statusArea={statusArea}>
