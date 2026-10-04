@@ -204,11 +204,13 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-planetofgreed-tiera-directive |
 | Base branch | - |
 | Base commit | aa2aaa20b8e3449f804eae8064c26a3b95cd78d4 |
+| Head commit | e71d328f9377a40f3ed52b36de430defcb6a1bb7 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for planetofgreed: CorpWorld player text, stale roadmap bullets, save-key guard test; save key corpworld_state kept; docs/demos/planetofgreed/SCOPE.md
@@ -216,4 +218,5 @@ merge; it is not part of this run.
 - 2026-10-04 00:17 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 00:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 00:29 · devin · In progress → Blocked — Work done+verified (vitest 3 files/36 tests pass; commit d0c37314 on branch) but push refused by pre-push hook: pre-existing failure studio_mcp/zip_verify test_existing_certified_fixtures_unaffected_by_md_exclusion, caused by wave-1 directive commit bfa84dcd already on origin/main — unrelated to this change. Fix/skip that test or push --no-verify, then flip to Review.
+- 2026-10-04 05:29 · robert-claude-laptop · Blocked → Review — work complete (d0c37314); pushed past the pre-push hook (merge e71d328f) after the fragile zip_verify test was fixed in PR #83 [origin] spent: devin 9 min est. n/a
 <!-- queue:end -->
