@@ -147,12 +147,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-new-campaign-button-directive |
 | Base branch | - |
+| Base commit | bb3963e46b78c78e4daa6f858bc713fe6cb1776d |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:04 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
+- 2026-10-04 19:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-new-campaign-button-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
