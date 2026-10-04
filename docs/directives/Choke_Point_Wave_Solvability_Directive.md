@@ -214,12 +214,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-choke-point-wave-solvability-directive |
 | Base branch | - |
+| Base commit | 0455a83c956e69b5c72d4a6fee00a23cc40fd93b |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:17 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 13:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-solvability-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
