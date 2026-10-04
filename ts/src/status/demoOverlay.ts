@@ -3,10 +3,10 @@ import type { DemoOverlay } from './demoRows';
 
 export const DEMO_OVERLAY: Record<string, DemoOverlay> = {
   trinity_siege: {
-    name: 'Trinity Siege/Combat', category: 'ai_studio_track', status: 'status_unconfirmed',
-    currentState: 'Bevy vs. egui architecture question left unresolved.',
-    nextAction: 'Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
+    name: 'Trinity Siege/Combat', category: 'ai_studio_track', status: 'active',
+    currentState: 'Hex-ring wave defense, an AI Studio embed at /arcade/trinity_siege/: shape counters, race leans, 5 waves, 15 lives. The Rust three-faction chassis is Far Future; only the TS embed is maintained.',
+    nextAction: 'Cover screenshot and a phone re-measure (browser steps).',
+    lastUpdated: '2026-10-04', verificationMethod: 'direct file read',
   },
   '7_days_to_fry': {
     name: '7 Days to Fry', category: 'ai_studio_track', status: 'shipped_mature',
