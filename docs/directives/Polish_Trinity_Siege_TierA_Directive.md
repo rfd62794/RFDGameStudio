@@ -163,7 +163,7 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-trinity-siege-tiera-directive |
 | Base branch | - |
@@ -177,4 +177,5 @@ none. Deploying the rebuilt embed is Robert's, after review.
 - 2026-10-04 03:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-trinity-siege-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 03:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-trinity-siege-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 03:48 · devin · In progress → Review — devin: blurb swapped (22 words, no LEAST-VERIFIED), test_trinity_siege_blurb.ts added (3/3 pass), App.tsx overflow-x-clip+flex-wrap+3x min-w-0; vitest blurb 3/3, regression 7/7; pre-push gate 972 py + 2199 ts + build test green; embed build/phone check are Robert's post-review step; combat.ts untouched, not vouched [origin] spent: devin 8 min est. n/a
+- 2026-10-04 03:54 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
