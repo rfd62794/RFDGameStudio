@@ -244,15 +244,18 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-exchange-ui-directive |
 | Base branch | - |
 | Base commit | 2ccbe429f6b083efb7f39dda8cae69001412b10c |
+| Head commit | ab4896dde56900eafe06c5aacb20ca1d90af371a |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — follow-up from the review of merged PR #106: Exchange button label shows 8/12 vs charged 7/11, error result treated as success, optimistic counter
 - 2026-10-04 07:24 · robert-claude-laptop · Queued → Approved — lint override: errors (if any) are files the run creates (utils/exchangeCost.ts, test_slime_coin_exchange_cost.ts), each marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 07:30 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-ui-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 07:30 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-ui-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 07:40 · devin · In progress → Review — Committed ab4896dd on directive branch (pushed so Review can verify it). Vitest: 15 passed / 3 files (13 baseline + 2 new). Exchange label now shows Lua-exact 5/7/11 via exchangeCost(); error-shaped results no longer treated as success; counter takes authoritative result.exchanges_used. No .lua touched; nothing deployed. [origin] spent: devin 8 min est. n/a
 <!-- queue:end -->
