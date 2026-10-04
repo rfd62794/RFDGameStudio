@@ -163,9 +163,12 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
+| Branch | - |
+| Base branch | - |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/factory_idle/SCOPE.md (Robert 2026-10-04: publish Phase 2)
+- 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved — lint override: sole error(s) are files the run creates (ts/tests/test_factory_idle_blurb.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 <!-- queue:end -->
