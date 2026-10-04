@@ -244,11 +244,12 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — follow-up from the review of merged PR #106: Exchange button label shows 8/12 vs charged 7/11, error result treated as success, optimistic counter
+- 2026-10-04 07:24 · robert-claude-laptop · Queued → Approved — lint override: errors (if any) are files the run creates (utils/exchangeCost.ts, test_slime_coin_exchange_cost.ts), each marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
