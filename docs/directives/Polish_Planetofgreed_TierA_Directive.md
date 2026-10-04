@@ -204,7 +204,7 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-planetofgreed-tiera-directive |
 | Base branch | - |
@@ -219,4 +219,5 @@ merge; it is not part of this run.
 - 2026-10-04 00:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 00:29 · devin · In progress → Blocked — Work done+verified (vitest 3 files/36 tests pass; commit d0c37314 on branch) but push refused by pre-push hook: pre-existing failure studio_mcp/zip_verify test_existing_certified_fixtures_unaffected_by_md_exclusion, caused by wave-1 directive commit bfa84dcd already on origin/main — unrelated to this change. Fix/skip that test or push --no-verify, then flip to Review.
 - 2026-10-04 05:29 · robert-claude-laptop · Blocked → Review — work complete (d0c37314); pushed past the pre-push hook (merge e71d328f) after the fragile zip_verify test was fixed in PR #83 [origin] spent: devin 9 min est. n/a
+- 2026-10-04 05:31 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
