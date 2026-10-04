@@ -180,4 +180,5 @@ none.
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: tsc errors the vitest-only pre-push hook never caught (facility_escape blurb test, ledger utils unused variables)
 - 2026-10-04 05:46 · robert-claude-laptop · Queued → Approved
 - 2026-10-04 05:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-fix-demo-typeerrors-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 05:46 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-fix-demo-typeerrors-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
