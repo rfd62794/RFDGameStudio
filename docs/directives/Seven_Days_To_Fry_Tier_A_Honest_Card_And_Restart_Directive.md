@@ -388,11 +388,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/7df-tiera |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:52 · devin · Queued → Review — honest card (management-sim, kitchen/crew-management tags) + RestartButton on intro/night/day returning to first screen; vitest 3 files / 13 passed; tsc clean (metadata present); browser click-through + screenshots deferred to controller
 <!-- queue:end -->

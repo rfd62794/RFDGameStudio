@@ -28,6 +28,7 @@ import {
   purchaseFriesUnlock,
   purchaseStockCapacity,
 } from '../nightShop';
+import { RestartButton } from './RestartButton';
 
 export function getTierUpMessage(storeTier: number): string {
   return storeTier === 2
@@ -49,6 +50,7 @@ interface NightScreenProps {
   state: KitchenState;
   onUpdatePolicy: (policy: number) => void;
   onStartNextDay: () => void;
+  onRestart?: () => void;
   onPurchaseUpgrade?: (upgradeType: 'buffer_capacity' | 'stock_capacity' | 'day_duration' | 'brand_recovery' | 'fries_unlock') => void;
 }
 
@@ -56,6 +58,7 @@ export const NightScreen: React.FC<NightScreenProps> = ({
   state,
   onUpdatePolicy,
   onStartNextDay,
+  onRestart,
   onPurchaseUpgrade,
 }) => {
   const policyPercent = Math.round(state.policyDial * 100);
@@ -447,6 +450,12 @@ export const NightScreen: React.FC<NightScreenProps> = ({
           <Play className="w-5 h-5 fill-slate-950" />
           <span>Start Day {state.dayNumber}</span>
         </button>
+
+        {onRestart && (
+          <div className="flex justify-center pt-2">
+            <RestartButton onRestart={onRestart} />
+          </div>
+        )}
       </div>
     </div>
   );

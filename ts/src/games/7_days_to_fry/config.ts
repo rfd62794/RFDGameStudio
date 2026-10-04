@@ -5,13 +5,11 @@ const config: GameConfig = {
   order: 160,
   source: { kind: 'example', slug: '7-days-to-fry' },
   label: '7 Days To Fry',
-  description: '7 Days to Fry - a cooking survival game',
+  description: 'Run a burger stand for seven days. Set the pace and the policy while an autonomous crew works the line, then spend your earnings each night on new menu items and upgrades. Survive Day 7 to open a bigger, busier stand.',
   color: '#6c8ef7',
   status: 'external',
-  // No `genre` — genuinely doesn't fit the curated 11-value taxonomy.
-  // "Cooking survival" has no honest match among the existing values.
-  // Reported as a real taxonomy gap.
-  tags: ['cooking', 'survival'],
+  genre: 'management-sim',
+  tags: ['kitchen', 'crew-management'],
   embedUrl: '/arcade/7_days_to_fry/',
 };
 
