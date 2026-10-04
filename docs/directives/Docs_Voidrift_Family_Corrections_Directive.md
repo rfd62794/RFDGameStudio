@@ -154,11 +154,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/docs-voidrift-family |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:25 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:20 · devin-cleanroom · Queued → Review — work found already merged on main as 2a3aace1: all 3 roadmap edits, board row (currentState/nextAction/lastUpdated), and all 3 SCOPE.md PARKED lines verified verbatim at 7efe2dfb; no file change needed this run
 <!-- queue:end -->
