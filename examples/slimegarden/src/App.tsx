@@ -645,7 +645,7 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-slate-700 selection:text-white relative font-sans">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-slate-700 selection:text-white relative overflow-x-clip font-sans">
       {/* Background stars animation */}
       <div className="absolute inset-0 bg-[radial-gradient(#152033_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none" />
       <div className="absolute top-24 left-1/4 w-96 h-96 bg-blue-950/15 rounded-full filter blur-3xl pointer-events-none" />
