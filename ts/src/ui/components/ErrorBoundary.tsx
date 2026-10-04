@@ -66,8 +66,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <h2>Something went wrong</h2>
           <p>This game hit a snag. You can try again, or head back to the arcade.</p>
           <p>
-            If it keeps happening, tap &quot;Copy diagnostics&quot; and send the report to
-            Robert — nothing is sent automatically.
+            If it keeps happening, tap &quot;Copy diagnostics&quot; to copy a report you can share when reporting the problem. Nothing is sent automatically.
           </p>
         </div>
         <div className="error-boundary-actions">
