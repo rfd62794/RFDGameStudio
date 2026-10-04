@@ -236,11 +236,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/scrapcrawl-carry-over |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:28 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified, quoted lines verified against the live App.tsx; worktree-only TS change for Devin
+- 2026-10-04 17:26 · devin-cleanroom · Queued → Review — carryOver.ts verbatim + 5 App.tsx + 3 RunEndScreen edits + verbatim test; `vitest run test_scrapcrawl_carry_over.ts test_scrapcrawl_run_end.ts` → `2 files / 13 passed`
 <!-- queue:end -->
