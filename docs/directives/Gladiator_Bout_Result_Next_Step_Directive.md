@@ -214,3 +214,17 @@ none
 ## Required from User
 
 none. Review and merge are Robert's or Claude's after the run.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:23 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified small TS change with tests; context lines verified against live file
+<!-- queue:end -->
