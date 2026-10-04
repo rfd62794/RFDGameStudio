@@ -247,6 +247,7 @@ export default function App({ session }: GameRendererProps) {
           session={session}
           score={score}
           peakLength={peakLength}
+          currentLength={currentLength}
           evolutionsCount={level - 1}
           onRestart={handleRestart}
           onHome={handleGoHome}
