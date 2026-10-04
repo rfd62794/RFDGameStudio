@@ -214,15 +214,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-choke-point-wave-solvability-directive |
 | Base branch | - |
 | Base commit | 0455a83c956e69b5c72d4a6fee00a23cc40fd93b |
+| Head commit | 720e1ae6ee555017c8d31ff15340e3726e7e4ccd |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:17 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 13:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-solvability-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 13:45 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-solvability-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 13:56 · devin · In progress → Review — Fixed float wave-key lookup (wave_at helper, 3 call sites), leaker core damage, whole-number wave log; new test_choke_point_waves.ts 4/4 green; regression 4/4 green; pushed for review. [origin] spent: devin 10 min est. n/a
 <!-- queue:end -->
