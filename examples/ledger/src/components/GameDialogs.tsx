@@ -13,8 +13,8 @@ interface OverlayProps {
   children: React.ReactNode;
 }
 const Overlay: React.FC<OverlayProps> = ({ children }) => (
-  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-    <div className="w-full max-w-xl bg-white border-4 border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-8">
+  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-2 sm:p-4 z-50 overflow-y-auto">
+    <div className="w-full max-w-xl bg-white border-4 border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-auto">
       {children}
     </div>
   </div>
