@@ -275,6 +275,16 @@ def demo_check(demo_id: str, root: Path = REPO_ROOT) -> str:
     return "cd ts && npx vitest run " + " ".join(sorted(filters))
 
 
+def render_children_index(root: Path = REPO_ROOT) -> str:
+    """The text of the swarm-facing children index, computed in memory.
+    Deterministic: sorted by id, two-space indent, one trailing newline."""
+    children = [
+        {"id": d.id, "path": d.path, "label": d.label}
+        for d in list_demos(root)
+    ]
+    return json.dumps({"version": 1, "children": children}, indent=2) + "\n"
+
+
 def write_children_index(
     path: Path = CHILDREN_INDEX_REL,
     root: Path = REPO_ROOT,
@@ -284,13 +294,8 @@ def write_children_index(
     change produces no diff."""
     if not path.is_absolute():
         path = root / path
-    children = [
-        {"id": d.id, "path": d.path, "label": d.label}
-        for d in list_demos(root)
-    ]
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"version": 1, "children": children}, indent=2) + "\n",
-                    encoding="utf-8")
+    path.write_text(render_children_index(root), encoding="utf-8")
     return path
 
 
