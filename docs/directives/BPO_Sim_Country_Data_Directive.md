@@ -455,12 +455,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-bpo-sim-country-data-directive |
 | Base branch | - |
+| Base commit | 30a283685fd4d82008c5ce4ff79d4348f1425b5a |
 
 **Status log**
 - 2026-10-04 14:57 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:58 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (fix in AgentFlow #534 pending); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations and the BPO Sim direction; dependency rename merged bb4ed4aa
+- 2026-10-04 15:07 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-country-data-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
