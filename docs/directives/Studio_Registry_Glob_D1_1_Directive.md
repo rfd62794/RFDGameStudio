@@ -363,4 +363,5 @@ none.
 - 2026-10-04 10:47 · robert-claude-laptop · none → Queued
 - 2026-10-04 10:48 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs
 - 2026-10-04 11:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-registry-glob-d1-1-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 11:11 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-registry-glob-d1-1-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
