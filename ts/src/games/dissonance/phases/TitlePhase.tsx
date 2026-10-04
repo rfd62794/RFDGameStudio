@@ -1,13 +1,15 @@
 import { Sparkles, Play, RotateCcw } from 'lucide-react';
-import { TitleScreen } from '../../../ui/components';
+import { Button, TitleScreen } from '../../../ui/components';
 
 interface TitlePhaseProps {
   hasSave: boolean;
   onNewRun: () => void;
   onContinue: () => void;
+  /** Opens the original prototype this game grew from. Omit to hide the link. */
+  onOpenOrigin?: () => void;
 }
 
-export default function TitlePhase({ hasSave, onNewRun, onContinue }: TitlePhaseProps) {
+export default function TitlePhase({ hasSave, onNewRun, onContinue, onOpenOrigin }: TitlePhaseProps) {
   return (
     <TitleScreen
       id="viewport-title-phase"
@@ -40,6 +42,10 @@ export default function TitlePhase({ hasSave, onNewRun, onContinue }: TitlePhase
             ]
           : []),
       ]}
-    />
+    >
+      {onOpenOrigin && (
+        <Button id="dissonance-origin-link" label="Where Dissonance began" onClick={onOpenOrigin} variant="neutral" size="sm" />
+      )}
+    </TitleScreen>
   );
 }

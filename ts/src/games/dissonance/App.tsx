@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { GameShell } from '../../components';
 import { useLuaCall } from '../../hooks';
 import type { GameRendererProps } from '../../engine/types';
+import { navigateTo } from '../../arcade/routing';
 import { clearSave, loadSave, writeSave } from '../../engine/shared/persistence';
 import type { AppPhase, CombatTurnResult, DeckCard, OpeningPackItem, RewardSlot, RunState } from './types';
 import AbandonRunButton from './components/AbandonRunButton';
@@ -33,6 +34,8 @@ function loadSavedRun(): RunState | null {
 
 export default function App({ session }: GameRendererProps) {
   const data = session.files.data as Record<string, unknown>;
+  // The prototype lives in the arcade; a standalone build has no arcade to open it in.
+  const isStandalone = (import.meta.env as Record<string, string | undefined>).VITE_STANDALONE === 'true';
   const { call } = useLuaCall(session);
 
   const [appPhase, setAppPhase] = useState<AppPhase>('title');
@@ -248,7 +251,12 @@ export default function App({ session }: GameRendererProps) {
     <GameShell gameLabel="Dissonance Depths" gameId="dissonance" phase="Renderer Phase A" statusArea={statusArea}>
       <div className="h-full overflow-y-auto bg-slate-950 p-4">
         {appPhase === 'title' && (
-          <TitlePhase hasSave={savedRun !== null} onNewRun={handleNewRun} onContinue={handleContinue} />
+          <TitlePhase
+            hasSave={savedRun !== null}
+            onNewRun={handleNewRun}
+            onContinue={handleContinue}
+            onOpenOrigin={isStandalone ? undefined : () => navigateTo('dissonance_prototype')}
+          />
         )}
 
         {appPhase === 'opening' && openingPack && (
