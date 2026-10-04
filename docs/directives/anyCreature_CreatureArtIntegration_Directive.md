@@ -1,217 +1,154 @@
-# RFDGameStudio — anyCreature Integration: The `creatureArt` Seam
+# RFDGameStudio — anyCreature Integration: The `creatureArt` Seam (rewritten 2026-10-04)
 
-*September 2026 | Read `docs/directives/anyCreature_ForkValidate_Directive.md`
-in full before this one — the fork is real, validated, and the wolf
-smoke test already produced a real `hero.png`. This directive wires it
-in as a genuine third art option, matching the existing `artGen`
-generic-seam pattern (ADR-005/ADR-014) rather than inventing a new
-architecture.*
+> **NO DEVIN WORK REMAINS in this repo.** The studio-side deliverables of this directive are already on
+> `origin/main` (commits `6446c222` and `01a49084`, both 2026-08-31) and pass their own test. The only
+> remaining work (the export script inside the sibling `anyCreature` repo, the byte-size pre-flight there, and
+> the cross-repo demo run) cannot be done from a worktree and is listed under `## Manual steps (Robert,
+> interactive)` below. Recommendation to the controller: mark this directive Superseded by commits `6446c222` +
+> `01a49084` instead of dispatching it. If it is dispatched anyway, the run is verification-only (section 3) and
+> changes no file.
 
----
+## Read first
 
-> ⛔ **STOP:** Run the real current test suite before touching anything
-> (Python `uv run pytest -m "not slow"`, TS `cd ts && npx vitest run`
-> from repo root — do not trust any number from a prior session, confirm
-> live). Also confirm the real wolf assets still exist and match their
-> recorded sizes: `C:\Github\anyCreature\out\hero.png` (347,341 bytes),
-> `out\hero.jpg` (40,920 bytes). If either is missing or a different
-> size, the fork's local state has changed since the last phase —
-> report that before proceeding, don't regenerate silently.
+`ts/src/engine/creatureArt/types.ts`, `ts/src/engine/creatureArt/loader.ts`, `ts/src/engine/creatureArt/index.ts`
+(all short) and `ts/tests/test_creatureArt.ts` (all 60 lines). Everything you need is quoted below; do not search
+for anything else.
 
----
+## 1. Why this exists
 
-## §0 Context
+The original directive asked for a generic `creatureArt` seam in this repo plus an offline export script in
+`C:\Github\anyCreature`. Its first run was refused: the sandbox only allows the worktree, and the run tried
+`Set-Location C:\Github\anyCreature`. Evidence that the in-repo half is already done (measured against
+`origin/main` `3e633eec`):
 
-**The real, structural difference this directive has to respect, not
-paper over:** `ts/src/engine/artGen/` generates SVG shapes *live, in the
-browser, at runtime* — `ArtGenConfig<TEntity>` maps a game's entities to
-colors/shapes, and the module draws them on demand. anyCreature cannot
-do that. Its compile step is Node, its render step is headless Chromium
-via Playwright — neither can run inside a game's own browser session.
-This means `creatureArt` (this phase's new module) is parallel to
-`artGen` in what a game gets to use — a per-entity visual — but
-different in mechanism: it references pre-generated static PNGs, it
-never generates anything at runtime. Do not build anything that tries to
-run the anyCreature pipeline inside a game's own execution context —
-that's not just out of scope, it's not technically possible with the
-tool as built.
+- `git log --oneline -- ts/src/engine/creatureArt` lists `01a49084` (moved the test to `ts/tests/`) and
+  `6446c222` (added `types.ts`, `loader.ts`, `index.ts`, `fixtures/wolf.png`, and the first copy of the test).
+- `ts/src/engine/creatureArt/fixtures/wolf.png` is 347,341 bytes.
+- `cd ts && npx vitest run test_creatureArt.ts` gave `Test Files  1 passed (1)` and `Tests  3 passed (3)`.
+- `git diff 6446c222 HEAD -- ts/src/engine/artGen` is empty (artGen untouched).
 
-**What this phase delivers, in two real, separate pieces:**
+Quoted lines the verification relies on:
 
-1. **An offline export script, living in the `anyCreature` fork itself**
-   (`C:\Github\anyCreature`), not in RFDGameStudio — keeps the heavy
-   Node+Python+Playwright dependency chain isolated from RFDGameStudio's
-   own, the same way `RFD_IT_Publishing` stays a separate sibling repo
-   rather than folding its own dependencies into the studio. Given a
-   spec path and a target output path, it runs compile + hero-render and
-   writes the final PNG directly to that target path — which may point
-   into `RFDGameStudio`'s own tree, since these are sibling repos on the
-   same machine.
-
-2. **A generic seam on the RFDGameStudio side**,
-   `ts/src/engine/creatureArt/`, mirroring `artGen`'s real shape (a
-   `types.ts` defining `CreatureArtConfig<TEntity>`, a loader function) —
-   but much thinner than `artGen`, since there's no live drawing logic
-   here, only asset-path resolution. Per ADR-005/ADR-014 convention:
-   this module carries no vocabulary tied to any specific game; a
-   per-game config maps that game's entities to pre-generated asset
-   paths, same pattern `dissonance`/`shoal`/`slimeworld` already follow
-   for `artGen`.
-
-**The wolf becomes the first real, wired-up fixture** — not a new design
-decision, the same zero-risk asset already generated and verified in the
-prior phase. This proves the seam loads and resolves a real asset
-correctly end-to-end. It does not mean any real game is adopting wolf
-art; it's a test fixture, exactly like `example/` fixtures elsewhere in
-this studio.
-
-**Explicitly NOT in scope:**
-- Choosing which real RFDGameStudio game adopts `creatureArt` for real
-  content. That's a content decision for Robert, not resolved by this
-  directive building the plumbing.
-- Designing any new creature. The wolf fixture is the only asset this
-  phase touches.
-- Any attempt to run compile/render inside a browser or at game runtime
-  — see §0, this is not a mechanism gap to work around, it's how the
-  tool is built.
-- Model/cost testing for real creature-design sessions ("free model
-  testing," per Robert's own framing) — deliberately deferred, a
-  separate, later phase once the plumbing exists to test against.
-
----
-
-## §1 Scope Statement
-
-| Location | Repo | Status | Action |
-|---|---|---|---|
-| `scripts/rfdgamestudio_export.js` | `C:\Github\anyCreature` | New | Wraps `engine/cli.js` + `harness/hero.mjs`, takes spec path + target output path, writes final PNG there |
-| `ts/src/engine/creatureArt/types.ts` | `RFDGameStudio` | New | `CreatureArtConfig<TEntity>` interface, mirroring `artGen/types.ts`'s shape |
-| `ts/src/engine/creatureArt/loader.ts` | `RFDGameStudio` | New | Resolves an entity to its pre-generated asset path via the config; no drawing logic |
-| `ts/src/engine/creatureArt/index.ts` | `RFDGameStudio` | New | Re-exports, matching `artGen/index.ts`'s pattern |
-| `ts/src/engine/creatureArt/fixtures/wolf.png` | `RFDGameStudio` | New | Copy of the already-generated, already-verified `hero.png` — the real fixture, not a placeholder |
-| `ts/src/engine/creatureArt/tests/*.ts` | `RFDGameStudio` | New | Per §3 |
-
-**Read-only:** `ts/src/engine/artGen/` (reference the pattern, do not
-modify it), everything else in `anyCreature` beyond the one new script.
-
-> ⚠️ RULE: `scripts/rfdgamestudio_export.js` writes into a sibling repo's
-> tree by design — confirm the target path argument is always required
-> and explicit, never defaulted or inferred. A script that silently
-> guesses where to write into another repo is exactly the kind of
-> implicit decision this whole studio's directives have refused to allow
-> all night.
-
----
-
-## §2 Implementation
-
-### `scripts/rfdgamestudio_export.js` (in `anyCreature`)
-
-```
-node scripts/rfdgamestudio_export.js <spec.json> <target-png-path>
-```
-
-Runs `engine/cli.js <spec.json> <tmp>.glb`, then `harness/hero.mjs
-<tmp>.glb <tmp-dir>`, then copies the resulting `hero.png` to the
-explicit `<target-png-path>` argument. No default target. No inference
-of which RFDGameStudio game it belongs to.
-
-### `ts/src/engine/creatureArt/types.ts`
-
-```typescript
-/**
- * Generic seam for pre-generated 3D-compiled creature art.
- *
- * Unlike artGen, this module draws nothing live. anyCreature's compile
- * and render steps run offline, in the anyCreature sibling repo, and
- * produce static PNGs. This module only resolves an entity to its
- * pre-generated asset path — the same way any other sprite reference
- * works. Per ADR-005/ADR-014, this module carries no vocabulary tied to
- * any specific game.
- */
+```ts
 export interface CreatureArtConfig<TEntity> {
   assetPathFor: (entity: TEntity) => string;
   fallbackPathFor?: (entity: TEntity) => string;
 }
 ```
-
-### `ts/src/engine/creatureArt/loader.ts`
-
-```typescript
-export function resolveCreatureArt<TEntity>(
-  entity: TEntity,
-  config: CreatureArtConfig<TEntity>
-): string {
-  const path = config.assetPathFor(entity);
-  // Real existence check left to the caller's own asset-loading
-  // convention (matches how other sprite references work in this
-  // studio) -- this function resolves the path, it does not assume
-  // how a given renderer confirms the file exists.
-  return path;
-}
+```ts
+export * from './types';
+export * from './loader';
+```
+```ts
+    expect(stat.length).toBe(347341);
 ```
 
-> ⚠️ RULE: Do not add a fallback-resolution default inside
-> `resolveCreatureArt` itself unless a real caller actually needs it —
-> `fallbackPathFor` exists in the type for future use, wiring fallback
-> logic in now with no real caller is exactly the premature-scope
-> pattern this studio has stayed away from all night.
+Corrected facts (the old directive text was wrong or stale):
 
----
+- Pre-flight sizes: the old text expected `C:\Github\anyCreature\out\hero.png` at 347,341 bytes and
+  `out\hero.jpg` at 40,920 bytes. Measured on the live disk (2026-10-03): the file is
+  `C:\Github\anyCreature\out\delivery\hero.png` at 228,387 bytes and there is no `hero.jpg`. The 347,341 figure
+  is stale for the fork; it remains correct only for this repo's committed `wolf.png` fixture, which is what
+  the test asserts. Do not change either number.
+- The old text cited hero.mjs (fork harness folder, twice). That file does not exist in the fork; the render step is
+  deliver.py (harness folder), which stamps the GLB and writes the viewer, `hero.png` and an upload pack. Read every
+  `hero.mjs` as `deliver.py`.
 
-## §3 Test Anchors
+## 2. Scope
 
-| Test name | Fixture | Behaviour |
-|---|---|---|
-| `test_resolve_creature_art_returns_real_path` | Synthetic `CreatureArtConfig` pointing at the real `wolf.png` fixture | Returns the exact configured path |
-| `test_creature_art_config_carries_no_game_vocabulary` | Static check on `types.ts` | Confirms no game-specific identifiers appear in the module itself (matches `artGen`'s own discipline) |
-| `test_wolf_fixture_is_real_generated_asset` | `fixtures/wolf.png` | File exists, byte size matches the recorded 347,341 bytes from the fork-validate phase — confirms it's the real generated image, not a placeholder someone drew |
+In scope for Devin: nothing. No file in this repo needs to change. Out of scope for every run of this
+directive: anything in `C:\Github\anyCreature`, the export script (a .js file named rfdgamestudio_export in the fork scripts folder), the byte-size pre-flight on
+the fork's output, the live cross-repo demo, choosing a game for creatureArt, and `ts/src/engine/artGen/`.
 
-Target: X passing, 0 failing, 0 skipped, real count.
+## 3. The work
 
-**Live demonstration required at completion:** run
-`scripts/rfdgamestudio_export.js` for real against the wolf spec, target
-output pointing into `ts/src/engine/creatureArt/fixtures/wolf.png`,
-paste the real command output — confirming the cross-repo write
-actually works end-to-end, not just that the two pieces exist
-separately.
+Verification only; no edits, no commits:
 
----
+1. Run the test (see section 5) and paste the real tail.
+2. Confirm the artGen directory is untouched with Grep or Read only (no edits are made, so it is untouched by
+   construction); state that in the report.
+3. Write nothing else. If the test fails, report the failing assertion; do not fix it.
 
-## §4 Completion Criteria
+## 4. What NOT to do
 
-- [ ] Real pre-flight floor confirmed for both Python and TypeScript
-      suites before any change
-- [ ] Real wolf asset byte sizes confirmed unchanged from the
-      fork-validate phase before proceeding
-- [ ] `scripts/rfdgamestudio_export.js` implemented in the `anyCreature`
-      fork, requires an explicit target path, no default/inference
-- [ ] `creatureArt` module implemented in RFDGameStudio, mirrors
-      `artGen`'s shape, carries no game-specific vocabulary
-- [ ] All §3 test anchors present and passing
-- [ ] Live demonstration run for real: the export script actually
-      writes into RFDGameStudio's tree, real output pasted
-- [ ] `artGen/` confirmed untouched — diff shows zero changes there
-- [ ] No real game wired to use `creatureArt` for actual content — this
-      phase builds the seam and proves it with the wolf fixture only
-- [ ] Final full test floor (both repos) reported, real count
+- Do not `Set-Location` anywhere outside the worktree, do not read outside it, do not run `gh`, and do not
+  run any cross-repo command.
+- Do not create the export script (a .js file named rfdgamestudio_export in the fork scripts folder) here or anywhere; it belongs in the fork and is a manual step.
+- Do not edit `wolf.png`, the test, or any `creatureArt` file. Do not wire any game to `creatureArt`.
+- Do not install, download, or fetch anything.
 
----
+## 5. Verification
 
-## §5 Quick Reference
+One tool call from the worktree root, paste the real tail:
 
-| Fact | Value |
-|---|---|
-| Mechanism difference from `artGen` | Static, pre-generated assets — never live runtime generation |
-| Where the heavy dependency chain lives | `anyCreature` fork only, never RFDGameStudio itself |
-| First real fixture | The wolf `hero.png`, already generated and verified — not a new design |
-| Not this phase's decision | Which real game adopts this for content |
-| Not this phase's job | Model/cost testing for real creature-design sessions |
+```
+cd ts && npx vitest run test_creatureArt.ts
+```
 
----
+Reference when this directive was written: `Test Files  1 passed (1)` and `Tests  3 passed (3)`. The
+`cd ts && npx vitest run <bare-filename>` form is the only form that finds tests here; `ts/tests/...` paths
+find none.
 
-*RFD Method | anyCreature Integration | RFDGameStudio | September 2026*
-*A third option that's real without pretending it works the same way the other two do.*
+## 6. Rules for this run
+
+- NON-INTERACTIVE. Any tool call that needs a confirmation is rejected and the run ends; do not retry
+  another way around it, write why in the Status row.
+- ONE simple command per tool call: no `;`, `&&`, `||` or `|` chains and no redirects. The only allowed
+  exception is the fixed `cd ts && npx vitest run test_creatureArt.ts` line in section 5. Do not use `ls`,
+  `Get-ChildItem` or `cat`: use Read, Glob and Grep.
+- No installs, no downloads, no fetches. Do not read outside this worktree. Do not hunt: everything you need
+  is quoted in this directive; if a quoted line or a cited path is not where it says, STOP and write why in
+  the Status row.
+- Never commit to main, never push, never deploy. This run makes no commit at all.
+- No scratch or debug files in the tree; if you need one, put it in `.devin-scratch/`.
+- Paste exact paths and quoted lines you rely on in the report (a Devin run cannot read outside its worktree).
+- Do not run `agentflow lint` or any other `agentflow` CLI.
+- Never use `git -C`, `git -c`, `git --git-dir` or `git --work-tree`; run git with the worktree as the
+  working directory.
+- Done means (the Status row): you stopped at `Review` with one line in the log giving the test pass counts.
+  You do not mark Done and you do not merge.
+
+## 7. Completion criteria
+
+- [ ] `cd ts && npx vitest run test_creatureArt.ts` reports 3 passed, 0 failed.
+- [ ] `git status` shows no changes.
+- [ ] Status row `Review`, one log line giving the pass counts. The run does not mark Done and does not merge.
+
+## 8. Report
+
+Findings first: pass or fail of the three tests. Then evidence: the real output tail of the command in
+section 5. Then one recommended action: mark the directive Superseded by `6446c222` + `01a49084`, and Robert
+does the manual steps below. State that nothing was changed or deployed.
+
+## Manual steps (Robert, interactive)
+
+These need the sibling repo and a live machine, so no worktree run can do them. Paths are on the laptop.
+
+1. Pre-flight in `C:\Github\anyCreature`: confirm `out\delivery\hero.png` is present (measured 228,387 bytes on
+   2026-10-03; it is not 347,341, and there is no `out\hero.jpg`). If it differs, the fork changed: note it, do
+   not regenerate silently.
+2. Add the export script (a .js file named rfdgamestudio_export in the fork scripts folder) to the fork (there is no `scripts/` directory there yet). Usage
+   `node <script> <spec.json> <target-png-path>`: run the fork compile CLI (cli.js under engine) on <spec.json> to
+   make <tmp>.glb, then the fork deliver step (python3, deliver.py under harness) on <tmp>.glb, <tmp-dir> and <name>, then copy `<tmp-dir>/hero.png` to
+   the explicit target. The target argument is required; no default, no inference of which game it belongs to.
+3. Live demo: run it against the wolf spec with a scratch target path, not the committed fixture (the
+   fixture is 347,341 bytes and the test pins that size). Paste the real output into the PR or the queue log.
+4. Commit the script on a branch in `rfd62794/anyCreature`; do not touch `Ariescar/anyCreature` upstream.
+
+## Sandbox needs
+
+none
+
+## Forbidden Actions
+
+- Committing to or pushing main; pushing at all; deploying; touching protected repos; installing or fetching
+  anything; reading or writing outside the worktree; `Set-Location` elsewhere; `gh`; any cross-repo command;
+  editing `ts/src/engine/artGen/` or any `creatureArt` file; running `agentflow` commands.
+
+## Required from User
+
+The four manual steps above (Robert, interactive): fork pre-flight, export script in `anyCreature`, live demo
+to a scratch path, commit in the fork. Nothing is required before a verification-only run.
 
 <!-- queue:start -->
 ## Queue
