@@ -214,4 +214,5 @@ merge; it is not part of this run.
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for planetofgreed: CorpWorld player text, stale roadmap bullets, save-key guard test; save key corpworld_state kept; docs/demos/planetofgreed/SCOPE.md
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved — lint override: sole error(s) are the file the run creates (ts/tests/test_planetofgreed_save_key.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 00:17 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 00:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
