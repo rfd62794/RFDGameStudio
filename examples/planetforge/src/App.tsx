@@ -24,8 +24,10 @@ import { RingVisualizer } from './components/RingVisualizer';
 import { InspectorPanel } from './components/InspectorPanel';
 import { EventLog } from './components/EventLog';
 import { TestRunnerModal } from './components/TestRunnerModal';
+import { debugToolsEnabled } from './debugTools';
 
 export default function App() {
+  const showDebugTools = debugToolsEnabled(window.location.search);
   const [world, setWorld] = useState<WorldState>(() => create_initial_world());
   const [selectedTileIdx, setSelectedTileIdx] = useState<number>(0);
   const [selectedSectorId, setSelectedSectorId] = useState<number>(0);
@@ -223,6 +225,7 @@ export default function App() {
         onSetSpeed={setSpeed}
         onResetWorld={handleResetWorld}
         onOpenTests={() => setIsTestModalOpen(true)}
+        showTestRunner={showDebugTools}
       />
 
       {/* Main God-Game Canvas Area */}
@@ -262,10 +265,12 @@ export default function App() {
       </main>
 
       {/* Verification & Test Suite Modal */}
-      <TestRunnerModal
-        isOpen={isTestModalOpen}
-        onClose={() => setIsTestModalOpen(false)}
-      />
+      {showDebugTools && (
+        <TestRunnerModal
+          isOpen={isTestModalOpen}
+          onClose={() => setIsTestModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -253,11 +253,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/pf-trim |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — all 4 dead gameLogic files deleted via git rm (no importers found); debugTools.ts + debug-flag gating + Reset world label per spec diffs. `uv run python --version` → Python 3.12.10; `npx vitest run test_planetforge_trim.ts` → 3 passed; `test_registry_export.ts` → 4 passed; `npx tsc --noEmit` → only the 4 pre-existing game-metadata.json errors (none planetforge); gameLogic grep clean. Not run: example type check, embed rebuild, screenshots (controller's). Phase 2b row close = controller's.
 <!-- queue:end -->
