@@ -1,316 +1,158 @@
-import React, { useRef, useState } from 'react';
-import { BuildingInstance, PipeNode, SocketDef, TilePos } from '../types';
-import { X, ExternalLink, Sliders, Trash2, Eye } from 'lucide-react';
-import { BUILDING_TILE, getMaterialState, SOCKET_STATE_COLORS } from '../simulation/buildingDefs';
-import { computeRoute } from '../simulation/buildings';
+import React from 'react';
+import { MaterialType, MATERIAL_DEFS } from '../types';
+import { CellularGrid, GRID_WIDTH } from '../simulation/grid';
+import { BuildingManager } from '../simulation/buildings';
+import { BUILDING_TILE } from '../simulation/buildingDefs';
+import { Info, Box, Cpu, Workflow, Radio } from 'lucide-react';
 
 interface InspectPanelProps {
-  target: { type: 'building'; building: BuildingInstance } | { type: 'pipe'; pipes: PipeNode[]; tile: TilePos } | null;
-  pipeRouteState: {
-    mode: 'idle' | 'drawing' | 'complete';
-    sourceSocket: { socket: SocketDef; building: BuildingInstance } | null;
-    route: TilePos[];
-    valid: boolean;
-  } | null;
-  onStartPipeRoute: (building: BuildingInstance, socket: SocketDef) => void;
-  onCompletePipeRoute: (building: BuildingInstance, socket: SocketDef) => { success: boolean; reason?: string };
-  onCancelPipeRoute: () => void;
-  onOpenFilter: (building: BuildingInstance) => void;
-  onDelete: () => void;
-  onClose: () => void;
+  hoverCell: { x: number; y: number } | null;
+  grid: CellularGrid;
+  buildingMgr: BuildingManager;
 }
 
 export const InspectPanel: React.FC<InspectPanelProps> = ({
-  target,
-  pipeRouteState,
-  onStartPipeRoute,
-  onCompletePipeRoute,
-  onCancelPipeRoute,
-  onOpenFilter,
-  onDelete,
-  onClose,
+  hoverCell,
+  grid,
+  buildingMgr,
 }) => {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [routeError, setRouteError] = useState<string | null>(null);
+  if (!hoverCell || !grid.isInBounds(hoverCell.x, hoverCell.y)) {
+    return (
+      <div className="absolute bottom-3 left-3 bg-[#0c101d]/90 backdrop-blur border border-slate-800 text-slate-400 px-3 py-1.5 rounded-lg text-[11px] font-mono shadow-lg pointer-events-none select-none flex items-center gap-2">
+        <Info className="w-3.5 h-3.5 text-cyan-400" />
+        <span>Hover cursor over grid to inspect cell physics & machinery</span>
+      </div>
+    );
+  }
 
-  if (!target) return null;
+  const { x, y } = hoverCell;
+  const idx = y * GRID_WIDTH + x;
+  const mat = grid.materials[idx] as MaterialType;
+  const flag = grid.structureFlags[idx];
+  const matDef = MATERIAL_DEFS[mat] || MATERIAL_DEFS[MaterialType.VACUUM];
 
-  const renderSockets = (building: BuildingInstance) => {
-    return building.sockets.map((socket) => {
-      const isConnected = Boolean(building.connected[socket.id]);
-      const isSourceSocket =
-        pipeRouteState?.mode === 'drawing' &&
-        pipeRouteState.sourceSocket?.socket.id === socket.id &&
-        pipeRouteState.sourceSocket?.building.id === building.id;
+  const tileX = Math.floor(x / BUILDING_TILE);
+  const tileY = Math.floor(y / BUILDING_TILE);
 
-      const stateColor = SOCKET_STATE_COLORS[socket.acceptedStates[0] || 'solid'] || '#7ab8d4';
-      const typeIcon = socket.acceptedStates.map((s) => s[0].toUpperCase()).join('/');
-
-      // Show inline preview route if routing is in progress and this socket is a candidate input target
-      const targetCompatible =
-        pipeRouteState &&
-        pipeRouteState.mode === 'drawing' &&
-        socket.kind === 'input' &&
-        !isSourceSocket &&
-        !isConnected &&
-        building.id !== pipeRouteState.sourceSocket?.building.id;
-
-      const previewRoute =
-        targetCompatible && pipeRouteState
-          ? computeRoute(
-              {
-                tx: pipeRouteState.sourceSocket!.building.tileX + pipeRouteState.sourceSocket!.socket.dtx,
-                ty: pipeRouteState.sourceSocket!.building.tileY + pipeRouteState.sourceSocket!.socket.dty,
-              },
-              { tx: building.tileX + socket.dtx, ty: building.tileY + socket.dty },
-              false
-            )
-          : null;
-
-      return (
-        <div
-          key={socket.id}
-          className={`flex items-center justify-between p-2 rounded bg-[#131b2c] border ${
-            isSourceSocket
-              ? 'border-amber-500/60 bg-amber-950/20'
-              : isConnected
-              ? 'border-emerald-500/30'
-              : 'border-slate-700/60'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className="w-2.5 h-2.5 rounded-sm shrink-0 border border-black/40"
-              style={{ backgroundColor: isConnected ? stateColor : 'transparent', outline: `1px solid ${stateColor}` }}
-            />
-            <div>
-              <div className="text-[10px] font-bold text-slate-200 flex items-center gap-1.5">
-                {socket.kind.toUpperCase()} — {socket.side.toUpperCase()}
-                <span className="text-[9px] px-1 bg-slate-800 text-slate-400 rounded border border-slate-700">
-                  {typeIcon}
-                </span>
-              </div>
-              <div className="text-[9px] text-slate-500 font-mono mt-0.5">
-                {isSourceSocket
-                  ? 'Routing: drag to destination...'
-                  : isConnected
-                  ? 'Connected'
-                  : 'Open for link'}
-              </div>
-              {previewRoute && previewRoute.length > 0 && (
-                <div className="text-[8px] text-cyan-500/80 font-mono mt-0.5 italic">
-                  Route preview: {previewRoute.length - 2} pipes
-                </div>
-              )}
-            </div>
-          </div>
-
-          {socket.kind === 'output' ? (
-            <button
-              id={`btn-route-socket-${socket.id}`}
-              disabled={isConnected || (pipeRouteState?.mode === 'drawing' && !isSourceSocket)}
-              onClick={() => {
-                setRouteError(null);
-                if (isSourceSocket) {
-                  onCancelPipeRoute();
-                } else {
-                  onStartPipeRoute(building, socket);
-                }
-              }}
-              className={`px-2 py-1 text-[10px] font-bold rounded flex items-center gap-1 transition-all ${
-                isSourceSocket
-                  ? 'bg-amber-600/20 text-amber-300 border border-amber-500/50 hover:bg-amber-600/30'
-                  : isConnected
-                  ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
-                  : 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/50 hover:bg-cyan-500/30'
-              }`}
-            >
-              {isSourceSocket ? 'Cancel' : isConnected ? 'Routed' : 'Route'}
-            </button>
-          ) : targetCompatible ? (
-            <button
-              id={`btn-complete-route-socket-${socket.id}`}
-              onClick={() => {
-                const result = onCompletePipeRoute(building, socket);
-                if (!result.success) {
-                  setRouteError(result.reason || 'Route failed');
-                } else {
-                  setRouteError(null);
-                }
-              }}
-              className="px-2 py-1 text-[10px] font-bold rounded bg-emerald-600/30 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/40 animate-pulse"
-            >
-              Link
-            </button>
-          ) : null}
-        </div>
-      );
-    });
-  };
+  const building = buildingMgr.getBuildingAt(tileX, tileY);
+  const pipe = buildingMgr.getPipeAt(tileX, tileY);
 
   return (
-    <div
-      ref={panelRef}
-      className="w-64 bg-[#0c101c] border-l border-[#212b42] flex flex-col shrink-0 font-mono text-xs text-slate-300 overflow-hidden"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2.5 bg-[#141b2d] border-b border-slate-700/50">
-        <div className="flex items-center gap-2">
-          <Eye className="w-4 h-4 text-cyan-400" />
-          <span className="font-bold text-slate-100 uppercase tracking-wider">
-            {target.type === 'building' ? 'Node Inspector' : 'Pipe Node'}
-          </span>
+    <div className="absolute bottom-3 left-3 bg-[#0c101d]/95 backdrop-blur border border-cyan-500/30 text-slate-200 p-2.5 rounded-xl text-xs shadow-2xl shadow-black/60 pointer-events-none select-none max-w-xs space-y-1.5 animate-fadeIn z-10">
+      {/* Header: Coords & Category */}
+      <div className="flex items-center justify-between border-b border-slate-800 pb-1 font-mono text-[11px]">
+        <div className="flex items-center gap-1.5">
+          <span className="text-cyan-400 font-bold">POS:</span>
+          <span>[{x}, {y}]</span>
+          <span className="text-slate-400 font-mono text-[10px]">T[{tileX},{tileY}]</span>
+          {y < 40 && (
+            <span className="text-[9px] px-1 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
+              Impact Zone
+            </span>
+          )}
         </div>
-        <button
-          id="btn-close-inspect"
-          onClick={onClose}
-          className="p-1 text-slate-400 hover:text-white rounded hover:bg-white/10"
-        >
-          <X className="w-4 h-4" />
-        </button>
+
+        {flag === 1 && <span className="text-emerald-400 font-sans text-[10px]">Bedrock Solid</span>}
+        {flag === 2 && <span className="text-emerald-300 font-sans text-[10px]">Structural Wall</span>}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-3.5 custom-scrollbar">
-        {routeError && (
-          <div className="p-2 rounded bg-rose-950/50 border border-rose-500/60 text-rose-300 text-[10px]">
-            Route Error: {routeError}
+      {/* Building Info (if present) */}
+      {building && (
+        <div className="bg-[#131a2e] p-2 rounded-lg border border-[#232f48] space-y-1">
+          <div className="flex items-center justify-between font-semibold text-[11px]">
+            <span className="text-slate-100 flex items-center gap-1">
+              {building.category === 'COLLECTOR' && <Radio className="w-3.5 h-3.5 text-cyan-400" />}
+              {building.category === 'CONTAINER' && <Box className="w-3.5 h-3.5 text-purple-400" />}
+              {building.category === 'PROCESSOR' && <Cpu className="w-3.5 h-3.5 text-amber-400" />}
+              {building.category}
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">
+              Cap: {building.capacity}
+            </span>
           </div>
-        )}
 
-        {target.type === 'building' ? (
-          <>
-            {/* Name & Position */}
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Node ID</div>
-              <div className="text-sm font-bold text-cyan-300 mt-0.5">
-                {target.building.buildingId.replace(/(collector_|container_|processor_)/, '').replace(/_/g, ' ').toUpperCase()}
-              </div>
-              <div className="text-[10px] text-slate-500 mt-1 font-mono">
-                Grid: [{target.building.tileX}, {target.building.tileY}] • Size: {target.building.tileW}x
-                {target.building.tileH}
-              </div>
-            </div>
-
-            {/* Sockets */}
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">
-                I/O Ports ({target.building.sockets.length})
-              </div>
-              <div className="space-y-1.5">{renderSockets(target.building)}</div>
-            </div>
-
-            {/* Contents */}
-            {target.building.contents.length > 0 && (
-              <div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">
-                  Internal Buffer
-                </div>
-                <div className="space-y-1 bg-[#101625] p-2 rounded border border-slate-800">
-                  {target.building.contents.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-[10px] font-mono">
-                      <span className="text-slate-300">{item.material}</span>
-                      <span className="text-slate-500">
-                        {getMaterialState(item.material).toUpperCase()}
-                      </span>
-                    </div>
-                  ))}
-                  <div className="text-[9px] text-slate-600 pt-1 border-t border-slate-800/80 flex justify-between">
-                    <span>Total</span>
-                    <span>
-                      {target.building.contents.length} / {target.building.capacity}
+          {/* Stored buffer list */}
+          <div className="text-[10px] font-mono text-slate-300">
+            {Object.keys(building.buffer).length === 0 ? (
+              <span className="text-slate-500 italic">Empty storage</span>
+            ) : (
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                {Object.entries(building.buffer).map(([mStr, amt]) => {
+                  const m = Number(mStr) as MaterialType;
+                  const d = MATERIAL_DEFS[m];
+                  return (
+                    <span
+                      key={m}
+                      className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 flex items-center gap-1"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: d?.color }} />
+                      {d?.name}: {amt}
                     </span>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             )}
+          </div>
 
-            {/* Actions */}
-            <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
-              <button
-                id="btn-open-filter-from-inspect"
-                onClick={() => onOpenFilter(target.building)}
-                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-[#182236] hover:bg-[#1e2c45] border border-cyan-800/50 text-cyan-300 rounded font-bold text-[11px] transition-colors"
-              >
-                <Sliders className="w-3.5 h-3.5" />
-                Routing Filters
-              </button>
-              <button
-                id="btn-demolish-inspect"
-                onClick={onDelete}
-                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/50 text-rose-300 rounded font-bold text-[11px] transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Deconstruct Node
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Pipe Inspect */}
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Pipe Tile</div>
-              <div className="text-sm font-bold text-cyan-300 mt-0.5">
-                [{target.tile.tx}, {target.tile.ty}]
+          {/* Processor Progress */}
+          {building.category === 'PROCESSOR' && (
+            <div className="mt-1 pt-1 border-t border-slate-800/80">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-amber-300 font-semibold">{building.processorType}</span>
+                <span className="font-mono text-slate-400">
+                  {building.progress > 0 ? `${Math.round(building.progress * 100)}%` : 'Idle'}
+                </span>
               </div>
-              <div className="text-[10px] text-slate-500 mt-1 font-mono">
-                Direction: {target.pipes.map((p) => p.direction).join(', ')}
+              <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-1">
+                <div
+                  className="bg-amber-500 h-full transition-all duration-200"
+                  style={{ width: `${building.progress * 100}%` }}
+                />
               </div>
             </div>
+          )}
+        </div>
+      )}
 
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">
-                Pipe Segment Contents
-              </div>
-              <div className="space-y-1.5">
-                {target.pipes.map((p, idx) => (
-                  <div key={idx} className="p-2 rounded bg-[#101625] border border-slate-800 text-[10px] space-y-1">
-                    <div className="flex justify-between font-mono">
-                      <span className="text-slate-400">Dir</span>
-                      <span className="text-slate-200">{p.direction}</span>
-                    </div>
-                    <div className="flex justify-between font-mono">
-                      <span className="text-slate-400">Buffer</span>
-                      <span className="text-slate-200">
-                        {p.buffer.length} / {p.capacity}
-                      </span>
-                    </div>
-                    {p.buffer.length > 0 && (
-                      <div className="pt-1 border-t border-slate-800/80 space-y-0.5">
-                        {p.buffer.map((item, i) => (
-                          <div key={i} className="text-[9px] text-slate-500">
-                            • {item.material}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+      {/* Pipe Info (if present) */}
+      {pipe && (
+        <div className="bg-[#131a2e] p-2 rounded-lg border border-slate-700/60 font-mono text-[10px] space-y-1">
+          <div className="flex items-center justify-between text-cyan-300 font-semibold">
+            <span className="flex items-center gap-1">
+              <Workflow className="w-3.5 h-3.5" />
+              Pipe Conduit
+            </span>
+            <span>Flow: {pipe.direction}</span>
+          </div>
+          <div className="text-slate-400">
+            Buffer:{' '}
+            {pipe.buffer.length === 0
+              ? 'Empty'
+              : pipe.buffer.map((b) => `${MATERIAL_DEFS[b.material]?.name} (${b.amount})`).join(', ')}
+          </div>
+        </div>
+      )}
+
+      {/* Cell Material Specs */}
+      {!building && !pipe && (
+        <div className="flex items-start gap-2 pt-0.5">
+          <div
+            className="w-4 h-4 rounded mt-0.5 shrink-0 border border-slate-700"
+            style={{ backgroundColor: matDef.color }}
+          />
+          <div>
+            <div className="font-semibold text-slate-100 text-[11px] flex items-center gap-1.5">
+              <span>{matDef.name}</span>
+              <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-slate-800 text-slate-400">
+                {matDef.isGas ? 'GAS' : matDef.isLiquid ? 'LIQUID' : matDef.isSolid ? 'SOLID' : 'VACUUM'}
+              </span>
             </div>
-
-            <div className="pt-2 border-t border-slate-800/80">
-              <button
-                id="btn-demolish-pipe-inspect"
-                onClick={onDelete}
-                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/50 text-rose-300 rounded font-bold text-[11px] transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Deconstruct Pipe
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Context Footer */}
-      <div className="p-2 bg-[#141b2d] border-t border-slate-800/60 flex items-center justify-between text-[9px] text-slate-500">
-        <span className="flex items-center gap-1">
-          <ExternalLink className="w-3 h-3" /> Click canvas to inspect node
-        </span>
-        <span>
-          {pipeRouteState?.mode === 'drawing' ? 'ROUTING ACTIVE' : 'IDLE'}
-        </span>
-      </div>
+            <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+              {matDef.description}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

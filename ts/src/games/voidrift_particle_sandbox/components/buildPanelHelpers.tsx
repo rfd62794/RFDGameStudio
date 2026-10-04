@@ -1,4 +1,3 @@
-import React from 'react';
 import { BuildingCategory, BuildingDef, ContainerType, MaterialType, MATERIAL_DEFS } from '../types';
 import { ArrowRight } from 'lucide-react';
 
@@ -50,6 +49,40 @@ export const getGoalData = (currentTier: number, storedCounts: Record<number, nu
       color: '#f59e0b',
     };
   }
+};
+
+// Sync Tier goals & progress (Header progress bar shape)
+export const getTierGoal = (currentTier: number, storedCounts: Record<number, number>) => {
+  if (currentTier === 1) {
+    return {
+      targetMat: MaterialType.STRUCTURAL_SOLID,
+      goal: 100,
+      current: storedCounts[MaterialType.STRUCTURAL_SOLID] || 0,
+      title: 'Accumulate 100 Structural Solid in Solid Bins',
+    };
+  }
+  if (currentTier === 2) {
+    return {
+      targetMat: MaterialType.VOID_CRYSTAL,
+      goal: 80,
+      current: storedCounts[MaterialType.VOID_CRYSTAL] || 0,
+      title: 'Accumulate 80 Void Crystals in Solid Bins',
+    };
+  }
+  if (currentTier === 3) {
+    return {
+      targetMat: MaterialType.LUMINITE,
+      goal: 20,
+      current: storedCounts[MaterialType.LUMINITE] || 0,
+      title: 'Accumulate 20 Luminite in Solid Bins',
+    };
+  }
+  return {
+    targetMat: MaterialType.LUMINITE,
+    goal: 20,
+    current: 20,
+    title: 'Tier 4: Reconstruction Active',
+  };
 };
 
 // Helper for rendering preview graphics inside 130x80 cards

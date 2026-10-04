@@ -23,6 +23,7 @@ import { planetofgreedConfig } from './planetofgreed/config';
 import planetforgeConfig from './planetforge/config';
 import { gladiatorArenaConfig } from './gladiator_arena/config';
 import voiddriftReduxConfig from './voiddrift_redux/config';
+import voidriftParticleSandboxConfig from './voidrift_particle_sandbox/config';
 import successionConfig from './succession/config';
 import houseOfKingsCollabConfig from './house_of_kings_collab/config';
 import { characterViewerConfig } from './character_viewer/config';
@@ -79,6 +80,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   planetforgeConfig,
   gladiatorArenaConfig,
   voiddriftReduxConfig,
+  voidriftParticleSandboxConfig,
   successionConfig,
   houseOfKingsCollabConfig,
   characterViewerConfig,

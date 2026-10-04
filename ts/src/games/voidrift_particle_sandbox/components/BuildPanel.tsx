@@ -61,7 +61,6 @@ export const BuildPanel: React.FC<BuildPanelProps> = ({
   onSetBrushSize,
   structuralSolidAvailable,
   freeBuild,
-  onToggleFreeBuild,
 }) => {
   // Category Tab State
   const [activeTab, setActiveTab] = useState<BuildCategoryTab>('COLLECTORS');

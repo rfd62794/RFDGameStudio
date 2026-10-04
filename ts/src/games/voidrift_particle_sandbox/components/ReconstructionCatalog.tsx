@@ -1,120 +1,157 @@
 import React from 'react';
-import { MaterialType, MATERIAL_DEFS, ReconstructionTarget } from '../types';
-import { Sparkles, Lock } from 'lucide-react';
+import { MaterialType, MATERIAL_DEFS, ReconstructionEntity } from '../types';
+import { Sparkles, CheckCircle2, Star } from 'lucide-react';
 
 interface ReconstructionCatalogProps {
-  targets: ReconstructionTarget[];
-  currentTier: number;
+  entities: ReconstructionEntity[];
   storedCounts: Record<number, number>;
-  onAssemble: (id: string) => void;
+  onReconstruct: (entityId: string) => void;
+  isCompleted: boolean;
+  onDismissVictory?: () => void;
 }
 
 export const ReconstructionCatalog: React.FC<ReconstructionCatalogProps> = ({
-  targets,
-  currentTier,
+  entities,
   storedCounts,
-  onAssemble,
+  onReconstruct,
+  isCompleted,
 }) => {
-  const isTier4 = currentTier >= 4;
+  const reconstructedCount = entities.filter((e) => e.reconstructed).length;
 
   return (
-    <div className="space-y-3 select-none">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2.5">
-        <div className="flex items-center gap-1.5 text-cyan-400 font-bold text-xs uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Reconstruction</span>
-        </div>
-        <span className="text-[9px] font-mono text-slate-500 uppercase">
-          {isTier4 ? 'ACTIVE' : `TIER 4 REQUIRED`}
-        </span>
-      </div>
-
-      {!isTier4 && (
-        <div className="flex items-center gap-2 p-2 rounded bg-[#13182b] border border-slate-700/60 text-slate-400 text-[10px] font-mono">
-          <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          <span>
-            Complete Tier 3 goal to unlock exotic Reconstruction Assembly patterns.
+    <div className="w-80 bg-[#0d121f] border-l border-[#1f293d] flex flex-col h-full overflow-hidden text-xs text-slate-300 select-none">
+      {/* Header */}
+      <div className="p-3 border-b border-[#1f293d] bg-gradient-to-r from-[#10172a] to-[#1a152e]">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+            <span className="font-bold text-slate-100 text-sm tracking-wide">
+              RECONSTRUCTION
+            </span>
+          </div>
+          <span className="font-mono text-xs px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 font-semibold">
+            {reconstructedCount} / {entities.length}
           </span>
         </div>
-      )}
+        <p className="text-[11px] text-slate-400 mt-1">
+          Synthesize pure refined materials to restore primeval cosmic constructs.
+        </p>
+      </div>
 
-      <div className={`space-y-2 ${!isTier4 ? 'opacity-50 pointer-events-none' : ''}`}>
-        {targets.map((t) => {
-          const canAssemble =
-            isTier4 &&
-            !t.assembled &&
-            Object.entries(t.requirements).every(([matId, amount]) => {
-              return (storedCounts[Number(matId)] || 0) >= amount;
-            });
+      {/* Entity Cards List */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+        {entities.map((entity) => {
+          let canAfford = true;
+          const reqEntries = Object.entries(entity.requirements) as [string, number][];
 
           return (
             <div
-              key={t.id}
-              className={`p-2.5 rounded border font-mono text-[10px] transition-colors relative overflow-hidden group ${
-                t.assembled
-                  ? 'bg-gradient-to-r from-emerald-950/40 to-teal-950/30 border-emerald-500/60 shadow-inner'
-                  : 'bg-[#121828] border-slate-800 hover:border-slate-700'
+              key={entity.id}
+              className={`p-3 rounded-xl border transition-all duration-300 relative overflow-hidden ${
+                entity.reconstructed
+                  ? 'bg-gradient-to-br from-[#121c2c] to-[#1c1836] border-emerald-500/50 shadow-md shadow-emerald-950/30'
+                  : 'bg-[#111728] border-[#222d46] hover:border-slate-600'
               }`}
             >
-              <div className="flex justify-between items-start gap-1">
-                <span
-                  className={`font-bold text-[11px] ${t.assembled ? 'text-emerald-300' : 'text-slate-200'}`}
-                >
-                  {t.name}
-                </span>
-                {t.assembled && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-600/30 text-emerald-300 font-bold border border-emerald-500/50">
-                    ASSEMBLED
+              {/* Top Row: Name & Status */}
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full shadow-sm"
+                    style={{
+                      backgroundColor: entity.color,
+                      boxShadow: `0 0 10px ${entity.color}`,
+                    }}
+                  />
+                  <span className="font-bold text-slate-100 text-[12px]">{entity.name}</span>
+                </div>
+                {entity.reconstructed && (
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-mono font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Restored
                   </span>
                 )}
               </div>
 
-              <div className="text-slate-500 mt-1 leading-snug">{t.description}</div>
+              {/* Description */}
+              <p className="text-[11px] text-slate-400 mb-2.5 leading-relaxed">
+                {entity.description}
+              </p>
 
-              <div className="mt-2 pt-1.5 border-t border-slate-800/60 flex flex-wrap gap-x-3 gap-y-1">
-                {Object.entries(t.requirements).map(([matId, amount]) => {
-                  const mId = Number(matId) as MaterialType;
-                  const def = MATERIAL_DEFS[mId];
-                  const stored = storedCounts[mId] || 0;
-                  const sufficient = stored >= amount;
+              {/* Material Requirements Progress */}
+              <div className="space-y-1.5 bg-[#0b0f19] p-2 rounded-lg border border-slate-800">
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-mono block">
+                  Material Requirements:
+                </span>
+                {reqEntries.map(([matStr, reqAmt]) => {
+                  const mat = Number(matStr) as MaterialType;
+                  const def = MATERIAL_DEFS[mat];
+                  const stored = storedCounts[mat] || 0;
+                  const satisfied = stored >= reqAmt;
+                  if (!satisfied) canAfford = false;
+
+                  const pct = Math.min(100, Math.floor((stored / reqAmt) * 100));
 
                   return (
-                    <div
-                      key={mId}
-                      className="flex items-center gap-1 text-[9px]"
-                      title={`${def.name}: ${stored} stored / ${amount} required`}
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: def?.color || '#fff' }}
-                      />
-                      <span className="text-slate-400">{def?.name || `Mat ${mId}`}:</span>
-                      <span className={`font-bold ${sufficient ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {stored}
-                      </span>
-                      <span className="text-slate-600">/ {amount}</span>
+                    <div key={mat} className="space-y-0.5">
+                      <div className="flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-slate-300 flex items-center gap-1">
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: def?.color }}
+                          />
+                          {def?.name}:
+                        </span>
+                        <span className={satisfied ? 'text-emerald-400 font-bold' : 'text-slate-400'}>
+                          {stored} / {reqAmt}
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                        <div
+                          className="h-full transition-all duration-300"
+                          style={{
+                            width: `${pct}%`,
+                            backgroundColor: def?.color || '#38bdf8',
+                          }}
+                        />
+                      </div>
                     </div>
                   );
                 })}
               </div>
 
-              {!t.assembled && (
+              {/* Action Button */}
+              {!entity.reconstructed && (
                 <button
-                  onClick={() => onAssemble(t.id)}
-                  disabled={!canAssemble}
-                  className={`mt-2.5 w-full py-1 rounded font-bold uppercase tracking-wider text-[9px] transition-colors ${
-                    canAssemble
-                      ? 'bg-cyan-700 hover:bg-cyan-600 text-white cursor-pointer'
-                      : 'bg-slate-800/80 text-slate-500 cursor-not-allowed'
+                  disabled={!canAfford}
+                  onClick={() => onReconstruct(entity.id)}
+                  className={`w-full mt-2.5 py-1.5 rounded-lg font-semibold text-[11px] flex items-center justify-center gap-1.5 transition ${
+                    canAfford
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold cursor-pointer'
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
                   }`}
                 >
-                  {canAssemble ? 'Assemble Pattern' : 'Insufficient Stock'}
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{canAfford ? 'Reconstruct Entity' : 'Accumulating Materials...'}</span>
                 </button>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* Win Banner (if completed) */}
+      {isCompleted && (
+        <div className="p-3 bg-gradient-to-t from-emerald-950/80 to-[#10172a] border-t border-emerald-500/40 text-center">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-900/60 border border-emerald-400/50 text-emerald-300 font-semibold text-[11px] mb-1">
+            <Star className="w-3.5 h-3.5 text-amber-300" />
+            Cosmic Equilibrium Restored
+          </div>
+          <p className="text-[11px] text-emerald-200/90 italic font-serif leading-tight">
+            "The first things exist again. The universe remembers."
+          </p>
+        </div>
+      )}
     </div>
   );
 };

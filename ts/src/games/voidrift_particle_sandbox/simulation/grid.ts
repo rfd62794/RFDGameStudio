@@ -237,14 +237,6 @@ export class CellularGrid {
     );
   }
 
-  private isGas(mat: MaterialType): boolean {
-    return (
-      mat === MaterialType.GAS ||
-      mat === MaterialType.PLASMA ||
-      mat === MaterialType.REACTIVE_VAPOR
-    );
-  }
-
   // --- REACTION ENGINE ---
   private checkReactions(x: number, y: number, idx: number, mat: MaterialType) {
     const neighbors = [
