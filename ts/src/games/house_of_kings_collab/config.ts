@@ -10,7 +10,7 @@ const config: GameConfig = {
   color: '#f59e0b',
   status: 'dev',
   genre: 'cooperative',
-  tags: ['kingdom-management', 'firebase-backed'],
+  tags: ['kingdom-management', 'firebase-backed', 'showcase'],
   component: React.lazy(() => import('./App')),
 };
 

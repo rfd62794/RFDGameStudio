@@ -221,11 +221,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/arcade-count-excludes |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:04 · devin-cleanroom · Queued → Review — 4 diffs applied verbatim; `vitest run test_arcade_manifest_counts.ts test_arcade_manifest.ts test_registry_export.ts` → `3 files / 15 passed` (baseline 12 +2 new +1 registry drift); `tsc --noEmit` → only the 4 pre-existing game-metadata.json errors
 <!-- queue:end -->
