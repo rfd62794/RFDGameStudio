@@ -14,17 +14,9 @@ import { sfx } from '../../engine/shared/sfx';
 import RosterTab     from './components/RosterTab';
 import WorkshopTab   from './components/WorkshopTab';
 import ShopTab       from './components/ShopTab';
-import InfirmaryTab  from './components/InfirmaryTab';
+import { TABS } from './tabs';
 import MatchCanvas   from './components/MatchCanvas';
 import './styles.css';
-
-const TABS = [
-  { id: 'roster',    label: 'Roster',    shortcut: '1' },
-  { id: 'workshop',  label: 'Workshop',  shortcut: '2' },
-  { id: 'match',     label: 'Match',     shortcut: '3' },
-  { id: 'shop',      label: 'Shop',      shortcut: '4' },
-  { id: 'infirmary', label: 'Infirmary', shortcut: '5' },
-];
 
 function buildInitialState(session: unknown): MBBGameState {
   const data = (session as { files: { data: Record<string, unknown> } }).files.data;
@@ -285,9 +277,6 @@ export default function App({ session }: GameRendererProps) {
         {activeTab === 'shop' && (
           <ShopTab state={state} setState={setGameState}
                    session={session} />
-        )}
-        {activeTab === 'infirmary' && (
-          <InfirmaryTab state={state} setState={setGameState} />
         )}
       </TabManager>
     </GameShell>
