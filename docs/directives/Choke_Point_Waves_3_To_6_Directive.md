@@ -181,15 +181,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-choke-point-waves-3-to-6-directive |
 | Base branch | - |
 | Base commit | 886d7c5bf891de3041bcc6b679ba0d0407632642 |
+| Head commit | b77b025b8536ed422c77d716d2c24c1dd6a29124 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:25 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:04 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations; dependency Choke_Point_Wave_Solvability merged 826adf77
 - 2026-10-04 17:20 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-waves-3-to-6-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 17:21 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-waves-3-to-6-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 17:32 · devin · In progress → Review — Waves 3-6 + brute added to data.yaml; EnemyType gains 'brute'; wave test now expects [1..6]. vitest test_choke_point_waves.ts: 4 passed (baseline strategy wins all 6 waves). Regression test_choke_point_restart.ts + test_choke_point_ui.ts: 4 passed. Pre-push hook all green. Commit b77b025b pushed. [origin] spent: devin 10 min est. n/a
 <!-- queue:end -->
