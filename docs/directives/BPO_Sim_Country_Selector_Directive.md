@@ -743,4 +743,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:57 · robert-claude-laptop · none → Queued
 - 2026-10-04 18:47 · robert-claude-laptop · Queued → Approved — lint override: [secret] hits are the identifier 'key: CountryAttribute' (false positive); cited systems/data/raw.d.ts paths are new files under examples/bpo-sim/src that this directive creates, and the stale demo path was fixed in PR 196
 - 2026-10-04 18:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-country-selector-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 18:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-country-selector-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
