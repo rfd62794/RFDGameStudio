@@ -149,12 +149,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-mbb-hide-infirmary-tab-directive |
 | Base branch | - |
+| Base commit | 4dc00dd7894a1dac59c478e6b60ef0072a4a19bd |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:22 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 16:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
