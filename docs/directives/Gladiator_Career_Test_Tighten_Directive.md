@@ -265,14 +265,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-gladiator-career-test-tighten-directive |
 | Base branch | - |
-| Base commit | 77fdba94d78ca1f5b00b360e7329ce845fe130ca |
+| Base commit | 8ad04494653f60ee072382b62dd845bb089e40cb |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: tighten career-simulation assertions to the Tier B intent, add useArmedConfirm behaviour test
 - 2026-10-04 05:48 · robert-claude-laptop · Queued → Approved — lint override: sole error is ts/tests/test_gladiator_use_armed_confirm.ts, a file the run creates and marks new; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 05:58 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-gladiator-career-test-tighten-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
