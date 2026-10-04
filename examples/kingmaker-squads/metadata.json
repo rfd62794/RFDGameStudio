@@ -1,0 +1,6 @@
+{
+  "name": "KingMaker Squads",
+  "description": "A tactical squad-building auto-battler and territory control game where crowned units rule the Front and survival builds veterans.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
