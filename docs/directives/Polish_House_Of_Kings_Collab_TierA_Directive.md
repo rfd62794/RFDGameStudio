@@ -163,7 +163,7 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-house-of-kings-collab-tier-f00032 |
 | Base branch | - |
@@ -177,4 +177,5 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 - 2026-10-04 08:50 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-house-of-kings-collab-tier-f00032; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 08:51 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-house-of-kings-collab-tier-f00032; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 09:00 · devin · In progress → Review — devin: adminGate.ts fail-closed gate in App.tsx+Header.tsx (personal-email literal removed), showcase blurb in config.ts, 2 new vitest files 12/12 pass; regression test_registry_export+test_arcade_manifest 7/7 pass; gmail/adminEmail greps clean; pushed 9fa49399 [origin] spent: devin 8 min est. n/a
+- 2026-10-04 09:07 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
