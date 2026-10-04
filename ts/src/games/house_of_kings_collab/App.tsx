@@ -10,7 +10,7 @@ import { TaskView } from './components/TaskView';
 import { VerificationPanel } from './components/VerificationPanel';
 import { AdminPanel } from './components/AdminPanel';
 import { isAdminUser } from './lib/adminGate';
-import { Shield, Sparkles, User as UserIcon, LogOut, CheckCircle2, ShieldCheck, Crown } from 'lucide-react';
+import { Shield, User as UserIcon, LogOut, CheckCircle2, ShieldCheck, Crown } from 'lucide-react';
 
 export default function App({ session }: GameRendererProps) {
   void session; // destructured per contract; game is self-contained
@@ -281,12 +281,6 @@ export default function App({ session }: GameRendererProps) {
         <span className="text-xs text-slate-400 hidden sm:block whitespace-nowrap">
           {houseName ? `House: ${houseName}` : 'Server-Authoritative Task Engine'}
         </span>
-      }
-      footer={
-        <div className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500/60" />
-          <span>House of Kings: Collab — Phase 1 First Real Content (August 2026)</span>
-        </div>
       }
     >
       <main className="flex-1 p-4 sm:p-6 md:p-8">
