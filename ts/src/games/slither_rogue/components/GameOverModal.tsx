@@ -5,18 +5,20 @@ import type { GameSession } from '../../../engine/types';
 import { call } from '../../../engine/runtime';
 import { loadSave, writeSave } from '../../../engine/shared/persistence';
 import type { HighScore } from '../types';
+import { runTip } from '../utils/runTip';
 
 interface GameOverModalProps {
   session: GameSession;
   score: number;
   peakLength: number;
+  currentLength: number;
   evolutionsCount: number;
   onRestart: () => void;
   onHome: () => void;
 }
 
 export default function GameOverModal({
-  session, score, peakLength, evolutionsCount, onRestart, onHome
+  session, score, peakLength, currentLength, evolutionsCount, onRestart, onHome
 }: GameOverModalProps) {
   const [name, setName] = useState('');
   const [saved, setSaved] = useState(false);
@@ -57,6 +59,7 @@ export default function GameOverModal({
         <p className="sr-grade-label">Genome Rating</p>
         <h3 className="sr-grade-name">{grade.title}</h3>
         <p className="sr-grade-desc">{grade.description}</p>
+        <p className="sr-grade-desc">{runTip({ score, peakLength, currentLength, evolutionsCount })}</p>
       </div>
 
       <div className="sr-gameover-stats">
