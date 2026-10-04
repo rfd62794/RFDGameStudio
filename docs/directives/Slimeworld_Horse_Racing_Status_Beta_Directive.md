@@ -148,12 +148,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-horse-racing-status-be-db02ed |
 | Base branch | - |
+| Base commit | 1aad4403a0cdc5f7278bb830b08cceba49febc8b |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:17 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 13:58 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-horse-racing-status-be-db02ed; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
