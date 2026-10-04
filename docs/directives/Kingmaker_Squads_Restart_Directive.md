@@ -285,15 +285,18 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-kingmaker-squads-restart-directive |
 | Base branch | - |
 | Base commit | 3fba11421b20e2979ed5c01d0d7b67f78d20b445 |
+| Head commit | 8db5a24114d8caa46679bd85248f322b811cb4d6 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — add in-frame Restart / New Campaign two-step confirm to examples/kingmaker-squads (tracked by the intake commit on PR intake/kingmaker-squads); pure helper test only; embed rebuild and deploy are Robert's
 - 2026-10-04 08:39 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (armedConfirm.ts, useArmedConfirm.ts, RestartButton.tsx, test_kingmaker_armed_confirm.ts), marked new, and the intake files now on main; author's dispatch lint (with the intake merged) gave 0 errors
 - 2026-10-04 12:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-restart-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 12:05 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-restart-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 12:16 · devin · In progress → Review — test_kingmaker_armed_confirm.ts: 6 passed; test_ledger_utils.ts: 5 passed. Committed 8db5a241 on directive branch. Example's own lint/tests/build not run (no node_modules, installs banned); nothing deployed. [origin] spent: devin 9 min est. n/a
 <!-- queue:end -->
