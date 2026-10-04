@@ -7,6 +7,7 @@ import { Badge, EndStateScreen, MoreGamesByMe, StatBar } from '../../ui/componen
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useOnboardingGate } from '../../ui/components/OnboardingGate';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
+import { loadBestScore, recordRunScore } from './utils/bestScore';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
@@ -75,6 +76,13 @@ export default function App({ session }: GameRendererProps) {
   );
   const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
     useOnboardingGate({ mode: 'boolean', initialShow: false });
+
+  // Best score: read once, recorded when a run ends.
+  const [bestScore, setBestScore] = useState<number>(() => loadBestScore());
+  useEffect(() => {
+    if (!state || state.phase !== 'run_end') return;
+    setBestScore(recordRunScore(state.score).best);
+  }, [state]);
 
   const prevVatCountRef = useRef(0);
   const prevPhaseRef = useRef<string>('playing');
@@ -401,6 +409,7 @@ export default function App({ session }: GameRendererProps) {
             }
             stats={[
               { label: 'Final Score', value: state.score },
+              { label: 'Best Score', value: bestScore },
               { label: 'Final Target', value: state.target_score },
               { label: 'Rounds', value: state.total_rounds },
               { label: 'Tokens Banked', value: state.tokens },
