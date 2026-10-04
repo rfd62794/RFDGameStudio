@@ -665,6 +665,7 @@ export default function App() {
               </span>
             </h1>
             <p className="text-xs text-slate-400 font-mono">Asteroid-317 Laboratory Terminal</p>
+            <a href="../slimeworld/" className="text-xs text-cyan-400 hover:text-cyan-300 font-mono underline">Play the successor: SlimeWorld</a>
           </div>
         </div>
 

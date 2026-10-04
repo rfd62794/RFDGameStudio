@@ -10,7 +10,7 @@ const config: GameConfig = {
   source: { kind: 'example', slug: 'slimegarden' },
   label: 'Slimegarden',
   supersededBy: 'slimeworld',
-  description: 'Origin project — the original multi-tank slime breeding and genetics sandbox. Merged with SlimeBreeder to become the current, live SlimeWorld (ts/src/games/slimeworld/). Real specimen dispatch, territory claims, and garrison risk across planet nodes.',
+  description: 'Frozen origin exhibit: the early multi-tank slime breeding sandbox that grew into SlimeWorld. Breed slimes, send them on dispatches and claim planet territory. Kept for history and no longer developed. For the current game, play SlimeWorld.',
   color: '#6c8ef7',
   status: 'external',
   genre: 'creature-collector',
