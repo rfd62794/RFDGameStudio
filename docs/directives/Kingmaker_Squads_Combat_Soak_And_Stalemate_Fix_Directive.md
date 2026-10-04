@@ -224,15 +224,18 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26 |
 | Base branch | - |
 | Base commit | 7c5736871e523f14d38ef357d8cf59732b2ef16c |
+| Head commit | 92213c992c0f4c577e9d9358f2c1535843dfe360 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:04 · robert-claude-laptop · Queued → Approved — lint override: path hits are app-relative paths under the kingmaker example, a gitignored generated file and a 'do not edit' mention, verified by hand
 - 2026-10-04 19:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 19:05 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 19:20 · devin · In progress → Review — Stalemate guard added to simulateCombat (round that adds no frames breaks the while loop); 10 unused imports removed across combatEngine/archetypes/cityGenerator/patchGenerator; new ts/tests/test_kingmaker_combat_soak.ts (4 tests). Verified: npx vitest run test_kingmaker_combat_soak.ts = 4/4 passed ~3.3s; npx tsc --noEmit exit 0 (zero errors — gitignored game-metadata.json present in worktree, so even the 4 expected baseline errors are absent). Pushed; pre-push hook ran full pytest+vitest suite, all green. [origin] spent: devin 14 min est. n/a
 <!-- queue:end -->
