@@ -1,25 +1,30 @@
-# KingMaker Squads — Retired (August 2026)
+# Kingmaker Squads — Origin project (preserved)
 
-**Status:** Retired. Source preserved for reference. Not in the live
-game registry.
+**Status:** Origin project, registered in the live game registry as an
+`external` embed with `supersededBy: 'planetofgreed'` (ADR-023, see
+`docs/adr/ADR-023-legacy-origin-projects-type.md`). Presented as history,
+not as a game competing with Planet of Greed.
 
-**Reason for retirement:** KingMaker Squads was the wheel/culture-identity
-design source that informed Planet of Greed's six-culture wheel
-topology. Planet of Greed is now the live, converted game that carries
-this design forward. KingMaker Squads' own implementation (50+ source
-files in `examples/kingmaker-squads/` including combat engine, city
-generation, AI opponent, and tests) is preserved as a reference artifact.
+**Why it exists:** Kingmaker Squads was the wheel/culture-identity design
+source that informed Planet of Greed's six-culture wheel topology. Planet
+of Greed is the live, TS-native game that carries the design forward.
 
-**Why source is preserved:** Planet of Greed's own design documentation
-references KingMaker Squads as a design source. The extensive design
-history (15 design revisions) and real implemented code are preserved
-for reference — retiring a shipped game means preserving its source,
-not deleting it.
+**What is tracked here:**
+- Registry entry: `ts/src/games/kingmaker_squads/config.ts` (imported by
+  `ts/src/games/registry.ts`).
+- Intake history: `intake/kingmaker-squads/MANIFEST.md`.
 
-**Location:**
-- Registry stub: `ts/src/games/kingmaker_squads/config.ts` (preserved, not imported)
-- Full source: `examples/kingmaker-squads/` (preserved, not converted)
+**Where the game source lives:** `examples/kingmaker-squads/` (50+ source
+files: combat engine, city generation, AI opponent, tests). `examples/*` is
+gitignored (`.gitignore` line 193) and this folder is NOT tracked, so it
+exists only in the owner's live checkout. A fresh clone or worktree cannot
+see it. Known rebuild risk from intake 0.1.0R1: `vite.config.ts` lacks
+`base`, so assets 404 under `/arcade/kingmaker_squads/` if rebuilt as is.
 
-**Retirement precedent:** Matches SlimeBreeder's pattern — config.ts
-preserved in `ts/src/games/`, explicitly absent from registry, absence
-confirmed by `test_arcade_registry_directive.ts`.
+**Polish standard, item A3 (Start and Restart):** the embedded game opens on
+a start screen whose in-frame control is "Start New Campaign"; once a
+campaign is running the header offers "Restart Campaign". For this Origin
+entry, "Start New Campaign" is recorded as satisfying the Start/New Game
+half of A3. A Restart control on the start screen itself would be a change
+inside the untracked example source: BLOCKED on intake (owner must track
+`examples/kingmaker-squads/` first).
