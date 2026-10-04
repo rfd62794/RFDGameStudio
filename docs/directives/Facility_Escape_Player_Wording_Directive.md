@@ -151,12 +151,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-facility-escape-player-wording-directive |
 | Base branch | - |
+| Base commit | 05778ddaeb6849e01f1ef4b0e54bb36b8e99fee9 |
 
 **Status log**
 - 2026-10-04 13:15 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:22 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 14:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-player-wording-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
