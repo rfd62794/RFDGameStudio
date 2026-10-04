@@ -14,6 +14,7 @@ import { useLuaCall, useGameState } from '../../hooks';
 import { sfx } from '../../engine/shared/sfx';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { ChokePointGameState, TowerType } from './types';
+import { isVictory } from './outcome';
 import './styles.css';
 
 const GRID_W = 6;
@@ -59,6 +60,11 @@ export default function App({ session }: GameRendererProps) {
     setState(buildInitialState(session));
   }, [session, setState]);
 
+  const handleRestart = useCallback(() => {
+    handleReset();
+    setShowTitle(true);
+  }, [handleReset]);
+
   // Construct a flat list of grid cells for easy rendering
   const gridCells = useMemo(() => {
     const cells = [];
@@ -88,6 +94,7 @@ export default function App({ session }: GameRendererProps) {
   }
 
   const isGameOver = state.core_hp <= 0;
+  const isWon = isVictory(state);
 
   return (
     <GameShell
@@ -95,7 +102,13 @@ export default function App({ session }: GameRendererProps) {
       gameLabel="Choke Point"
       className="choke-point-container font-mono bg-slate-950 text-slate-100 min-h-screen p-4"
     >
-      {isGameOver ? (
+      {isWon ? (
+        <Card className="max-w-md mx-auto mt-12 p-6 border-emerald-500 bg-emerald-950/20 text-center">
+          <h2 className="text-2xl font-bold text-emerald-400 mb-4 font-mono">DEFENSE HELD</h2>
+          <p className="text-slate-300 mb-6 font-mono">All waves cleared. The core is intact.</p>
+          <Button onClick={handleRestart} variant="primary" className="w-full justify-center" label="Play Again" />
+        </Card>
+      ) : isGameOver ? (
         <Card className="max-w-md mx-auto mt-12 p-6 border-red-500 bg-red-950/20 text-center">
           <h2 className="text-2xl font-bold text-red-500 mb-4 font-mono">CORE BREACHED</h2>
           <p className="text-slate-300 mb-6 font-mono">The neural defense core collapsed. Hostile units bypassed your lines.</p>
@@ -180,11 +193,12 @@ export default function App({ session }: GameRendererProps) {
               })}
             </div>
             
-            <div className="flex justify-between items-center gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-lg">
+            <div className="flex flex-wrap justify-between items-center gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-lg">
               <div>
                 <h3 className="text-lg font-bold text-white mb-1">Preview Vector Simulation</h3>
                 <p className="text-xs text-slate-400">Threats announce their targets. Block their vectors or destroy them.</p>
               </div>
+              <Button onClick={handleRestart} variant="secondary" size="lg" label="Restart" />
               <Button
                 onClick={handleCommit}
                 variant="primary"
