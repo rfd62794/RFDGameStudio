@@ -117,11 +117,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/vd-itch-row |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:58 · devin · Queued → Review — already merged on main as 15fab441 (string + test present); row sync only. Verified: `test_arcade.ts` 33 passed (spec-exact, includes new test)
 <!-- queue:end -->
