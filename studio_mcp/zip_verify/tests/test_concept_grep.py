@@ -276,11 +276,54 @@ def test_find_source_directive_still_finds_markdown_synthetic(tmp_path: Path, mo
     assert result["path"] is not None
 
 
+def _assert_certified_unaffected_by_md_exclusion(source_dirs: dict[str, Path]) -> None:
+    for slug, dest in source_dirs.items():
+        result = concept_check(dest, slug)
+        # Certified values from docs/state/ZipVerifyReport_<slug>.md.
+        assert result["no_source_directive_found"] is True
+        assert result["concept_coverage"] == 0.0
+        pre = _corpus_pre_fix(dest)
+        post = "\n".join(
+            p.read_text(encoding="utf-8", errors="replace")
+            for p in dest.rglob("*")
+            if p.is_file()
+            and p.suffix in {".py", ".ts", ".tsx", ".js", ".jsx"}
+            and "node_modules" not in p.parts
+        ).lower()
+        # The only difference between the two corpora is .md content.
+        assert len(pre) >= len(post)
+
+
+def test_existing_certified_fixtures_unaffected_by_md_exclusion_synthetic(
+    tmp_path: Path, monkeypatch
+):
+    """Hermetic equivalent of the real-zip test below (always runs).
+
+    Two AI-Studio-shaped trees (boilerplate README.md plus real code) with NO
+    resolvable source directive: the directive search is pointed at an empty
+    dir, so the result no longer depends on whichever docs/directives/*.md
+    happen to exist in the repo (e.g. Polish_Corpworld_TierA_Directive.md)."""
+    from studio_mcp.zip_verify import concept_grep as cg
+
+    empty = tmp_path / "no_directives"
+    empty.mkdir()
+    monkeypatch.setattr(cg, "DIRECTIVE_DIRS", [empty])
+
+    trees = {}
+    for slug in ("antsim-redux", "corpworld"):
+        dest = tmp_path / slug
+        (dest / "src").mkdir(parents=True)
+        (dest / "README.md").write_text("# Run and deploy your AI Studio app\n", encoding="utf-8")
+        (dest / "src" / "App.tsx").write_text("export const App = () => null;\n",encoding="utf-8")
+        trees[slug] = dest
+    _assert_certified_unaffected_by_md_exclusion(trees)
+
+
 @pytest.mark.skipif(
     not ANTSIM_ZIP.exists() or not CORPWORLD_ZIP.exists(),
     reason="local-only real zips not present: antsim-redux.zip / corpworld.zip",
 )
-def test_existing_certified_fixtures_unaffected_by_md_exclusion(tmp_path: Path):
+def test_existing_certified_fixtures_unaffected_by_md_exclusion(tmp_path: Path, monkeypatch):
     """Real antsim-redux / corpworld zips: certified coverage unchanged.
 
     Honest note on the directive's parenthetical: it isn't quite that
@@ -290,24 +333,17 @@ def test_existing_certified_fixtures_unaffected_by_md_exclusion(tmp_path: Path):
     resolves for either slug, so the match-counting corpus is never
     built. Assert the certified outcome directly, and confirm the .md
     exclusion is the only corpus difference."""
+    from studio_mcp.zip_verify import concept_grep as cg
+
+    # Certified outcome assumes no source directive resolves; isolate from
+    # repo directives that now exist for these slugs.
+    empty = tmp_path / "no_directives"
+    empty.mkdir()
+    monkeypatch.setattr(cg, "DIRECTIVE_DIRS", [empty])
+    trees = {}
     for slug, zip_path in (("antsim-redux", ANTSIM_ZIP), ("corpworld", CORPWORLD_ZIP)):
-        dest = tmp_path / slug
-        _extract_zip(zip_path, dest)
-        result = concept_check(dest, slug)
-        # Certified values from docs/state/ZipVerifyReport_<slug>.md.
-        assert result["no_source_directive_found"] is True
-        assert result["concept_coverage"] == 0.0
-        pre = _corpus_pre_fix(dest)
-        post_parts = [
-            p.read_text(encoding="utf-8", errors="replace")
-            for p in dest.rglob("*")
-            if p.is_file()
-            and p.suffix in {".py", ".ts", ".tsx", ".js", ".jsx"}
-            and "node_modules" not in p.parts
-        ]
-        post = "\n".join(post_parts).lower()
-        # The only difference between the two corpora is .md content.
-        assert len(pre) >= len(post)
+        trees[slug] = _extract_zip(zip_path, tmp_path / slug)
+    _assert_certified_unaffected_by_md_exclusion(trees)
 
 
 @pytest.mark.skipif(
