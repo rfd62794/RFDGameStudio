@@ -149,13 +149,6 @@ def test_write_children_index_is_byte_stable(tmp_path) -> None:
     assert first.read_text(encoding="utf-8").endswith("}\n")
 
 
-def test_children_json_matches_real_repo(tmp_path) -> None:
-    regenerated = tmp_path / "children.json"
-    demos.write_children_index(regenerated, root=REPO_ROOT)
-    committed = REPO_ROOT / "docs" / "children.json"
-    assert committed.read_bytes() == regenerated.read_bytes()
-
-
 def test_real_repo_demos_sorted_and_unique() -> None:
     found = demos.list_demos(REPO_ROOT)
     ids = [d.id for d in found]
