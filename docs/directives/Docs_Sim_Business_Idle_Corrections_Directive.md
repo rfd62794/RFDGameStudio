@@ -176,3 +176,17 @@ Findings first: the five files changed and whether any quoted line differed from
 ## Required from User
 
 none. Deploying is Robert's, after review.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
