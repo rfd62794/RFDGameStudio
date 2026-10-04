@@ -168,15 +168,18 @@ Findings first: what was ported, how the four oversized files were split, any be
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-port-voidrift-particle-sandbox-directive |
 | Base branch | - |
 | Base commit | 4dd9ad9e791e709e28fee7e22beaf795585cada5 |
+| Head commit | 5d1b459da36aab8c81900cd4ec25b8bfe7a95327 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: all errors are files the run creates, each marked with new-file markers; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 04:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-voidrift-particle-sandbox-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 04:11 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-voidrift-particle-sandbox-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 05:03 · agentflow-tick · In progress → Blocked — a tool call was rejected: npm run build:shoal; resume cap reached (2/2); wip commit failed; wip committed 27908e6, NOT pushed:
+- 2026-10-04 05:14 · robert-claude-laptop · Blocked → Review — run died mid-work; controller finished it (checkpoint 27908e69, type fixes/tests 571e44f7, registry artifacts), merged main, pushed through the hook at 5d1b459d [origin] spent: devin 51 min est. n/a
 <!-- queue:end -->
