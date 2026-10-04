@@ -219,11 +219,12 @@ none
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — priority high: live /arcade/slimeworld/ serves the SlimeGarden build; deploy copy order + slimeworld config source fix; no deploy in this run
+- 2026-10-03 22:58 · robert-claude-laptop · Queued → Approved — lint override: sole remaining error is tests/test_deploy_arcade_copy_order.py, a file the run creates and marks new; main's dispatch lint (PR #500) honours the marker, this queue MCP process still runs pre-fix lint until reconnect; the real defect (nonexistent violations-baseline.txt) was fixed in PR #74
 <!-- queue:end -->
