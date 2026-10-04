@@ -305,11 +305,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/succession-controls |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — ConfirmButton (two-click, 3s disarm) + RunControls (Restart run / Back to title) + App.tsx diff per spec; headerExtra on in-play shell only. `npx vitest run test_succession` → 18 files / 172 passed; `npx tsc --noEmit` → clean exit 0 with game-metadata.json present. git status: only the 4 scope files. Controller finish: Playwright 390x844/1280x720 header-fit + two-click flows.
 <!-- queue:end -->
