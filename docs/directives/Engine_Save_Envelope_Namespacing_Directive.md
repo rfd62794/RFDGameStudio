@@ -68,12 +68,14 @@ Test tails for both files, the public API as final signatures, and any behaviour
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-save-envelope-namespacing--3a8f05 |
 | Base branch | - |
+| Base commit | 17c15eaa597ac341ca9e7eded282f38563019bd4 |
 
 **Status log**
 - 2026-10-04 17:33 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:35 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline proofs; Robert 2026-10-04 17:28 'use your recommendations for the game engine' and approved all recommendations
+- 2026-10-04 18:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-save-envelope-namespacing--3a8f05; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
