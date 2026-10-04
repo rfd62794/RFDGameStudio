@@ -30,3 +30,9 @@ TRIM, then POLISH. 1) The tracked build is the wrong phase; the right one is sit
 
 ## Open question for Robert
 This is the contact-center dialer domain of your day job (fictional names ACBS, LedgerRate, DialSmart). Run the nca-compliance check before publishing? Recommended default: yes, controller runs it before directive 1 deploys; building stays worktree-only until it clears.
+
+## Decision update 2026-10-04 (Robert; overrides the Open question above)
+- The NCA compliance check is NOT a blocker (Robert: "actually safe"). It is dropped as a precondition for building or publishing.
+- The demo becomes "BPO Sim": country-agnostic, not Filipino-specific. The player picks a BPO-heavy country from a data list (Philippines, India, Malaysia, Vietnam, Poland, Romania, Egypt, South Africa, Kenya, Colombia, Mexico, Costa Rica). Countries differ ONLY by neutral business attributes (labor cost, time-zone overlap with the client, talent-pool size, connectivity risk, attrition, regulatory overhead). No accent or language jokes, no caricature, no national stereotyping in copy, characters or events; the cast is diverse and neutral.
+- Directives: BPO_Sim_Country_Data_Directive, BPO_Sim_Repromote_And_Rename_Directive, BPO_Sim_Country_Selector_Directive, BPO_Sim_Neutral_Copy_Check_Directive (docs/directives/).
+- Publishing is not part of those directives: Robert approves the deploy after the local safe check.

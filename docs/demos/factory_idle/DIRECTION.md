@@ -30,3 +30,4 @@ POLISH (publish first, per settled decision). 1) The loop is real and sized righ
 
 ## Open question for Robert
 The storefront sells pistols, shotguns, rifles and SMGs (types.ts:209-215). Publish as is on a business-facing arcade, or reskin item names (tools, gadgets)? Recommended default: reskin the labels only (data in recipes.ts), same mechanics, so the card is safe next to client-facing pages.
+Correction 2026-10-04: the player does not land on an empty grid. getInitialGameState() applies PRESET_FACTORIES[0] (a starter line: power, two spawners, conveyors, a fitter, a packer) and the factory runs from the first second with one customer waiting; the first-step hint therefore says "your line is running, serve customers" (docs/directives/Factory_Idle_Starter_Goal_Hint_Directive.md).
