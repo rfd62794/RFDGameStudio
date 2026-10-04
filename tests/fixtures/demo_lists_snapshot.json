@@ -5,7 +5,6 @@
     "slimebreeder",
     "corpworld",
     "slimegarden",
-    "slimeworld",
     "7-days-to-fry",
     "kingmaker-squads",
     "antsim-redux",
@@ -78,8 +77,7 @@
     ],
     "slimeworld": [
       "games/slimeworld",
-      "ts/src/games/slimeworld",
-      "examples/slimeworld"
+      "ts/src/games/slimeworld"
     ],
     "corpworld": [
       "ts/src/games/corpworld",
