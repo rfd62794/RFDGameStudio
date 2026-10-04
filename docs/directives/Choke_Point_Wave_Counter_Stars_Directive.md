@@ -181,11 +181,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:25 · robert-claude-laptop · none → Queued
+- 2026-10-04 19:02 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
 <!-- queue:end -->
