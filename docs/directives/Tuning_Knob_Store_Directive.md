@@ -160,12 +160,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-tuning-knob-store-directive |
 | Base branch | - |
+| Base commit | e68d17c354f5effdaebacb25dc54c5764eca5d25 |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:27 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline proofs; Robert 2026-10-04 17:13 asked for per-game tuning tools and approved all recommendations
+- 2026-10-04 18:09 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-knob-store-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
