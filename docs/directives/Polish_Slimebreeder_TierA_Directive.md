@@ -139,15 +139,18 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-slimebreeder-tiera-directive |
 | Base branch | - |
 | Base commit | 2977b45b5731455ee2d7e51bacee99ded9a4d8e3 |
+| Head commit | 09513b8753e5d777116be3f56e079e9a5f3dce34 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/slimebreeder/SCOPE.md (Robert 2026-10-04: frozen origin exhibit)
 - 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved — lint override: sole error(s) are files the run creates (ts/tests/test_slimebreeder_blurb.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 - 2026-10-04 16:51 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-slimebreeder-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 16:52 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-slimebreeder-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 17:03 · devin · In progress → Review — Blurb rewritten + test_slimebreeder_blurb.ts added; Python 3.12.12; vitest 1 file/6 tests passed; regression manifest+registry_export 2 files/8 tests passed; pushed (pre-push hooks green: 975 py, 2481 ts). [origin] spent: devin 10 min est. n/a
 <!-- queue:end -->
