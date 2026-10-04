@@ -9,6 +9,7 @@ import { AuthModal } from './components/AuthModal';
 import { TaskView } from './components/TaskView';
 import { VerificationPanel } from './components/VerificationPanel';
 import { AdminPanel } from './components/AdminPanel';
+import { isAdminUser } from './lib/adminGate';
 import { Shield, Sparkles, User as UserIcon, LogOut, CheckCircle2, ShieldCheck, Crown } from 'lucide-react';
 
 export default function App({ session }: GameRendererProps) {
@@ -178,8 +179,7 @@ export default function App({ session }: GameRendererProps) {
     signOut(auth);
   };
 
-  const adminEmail = env.VITE_ADMIN_EMAIL || 'cheater2478@gmail.com';
-  const showAdminTab = !!user?.email && user.email.toLowerCase() === adminEmail.toLowerCase();
+  const showAdminTab = isAdminUser(user?.email, env.VITE_ADMIN_EMAIL);
 
   const tabBtnCls = (tab: 'task' | 'verification' | 'admin', activeCls: string, idleCls: string) =>
     `px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
