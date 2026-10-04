@@ -211,11 +211,12 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-03 23:58 · claude · none → Queued — wave 1 Tier A directive from docs/demos/ledger/SCOPE.md
+- 2026-10-04 00:03 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (RestartButton.tsx, test_ledger_utils.ts), marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
