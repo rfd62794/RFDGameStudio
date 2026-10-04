@@ -82,8 +82,6 @@ Robert's live checkout.
 In scope, exactly these files:
 
 - `studio_mcp/tools.py` (the deploy function plus one small new helper)
-- `docs/architecture/violations-baseline.txt`: append exactly one line `size: studio_mcp/tools.py`
-  (tools.py is already over the 600-line architecture ratchet; this is pre-authorized for directive runs)
 - `ts/src/games/slimeworld/config.ts` (remove the `source` line)
 - `ts/tests/test_registry_export.ts` (drop the slimeworld entry from `SOURCES`, line 11)
 - `tests/fixtures/demo_lists_snapshot.json` and `tests/test_demos_registry_parity.py` (keep the parity
@@ -182,6 +180,7 @@ paths find none. Record any failure that also fails on a clean main as pre-exist
 - Mark every file you create with `<!-- new: path -->` in your report (and the test file header comment).
 - Do not run `agentflow lint` or any other `agentflow` CLI.
 - Never use `git -C`, `git -c`, `git --git-dir` or `git --work-tree`.
+- `studio_mcp/tools.py` is large (1405 lines): keep new logic in the one small helper described in The work; do not refactor the file and do not create any architecture-baseline file.
 - Update this directive's Status row when you finish or stop partway.
 
 ## 7. Completion criteria
