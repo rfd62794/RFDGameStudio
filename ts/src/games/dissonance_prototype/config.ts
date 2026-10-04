@@ -1,8 +1,8 @@
 import type { GameConfig } from '../../engine/types';
 
 // Legacy/Origin Project — see docs/adr/ADR-023-legacy-origin-projects-type.md.
-// This is "Dissonance Loop Prototype" (tmp/dissonance-src/), the original
-// AI Studio (Gemini API) source that became the live Dissonance Depths
+// This is "Dissonance Loop Prototype" (source in examples/dissonance-prototype/),
+// the original AI Studio source that became the live Dissonance Depths
 // (ts/src/games/dissonance/). Presented here as real origin history, not
 // as a new game competing with the one it led to.
 const config: GameConfig = {
@@ -10,7 +10,7 @@ const config: GameConfig = {
   order: 320,
   label: 'Dissonance Loop Prototype',
   supersededBy: 'dissonance',
-  description: 'Origin project — the original AI Studio (Gemini API) core-loop prototype that became the live Dissonance Depths (ts/src/games/dissonance/). Tested turn-based combat, relation-based combination mechanics, and Locked/Hinted/Discovered stabilization.',
+  description: 'Where Dissonance Depths began: the first version of its turn-based card duels, where cards combine by how their elements relate. Kept as it was built, so you can see how the game grew.',
   color: '#78716c',
   status: 'external',
   genre: 'roguelike',
