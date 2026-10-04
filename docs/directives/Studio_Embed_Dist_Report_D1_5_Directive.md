@@ -167,11 +167,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/studio-embed-dist-report |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 11:22 · agentflow-tick · none → Queued — suggested by heartbeat: Report-only, fully specified; dispatch only after D1.4 (and D1.1) merge, since build-demo.ts doesn't exist yet
+- 2026-10-04 16:52 · devin-cleanroom · Queued → Review — report written (docs/state/Embed_Dist_Report_2026-10-04.md, 46 lines, 6 sections); --all --check exit 1 / 36 lines but 15/15/6 + 2 PROBLEMS vs pasted 14/13/9 + 4: slither_rogue→standalone, filipino_bpo_simulator→bpo_sim(embed), factory_idle→embed; diffs reported in ## Answer
 <!-- queue:end -->
