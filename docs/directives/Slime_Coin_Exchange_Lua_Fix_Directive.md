@@ -198,7 +198,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-exchange-lua-fix-directive |
 | Base branch | - |
@@ -213,4 +213,5 @@ none.
 - 2026-10-04 06:56 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-lua-fix-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 07:00 · devin · In progress → Blocked — ready for controller finish — work complete, verified and committed locally on directive/rfdgamestudio-slime-coin-exchange-lua-fix-directive (commit 0cfd6da6), but `git push -u origin directive/rfdgamestudio-slime-coin-exchange-lua-fix-directive` was refused by the repo's own pre-push hook, unrelated to this change: the hook's Python-test step runs pytest with `-n` (pytest-xdist) and this worktree's pytest rejects it — `python -m pytest: error: unrecognized arguments: -n` (exit 4, 'FAILED: Python tests (slow and e2e excluded)'). Not bypassed per directive. Review status was also refused by the queue until the branch exists on the remote. FINDINGS: logic.lua line 319 fixed one line to `local cost = math.floor(base_cost * cost_growth ^ GAME_STATE.exchanges_used)`; pre-fix run showed all 5 new tests failing with `attempt to call a nil value (field 'pow')`; post-fix `cd ts && npx vitest run test_slime_coin_exchange.ts test_slime_coin_bridge.ts` -> Test Files 2 passed (2), Tests 13 passed (13) (5 new + 8 bridge). Proof run: test_arcade_manifest + test_voiddrift_redux_chrome -> 2 files/14 tests passed. `uv run python --version` -> Python 3.12.12. git status before commit: exactly games/slime_coin/logic.lua (M) + ts/tests/test_slime_coin_exchange.ts (new); git diff is the single line. NEW FILES: ts/tests/test_slime_coin_exchange.ts (marked new in its header comment). Open items for reviewer: update stale header lines 9-11 of test_slime_coin_bridge.ts post-merge; App.tsx label costs [5,8,12] vs charged 5,7,11 and unchecked {error} onClick each need their own directive; browser click-through is reviewer-side. Nothing deployed. Controller action needed: resolve pre-push env (pytest-xdist -n missing) or push with authority, then move to Review.
 - 2026-10-04 07:17 · robert-claude-laptop · Blocked → Review — work complete (0cfd6da6); pushed past the pre-push hook (merge 065a8ab4) after the stale-MCP -n injection blocked the run's own push [origin] spent: devin 3 min est. n/a
+- 2026-10-04 07:19 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
