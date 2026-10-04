@@ -71,7 +71,7 @@ Test tail, per game the keys you made required and any key you left optional bec
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-data-schemas-zod-directive |
 | Base branch | - |
@@ -85,4 +85,5 @@ Test tail, per game the keys you made required and any key you left optional bec
 - 2026-10-04 18:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-data-schemas-zod-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 18:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-data-schemas-zod-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 18:20 · devin-overseer (delegated) · In progress → Review — Done. vitest test_engine_data_schemas.ts: 7/7 pass (3 ok, 3 negative, 1 coverage); tsc --noEmit exit 0; pre-push suite green (975 pytest, 2491 vitest). Required keys per schema: chimera_wilds game/part_slots/parts/baseline_player (part.description left optional — absent on several real parts); horse_racing game/stable/betting/race/horse/coat_colors/silk_colors/race_classes/race_distances/name_prefixes/name_suffixes/race_venues/race_types/starter_horses (coat_colors.rare optional; public_studs passthrough); choke_point game/constants/towers/waves (tower.damage/range optional — blocker lacks them). Easiest next of the 9: slime_coin, wire_rust, slither_rogue (small, flat top-level keys); shoal/slimeworld moderate; brewfield/scrapcrawl/mutant_battle_ball/dissonance larger. [origin] spent: devin 0 min est. n/a
+- 2026-10-04 18:27 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
