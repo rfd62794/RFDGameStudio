@@ -244,7 +244,7 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-exchange-ui-directive |
 | Base branch | - |
@@ -258,4 +258,5 @@ none. Deploying is Robert's.
 - 2026-10-04 07:30 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-ui-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 07:30 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-ui-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 07:40 · devin · In progress → Review — Committed ab4896dd on directive branch (pushed so Review can verify it). Vitest: 15 passed / 3 files (13 baseline + 2 new). Exchange label now shows Lua-exact 5/7/11 via exchangeCost(); error-shaped results no longer treated as success; counter takes authoritative result.exchanges_used. No .lua touched; nothing deployed. [origin] spent: devin 8 min est. n/a
+- 2026-10-04 07:46 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
