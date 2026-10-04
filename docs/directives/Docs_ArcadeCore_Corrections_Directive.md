@@ -156,11 +156,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/docs-voidrift-family |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:23 · devin-cleanroom · Queued → Review — work already merged on main as 42a4d35e; verified target text present at 7efe2dfb; row sync only
 <!-- queue:end -->

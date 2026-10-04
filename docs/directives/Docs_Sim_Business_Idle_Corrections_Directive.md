@@ -182,11 +182,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/docs-voidrift-family |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:23 · devin-cleanroom · Queued → Review — work already merged on main as 98a732e6; verified target text present at 7efe2dfb; row sync only
 <!-- queue:end -->
