@@ -157,3 +157,17 @@ Recommended action: review, merge, then D0.4 reads `counts`.
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 09:26 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
