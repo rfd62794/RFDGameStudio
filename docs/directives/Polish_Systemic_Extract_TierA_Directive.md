@@ -186,11 +186,12 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-systemic-extract-tiera-directive |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — Robert 2026-10-04: add the Restart / New Run control (Tier A) now; hideout loop stays parked
+- 2026-10-04 08:37 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (restart-confirm.ts, RaidRestartButton.tsx, test_systemic_extract_restart.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 <!-- queue:end -->
