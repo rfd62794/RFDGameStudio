@@ -1,9 +1,12 @@
 import { GameFiles, GameSession, RuntimeError } from './types';
 import { loadGameFiles } from './loader';
 import { LuaExecutor } from './executor';
+import { applyDataOverrides, getOverrides } from './tuning';
+import type { Overrides } from './tuning';
 
-export function loadGame(gameId: string, seed: number = 42): GameSession {
+export function loadGame(gameId: string, seed: number = 42, overrides?: Overrides): GameSession {
   const files: GameFiles = loadGameFiles(gameId);
+  applyDataOverrides(files.data, gameId, overrides ?? getOverrides(gameId));
   const executor = new LuaExecutor(files.logic, seed, files.engineSource);
   return { gameId, files, executor };
 }
