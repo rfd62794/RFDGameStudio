@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Simulation } from './simulation';
 import { CanvasRenderer } from './render';
-import { Play, Pause, FastForward, RotateCcw, Sparkles, CheckCircle2, ShieldCheck, Activity, Bug } from 'lucide-react';
+import { Play, Pause, FastForward, RotateCcw, Sparkles, ShieldCheck, Activity, Bug } from 'lucide-react';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -24,7 +24,7 @@ export default function App() {
     idleCount: 0,
   });
 
-  const [testResults, setTestResults] = useState<{ id: number; name: string; status: 'passed' | 'running' | 'idle'; details?: string }[]>([
+  const [testResults] = useState<{ id: number; name: string; status: 'passed' | 'running' | 'idle'; details?: string }[]>([
     { id: 1, name: 'Direct Sensing Priority', status: 'passed', details: 'Ants prioritize direct food over trails' },
     { id: 2, name: 'Trail Following', status: 'passed', details: 'Ants follow trail when no food in direct range' },
     { id: 3, name: 'Pheromone Decay', status: 'passed', details: 'Trail decays gradually over time' },
@@ -148,44 +148,10 @@ export default function App() {
     simRef.current = new Simulation({ width: 900, height: 800 });
   };
 
-  const runLiveAnchorsTest = () => {
-    // Re-verify test suite live
-    const sim = simRef.current;
-    if (!sim) return;
-
-    setTestResults(prev => prev.map(t => ({ ...t, status: 'running' })));
-
-    setTimeout(() => {
-      setTestResults([
-        { id: 1, name: 'Direct Sensing Priority', status: 'passed', details: 'Direct food range always outranks trail lookup' },
-        { id: 2, name: 'Trail Following', status: 'passed', details: 'Ants follow trail above threshold when no food in direct range' },
-        { id: 3, name: 'Pheromone Decay', status: 'passed', details: 'Unreinforced trail decays exponentially' },
-        { id: 4, name: 'Anti-Stacking Protection', status: 'passed', details: 'Origin runaway stacking explicitly bounded by max cell cap' },
-        { id: 5, name: 'Population Growth (Abundance)', status: 'passed', details: 'Food surplus scales spawn progress' },
-        { id: 6, name: 'Population Stabilization (Scarcity)', status: 'passed', details: 'Zero surplus halts population growth cleanly' },
-        { id: 7, name: 'State Bounds Stability', status: 'passed', details: '1000-tick integration run verified crash-free' },
-        { id: 8, name: 'Trail Commitment & Jitter Fix', status: 'passed', details: '0 backward target flips along trail' },
-        { id: 9, name: 'Velocity Alignment Priority', status: 'passed', details: 'Well-aligned cell beats raw off-angle cell' },
-        { id: 10, name: 'Zero-Velocity Degradation', status: 'passed', details: 'Zero-speed ant selects nearby trail gracefully' },
-        { id: 11, name: '5x5 Navigation Stability', status: 'passed', details: '1000-tick 5x5 run completes without error' },
-        { id: 12, name: 'Chambers & Underground Gap', status: 'passed', details: '3 Chambers (Storage, Nursery, Queen) below groundLevelY' },
-        { id: 13, name: 'Tunnel Waypoint Pathing', status: 'passed', details: 'Ant carrying food traces tunnel waypoints to Storage' },
-        { id: 14, name: 'Food Node Depletion & Respawn', status: 'passed', details: 'Depleted node removed, replacement spawned elsewhere' },
-        { id: 15, name: 'Food Count Conservation', status: 'passed', details: 'Active food node count conserved across long run' },
-        { id: 16, name: 'Phase 2a Integration Stability', status: 'passed', details: '1000-tick run with Chambers & Tunnels completes cleanly' },
-        { id: 17, name: 'Statistical Exploration Behavior', status: 'passed', details: 'Independent foraging triggered at ~12% exploration rate' },
-        { id: 18, name: 'Direct Sensing Priority vs Exploration', status: 'passed', details: 'Direct food range unconditionally outranks trail & exploration' },
-        { id: 19, name: 'Nursery Spawning Anchor', status: 'passed', details: 'Newly spawned ant initializes at Nursery Chamber with exit path' },
-        { id: 20, name: 'Queen Entity Static Presence', status: 'passed', details: 'Queen entity occupies Royal Chamber with static 1.0 health' },
-        { id: 21, name: 'Phase 2b Integration Stability', status: 'passed', details: '1000-tick run with Exploration, Nursery & Queen completes cleanly' },
-      ]);
-    }, 400);
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
       {/* Header Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 px-6 py-4 flex items-center justify-between backdrop-blur-md">
+      <header className="border-b border-slate-800 bg-slate-900/80 px-3 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
             <Bug className="w-5 h-5" />
@@ -218,22 +184,22 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5" /> Test Anchors (1-21)
+            <ShieldCheck className="w-3.5 h-3.5" /> Test Anchors (sample list)
           </button>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full flex flex-col gap-6">
+      <main className="flex-1 p-3 sm:p-6 min-w-0 max-w-7xl mx-auto w-full flex flex-col gap-6">
         {activeTab === 'sim' ? (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Canvas View Area (3 Cols) */}
-            <div className="lg:col-span-3 flex flex-col gap-4">
+            <div className="lg:col-span-3 min-w-0 flex flex-col gap-4">
               <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl">
                 <canvas
                   ref={canvasRef}
                   onClick={handleCanvasClick}
-                  className="w-full h-[540px] cursor-crosshair block"
+                  className="w-full h-[320px] sm:h-[540px] cursor-crosshair block"
                 />
 
                 {/* Overlay Hint */}
@@ -244,7 +210,7 @@ export default function App() {
               </div>
 
               {/* Sim Controls Bar */}
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center justify-between shadow-lg">
+              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-lg">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsRunning(!isRunning)}
@@ -262,7 +228,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs">
                   {/* Speed Selector */}
                   <div className="flex items-center gap-1 bg-slate-800/90 p-1 rounded-lg border border-slate-700/60">
                     {[1, 2, 5].map(s => (
@@ -400,22 +366,15 @@ export default function App() {
         ) : (
           /* Test Anchors View */
           <div className="flex flex-col gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  Phase 2b Integration Test Anchors <span className="text-xs text-emerald-400 font-mono">(1-21)</span>
+                  Test Anchors <span className="text-xs text-amber-400 font-mono">(sample list)</span>
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Automated verification suite ensuring priority ordering, decay math, chamber structure, exploration rolls, nursery spawning, and queen entity presence.
+                  A static sample of what the project's test anchors cover. These are descriptions only and are not run in this page. The real checks live in the project's tests (examples/antsim-redux/tests/simulation.test.ts).
                 </p>
               </div>
-
-              <button
-                onClick={runLiveAnchorsTest}
-                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-xl transition flex items-center gap-2 shadow"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> Re-run Test Suite
-              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -423,8 +382,8 @@ export default function App() {
                 <div key={test.id} className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-3">
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-xs font-bold text-slate-500 font-mono">ANCHOR #{test.id}</span>
-                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
-                      <CheckCircle2 className="w-3 h-3" /> PASSED
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/30 font-medium">
+                      SAMPLE
                     </span>
                   </div>
 
