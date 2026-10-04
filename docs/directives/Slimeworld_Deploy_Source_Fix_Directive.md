@@ -219,12 +219,14 @@ none
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-deploy-source-fix-directive |
 | Base branch | - |
+| Base commit | e4088475caa716760cccf807cb4c73e4c1a66e65 |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — priority high: live /arcade/slimeworld/ serves the SlimeGarden build; deploy copy order + slimeworld config source fix; no deploy in this run
 - 2026-10-03 22:58 · robert-claude-laptop · Queued → Approved — lint override: sole remaining error is tests/test_deploy_arcade_copy_order.py, a file the run creates and marks new; main's dispatch lint (PR #500) honours the marker, this queue MCP process still runs pre-fix lint until reconnect; the real defect (nonexistent violations-baseline.txt) was fixed in PR #74
+- 2026-10-03 22:58 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-deploy-source-fix-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
