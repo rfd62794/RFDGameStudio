@@ -253,7 +253,7 @@ is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-gladiator-arena-tiera-directive |
 | Base branch | - |
@@ -268,4 +268,5 @@ is not part of this run.
 - 2026-10-04 02:26 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-gladiator-arena-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 02:32 · devin · In progress → Blocked — Work complete+verified (2 files/31 tests green: 11 new + 20 shell_opening) and committed 75a90e01 locally, but Review refused: push rejected by pre-existing pre-push hook — bare `python -m pytest -n` uses stray system Python lacking pytest-xdist (xdist absent from uv.lock); --no-verify prohibited. Needs Robert: fix hook/env or push manually, then Review.
 - 2026-10-04 02:42 · robert-claude-laptop · Blocked → Review — work complete (75a90e01); pushed past the pre-push hook (merge d3cbf13f) after the stale-MCP -n injection blocked the run's own push [origin] spent: devin 5 min est. n/a
+- 2026-10-04 02:44 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
