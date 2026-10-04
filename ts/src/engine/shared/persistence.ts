@@ -11,6 +11,8 @@
  * malformed JSON, or a dropped/mismatched version all surface as null.
  */
 
+import type { MigrationRegistry } from './saveMigrations';
+
 export interface SaveOptions<T> {
   /** Bump when the shape changes; stale versions are migrated or dropped. */
   version?: number;
@@ -57,4 +59,15 @@ export function clearSave(key: string): void {
   try {
     localStorage.removeItem(key);
   } catch {}
+}
+
+/**
+ * Adapts a MigrationRegistry (saveMigrations.ts) into the SaveOptions.migrate
+ * callback, pinned to the version the caller is loading as.
+ */
+export function registryMigrate<T>(
+  registry: MigrationRegistry,
+  toVersion: number,
+): (old: unknown, fromVersion: number) => T | null {
+  return (old, fromVersion) => registry.migrate(old, fromVersion, toVersion) as T | null;
 }
