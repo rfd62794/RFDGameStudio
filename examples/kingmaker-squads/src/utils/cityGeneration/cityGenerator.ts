@@ -5,7 +5,7 @@ import { assignWards } from './wardAssignment';
 import { computeBuildingDensity, shouldRenderBuildingAt } from './densityModel';
 import { subdivideIntoPlots } from './plotSubdivision';
 import { CAPITAL_HILL_ANCHOR, isInsideOldWall, HOVEL_NAME } from '../../data/worldGeometry';
-import { createUnit, HOUSES } from '../../data/archetypes';
+import { createUnit } from '../../data/archetypes';
 
 export interface CityGeneratorOptions extends PatchGeneratorOptions {
   brokenForcesMap?: Record<string, boolean>; // cellId -> whether defense force collapsed
