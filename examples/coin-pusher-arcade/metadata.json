@@ -1,0 +1,6 @@
+{
+  "name": "Coin Pusher Arcade",
+  "description": "An arcade-style Coin Pusher game featuring drops, combos, wheel spins, special pocket coins, pressure levels, and meta-progression.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

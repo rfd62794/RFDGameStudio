@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoidRift Redux — Cellular Automata Sandbox & Construction</title>
+    <meta name="description" content="Physical cellular automata sandbox and automated construction factory game." />
+    <meta property="og:title" content="VoidRift Redux" />
+    <meta property="og:description" content="Physical cellular automata sandbox and automated construction factory game." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #070913;
+        overflow: hidden;
+        user-select: none;
+      }
+      /* Custom sleek scrollbars */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0b0f19;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #232f48;
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #3b4d75;
+      }
+    </style>
+  </head>
+  <body class="bg-[#070913] text-slate-200">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
