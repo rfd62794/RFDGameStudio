@@ -316,7 +316,7 @@ function exchange()
 
   local base_cost = 5
   local cost_growth = 1.5
-  local cost = math.floor(base_cost * math.pow(cost_growth, GAME_STATE.exchanges_used))
+  local cost = math.floor(base_cost * cost_growth ^ GAME_STATE.exchanges_used)
 
   if GAME_STATE.tokens < cost then
     return {error = 'Insufficient tokens'}
