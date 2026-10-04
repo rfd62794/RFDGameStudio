@@ -200,14 +200,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-particle-sandbox-missing-tests-directive |
 | Base branch | - |
 | Base commit | 77fdba94d78ca1f5b00b360e7329ce845fe130ca |
-| Head commit | - |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: item-9 tests missing from the particle sandbox port (reaction rules, flow, tile round trip, MATERIAL_DEFS)
+- 2026-10-04 05:48 · robert-claude-laptop · Queued → Approved — lint override: all 3 errors are test files the run creates (reactions, flow, tiles_materials), each marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
