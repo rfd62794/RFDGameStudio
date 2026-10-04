@@ -199,11 +199,12 @@ none for the run. After Review and merge, deploying is Robert's separate step. D
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-dissonance-tiera-directive |
 | Base branch | - |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
+- 2026-10-04 00:00 · robert-claude-laptop · Queued → Approved — lint override: all 3 errors are files the run creates (runControls.ts, AbandonRunButton.tsx, test_dissonance_run_controls.ts), each marked with a new-file marker; the author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
