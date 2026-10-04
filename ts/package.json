@@ -20,6 +20,7 @@
     "build:succession": "vite build --config vite.succession.config.ts",
     "build:house_of_kings_collab": "vite build --config vite.house_of_kings_collab.config.ts",
     "build:choke_point": "vite build --config vite.choke_point.config.ts",
+    "build:slither_rogue": "vite build --config vite.slither_rogue.config.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"

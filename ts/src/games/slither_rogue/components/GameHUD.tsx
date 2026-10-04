@@ -110,8 +110,8 @@ export default function GameHUD({
             <button onClick={onTogglePause} className="sr-hud-btn" title={isPaused ? 'Resume' : 'Pause'}>
               {isPaused ? <Play className="sr-icon-sm sr-color-emerald" /> : <Pause className="sr-icon-sm" />}
             </button>
-            <button onClick={onReset} className="sr-hud-btn" title="Restart">
-              <RotateCcw className="sr-icon-sm" />
+            <button onClick={onReset} className="sr-hud-btn sr-hud-btn--text" title="Restart this run">
+              <RotateCcw className="sr-icon-sm" /> Restart
             </button>
             <button onClick={onToggleMute} className="sr-hud-btn" title={soundMuted ? 'Unmute Audio' : 'Mute Audio'}>
               {soundMuted ? <VolumeX className="sr-icon-sm" /> : <Volume2 className="sr-icon-sm sr-color-emerald" />}
