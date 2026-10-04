@@ -158,12 +158,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-adapter-contract-directive |
 | Base branch | - |
+| Base commit | 8d0dd6bf4af5c252c5daaaba327e168ba73c988d |
 
 **Status log**
 - 2026-10-04 17:46 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:47 · robert-claude-laptop · Queued → Approved — lint override: cited ts/src/engine/playtest paths are new files this directive creates
+- 2026-10-04 18:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adapter-contract-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
