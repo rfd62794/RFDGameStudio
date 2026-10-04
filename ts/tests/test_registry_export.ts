@@ -13,6 +13,7 @@ const SOURCES: Record<string, unknown> = {
   antsim_redux: { kind: 'example', slug: 'antsim-redux' },
   facility_escape: { kind: 'example', slug: 'facility-escape' },
   systemic_extract: { kind: 'example', slug: 'systemic-extract' },
+  coin_pusher_arcade: { kind: 'example', slug: 'coin-pusher-arcade' },
 };
 
 describe('registry export', () => {
