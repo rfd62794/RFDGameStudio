@@ -127,11 +127,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync-batch2 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:19 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified S-size status-board edit + test; Devin-shaped, no sandbox needs.
+- 2026-10-04 18:00 · devin · Queued → Review — already merged on main as 9afc0621 (PR #156, 'parked' status + docs verified); row sync only
 <!-- queue:end -->

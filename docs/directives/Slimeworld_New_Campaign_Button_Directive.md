@@ -147,11 +147,12 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync-batch2 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
+- 2026-10-04 18:00 · devin · Queued → Review — already merged on main as b4385ce8 (PR #162, visible New Campaign entry verified); row sync only
 <!-- queue:end -->
