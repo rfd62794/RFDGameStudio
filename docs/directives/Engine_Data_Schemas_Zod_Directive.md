@@ -65,3 +65,17 @@ Tests green, tsc exit 0, markers present, loader untouched; Status row notes the
 ## 8. Report
 
 Test tail, per game the keys you made required and any key you left optional because the data was inconsistent, and which of the 9 remaining games look easiest next.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 17:33 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
