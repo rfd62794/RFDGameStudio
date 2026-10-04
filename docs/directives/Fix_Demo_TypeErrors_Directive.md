@@ -169,14 +169,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-fix-demo-typeerrors-directive |
 | Base branch | - |
-| Base commit | 77fdba94d78ca1f5b00b360e7329ce845fe130ca |
+| Base commit | 910c233ab5b761e49af1fb0763c179cd2b5b3a30 |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: tsc errors the vitest-only pre-push hook never caught (facility_escape blurb test, ledger utils unused variables)
 - 2026-10-04 05:46 · robert-claude-laptop · Queued → Approved
+- 2026-10-04 05:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-fix-demo-typeerrors-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
