@@ -46,7 +46,7 @@ it does not re-plan it.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-revamp-succession-continue-directive |
 | Base branch | - |
@@ -57,4 +57,5 @@ it does not re-plan it.
 - 2026-09-28 21:57 · devin-overseer (delegated) · Queued → Approved
 - 2026-09-29 19:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-revamp-succession-continue-directive; copied ts/src/games/game-metadata.json; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-09-29 19:51 · devin-overseer (delegated) · In progress → Review — ADR-007 figure-locked persuasion methods (Chancellor=evidence 2x, Archbishop=whisper 2x, Commander=appeal 2x; non-locked 0.25x floored at 1) + first-run CourtPrimer via shared OnboardingGate. Harness: 7 strategies x 3 origins, LockedLanes wins >=1 per origin (no hopeless lane). tsc clean, vitest 2006 pass, production build green, pushed. [origin] spent: devin 0 min est. n/a
+- 2026-10-04 08:16 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
