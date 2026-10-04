@@ -107,7 +107,7 @@ export default function App({ session }: GameRendererProps) {
 
   const triggerEvolutionChoice = () => {
     setIsPaused(true);
-    const pool = call(session, 'select_evolution_pool', data['evolution_cards'], cardsOffered) as Array<Record<string, unknown>>;
+    const pool = call(session, 'select_evolution_pool', data['evolution_cards'], cardsOffered)[0] as Array<Record<string, unknown>>;
     const cards: EvolutionCard[] = pool.map(c => ({
       id: c['id'] as string,
       title: c['title'] as string,
@@ -122,7 +122,7 @@ export default function App({ session }: GameRendererProps) {
 
   const handleFruitEaten = () => {
     setFruitsEatenSinceEvolution(prev => {
-      const shouldEvolve = call(session, 'check_evolution_trigger', prev, fruitsPerLevel) as unknown as boolean;
+      const shouldEvolve = call(session, 'check_evolution_trigger', prev, fruitsPerLevel)[0] as boolean;
       if (shouldEvolve) {
         triggerEvolutionChoice();
         return 0;

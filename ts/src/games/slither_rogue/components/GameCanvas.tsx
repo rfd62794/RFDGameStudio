@@ -126,7 +126,7 @@ export default function GameCanvas({
         arrowup:    !!s.keys['arrowup'],   arrowdown:  !!s.keys['arrowdown'],
         arrowleft:  !!s.keys['arrowleft'], arrowright: !!s.keys['arrowright'],
       },
-    }) as unknown as RenderState;
+    })[0] as RenderState;
 
     for (const ev of (rs.events || [])) {
       if (ev.type === 'fruit_eaten') {
