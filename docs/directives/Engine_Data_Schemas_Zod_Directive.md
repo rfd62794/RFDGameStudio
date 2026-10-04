@@ -71,12 +71,14 @@ Test tail, per game the keys you made required and any key you left optional bec
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-data-schemas-zod-directive |
 | Base branch | - |
+| Base commit | 7c2e075dcaca3856f817d720f67804a846310cf2 |
 
 **Status log**
 - 2026-10-04 17:33 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:46 · robert-claude-laptop · Queued → Approved — lint override: cited paths are the new files this directive creates (Scope lists them under 'create'), not missing inputs
+- 2026-10-04 18:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-data-schemas-zod-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
