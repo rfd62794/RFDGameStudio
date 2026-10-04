@@ -353,12 +353,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-studio-registry-glob-d1-1-directive |
 | Base branch | - |
+| Base commit | bba6c7f4a70d47244cf40ceb4b13a693ce9d941e |
 
 **Status log**
 - 2026-10-04 10:47 · robert-claude-laptop · none → Queued
 - 2026-10-04 10:48 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs
+- 2026-10-04 11:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-registry-glob-d1-1-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
