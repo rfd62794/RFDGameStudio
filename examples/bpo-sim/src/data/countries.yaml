@@ -1,0 +1,137 @@
+# new: examples/bpo-sim/src/data/countries.yaml
+#
+# Countries a BPO Sim player can choose to run their operation from.
+# Every number is a game-balance value for variety, not a statistic. Countries differ ONLY in the six
+# business attributes below; each one trades something off against something else.
+#
+#   laborCostIndex       1.00 = baseline wage bill. Lower is cheaper.            range 0.4 to 1.8
+#   talentPoolIndex      1.00 = baseline hiring pool. Higher means more people.  range 0.3 to 1.8
+#   clientOverlap        share of a day shared with a US-based client, 0 to 1.   range 0 to 1
+#   connectivityRisk     chance scale for network outages. Lower is steadier.    range 0.05 to 0.40
+#   attritionRate        share of agents who leave over a year.                  range 0.10 to 0.60
+#   regulatoryOverhead   share of each call payout lost to compliance work.      range 0 to 0.20
+#
+# To add a country, add one entry here. Nothing else in the game names a country.
+
+version: 1
+countries:
+  - id: philippines
+    name: Philippines
+    region: Southeast Asia
+    blurb: "A deep talent pool and moderate costs, with little overlap with US business hours."
+    laborCostIndex: 0.8
+    talentPoolIndex: 1.4
+    clientOverlap: 0.05
+    connectivityRisk: 0.14
+    attritionRate: 0.32
+    regulatoryOverhead: 0.04
+  - id: india
+    name: India
+    region: South Asia
+    blurb: "The biggest talent pool and the lowest wage bill, with the least overlap with US business hours."
+    laborCostIndex: 0.6
+    talentPoolIndex: 1.7
+    clientOverlap: 0.02
+    connectivityRisk: 0.16
+    attritionRate: 0.38
+    regulatoryOverhead: 0.05
+  - id: malaysia
+    name: Malaysia
+    region: Southeast Asia
+    blurb: "Steady networks and a stable workforce, at mid-range costs and a smaller pool."
+    laborCostIndex: 1.0
+    talentPoolIndex: 0.8
+    clientOverlap: 0.03
+    connectivityRisk: 0.08
+    attritionRate: 0.22
+    regulatoryOverhead: 0.07
+  - id: vietnam
+    name: Vietnam
+    region: Southeast Asia
+    blurb: "Low costs and a fast-growing pool, with some network wobbles and little client overlap."
+    laborCostIndex: 0.7
+    talentPoolIndex: 0.9
+    clientOverlap: 0.03
+    connectivityRisk: 0.16
+    attritionRate: 0.3
+    regulatoryOverhead: 0.04
+  - id: poland
+    name: Poland
+    region: Central Europe
+    blurb: "Reliable networks and low turnover, at higher wages and with a partial overlap with US hours."
+    laborCostIndex: 1.5
+    talentPoolIndex: 0.9
+    clientOverlap: 0.35
+    connectivityRisk: 0.07
+    attritionRate: 0.16
+    regulatoryOverhead: 0.11
+  - id: romania
+    name: Romania
+    region: Eastern Europe
+    blurb: "Good networks and mid-range wages, with a smaller pool and some overlap with US hours."
+    laborCostIndex: 1.2
+    talentPoolIndex: 0.7
+    clientOverlap: 0.3
+    connectivityRisk: 0.08
+    attritionRate: 0.18
+    regulatoryOverhead: 0.1
+  - id: egypt
+    name: Egypt
+    region: North Africa
+    blurb: "Very low wages and a sizable pool, with a modest overlap with US hours and more paperwork."
+    laborCostIndex: 0.6
+    talentPoolIndex: 0.9
+    clientOverlap: 0.2
+    connectivityRisk: 0.15
+    attritionRate: 0.28
+    regulatoryOverhead: 0.09
+  - id: south-africa
+    name: South Africa
+    region: Southern Africa
+    blurb: "A solid mid-size pool and a useful overlap with US hours, with some outage risk."
+    laborCostIndex: 0.9
+    talentPoolIndex: 0.7
+    clientOverlap: 0.25
+    connectivityRisk: 0.2
+    attritionRate: 0.25
+    regulatoryOverhead: 0.08
+  - id: kenya
+    name: Kenya
+    region: East Africa
+    blurb: "Among the lowest wages and a young, growing pool, at a smaller scale and with some outage risk."
+    laborCostIndex: 0.55
+    talentPoolIndex: 0.5
+    clientOverlap: 0.15
+    connectivityRisk: 0.19
+    attritionRate: 0.26
+    regulatoryOverhead: 0.05
+  - id: colombia
+    name: Colombia
+    region: South America
+    blurb: "Full overlap with US hours and a growing pool, at mid-range costs."
+    laborCostIndex: 0.9
+    talentPoolIndex: 0.9
+    clientOverlap: 0.95
+    connectivityRisk: 0.15
+    attritionRate: 0.27
+    regulatoryOverhead: 0.06
+  - id: mexico
+    name: Mexico
+    region: North America
+    blurb: "Almost full overlap with US hours and a big pool, at somewhat higher costs."
+    laborCostIndex: 1.1
+    talentPoolIndex: 1.2
+    clientOverlap: 0.9
+    connectivityRisk: 0.12
+    attritionRate: 0.3
+    regulatoryOverhead: 0.07
+  - id: costa-rica
+    name: Costa Rica
+    region: Central America
+    blurb: "Full overlap with US hours and steady service, with a small pool and higher wages."
+    laborCostIndex: 1.25
+    talentPoolIndex: 0.4
+    clientOverlap: 0.9
+    connectivityRisk: 0.09
+    attritionRate: 0.2
+    regulatoryOverhead: 0.06
