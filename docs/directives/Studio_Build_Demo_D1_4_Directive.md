@@ -536,7 +536,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-studio-build-demo-d1-4-directive |
 | Base branch | - |
@@ -548,4 +548,5 @@ none.
 - 2026-10-04 12:19 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-build-demo-d1-4-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 12:20 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-build-demo-d1-4-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 12:39 · devin-overseer (delegated) · In progress → Blocked — Sandbox refused every runner for the --check CLI (cd ts && npx vite-node, npx vite-node, npm run build:demo -- all refused). Work is complete, committed 32769fb4 and pushed; vitest 13/13, tsc clean, full pre-push suite green. Needs the 3 --check lines + choke_point build run on the laptop to finish Review.
+- 2026-10-04 12:47 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->
