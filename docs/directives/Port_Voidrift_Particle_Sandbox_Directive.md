@@ -76,7 +76,7 @@ Line counts that matter (all in `src/`): `examples/voidrift-redux-particle-sandb
   chrome/wiring tests read component source with `readFileSync(resolve(import.meta.dirname, '../src/games/<id>/App.tsx'), 'utf8')`
   (see `ts/tests/test_voiddrift_redux_chrome.ts`). Game logic must be pure (no I/O, no rendering) so it is unit-testable.
 - Real test command (verified on the base commit, run from the worktree root):
-  `cd ts && npx vitest run ts/tests/test_artgen_seeded_random.ts` printed `Test Files 1 passed (1)`, `Tests 2 passed (2)`,
+  `cd ts && npx vitest run test_artgen_seeded_random.ts` printed `Test Files 1 passed (1)`, `Tests 2 passed (2)`,
   `Duration 23.08s`. Expect ~25-45 s startup per invocation. Run only your own test files, one invocation at a time.
 - Type check: `cd ts && npx tsc --noEmit -p .` (npm run build runs `tsc` first). Do not run the full `npm test` suite more than once, at the end.
 - Repo convention (AGENTS.md): do not add or remove comments in existing code unless asked; files you write stay under 600 lines;
@@ -126,12 +126,12 @@ Gameplay and simulation behaviour must match the example. This is a port, not a 
 Run from the worktree root and paste real output tails in the report:
 
 ```
-cd ts && npx vitest run ts/tests/test_voidrift_particle_sandbox_sim.ts ts/tests/test_voidrift_particle_sandbox_registry.ts
-cd ts && npx vitest run ts/tests/test_arcade_registry_directive.ts ts/tests/test_arcade_manifest.ts ts/tests/test_arcade_metadata_expansion.ts
+cd ts && npx vitest run test_voidrift_particle_sandbox_sim.ts test_voidrift_particle_sandbox_registry.ts
+cd ts && npx vitest run test_arcade_registry_directive.ts test_arcade_manifest.ts test_arcade_metadata_expansion.ts
 cd ts && npx tsc --noEmit -p .
 ```
 
-Baseline for the command shape (verified): `cd ts && npx vitest run ts/tests/test_artgen_seeded_random.ts` gives `Tests 2 passed (2)` in about 23 s. Then run `cd ts && npm test` once at the end and report passing and failing counts; failures that also fail on the base commit are reported, not fixed. Also report `wc -l` of every file you created (all under 600).
+Baseline for the command shape (verified): `cd ts && npx vitest run test_artgen_seeded_random.ts` gives `Tests 2 passed (2)` in about 23 s. Then run `cd ts && npm test` once at the end and report passing and failing counts; failures that also fail on the base commit are reported, not fixed. Also report `wc -l` of every file you created (all under 600).
 
 ## 6. Rules for this run
 
