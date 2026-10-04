@@ -454,12 +454,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6 |
 | Base branch | - |
+| Base commit | 4930b0d3fa8acaed7a74dae8b12172507430344d |
 
 **Status log**
 - 2026-10-04 16:23 · robert-claude-laptop · none → Queued
 - 2026-10-04 16:24 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline+after proofs; Robert 2026-10-04 BPO Sim non-racist direction; lint FP fixes merged in AgentFlow #534
+- 2026-10-04 17:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
