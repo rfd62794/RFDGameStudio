@@ -439,4 +439,19 @@ describe('VoidDrift external entry', () => {
     expect(text).toContain('itch.io');
     root.unmount();
   });
+
+  it('test_voiddrift_card_says_full_game_on_itch_and_embed', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(React.createElement(GameSelector));
+    });
+    const card = Array.from(container.querySelectorAll('.arcade-card')).find(
+      c => c.textContent?.includes('A mining simulation at the edge of a black hole')
+    );
+    expect(card).toBeDefined();
+    expect(card!.textContent).toContain('Full game on itch.io');
+    expect(card!.textContent).toContain('plays here as an embed');
+    root.unmount();
+  });
 });

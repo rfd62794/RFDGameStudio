@@ -74,7 +74,7 @@ export default function GameSelector() {
     const map: Record<string, string> = {};
     for (const config of GAME_REGISTRY) {
       if (config.externalUrl && config.embedUrl) {
-        map[config.gameId] = 'Rust/Bevy · itch.io';
+        map[config.gameId] = 'Full game on itch.io · plays here as an embed · Rust/Bevy';
         continue;
       }
       if (config.embedUrl) {
