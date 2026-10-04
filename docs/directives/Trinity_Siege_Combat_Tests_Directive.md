@@ -244,15 +244,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-trinity-siege-combat-tests-directive |
 | Base branch | - |
 | Base commit | 9b694c0568f6d3952d505b915faf9c5a0260a100 |
+| Head commit | f669b77061c7bc5d3bd1b65c711e70563b0f21ae |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:37 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534 pending); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 14:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-combat-tests-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 14:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-combat-tests-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 15:03 · devin · In progress → Review — Complete, verified, committed f669b770 and pushed (pre-push suite green: 975 py + 2381 ts + 16 shoal_y8 build tests). FINDINGS: combat table is sound — test_trinity_siege_combat.ts 12/12 pass (shape RPS cycle symmetric, RACE_LEAN 1.0/1.0, selectBestDefender picks counter, resolvePaired breach/both_die/counter-wins/wall-doubles, wave-5 winnable) — the 'fabricated logic' worry is closed. Board row corrected to active hex-ring embed. DEVIATION (directive predates a refactor): the trinity_siege row was moved verbatim out of board.data.ts into ts/src/status/demoOverlay.ts by commit 5bf2bab7 (D1.2: demo rows generated from GAME_REGISTRY); edited it there — the generated STATUS_BOARD row is identical to the directive's replacement (id from registry key, DemoOverlay type omits id). No other file touched. BASELINE: board test failed first (status_unconfirmed / 'Bevy vs. egui'), combat 12/12 green. AFTER: cd ts && npx vitest run test_trinity_siege_combat.ts test_board_row_trinity_siege.ts test_trinity_siege_blurb.ts test_status_board.ts test_site_status_pages.ts test_generate_site_status_pages.ts -> Test Files 6 passed (6), Tests 52 passed (52). uv run python --version -> 3.12.12. PUSH NOTE: first push rejected by pre-push hook — dispatcher's leaked PYTEST_ADDOPTS='--basetemp=<AgentFlow path> -n 2' hits pytest without xdist (same wall as Polish_* and Slime_Coin directives); retried with PYTEST_ADDOPTS='--basetemp=<same path>' only — hook then ran full suite green. Second attempt with var fully cleared surfaced a real env-coupled test: test_check_cross_pipeline_counts_strings fails when pytest basetemp sits inside the git repo (.devin-scratch/tmp) — _count_occurrences' git ls-files short-circuits and never walks tmp files; passes with external basetemp. Not code-related to this diff; flag for a future directive if it bites again. Recommended: review, merge; then Trinity_Siege_Why_It_Won_Directive; then regenerate docs/state/StatusBoard.md (controller finish). [origin] spent: devin 18 min est. n/a
 <!-- queue:end -->
