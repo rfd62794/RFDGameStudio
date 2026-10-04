@@ -228,15 +228,18 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-gladiator-hide-balance-lab-and-bl-fd1310 |
 | Base branch | - |
 | Base commit | 1e7b61e30a830ae8c37143af98fb7003a77857b4 |
+| Head commit | cd616c27544c281bf1c898368d98c77aa25b0f62 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:17 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 13:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-gladiator-hide-balance-lab-and-bl-fd1310; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 13:59 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-gladiator-hide-balance-lab-and-bl-fd1310; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 14:10 · devin · In progress → Review — Balance Lab gated behind ?dev=1 (nav button + view), blurb replaced; vitest 3 files/38 passed, tsc 0 errors; commit cd616c27 pushed; browser check (4 vs 5 tabs) left for controller. [origin] spent: devin 10 min est. n/a
 <!-- queue:end -->
