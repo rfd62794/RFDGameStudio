@@ -63,3 +63,17 @@ All three test files green, tsc exit 0, markers present, no game folder changed;
 ## 8. Report
 
 Test tails, the exact fallback copy shown to players, and any a11y choice made (focus, aria-live) for Robert to judge on a phone.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 17:32 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
