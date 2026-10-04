@@ -156,12 +156,11 @@ Findings first: the test file's coverage, any engine behaviour that differed fro
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
-| Base commit | - |
-| Head commit | - |
 
 **Status log**
+- 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: sole error is ts/tests/test_voiddrift_redux_engine.ts, a file the run creates and marks new; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
