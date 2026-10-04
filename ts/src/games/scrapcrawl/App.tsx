@@ -21,7 +21,9 @@ import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sound } from './utils/sound';
+import { newRun, applyFight, applyMove, fightRoomIds } from './utils/runEnd';
 import CrawlPrimer from './components/CrawlPrimer';
+import RunEndScreen from './components/RunEndScreen';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Room, PlayerState, FightResult, ScrapCrawlGameState, GearSlot } from './types';
 import './styles.css';
@@ -48,6 +50,7 @@ function buildInitialState(session: GameSession): ScrapCrawlGameState {
     currentRoom: rooms[player.currentRoomId] ?? rooms.home_base,
     combatHistory: [],
     message: '',
+    run: newRun(),
   };
 }
 
@@ -107,7 +110,7 @@ export default function App({ session }: GameRendererProps) {
   const canCraft = state?.currentRoom.interaction_types?.includes('craft') ?? false;
 
   const handleFight = useCallback(() => {
-    if (!state || !canFight) return;
+    if (!state || !canFight || state.run.outcome !== 'playing') return;
     const roll = Math.floor(Math.random() * 20) + 1;
     const result = call('resolve_fight', data, state.player, state.currentRoom, roll) as FightResult | null;
     if (!result) return;
@@ -129,11 +132,12 @@ export default function App({ session }: GameRendererProps) {
       lastResult: result,
       combatHistory: pushLog(prev, log),
       message: result.won ? 'Combat won' : 'Combat lost',
+      run: applyFight(prev.run, rooms, prev.currentRoom.id, result.won),
     } : prev);
-  }, [state, canFight, call, data, setState]);
+  }, [state, canFight, call, data, rooms, setState]);
 
   const handleMove = useCallback((roomId: string) => {
-    if (!state) return;
+    if (!state || state.run.outcome !== 'playing') return;
     const next = call('move_player', data, state.player, roomId) as PlayerState | null;
     if (!next) return;
     sound.playMove();
@@ -143,11 +147,12 @@ export default function App({ session }: GameRendererProps) {
       currentRoom: rooms[next.currentRoomId] ?? prev.currentRoom,
       combatHistory: pushLog(prev, `[MOVE] ${prev.currentRoom.name} → ${rooms[roomId]?.name ?? roomId}`),
       message: `Moved to ${rooms[roomId]?.name ?? roomId}`,
+      run: applyMove(prev.run, rooms, next.currentRoomId),
     } : prev);
   }, [state, call, data, rooms, setState]);
 
   const handleCraft = useCallback((catalogId: string, tier?: number) => {
-    if (!state || !canCraft) return;
+    if (!state || !canCraft || state.run.outcome !== 'playing') return;
     const next = call('craft', data, state.player, state.currentRoom, catalogId, tier) as PlayerState | null;
     if (!next) return;
     const entry = getCatalogEntry(data, catalogId);
@@ -168,6 +173,11 @@ export default function App({ session }: GameRendererProps) {
     if (!hasOnboarded) triggerPrimer();
     setShowTitle(false);
   }, [hasOnboarded, triggerPrimer]);
+
+  const handleRestart = useCallback(() => {
+    sound.playUiConfirm();
+    setState(buildInitialState(session));
+  }, [session, setState]);
 
   const handlePrimerBegin = useCallback(() => {
     writeSave('scrapcrawl_tutorial_seen', true);
@@ -234,6 +244,34 @@ export default function App({ session }: GameRendererProps) {
     );
   }
 
+  if (state.run.outcome !== 'playing') {
+    return (
+      <GameShell
+        gameLabel="SCRAPCRAWL"
+        gameId="scrapcrawl"
+        phase="PHASE A.1"
+        mode={mode}
+        arcadeBaseUrl={arcadeBaseUrl}
+        footer={
+          <MoreGamesByMe
+            mode={mode}
+            currentGameId="scrapcrawl"
+            games={STANDALONE_BUILD_GAMES}
+            onSelectGame={navigateTo}
+            arcadeBaseUrl={arcadeBaseUrl}
+          />
+        }
+      >
+        <RunEndScreen
+          run={state.run}
+          totalRooms={fightRoomIds(rooms).length}
+          scrap={state.player.scrap}
+          onRestart={handleRestart}
+        />
+      </GameShell>
+    );
+  }
+
   const { player, currentRoom, lastResult, combatHistory } = state;
 
   return (
@@ -246,6 +284,8 @@ export default function App({ session }: GameRendererProps) {
           <Badge label={`Scrap ${String(player.scrap).padStart(3, '0')}`} variant="accent" />
           <Badge label={player.tier2Unlocked ? 'Tier 2 ACTIVE' : 'Tier 2 LOCKED'} variant={player.tier2Unlocked ? 'green' : 'muted'} />
           <Badge label={`Room ${currentRoom.name}`} variant="accent" />
+          <Badge label={`HP ${state.run.hp}/${state.run.maxHp}`} variant="red" />
+          <Badge label={`Cleared ${state.run.clearedRoomIds.length}/${fightRoomIds(rooms).length}`} variant="green" />
           <div className="sc-gear-hud" title="Equipped gear durability — breaks at 0 life">
             {SLOTS.map(({ key, label }) => {
               const item = player.equipped[key];
