@@ -6,7 +6,7 @@ export const gladiatorArenaConfig: GameConfig = {
   order: 240,
   moreGames: true,
   label:       'Gladiator Arena',
-  description: 'Assemble cyber-organic gladiator frames. Manage your roster across a 5-tier champion ladder. Turn-based tactical combat with continuous anatomy damage, Blood Bowl recoil, and agent-driven decision AI.',
+  description: 'Build cyber-organic gladiator frames, manage your roster and climb a five-tier champion ladder. You never swing the sword: you decide what it is attached to. Bouts play out on their own, with real wounds, repairs and a rematch always waiting.',
   color:       '#f59e0b',
   status:      'dev',
   genre:       'combat-arena',
