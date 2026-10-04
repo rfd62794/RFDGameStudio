@@ -347,3 +347,17 @@ and regenerates derived files.
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 10:47 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
