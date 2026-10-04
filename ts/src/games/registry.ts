@@ -1,97 +1,18 @@
 import type { GameConfig } from '../engine/types';
-import dissonanceConfig from './dissonance/config';
-import { slimeworldConfig } from './slimeworld/config';
-import shoalConfig from './shoal/config';
-import voiddriftConfig from './voiddrift/config';
-import { horseRacingConfig } from './horse_racing/config';
-import { slitherRogueConfig } from './slither_rogue/config';
-import { mutantBattleBallConfig } from './mutant_battle_ball/config';
-import { slimeCoinConfig } from './slime_coin/config';
-import { chimeraWildsConfig } from './chimera_wilds/config';
-import { scrapcrawlConfig } from './scrapcrawl/config';
-import { wire_rustConfig } from './wire_rust/config';
-import { chokePointConfig } from './choke_point/config';
-import { filipinoBpoSimulatorConfig } from './filipino_bpo_simulator/config';
-import ledgerConfig from './ledger/config';
-import trinitySiegeConfig from './trinity_siege/config';
-import sevenDaysToFryConfig from './7_days_to_fry/config';
-import antsimReduxConfig from './antsim_redux/config';
-import facilityEscapeConfig from './facility_escape/config';
-import systemicExtractConfig from './systemic_extract/config';
-import factoryIdleConfig from './factory_idle/config';
-import { planetofgreedConfig } from './planetofgreed/config';
-import planetforgeConfig from './planetforge/config';
-import { gladiatorArenaConfig } from './gladiator_arena/config';
-import voiddriftReduxConfig from './voiddrift_redux/config';
-import voidriftParticleSandboxConfig from './voidrift_particle_sandbox/config';
-import successionConfig from './succession/config';
-import houseOfKingsCollabConfig from './house_of_kings_collab/config';
-import { characterViewerConfig } from './character_viewer/config';
-import { techniqueShowcaseConfig } from './technique_showcase/config';
-import { roleSymbolViewerConfig } from './role_symbol_viewer/config';
-import dissonancePrototypeConfig from './dissonance_prototype/config';
-import slimegardenConfig from './slimegarden/config';
-import slimebreederConfig from './slimebreeder/config';
-import corpworldConfig from './corpworld/config';
-import kingmakerSquadsConfig from './kingmaker_squads/config';
-// demos:imports:begin — imports added by `studio_mcp.demos import` (keep this pair)
-import { coinPusherArcadeConfig } from './coin_pusher_arcade/config';
-// demos:imports:end
-
-// Legacy/Origin Projects (ADR-023, Aug 23 2026): real material that
-// predates and became a currently-live game, registered here as real
-// origin history — not as new games competing with what they became.
-//   - dissonance_prototype: original AI Studio source → Dissonance Depths
-//   - slimegarden + slimebreeder: merged → SlimeWorld
-//   - corpworld + kingmaker_squads: superseded → Planet of Greed
-// Reuses status: 'external'; lineage is the `supersededBy` field (Sep 18 2026),
-// which the studio app shows as an "Origin" tag and the site uses for its
-// Origins section — no new GameStatus value; see the ADR for why.
+import { collectConfigs } from './collectConfigs';
 
 /**
- * Formal game registry. Add new games here.
- * Order determines display order in any future game selector UI.
+ * Formal game registry, collected from every ./<id>/config.ts (default export).
+ * Add a game by adding its config.ts; display order is the config's `order`.
+ * The negative patterns are configs that exist but are deliberately not listed (see UNREGISTERED in
+ * tests/test_arcade_registry_directive.ts).
  */
-export const GAME_REGISTRY: GameConfig[] = [
-  dissonanceConfig,
-  slimeworldConfig,
-  shoalConfig,
-  voiddriftConfig,
-  horseRacingConfig,
-  slitherRogueConfig,
-  mutantBattleBallConfig,
-  slimeCoinConfig,
-  chimeraWildsConfig,
-  scrapcrawlConfig,
-  wire_rustConfig,
-  chokePointConfig,
-  filipinoBpoSimulatorConfig,
-  // demos:begin — AI Studio example demos; the importer appends above demos:end
-  ledgerConfig,
-  trinitySiegeConfig,
-  sevenDaysToFryConfig,
-  antsimReduxConfig,
-  facilityEscapeConfig,
-  systemicExtractConfig,
-  coinPusherArcadeConfig,
-  // demos:end
-  factoryIdleConfig,
-  planetofgreedConfig,
-  planetforgeConfig,
-  gladiatorArenaConfig,
-  voiddriftReduxConfig,
-  voidriftParticleSandboxConfig,
-  successionConfig,
-  houseOfKingsCollabConfig,
-  characterViewerConfig,
-  techniqueShowcaseConfig,
-  roleSymbolViewerConfig,
-  dissonancePrototypeConfig,
-  slimegardenConfig,
-  slimebreederConfig,
-  corpworldConfig,
-  kingmakerSquadsConfig,
-];
+export const GAME_REGISTRY: GameConfig[] = collectConfigs(
+  import.meta.glob<{ default: GameConfig }>(
+    ['./*/config.ts', '!./brewfield/config.ts', '!./early_learning_buddy/config.ts'],
+    { eager: true },
+  ),
+);
 
 /**
  * Look up a game config by ID. Returns undefined if not found.

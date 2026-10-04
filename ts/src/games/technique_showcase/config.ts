@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const techniqueShowcaseConfig: GameConfig = {
   gameId:      'technique_showcase',
+  order: 300,
   label:       'Technique Showcase',
   description: 'Side-by-side comparison of all Paper Doll rendering techniques through the real production composer. Each technique is an independent panel with its own sliders and color controls.',
   color:       '#10b981',
@@ -12,3 +13,5 @@ export const techniqueShowcaseConfig: GameConfig = {
   tags:        ['sandbox-tool', 'rendering-comparison'],
   component:   React.lazy(() => import('./App')),
 };
+
+export default techniqueShowcaseConfig;

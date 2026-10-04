@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const scrapcrawlConfig: GameConfig = {
   gameId: 'scrapcrawl',
+  order: 100,
   label: 'ScrapCrawl',
   description: 'Room navigation, scrap economy, craft, and D20 combat with win-only proficiency.',
   color: '#f59e0b',
@@ -11,3 +12,5 @@ export const scrapcrawlConfig: GameConfig = {
   tags: ['crafting', 'dungeon-crawl'],
   component: React.lazy(() => import('./App')),
 };
+
+export default scrapcrawlConfig;

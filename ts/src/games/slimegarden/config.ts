@@ -6,6 +6,7 @@ import type { GameConfig } from '../../engine/types';
 // history, not as a new game competing with the one it led to.
 const config: GameConfig = {
   gameId: 'slimegarden',
+  order: 330,
   source: { kind: 'example', slug: 'slimegarden' },
   label: 'Slimegarden',
   supersededBy: 'slimeworld',

@@ -2,6 +2,7 @@ import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
   gameId: 'trinity_siege',
+  order: 150,
   source: { kind: 'example', slug: 'trinity-siege' },
   label: 'Trinity Siege',
   description: 'A tactical wave-defense game on a hex ring: match shape counters to incoming waves and build lasting fortifications to survive five waves.',

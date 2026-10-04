@@ -2,6 +2,7 @@ import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
   gameId: 'planetforge',
+  order: 230,
   source: { kind: 'example', slug: 'planetforge' },
   label: 'PlanetForge',
   description: 'A planetary god-game simulation featuring a 32-tile ring world, sector zone soil stability progression, resource harvesting, and monument construction.',

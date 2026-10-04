@@ -60,6 +60,7 @@ export interface GameConfig {
   leaderboards?: LeaderboardDef[];        // player seam: boards declared as data
   saves?: boolean;                        // player seam: game uses protocol saves
   source?: DemoSource;                    // single source of truth for demo lists (studio_mcp.demos)
+  order?: number;                         // display order in GAME_REGISTRY (ascending, then gameId); required for every registered game
 }
 
 // 'retired' added 2026-09-20: Brewfield was retired in docs/state/StatusBoard.md on

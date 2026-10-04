@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
   gameId: 'voiddrift_redux',
+  order: 250,
   source: { kind: 'example', slug: 'voiddrift-redux-core-loop' },
   label: 'VoidDrift Redux',
   description: 'A TS-native reimagining of the Rust/Bevy VoidDrift — idle space mining at the edge of a black hole. Real Mining/Hauler FSM states, the Aluminum/H3Gas resource chain, tap-to-dispatch interaction, and fragment-drift orbital simulation.',

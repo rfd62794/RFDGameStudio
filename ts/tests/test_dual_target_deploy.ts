@@ -10,6 +10,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { GAME_REGISTRY } from '../src/games/registry';
 import { execSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -114,9 +115,9 @@ describe('test_git_state_clean_both_games', () => {
 
 describe('test_registry_current', () => {
   it('Both games present in GAME_REGISTRY', () => {
-    const registry = readFileSync(resolve(tsRoot, 'src/games/registry.ts'), 'utf-8');
-    expect(registry).toContain('shoalConfig');
-    expect(registry).toContain('planetofgreedConfig');
+    const ids = GAME_REGISTRY.map(g => g.gameId);
+    expect(ids).toContain('shoal');
+    expect(ids).toContain('planetofgreed');
   });
 
   it('Both games present in STANDALONE_BUILD_GAMES', () => {

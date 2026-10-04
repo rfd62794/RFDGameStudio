@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const slitherRogueConfig: GameConfig = {
   gameId:      'slither_rogue',
+  order: 60,
   label:       'Snake Roguelike',
   description: 'Slither.io meets roguelike. Steal segments, collect evolution cards, dominate the arena.',
   color:       '#34d399',   // green
@@ -11,3 +12,5 @@ export const slitherRogueConfig: GameConfig = {
   tags:        ['io-style', 'evolution-cards'],
   component:   React.lazy(() => import('./App')),
 };
+
+export default slitherRogueConfig;

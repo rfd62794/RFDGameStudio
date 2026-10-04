@@ -7,6 +7,7 @@ import type { GameConfig } from '../../engine/types';
 // not as a new game competing with the one it led to.
 const config: GameConfig = {
   gameId: 'kingmaker_squads',
+  order: 360,
   source: { kind: 'example', slug: 'kingmaker-squads' },
   label: 'Kingmaker Squads',
   supersededBy: 'planetofgreed',

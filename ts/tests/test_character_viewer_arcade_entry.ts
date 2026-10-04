@@ -129,13 +129,8 @@ describe('test_arcade_click_loads_viewer', () => {
     expect(selectorSource).toContain('Sandbox tool');
   });
 
-  it('registry.ts imports and exports characterViewerConfig', () => {
-    const registrySource = readFileSync(
-      resolve(tsRoot, 'src', 'games', 'registry.ts'),
-      'utf-8',
-    );
-    expect(registrySource).toContain('import { characterViewerConfig }');
-    expect(registrySource).toContain('characterViewerConfig');
+  it('registry collects the character_viewer config (default export) by glob', () => {
+    expect(findGame('character_viewer')?.gameId).toBe('character_viewer');
   });
 });
 

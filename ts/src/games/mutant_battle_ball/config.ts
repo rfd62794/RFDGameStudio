@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const mutantBattleBallConfig: GameConfig = {
   gameId:      'mutant_battle_ball',
+  order: 70,
   label:       'Mutant Battle Ball',
   description: 'Assemble mutants from parts. Field a 2v2 squad. Reach the end zone. Salvage the fallen.',
   color:       '#f87171',
@@ -11,3 +12,5 @@ export const mutantBattleBallConfig: GameConfig = {
   tags:        ['sports-combat', 'squad-based'],
   component:   React.lazy(() => import('./App')),
 };
+
+export default mutantBattleBallConfig;

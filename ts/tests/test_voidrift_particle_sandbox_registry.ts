@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { GAME_REGISTRY } from '../src/games/registry';
+import { GAME_REGISTRY, findGame } from '../src/games/registry';
 
 const GAME_DIR = resolve(import.meta.dirname, '../src/games/voidrift_particle_sandbox');
 
@@ -47,12 +47,10 @@ describe('VoidRift Particle Sandbox — registry registration', () => {
     expect(sandbox!.gameId).not.toBe(redux!.gameId);
   });
 
-  it('registers with exactly one import and one array entry', () => {
+  it('is collected by the registry glob, with no hand-written import in registry.ts', () => {
     const registryText = readFileSync(resolve(GAME_DIR, '../registry.ts'), 'utf-8');
-    const importMatches = registryText.match(/from '\.\/voidrift_particle_sandbox\/config'/g) ?? [];
-    expect(importMatches).toHaveLength(1);
-    const entryMatches = registryText.match(/voidriftParticleSandboxConfig/g) ?? [];
-    expect(entryMatches).toHaveLength(2); // one import binding + one array entry
+    expect(registryText).not.toContain('voidrift_particle_sandbox');
+    expect(typeof findGame('voidrift_particle_sandbox')?.order).toBe('number');
   });
 });
 
