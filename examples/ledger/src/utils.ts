@@ -183,29 +183,6 @@ const ITEM_TEMPLATES: Record<Category, Array<{ name: string; description: string
   ]
 };
 
-// Atmospheric clues for counterfeit items (found during inspection)
-const COUNTERFEIT_CLUES = [
-  "Paper fibers appear suspiciously modern under UV light.",
-  "Engraving displays mechanical printing dots under magnification.",
-  "Patina easily scratches off, revealing fresh copper underneath.",
-  "Metal feels lighter than gold, likely gilded lead-alloy.",
-  "The maker's stamp contains a subtle spelling error.",
-  "Screws in the watch movement are slotted steel rather than flame-blued.",
-  "Smell of synthetic adhesive or linseed oil indicates recent production.",
-  "The ink appears water-soluble and shows no age-related bleeding.",
-  "The weight is off by exactly 15% from historical benchmarks.",
-];
-
-const AUTHENTIC_CLUES = [
-  "Authentic heavy oxidation in the deep recesses conforms to natural aging.",
-  "Genuine hand-drawn charcoal strokes show varying carbon deposits.",
-  "Movement features hand-finished chamfered edges and genuine ruby pivots.",
-  "Vellum exhibits correct animal-skin hair follicles on the back side.",
-  "Fossil contains natural crystalline mineralization veins matching deep strata.",
-  "Mint luster matches genuine high-pressure strike dies of the era.",
-  "Inlaid gold wire shows irregular, manual thickness variations.",
-];
-
 // Generate a randomized item
 export function generateGood(category: Category, isAuction: boolean = false): Good {
   const templates = ITEM_TEMPLATES[category];
@@ -226,9 +203,6 @@ export function generateGood(category: Category, isAuction: boolean = false): Go
   
   // Generate atmospheric notes (hints for player inspection)
   const qualityText = quality === 'pristine' ? "Flawless condition, highly preserved." : quality === 'poor' ? "Shows significant wear, scratches, and chips." : "Standard preservation, minor wear.";
-  const clueText = authenticity === 'counterfeit' 
-    ? COUNTERFEIT_CLUES[Math.floor(Math.random() * COUNTERFEIT_CLUES.length)]
-    : AUTHENTIC_CLUES[Math.floor(Math.random() * AUTHENTIC_CLUES.length)];
   
   const notes = `${qualityText} [INSPECT FOR AUTHENTICITY DETAILS]`;
 
@@ -248,7 +222,7 @@ export function generateGood(category: Category, isAuction: boolean = false): Go
 }
 
 // Generate an active walk-in or Dutch auction lot
-export function generateLot(day: number, shopTier: number, forceType?: 'walk_in' | 'dutch_auction'): Lot {
+export function generateLot(_day: number, _shopTier: number, forceType?: 'walk_in' | 'dutch_auction'): Lot {
   // Select type
   const type = forceType || (Math.random() < 0.6 ? 'walk_in' : 'dutch_auction');
   
@@ -371,7 +345,6 @@ export function calculateMarketDrift(
     
     // 2. Base drift
     let driftMultiplier = 1.0;
-    const baseRoll = Math.random();
     
     if (isCollectibles) {
       // High volatility: swings can be up to 30% up or down
