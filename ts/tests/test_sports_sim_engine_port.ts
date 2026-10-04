@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { GameEngine, BallSystem, CombatSystem, UniversalDecisionSystem } from '../src/engine/shared/sportsSim';
+import { mulberry32 } from '../src/tests/helpers/seededRandom';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
@@ -296,6 +297,9 @@ describe('test_mbb_sports_sim_wiring', () => {
 // Anchor 6: Engine actually works — real functional smoke test
 // ─────────────────────────────────────────────────────────────────────
 describe('test_engine_functional_smoke', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
   it('GameEngine instantiates, runs 100 ticks, produces events, and scores', () => {
     const engine = new GameEngine();
 
@@ -352,6 +356,10 @@ describe('test_engine_functional_smoke', () => {
   });
 
   it('Combat four-tier severity ladder produces real outcomes', () => {
+    // Seed the mock to ensure at least one hit occurs deterministically
+    const mockRandom = mulberry32(54321);
+    vi.spyOn(Math, 'random').mockImplementation(mockRandom);
+
     const engine = new GameEngine();
     const players = Array.from(engine.players.values());
     const attacker = players[0];
