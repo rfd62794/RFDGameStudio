@@ -179,12 +179,14 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-scrapcrawl-run-end-directive |
 | Base branch | - |
+| Base commit | 8eb703b2c26fea407364a10f5bbbbee5112f94ca |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — Robert 2026-10-04: scrapcrawl wins after clearing the rooms and loses at 0 HP, with a run-end screen that offers Restart
 - 2026-10-04 08:37 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (utils/runEnd.ts, components/RunEndScreen.tsx, test_scrapcrawl_run_end.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
+- 2026-10-04 09:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-run-end-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
