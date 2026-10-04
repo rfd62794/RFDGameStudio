@@ -163,15 +163,18 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-trinity-siege-tiera-directive |
 | Base branch | - |
 | Base commit | 77e1cac6169bedbf5fb0f016f7d07ff99ecf1ef8 |
+| Head commit | d6b3fb981ee699180056ff03c30891882868d565 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 23:59 · claude · none → Queued — wave 1 Tier A directive from docs/demos/trinity_siege/SCOPE.md
 - 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are the file the run creates (test_trinity_siege_blurb.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 03:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-trinity-siege-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 03:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-trinity-siege-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 03:48 · devin · In progress → Review — devin: blurb swapped (22 words, no LEAST-VERIFIED), test_trinity_siege_blurb.ts added (3/3 pass), App.tsx overflow-x-clip+flex-wrap+3x min-w-0; vitest blurb 3/3, regression 7/7; pre-push gate 972 py + 2199 ts + build test green; embed build/phone check are Robert's post-review step; combat.ts untouched, not vouched [origin] spent: devin 8 min est. n/a
 <!-- queue:end -->
