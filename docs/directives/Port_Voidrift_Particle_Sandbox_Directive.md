@@ -168,11 +168,13 @@ Findings first: what was ported, how the four oversized files were split, any be
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-port-voidrift-particle-sandbox-directive |
 | Base branch | - |
+| Base commit | 4dd9ad9e791e709e28fee7e22beaf795585cada5 |
 
 **Status log**
 - 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: all errors are files the run creates, each marked with new-file markers; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 04:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-voidrift-particle-sandbox-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
