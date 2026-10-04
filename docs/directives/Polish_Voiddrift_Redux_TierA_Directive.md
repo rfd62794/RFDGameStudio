@@ -251,11 +251,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/vd-redux-tiera |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:28 · devin-cleanroom · Queued → Review — Restart button + handleRestart + build trio + package.json line + verbatim test; `vitest run test_voiddrift_redux_restart.ts test_voiddrift_redux_chrome.ts test_voiddrift_redux_engine.ts` → `3 files / 25 passed`; regression `3 files / 12 passed`; tsc reports only the 4 known gitignored game-metadata.json import errors (worktree lacks the file)
 <!-- queue:end -->
