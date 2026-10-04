@@ -169,14 +169,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-fix-demo-typeerrors-directive |
 | Base branch | - |
 | Base commit | 77fdba94d78ca1f5b00b360e7329ce845fe130ca |
-| Head commit | - |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: tsc errors the vitest-only pre-push hook never caught (facility_escape blurb test, ledger utils unused variables)
+- 2026-10-04 05:46 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
