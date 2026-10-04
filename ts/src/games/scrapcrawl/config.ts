@@ -4,6 +4,7 @@ import type { GameConfig } from '../../engine/types';
 export const scrapcrawlConfig: GameConfig = {
   gameId: 'scrapcrawl',
   order: 100,
+  moreGames: true,
   label: 'ScrapCrawl',
   description: 'Room navigation, scrap economy, craft, and D20 combat with win-only proficiency.',
   color: '#f59e0b',

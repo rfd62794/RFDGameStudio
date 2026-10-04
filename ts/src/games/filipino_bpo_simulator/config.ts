@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 export const filipinoBpoSimulatorConfig: GameConfig = {
   gameId: 'filipino_bpo_simulator',
   order: 130,
+  moreGames: true,
   label: 'Call Center Tycoon',
   description: 'Run a Filipino BPO floor: manage lead lists, dialer pacing, agent quotas, and day-end planning.',
   shortDescription: 'BPO management sim with list health, dialer pacing, and daily quotas.',

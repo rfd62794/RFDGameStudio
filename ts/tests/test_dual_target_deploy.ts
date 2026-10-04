@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GAME_REGISTRY } from '../src/games/registry';
+import { GAME_REGISTRY, STANDALONE_BUILD_GAMES } from '../src/games/registry';
 import { execSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -121,9 +121,8 @@ describe('test_registry_current', () => {
   });
 
   it('Both games present in STANDALONE_BUILD_GAMES', () => {
-    const registry = readFileSync(resolve(tsRoot, 'src/games/registry.ts'), 'utf-8');
-    expect(registry).toContain("{ id: 'shoal', label: 'Shoal' }");
-    expect(registry).toContain("{ id: 'planetofgreed', label: 'Planet of Greed' }");
+    expect(STANDALONE_BUILD_GAMES).toContainEqual({ id: 'shoal', label: 'Shoal' });
+    expect(STANDALONE_BUILD_GAMES).toContainEqual({ id: 'planetofgreed', label: 'Planet of Greed' });
   });
 
   it('Planet of Greed has build:planetofgreed script in package.json', () => {

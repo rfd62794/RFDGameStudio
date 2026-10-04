@@ -1,23 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { GAME_REGISTRY } from '../src/games/registry';
 import { buildRegistryExport } from '../src/arcade-manifest/registryExport';
 
-const SOURCES: Record<string, unknown> = {
-  ledger: { kind: 'example', slug: 'ledger' },
-  trinity_siege: { kind: 'example', slug: 'trinity-siege' },
-  slimebreeder: { kind: 'sibling', repo: 'SlimeBreeder' },
-  corpworld: { kind: 'example', slug: 'corpworld' },
-  slimegarden: { kind: 'example', slug: 'slimegarden' },
-  '7_days_to_fry': { kind: 'example', slug: '7-days-to-fry' },
-  kingmaker_squads: { kind: 'example', slug: 'kingmaker-squads' },
-  antsim_redux: { kind: 'example', slug: 'antsim-redux' },
-  facility_escape: { kind: 'example', slug: 'facility-escape' },
-  systemic_extract: { kind: 'example', slug: 'systemic-extract' },
-  planetforge: { kind: 'example', slug: 'planetforge' },
-  voiddrift_redux: { kind: 'example', slug: 'voiddrift-redux-core-loop' },
-  coin_pusher_arcade: { kind: 'example', slug: 'coin-pusher-arcade' },
-  voidrift_particle_sandbox: { kind: 'example', slug: 'voidrift-redux-particle-sandbox' },
-};
+const REPO_ROOT = resolve(import.meta.dirname, '..', '..');
 
 describe('registry export', () => {
   const exp = buildRegistryExport(GAME_REGISTRY, () => 'T');
@@ -27,9 +14,17 @@ describe('registry export', () => {
     expect(exp.generatedAt).toBe('T');
   });
 
-  it('carries source for exactly the example/sibling demos', () => {
-    const withSource = Object.fromEntries(exp.games.filter(g => g.source).map(g => [g.gameId, g.source]));
-    expect(withSource).toEqual(SOURCES);
+  it('carries source for exactly the games whose config declares one', () => {
+    const declared = GAME_REGISTRY.filter(g => g.source).map(g => [g.gameId, g.source]);
+    expect(exp.games.filter(g => g.source).map(g => [g.gameId, g.source])).toEqual(declared);
+    expect(declared.length).toBeGreaterThan(0);
+  });
+
+  it('points every example source at a tracked examples/<slug>/package.json, and names every sibling repo', () => {
+    for (const g of exp.games) {
+      if (g.source?.kind === 'example') expect(existsSync(resolve(REPO_ROOT, 'examples', g.source.slug, 'package.json')), g.gameId).toBe(true);
+      if (g.source?.kind === 'sibling') expect(g.source.repo, g.gameId).toBeTruthy();
+    }
   });
 
   it('flags component games and keeps embedUrl', () => {
