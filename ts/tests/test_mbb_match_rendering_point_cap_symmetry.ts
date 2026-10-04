@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +9,15 @@ import { makePrng } from '../src/games/mutant_battle_ball/simulation/mbbMath';
 import { partsToCreatureConfig } from '../src/engine/paperDoll/adapter';
 import type { Part, PartsBySlot, BrandId, QualityTier } from '../src/engine/shared/partSlots';
 import type { Mutant } from '../src/games/mutant_battle_ball/types';
+
+// sportsSim's CombatSystem/BallSystem/DisposalSystem draw from raw Math.random(), so every match in this
+// file is replayed from one fixed stream: same seed, same match, no run-to-run flake.
+beforeEach(() => {
+  vi.spyOn(Math, 'random').mockImplementation(makePrng(4242));
+});
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
