@@ -179,7 +179,7 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-scrapcrawl-run-end-directive |
 | Base branch | - |
@@ -190,4 +190,6 @@ none. Deploying is Robert's.
 - 2026-10-04 08:37 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (utils/runEnd.ts, components/RunEndScreen.tsx, test_scrapcrawl_run_end.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 - 2026-10-04 09:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-run-end-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 09:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-run-end-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 09:22 · devin-overseer (delegated) · In progress → Blocked — `npm run build:scrapcrawl` refused by sandbox in all forms (cd ts && …, bare, cd ts + bare). All other work done, committed and pushed on directive/rfdgamestudio-scrapcrawl-run-end-directive: vitest 3 files/20 tests pass (was 2/14 before), npx tsc --noEmit clean exit 0, pre-push hook all green (972 py + 2292 vitest + TS build test). Only the standalone scrapcrawl build check could not run.
+- 2026-10-04 09:27 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->
