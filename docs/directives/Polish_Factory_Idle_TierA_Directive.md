@@ -173,4 +173,5 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/factory_idle/SCOPE.md (Robert 2026-10-04: publish Phase 2)
 - 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved — lint override: sole error(s) are files the run creates (ts/tests/test_factory_idle_blurb.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 - 2026-10-04 13:07 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-factory-idle-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 13:07 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-factory-idle-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
