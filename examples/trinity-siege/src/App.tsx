@@ -453,7 +453,7 @@ export default function App() {
           </div>
           <div>
             <h1 className="font-display text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-              TRINITY SIEGE <span className="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/40 px-1.5 py-0.5 rounded font-mono uppercase font-semibold">Wave Defense MVP</span>
+              TRINITY SIEGE <span className="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/40 px-1.5 py-0.5 rounded font-mono uppercase font-semibold">Wave Defense</span>
             </h1>
             <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Tactical Sonar Defenses</p>
           </div>
@@ -514,7 +514,7 @@ export default function App() {
               </div>
             </div>
             <div className="border-t border-cyan-900/40 pt-2 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-500">MVP Ruleset version 1.0</span>
+              <span className="text-[10px] font-mono text-slate-500">Trinity Siege</span>
               <button onClick={() => setShowHowToPlay(false)} className="text-cyan-400 hover:underline font-mono text-[10px]">Got it, close manual</button>
             </div>
           </div>

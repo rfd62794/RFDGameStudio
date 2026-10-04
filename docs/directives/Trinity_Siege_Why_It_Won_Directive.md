@@ -189,11 +189,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/trinity-siege-why-it-won |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:01 · devin-cleanroom · Queued → Review — 4 scoped files: `vitest run test_trinity_siege_explain.ts test_trinity_siege_blurb.ts` → `2 files / 10 passed`; combat regression `test_trinity_siege_combat.ts` → `12 passed` (3 files / 22 total)
 <!-- queue:end -->
