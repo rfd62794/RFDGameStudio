@@ -316,12 +316,12 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-slime-coin-tiera-directive |
 | Base branch | - |
-| Base commit | - |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for slime_coin: Lua/TS bridge tests, persisted best score; exchange() math.pow defect to report not fix; docs/demos/slime_coin/SCOPE.md
+- 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (test_slime_coin_bridge.ts, bestScore.ts, test_slime_coin_best_score.ts), each marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 <!-- queue:end -->
