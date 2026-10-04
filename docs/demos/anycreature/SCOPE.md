@@ -14,3 +14,6 @@ Out of scope: rewriting the directive files, forking under Robert's identity fro
 Dependencies / risks: the sizes above are observations of the live disk, not facts to trust later; byte-size anchors differ (228,387 vs 347,341) so the fixture test must keep using the committed wolf.png.
 Effort: S
 Open question for Robert: none
+
+## Update 2026-10-04 (Robert approved all direction recommendations)
+N/A as a demo: anycreature is a pipeline, not a game, so the polish tiers do not apply. Verdict PARK (see DIRECTION.md). No code or fork is deleted; `docs/CREATURE_SYSTEM.md` records that the creatureArt seam is parked.

@@ -245,11 +245,12 @@ Long-term or speculative items, pending foundational work.
 - **Cross-game settings system.** SlimeWorld's Options Menu is
   SlimeWorld-only. A cross-game settings system is real, separate,
   future work. (Deferred from Options Menu directive)
-- **Full `npm run build` (global arcade).** Still fails due to
-  pre-existing TypeScript errors in `horse_racing`,
-  `mutant_battle_ball`, and `slither_rogue`. Each game has its own
-  standalone build path as a workaround. (From: Dissonance BrewField
-  Migration)
+- **Full `npm run build` (global arcade).** The old note about TypeScript
+  errors in `horse_racing`, `mutant_battle_ball` and `slither_rogue` is
+  retired: those games compile (`docs/ROADMAP.md` retired those steps on
+  2026-09-24, and `cd ts && npx tsc --noEmit` on 2026-10-04 names none of
+  them). Each game still has its own standalone build path. (From:
+  Dissonance BrewField Migration)
 - **Interface Segregation for AntSim Redux `Colony` interface.** The
   `Colony` interface carries multiple concerns (nest state, queen state,
   chamber list, tunnel list, ant population, egg collection, pheromone
