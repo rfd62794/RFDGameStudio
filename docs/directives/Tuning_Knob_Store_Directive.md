@@ -160,15 +160,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-knob-store-directive |
 | Base branch | - |
 | Base commit | e68d17c354f5effdaebacb25dc54c5764eca5d25 |
+| Head commit | 2c5933d3b5f903a05ba8b2c602f527f5ca49d667 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:27 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline proofs; Robert 2026-10-04 17:13 asked for per-game tuning tools and approved all recommendations
 - 2026-10-04 18:09 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-knob-store-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 18:10 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-knob-store-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 18:25 · devin · In progress → Review — Built ts/src/engine/tuning/{types,store,applyData,index}.ts + loadGame overrides + ts/tests/test_tuning_store.ts. vitest run test_tuning_store.ts: Tests 7 passed (7). test_chimera_wilds_balance.ts: 2 passed (2). test_gameshell.tsx: 8 passed (8). tsc --noEmit: clean. Case 2 (overrides ignored without ?dev=1) passes. Commit 2c5933d3 pushed; pre-push hook ran full suite green (975 py + 2507 ts). [origin] spent: devin 14 min est. n/a
 <!-- queue:end -->
