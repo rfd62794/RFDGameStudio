@@ -107,12 +107,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-tuning-dev-panel-directive |
 | Base branch | - |
+| Base commit | 072e21864722efc01b81b64a4ad6cb003e79e0c4 |
 
 **Status log**
 - 2026-10-04 17:27 · robert-claude-laptop · none → Queued
 - 2026-10-04 18:36 · robert-claude-laptop · Queued → Approved — lint override: cited dev panel files are new files this directive creates
+- 2026-10-04 19:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
