@@ -165,4 +165,5 @@ Findings first: the test file's coverage, any engine behaviour that differed fro
 **Status log**
 - 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: sole error is ts/tests/test_voiddrift_redux_engine.ts, a file the run creates and marks new; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 02:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-voiddrift-redux-core-loop-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 02:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-voiddrift-redux-core-loop-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
