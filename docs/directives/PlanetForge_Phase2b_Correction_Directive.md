@@ -163,7 +163,7 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-phase2b-correction-directive |
 | Base branch | - |
@@ -183,4 +183,5 @@ anchors, reported as X passed, 0 failed, 0 skipped — raw output.
 - 2026-09-30 06:24 · devin-overseer (delegated) · Draft → Queued
 - 2026-09-30 08:16 · devin-overseer (delegated) · Queued → Approved — force: Robert 2026-09-30 batch order: approve all queued
 - 2026-10-04 12:34 · robert-claude-laptop · Approved → Blocked — Duplicate: diff-verified copy of the Done Phase 2 directive (DIRECTION.md PR #129, d3084de0). Closing as Superseded.
+- 2026-10-04 12:34 · robert-claude-laptop · Blocked → Superseded — superseded_by: commit:d3084de007ae337135506da0e6ef6708d11c5912
 <!-- queue:end -->
