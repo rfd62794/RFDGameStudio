@@ -224,11 +224,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 19:04 · robert-claude-laptop · Queued → Approved — lint override: path hits are app-relative paths under the kingmaker example, a gitignored generated file and a 'do not edit' mention, verified by hand
 <!-- queue:end -->
