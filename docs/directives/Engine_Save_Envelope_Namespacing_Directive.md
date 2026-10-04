@@ -62,3 +62,17 @@ New tests pass, old 9 pass, tsc exit 0, files carry markers, Status row notes th
 ## 8. Report
 
 Test tails for both files, the public API as final signatures, and any behaviour you chose where this spec was silent.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 17:33 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
