@@ -52,9 +52,37 @@ Rule for the tier target:
 4. At most 3 demos at C at any time. Default is A for unlisted demos, B for the rest.
 5. Robert can override any row; the scorecard records the override.
 
+## 2b. Scope analysis (written before any rebuild directive)
+
+Most demos already point somewhere; the job is usually to improve or refine, not reinvent. Direction belongs to Robert, not the building agent.
+
+Rules:
+1. Every demo gets a scope analysis before its rebuild directive exists. The directive's Scope and Out-of-scope sections are copied from the analysis, not re-derived.
+2. Where direction is genuinely unclear, the analysis says so under "Open question for Robert" and proposes nothing past Tier A for that demo until he answers. It never picks a direction for him.
+3. Location: `docs/demos/<id>/SCOPE.md`, one file per demo, committed on a docs branch and reviewed by PR.
+4. Authors: Sonnet subagents (model named explicitly), batches of 4 to 6 demos per agent grouped by similarity (for example idle/incremental games, roguelike/deckbuilders, sims, origin embeds), never one agent per demo. Read-only on code; they write only the SCOPE.md files.
+5. Review: Claude spot-checks the evidence citations in each batch. Robert reads only the analyses flagged unclear (and may override any).
+
+Template, under 25 lines, every claim cited as `path:line` or README/config text, no guesses:
+
+```
+# <id> scope analysis (date, author agent, registry status)
+Direction: what it is and where it already points (evidence: ...)
+Working: (3 bullets max, each with evidence)
+Rough: (3 bullets max, each with evidence)
+Class: improve | refine | rework, with one-sentence reason
+  (refine = polish what exists; improve = add to the existing direction; rework = replace a part or the whole)
+Top 3 changes, in order: 1. ... 2. ... 3. ...
+Out of scope: (explicit list, so the directive cannot sprawl)
+Dependencies / risks: (shared modules, assets, other demos, hosting)
+Effort: S | M | L
+Open question for Robert: (only if direction is unclear; else "none")
+```
+
 ## 3. Rebuild workflow (one demo, one directive)
 
-1. Claude (Sonnet subagent or controller) writes a Devin directive from the scorecard row: repo, absolute paths, tier target, the exact failing items, and what not to touch (protected repos, other demos, the live checkout on main).
+0. Precondition: the demo's `docs/demos/<id>/SCOPE.md` exists and any open question on it is answered.
+1. Claude (Sonnet subagent or controller) writes a Devin directive from the scorecard row and the SCOPE.md (Scope and Out of scope copied verbatim): repo, absolute paths, tier target, the exact failing items, and what not to touch (protected repos, other demos, the live checkout on main).
 2. Devin works only in its worktree, one demo per directive, new behaviour in small new modules (SRP/KISS), shared code per ADR-014 checked first.
 3. Verification in every directive uses the real commands: `cd ts && npm test`, `cd ts && npm run build:<id>`, plus the Playwright smoke steps for the target tier, with output tails pasted into the report.
 4. Review by Claude (Sonnet subagent) with a screenshot checklist: desktop and phone screenshots of start, mid-play, and end; every item of the target tier answered yes/no; console error list attached.
@@ -65,7 +93,8 @@ Rule for the tier target:
 
 Capacity: the laptop admits 2 Devin agents, the cleanroom its own; one demo per directive. A wave is 4 to 8 demos at Tier A, or 2 to 4 at Tier B/C. These are estimates, not promises; Claude review time, not Devin time, is usually the limit.
 
-- Wave 0 (audit): section 5. One Haiku run, no code. Fills the scorecard and fixes the order.
+- Every wave runs in this order: scope analyses for that wave's demos (Sonnet batches of 4 to 6, section 2b), Robert answers any flagged questions, then rebuild directives. Analyses for wave N+1 can be written while wave N builds.
+- Wave 0 (audit): section 5. One Haiku run, no code. Fills the scorecard and fixes the order; first Sonnet analysis batches start from its output.
 - Wave 1: live demos closest to Tier A (fewest failing items, S effort). Quick visible wins: blurbs, screenshots, Restart control, missing `build:<id>`. Roughly 6 to 10 demos over 1 to 2 waves.
 - Wave 2: `external` embeds chosen for a TS-native rewrite (candidates: AntSim Redux, Facility Escape, 7 Days to Fry, PlanetForge), one per directive. 2 to 4 per wave, spanning several waves because rewrites are L.
 - Wave 3: not-started ports from the Demo Porting Roadmap (Sandustry family, Coin Pusher Arcade). TurboShells and the VoidDrift web renderer stay gated on their own investigation.
