@@ -277,10 +277,11 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Reset Floor */}
         <button
           onClick={onReset}
-          className="p-1.5 rounded-md text-xs bg-slate-900 hover:bg-rose-950/60 hover:text-rose-400 text-slate-500 border border-slate-800 transition-all"
+          className="p-1.5 rounded-md text-xs bg-slate-900 hover:bg-rose-950/60 hover:text-rose-400 text-slate-500 border border-slate-800 transition-all flex items-center gap-1"
           title="Clear Entire Factory Floor"
         >
           <RotateCcw size={14} />
+          <span>Clear Floor</span>
         </button>
       </div>
     </header>
