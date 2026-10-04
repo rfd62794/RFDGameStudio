@@ -69,12 +69,14 @@ Test tails, the exact fallback copy shown to players, and any a11y choice made (
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-error-boundary-and-diagnos-c86b47 |
 | Base branch | - |
+| Base commit | 73ff8e0f1767e37a681c9ffb59c2b7f0e20805f4 |
 
 **Status log**
 - 2026-10-04 17:32 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:33 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline proofs; Robert 2026-10-04 17:28 'use your recommendations for the game engine' and approved all recommendations
+- 2026-10-04 17:33 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-error-boundary-and-diagnos-c86b47; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
