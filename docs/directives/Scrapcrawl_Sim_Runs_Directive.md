@@ -191,12 +191,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-scrapcrawl-sim-runs-directive |
 | Base branch | - |
+| Base commit | 7549dc2a97e589f352a997ff47d83bf0674b730a |
 
 **Status log**
 - 2026-10-04 13:15 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:22 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 16:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-sim-runs-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
