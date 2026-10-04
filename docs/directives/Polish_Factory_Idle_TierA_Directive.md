@@ -163,7 +163,7 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-factory-idle-tiera-directive |
 | Base branch | - |
@@ -177,4 +177,5 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 - 2026-10-04 13:07 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-factory-idle-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 13:07 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-factory-idle-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 13:21 · devin · In progress → Review — In progress → Review — c1529e7 pushed: config.ts source+honest Phase 2 blurb, new test_factory_idle_blurb.ts (5 tests), Header.tsx 'Clear Floor' label; Python 3.12.12; vitest 2 files passed, 9 tests passed; pre-push hook green (pytest + 205 vitest files + build test, 507s); DEVIATION: ts/tests/test_registry_export.ts has no SOURCES object/antsim_redux line — file was rewritten, sources derive from registry dynamically so Step 2 needed no edit; storage grep over phase2 src: no matches; ready for controller finish: children.json + parity snapshot [origin] spent: devin 12 min est. n/a
+- 2026-10-04 13:27 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
