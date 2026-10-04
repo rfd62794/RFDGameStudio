@@ -25,3 +25,6 @@ First 60 s: title, "Establish Connection", place a tower, commit, watch two craw
 3. choke_point: wave counter, star result card, cover screenshot. S. Depends: 2.
 ## Open question for Robert
 None. Default: leave the Lua logic as is; if a mechanic ever needs new logic, convert that logic to TS first (ADR-012 pipeline) rather than extend Lua.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- A headless play-through found that the first wave's second crawler and every later wave never spawned (state numbers return from JavaScript as floats, so the string-keyed wave table lookup missed), and that an enemy outside the core's row walked off the board forever. The real game was 'kill one crawler'. Both are fixed by `Choke_Point_Wave_Solvability_Directive`; content then follows in `Choke_Point_Waves_3_To_6_Directive` and `Choke_Point_Wave_Counter_Stars_Directive`.

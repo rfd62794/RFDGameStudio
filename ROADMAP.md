@@ -61,6 +61,8 @@ sprite sheets and shading, and it is swarm-facing as `docs/ROADMAP.md` M6 and M8
   This is the first item to address before deeper design work can
   produce non-degenerate match outcomes. (Still deferred, confirmed by
   Balanced-Speed Zero-Score Investigation)
+  2026-10-04 note: `ts/src/games/mutant_battle_ball/statsMapper.ts` already divides power, endurance, cyber armor and
+  aggression by 6 before combat; see `docs/demos/mutant_battle_ball/DIRECTION.md` (Corrections).
 
 ### Shoal
 

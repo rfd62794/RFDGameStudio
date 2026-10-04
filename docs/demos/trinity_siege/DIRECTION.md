@@ -25,3 +25,6 @@ First 60 s: a hex board, a forecast of incoming shapes, place counters, resolve.
 3. trinity_siege: phone re-measure and cover screenshot. S. Depends: none.
 ## Open question for Robert
 None. Default: the Rust three-faction chassis stays Far Future (the board's own note); only the TS embed is maintained.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- All 12 unit tests of `combat.ts` pass on current code, so the 'fabricated combat logic' worry is closed (`Trinity_Siege_Combat_Tests_Directive`). The 'why it won' line is `Trinity_Siege_Why_It_Won_Directive`; a how-to-play manual already exists, so no separate first-wave hint is added. Phone re-measure and cover screenshot stay controller steps.

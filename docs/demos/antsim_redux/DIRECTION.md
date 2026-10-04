@@ -25,3 +25,6 @@ Stop there. Anything beyond is a separate decision (see Open question).
 3. antsim_redux: A5 screenshot + "embed" label check (test fails on banned words in config description and UI strings). S. Depends: 1.
 ## Open question for Robert
 None. Settled decision (honest embed, Tier A only) stands; research found no contradiction.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- Directive 1 is `Antsim_Redux_Player_Copy_Directive` (it also rewords the `Core Directive` banner and points the README at the state doc). Directives 2 and 3 (phone re-measure, A5 screenshot, `embed` label) need a browser and stay controller steps after the embed is rebuilt.

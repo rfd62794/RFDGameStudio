@@ -24,3 +24,6 @@ Target audience is children plus a parent; the arcade's "inviting for game playe
 3. early_learning_buddy: privacy and microphone consent review of `utils/speech.ts` and the server env handling. S, review only. Depends: Robert wants it live.
 ## Open question for Robert
 Is this a product you intend to ship (then it gets its own repo and server decision) or a private experiment? Recommended default: private, parked.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- PARK is recorded by `Early_Learning_Buddy_Park_Directive`. The board has no `parked` status today; that directive adds one.

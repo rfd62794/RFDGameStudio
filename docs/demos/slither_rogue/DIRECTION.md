@@ -25,3 +25,8 @@ First 60 s: menu, primer card, steer a snake with mouse, eat fruit, first evolut
 3. slither_rogue: game-over cause-of-death line and cover screenshot. S. Depends: 1.
 ## Open question for Robert
 None. Default: keep the Lua sim as is (ADR-013 retired Lua as a portability carve-out, not a reason to rewrite working code); revisit conversion to TS only if a rule change is wanted.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- Run logic is not untested: `tests/test_slither_rogue.py` already runs the real Lua headless (14 tests). Replan step 2 became whole-run checks (`Slither_Rogue_Run_Tests_Directive`).
+- There are no 'pre-existing TS errors': `tsc --noEmit` reports nothing in any `slither_rogue` file and a prototype `vite build:slither_rogue` succeeded (661.89 kB JS). The build script is `Slither_Rogue_Hygiene_Build_Directive`.
+- Nobody dies in this game: the only `game_over` is the timer, and rivals steal tail segments (a Shield card blocks it). Replan step 3's 'cause of death' became a 'try this next' tip on the end card (`Slither_Rogue_Run_Tip_Directive`).

@@ -25,3 +25,8 @@ First 60 s: title, New Game, a roster of mutants, then Match. Best moment: watch
 3. mutant_battle_ball: squad selection plus persistence of roster and credits. M. Depends: 2.
 ## Open question for Robert
 None. Default: keep the preserved Lua copy as is (the migration test requires it); no new brands until phase 3 lands.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- Combat stats are already normalized: `ts/src/games/mutant_battle_ball/statsMapper.ts` divides power, endurance, cyber armor and aggression by 6 before the combat system sees them. Replan step 2 became only seeding the symmetry test file (`Mbb_Seed_Symmetry_Tests_Directive`); speed and the disposal skills are passed un-normalized by design.
+- The starter roster has exactly TWO mutants (`starter_mutants` in `games/mutant_battle_ball/data.yaml`) and nothing adds a third, so squad selection has nothing to choose between. Replan step 3 became persistence only (`Mbb_Save_Progress_Directive`); squad pick returns when the roster can grow.
+- Of the two 'flaky' tests the pipeline audit named, `test_symmetric_opportunity_post_fix` was already seeded; the whole `test_mbb_match_rendering_point_cap_symmetry.ts` file was not and is seeded by the directive above. The Infirmary stub is hidden by `Mbb_Hide_Infirmary_Tab_Directive`.
