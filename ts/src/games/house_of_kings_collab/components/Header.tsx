@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shield, User, LogOut, CheckCircle2, ShieldCheck, Crown } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
+import { isAdminUser } from '../lib/adminGate';
 
 interface HeaderProps {
   user: FirebaseUser | null;
@@ -17,8 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSignOut,
   houseName,
 }) => {
-  const adminEmail = (import.meta as any).env?.VITE_ADMIN_EMAIL || 'cheater2478@gmail.com';
-  const showAdminTab = !!user?.email && user.email.toLowerCase() === adminEmail.toLowerCase();
+  const showAdminTab = isAdminUser(user?.email, (import.meta as any).env?.VITE_ADMIN_EMAIL);
 
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-slate-100 sticky top-0 z-50">

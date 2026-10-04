@@ -4,7 +4,7 @@ import type { GameConfig } from '../../engine/types';
 const config: GameConfig = {
   gameId: 'house_of_kings_collab',
   label: 'House of Kings: Collab',
-  description: 'A server-authoritative collaborative kingdom management game with Firebase backend — duration-based task tiers, exponential economy, house festivals, and real-time Firestore sync. Zero-trust client security with server-side Admin SDK writes.',
+  description: 'Architecture showcase, not a hosted game: a server-authoritative kingdom builder on Firebase, with daily server-side evaluation and festivals. Google sign-in is required to play, and it needs its own backend, so you may only see the sign-in screen.',
   color: '#f59e0b',
   status: 'dev',
   genre: 'cooperative',
