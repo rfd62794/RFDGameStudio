@@ -214,12 +214,14 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-kingmaker-squads-tiera-directive |
 | Base branch | - |
+| Base commit | 5608572bfa74bc8cf719bc62b23a9b2298dade61 |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for kingmaker_squads (Origin entry): blurb path leak, stale README, A3 note; start-screen restart blocked on intake (examples untracked); docs/demos/kingmaker_squads/SCOPE.md
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved
+- 2026-10-04 00:41 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-kingmaker-squads-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
