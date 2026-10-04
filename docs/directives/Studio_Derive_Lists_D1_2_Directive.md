@@ -387,11 +387,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 11:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified build work; dispatch only after D1.1 merges (directive STOPs if registry.ts still has per-config imports)
+- 2026-10-04 12:20 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; Robert 2026-10-04 12:20 'I approve all recommendations'; D1.1 merged 87961f0b
 <!-- queue:end -->
