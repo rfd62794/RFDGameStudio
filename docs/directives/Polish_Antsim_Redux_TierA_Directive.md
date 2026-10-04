@@ -155,4 +155,5 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/antsim_redux/SCOPE.md (Robert 2026-10-04: keep the embed, Tier A fix only)
 - 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved
 - 2026-10-04 08:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-antsim-redux-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 08:46 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-antsim-redux-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
