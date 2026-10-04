@@ -8,6 +8,7 @@ export type ProjectStatus =
   | 'active'
   | 'shipped_mature'
   | 'shipped_deliberately_paused'
+  | 'parked'
   | 'blocked'
   | 'status_unconfirmed'
   | 'retired';

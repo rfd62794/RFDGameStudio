@@ -18,6 +18,7 @@ const STATUS_LABELS: Record<ProjectStatus, string> = {
   active: 'Active',
   shipped_mature: 'Shipped/Mature',
   shipped_deliberately_paused: 'Shipped/Deliberately Paused',
+  parked: 'Parked',
   blocked: 'Blocked',
   status_unconfirmed: 'Status Unconfirmed',
   retired: 'Retired',

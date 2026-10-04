@@ -88,9 +88,10 @@ export const STATUS_BOARD: ProjectEntry[] = [
     capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '—', soundEffects: 'N' },
   },
   {
-    id: 'early_learning_buddy', name: 'Early Learning Buddy', category: 'separate_infrastructure', status: 'active',
-    currentState: 'Voice-powered learning companion. Speech recognition, fuzzy matching, AI-generated story beats. Intentionally unlisted from public arcade.',
-    lastUpdated: '2026-08-16',
+    id: 'early_learning_buddy', name: 'Early Learning Buddy', category: 'separate_infrastructure', status: 'parked',
+    currentState: 'Voice-powered learning companion for young children. Intentionally unlisted from the public arcade; needs a Gemini server and a privacy review for child users before it could ever ship.',
+    nextAction: 'Private experiment until Robert decides to ship it; then its own repo, server decision and privacy review first.',
+    lastUpdated: '2026-10-04',
     capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '2026-08-16', soundEffects: 'Partial' },
   },
 

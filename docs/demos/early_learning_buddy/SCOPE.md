@@ -14,3 +14,4 @@ Out of scope: registering it, deploying the Gemini server, new characters/art, n
 Dependencies / risks: Gemini key plus Express server (server/server.ts); children's data and mic are sensitive; server/.env handling not read.
 Effort: S
 Open question for Robert: none (config.ts:4-7 already states it stays unlisted)
+Tier: N/A, parked (2026-10-04, Robert's approval of the PARK verdict). Not in the registry, not polished, not published; the code stays in ts/src/games/early_learning_buddy.
