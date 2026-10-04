@@ -151,7 +151,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-facility-escape-player-wording-directive |
 | Base branch | - |
@@ -165,4 +165,5 @@ none.
 - 2026-10-04 14:22 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-player-wording-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 14:23 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-player-wording-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 14:35 · devin · In progress → Review — 17/17 replacements applied in App.tsx; test_facility_escape_player_copy.ts 2 passed; test_facility_escape_blurb.ts 4 passed; committed b14c155, pushed (pre-push suite green: 975 py + 2385 ts). Note: first push failed on PYTEST_ADDOPTS '-n 2' env leak (no xdist in lock); retried with corrected env, hook ran full suite. [origin] spent: devin 12 min est. n/a
+- 2026-10-04 14:41 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
