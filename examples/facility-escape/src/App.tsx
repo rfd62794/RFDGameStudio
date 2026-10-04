@@ -540,9 +540,9 @@ export default function App() {
           <Layers className="text-sky-400" size={20} />
           <div>
             <h1 className="text-base font-extrabold tracking-tight font-mono text-slate-100 flex items-center gap-1.5">
-              FACILITY ESCAPE <span className="text-[10px] bg-slate-800 text-sky-400 border border-slate-700 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">MECHANICS PROTOTYPE</span>
+              FACILITY ESCAPE <span className="text-[10px] bg-slate-800 text-sky-400 border border-slate-700 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">STEALTH</span>
             </h1>
-            <p className="text-[10px] text-slate-400 font-mono">Turn-Based Property Rule Simulator v1.0.2</p>
+            <p className="text-[10px] text-slate-400 font-mono">Turn-based stealth puzzle</p>
           </div>
         </div>
 
@@ -601,26 +601,26 @@ export default function App() {
                 Facility Infiltration Protocol
               </h2>
               <p className="text-xs text-slate-400 font-mono mt-1">
-                A system test of emergent physical behaviors and telecasted sightlines.
+                Read the guards' sightlines, then slip past.
               </p>
             </div>
 
             <div className="border border-slate-800 rounded-xl p-4 bg-slate-950/50 space-y-3 font-mono text-xs">
               <h3 className="font-extrabold text-amber-400 flex items-center gap-1.5 uppercase text-[11px]">
-                <HelpCircle size={14} /> Mission Briefing & Core Objectives
+                <HelpCircle size={14} /> HOW TO PLAY
               </h3>
               <p className="text-slate-300 leading-relaxed">
-                You must navigate a sequence of <b>8 procedurally generated containment levels</b> to validate the escape mechanisms.
+                You must navigate a sequence of <b>8 procedurally generated containment levels</b> to reach the exit of each room and escape.
               </p>
               <ul className="space-y-1.5 text-slate-400 pl-4 list-disc">
                 <li>
-                  <b className="text-slate-200">The Core Turn Loop</b>: Every turn, guards decide their next action <span className="text-amber-300 font-bold">BEFORE</span> you act. You react to their shown future, then make your move. Only after your move resolves does the guard's action execute.
+                  <b className="text-slate-200">Guards show their move first</b>: Every turn, guards decide their next action <span className="text-amber-300 font-bold">BEFORE</span> you act. You react to their shown future, then make your move. Only after your move resolves does the guard's action execute.
                 </li>
                 <li>
-                  <b className="text-slate-200">The Property System</b>: Items and hazards carry universal tags (<span className="text-orange-400">Flammable</span>, <span className="text-cyan-400">Conductive</span>, <span className="text-indigo-400">Reflective</span>, <span className="text-yellow-400">Loud</span>, <span className="text-amber-400">Adhesive</span>). Trigger effects by applying Heat (Lighters) or Electricity (Batteries) to propagate emergent reactions.
+                  <b className="text-slate-200">Items and hazards</b>: Items and hazards carry universal tags (<span className="text-orange-400">Flammable</span>, <span className="text-cyan-400">Conductive</span>, <span className="text-indigo-400">Reflective</span>, <span className="text-yellow-400">Loud</span>, <span className="text-amber-400">Adhesive</span>). Trigger effects by applying Heat (Lighters) or Electricity (Batteries) to propagate emergent reactions.
                 </li>
                 <li>
-                  <b className="text-slate-200">No Hardcoded Lookups</b>: A lighter lights ANY Flammable object—whether it's an oil spill, heavy curtains, or thrown firecrackers. A battery conducts electricity across any adjacent Conductive cells to stun guards.
+                  <b className="text-slate-200">One rule, many uses</b>: A lighter lights ANY Flammable object—whether it's an oil spill, heavy curtains, or thrown firecrackers. A battery conducts electricity across any adjacent Conductive cells to stun guards.
                 </li>
               </ul>
             </div>
@@ -764,14 +764,14 @@ export default function App() {
             </div>
 
             <p className="text-xs text-slate-400 font-mono leading-relaxed">
-              Remember to utilize telecasted sightlines and the property-based physics system. Place mirrors to redirect sightlines, throw firecrackers on burning tiles to distract, or conduct electric currents to disable.
+              Tip: watch the guards' sightlines. Place mirrors to redirect sightlines, throw firecrackers on burning tiles to distract, or conduct electric currents to disable.
             </p>
 
             <button
               onClick={startNewRun}
               className="w-full bg-red-600 hover:bg-red-500 text-slate-950 font-black tracking-widest font-mono py-3.5 rounded-xl transition-all hover:scale-[1.01] flex items-center justify-center gap-2 shadow-lg shadow-red-950/40 text-slate-900 text-sm uppercase"
             >
-              <RotateCcw size={16} /> RESET PROTOTYPE ATTEMPT
+              <RotateCcw size={16} /> START OVER
             </button>
           </div>
         )}
@@ -791,15 +791,15 @@ export default function App() {
 
             <div className="bg-slate-950 p-4 border border-slate-800 rounded-xl space-y-2.5 font-mono text-xs text-slate-300">
               <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                <span>TOTAL CONTAINMENTS CLEARED:</span>
+                <span>ROOMS CLEARED:</span>
                 <span className="text-emerald-400 font-bold">{MAX_ROOMS} / {MAX_ROOMS}</span>
               </div>
               <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                <span>TOTAL TURNS ELAPSED:</span>
+                <span>TURNS TAKEN:</span>
                 <span className="text-white font-bold">{gameState.turnCount}</span>
               </div>
               <div className="flex justify-between">
-                <span>SURVIVING OPERATIVE INTEGRITY:</span>
+                <span>HEARTS LEFT:</span>
                 <span className="text-rose-500 font-bold flex items-center gap-0.5">
                   <Heart size={10} className="fill-rose-500" /> {gameState.player.hearts} Hearts
                 </span>
@@ -807,15 +807,15 @@ export default function App() {
             </div>
 
             <p className="text-xs text-slate-300 font-mono leading-relaxed bg-slate-950/40 p-3 rounded-lg border border-slate-800">
-              <b>PROTOTYPE VALIDATION SUCCESSFUL</b>:<br />
-              The five universal interaction rules (Flammable, Conductive, Loud, Reflective, Adhesive) have successfully enabled emergent, non-memorized puzzle solutions across procedural rooms!
+              <b>Nice work, you got out</b>:<br />
+              You read every guard and used each room's items to escape. Try again for a different set of rooms.
             </p>
 
             <button
               onClick={startNewRun}
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black tracking-widest font-mono py-3.5 rounded-xl transition-all hover:scale-[1.01] flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 text-slate-900 text-sm uppercase"
             >
-              <RotateCcw size={16} /> REPLAY VALIDATION EXPERIMENT
+              <RotateCcw size={16} /> PLAY AGAIN
             </button>
           </div>
         )}
@@ -823,7 +823,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="bg-slate-950 border-t border-slate-900 py-4 text-center text-[10px] font-mono text-slate-600 mt-auto">
-        <p>© 2026 Facility Escape Security Sandbox. Built for Google AI Studio Build.</p>
+        <p>Facility Escape</p>
       </footer>
     </div>
   );
