@@ -298,11 +298,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/shoal-reef-report |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — reefReport.ts (6 stats + nudge) wired into extinction screen; peak/end algae tracked; shoal-session-note paragraph added. `npx vitest run test_shoal_reef_report.tsx test_shoal_chrome_polish.ts test_shoal_new_reef_control.ts test_shoal_config.ts` → 4 files / 45 passed (chrome-polish lower per spec allowance: headless-test directive merged); `npx tsc --noEmit` → clean exit 0 with game-metadata.json present. git diff --stat: App.tsx + TitleScreen.tsx only + 2 new files. Controller finish: Playwright screenshots 1280/390px (six-stat row must not overflow at 390), npm run build:shoal after merge.
 <!-- queue:end -->

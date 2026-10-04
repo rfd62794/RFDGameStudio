@@ -103,6 +103,9 @@ export default function TitleScreen({ session, onStart, onHowToPlay }: TitleScre
           <p className="shoal-title-hint">
             Same seed reproduces the starting reef. The simulation itself is not seeded.
           </p>
+          <p className="shoal-title-hint" data-testid="shoal-session-note">
+            Your reef is not saved. It lives in this tab until you leave or start a new one.
+          </p>
         </div>
       </SharedTitleScreen>
     </div>
