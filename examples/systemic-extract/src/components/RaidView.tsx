@@ -46,6 +46,7 @@ interface RaidViewProps {
   equippedWeapon?: WeaponId;
   unlockedWeapons?: WeaponId[];
   onEndRaid: () => void;
+  onNewRun: () => void;
   onOpenInspector: () => void;
 }
 
@@ -59,6 +60,7 @@ export const RaidView: React.FC<RaidViewProps> = ({
   equippedWeapon = 'kinetic_scattergun' as WeaponId,
   unlockedWeapons = ['kinetic_scattergun'] as WeaponId[],
   onEndRaid,
+  onNewRun,
   onOpenInspector,
 }) => {
   const {
@@ -170,6 +172,7 @@ export const RaidView: React.FC<RaidViewProps> = ({
         onOpenInspector={onOpenInspector}
         onToggleMute={toggleMute}
         onOpenHelp={() => setShowHelp(true)}
+        onNewRun={onNewRun}
       />
 
       {/* OVERWORLD: GATE PROXIMITY DEPLOYMENT POPUP */}

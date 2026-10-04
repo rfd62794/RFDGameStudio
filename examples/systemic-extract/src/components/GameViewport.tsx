@@ -13,6 +13,7 @@ import { SectorId, WeaponId } from '../types';
 
 export const GameViewport: React.FC = () => {
   const [showInspector, setShowInspector] = useState(false);
+  const [runId, setRunId] = useState(0);
 
   // Operative initial deployment parameters
   const [activeConfig] = useState<{
@@ -35,13 +36,13 @@ export const GameViewport: React.FC = () => {
     unlockedWeapons: ['kinetic_scattergun', 'plasma_pulse_array'],
   });
 
-  const handleEndRaid = () => {
-    // In the contiguous megamap, extraction brings the operative safely back to the Sanctuary Core.
-  };
+  // In the contiguous megamap, extraction brings the operative safely back to the Sanctuary Core.
+  const startNewRun = () => setRunId(n => n + 1);
 
   return (
     <div id="unified-game-viewport" className="relative w-full h-screen overflow-hidden bg-[#090d13]">
       <RaidView
+        key={runId}
         initialCharges={activeConfig.charges}
         initialMedkits={activeConfig.medkits}
         initialFlares={activeConfig.flares}
@@ -50,7 +51,8 @@ export const GameViewport: React.FC = () => {
         hasHazmatSuit={activeConfig.hasHazmat}
         equippedWeapon={activeConfig.equippedWeapon}
         unlockedWeapons={activeConfig.unlockedWeapons}
-        onEndRaid={handleEndRaid}
+        onEndRaid={startNewRun}
+        onNewRun={startNewRun}
         onOpenInspector={() => setShowInspector(true)}
       />
 

@@ -11,6 +11,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { SectorId, WeaponId } from '../../types';
+import { RaidRestartButton } from './RaidRestartButton';
 
 interface RaidHUDProps {
   playerHp: number;
@@ -36,6 +37,7 @@ interface RaidHUDProps {
   onOpenInspector: () => void;
   onToggleMute: () => void;
   onOpenHelp: () => void;
+  onNewRun?: () => void;
 }
 
 export const RaidHUD: React.FC<RaidHUDProps> = ({
@@ -62,6 +64,7 @@ export const RaidHUD: React.FC<RaidHUDProps> = ({
   onOpenInspector,
   onToggleMute,
   onOpenHelp,
+  onNewRun,
 }) => {
   const hpPercentage = Math.max(0, Math.min(100, (playerHp / playerMaxHp) * 100));
 
@@ -296,6 +299,7 @@ export const RaidHUD: React.FC<RaidHUDProps> = ({
 
       {/* TOP RIGHT CONTROLS */}
       <div className="flex items-center gap-2 pointer-events-auto">
+        {onNewRun && <RaidRestartButton onRestart={onNewRun} />}
         <button
           id="btn-ecs-inspector"
           onClick={onOpenInspector}
