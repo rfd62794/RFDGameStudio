@@ -8,7 +8,6 @@ const SOURCES: Record<string, unknown> = {
   slimebreeder: { kind: 'sibling', repo: 'SlimeBreeder' },
   corpworld: { kind: 'example', slug: 'corpworld' },
   slimegarden: { kind: 'example', slug: 'slimegarden' },
-  slimeworld: { kind: 'example', slug: 'slimeworld' },
   '7_days_to_fry': { kind: 'example', slug: '7-days-to-fry' },
   kingmaker_squads: { kind: 'example', slug: 'kingmaker-squads' },
   antsim_redux: { kind: 'example', slug: 'antsim-redux' },

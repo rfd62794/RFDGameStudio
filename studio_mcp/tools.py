@@ -687,6 +687,17 @@ def _is_dist_stale(dist_dir: Path, source_dir: Path) -> bool:
     return dist_newest < source_newest
 
 
+def _demos_needing_example_copy(demos: list[str], static_names: dict[str, str],
+                                standalone_ids: set[str]) -> list[str]:
+    """Example demos that still need their examples/ dist copied.
+
+    A demo whose arcade static name already has a ts/dist-<name>/ standalone
+    build is deployed by the standalone copy loop; copying its example dist
+    afterwards would overwrite the standalone build.
+    """
+    return [slug for slug in demos if static_names[slug] not in standalone_ids]
+
+
 def _prepare_site_arcade(run=None) -> dict:
     """Export the arcade manifest, inject return pills, and refresh build health.
 
@@ -743,13 +754,39 @@ def studio_deploy_arcade() -> dict:
             "tool": "studio_deploy_arcade",
         }
 
-    # Verify all example demo dists exist before copying anything
-    demos = _example_demos()
+    # TS-native standalone builds: each ts/dist-{gameId}/ directory is a
+    # self-contained Vite build that should be served at /arcade/{gameId}/.
+    # Discover them dynamically rather than hardcoding, so new games are
+    # picked up automatically once they have a build script + dist directory.
+    ts_root = repo_root / "ts"
+    standalone_builds: list[tuple[str, Path]] = []
+    for dist_dir_candidate in sorted(ts_root.iterdir()):
+        if dist_dir_candidate.is_dir() and dist_dir_candidate.name.startswith("dist-"):
+            game_id = dist_dir_candidate.name[len("dist-"):]
+            if (dist_dir_candidate / "index.html").exists():
+                source_candidate = ts_root / "src" / "games" / game_id
+                if _is_dist_stale(dist_dir_candidate, source_candidate):
+                    return {
+                        "error": f"{dist_dir_candidate} is older than {source_candidate}. Build it first.",
+                        "tool": "studio_deploy_arcade",
+                        "stale_standalone": game_id,
+                    }
+                standalone_builds.append((game_id, dist_dir_candidate))
+
+    # Verify all example demo dists exist before copying anything. Demos
+    # whose static name already has a standalone build are skipped in all
+    # three example-demo loops below (precheck, staleness, copy).
+    all_demos = _example_demos()
+    static_names = _demo_static_names()
+    standalone_ids = {game_id for game_id, _ in standalone_builds}
+    demos = _demos_needing_example_copy(all_demos, static_names, standalone_ids)
+    skipped_example_demos = [slug for slug in all_demos if slug not in set(demos)]
     for demo_slug in demos:
         demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
         if not demo_dist.exists():
             return {
-                "error": f"{_demo_source_path(demo_slug, repo_root)} / dist/ does not exist. Build it first.",
+                "error": f"demo '{demo_slug}' has neither ts/dist-{static_names[demo_slug]}/index.html "
+                         f"nor {_demo_source_path(demo_slug, repo_root)} / dist/. Build it first.",
                 "tool": "studio_deploy_arcade",
             }
 
@@ -775,25 +812,6 @@ def studio_deploy_arcade() -> dict:
         }
 
     target_dir = _SITE_REPO_PATH / "static" / "arcade" / "rfdgamestudio"
-
-    # TS-native standalone builds: each ts/dist-{gameId}/ directory is a
-    # self-contained Vite build that should be served at /arcade/{gameId}/.
-    # Discover them dynamically rather than hardcoding, so new games are
-    # picked up automatically once they have a build script + dist directory.
-    ts_root = repo_root / "ts"
-    standalone_builds: list[tuple[str, Path]] = []
-    for dist_dir_candidate in sorted(ts_root.iterdir()):
-        if dist_dir_candidate.is_dir() and dist_dir_candidate.name.startswith("dist-"):
-            game_id = dist_dir_candidate.name[len("dist-"):]
-            if (dist_dir_candidate / "index.html").exists():
-                source_candidate = ts_root / "src" / "games" / game_id
-                if _is_dist_stale(dist_dir_candidate, source_candidate):
-                    return {
-                        "error": f"{dist_dir_candidate} is older than {source_candidate}. Build it first.",
-                        "tool": "studio_deploy_arcade",
-                        "stale_standalone": game_id,
-                    }
-                standalone_builds.append((game_id, dist_dir_candidate))
 
     try:
         # Copy main arcade app
@@ -823,7 +841,7 @@ def studio_deploy_arcade() -> dict:
         # Copy each example demo
         for demo_slug in demos:
             demo_dist = _demo_source_path(demo_slug, repo_root) / "dist"
-            static_name = _demo_static_names()[demo_slug]
+            static_name = static_names[demo_slug]
             demo_target = _SITE_REPO_PATH / "static" / "arcade" / static_name
             if demo_target.exists():
                 shutil.rmtree(demo_target)
@@ -908,6 +926,7 @@ def studio_deploy_arcade() -> dict:
         return {
             "copied_files": copied_files,
             "standalone_builds": [gid for gid, _ in standalone_builds],
+            "skipped_example_demos": skipped_example_demos,
             "build": build_result,
             "deploy": deploy_result,
             "verification": verification,
