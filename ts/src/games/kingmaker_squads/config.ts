@@ -10,7 +10,7 @@ const config: GameConfig = {
   source: { kind: 'example', slug: 'kingmaker-squads' },
   label: 'Kingmaker Squads',
   supersededBy: 'planetofgreed',
-  description: 'Origin project — Planet of Greed\'s wheel/culture-identity design source, superseded by the current, live Planet of Greed (ts/src/games/planetofgreed/). A tactical squad strategy game.',
+  description: 'Origin project — Planet of Greed\'s wheel/culture-identity design source, superseded by the current, live Planet of Greed. A tactical squad strategy game.',
   color: '#6c8ef7',
   status: 'external',
   genre: 'combat-arena',
