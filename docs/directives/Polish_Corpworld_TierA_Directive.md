@@ -208,4 +208,5 @@ merge; it is not part of this run.
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for corpworld (Origin entry): blurb path leak, stale README, source location note; docs/demos/corpworld/SCOPE.md
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved
 - 2026-10-04 02:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-corpworld-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 02:41 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-corpworld-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
