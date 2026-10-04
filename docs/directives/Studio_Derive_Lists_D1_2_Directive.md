@@ -387,7 +387,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-studio-derive-lists-d1-2-directive |
 | Base branch | - |
@@ -398,4 +398,5 @@ none.
 - 2026-10-04 12:20 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; Robert 2026-10-04 12:20 'I approve all recommendations'; D1.1 merged 87961f0b
 - 2026-10-04 12:21 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-derive-lists-d1-2-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 12:21 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-derive-lists-d1-2-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 12:39 · devin-overseer (delegated) · In progress → Blocked — All edits done and verified (vitest 6 files/51 tests, tsc clean, pytest 7 passed, full pre-push suites green: 979 py + 2331 ts; pushed 5bf2bab7). Remaining step impossible in sandbox: delete tests/fixtures/demo_lists_snapshot.json and tests/test_demos_registry_parity.py -- `rm tests/fixtures/demo_lists_snapshot.json` denied and no deletion command (rm/del/Remove-Item/git rm) is permitted; `npx vite-node tools/export-registry.ts` also refused. One deletion command completes the directive.
 <!-- queue:end -->
