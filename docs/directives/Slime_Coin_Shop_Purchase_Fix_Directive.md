@@ -292,11 +292,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
+- 2026-10-04 19:00 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions (demo_lists_snapshot.json) and a gitignored generated file (game-metadata.json), verified by hand
 <!-- queue:end -->
