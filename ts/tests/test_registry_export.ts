@@ -16,6 +16,7 @@ const SOURCES: Record<string, unknown> = {
   planetforge: { kind: 'example', slug: 'planetforge' },
   voiddrift_redux: { kind: 'example', slug: 'voiddrift-redux-core-loop' },
   coin_pusher_arcade: { kind: 'example', slug: 'coin-pusher-arcade' },
+  voidrift_particle_sandbox: { kind: 'example', slug: 'voidrift-redux-particle-sandbox' },
 };
 
 describe('registry export', () => {

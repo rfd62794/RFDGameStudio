@@ -182,6 +182,11 @@
       "label": "VoidDrift Redux"
     },
     {
+      "id": "voidrift_particle_sandbox",
+      "path": "ts/src/games/voidrift_particle_sandbox",
+      "label": "VoidRift Particle Sandbox"
+    },
+    {
       "id": "wire_rust",
       "path": "ts/src/games/wire_rust",
       "label": "Wire & Rust"
