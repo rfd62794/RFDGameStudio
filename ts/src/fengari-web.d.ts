@@ -9,6 +9,7 @@
     LUA_TFUNCTION: number;
     lua_type(L: unknown, idx: number): number;
     lua_gettop(L: unknown): number;
+    lua_checkstack(L: unknown, n: number): number;
     lua_pop(L: unknown, n: number): void;
     lua_pushnil(L: unknown): void;
     lua_pushboolean(L: unknown, b: number): void;

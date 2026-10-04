@@ -68,6 +68,10 @@ export class LuaExecutor {
   }
 
   private pushValue(val: unknown): void {
+    // fengari's C API does not grow the stack by itself: a deeply nested table argument
+    // (for example the whole game data table) overflows the default 20 slots and throws
+    // "Error: false" from lua_pushnumber. Reserve room before every push.
+    lua.lua_checkstack(this.L, 4);
     if (val === null || val === undefined) {
       lua.lua_pushnil(this.L);
     } else if (typeof val === 'boolean') {

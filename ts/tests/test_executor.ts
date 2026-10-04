@@ -10,6 +10,7 @@ vi.mock('fengari-web', () => {
       lua_type: vi.fn(),
       lua_gettop: vi.fn(() => 1),
       lua_pop: vi.fn(),
+      lua_checkstack: vi.fn(() => 1),
       lua_pushnil: vi.fn(),
       lua_pushboolean: vi.fn(),
       lua_pushnumber: vi.fn(),
