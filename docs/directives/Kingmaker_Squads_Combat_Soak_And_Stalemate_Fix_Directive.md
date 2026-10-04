@@ -224,11 +224,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/kingmaker-combat-soak |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:10 · devin-cleanroom · Queued → Review — stalemate guard + 10 unused imports + soak test: `vitest run test_kingmaker_combat_soak.ts` → `1 file / 4 passed` (~1s, all 225 matchups finish); `tsc --noEmit` → only the 4 pre-existing game-metadata.json errors
 <!-- queue:end -->
