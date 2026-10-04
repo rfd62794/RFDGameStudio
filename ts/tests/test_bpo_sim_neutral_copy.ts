@@ -31,43 +31,141 @@ const SCANNED = [
   join(REPO, 'ts', 'src', 'games', 'bpo_sim', 'config.ts'),
 ];
 
-function termRegex(term: string): RegExp {
+function termRegex(term: string, caseSensitive = false): RegExp {
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return /^[a-z0-9]/i.test(term) && /[a-z0-9]$/i.test(term) ? new RegExp(`\\b${escaped}\\b`, 'i') : new RegExp(escaped, 'i');
+  const flags = caseSensitive ? '' : 'i';
+  return /^[a-z0-9]/i.test(term) && /[a-z0-9]$/i.test(term) ? new RegExp(`\\b${escaped}\\b`, flags) : new RegExp(escaped, flags);
 }
 
-function scan(terms: string[]): string[] {
-  const rules = terms.map((t) => ({ t, re: termRegex(t) }));
+type Rule = { t: string; re: RegExp };
+const rulesFor = (terms: string[], caseSensitive = false): Rule[] => terms.map((t) => ({ t, re: termRegex(t, caseSensitive) }));
+
+/** Scan one text; `label` names the file. Pure, so the positive tests below can feed it synthetic strings. */
+function scanText(label: string, text: string, rules: Rule[]): string[] {
   const hits: string[] = [];
-  for (const file of SCANNED) {
-    readFileSync(file, 'utf8').split(/\r?\n/).forEach((line, i) => {
-      for (const { t, re } of rules) {
-        if (re.test(line)) hits.push(`${relative(REPO, file).replace(/\\/g, '/')}:${i + 1}: "${line.trim().slice(0, 100)}" contains "${t}"`);
-      }
-    });
-  }
+  text.split(/\r?\n/).forEach((line, i) => {
+    for (const { t, re } of rules) {
+      if (re.test(line)) hits.push(`${label}:${i + 1}: "${line.trim().slice(0, 100)}" contains "${t}"`);
+    }
+  });
   return hits;
 }
 
-const allTerms = Object.entries(blocklist).filter(([k]) => k !== 'version').flatMap(([, v]) => v as string[]);
+const rel = (file: string) => relative(REPO, file).replace(/\\/g, '/');
+function scanFiles(check: (label: string, text: string) => string[]): string[] {
+  return SCANNED.flatMap((file) => check(rel(file), readFileSync(file, 'utf8')));
+}
+const scan = (rules: Rule[]) => scanFiles((label, text) => scanText(label, text, rules));
+
+/** ISO 3166 alpha-2 and alpha-3 codes of every country in countries.yaml. */
+const COUNTRY_CODES = ['ph', 'phl', 'in', 'ind', 'my', 'mys', 'vn', 'vnm', 'pl', 'pol', 'ro', 'rou', 'eg', 'egy', 'za', 'zaf', 'ke', 'ken', 'co', 'col', 'mx', 'mex', 'cr', 'cri'];
+const CODE = `(['"\`])(?:${COUNTRY_CODES.join('|')})\\1`;
+const CMP_LEFT = new RegExp(`\\b\\w*country\\w*\\s*[!=]==?\\s*${CODE}`, 'i');
+const CMP_RIGHT = new RegExp(`${CODE}\\s*[!=]==?\\s*[\\w.]*country\\w*`, 'i');
+const INCLUDES = new RegExp(`\\[[^\\]]*${CODE}[^\\]]*\\]\\.includes\\(\\s*[\\w.]*country`, 'i');
+const SWITCH_ON_COUNTRY = /switch\s*\(\s*[\w.]*country\w*/i;
+const CASE_CODE = new RegExp(`\\bcase\\s+${CODE}`, 'i');
+
+/** A country code compared against a country variable is a country-specific branch, whatever the spelling. */
+function codeBranchHits(label: string, text: string): string[] {
+  const hits: string[] = [];
+  const switching = SWITCH_ON_COUNTRY.test(text);
+  text.split(/\r?\n/).forEach((line, i) => {
+    const bad = CMP_LEFT.test(line) || CMP_RIGHT.test(line) || INCLUDES.test(line) || (switching && CASE_CODE.test(line));
+    if (bad) hits.push(`${label}:${i + 1}: "${line.trim().slice(0, 100)}" branches on a country code`);
+  });
+  return hits;
+}
+
+const caseSensitiveCodes = (blocklist.case_sensitive_codes as string[]) ?? [];
+const caseInsensitiveTerms = Object.entries(blocklist)
+  .filter(([k]) => k !== 'version' && k !== 'case_sensitive_codes')
+  .flatMap(([, v]) => v as string[]);
+const allRules = [...rulesFor(caseInsensitiveTerms), ...rulesFor(caseSensitiveCodes, true)];
+
+const REQUIRED_CATEGORIES = [
+  'national_and_place_terms', 'brand_terms', 'local_language_and_currency_terms', 'region_specific_terms', 'stereotype_terms',
+  'retired_cast_names', 'demonym_terms', 'city_and_hub_terms', 'currency_terms', 'language_terms', 'stereotype_phrase_terms', 'case_sensitive_codes',
+];
 
 describe('test_bpo_sim_neutral_copy', () => {
   it('the blocklist file lists terms in every category', () => {
     const categories = Object.keys(blocklist).filter((k) => k !== 'version');
-    expect(categories.length).toBe(6);
+    expect([...categories].sort()).toEqual([...REQUIRED_CATEGORIES].sort());
     for (const c of categories) expect((blocklist[c] as string[]).length, c).toBeGreaterThan(1);
-    expect(allTerms.length).toBeGreaterThan(60);
+    expect(caseInsensitiveTerms.length + caseSensitiveCodes.length).toBeGreaterThan(250);
   });
 
   it('no blocked national, brand, language, currency or stereotype term appears in the shipped copy or code', () => {
-    const hits = scan(allTerms);
+    const hits = scan(allRules);
     expect(hits, `Neutral copy violations:\n${hits.join('\n')}`).toEqual([]);
   });
 
   it('no country is named outside countries.yaml (no country-specific branches or copy)', () => {
     const names = countries.flatMap((c) => [c.name, c.id]);
-    const hits = scan(names);
+    const hits = scan(rulesFor(names));
     expect(hits, `Country named outside countries.yaml:\n${hits.join('\n')}`).toEqual([]);
+  });
+
+  it('no country code is compared against a country variable outside countries.yaml', () => {
+    const hits = scanFiles(codeBranchHits);
+    expect(hits, `Country-code branches:\n${hits.join('\n')}`).toEqual([]);
+  });
+
+  it('every listed term is caught by its own rule (positive test for the whole list, incl. non-ASCII terms)', () => {
+    for (const t of caseInsensitiveTerms) {
+      expect(scanText('fixture', `a ${t.toUpperCase()} b`, rulesFor([t])).length, t).toBe(1);
+    }
+    for (const t of caseSensitiveCodes) {
+      expect(scanText('fixture', `price: ${t} 5`, rulesFor([t], true)).length, t).toBe(1);
+      expect(scanText('fixture', `price: ${t.toLowerCase()} 5`, rulesFor([t], true)), t).toEqual([]);
+    }
+  });
+
+  it('the new categories fail on realistic synthetic copy (fixtures live here, not in the game files)', () => {
+    const fixtures: Array<[string, string]> = [
+      ['city', 'Open a new floor in Mumbai'],
+      ['city hub', "hub: 'Bangalore'"],
+      ['demonym', 'They hired another Indian agent'],
+      ['accent shorthand', 'The Indian accent training course'],
+      ['currency name', 'Pay the rupee bonus'],
+      ['currency symbol', 'cost: ₹500'],
+      ['currency code', 'wage: 400 PLN'],
+      ['language', 'Support in Hindi and Tamil'],
+      ['spanish as national marker', 'Spanish speaking team'],
+      ['native speaker', 'Only native speakers apply'],
+      ['stereotype', 'cheap labor and a sweatshop'],
+      ['food shorthand', 'curry lunch'],
+      ['polish as a language', 'a Polish speaker joins'],
+    ];
+    for (const [name, text] of fixtures) expect(scanText('fixture', text, allRules).length, name).toBeGreaterThan(0);
+  });
+
+  it('ordinary English that shares letters with a blocked term does not fire', () => {
+    const ok = [
+      'Polish the UI before launch',
+      'className="accent-sky-500"',
+      '// Accent stripe',
+      'const cop = 1; // crc checksum, ron the intern',
+      'const r = rand() * 2;',
+    ];
+    for (const text of ok) expect(scanText('fixture', text, allRules), text).toEqual([]);
+  });
+
+  it('country-code branches fail on every spelling, and ordinary comparisons pass', () => {
+    const bad = [
+      'if (country === "in") {',
+      "if (country === 'IN') {",
+      'if (country == "PH") {',
+      'if (countryId !== `vn`) {',
+      'return "pl" === state.countryId;',
+      "const isLatam = ['MX', 'CO', 'CR'].includes(country);",
+    ];
+    for (const line of bad) expect(codeBranchHits('fixture', line).length, line).toBe(1);
+    const sw = 'switch (country) {\n  case "ke":\n    return 1;\n}';
+    expect(codeBranchHits('fixture', sw).length).toBe(1);
+    const good = ['if (country === selected) {', 'const label = "in";', 'if (mode === "in") {', 'switch (mode) {\n case "in":\n}'];
+    for (const text of good) expect(codeBranchHits('fixture', text), text).toEqual([]);
   });
 
   it('the cast is a varied mix: three real name pools, no repeats, none of the retired names', () => {
