@@ -530,3 +530,17 @@ four URLs have no source.
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 11:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified, verified, sandbox-safe build work; dispatch only after D1.1 (in progress) merges.
+<!-- queue:end -->
