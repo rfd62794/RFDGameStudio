@@ -145,9 +145,12 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
+| Branch | - |
+| Base branch | - |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/antsim_redux/SCOPE.md (Robert 2026-10-04: keep the embed, Tier A fix only)
+- 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
