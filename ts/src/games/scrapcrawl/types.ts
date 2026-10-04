@@ -1,3 +1,5 @@
+import type { RunProgress } from './utils/runEnd';
+
 export type GearSlot = 'weapon' | 'shield' | 'armor';
 export type InteractionType = 'fight' | 'craft' | 'rest' | 'home';
 export type CatalogId = 'beatStick' | 'shield' | 'bodyArmor' | 'tool';
@@ -66,4 +68,5 @@ export interface ScrapCrawlGameState {
   combatHistory: string[];
   lastResult?: FightResult;
   message: string;
+  run: RunProgress;
 }
