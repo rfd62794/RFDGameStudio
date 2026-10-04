@@ -6,6 +6,7 @@ import { processTurn } from './utils/turnEngine';
 import GameBoard from './components/GameBoard';
 import InventoryPanel from './components/InventoryPanel';
 import GameLog from './components/GameLog';
+import { FIRST_TURN_HINT, shouldShowFirstTurnHint } from './utils/firstTurnHint';
 import { 
   Shield, 
   Heart, 
@@ -637,6 +638,11 @@ export default function App() {
         {/* State B: Active Sandbox Gameplay Screen */}
         {gameState.gameState === 'playing' && (
           <div className="w-full flex flex-col gap-4">
+            {shouldShowFirstTurnHint(gameState.roomNumber, gameState.turnCount) && (
+              <div className="bg-sky-950/40 border border-sky-500/30 rounded-xl p-3 text-xs font-mono text-sky-200" role="note">
+                {FIRST_TURN_HINT.map(line => (<p key={line}>{line}</p>))}
+              </div>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               
               {/* Left Column: Player Stats & Key Mechanics Details */}
