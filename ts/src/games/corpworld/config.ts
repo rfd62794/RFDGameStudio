@@ -10,7 +10,7 @@ const config: GameConfig = {
   source: { kind: 'example', slug: 'corpworld' },
   label: 'CorpWorld',
   supersededBy: 'planetofgreed',
-  description: 'Origin project — Planet of Greed\'s fork ancestor, superseded by the current, live Planet of Greed (ts/src/games/planetofgreed/). A cold-corporate land-grab on a newly-discovered planet — Voronoi-tessellated territory, symmetric fog-of-war, deterministic Circle/Square/Triangle combat, multi-action weekly orders, and per-sector Civic Directives.',
+  description: 'Origin project — Planet of Greed\'s fork ancestor, superseded by the current, live Planet of Greed. A cold-corporate land-grab on a newly-discovered planet — Voronoi-tessellated territory, symmetric fog-of-war, deterministic Circle/Square/Triangle combat, multi-action weekly orders, and per-sector Civic Directives.',
   color: '#f59e0b',
   status: 'external',
   genre: 'colony-4x',
