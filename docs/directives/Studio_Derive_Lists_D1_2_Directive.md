@@ -397,4 +397,5 @@ none.
 - 2026-10-04 11:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified build work; dispatch only after D1.1 merges (directive STOPs if registry.ts still has per-config imports)
 - 2026-10-04 12:20 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; Robert 2026-10-04 12:20 'I approve all recommendations'; D1.1 merged 87961f0b
 - 2026-10-04 12:21 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-derive-lists-d1-2-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 12:21 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-derive-lists-d1-2-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
