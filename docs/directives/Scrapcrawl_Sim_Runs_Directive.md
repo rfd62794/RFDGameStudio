@@ -185,3 +185,17 @@ Findings first: the two win rates printed (unarmed and crafted). Evidence second
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:15 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
