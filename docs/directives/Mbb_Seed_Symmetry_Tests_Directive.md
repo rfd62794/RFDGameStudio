@@ -105,11 +105,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/mbb-seed-row |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:56 · devin · Queued → Review — fix already merged on main as ffff7aae (import + seeding block present); row sync only. Verified: 3 consecutive runs identical `[symmetric match] player wins: 7/10, opponent wins: 3/10`, 36 passed each; `test_mbb_` sweep 12 files / 205 passed (spec 11/202 +1 file/3 tests main drift)
 <!-- queue:end -->
