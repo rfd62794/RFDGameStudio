@@ -204,7 +204,7 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-planetofgreed-tiera-directive |
 | Base branch | - |
@@ -215,4 +215,5 @@ merge; it is not part of this run.
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved — lint override: sole error(s) are the file the run creates (ts/tests/test_planetofgreed_save_key.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 00:17 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 00:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetofgreed-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 00:29 · devin · In progress → Blocked — Work done+verified (vitest 3 files/36 tests pass; commit d0c37314 on branch) but push refused by pre-push hook: pre-existing failure studio_mcp/zip_verify test_existing_certified_fixtures_unaffected_by_md_exclusion, caused by wave-1 directive commit bfa84dcd already on origin/main — unrelated to this change. Fix/skip that test or push --no-verify, then flip to Review.
 <!-- queue:end -->
