@@ -4,8 +4,9 @@
 
 import React, { useEffect } from 'react';
 import { ChessIcon } from './ChessIcon';
+import { RestartButton } from './RestartButton';
 import { soundFx } from '../utils/audio';
-import { Shield, Volume2, VolumeX, HelpCircle, RotateCcw, Crown, Sparkles, Swords, ShieldAlert } from 'lucide-react';
+import { Shield, Volume2, VolumeX, HelpCircle, Crown, Sparkles, Swords, ShieldAlert } from 'lucide-react';
 import { DefenseForce, UnitState } from '../types';
 
 interface HeaderBarProps {
@@ -209,13 +210,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           <span>Codex</span>
         </button>
 
-        <button
-          onClick={onRestartGame}
-          className="p-2 rounded-md bg-zinc-900 hover:bg-rose-950/40 text-zinc-400 hover:text-rose-300 border border-zinc-800 transition"
-          title="Restart Campaign"
-        >
-          <RotateCcw className="w-4 h-4" />
-        </button>
+        <RestartButton onConfirm={onRestartGame} />
       </div>
     </header>
   );

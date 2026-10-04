@@ -77,6 +77,11 @@ export default function App() {
     setShowOpeningSequence(false);
   };
 
+  const handleRestartCampaign = () => {
+    setGameState(createInitialGameState());
+    setShowNewGameScreen(true);
+  };
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
   }, [gameState]);
@@ -223,7 +228,7 @@ export default function App() {
         isMuted={isMuted}
         onToggleMute={() => setIsMuted(soundFx.toggleMute())}
         onOpenCodex={() => setShowCodex(true)}
-        onRestartGame={() => setShowNewGameScreen(true)}
+        onRestartGame={handleRestartCampaign}
       />
 
       <CoronationBanner
