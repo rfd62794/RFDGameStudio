@@ -224,7 +224,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26 |
 | Base branch | - |
@@ -238,4 +238,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 19:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 19:05 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 19:20 · devin · In progress → Review — Stalemate guard added to simulateCombat (round that adds no frames breaks the while loop); 10 unused imports removed across combatEngine/archetypes/cityGenerator/patchGenerator; new ts/tests/test_kingmaker_combat_soak.ts (4 tests). Verified: npx vitest run test_kingmaker_combat_soak.ts = 4/4 passed ~3.3s; npx tsc --noEmit exit 0 (zero errors — gitignored game-metadata.json present in worktree, so even the 4 expected baseline errors are absent). Pushed; pre-push hook ran full pytest+vitest suite, all green. [origin] spent: devin 14 min est. n/a
+- 2026-10-04 19:25 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
