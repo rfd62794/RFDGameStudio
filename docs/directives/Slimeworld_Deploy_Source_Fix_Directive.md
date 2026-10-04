@@ -219,15 +219,18 @@ none
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slimeworld-deploy-source-fix-directive |
 | Base branch | - |
 | Base commit | e4088475caa716760cccf807cb4c73e4c1a66e65 |
+| Head commit | d9f455185d1a07b0c955f792f669819d17a9d407 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — priority high: live /arcade/slimeworld/ serves the SlimeGarden build; deploy copy order + slimeworld config source fix; no deploy in this run
 - 2026-10-03 22:58 · robert-claude-laptop · Queued → Approved — lint override: sole remaining error is tests/test_deploy_arcade_copy_order.py, a file the run creates and marks new; main's dispatch lint (PR #500) honours the marker, this queue MCP process still runs pre-fix lint until reconnect; the real defect (nonexistent violations-baseline.txt) was fixed in PR #74
 - 2026-10-03 22:58 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-deploy-source-fix-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-03 22:59 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-deploy-source-fix-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-03 23:11 · devin · In progress → Review — 4+16+8 pytest, 3 vitest passed; copy-order fix + slimeworld source drop committed d9f45518 [origin] spent: devin 11 min est. n/a
 <!-- queue:end -->
