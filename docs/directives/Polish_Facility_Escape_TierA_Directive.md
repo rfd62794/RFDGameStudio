@@ -169,4 +169,5 @@ none. Deploying the rebuilt embed is Robert's, after review.
 - 2026-10-03 23:59 · claude · none → Queued — wave 1 Tier A directive from docs/demos/facility_escape/SCOPE.md
 - 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are the file the run creates (test_facility_escape_blurb.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 03:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-facility-escape-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 03:25 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-facility-escape-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
