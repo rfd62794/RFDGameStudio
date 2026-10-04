@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+  .font-retro {
+    font-family: 'VT323', monospace;
+  }
+}
+
+/* Custom retro pixel button border */
+.pixel-btn {
+  box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.4), inset 2px 2px 0px rgba(255, 255, 255, 0.2);
+}
+
+.pixel-btn:active {
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.4);
+  transform: translateY(1px);
+}
+
+/* Custom scrollbar for retro look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

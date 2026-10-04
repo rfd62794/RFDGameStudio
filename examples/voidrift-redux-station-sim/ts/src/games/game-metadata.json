@@ -1,0 +1,9 @@
+{
+  "voidrift_redux": {
+    "name": "VoidRift Redux",
+    "description": "Space station simulation and cosmic reconstruction game.",
+    "pipeline_stage": "website_collection",
+    "status": "dev",
+    "color": "#7c3aed"
+  }
+}

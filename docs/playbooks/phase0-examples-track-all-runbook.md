@@ -20,17 +20,17 @@ Never commit to main: work on branch `chore/examples-track-all`. Merging is the 
    Nothing else is needed: `node_modules/` (lines 14, 66) and `dist/` (lines 14, 73, 228) already ignore dependencies everywhere.
 5. Verify the inversion, one command per call (these were dry-run in a scratch worktree on 2026-10-04 and gave the results shown):
    - `git check-ignore -v examples/scrapcrawl/x` prints nothing, exit 1 (not ignored).
-   - `git check-ignore -v examples/brewfield/node_modules/x` prints `.gitignore:66:node_modules/	examples/brewfield/node_modules/x`.
+   - `git check-ignore -v examples/brewfield/node_modules/x` prints `examples/brewfield/.gitignore:1:node_modules/	examples/brewfield/node_modules/x` (the rule comes from the folder's own .gitignore, lines 1 and 3, not the root file).
    - `git check-ignore -v examples/brewfield/dist/x` prints a `dist` rule (was `.gitignore:212:dist*/` in the dry run; the line number moves after the edit, the rule is what matters).
 6. Add the nine vetted folders explicitly, one `git add` per call, never `git add -A` or `git add examples`:
    `armory-storefront-spindle`, `brewfield`, `corpworld`, `filipino-bpo-simulator`, `mutant-battle-ball`, `planetofgreed`, `scrapcrawl`, `slimeworld`, `voidrift-redux-station-sim`
-   (`git add examples/<name>`). Then add the 17 newly visible `assets/.aistudio/.gitignore` files with `git add examples` ONLY IF step 7 shows nothing but those 17 plus the nine folders; otherwise stop and report.
-7. Check what is staged and what remains: `git status --short examples`. Expected: the nine folders' files (274 files, matching the vet table: 21+23+24+43+15+34+28+29+57), and 17 `.aistudio/.gitignore` files; nothing under `node_modules/` or `dist/`.
+   (`git add examples/<name>`). Do NOT expect the 17 `assets/.aistudio/.gitignore` files: each holds a single `*` and ignores itself, so they stay ignored (corrected 2026-10-04). Nothing further to add.
+7. Check what is staged and what remains: `git status --short examples`. Expected: the nine folders' files (265 files: the vet table's 274 minus 9 self-ignored `.aistudio/.gitignore` files); nothing under `node_modules/` or `dist/`.
    `git ls-files --others --exclude-standard examples` must be empty after staging.
    Secret recheck on the STAGED set: `git diff --cached --name-only` then grep the vet patterns (`AIza`, `sk-`, `gh[pousr]_`, `PRIVATE KEY`, `xox[bp]-`) over those paths; expect 0 hits.
 8. Run `cd ts && npx vitest run test_registry_export.ts test_arcade_manifest.ts` (baseline 2 files, 7 tests passed on origin/main `f915dbca`); the change touches no code, so expect the same. Sandbox note: this is a Python/TS repo; use `uv run` for any Python (`Python 3.12.12`).
 9. Commit (message ends with the attribution lines the session reminder gives), push with an explicit refspec (`git push origin chore/examples-track-all:chore/examples-track-all`, no force), open a PR. Body: link `docs/state/examples-vet-2026-10-04.md`, list the nine folders and the dropped `throwaway-test`, and state "merge is not deploy".
-10. Do not merge from this runbook. After the PR merges, tick the Phase 0 item in the plan/roadmap and re-run `git ls-files examples | wc -l` (535 tracked before; expect 535 + 274 + 17 = 826).
+10. Do not merge from this runbook. After the PR merges, tick the Phase 0 item in the plan/roadmap and re-run `git ls-files examples | wc -l` (535 tracked before; expect 535 + 265 = 800).
 
 ## Stop conditions
 

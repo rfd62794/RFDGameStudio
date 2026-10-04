@@ -1,0 +1,6 @@
+{
+  "name": "CorpWorld",
+  "description": "Cold boardroom-style corporate territorial conquest game on a newly-discovered planet.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

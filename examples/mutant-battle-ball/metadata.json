@@ -1,0 +1,6 @@
+{
+  "name": "Mutant Battle Ball",
+  "description": "Brutal biological-mechanical sports management simulator where you assemble mutants, equip gear, assign tactical roles, and manage high-stakes match simulations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

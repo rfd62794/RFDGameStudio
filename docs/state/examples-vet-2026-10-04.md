@@ -25,10 +25,7 @@ Findings:
    (`GEMINI_API_KEY="MY_GEMINI_API_KEY"`, `APP_URL="MY_APP_URL"`).
 2. 9 folders are safe to track. `throwaway-test` holds a stray `package.json` (its content is a JSON string with escaped quotes, 172 bytes) and `src/App.tsx` (2 files): DROP it (delete the folder), do not track it.
 3. The 186 MB on disk for brewfield and corpworld is `node_modules`, already ignored by `.gitignore` lines 14 and 66 (`node_modules/`) and `dist/` by lines 14, 73 and 228. Inverting `examples/*` does not expose them.
-4. Not in the original spec: 293 ignored non-dependency files exist in total. 276 are inside the 10 untracked folders; the other 17 are one tiny `assets/.aistudio/.gitignore` in each of 17 ALREADY-tracked
-   example folders (7-days-to-fry, antsim-redux, coin-pusher-arcade, dissonance-prototype, facility-escape, factory-idle-precision-armory-phase1/phase2, horse-racing-&-breeding, kingmaker-squads,
-   ledger, planetforge, shoal, slimegarden, slither-rogue_-evolution, trinity-siege, voiddrift-redux-core-loop, voidrift-redux-particle-sandbox). Each contains a single `*` line (AI Studio housekeeping, no secrets
-   risk); inverting the rule will make them show as new files. Track them (consistent with "track everything") or add `examples/**/.aistudio/` to `.gitignore`: Robert's nod is not needed for either, pick one and say which.
+4. Correction (2026-10-04, found running D0.2): the 17 `assets/.aistudio/.gitignore` files (plus 9 more inside the nine untracked folders, 26 in all) each contain a single `*`, so they ignore themselves and stay ignored whatever the root rule. Inverting `examples/*` does NOT expose them; do not track them. Real count to track: 265 files in the nine folders (274 minus 9 self-ignored), giving 800 tracked under examples/ (535 + 265). The earlier "293 ignored files / 17 will show as new" finding was wrong.
 5. `git ls-files examples` shows 535 tracked files in 20 top-level folders, but only 13 are named in the `.gitignore` exceptions: 7 folders (coin-pusher-arcade, horse-racing-&-breeding, kingmaker-squads, lua,
    slither-rogue_-evolution, voiddrift-redux-core-loop, voidrift-redux-particle-sandbox) were force-added. That is the trap D0.2 closes.
 

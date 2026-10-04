@@ -188,22 +188,7 @@ intake/**/*.zip
 # Lua compiled bytecode (should never appear, but just in case)
 *.luac
 
-# Examples — pre-port originals and scratch work stay untracked;
-# active standalone demos (embedUrl tier) need real version control.
-examples/*
-!examples/ledger/
-!examples/shoal/
-!examples/trinity-siege/
-!examples/planetforge/
-!examples/7-days-to-fry/
-!examples/antsim-redux/
-!examples/dissonance-prototype/
-!examples/facility-escape/
-!examples/factory-idle-precision-armory-phase1/
-!examples/factory-idle-precision-armory-phase2/
-!examples/SlimeBreeder/
-!examples/slimegarden/
-!examples/systemic-extract/
+# Examples: everything under examples/ is tracked; dependencies and build output are ignored by the node_modules/ and dist/ rules above.
 
 # Screenshots
 screenshots/

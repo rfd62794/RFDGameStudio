@@ -1,0 +1,6 @@
+{
+  "name": "Brewfield",
+  "description": "An alchemical roguelike deckbuilding battler of composed risk, element combinations, and residue fields.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
