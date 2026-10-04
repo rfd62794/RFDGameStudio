@@ -361,7 +361,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
@@ -369,4 +369,5 @@ none.
 **Status log**
 - 2026-10-04 10:47 · robert-claude-laptop · none → Queued
 - 2026-10-04 10:48 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs
+- 2026-10-04 11:48 · robert-claude-laptop · Approved → Blocked — Landed together with D1.1 in PR #121 (merge 87961f0b): registry_files.py + consumer edits + regenerated resolve_source baseline. Closing as Superseded.
 <!-- queue:end -->
