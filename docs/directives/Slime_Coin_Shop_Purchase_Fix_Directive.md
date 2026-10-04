@@ -292,11 +292,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/sc-shop |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — shopItems.ts maps buttons to correct Lua args (pocket_coin + coin id / hand_upgrade), success only on Lua success, prices match Lua (10/10/10/20), pocket_coins + max_hand_in synced. `npx vitest run test_slime_coin` → 7 files / 33 passed (baseline 22 + 5 new + merged sweep/blurb tests); `npx tsc --noEmit` → clean exit 0 with game-metadata.json present. git status: only the 4 scope files. Controller finish: in-browser buy flow + screenshots.
 <!-- queue:end -->
