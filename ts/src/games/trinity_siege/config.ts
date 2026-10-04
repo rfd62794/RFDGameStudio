@@ -4,7 +4,7 @@ const config: GameConfig = {
   gameId: 'trinity_siege',
   source: { kind: 'example', slug: 'trinity-siege' },
   label: 'Trinity Siege',
-  description: 'Three-faction siege combat — deploy units, breach walls, resolve encounters. LEAST-VERIFIED: prior sessions found fabricated combat logic and misattributed bugs; playable but not vouched for correctness.',
+  description: 'A tactical wave-defense game on a hex ring: match shape counters to incoming waves and build lasting fortifications to survive five waves.',
   color: '#ef4444',
   status: 'external',
   genre: 'combat-arena',
