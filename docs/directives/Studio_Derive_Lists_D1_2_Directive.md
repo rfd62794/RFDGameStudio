@@ -381,3 +381,17 @@ labels changed as described in section 1, and the board gained six generated row
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 11:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified build work; dispatch only after D1.1 merges (directive STOPs if registry.ts still has per-config imports)
+<!-- queue:end -->
