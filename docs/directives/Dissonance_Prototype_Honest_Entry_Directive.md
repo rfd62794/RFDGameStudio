@@ -162,11 +162,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync3 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review: implementation already merged on main as cdec5d19 via PR #164 (player-facing card text + real paths); this commit is queue-row sync only, no code change
 <!-- queue:end -->

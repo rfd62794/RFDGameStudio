@@ -265,11 +265,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync3 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review: implementation already merged on main as d3ed5a0b (CombatPhase hint + OpeningPhase caption + test_dissonance_plain_words.tsx present); this commit is queue-row sync only, no code change
 <!-- queue:end -->
