@@ -454,7 +454,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6 |
 | Base branch | - |
@@ -465,4 +465,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 16:24 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline+after proofs; Robert 2026-10-04 BPO Sim non-racist direction; lint FP fixes merged in AgentFlow #534
 - 2026-10-04 17:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 17:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 17:20 · devin · In progress → Blocked — Directive internally inconsistent: exact prescribed yaml yields 239 terms (81 old + 158 appended) but prescribed test asserts >250; vitest 9/10 pass (only that assertion fails), real tree clean, tsc clean; author must add >=12 terms or lower threshold — both forbidden to this run; work committed locally as 760ce89a, push refused by pre-push vitest gate for the same failure.
 <!-- queue:end -->
