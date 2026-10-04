@@ -627,11 +627,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:57 · robert-claude-laptop · none → Queued
+- 2026-10-04 15:28 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534 pending); author ran baseline+after proofs; Robert 2026-10-04 BPO Sim direction; dependencies rename+country data merged (bb4ed4aa, 15c0b376)
 <!-- queue:end -->
