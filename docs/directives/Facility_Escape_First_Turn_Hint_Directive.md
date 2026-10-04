@@ -144,11 +144,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/fe-hint-row |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully pasted S change for Devin; dispatch only after Facility_Escape_Player_Wording_Directive merges (same App.tsx).
+- 2026-10-04 18:12 · devin · Queued → Review — already merged on main as b5668a1d (PR #160, test_facility_escape_first_turn_hint.ts present); row sync only
 <!-- queue:end -->
