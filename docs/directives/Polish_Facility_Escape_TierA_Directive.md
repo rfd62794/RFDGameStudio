@@ -159,7 +159,7 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-facility-escape-tiera-directive |
 | Base branch | - |
@@ -174,4 +174,5 @@ none. Deploying the rebuilt embed is Robert's, after review.
 - 2026-10-04 03:25 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-facility-escape-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 03:33 · devin · In progress → Blocked — Work committed (18339ffa) and all directive checks green, but git push rejected by pre-push hook: studio_mcp/zip_verify test_tracked_dir_diff_single_commit_is_no_prior_revision asserts examples/facility-escape has exactly 1 commit, and the mandated roomGenerator.ts edit necessarily adds a 2nd. Test is a 4th file outside this run's 3-file scope; Review status refused without a pushed branch.
 - 2026-10-04 03:53 · robert-claude-laptop · Blocked → Review — work complete (18339ffa); pushed past the pre-push hook (merge 291f5a3c) after the fragile single-commit zip_verify test was made hermetic in PR #94 [origin] spent: devin 7 min est. n/a
+- 2026-10-04 03:55 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
