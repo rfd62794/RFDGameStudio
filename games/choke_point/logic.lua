@@ -24,6 +24,12 @@ local function get_tower_at(towers, x, y)
   return nil
 end
 
+-- State numbers come back from JS as floats (2.0); wave tables are keyed by the string "2".
+local function wave_at(data, id)
+  local k = math.tointeger(id) or id
+  return data.waves[k] or data.waves[tostring(k)]
+end
+
 -- Re-calculate next-turn previews for all active enemies
 local function calculate_previews(data, state)
   local next_state = copy_table(state)
@@ -68,7 +74,7 @@ local function spawn_wave_enemies(data, state)
   local wave_id = next_state.wave
   local round_id = next_state.round
   
-  local wave_data = data.waves[wave_id] or data.waves[tostring(wave_id)]
+  local wave_data = wave_at(data, wave_id)
   if not wave_data then return next_state end
   
   local grid_w = data.constants.grid_w or 6
@@ -197,7 +203,11 @@ function commit_turn(data, state)
   -- 3. Clean up dead entities
   local live_enemies = {}
   for _, e in ipairs(enemies) do
-    if e.hp > 0 then
+    if e.hp > 0 and e.x < 1 then
+      -- Walked off the defended edge: it slipped past and hurts the core.
+      next_state.core_hp = math.max(0, next_state.core_hp - 1)
+      table.insert(log_entries, e.type .. " slipped past the defences!")
+    elseif e.hp > 0 then
       table.insert(live_enemies, e)
     else
       table.insert(log_entries, "Enemy defeated!")
@@ -218,7 +228,7 @@ function commit_turn(data, state)
   -- 4. Check wave completion and spawn next wave
   local round_id = next_state.round
   local wave_id = next_state.wave
-  local wave_data = data.waves[wave_id] or data.waves[tostring(wave_id)]
+  local wave_data = wave_at(data, wave_id)
   
   local all_spawned = true
   if wave_data and wave_data.enemies then
@@ -233,11 +243,11 @@ function commit_turn(data, state)
   if #live_enemies == 0 and all_spawned then
     -- Advance wave if there are more waves
     local next_wave = wave_id + 1
-    local next_wave_data = data.waves[next_wave] or data.waves[tostring(next_wave)]
+    local next_wave_data = wave_at(data, next_wave)
     if next_wave_data then
       next_state.wave = next_wave
       next_state.round = 1
-      table.insert(log_entries, "Wave " .. tostring(wave_id) .. " cleared! Incoming Wave " .. tostring(next_wave) .. "!")
+      table.insert(log_entries, "Wave " .. tostring(math.tointeger(wave_id) or wave_id) .. " cleared! Incoming Wave " .. tostring(math.tointeger(next_wave) or next_wave) .. "!")
     else
       table.insert(log_entries, "Victory! All waves cleared!")
     end
