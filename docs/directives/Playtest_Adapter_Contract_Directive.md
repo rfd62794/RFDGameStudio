@@ -158,11 +158,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 17:46 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:47 · robert-claude-laptop · Queued → Approved — lint override: cited ts/src/engine/playtest paths are new files this directive creates
 <!-- queue:end -->
