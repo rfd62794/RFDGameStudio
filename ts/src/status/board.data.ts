@@ -103,9 +103,9 @@ export const STATUS_BOARD: ProjectEntry[] = [
   },
   {
     id: 'turboshells', name: 'TurboShells', category: 'separate_infrastructure', status: 'blocked',
-    currentState: 'Python/pygame legacy project (turtle breeding + racing). No game code in this repo — only the Feb 2026 audit doc (archive/rpgCore TURBOSHELLS_AUDIT_REPORT) and archived rpgCore racing/genetics modules adapted from it. The Lua carve-out protecting its port was retired by ADR-013 after the port lapsed.',
-    nextAction: 'Robert decides the completion path per ADR-013 — TS-native rebuild or drop — and the legacy source repo location needs confirming before any revive.',
-    lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
+    currentState: 'Parked, reference only (decided 2026-10-04). The only source found is the ChimeraLab pygame game (dormant since 2025-12-25); no game code in this repo, only the Feb 2026 audit doc (archive/rpgCore TURBOSHELLS_AUDIT_REPORT) and archived rpgCore racing/genetics modules adapted from it. The Lua carve-out protecting its port was retired by ADR-013 after the port lapsed.',
+    nextAction: 'None. If breeding is ever wanted in the arcade, write a one-page TS genetics design note from ChimeraLab\'s gene model rather than a port.',
+    lastUpdated: '2026-10-04', verificationMethod: 'direct file read',
     capabilities: { mainMenu: '—', tutorial: '—', graphicalUpgrade: '—', soundEffects: '—' },
   },
 
