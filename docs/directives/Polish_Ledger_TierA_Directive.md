@@ -211,7 +211,7 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-ledger-tiera-directive |
 | Base branch | - |
@@ -225,4 +225,5 @@ none. Deploying the rebuilt embed is Robert's, after review.
 - 2026-10-04 03:55 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-ledger-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 03:56 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-ledger-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 04:06 · devin · In progress → Review — devin: RestartButton.tsx two-step confirm wired via Header onRestart (App.tsx +1 line); Overlay safe-centered (my-auto, no items-center/my-8); test_ledger_utils.ts 5/5 pass. uv python 3.12.12; vitest 1 file 5 tests pass; regression manifest+registry 2 files 7 tests pass; pre-push full suite green (972 py, 2207 ts). Embed rebuild + A1-A4 browser smoke = Robert/reviewer step. [origin] spent: devin 8 min est. n/a
+- 2026-10-04 04:12 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
