@@ -66,7 +66,7 @@ export const AfterHoursView: React.FC<Props> = ({
           {verdictText(lastVerdict)}
         </div>
         <div className="text-xs text-slate-400 mt-1">
-          Completed {quota.progress} / {quota.target} calls at ₱{quota.payoutPerCall} per call
+          Completed {quota.progress} / {quota.target} calls at ${quota.payoutPerCall} per call
         </div>
       </div>
 
@@ -87,11 +87,11 @@ export const AfterHoursView: React.FC<Props> = ({
                 : 'bg-slate-700 text-slate-500 cursor-not-allowed'
             }`}
           >
-            Upgrade for ₱{upgradeCost.toLocaleString()}
+            Upgrade for ${upgradeCost.toLocaleString()}
           </button>
           {!canAffordUpgrade && (
             <div className="text-xs text-rose-400 mt-2">
-              Insufficient funds (₱{money.toLocaleString()} available)
+              Insufficient funds (${money.toLocaleString()} available)
             </div>
           )}
         </div>

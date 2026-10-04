@@ -1,0 +1,109 @@
+# new: examples/bpo-sim/src/data/neutral-copy-blocklist.yaml
+#
+# BPO Sim is country-agnostic. These words and phrases must not appear anywhere in the game's shipped text,
+# code or data. ts/tests/test_bpo_sim_neutral_copy.ts reads this file and fails, naming the file, the line
+# and the term, when one comes back. Terms are matched case-insensitively as whole words or phrases.
+#
+# Countries differ only through src/data/countries.yaml (neutral business attributes). The test also fails
+# when the game's code or copy names a country outside that file.
+
+version: 1
+
+# Nationality labels, place names and national flags or colours.
+national_and_place_terms:
+  - filipino
+  - filipina
+  - pinoy
+  - pinay
+  - philippine
+  - philippines
+  - manila
+  - metro manila
+  - cebu
+  - clark freeport
+  - makati
+  - ortigas
+  - eastwood
+  - bonifacio
+  - taguig
+  - quezon
+  - libis
+  - pasig
+  - luzon
+  - edsa
+  - mrt
+  - bgc
+
+# Local brands, companies and institutions.
+brand_terms:
+  - jollibee
+  - chickenjoy
+  - kopiko
+  - chippy
+  - piattos
+  - lucky me
+  - pancit
+  - siopao
+  - sykes
+  - convergys
+  - ust
+  - pldt
+  - globe_corp
+  - maxicare
+  - intellicare
+  - videoke
+
+# Local-language words and local currency.
+local_language_and_currency_terms:
+  - tagalog
+  - taglish
+  - mabuhay
+  - kape
+  - sahod
+  - peso
+  - pesos
+  - php
+  - "₱"
+
+# Region-specific events and legal terms that tie a game to one country.
+region_specific_terms:
+  - typhoon
+  - 13th month
+
+# Stereotypes and language or accent jokes. Country differences are business attributes only.
+stereotype_terms:
+  - cheap labor
+  - cheap labour
+  - third world
+  - sweatshop
+  - broken english
+  - accent coaching
+  - accent neutralization
+  - english & accent
+  - american english
+  - rooster
+  - englishskill
+
+# Surnames and first names from the removed single-country name pool. The cast is a varied mix.
+retired_cast_names:
+  - dela cruz
+  - bautista
+  - villanueva
+  - aquino
+  - ocampo
+  - soriano
+  - mercado
+  - navarro
+  - salazar
+  - valdez
+  - paolo
+  - jerome
+  - alden
+  - miggy
+  - lester
+  - maricar
+  - sheena
+  - princess
+  - danica
+  - roxanne
+  - kathryn

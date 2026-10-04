@@ -49,7 +49,7 @@ export function computeCallGenerationRate(
 const DIALER_UPGRADE_BASE_COST = 5000;
 
 /**
- * Cost (in PHP) to upgrade the dialer from the current tier to the next.
+ * Cost (in game dollars) to upgrade the dialer from the current tier to the next.
  * Scales linearly with current tier.
  */
 export function dialerUpgradeCost(tier: number): number {

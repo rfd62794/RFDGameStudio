@@ -1,17 +1,20 @@
 export const FIRST_NAMES_M = [
-  'Mark', 'Bryan', 'Paolo', 'Joshua', 'Christian', 'Jerome', 'Kevin', 'Alden',
-  'Angelo', 'John Paul', 'Carlo', 'Rafael', 'Danilo', 'Kenneth', 'Miggy', 'Lester'
+  'Marcus', 'Daniel', 'Amir', 'Kofi', 'Mateo', 'Liam', 'Hiroshi', 'Rohan',
+  'Samuel', 'Andrei', 'Tomasz', 'Omar', 'Diego', 'Felix', 'Tariq', 'Ivan',
+  'Jamal', 'Nikolai', 'Kwame', 'Jun', 'Rafael', 'Elias', 'Viktor', 'Dev'
 ];
 
 export const FIRST_NAMES_F = [
-  'Maria', 'Angel', 'Christine', 'Bea', 'Jennifer', 'Camille', 'Danica', 'Roxanne',
-  'Princess', 'Kathryn', 'Alyssa', 'Patricia', 'Nicole', 'Hannah', 'Maricar', 'Sheena'
+  'Amara', 'Sofia', 'Priya', 'Mei', 'Isabel', 'Nadia', 'Chloe', 'Fatima',
+  'Ingrid', 'Lucia', 'Zainab', 'Hannah', 'Anika', 'Camila', 'Yuki', 'Elena',
+  'Grace', 'Leila', 'Mira', 'Thandi', 'Olivia', 'Sara', 'Aisha', 'Noor'
 ];
 
 export const LAST_NAMES = [
-  'Santos', 'Reyes', 'Dela Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Flores',
-  'Gonzales', 'Lopez', 'Ocampo', 'Castillo', 'Villanueva', 'Rivera', 'Aquino',
-  'Torres', 'Navarro', 'Salazar', 'Valdez', 'Soriano', 'Mercado'
+  'Adeyemi', 'Nguyen', 'Kowalski', 'Fernandez', 'Patel', 'Okafor', 'Tanaka',
+  'Silva', 'Ivanov', 'Haddad', 'Mensah', 'Costa', 'Lindqvist', 'Rahman',
+  'Park', 'Moreau', 'Dubois', 'Castro', 'Zhang', 'Novak', 'Hassan', 'Mendes',
+  'Kim', 'Popescu', 'Ndlovu', 'Rossi', 'Ortiz', 'Singh', 'Das', 'Abdi'
 ];
 
 export function getRandomName(gender?: 'M' | 'F'): { name: string; gender: 'M' | 'F' } {
@@ -27,15 +30,15 @@ export const CALL_CENTER_PHRASES = [
   { text: "I understand how frustrating that must be, sir.", icon: "💬" },
   { text: "May I put you on a 2-minute hold to verify?", icon: "⏳" },
   { text: "Let me check that account for you right away.", icon: "💻" },
-  { text: "Kape muna tayo sa pantry! ☕", icon: "☕" },
+  { text: "Coffee break in the pantry! ☕", icon: "☕" },
   { text: "Graveyard shift energy powered by 3-in-1! ⚡", icon: "⚡" },
   { text: "Yes! 5-star CSAT survey received! ⭐", icon: "⭐" },
   { text: "Supervisor call de-escalated successfully! 🛡️", icon: "🛡️" },
-  { text: "Sahod day feels! Payout na! 💰", icon: "💰" },
-  { text: "Order na ba tayo ng Jollibee Chickenjoy? 🍗", icon: "🍗" },
+  { text: "Payday feels good! 💰", icon: "💰" },
+  { text: "Shall we order lunch for the floor? 🍗", icon: "🍗" },
   { text: "AHT goal met! 240 seconds record! 🎯", icon: "🎯" },
   { text: "Please don't hang up before the survey! 🙏", icon: "📋" },
   { text: "Network stable, queue under control! 🌐", icon: "🌐" },
-  { text: "Siopao & cold water break! 🥟", icon: "🥟" },
+  { text: "Snack and cold water break! 🥟", icon: "🥟" },
   { text: "TL commended our pod for 100% attendance! 🏆", icon: "🏆" }
 ];

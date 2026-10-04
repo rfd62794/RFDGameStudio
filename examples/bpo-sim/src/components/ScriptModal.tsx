@@ -122,7 +122,7 @@ export const ScriptModal: React.FC<Props> = ({
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {[
-                { id: 'friendly', title: 'Warm Pinoy Hospitality', desc: '"Mabuhay! Thank you for calling, my name is Mark! How can I make your day great?"', tag: '+CSAT, +AHT' },
+                { id: 'friendly', title: 'Warm Welcome', desc: '"Hello and thank you for calling, my name is Mark! How can I make your day great?"', tag: '+CSAT, +AHT' },
                 { id: 'formal', title: 'Standard Corporate', desc: '"Thank you for contacting Customer Support. My name is Mark, how may I assist you?"', tag: 'Balanced' },
                 { id: 'speedy', title: 'Express Direct', desc: '"Support line, please state your account number and reason for calling."', tag: '-AHT, -CSAT' },
               ].map(opt => (
@@ -188,7 +188,7 @@ export const ScriptModal: React.FC<Props> = ({
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {[
-                { id: 'credit_voucher', title: 'Empower ₱250 Courtesy Credit', desc: 'Authorize agents to issue small goodwill fee waivers to settle disputes.', tag: '+CSAT, -₱ Margins' },
+                { id: 'credit_voucher', title: 'Empower $250 Courtesy Credit', desc: 'Authorize agents to issue small goodwill fee waivers to settle disputes.', tag: '+CSAT, -$ Margins' },
                 { id: 'active_listening', title: 'Diagnostic Root Cause', desc: 'Patiently ask probing questions without granting instant credits.', tag: 'Cost Effective' },
                 { id: 'strict_policy', title: 'Zero Compromise Policy', desc: 'Strictly deny fee waivers and credits. Fast wrap-up time.', tag: 'Risk Chargebacks' },
               ].map(opt => (
@@ -236,7 +236,7 @@ export const ScriptModal: React.FC<Props> = ({
                 5. Cross-sell / Upsell Warranty
               </label>
               <div className="flex items-center justify-between p-2.5 bg-slate-800 border border-slate-700 rounded-lg">
-                <span className="text-xs text-slate-300">Attempt Warranty Upsell (+₱45 bonus/call, +20s AHT)</span>
+                <span className="text-xs text-slate-300">Attempt Warranty Upsell (+$45 bonus/call, +20s AHT)</span>
                 <input
                   type="checkbox"
                   checked={script.upsellAttempt}

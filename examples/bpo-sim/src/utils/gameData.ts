@@ -7,7 +7,7 @@ export const INITIAL_CAMPAIGNS: ClientCampaign[] = [
     name: 'MegaTel USA (Billing & Inbound)',
     clientCountry: 'USA',
     serviceType: 'Customer Support',
-    payoutPerCall: 145, // PHP
+    payoutPerCall: 145, // game dollars
     targetAHT: 240, // 4 mins
     targetCSAT: 80,
     difficulty: 2,
@@ -65,7 +65,7 @@ export const INITIAL_SCRIPT_CONFIG: CallScriptConfig = {
 };
 
 export const INITIAL_IT_CONFIG: ITInfrastructure = {
-  ispProvider: 'GLOBE_CORP',
+  ispProvider: 'DEDICATED_LINE',
   serverHealth: 94,
   serverLoad: 68,
   coolingActive: true,
@@ -264,7 +264,7 @@ export function generateInitialAgents(grid: GridTile[]): Agent[] {
         energy: 70 + Math.floor(Math.random() * 28),
         stress: 15 + Math.floor(Math.random() * 35),
         morale: 72 + Math.floor(Math.random() * 25),
-        englishSkill: 65 + Math.floor(Math.random() * 30),
+        communicationSkill: 65 + Math.floor(Math.random() * 30),
         empathySkill: 70 + Math.floor(Math.random() * 28),
         techSkill: role === 'TSR' ? 82 + Math.floor(Math.random() * 15) : 55 + Math.floor(Math.random() * 30),
         speed: 70 + Math.floor(Math.random() * 25),
@@ -298,7 +298,7 @@ export function generateInitialAgents(grid: GridTile[]): Agent[] {
     energy: 90,
     stress: 20,
     morale: 85,
-    englishSkill: 75,
+    communicationSkill: 75,
     empathySkill: 60,
     techSkill: 95,
     speed: 88,
@@ -329,7 +329,7 @@ export function generateInitialAgents(grid: GridTile[]): Agent[] {
     energy: 88,
     stress: 25,
     morale: 82,
-    englishSkill: 95,
+    communicationSkill: 95,
     empathySkill: 90,
     techSkill: 70,
     speed: 80,

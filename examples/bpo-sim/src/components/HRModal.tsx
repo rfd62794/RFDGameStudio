@@ -31,14 +31,14 @@ export const HRModal: React.FC<Props> = ({
 
   const perks: HRPerk[] = [
     {
-      id: 'jollibee',
-      title: 'Jollibee Chickenjoy & Spaghetti Feast',
+      id: 'feast',
+      title: 'Fried Chicken & Spaghetti Feast',
       category: 'Food & Morale',
       cost: 6500,
       icon: '🍗',
       moraleBoost: 25,
       happinessBoost: 15,
-      description: 'The ultimate Pinoy comfort meal delivered straight to the pantry floor. Clears stress instantly!',
+      description: 'The ultimate comfort meal delivered straight to the pantry floor. Clears stress instantly!',
     },
     {
       id: 'pizza',
@@ -48,17 +48,17 @@ export const HRModal: React.FC<Props> = ({
       icon: '🍕',
       moraleBoost: 18,
       happinessBoost: 10,
-      description: 'Yellow Cab / Domino\'s box stack for agents handling peak queue surges.',
+      description: 'A tall stack of pizza boxes for agents handling peak queue surges.',
     },
     {
-      id: 'videoke',
-      title: 'Friday Videoke / Karaoke Night',
+      id: 'karaoke',
+      title: 'Friday Karaoke Night',
       category: 'Team Building',
       cost: 12000,
       icon: '🎤',
       moraleBoost: 35,
       happinessBoost: 20,
-      description: 'Birit sessions in the lounge! Unleashes the natural singing talent of your agents.',
+      description: 'Sing-along sessions in the lounge! Unleashes the natural singing talent of your agents.',
     },
     {
       id: 'townhall',
@@ -88,7 +88,7 @@ export const HRModal: React.FC<Props> = ({
       icon: '🚐',
       moraleBoost: 28,
       happinessBoost: 18,
-      description: 'Safe transport to/from MRT/EDSA for Graveyard shift employees during rain and late nights.',
+      description: 'Safe transport to and from the office for night shift employees during rain and late hours.',
     },
   ];
 
@@ -150,7 +150,7 @@ export const HRModal: React.FC<Props> = ({
 
                     <div className="text-right">
                       <span className="text-xs font-bold text-amber-300 block">
-                        ₱ {perk.cost.toLocaleString()}
+                        $ {perk.cost.toLocaleString()}
                       </span>
                     </div>
                   </div>

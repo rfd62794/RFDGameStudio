@@ -172,7 +172,7 @@ export const StaffModal: React.FC<Props> = ({
                       </td>
 
                       <td className="py-3 px-3 font-mono text-amber-300">
-                        ₱{agent.salary.toLocaleString()}
+                        ${agent.salary.toLocaleString()}
                       </td>
 
                       <td className="py-3 px-3 text-right">
@@ -193,7 +193,7 @@ export const StaffModal: React.FC<Props> = ({
                               onGiveBonus(agent.id, 1000);
                             }}
                             className="px-2 py-1 bg-emerald-950/80 hover:bg-emerald-800 border border-emerald-700 text-emerald-300 rounded text-[10px] font-bold"
-                            title="Give ₱1,000 Spot Bonus"
+                            title="Give $1,000 Spot Bonus"
                           >
                             💰 Bonus
                           </button>

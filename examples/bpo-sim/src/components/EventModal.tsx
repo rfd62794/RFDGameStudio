@@ -58,7 +58,7 @@ export const EventModal: React.FC<Props> = ({ event, onClose }) => {
                   </span>
                   {option.cost !== undefined && option.cost > 0 && (
                     <span className="text-xs font-mono font-bold text-amber-400">
-                      Cost: ₱ {option.cost.toLocaleString()}
+                      Cost: $ {option.cost.toLocaleString()}
                     </span>
                   )}
                 </div>

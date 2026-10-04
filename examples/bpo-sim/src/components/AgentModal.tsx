@@ -134,8 +134,8 @@ export const AgentModal: React.FC<Props> = ({
           {/* Core Competencies */}
           <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs">
             <div>
-              <span className="text-slate-400 block text-[11px]">English & Accent</span>
-              <span className="font-bold text-sky-300 font-mono">{agent.englishSkill}%</span>
+              <span className="text-slate-400 block text-[11px]">Communication</span>
+              <span className="font-bold text-sky-300 font-mono">{agent.communicationSkill}%</span>
             </div>
             <div>
               <span className="text-slate-400 block text-[11px]">Empathy & Patience</span>
@@ -163,7 +163,7 @@ export const AgentModal: React.FC<Props> = ({
             </div>
             <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
               <span className="text-slate-400 block text-[10px]">Monthly Salary</span>
-              <span className="font-bold text-amber-300 font-mono">₱ {agent.salary.toLocaleString()}</span>
+              <span className="font-bold text-amber-300 font-mono">$ {agent.salary.toLocaleString()}</span>
             </div>
           </div>
 
@@ -186,7 +186,7 @@ export const AgentModal: React.FC<Props> = ({
               }}
               className="py-2 px-3 bg-sky-950/80 hover:bg-sky-900 border border-sky-700 text-sky-300 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
             >
-              <span>⚡</span> 3-in-1 Kopiko (₱150)
+              <span>⚡</span> Energy Coffee ($150)
             </button>
 
             <button
@@ -196,7 +196,7 @@ export const AgentModal: React.FC<Props> = ({
               }}
               className="py-2 px-3 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
             >
-              <span>💰</span> Spot Bonus (₱1,000)
+              <span>💰</span> Spot Bonus ($1,000)
             </button>
 
             {agent.role !== 'TL' ? (

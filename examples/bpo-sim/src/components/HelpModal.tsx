@@ -19,7 +19,7 @@ export const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <span className="text-2xl">❓</span>
             <div>
               <h2 className="font-bold text-base text-sky-400 font-pixel text-xs">
-                HOW TO PLAY & PHILIPPINE BPO GUIDE
+                HOW TO PLAY & BPO GUIDE
               </h2>
               <p className="text-xs text-slate-400">Mastering floor operations, call queues, and agent morale</p>
             </div>
@@ -41,7 +41,7 @@ export const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
             <h3 className="font-bold text-sky-300 text-sm mb-1">🎯 Primary Objective</h3>
             <p>
-              Grow your Philippine Business Process Outsourcing (BPO) call center into an enterprise powerhouse!
+              Grow your Business Process Outsourcing (BPO) call center into an enterprise powerhouse!
               Take inbound customer service and tech support calls from international clients (US, UK, Australia),
               maintain a high Service Level Agreement (80/20 SLA) and CSAT, and keep your agents happy and energized.
             </p>
@@ -61,12 +61,12 @@ export const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
             <div>
               <h4 className="font-bold text-amber-300 flex items-center gap-2">
-                <span>2. ☕ Energy, Stress & Kopiko 3-in-1</span>
+                <span>2. ☕ Energy, Stress & Coffee</span>
               </h4>
               <p className="text-slate-400 mt-0.5">
                 Agents working long shifts (especially the Graveyard 10 PM - 7 AM shift) lose energy and gain stress.
                 Place coffee makers, water dispensers, and sleeping cots in the office using the <strong>BUILD</strong> menu.
-                Order Jollibee or Friday Videoke through <strong>HR</strong> to boost happiness!
+                Order a team lunch or a karaoke night through <strong>HR</strong> to boost happiness!
               </p>
             </div>
 
@@ -75,18 +75,18 @@ export const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 <span>3. 🌐 IT & Telecom Reliability</span>
               </h4>
               <p className="text-slate-400 mt-0.5">
-                Upgrade from basic PLDT fiber to Dual-Fiber Failover or Starlink to prevent submarine fiber outages.
-                Equip noise-cancelling Plantronics headsets to eliminate background rooster/traffic noises.
+                Upgrade from basic fiber to Dual-Fiber Failover or a satellite backup to ride out carrier outages.
+                Equip noise-cancelling headsets to cut out background street noise.
               </p>
             </div>
 
             <div>
               <h4 className="font-bold text-amber-300 flex items-center gap-2">
-                <span>4. 🏢 Expanding to BGC & Ortigas</span>
+                <span>4. 🏢 Expanding to bigger offices</span>
               </h4>
               <p className="text-slate-400 mt-0.5">
-                Once you accumulate profits in <strong>₱ (PHP)</strong>, expand from Eastwood City to Ortigas Center
-                and Bonifacio Global City (BGC) to take on premium multi-million Fortune 500 contracts!
+                Once you accumulate profits in <strong>$</strong>, expand from the Starter Office Park to the Corporate Tower
+                and the High Street Campus to take on premium multi-million Fortune 500 contracts!
               </p>
             </div>
           </div>
