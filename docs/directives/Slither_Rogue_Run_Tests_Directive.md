@@ -172,11 +172,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/slither-rogue-run-tests |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
+- 2026-10-04 16:55 · devin-cleanroom · Queued → Review — tests/test_slither_rogue_runs.py verbatim: `uv run pytest -q tests/test_slither_rogue_runs.py` → `2 passed in 0.70s`; regression `uv run pytest -q tests/test_slither_rogue.py` → `14 passed in 0.17s`
 <!-- queue:end -->
