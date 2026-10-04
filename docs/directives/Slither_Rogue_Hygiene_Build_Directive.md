@@ -152,12 +152,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slither-rogue-hygiene-build-directive |
 | Base branch | - |
+| Base commit | f13073e7c208b0939a90731ae4b18c7fcfea4e34 |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:20 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 14:20 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slither-rogue-hygiene-build-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
