@@ -6,6 +6,7 @@ import type { GameConfig } from '../../engine/types';
 export const slimeCoinConfig: GameConfig = {
   gameId: 'slime_coin',
   order: 80,
+  moreGames: true,
   label: 'SlimeCoin',
   description: 'Real-time coin pusher with shooter, two-layer board, and chip synergies',
   color: '#a855f7',

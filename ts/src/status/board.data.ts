@@ -1,4 +1,7 @@
 import type { ProjectEntry } from './types';
+import { GAME_REGISTRY } from '../games/registry';
+import { buildDemoRows } from './demoRows';
+import { DEMO_OVERLAY } from './demoOverlay';
 
 export const STATUS_BOARD: ProjectEntry[] = [
   // --- Live Catalog ---
@@ -78,21 +81,9 @@ export const STATUS_BOARD: ProjectEntry[] = [
     capabilities: { mainMenu: 'Y', tutorial: 'Y', graphicalUpgrade: '2026-05-17', soundEffects: 'N' },
   },
   {
-    id: 'voiddrift_redux', name: 'VoidDrift Redux (web)', category: 'separate_infrastructure', status: 'active',
-    currentState: 'Fragment drift correction landed (FRAGMENT_DRIFT_RATE in engine.ts). Auto-dispatch FSM with manual toggle. Orbital canvas with zoom/pan. Web simulation, separate from native VoidDrift.',
-    lastUpdated: '2026-08-16',
-    capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '2026-08-16', soundEffects: 'N' },
-  },
-  {
     id: 'house_of_kings', name: 'House of Kings: Collab', category: 'separate_infrastructure', status: 'active',
     currentState: 'Firebase/Firestore. Phases 0-10 + full security remediation arc complete.',
     nextAction: 'Direct status check — architecturally isolated, easy to lose track of.',
-    lastUpdated: '2026-08-15',
-    capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '—', soundEffects: 'N' },
-  },
-  {
-    id: 'antsim_redux', name: 'AntSim Redux', category: 'separate_infrastructure', status: 'shipped_deliberately_paused',
-    currentState: 'Phase 5, 90-test floor. Closed via named engine-death-pattern acknowledgment.',
     lastUpdated: '2026-08-15',
     capabilities: { mainMenu: 'N', tutorial: 'N', graphicalUpgrade: '—', soundEffects: 'N' },
   },
@@ -111,25 +102,6 @@ export const STATUS_BOARD: ProjectEntry[] = [
     capabilities: { mainMenu: 'N', tutorial: 'Shared', graphicalUpgrade: '2026-08-15', soundEffects: 'N' },
   },
   {
-    id: 'slimegarden', name: 'SlimeGarden', category: 'ai_studio_track', status: 'status_unconfirmed',
-    currentState: 'Substantial design work as of mid-July (SlimeDex, Life Stages, partial Color Tree). Audit 2026-09-29 found it is the origin project merged with SlimeBreeder into the live SlimeWorld (ADR-023).',
-    nextAction: 'Recommendation only: retire, superseded by SlimeWorld (origin project per ADR-023; source preserved in examples/slimegarden). Retirement is Robert\'s call.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
-  },
-  {
-    id: 'trinity_siege', name: 'Trinity Siege/Combat', category: 'ai_studio_track', status: 'status_unconfirmed',
-    currentState: 'Bevy vs. egui architecture question left unresolved.',
-    nextAction: 'Direct status check — no longer blocked on the Rust-chassis question, that is confirmed Far Future Dream now.',
-    lastUpdated: '2026-08-15', verificationMethod: 'research/inference',
-  },
-  {
-    id: '7_days_to_fry', name: '7 Days to Fry', category: 'ai_studio_track', status: 'shipped_mature',
-    currentState: 'Complete cooking-survival sim (7-day arc, win/lose). Registered in GAME_REGISTRY as an external demo and in website_collection. Own state doc (Aug 2026) reports 241/241 vitest floor — self-reported, not re-runnable in-repo.',
-    nextAction: 'Promotion decision if revived — TS-native port or permanent external status; wire its own test suite into a runner the studio executes.',
-    lastUpdated: '2026-09-29', verificationMethod: 'direct file read',
-    capabilities: { mainMenu: 'Y', tutorial: 'N', graphicalUpgrade: '2026-08-30', soundEffects: 'N' },
-  },
-  {
     id: 'turboshells', name: 'TurboShells', category: 'separate_infrastructure', status: 'blocked',
     currentState: 'Python/pygame legacy project (turtle breeding + racing). No game code in this repo — only the Feb 2026 audit doc (archive/rpgCore TURBOSHELLS_AUDIT_REPORT) and archived rpgCore racing/genetics modules adapted from it. The Lua carve-out protecting its port was retired by ADR-013 after the port lapsed.',
     nextAction: 'Robert decides the completion path per ADR-013 — TS-native rebuild or drop — and the legacy source repo location needs confirming before any revive.',
@@ -139,19 +111,10 @@ export const STATUS_BOARD: ProjectEntry[] = [
 
   // --- Retired ---
   {
-    id: 'corpworld', name: 'CorpWorld', category: 'retired', status: 'retired',
-    currentState: 'Source preserved read-only.', supersededBy: 'Planet of Greed', lastUpdated: '2026-08-15',
-  },
-  {
-    id: 'kingmaker_squads', name: 'KingMaker Squads', category: 'retired', status: 'retired',
-    currentState: 'Source preserved read-only.', supersededBy: 'Planet of Greed', lastUpdated: '2026-08-15',
-  },
-  {
     id: 'brewfield', name: 'BrewField', category: 'retired', status: 'retired',
     currentState: 'Source preserved read-only. Had IntroScreen using shared TitleScreen.', supersededBy: 'Dissonance Depths', lastUpdated: '2026-08-15',
   },
-  {
-    id: 'slimebreeder', name: 'SlimeBreeder', category: 'retired', status: 'retired',
-    currentState: 'Established the retirement pattern itself.', lastUpdated: '2026-08-15',
-  },
+
+  // --- Generated demo rows (registry games with a source); hand-written parts live in demoOverlay.ts ---
+  ...buildDemoRows(GAME_REGISTRY, DEMO_OVERLAY),
 ];

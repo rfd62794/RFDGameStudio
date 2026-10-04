@@ -21,19 +21,6 @@ export function findGame(gameId: string): GameConfig | undefined {
   return GAME_REGISTRY.find(g => g.gameId === gameId);
 }
 
-export const STANDALONE_BUILD_GAMES = [
-  { id: 'shoal', label: 'Shoal' },
-  { id: 'slimeworld', label: 'SlimeWorld' },
-  { id: 'chimera_wilds', label: 'Chimera Wilds' },
-  { id: 'mutant_battle_ball', label: 'Mutant Battle Ball' },
-  { id: 'scrapcrawl', label: 'ScrapCrawl' },
-  { id: 'wire_rust', label: 'Wire & Rust' },
-  { id: 'choke_point', label: 'Choke Point' },
-  { id: 'filipino_bpo_simulator', label: 'Call Center Tycoon' },
-  { id: 'slime_coin', label: 'Slime Coin' },
-  { id: 'planetofgreed', label: 'Planet of Greed' },
-  { id: 'gladiator_arena', label: 'Gladiator Arena' },
-  { id: 'voiddrift_redux', label: 'VoidDrift Redux' },
-  { id: 'succession', label: 'Succession' },
-  { id: 'house_of_kings_collab', label: 'House of Kings Collab' },
-];
+export const STANDALONE_BUILD_GAMES: { id: string; label: string }[] = GAME_REGISTRY
+  .filter(g => g.moreGames)
+  .map(g => ({ id: g.gameId, label: g.label }));

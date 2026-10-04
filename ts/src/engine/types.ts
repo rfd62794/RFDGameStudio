@@ -61,6 +61,7 @@ export interface GameConfig {
   saves?: boolean;                        // player seam: game uses protocol saves
   source?: DemoSource;                    // single source of truth for demo lists (studio_mcp.demos)
   order?: number;                         // display order in GAME_REGISTRY (ascending, then gameId); required for every registered game
+  moreGames?: boolean;                    // listed in the "More Games By Me" footer (STANDALONE_BUILD_GAMES is derived from this)
 }
 
 // 'retired' added 2026-09-20: Brewfield was retired in docs/state/StatusBoard.md on

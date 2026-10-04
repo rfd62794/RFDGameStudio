@@ -4,6 +4,7 @@ import type { GameConfig } from '../../engine/types';
 export const chokePointConfig: GameConfig = {
   gameId: 'choke_point',
   order: 120,
+  moreGames: true,
   label: 'Choke Point',
   description: 'Turn-based tactical grid defense. Preview enemy movement and attacks, and deploy perfect blockers.',
   color: '#f87171',

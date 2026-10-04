@@ -4,6 +4,7 @@ import type { GameConfig } from '../../engine/types';
 const config: GameConfig = {
   gameId: 'shoal',
   order: 30,
+  moreGames: true,
   label: 'Shoal',
   description: 'A continuous steering-based reef ecosystem — fish graze, sharks hunt, and algae rises and sinks with the pressure of grazing.',
   color: '#3b82f6',
