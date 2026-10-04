@@ -14,3 +14,5 @@ Out of scope: new cards, cultures, floors or Brewfield features; moving logic in
 Dependencies / risks: shared Lua runtime hooks (useLuaCall); any Lua change needs ts/tests/test_dissonance_zero_regression.ts green.
 Effort: M
 Open question for Robert: none
+Update 2026-10-04: run-end New Run and two-click Abandon landed (PR #86, commit 17b68b14), so the "Return to Title only" finding above is stale. Queued: Lua_Executor_Stack_Reserve_Directive, Dissonance_Bot_Run_Test_Directive, Dissonance_First_Fight_Hint_And_Plain_Captions_Directive, Dissonance_Mute_And_Sound_Effects_Directive.
+Phone layout: not yet measured; framed until the first 390x844 pass.
