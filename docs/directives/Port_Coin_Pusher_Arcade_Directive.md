@@ -160,7 +160,7 @@ Findings first: what was ported, what was split and where, any behaviour you cou
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-port-coin-pusher-arcade-directive |
 | Base branch | - |
@@ -173,4 +173,5 @@ Findings first: what was ported, what was split and where, any behaviour you cou
 - 2026-10-04 01:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-coin-pusher-arcade-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 01:16 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-coin-pusher-arcade-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 02:01 · robert-claude-laptop · In progress → Review — port complete (7a1fd77f, cd21e099); controller regenerated docs/children.json and the parity snapshot (f7c3e89f) which the run could not do in the sandbox; pushed through the hook [origin] spent: devin 25 min est. n/a
+- 2026-10-04 02:06 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

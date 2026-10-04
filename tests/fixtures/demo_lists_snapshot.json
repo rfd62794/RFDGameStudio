@@ -10,6 +10,7 @@
     "antsim-redux",
     "facility-escape",
     "systemic-extract",
+    "coin-pusher-arcade",
     "voiddrift-redux-core-loop"
   ],
   "demo_static_name": {
@@ -25,6 +26,7 @@
     "antsim-redux": "antsim_redux",
     "facility-escape": "facility_escape",
     "systemic-extract": "systemic_extract",
+    "coin-pusher-arcade": "coin_pusher_arcade",
     "voiddrift-redux-core-loop": "voiddrift_redux"
   },
   "demo_external_paths": {
@@ -104,6 +106,10 @@
     "systemic_extract": [
       "ts/src/games/systemic_extract",
       "examples/systemic-extract"
+    ],
+    "coin_pusher_arcade": [
+      "ts/src/games/coin_pusher_arcade",
+      "examples/coin-pusher-arcade"
     ],
     "house_of_kings_collab": [
       "ts/src/games/house_of_kings_collab"

@@ -14,6 +14,7 @@ const SOURCES: Record<string, unknown> = {
   facility_escape: { kind: 'example', slug: 'facility-escape' },
   systemic_extract: { kind: 'example', slug: 'systemic-extract' },
   voiddrift_redux: { kind: 'example', slug: 'voiddrift-redux-core-loop' },
+  coin_pusher_arcade: { kind: 'example', slug: 'coin-pusher-arcade' },
 };
 
 describe('registry export', () => {
