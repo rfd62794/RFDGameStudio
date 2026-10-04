@@ -191,7 +191,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-scrapcrawl-sim-runs-directive |
 | Base branch | - |
@@ -205,4 +205,5 @@ none.
 - 2026-10-04 16:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-sim-runs-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 16:29 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-sim-runs-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 16:40 · devin-overseer (delegated) · In progress → Review — SIM unarmed=0.350 crafted=0.750; test_scrapcrawl_sim_runs.ts 3/3 pass, test_scrapcrawl_run_end.ts 6/6 pass; pushed, pre-push hook green (2438 tests). [origin] spent: devin 2 min est. n/a
+- 2026-10-04 16:48 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
