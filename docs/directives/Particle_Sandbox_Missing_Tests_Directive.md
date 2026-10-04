@@ -211,4 +211,5 @@ none.
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: item-9 tests missing from the particle sandbox port (reaction rules, flow, tile round trip, MATERIAL_DEFS)
 - 2026-10-04 05:48 · robert-claude-laptop · Queued → Approved — lint override: all 3 errors are test files the run creates (reactions, flow, tiles_materials), each marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 06:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-particle-sandbox-missing-tests-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 06:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-particle-sandbox-missing-tests-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
