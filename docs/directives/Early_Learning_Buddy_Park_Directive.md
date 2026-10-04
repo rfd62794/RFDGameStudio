@@ -121,3 +121,17 @@ Findings first: what changed (type, labels, row, SCOPE line). Evidence second: r
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:19 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified S-size status-board edit + test; Devin-shaped, no sandbox needs.
+<!-- queue:end -->
