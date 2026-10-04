@@ -6,6 +6,7 @@
 import type { GameConfig, LeaderboardDef } from '../engine/types';
 import type { SiteStatusEntry } from '../status/site-pages.types';
 import { parseChangelog, parseIntakeManifest, parsePatchNotes, type DevlogEntry, type ParseResult } from './devlog';
+import { computeCounts, type ManifestCounts } from './counts';
 
 export const ARCADE_PROTOCOL = 'rfd-arcade/1';
 
@@ -49,6 +50,7 @@ export interface ManifestGame {
 export interface ArcadeManifest {
   generatedAt: string;
   protocol: string;
+  counts: ManifestCounts;
   games: ManifestGame[];
   skipped: string[];
 }
@@ -129,5 +131,5 @@ export function buildArcadeManifest(inputs: ManifestInputs): ArcadeManifest {
     };
   });
   const now = inputs.now ?? (() => new Date().toISOString());
-  return { generatedAt: now(), protocol: ARCADE_PROTOCOL, games, skipped };
+  return { generatedAt: now(), protocol: ARCADE_PROTOCOL, counts: computeCounts(games), games, skipped };
 }
