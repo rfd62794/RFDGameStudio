@@ -1,206 +1,218 @@
 {
   "7_days_to_fry": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/7-days-to-fry",
-    "resolved_examples_name": "7-days-to-fry"
+    "intake_dir": null,
+    "resolved_examples_name": "7-days-to-fry",
+    "source_type": "tracked_dir_source"
   },
   "antsim_redux": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/antsim-redux",
-    "resolved_examples_name": "antsim-redux"
+    "intake_dir": null,
+    "resolved_examples_name": "antsim-redux",
+    "source_type": "tracked_dir_source"
   },
   "character_viewer": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "chimera_wilds": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "choke_point": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
+  },
+  "coin_pusher_arcade": {
+    "examples_dir": "examples/coin-pusher-arcade",
+    "intake_dir": null,
+    "resolved_examples_name": "coin-pusher-arcade",
+    "source_type": "tracked_dir_source"
   },
   "corpworld": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/corpworld",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "corpworld",
+    "source_type": "tracked_dir_source"
   },
   "dissonance": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "dissonance_prototype": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/dissonance-prototype",
-    "resolved_examples_name": "dissonance-prototype"
+    "intake_dir": null,
+    "resolved_examples_name": "dissonance-prototype",
+    "source_type": "tracked_dir_source"
   },
   "facility_escape": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/facility-escape",
-    "resolved_examples_name": "facility-escape"
+    "intake_dir": null,
+    "resolved_examples_name": "facility-escape",
+    "source_type": "tracked_dir_source"
   },
   "factory_idle": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/factory-idle-precision-armory-phase2",
-    "resolved_examples_name": "factory-idle-precision-armory-phase2"
+    "intake_dir": null,
+    "resolved_examples_name": "factory-idle-precision-armory-phase2",
+    "source_type": "tracked_dir_source"
   },
   "filipino_bpo_simulator": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/filipino-bpo-simulator",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "filipino-bpo-simulator",
+    "source_type": "tracked_dir_source"
   },
   "gladiator_arena": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "horse_racing": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/horse-racing-&-breeding",
-    "resolved_examples_name": "horse-racing-&-breeding"
+    "intake_dir": null,
+    "resolved_examples_name": "horse-racing-&-breeding",
+    "source_type": "tracked_dir_source"
   },
   "house_of_kings_collab": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "kingmaker_squads": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/kingmaker-squads",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "kingmaker-squads",
+    "source_type": "tracked_dir_source"
   },
   "ledger": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/ledger",
-    "resolved_examples_name": "ledger"
+    "intake_dir": null,
+    "resolved_examples_name": "ledger",
+    "source_type": "tracked_dir_source"
   },
   "mutant_battle_ball": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/mutant-battle-ball",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "mutant-battle-ball",
+    "source_type": "tracked_dir_source"
   },
   "planetforge": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/planetforge",
-    "resolved_examples_name": "planetforge"
+    "intake_dir": null,
+    "resolved_examples_name": "planetforge",
+    "source_type": "tracked_dir_source"
   },
   "planetofgreed": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/planetofgreed",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "planetofgreed",
+    "source_type": "tracked_dir_source"
   },
   "role_symbol_viewer": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "scrapcrawl": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/scrapcrawl",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "scrapcrawl",
+    "source_type": "tracked_dir_source"
   },
   "shoal": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/shoal",
-    "resolved_examples_name": "shoal"
+    "intake_dir": null,
+    "resolved_examples_name": "shoal",
+    "source_type": "tracked_dir_source"
   },
   "slime_coin": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "slimebreeder": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/SlimeBreeder",
-    "resolved_examples_name": "SlimeBreeder"
+    "intake_dir": null,
+    "resolved_examples_name": "SlimeBreeder",
+    "source_type": "tracked_dir_source"
   },
   "slimegarden": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/slimegarden",
-    "resolved_examples_name": "slimegarden"
+    "intake_dir": null,
+    "resolved_examples_name": "slimegarden",
+    "source_type": "tracked_dir_source"
   },
   "slimeworld": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/slimeworld",
     "intake_dir": null,
-    "examples_dir": null,
-    "resolved_examples_name": null
+    "resolved_examples_name": "slimeworld",
+    "source_type": "tracked_dir_source"
   },
   "slither_rogue": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/slither-rogue_-evolution",
-    "resolved_examples_name": "slither-rogue_-evolution"
+    "intake_dir": null,
+    "resolved_examples_name": "slither-rogue_-evolution",
+    "source_type": "tracked_dir_source"
   },
   "succession": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "systemic_extract": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/systemic-extract",
-    "resolved_examples_name": "systemic-extract"
+    "intake_dir": null,
+    "resolved_examples_name": "systemic-extract",
+    "source_type": "tracked_dir_source"
   },
   "technique_showcase": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "trinity_siege": {
-    "source_type": "tracked_dir_source",
-    "intake_dir": null,
     "examples_dir": "examples/trinity-siege",
-    "resolved_examples_name": "trinity-siege"
+    "intake_dir": null,
+    "resolved_examples_name": "trinity-siege",
+    "source_type": "tracked_dir_source"
   },
   "voiddrift": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "voiddrift_redux": {
-    "source_type": "no_source_found",
+    "examples_dir": "examples/voiddrift-redux-core-loop",
     "intake_dir": null,
+    "resolved_examples_name": "voiddrift-redux-core-loop",
+    "source_type": "tracked_dir_source"
+  },
+  "voidrift_particle_sandbox": {
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   },
   "wire_rust": {
-    "source_type": "no_source_found",
-    "intake_dir": null,
     "examples_dir": null,
-    "resolved_examples_name": null
+    "intake_dir": null,
+    "resolved_examples_name": null,
+    "source_type": "no_source_found"
   }
 }
