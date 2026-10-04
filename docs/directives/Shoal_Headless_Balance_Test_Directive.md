@@ -305,12 +305,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-shoal-headless-balance-test-directive |
 | Base branch | - |
+| Base commit | d96470eda1ca87920e4699b2fdd8a4d13c0b06eb |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:39 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534 pending); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 15:19 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-headless-balance-test-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
