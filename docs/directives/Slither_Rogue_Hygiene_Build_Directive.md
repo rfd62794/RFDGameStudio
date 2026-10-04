@@ -152,7 +152,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slither-rogue-hygiene-build-directive |
 | Base branch | - |
@@ -164,4 +164,5 @@ none.
 - 2026-10-04 14:20 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slither-rogue-hygiene-build-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 14:21 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slither-rogue-hygiene-build-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 14:35 · devin-overseer (delegated) · In progress → Blocked — phase2g delete refused: `git rm ts/src/games/slither_rogue/components/GameCanvas.phase2g.tsx` denied (needs approval, no delete perm). All other steps done and committed as 43cea628 on the branch (local only): Restart labeled, vite.slither_rogue.config.ts + standalone entry/index, build:slither_rogue script, hygiene test. vitest: hygiene 2 pass/1 fail (expected phase2g-gone check while file exists), sound 12/12. Push refused: pre-push suite fails on that one expected test. Controller: delete the file, push branch, run build:slither_rogue.
+- 2026-10-04 14:54 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->
