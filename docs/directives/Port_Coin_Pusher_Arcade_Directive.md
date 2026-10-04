@@ -169,4 +169,5 @@ Findings first: what was ported, what was split and where, any behaviour you cou
 **Status log**
 - 2026-10-03 22:44 · robert-claude-laptop · Queued → Approved — lint override: all errors are files the run creates, each marked with new-file markers; main's lint (PR #500) gives 0 errors, this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 01:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-coin-pusher-arcade-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 01:16 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-coin-pusher-arcade-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
