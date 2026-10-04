@@ -154,3 +154,17 @@ none (`cd ts && npx vitest run <bare-filename>`, `cd ts && npx tsc --noEmit`, gi
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 17:26 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
