@@ -14,3 +14,5 @@ Out of scope: anything past Tier A: backend deploy, new economy/features, scalin
 Dependencies / risks: Firebase project and Cloud Run costs/quotas (lib/sparkLimits.ts exists); personal Google account; support burden of a public multiplayer game.
 Effort: S (Tier A only)
 Open question for Robert: Should this be a hosted public multiplayer game (Cloud Run + Firestore, sign-in, you as Game Master), a showcase of the architecture only, or retired from the arcade? Nothing past Tier A is proposed until you answer.
+Decision 2026-10-04 (Robert approved the PARK verdict in docs/demos/house_of_kings_collab/DIRECTION.md): architecture showcase, no public hosting, no further polish.
+Tier B, Tier C, phone-layout and first-60-seconds checks: N/A (parked showcase). Only Tier A honesty items apply; the URL stays.
