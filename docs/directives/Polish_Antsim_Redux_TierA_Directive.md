@@ -145,12 +145,14 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-antsim-redux-tiera-directive |
 | Base branch | - |
+| Base commit | ec01de9506ca7f75868638d357e77e3e1e8317f5 |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/antsim_redux/SCOPE.md (Robert 2026-10-04: keep the embed, Tier A fix only)
 - 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved
+- 2026-10-04 08:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-antsim-redux-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
