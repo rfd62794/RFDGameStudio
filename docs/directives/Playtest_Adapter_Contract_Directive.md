@@ -158,7 +158,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-adapter-contract-directive |
 | Base branch | - |
@@ -170,4 +170,5 @@ none.
 - 2026-10-04 18:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adapter-contract-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 18:05 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: 10054)
 - 2026-10-04 18:27 · robert-claude-laptop · Blocked → Queued — requeue: setup failed before spawn, uv sync --frozen exit 10054 (transient network reset); no Devin run happened
+- 2026-10-04 18:28 · robert-claude-laptop · Queued → Approved — lint override: cited ts/src/engine/playtest paths are new files this directive creates
 <!-- queue:end -->
