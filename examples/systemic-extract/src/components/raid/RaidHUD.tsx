@@ -69,9 +69,9 @@ export const RaidHUD: React.FC<RaidHUDProps> = ({
   const hpPercentage = Math.max(0, Math.min(100, (playerHp / playerMaxHp) * 100));
 
   return (
-    <div id="raid-hud-top" className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-20">
+    <div id="raid-hud-top" className="absolute top-3 left-3 right-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-0 pointer-events-none z-20">
       {/* Operative HP & Loadout */}
-      <div className="bg-[#0f172a]/90 backdrop-blur border border-[#334155] p-3 rounded-lg pointer-events-auto flex items-center gap-4 shadow-xl">
+      <div className="bg-[#0f172a]/90 backdrop-blur border border-[#334155] p-3 rounded-lg pointer-events-auto flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-2 max-w-full shadow-xl">
         <div>
           <div className="flex items-center justify-between text-xs font-mono text-[#94a3b8] mb-1">
             <span className="font-bold text-[#34d399] tracking-wider">OPERATIVE // STATUS</span>
@@ -298,7 +298,7 @@ export const RaidHUD: React.FC<RaidHUDProps> = ({
       )}
 
       {/* TOP RIGHT CONTROLS */}
-      <div className="flex items-center gap-2 flex-wrap justify-end pointer-events-auto">
+      <div className="flex items-center gap-2 flex-wrap justify-end ml-auto sm:ml-0 pointer-events-auto">
         {onNewRun && <RaidRestartButton onRestart={onNewRun} />}
         <button
           id="btn-ecs-inspector"
