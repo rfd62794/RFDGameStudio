@@ -163,15 +163,18 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-chimera-wilds-fix-unwinnable-bala-c0b987 |
 | Base branch | - |
 | Base commit | 6ca12552cef28ddaa5804be7c8fa5b3899443bf1 |
+| Head commit | 7c5c57dacbc5666be566f8769080cfbc58b4e456 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:16 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 13:23 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-chimera-wilds-fix-unwinnable-bala-c0b987; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 13:24 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-chimera-wilds-fix-unwinnable-bala-c0b987; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 13:39 · devin · In progress → Review — baseline_player 90/85 in data.yaml + App.tsx fallback; new test_chimera_wilds_balance.ts 2/2 green; pytest chimera_wilds 8 passed; neighbours 76 passed; pushed to directive branch [origin] spent: devin 13 min est. n/a
 <!-- queue:end -->
