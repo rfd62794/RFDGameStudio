@@ -224,4 +224,5 @@ none.
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:17 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 13:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-solvability-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 13:45 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-solvability-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
