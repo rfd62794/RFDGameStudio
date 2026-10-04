@@ -263,12 +263,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-choke-point-tiera-directive |
 | Base branch | - |
+| Base commit | 3f74117bb012aefb30bb4ae6a341c3353f343d1e |
 
 **Status log**
 - 2026-10-04 00:05 · claude · none → Queued — wave 1 Tier A directive from docs/demos/choke_point/SCOPE.md
 - 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (outcome.ts, test_choke_point_restart.ts, vite.choke_point.config.ts, standalone entry.tsx and index.html), marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 02:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-choke-point-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
