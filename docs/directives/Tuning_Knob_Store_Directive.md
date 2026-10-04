@@ -160,7 +160,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-knob-store-directive |
 | Base branch | - |
@@ -174,4 +174,5 @@ none.
 - 2026-10-04 18:09 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-knob-store-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 18:10 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-knob-store-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 18:25 · devin · In progress → Review — Built ts/src/engine/tuning/{types,store,applyData,index}.ts + loadGame overrides + ts/tests/test_tuning_store.ts. vitest run test_tuning_store.ts: Tests 7 passed (7). test_chimera_wilds_balance.ts: 2 passed (2). test_gameshell.tsx: 8 passed (8). tsc --noEmit: clean. Case 2 (overrides ignored without ?dev=1) passes. Commit 2c5933d3 pushed; pre-push hook ran full suite green (975 py + 2507 ts). [origin] spent: devin 14 min est. n/a
+- 2026-10-04 18:35 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
