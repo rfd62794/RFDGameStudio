@@ -7,8 +7,8 @@
  * element is the result table. Each test loads a FRESH session and re-runs
  * `init_game` — the Lua state is global per session.
  *
- * `exchange()` is deliberately not tested: it calls `math.pow`, which is nil
- * under Lua 5.3 (known defect, reported to Robert — not fixed here).
+ * `exchange()` is covered in ts/tests/test_slime_coin_exchange.ts (and the UI cost
+ * helper in ts/tests/test_slime_coin_exchange_cost.ts), not here.
  *
  * <!-- new: ts/tests/test_slime_coin_bridge.ts -->
  */

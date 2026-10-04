@@ -12,6 +12,7 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import type { GameRendererProps } from '../../engine/types';
 import type { SlimeCoinGameState, SlimeCoinInput, SlimeCoinRenderState } from './types';
 import { sound } from './utils/sound';
+import { exchangeCost } from './utils/exchangeCost';
 import BoardCanvas from './components/BoardCanvas';
 import ShopModal from './components/ShopModal';
 import PocketPicker from './components/PocketPicker';
@@ -355,20 +356,23 @@ export default function App({ session }: GameRendererProps) {
           <button
             className="btn-exchange"
             onClick={() => {
-              const result = call('exchange') as { tokens: number; hand_in: number } | null;
-              if (result) {
+              const result = call('exchange') as {
+                success?: boolean; error?: string;
+                tokens: number; hand_in: number; exchanges_used: number;
+              } | null;
+              if (result?.success) {
                 sound.playExchange();
                 setState(prev => prev ? {
                   ...prev,
                   tokens: result.tokens,
                   hand_in: result.hand_in,
-                  exchanges_used: (prev.exchanges_used ?? 0) + 1,
+                  exchanges_used: result.exchanges_used,
                 } : prev);
               }
             }}
           >
             Exchange ({state.exchanges_used ?? 0}/3) — Cost: {
-              [5, 8, 12][state.exchanges_used ?? 0] ?? 12
+              exchangeCost(state.exchanges_used ?? 0)
             } tokens
           </button>
         </div>
