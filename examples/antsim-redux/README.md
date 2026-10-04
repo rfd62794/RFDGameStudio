@@ -4,6 +4,8 @@
 
 # Run and deploy your AI Studio app
 
+Current project state: see `docs/state/current.md`.
+
 This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/5c272051-d90f-490f-89a0-29121397e128

@@ -24,39 +24,6 @@ export default function App() {
     idleCount: 0,
   });
 
-  const [testResults] = useState<{ id: number; name: string; status: 'passed' | 'running' | 'idle'; details?: string }[]>([
-    { id: 1, name: 'Direct Sensing Priority', status: 'passed', details: 'Ants prioritize direct food over trails' },
-    { id: 2, name: 'Trail Following', status: 'passed', details: 'Ants follow trail when no food in direct range' },
-    { id: 3, name: 'Pheromone Decay', status: 'passed', details: 'Trail decays gradually over time' },
-    { id: 4, name: 'Anti-Stacking Protection', status: 'passed', details: 'Max strength capped near nest origin' },
-    { id: 5, name: 'Population Growth (Abundance)', status: 'passed', details: 'Surplus food drives spawn rate' },
-    { id: 6, name: 'Population Stabilization (Scarcity)', status: 'passed', details: 'Zero food halts population growth' },
-    { id: 7, name: 'State Bounds Stability', status: 'passed', details: '1000-tick run completes without degeneration' },
-    { id: 8, name: 'Trail Commitment & Jitter Fix', status: 'passed', details: '0 backward target flips along trail' },
-    { id: 9, name: 'Velocity Alignment Priority', status: 'passed', details: 'Well-aligned cell beats raw off-angle cell' },
-    { id: 10, name: 'Zero-Velocity Degradation', status: 'passed', details: 'Zero-speed ant selects nearby trail gracefully' },
-    { id: 11, name: '5x5 Navigation Stability', status: 'passed', details: '1000-tick 5x5 run completes without error' },
-    { id: 12, name: 'Chambers & Underground Gap', status: 'passed', details: '3 Chambers (Storage, Nursery, Queen) below groundLevelY' },
-    { id: 13, name: 'Tunnel Waypoint Pathing', status: 'passed', details: 'Ant carrying food traces tunnel waypoints to Storage' },
-    { id: 14, name: 'Food Node Depletion & Respawn', status: 'passed', details: 'Depleted node removed, replacement spawned elsewhere' },
-    { id: 15, name: 'Food Count Conservation', status: 'passed', details: 'Active food node count conserved across long run' },
-    { id: 16, name: 'Phase 2a Integration Stability', status: 'passed', details: '1000-tick run with Chambers & Tunnels completes cleanly' },
-    { id: 17, name: 'Statistical Exploration Behavior', status: 'passed', details: 'Independent foraging triggered at ~12% exploration rate' },
-    { id: 18, name: 'Direct Sensing Priority vs Exploration', status: 'passed', details: 'Direct food range unconditionally outranks trail & exploration' },
-    { id: 19, name: 'Nursery Spawning Anchor', status: 'passed', details: 'Newly spawned ant initializes at Nursery Chamber with exit path' },
-    { id: 20, name: 'Queen Entity Static Presence', status: 'passed', details: 'Queen entity occupies Royal Chamber with static 1.0 health' },
-    { id: 21, name: 'Phase 2b Integration Stability', status: 'passed', details: '1000-tick run with Exploration, Nursery & Queen completes cleanly' },
-    { id: 22, name: 'Queen Routing Health Dependency', status: 'passed', details: 'Food return routing fraction to Queen increases as health drops' },
-    { id: 23, name: 'Trophallaxis & Feeding Single-Deposit', status: 'passed', details: 'Food delivered to Queen feeds her and is consumed without double deposit' },
-    { id: 24, name: 'Statistical Egg Production', status: 'passed', details: 'Sustained feeding produces real eggs in Royal Chamber' },
-    { id: 25, name: 'Egg Transport Waypoints', status: 'passed', details: 'Ant carrying egg traces real Queen-to-Nursery tunnel waypoints' },
-    { id: 26, name: 'Nursery Egg Incubation & Hatching', status: 'passed', details: 'Egg hatches into new ant only after crossing incubation threshold' },
-    { id: 27, name: 'Queen-Driven Population Dependency', status: 'passed', details: 'Starved unfed Queen halts population growth despite food surplus' },
-    { id: 28, name: 'Phase 2c Full Integration Probe', status: 'passed', details: '1000-tick full run with Trophallaxis, Eggs & Hatching completes cleanly' },
-  ]);
-
-  const [activeTab, setActiveTab] = useState<'sim' | 'anchors'>('sim');
-
   // Initialize Simulation & Canvas
   useEffect(() => {
     const sim = new Simulation({ width: 900, height: 800 });
@@ -158,40 +125,16 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              AntSim Redux <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Phase 2c</span>
+              AntSim Redux
             </h1>
-            <p className="text-xs text-slate-400">Trophallaxis, Queen Feeding & Egg Lifecycle</p>
+            <p className="text-xs text-slate-400">Drop food and watch the colony find it</p>
           </div>
-        </div>
-
-        {/* View Tabs */}
-        <div className="flex items-center gap-2 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
-          <button
-            onClick={() => setActiveTab('sim')}
-            className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'sim'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Simulation Stage
-          </button>
-          <button
-            onClick={() => setActiveTab('anchors')}
-            className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === 'anchors'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" /> Test Anchors (sample list)
-          </button>
         </div>
       </header>
 
       {/* Main Content Area */}
       <main className="flex-1 p-3 sm:p-6 min-w-0 max-w-7xl mx-auto w-full flex flex-col gap-6">
-        {activeTab === 'sim' ? (
+        {(
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Canvas View Area (3 Cols) */}
             <div className="lg:col-span-3 min-w-0 flex flex-col gap-4">
@@ -355,44 +298,12 @@ export default function App() {
               {/* Design Rule Banner */}
               <div className="bg-emerald-950/30 border border-emerald-500/20 p-4 rounded-2xl text-xs text-emerald-300/90 flex flex-col gap-1.5">
                 <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4" /> Core Directive
+                  <ShieldCheck className="w-4 h-4" /> How the ants decide
                 </span>
                 <p className="leading-relaxed">
-                  Direct food sensing strictly outranks trail-following in logic priority. Pheromone emission and decay are balanced to prevent origin runaway stacking.
+                  Ants head straight for food they can sense. Otherwise they follow the strongest scent trail. Trails fade over time, so one path never takes over.
                 </p>
               </div>
-            </div>
-          </div>
-        ) : (
-          /* Test Anchors View */
-          <div className="flex flex-col gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  Test Anchors <span className="text-xs text-amber-400 font-mono">(sample list)</span>
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  A static sample of what the project's test anchors cover. These are descriptions only and are not run in this page. The real checks live in the project's tests (examples/antsim-redux/tests/simulation.test.ts).
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {testResults.map(test => (
-                <div key={test.id} className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="text-xs font-bold text-slate-500 font-mono">ANCHOR #{test.id}</span>
-                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/30 font-medium">
-                      SAMPLE
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-semibold text-slate-100">{test.name}</h4>
-                    <p className="text-xs text-slate-400 mt-1">{test.details}</p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}
