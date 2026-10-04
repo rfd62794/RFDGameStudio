@@ -107,7 +107,7 @@ export const RaidResolutionModal: React.FC<RaidResolutionModalProps> = ({
               : 'bg-[#3b82f6] hover:bg-[#2563eb]'
           }`}
         >
-          RETURN TO HIDEOUT &amp; INJECT LOOT
+          START NEW RUN
         </button>
       </div>
     </div>
