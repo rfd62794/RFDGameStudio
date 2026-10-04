@@ -44,3 +44,17 @@
   background-color: #0c4a6e;
   border-color: #0ea5e9;
 }
+
+@media (max-width: 640px) {
+  .choke-point-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .defense-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 2px;
+    padding: 4px;
+  }
+}
