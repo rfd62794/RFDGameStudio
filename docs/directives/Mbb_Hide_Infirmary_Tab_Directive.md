@@ -149,7 +149,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-mbb-hide-infirmary-tab-directive |
 | Base branch | - |
@@ -163,4 +163,5 @@ none.
 - 2026-10-04 16:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 16:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 16:27 · devin · In progress → Review — Player sees 4 tabs; TABS moved to tabs.ts (verbatim, readonly MbbTab[]) with [...TABS] spread at TabManager (readonly vs mutable TabConfig[] — needed for tsc, not in the pasted spec). InfirmaryTab.tsx untouched. `cd ts && npx vitest run test_mbb_`: Test Files 12 passed (12), Tests 205 passed (205). Pre-push hook green (tsc, 975 pytest, 2422 vitest, build test). Commits f919c0b9 + b6ae855f pushed. [origin] spent: devin 12 min est. n/a
+- 2026-10-04 16:30 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
