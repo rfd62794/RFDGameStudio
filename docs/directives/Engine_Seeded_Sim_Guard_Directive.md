@@ -85,12 +85,14 @@ Test output tail, the baseline total (must read 119), and anything surprising in
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-seeded-sim-guard-directive |
 | Base branch | - |
+| Base commit | 33c3e79a53b3dfcbafd011ba954462d27491d1e9 |
 
 **Status log**
 - 2026-10-04 17:33 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:34 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline proofs; Robert 2026-10-04 17:28 'use your recommendations for the game engine' and approved all recommendations
+- 2026-10-04 19:23 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-sim-guard-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
