@@ -228,12 +228,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-gladiator-hide-balance-lab-and-bl-fd1310 |
 | Base branch | - |
+| Base commit | 1e7b61e30a830ae8c37143af98fb7003a77857b4 |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:17 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 13:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-gladiator-hide-balance-lab-and-bl-fd1310; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
