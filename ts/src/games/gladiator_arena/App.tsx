@@ -49,6 +49,14 @@ const GladiatorArenaApp: React.FC = () => {
   const mode = env.VITE_STANDALONE === 'true' ? 'standalone' : 'arcade';
   const arcadeBaseUrl = env.VITE_ARCADE_BASE_URL;
   const [currentTab, setCurrentTab] = useState<ArenaTab>('roster');
+  // Balance Lab is developer tooling: hidden from players, reachable with ?dev=1.
+  const [showDevTools] = useState<boolean>(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('dev') === '1';
+    } catch {
+      return false;
+    }
+  });
   const { activeBout, gold, roster, currentTierId, wins, losses, resetGame } = useGame();
   const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -245,16 +253,18 @@ const GladiatorArenaApp: React.FC = () => {
                 <span className="hidden sm:inline">Arena Bouts</span>
               </button>
 
-              <button
-                id="tab-balance-btn"
-                onClick={() => setCurrentTab('balance')}
-                aria-label="Balance Lab"
-                title="Balance Lab"
-                className={tabCls('balance', 'bg-emerald-600 text-stone-950 font-bold shadow', 'text-stone-400 hover:text-emerald-300 hover:bg-emerald-950/30')}
-              >
-                <Activity className="w-4 h-4" />
-                <span className="hidden sm:inline">Balance Lab</span>
-              </button>
+              {showDevTools && (
+                <button
+                  id="tab-balance-btn"
+                  onClick={() => setCurrentTab('balance')}
+                  aria-label="Balance Lab"
+                  title="Balance Lab"
+                  className={tabCls('balance', 'bg-emerald-600 text-stone-950 font-bold shadow', 'text-stone-400 hover:text-emerald-300 hover:bg-emerald-950/30')}
+                >
+                  <Activity className="w-4 h-4" />
+                  <span className="hidden sm:inline">Balance Lab</span>
+                </button>
+              )}
 
               <span className="text-xs text-amber-400/90 flex items-center gap-1 font-medium whitespace-nowrap px-2">
                 <Trophy className="w-3 h-3 text-amber-400" />
@@ -337,7 +347,7 @@ const GladiatorArenaApp: React.FC = () => {
           {currentTab === 'forge' && <ShopView />}
           {currentTab === 'medbay' && <MedbayView />}
           {currentTab === 'ladder' && <LadderView />}
-          {currentTab === 'balance' && (
+          {currentTab === 'balance' && showDevTools && (
             <div className="max-w-7xl mx-auto px-4 py-6">
               <BalanceReportView />
             </div>
