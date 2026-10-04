@@ -230,3 +230,17 @@ Findings first: what now carries across runs and what does not (gear and scrap r
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:28 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified, quoted lines verified against the live App.tsx; worktree-only TS change for Devin
+<!-- queue:end -->
