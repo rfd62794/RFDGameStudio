@@ -126,4 +126,5 @@ none.
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 18:36 · robert-claude-laptop · Queued → Approved — lint override: cited tuning sweep files are new files this directive creates
 - 2026-10-04 19:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-sweep-tool-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 19:59 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-sweep-tool-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
