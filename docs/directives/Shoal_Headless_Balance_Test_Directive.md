@@ -305,7 +305,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-shoal-headless-balance-test-directive |
 | Base branch | - |
@@ -317,4 +317,5 @@ none.
 - 2026-10-04 15:19 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-headless-balance-test-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 15:20 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-headless-balance-test-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 15:29 · devin · In progress → Blocked — Work complete+committed on directive/rfdgamestudio-shoal-headless-balance-test-directive (vitest 26/26: headless 6, title render 3, chrome polish 17; regression 54/54). Cannot set Review: (1) npx tsc --noEmit fails on PRE-EXISTING TS6133 unused 'Race' import in examples/trinity-siege/src/combat.ts, pulled into compilation by ts/tests/test_trinity_siege_combat.ts added in 6b7c2b09 (PR #148) AFTER the directive's d3084de0 baseline — fixing it is out of scope (4th file); (2) git push refused by pre-push hook: python -m pytest fails with 'unrecognized arguments: -n' (pytest-xdist missing in hook env), branch unpushed.
+- 2026-10-04 16:03 · robert-claude-laptop · Blocked → Done
 <!-- queue:end -->
