@@ -14,3 +14,6 @@ Out of scope: new parts/tiers, new combat rules, art overhaul, multiplayer, itch
 Dependencies / risks: shared engine/shared/anatomy and persistence modules (combatEngine.ts:11-18; GameContext.tsx:14); ArenaCombatView (851 lines) and BalanceReportView (744) not read in full.
 Effort: M
 Open question for Robert: none
+
+## Update 2026-10-04
+Stale above: the Tier A items (a New Game control with a 2-click confirm, the phone tab-bar fit, `build:gladiator_arena` and a seeded career-simulation test) landed in commit `75a90e01`. The current plan is `DIRECTION.md`.
