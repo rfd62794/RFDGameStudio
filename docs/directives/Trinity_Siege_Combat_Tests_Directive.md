@@ -238,3 +238,17 @@ Findings first: the combat table is sound (12 of 12), so the "fabricated logic" 
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:28 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
