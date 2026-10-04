@@ -198,12 +198,14 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-corpworld-tiera-directive |
 | Base branch | - |
+| Base commit | d4292753d9e08b8508de2730c0c8afa6a282cea6 |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for corpworld (Origin entry): blurb path leak, stale README, source location note; docs/demos/corpworld/SCOPE.md
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved
+- 2026-10-04 02:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-corpworld-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
