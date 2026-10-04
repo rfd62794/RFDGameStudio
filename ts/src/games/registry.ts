@@ -34,6 +34,7 @@ import slimebreederConfig from './slimebreeder/config';
 import corpworldConfig from './corpworld/config';
 import kingmakerSquadsConfig from './kingmaker_squads/config';
 // demos:imports:begin — imports added by `studio_mcp.demos import` (keep this pair)
+import { coinPusherArcadeConfig } from './coin_pusher_arcade/config';
 // demos:imports:end
 
 // Legacy/Origin Projects (ADR-023, Aug 23 2026): real material that
@@ -71,6 +72,7 @@ export const GAME_REGISTRY: GameConfig[] = [
   antsimReduxConfig,
   facilityEscapeConfig,
   systemicExtractConfig,
+  coinPusherArcadeConfig,
   // demos:end
   factoryIdleConfig,
   planetofgreedConfig,

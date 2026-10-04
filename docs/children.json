@@ -32,6 +32,11 @@
       "label": "Choke Point"
     },
     {
+      "id": "coin_pusher_arcade",
+      "path": "ts/src/games/coin_pusher_arcade",
+      "label": "Coin Pusher Arcade"
+    },
+    {
       "id": "corpworld",
       "path": "ts/src/games/corpworld",
       "label": "CorpWorld"
