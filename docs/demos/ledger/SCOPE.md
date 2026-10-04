@@ -14,3 +14,5 @@ Out of scope: new goods/categories, more than 10 days, Gemini/AI features (metad
 Dependencies / risks: AI Studio origin (examples/ledger/README.md); embed path /arcade/ledger/ is already live.
 Effort: S
 Open question for Robert: none
+Update 2026-10-04: Tier A closed (restart control, phone dialog fit, logic test; commits 70f772ad and be78ef89), so the "no restart" and "intro cropped" findings above are stale. The defeat dialog already shows why the run was lost.
+Phone layout: framed (an AI Studio export with a fixed layout), to be confirmed by the first 390x844 pass.

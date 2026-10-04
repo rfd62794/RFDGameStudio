@@ -14,3 +14,5 @@ Out of scope: anything the Review directive shipped (ADR-007 locked methods, Cou
 Dependencies / risks: the Review directive's branch must merge first (same folder, App.tsx conflicts); balance harness must stay green (ts/tests/test_succession_balance_sim.ts).
 Effort: M
 Open question for Robert: none (direction documented; change 3 waits on his answers to the four open items)
+Update 2026-10-04: Revamp_Succession_Continue is merged (PR #59). In-play restart and per-segment save are queued as Succession_Run_Controls_Directive and Succession_Run_Save_Continue_Directive.
+Phone layout: framed until a 390x844 pass says otherwise (the figure cards are dense; DIRECTION.md replan 3 proposes stacking them on narrow widths). The live /arcade/succession/ 404 and the missing cover are controller and site tasks (redesign D2).

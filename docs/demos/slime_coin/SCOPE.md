@@ -14,3 +14,5 @@ Out of scope: new chip cards/coin types, balance changes, cross-run meta-progres
 Dependencies / risks: Lua modular layer and shared components (GameShell, EndStateScreen); sound.ts duplication is the subject of docs/directives/Polish_Shared_Sfx_Directive.md (not read in full).
 Effort: S
 Open question for Robert: none
+Update 2026-10-04: the math.pow Exchange bug is fixed and bridge tests plus a persisted best score landed. Queued: Slime_Coin_Lua_Entry_Point_Sweep_Directive, Slime_Coin_Blurb_Directive, Slime_Coin_Shop_Purchase_Fix_Directive. Not queued: the round recap panel (its "which chips fired" half needs a Lua addition, so decide that first).
+Phone layout: not yet measured; framed until the first 390x844 pass.
