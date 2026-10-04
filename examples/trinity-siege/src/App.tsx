@@ -444,9 +444,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-clip">
       {/* Header Bar */}
-      <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between" id="app-header">
+      <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3" id="app-header">
         <div className="flex items-center gap-3">
           <div className="bg-cyan-950/50 p-2 rounded-lg border border-cyan-800/60 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
             <Swords className="w-5 h-5 text-cyan-400" />
@@ -521,7 +521,7 @@ export default function App() {
         )}
 
         {/* Column 1: Board Visual Map (lg:col-span-5) */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
+        <div className="min-w-0 lg:col-span-5 flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
             <span className="font-mono text-xs font-bold text-slate-400 uppercase tracking-wider">Tactical Sonar Plot</span>
             {units.length === 0 && phase === GamePhase.ALLOCATE && (
@@ -552,7 +552,7 @@ export default function App() {
         </div>
 
         {/* Column 2: Control & Buy Panel (lg:col-span-3) */}
-        <div className="lg:col-span-3">
+        <div className="min-w-0 lg:col-span-3">
           <ControlPanel
             gold={gold}
             wave={wave}
@@ -579,7 +579,7 @@ export default function App() {
         </div>
 
         {/* Column 3: Threat Analysis & Detailed Duels (lg:col-span-4) */}
-        <div className="lg:col-span-4">
+        <div className="min-w-0 lg:col-span-4">
           <WaveLog
             phase={phase}
             forecastedLanes={forecastedLanes}

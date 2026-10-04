@@ -198,12 +198,19 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-corpworld-tiera-directive |
 | Base branch | - |
+| Base commit | d4292753d9e08b8508de2730c0c8afa6a282cea6 |
+| Head commit | 0e05c646cf86480cee7c284786e486ae916002ee |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for corpworld (Origin entry): blurb path leak, stale README, source location note; docs/demos/corpworld/SCOPE.md
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved
+- 2026-10-04 02:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-corpworld-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 02:41 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-corpworld-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 02:49 · devin · In progress → Review — Tier A polish committed on directive branch and pushed. FINDINGS: (1) config.ts line 13 description — removed the parenthesised repo path '(ts/src/games/planetofgreed/)'; now 36 words, no repo path, still contains 'Planet of Greed'. All other lines including the ADR-023 comment block untouched. (2) README.md — full rewrite per directive section 3: status now 'Origin project, registered in the live game registry as an external embed with supersededBy planetofgreed (ADR-023)'; no longer says 'Retired' or 'Not in the live game registry'; records that the /arcade/corpworld/ build source is expected at examples/corpworld/ but is gitignored/untracked (exists only in owner's live checkout, if at all) and that matching to intake 0.1.0R5 is unverified. No other files touched; no file created. EVIDENCE: 'uv run python --version' -> Python 3.12.12 (matches reference). 'cd ts && npx vitest run test_arcade_registry_directive.ts test_registry_export.ts' -> Test Files 2 passed (2); Tests 16 passed | 1 skipped (17) (matches reference). Pre-push hook: 972 pytest passed / 8 skipped, 2183 vitest passed / 32 skipped, build test 16/16 — all green. git status: only the two files changed; tree clean. OPEN ITEM for Robert: where does the /arcade/corpworld/ build source actually live, and is it intake 0.1.0R5 (corpworld_v0.1.0R5.zip)? Nothing deployed; deploy of the changed blurb is Robert's separate step after review/merge. [origin] spent: devin 7 min est. n/a
+- 2026-10-04 02:53 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

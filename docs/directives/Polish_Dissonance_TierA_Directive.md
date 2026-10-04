@@ -199,12 +199,19 @@ none for the run. After Review and merge, deploying is Robert's separate step. D
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-dissonance-tiera-directive |
 | Base branch | - |
+| Base commit | 8fc4723ebb35e8a5b6612159c8b3680223d41807 |
+| Head commit | 17b68b1454117702964cc02fad07f25a22e856f3 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
 - 2026-10-04 00:00 · robert-claude-laptop · Queued → Approved — lint override: all 3 errors are files the run creates (runControls.ts, AbandonRunButton.tsx, test_dissonance_run_controls.ts), each marked with a new-file marker; the author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 00:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-dissonance-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 00:59 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-dissonance-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 01:07 · devin-overseer (delegated) · In progress → Review — vitest 3 files / 122 tests passed (13 new run-controls + 107 zero-regression + 2 shared-ui); uv run python --version = 3.12.12; committed 17b68b14 and pushed; pre-push hook green (pytest + full vitest 2124 tests + build test) [origin] spent: devin 2 min est. n/a
+- 2026-10-04 01:11 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

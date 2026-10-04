@@ -12,8 +12,10 @@ import { MECHANICS_COPY } from './mechanicsCopy';
 import TitleScreen from './components/TitleScreen';
 import type { StartConfig } from './components/TitleScreen';
 import ReefPrimer from './components/ReefPrimer';
+import NewReefControl from './components/NewReefControl';
 import { sound } from './utils/sound';
 import { detectReefEvents } from './utils/reefEvents';
+import { clientToCanvas, clientToWorld } from './utils/pointerWorld';
 import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
   ageStageFromCreature,
@@ -353,6 +355,7 @@ export default function App({ session }: GameRendererProps) {
             variant="neutral"
             size="sm"
           />
+          <NewReefControl onNewReef={handleReplay} />
         </div>
         <ShoalCanvas key={reefKey} session={session} tool={tool} onStats={handleStats} />
         {primer}
@@ -430,26 +433,24 @@ function ShoalCanvas({
   }, [session, onStats]);
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
+    const onMove = (e: PointerEvent) => {
       if (!canvasRef.current) return;
       const r = canvasRef.current.getBoundingClientRect();
-      stateRef.current.mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
+      stateRef.current.mouse = clientToCanvas({ x: e.clientX, y: e.clientY }, r);
     };
-    const onDown = (e: MouseEvent) => {
+    const onDown = (e: PointerEvent) => {
       if (!canvasRef.current) return;
       const r = canvasRef.current.getBoundingClientRect();
       const dims = stateRef.current.dims;
       const world = renderStateRef.current?.world;
       if (!world) return;
-      const x = (e.clientX - r.left) * (world.width / dims.w);
-      const y = (e.clientY - r.top) * (world.height / dims.h);
-      stateRef.current.click = { x, y };
+      stateRef.current.click = clientToWorld({ x: e.clientX, y: e.clientY }, r, dims, world);
     };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mousedown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerdown', onDown);
     return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mousedown', onDown);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerdown', onDown);
     };
   }, []);
 

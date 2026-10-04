@@ -217,12 +217,20 @@ source, so a deploy reaches all three). Deploying is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-shoal-tiera-directive |
 | Base branch | - |
+| Base commit | 02ebfdd16a67b495335b9cea2167fe31111bc09f |
+| Head commit | a4565e6a5bf9f5c1b25f006e22c2275733e51496 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
 - 2026-10-04 00:00 · robert-claude-laptop · Queued → Approved — lint override: all 3 errors are files the run creates (NewReefControl.tsx, pointerWorld.ts, test_shoal_new_reef_control.ts), each marked with a new-file marker; the author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 00:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-shoal-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 00:42 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-shoal-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 00:47 · devin · In progress → Blocked — Work complete+verified, push blocked: `git push -u origin directive/rfdgamestudio-polish-shoal-tiera-directive` fails because the repo pre-push hook runs `python -m pytest -n ...` and pytest-xdist is not installed (pyproject dev group lacks it; provisioned via uv sync --frozen). Hook exits 4, refs rejected; queue refuses Review w/o remote branch. Commit 13c01455 on branch. Vitest: 3 files/48 tests passed. Fix: add pytest-xdist to dev deps or push from an env that has it.
+- 2026-10-04 00:58 · robert-claude-laptop · Blocked → Review — work complete (13c01455); pushed past the pre-push hook after PYTEST_ADDOPTS -n injection was fixed in AgentFlow #503; merge a4565e6a on origin [origin] spent: devin 4 min est. n/a
+- 2026-10-04 01:02 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

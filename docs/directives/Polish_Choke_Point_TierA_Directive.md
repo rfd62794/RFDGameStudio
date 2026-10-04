@@ -263,12 +263,19 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-choke-point-tiera-directive |
 | Base branch | - |
+| Base commit | 3f74117bb012aefb30bb4ae6a341c3353f343d1e |
+| Head commit | f73a8c76530af12a9cfdea03408b441bcd8bd58c |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 00:05 · claude · none → Queued — wave 1 Tier A directive from docs/demos/choke_point/SCOPE.md
 - 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (outcome.ts, test_choke_point_restart.ts, vite.choke_point.config.ts, standalone entry.tsx and index.html), marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 02:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-choke-point-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 02:53 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-choke-point-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 03:02 · devin · In progress → Review — Tier A done: outcome.ts+isVictory, handleRestart/victory card/Restart button in App.tsx, 640px media block, test_choke_point_restart.ts (2 tests), vite.choke_point.config.ts+standalone entry/index.html, build:choke_point script. Python 3.12.12; vitest restart+ui: 2 files/4 tests passed; build:choke_point exit 0 'built in 10.57s' + copy-game-assets line; regression 3 files/9 tests passed. Browser smoke + phone/desktop screenshots not runnable here (no browser) - reviewer's step. [origin] spent: devin 8 min est. n/a
+- 2026-10-04 03:06 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

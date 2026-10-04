@@ -88,6 +88,7 @@ built.
 | `particle_void` | "VoidRift Redux" | Cellular-automata sandbox, 12 `MaterialType`s with physical properties | `MaterialType` enum, `MaterialDef`, `buildingDefs` |
 
 All three preserved in `examples/`, none registered yet — real recommendation on record: three separate registry entries when picked up, not one. `voiddrift_redux_1` is the one matching the earlier "scout proximity detection, FSM drone cycles" description specifically.
+Update (intake/demo-sources-1): `voiddrift_redux_1` is already ported and registered as `voiddrift_redux`; its source is now tracked under `examples/voiddrift-redux-core-loop/`.
 
 ---
 

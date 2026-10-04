@@ -18,8 +18,10 @@ import { LadderView } from './components/LadderView';
 import { ArenaCombatView } from './components/ArenaCombatView';
 import { BalanceReportView } from './components/BalanceReportView';
 import { ManagerPrimer } from './components/ManagerPrimer';
+import { NewGameButton } from './components/NewGameButton';
 import { ARENA_TIERS } from './simulation/championLadder';
 import { sound } from './utils/soundEffects';
+import { useArmedConfirm } from './utils/useArmedConfirm';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useOnboardingGate } from '../../ui/components/OnboardingGate';
 import { MoreGamesByMe } from '../../ui/components';
@@ -58,6 +60,11 @@ const GladiatorArenaApp: React.FC = () => {
   const [showTitleScreen, setShowTitleScreen] = useState<boolean>(true);
   const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
     useOnboardingGate({ mode: 'boolean', initialShow: false });
+  const titleNewGame = useArmedConfirm(() => {
+    resetGame();
+    setShowTitleScreen(false);
+    triggerPrimer();
+  });
 
   const currentTier = ARENA_TIERS.find(t => t.id === currentTierId) || ARENA_TIERS[0];
 
@@ -121,6 +128,17 @@ const GladiatorArenaApp: React.FC = () => {
               variant: 'secondary',
               onClick: handleShowPrimer,
             },
+            ...(hasSave
+              ? [
+                  {
+                    id: 'ga-new-game',
+                    label: titleNewGame.armed ? 'Confirm: wipe stable?' : 'New Game',
+                    icon: <RotateCcw className="w-4 h-4" />,
+                    variant: 'secondary' as const,
+                    onClick: titleNewGame.trigger,
+                  },
+                ]
+              : []),
           ]}
         >
           <div className="flex items-center justify-center gap-2 flex-wrap font-mono text-xs text-stone-300">
@@ -181,50 +199,61 @@ const GladiatorArenaApp: React.FC = () => {
             <div className="w-10 h-10 rounded-lg bg-amber-600/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-inner shrink-0">
               <Swords className="w-5 h-5" />
             </div>
-            <nav className="flex items-center gap-1 bg-stone-950/80 p-1 rounded-xl border border-stone-800 text-sm font-medium overflow-x-auto">
+            <nav className="flex items-center gap-1 bg-stone-950/80 p-1 rounded-xl border border-stone-800 text-sm font-medium overflow-x-auto min-w-0 max-w-full">
               <button
                 id="tab-roster-btn"
                 onClick={() => setCurrentTab('roster')}
+                aria-label={`Frames (${roster.length})`}
+                title={`Frames (${roster.length})`}
                 className={tabCls('roster', 'bg-amber-600 text-stone-950 font-semibold shadow', 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/60')}
               >
                 <Users className="w-4 h-4" />
-                <span>Frames ({roster.length})</span>
+                <span className="hidden sm:inline">Frames ({roster.length})</span>
+                <span className="sm:hidden -ml-1 px-1 rounded bg-stone-800 text-[10px] font-bold leading-tight">{roster.length}</span>
               </button>
 
               <button
                 id="tab-forge-btn"
                 onClick={() => setCurrentTab('forge')}
+                aria-label="The Forge"
+                title="The Forge"
                 className={tabCls('forge', 'bg-amber-600 text-stone-950 font-semibold shadow', 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/60')}
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>The Forge</span>
+                <span className="hidden sm:inline">The Forge</span>
               </button>
 
               <button
                 id="tab-medbay-btn"
                 onClick={() => setCurrentTab('medbay')}
+                aria-label="Medbay Clinic"
+                title="Medbay Clinic"
                 className={tabCls('medbay', 'bg-amber-600 text-stone-950 font-semibold shadow', 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/60')}
               >
                 <HeartPulse className="w-4 h-4" />
-                <span>Medbay Clinic</span>
+                <span className="hidden sm:inline">Medbay Clinic</span>
               </button>
 
               <button
                 id="tab-ladder-btn"
                 onClick={() => setCurrentTab('ladder')}
+                aria-label="Arena Bouts"
+                title="Arena Bouts"
                 className={tabCls('ladder', 'bg-red-600 text-white font-semibold shadow shadow-red-950/50 animate-pulse', 'text-stone-400 hover:text-red-300 hover:bg-red-950/20')}
               >
                 <Swords className="w-4 h-4" />
-                <span>Arena Bouts</span>
+                <span className="hidden sm:inline">Arena Bouts</span>
               </button>
 
               <button
                 id="tab-balance-btn"
                 onClick={() => setCurrentTab('balance')}
+                aria-label="Balance Lab"
+                title="Balance Lab"
                 className={tabCls('balance', 'bg-emerald-600 text-stone-950 font-bold shadow', 'text-stone-400 hover:text-emerald-300 hover:bg-emerald-950/30')}
               >
                 <Activity className="w-4 h-4" />
-                <span>Balance Lab</span>
+                <span className="hidden sm:inline">Balance Lab</span>
               </button>
 
               <span className="text-xs text-amber-400/90 flex items-center gap-1 font-medium whitespace-nowrap px-2">
@@ -237,6 +266,7 @@ const GladiatorArenaApp: React.FC = () => {
             <div className="md:hidden flex items-center gap-1.5 px-3 py-1 rounded bg-amber-950/40 border border-amber-600/30 text-amber-300 font-mono font-bold text-sm shrink-0">
               <Coins className="w-4 h-4 text-amber-400" />
               {gold}g
+              <NewGameButton onConfirm={resetGame} />
             </div>
           </div>
         }
@@ -277,6 +307,8 @@ const GladiatorArenaApp: React.FC = () => {
               <RotateCcw className="w-3.5 h-3.5" />
               {showResetConfirm && <span>Confirm?</span>}
             </button>
+
+            <NewGameButton onConfirm={resetGame} />
           </div>
         }
         footer={

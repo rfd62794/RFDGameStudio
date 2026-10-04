@@ -23,6 +23,7 @@ import { planetofgreedConfig } from './planetofgreed/config';
 import planetforgeConfig from './planetforge/config';
 import { gladiatorArenaConfig } from './gladiator_arena/config';
 import voiddriftReduxConfig from './voiddrift_redux/config';
+import voidriftParticleSandboxConfig from './voidrift_particle_sandbox/config';
 import successionConfig from './succession/config';
 import houseOfKingsCollabConfig from './house_of_kings_collab/config';
 import { characterViewerConfig } from './character_viewer/config';
@@ -34,6 +35,7 @@ import slimebreederConfig from './slimebreeder/config';
 import corpworldConfig from './corpworld/config';
 import kingmakerSquadsConfig from './kingmaker_squads/config';
 // demos:imports:begin — imports added by `studio_mcp.demos import` (keep this pair)
+import { coinPusherArcadeConfig } from './coin_pusher_arcade/config';
 // demos:imports:end
 
 // Legacy/Origin Projects (ADR-023, Aug 23 2026): real material that
@@ -71,12 +73,14 @@ export const GAME_REGISTRY: GameConfig[] = [
   antsimReduxConfig,
   facilityEscapeConfig,
   systemicExtractConfig,
+  coinPusherArcadeConfig,
   // demos:end
   factoryIdleConfig,
   planetofgreedConfig,
   planetforgeConfig,
   gladiatorArenaConfig,
   voiddriftReduxConfig,
+  voidriftParticleSandboxConfig,
   successionConfig,
   houseOfKingsCollabConfig,
   characterViewerConfig,

@@ -211,12 +211,19 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-ledger-tiera-directive |
 | Base branch | - |
+| Base commit | 1b42dc63307bfe17c8836e0a4cf9fc830aa14c7e |
+| Head commit | 70f772ad2fcd1292e79bcd91a5215f8da366e5a5 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 23:58 · claude · none → Queued — wave 1 Tier A directive from docs/demos/ledger/SCOPE.md
 - 2026-10-04 00:03 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (RestartButton.tsx, test_ledger_utils.ts), marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 03:55 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-ledger-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 03:56 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-ledger-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 04:06 · devin · In progress → Review — devin: RestartButton.tsx two-step confirm wired via Header onRestart (App.tsx +1 line); Overlay safe-centered (my-auto, no items-center/my-8); test_ledger_utils.ts 5/5 pass. uv python 3.12.12; vitest 1 file 5 tests pass; regression manifest+registry 2 files 7 tests pass; pre-push full suite green (972 py, 2207 ts). Embed rebuild + A1-A4 browser smoke = Robert/reviewer step. [origin] spent: devin 8 min est. n/a
+- 2026-10-04 04:12 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
