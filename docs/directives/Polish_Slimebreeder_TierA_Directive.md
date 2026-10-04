@@ -139,12 +139,14 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-slimebreeder-tiera-directive |
 | Base branch | - |
+| Base commit | 2977b45b5731455ee2d7e51bacee99ded9a4d8e3 |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/slimebreeder/SCOPE.md (Robert 2026-10-04: frozen origin exhibit)
 - 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved — lint override: sole error(s) are files the run creates (ts/tests/test_slimebreeder_blurb.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
+- 2026-10-04 16:51 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-slimebreeder-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
