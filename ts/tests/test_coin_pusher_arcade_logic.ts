@@ -67,6 +67,24 @@ function makeCoin(overrides: Partial<ActiveCoin> = {}): ActiveCoin {
   };
 }
 
+describe('data integrity (ported constants)', () => {
+  it('has unique ids across COIN_TYPES, POCKET_COIN_TYPES, and WHEEL_REWARDS', () => {
+    for (const list of [COIN_TYPES, POCKET_COIN_TYPES, WHEEL_REWARDS]) {
+      const ids = list.map(item => item.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+
+  it('keeps LEVEL_SETTINGS levels ascending with widening boards', () => {
+    for (let i = 1; i < LEVEL_SETTINGS.length; i++) {
+      expect(LEVEL_SETTINGS[i].level).toBeGreaterThan(LEVEL_SETTINGS[i - 1].level);
+      expect(LEVEL_SETTINGS[i].pushTarget).toBeGreaterThan(LEVEL_SETTINGS[i - 1].pushTarget);
+      expect(LEVEL_SETTINGS[i].boardWidth).toBeGreaterThan(LEVEL_SETTINGS[i - 1].boardWidth);
+      expect(LEVEL_SETTINGS[i].comboWindowMs).toBeLessThan(LEVEL_SETTINGS[i - 1].comboWindowMs);
+    }
+  });
+});
+
 describe('coin factories (logic/coins)', () => {
   it('pickCoinType selects deterministically from the unlocked pool', () => {
     const pool = COIN_TYPES.slice(0, 3);

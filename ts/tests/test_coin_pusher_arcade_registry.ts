@@ -40,6 +40,12 @@ describe('Coin Pusher Arcade — registry registration', () => {
     expect(entry!.source).toEqual({ kind: 'example', slug: 'coin-pusher-arcade' });
   });
 
+  it('has a unique gameId across GAME_REGISTRY', () => {
+    const ids = GAME_REGISTRY.map(g => g.gameId);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.filter(id => id === 'coin_pusher_arcade')).toHaveLength(1);
+  });
+
   it('registers inside the demos markers, matching the directive convention', () => {
     const registryText = readFileSync(resolve(GAME_DIR, '../registry.ts'), 'utf-8');
     const demosBlock = registryText.split('// demos:begin')[1].split('// demos:end')[0];
