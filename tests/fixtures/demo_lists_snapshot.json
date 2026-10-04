@@ -9,7 +9,8 @@
     "kingmaker-squads",
     "antsim-redux",
     "facility-escape",
-    "systemic-extract"
+    "systemic-extract",
+    "coin-pusher-arcade"
   ],
   "demo_static_name": {
     "brewfield": "brewfield",
@@ -23,7 +24,8 @@
     "kingmaker-squads": "kingmaker_squads",
     "antsim-redux": "antsim_redux",
     "facility-escape": "facility_escape",
-    "systemic-extract": "systemic_extract"
+    "systemic-extract": "systemic_extract",
+    "coin-pusher-arcade": "coin_pusher_arcade"
   },
   "demo_external_paths": {
     "slimebreeder": "SlimeBreeder"
@@ -102,6 +104,10 @@
     "systemic_extract": [
       "ts/src/games/systemic_extract",
       "examples/systemic-extract"
+    ],
+    "coin_pusher_arcade": [
+      "ts/src/games/coin_pusher_arcade",
+      "examples/coin-pusher-arcade"
     ],
     "house_of_kings_collab": [
       "ts/src/games/house_of_kings_collab"
