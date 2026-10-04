@@ -149,15 +149,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-mbb-hide-infirmary-tab-directive |
 | Base branch | - |
 | Base commit | 4dc00dd7894a1dac59c478e6b60ef0072a4a19bd |
+| Head commit | b6ae855f3c7c5b24f29b06ae8f3a7dfc65c5c31e |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:22 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 16:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 16:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 16:27 · devin · In progress → Review — Player sees 4 tabs; TABS moved to tabs.ts (verbatim, readonly MbbTab[]) with [...TABS] spread at TabManager (readonly vs mutable TabConfig[] — needed for tsc, not in the pasted spec). InfirmaryTab.tsx untouched. `cd ts && npx vitest run test_mbb_`: Test Files 12 passed (12), Tests 205 passed (205). Pre-push hook green (tsc, 975 pytest, 2422 vitest, build test). Commits f919c0b9 + b6ae855f pushed. [origin] spent: devin 12 min est. n/a
 <!-- queue:end -->
