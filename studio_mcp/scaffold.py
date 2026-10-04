@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from studio_mcp.intake import _game_id_from_slug
+from studio_mcp.demos.registry_files import next_order
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +194,7 @@ import type {{ GameConfig }} from '../../engine/types';
 
 const config: GameConfig = {{
   gameId: '{game_id}',
+  order: {order},
   label: '{label}',
   description: '{description}',
   color: '#6c8ef7',
@@ -332,6 +334,7 @@ def _scaffold_ts_native(
     (config_dir / "config.ts").write_text(
         _TS_CONFIG_STUB.format(
             game_id=game_id,
+            order=next_order(games_src),
             label=label,
             description=description,
         ),
@@ -354,33 +357,7 @@ def _scaffold_ts_native(
         _TS_INDEX_HTML.format(label=label), encoding="utf-8"
     )
 
-    # Registry entry — additive only
-    registry_path = games_src / "registry.ts"
-    registry_modified = False
-    if registry_path.exists():
-        registry_content = registry_path.read_text(encoding="utf-8")
-        if f"./{game_id}/config" not in registry_content:
-            import_name = f"{_camel_case_from_game_id(game_id)}Config"
-            import_line = f"import {import_name} from './{game_id}/config';\n"
-            lines = registry_content.splitlines(keepends=True)
-            last_import_idx = -1
-            for i, line in enumerate(lines):
-                if line.lstrip().startswith("import "):
-                    last_import_idx = i
-            if last_import_idx >= 0:
-                lines.insert(last_import_idx + 1, import_line)
-            else:
-                lines.insert(0, import_line)
-
-            registry_text = "".join(lines)
-            array_entry = f"  {import_name},\n"
-            registry_text = registry_text.replace(
-                "];\n",
-                f"{array_entry}];\n",
-                1,
-            )
-            registry_path.write_text(registry_text, encoding="utf-8")
-            registry_modified = True
+    # No registry edit: registry.ts collects every ts/src/games/<id>/config.ts by glob.
 
     files_created = [
         str(config_dir / "App.tsx"),
@@ -402,7 +379,7 @@ def _scaffold_ts_native(
         "game_id": game_id,
         "target_type": "ts_native",
         "files_created": files_created,
-        "registry_modified": registry_modified,
+        "registry_modified": False,
     }
 
 

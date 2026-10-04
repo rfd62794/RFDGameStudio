@@ -191,3 +191,17 @@ def test_json_findings_carry_stable_kind(tmp_path, capsys) -> None:
     sc.main(["--root", str(root), "--site-arcade", str(site), "--json"])
     data = json.loads(capsys.readouterr().out)
     assert data["findings"] and all(f["kind"] for f in data["findings"])
+
+
+def test_glob_registry_lists_every_config_folder_except_excluded(tmp_path) -> None:
+    glob_registry = "import.meta.glob(['./*/config.ts', '!./ghost/config.ts'], { eager: true });\n"
+    root, site = make_tree(
+        tmp_path,
+        games={"live": {"config": _config("live")}, "ghost": {"config": _config("ghost")}},
+        registry=glob_registry,
+        site=_site(),
+    )
+    assert sc.registry_slugs(root / "ts" / "src" / "games" / "registry.ts") == {"live"}
+    cat = sc.build_catalogue(root, site)
+    orphans = [f["slug"] for f in cat["findings"] if f["kind"] == "orphan"]
+    assert orphans == ["ghost"]

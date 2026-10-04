@@ -244,10 +244,12 @@ def test_generate_registry_entry_creates_config(registry_env) -> None:
     assert "A test game description." in text
 
 
-def test_generate_registry_entry_adds_import_and_array_entry(registry_env) -> None:
-    """registry.ts diff is minimal — one import line, one array entry, nothing else changed."""
+def test_generate_registry_entry_leaves_registry_alone_and_sets_order(registry_env) -> None:
+    """registry.ts collects configs by glob: it stays byte-identical; the new config gets the next order."""
     tmp_path, games_src, registry_path = registry_env
     original = registry_path.read_text(encoding="utf-8")
+    (games_src / "horse_racing").mkdir()
+    (games_src / "horse_racing" / "config.ts").write_text("  gameId: 'horse_racing',\n  order: 50,\n", encoding="utf-8")
 
     result = studio_generate_registry_entry(
         "slime-garden", "A slime breeding sandbox."
@@ -255,20 +257,10 @@ def test_generate_registry_entry_adds_import_and_array_entry(registry_env) -> No
 
     assert "error" not in result
     assert result["import_name"] == "slimeGardenConfig"
-
-    modified = registry_path.read_text(encoding="utf-8")
-
-    # Import line added after the last existing import.
-    assert "import slimeGardenConfig from './slime_garden/config';" in modified
-
-    # Array entry added before the closing ];
-    assert "  slimeGardenConfig," in modified
-
-    # Verify minimal diff: remove the two new lines and the rest should be identical.
-    lines_before = original.splitlines(keepends=True)
-    lines_after = modified.splitlines(keepends=True)
-    # The modified version has exactly 2 more lines (import + array entry).
-    assert len(lines_after) == len(lines_before) + 2
+    assert result["registry_modified"] is False
+    assert registry_path.read_text(encoding="utf-8") == original
+    config = (games_src / "slime_garden" / "config.ts").read_text(encoding="utf-8")
+    assert "  order: 60," in config
 
 
 def test_generate_registry_entry_refuses_duplicate_slug(registry_env) -> None:
@@ -284,7 +276,7 @@ def test_generate_registry_entry_refuses_duplicate_slug(registry_env) -> None:
         "dup-game", "Second registration attempt."
     )
     assert "error" in result2
-    # Refusal could be "config.ts already exists" or "already in registry.ts"
+    # Refusal is "config.ts already exists"
     # — both are valid clean refusals, the key is no silent overwrite.
     assert result2.get("game_id") == "dup_game"
 

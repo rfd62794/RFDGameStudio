@@ -1,4 +1,4 @@
-"""register.py — register a new demo: config.ts, registry marker edit, .gitignore (spec §4)."""
+"""register.py — register a new demo: write its config.ts (the glob registry picks it up; spec section c1)."""
 from __future__ import annotations
 
 import hashlib
@@ -6,9 +6,9 @@ import json
 import zipfile
 from pathlib import Path
 
+from studio_mcp.demos.registry_files import next_order
+
 PALETTE = ["#22d3ee", "#a78bfa", "#34d399", "#f472b6", "#fb923c", "#60a5fa", "#facc15", "#f87171"]
-IMPORTS_END = "// demos:imports:end"
-ARRAY_END = "// demos:end"
 
 
 def color_for(slug: str) -> str:
@@ -21,7 +21,7 @@ def import_name(game_id: str) -> str:
     return name if name[0].isalpha() else "demo" + name[0].upper() + name[1:]
 
 
-def render_config_ts(game_id: str, slug: str, label: str, description: str) -> str:
+def render_config_ts(game_id: str, slug: str, label: str, description: str, order: int) -> str:
     q = json.dumps
     return (
         "import type { GameConfig } from '../../engine/types';\n\n"
@@ -29,6 +29,7 @@ def render_config_ts(game_id: str, slug: str, label: str, description: str) -> s
         "// Edit freely: re-imports never rewrite this file.\n"
         "const config: GameConfig = {\n"
         f"  gameId: {q(game_id)},\n"
+        f"  order: {order},\n"
         f"  label: {q(label)},\n"
         f"  description: {q(description)},\n"
         f"  color: {q(color_for(slug))},\n"
@@ -38,36 +39,6 @@ def render_config_ts(game_id: str, slug: str, label: str, description: str) -> s
         "};\n\n"
         "export default config;\n"
     )
-
-
-def _insert_before_marker(text: str, marker: str, line: str) -> str:
-    nl = "\r\n" if "\r\n" in text else "\n"
-    lines = text.split(nl)
-    for i, existing in enumerate(lines):
-        if existing.strip().startswith(marker):
-            indent = existing[: len(existing) - len(existing.lstrip())]
-            lines.insert(i, indent + line)
-            return nl.join(lines)
-    raise ValueError(f"registry.ts has no {marker!r} marker")
-
-
-def insert_registry_entry(text: str, game_id: str) -> str:
-    name = import_name(game_id)
-    import_line = f"import {name} from './{game_id}/config';"
-    if import_line in text:
-        return text
-    text = _insert_before_marker(text, IMPORTS_END, import_line)
-    return _insert_before_marker(text, ARRAY_END, f"{name},")
-
-
-def add_gitignore_line(text: str, slug: str) -> str:
-    line = f"!examples/{slug}/"
-    lines = text.split("\n")
-    if line in (l.rstrip("\r") for l in lines):
-        return text
-    last = max((i for i, l in enumerate(lines) if l.startswith("!examples/")), default=len(lines) - 1)
-    lines.insert(last + 1, line)
-    return "\n".join(lines)
 
 
 def read_zip_metadata(zip_path: Path) -> dict:
@@ -87,22 +58,6 @@ def write_registration(repo_root: Path, game_id: str, slug: str, zip_path: Path)
     if not config.exists():
         config.parent.mkdir(parents=True, exist_ok=True)
         label = meta.get("name") or slug.replace("-", " ").title()
-        config.write_text(render_config_ts(game_id, slug, label, meta.get("description", "")), encoding="utf-8")
+        config.write_text(render_config_ts(game_id, slug, label, meta.get("description", ""), next_order(config.parent.parent)), encoding="utf-8")
         changed.append(f"ts/src/games/{game_id}/config.ts")
-    registry = repo_root / "ts" / "src" / "games" / "registry.ts"
-    with open(registry, encoding="utf-8", newline="") as f:
-        text = f.read()
-    new = insert_registry_entry(text, game_id)
-    if new != text:
-        with open(registry, "w", encoding="utf-8", newline="") as f:
-            f.write(new)
-        changed.append("ts/src/games/registry.ts")
-    gitignore = repo_root / ".gitignore"
-    with open(gitignore, encoding="utf-8", newline="") as f:
-        text = f.read()
-    new = add_gitignore_line(text, slug)
-    if new != text:
-        with open(gitignore, "w", encoding="utf-8", newline="") as f:
-            f.write(new)
-        changed.append(".gitignore")
     return changed

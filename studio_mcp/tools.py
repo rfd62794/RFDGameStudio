@@ -50,6 +50,7 @@ from studio_mcp.game_metadata import (
     write_game_metadata,
 )
 from studio_mcp.demos import registry as demo_registry
+from studio_mcp.demos.registry_files import next_order
 from studio_mcp.intake import _game_id_from_slug, load_manifest, process_intake
 from studio_mcp.scaffold import studio_scaffold_game
 from studio_mcp.session_store import create_session, get_session
@@ -1317,15 +1318,15 @@ def studio_generate_registry_entry(
     description: str,
     color: str = "#6c8ef7",
 ) -> dict:
-    """Create ts/src/games/{game_id}/config.ts and add the corresponding
-    import + registry entry to ts/src/games/registry.ts, for a new
-    external-tier (embedUrl) game. Does not touch any existing entry.
+    """Create ts/src/games/{game_id}/config.ts (with its display `order`); registry.ts
+    collects it by glob and is not edited. For a new external-tier (embedUrl) game.
+    Does not touch any existing entry.
 
     slug: kebab-case folder slug (e.g. "trinity-siege")
     description: human-readable game description for the arcade card
     color: hex accent color for the arcade card (default "#6c8ef7")
     Returns: {"slug": str, "game_id": str, "config_path": str,
-              "import_name": str, "registry_modified": bool}
+              "import_name": str, "registry_modified": False}
     """
     game_id = _game_id_from_slug(slug)
     import_name = f"{_camel_case_from_game_id(game_id)}Config"
@@ -1355,23 +1356,13 @@ def studio_generate_registry_entry(
             "game_id": game_id,
         }
 
-    registry_content = registry_path.read_text(encoding="utf-8")
-
-    # Refuse if game_id is already referenced in the registry.
-    if f"./{game_id}/config" in registry_content:
-        return {
-            "error": f"slug {slug!r} (game_id {game_id!r}) is already in registry.ts",
-            "tool": "studio_generate_registry_entry",
-            "slug": slug,
-            "game_id": game_id,
-        }
-
     # Create config.ts.
     config_template = (
         "import type {{ GameConfig }} from '../../engine/types';\n"
         "\n"
         "const config: GameConfig = {{\n"
         "  gameId: '{game_id}',\n"
+        "  order: {order},\n"
         "  label: '{label}',\n"
         "  description: '{description}',\n"
         "  color: '{color}',\n"
@@ -1383,6 +1374,7 @@ def studio_generate_registry_entry(
     )
     config_text = config_template.format(
         game_id=game_id,
+        order=next_order(games_src),
         label=label,
         description=description,
         color=color,
@@ -1390,35 +1382,10 @@ def studio_generate_registry_entry(
     config_dir.mkdir(parents=True, exist_ok=True)
     config_path.write_text(config_text, encoding="utf-8")
 
-    # Minimal insertion into registry.ts: one import line + one array entry.
-    import_line = f"import {import_name} from './{game_id}/config';\n"
-
-    # Insert import after the last existing import line.
-    lines = registry_content.splitlines(keepends=True)
-    last_import_idx = -1
-    for i, line in enumerate(lines):
-        if line.lstrip().startswith("import "):
-            last_import_idx = i
-    if last_import_idx < 0:
-        # Fallback: insert at the very top.
-        lines.insert(0, import_line)
-    else:
-        lines.insert(last_import_idx + 1, import_line)
-
-    # Insert array entry before the closing `];` of GAME_REGISTRY.
-    registry_text = "".join(lines)
-    array_entry = f"  {import_name},\n"
-    registry_text = registry_text.replace(
-        "];\n",
-        f"{array_entry}];\n",
-        1,
-    )
-    registry_path.write_text(registry_text, encoding="utf-8")
-
     return {
         "slug": slug,
         "game_id": game_id,
         "config_path": str(config_path),
         "import_name": import_name,
-        "registry_modified": True,
+        "registry_modified": False,
     }
