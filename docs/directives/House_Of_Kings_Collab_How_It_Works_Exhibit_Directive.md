@@ -236,11 +236,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/hok-how-it-works |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:24 · devin-cleanroom · Queued → Review — howItWorks.ts + HowItWorks.tsx verbatim + 2 LandingPage edits + verbatim test; `vitest run test_house_of_kings` → `5 files / 40 passed` (Footer merged); tsc only 4 pre-existing metadata errors
 <!-- queue:end -->
