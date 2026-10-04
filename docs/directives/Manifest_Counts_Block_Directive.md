@@ -163,12 +163,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-manifest-counts-block-directive |
 | Base branch | - |
+| Base commit | b8674911ce5a8128ffbd690d757dd941f05466b3 |
 
 **Status log**
 - 2026-10-04 09:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 09:26 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baselines
+- 2026-10-04 11:37 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-manifest-counts-block-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
