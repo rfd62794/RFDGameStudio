@@ -144,11 +144,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully pasted S change for Devin; dispatch only after Facility_Escape_Player_Wording_Directive merges (same App.tsx).
+- 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
 <!-- queue:end -->
