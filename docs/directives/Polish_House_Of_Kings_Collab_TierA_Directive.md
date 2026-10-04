@@ -163,9 +163,12 @@ none. Deploying and rebuilding the embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
+| Branch | - |
+| Base branch | - |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — wave 2a Tier A directive from docs/demos/house_of_kings_collab/SCOPE.md (Robert 2026-10-04: architecture showcase)
+- 2026-10-04 08:34 · robert-claude-laptop · Queued → Approved — lint override: errors are files the run creates (lib/adminGate.ts and two tests), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 <!-- queue:end -->
