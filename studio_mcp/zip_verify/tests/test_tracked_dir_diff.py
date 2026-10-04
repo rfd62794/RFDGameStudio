@@ -40,16 +40,42 @@ def _make_two_commit_repo(repo: Path) -> Path:
     return source_dir
 
 
-def test_tracked_dir_diff_single_commit_is_no_prior_revision() -> None:
-    """Real, current `examples/facility-escape` (1 commit) returns
-    `no_prior_revision: True`, not an error."""
-    tracked_dir = REPO_ROOT / "examples" / "facility-escape"
-    assert tracked_dir.exists()
+def _make_one_commit_repo(repo: Path) -> Path:
+    """Build a scratch repo whose examples/demo dir has exactly one commit."""
+    source_dir = repo / "examples" / "demo"
+    source_dir.mkdir(parents=True)
+    env = isolated_git_env(repo)
+    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True, env=env)
+    (source_dir / "main.ts").write_text("function main() { return 1; }", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, check=True, capture_output=True, env=env)
+    subprocess.run(["git", "commit", "-m", "only"], cwd=repo, check=True, capture_output=True, env=env)
+    return source_dir
+
+
+def test_tracked_dir_diff_single_commit_is_no_prior_revision(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A tracked dir with exactly one commit returns `no_prior_revision: True`,
+    not an error. Hermetic: uses a scratch repo, never the live repo's history
+    (which changes whenever an example is legitimately edited)."""
+    import os
+
+    import studio_mcp.zip_verify.tracked_dir_diff as tdd
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    tracked_dir = _make_one_commit_repo(repo)
+
+    # tracked_dir_diff runs git without an isolated env; strip any inherited
+    # GIT_* (e.g. from a pre-push hook) so it can only see the scratch repo.
+    for key in [k for k in os.environ if k.startswith("GIT_")]:
+        monkeypatch.delenv(key)
+    monkeypatch.setattr(tdd, "REPO_ROOT", repo.resolve())
 
     result = diff_tracked_dir(tracked_dir)
     assert result["no_prior_revision"] is True
     assert result["prior_path"] is None
-    assert len(result["files"]) > 0
+    assert result["files"] == ["main.ts"]
     assert result["changed_functions"] == []
     assert result["diffs"] == {}
 
