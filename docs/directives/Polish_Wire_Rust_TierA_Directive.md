@@ -565,11 +565,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/wr-tiera |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-04 18:04 · devin · Queued → Review — run.ts (seeded D20, locked Control Room, win status) + App.tsx Restart/win screen + standalone trio + build:wire_rust; vitest 2 files / 11 passed (spec-exact), pytest 4 passed, tsc clean (metadata present); build + screenshots deferred to controller
 <!-- queue:end -->

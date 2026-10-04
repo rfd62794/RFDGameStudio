@@ -11,8 +11,9 @@ import { Badge, Button, Card, Panel } from '../../ui/components';
 import { TitleScreen } from '../../ui/components/TitleScreen';
 import { useLuaCall, useGameState } from '../../hooks';
 import { sfx } from '../../engine/shared/sfx';
-import type { GameRendererProps, GameSession } from '../../engine/types';
-import type { Room, PlayerState, EncounterResult, WireRustGameState, CardId } from './types';
+import type { GameRendererProps } from '../../engine/types';
+import type { Room, CardId } from './types';
+import { GATE_ROOM, applyMove, applyPlayCard, canEnterRoom, newRun, runStatus } from './run';
 import './styles.css';
 
 const CARD_DATA: Record<CardId, { name: string; element: string; combat_mod: number; color: string }> = {
@@ -22,20 +23,8 @@ const CARD_DATA: Record<CardId, { name: string; element: string; combat_mod: num
   lead_solder: { name: 'Lead Solder', element: 'Lead', combat_mod: 0, color: 'text-gray-500 border-gray-500' },
 };
 
-function buildInitialState(session: GameSession): WireRustGameState {
-  const data = session.files.data as Record<string, unknown>;
-  const rooms = (data.rooms ?? {}) as Record<string, Room>;
-  const player = session.executor.call('init_game', data)[0] as PlayerState;
-  return {
-    player,
-    currentRoom: rooms[player.current_room_id] ?? rooms.junk_heap,
-    combatHistory: [],
-    message: 'Scrapyard entered.',
-  };
-}
-
 export default function App({ session }: GameRendererProps) {
-  const { state, setState, isInitialized } = useGameState(session, buildInitialState);
+  const { state, setState, isInitialized } = useGameState(session, newRun);
   const { call } = useLuaCall(session);
   const [showTitle, setShowTitle] = useState(true);
 
@@ -64,40 +53,29 @@ export default function App({ session }: GameRendererProps) {
 
   const handleMove = useCallback((roomId: string) => {
     if (!state) return;
-    const nextPlayer = call('move_room', data, state.player, roomId) as PlayerState | null;
-    if (!nextPlayer) return;
+    const next = applyMove(session, state, roomId);
+    if (next === state) return;
     sfx.play('whoosh');
-    setState(prev => prev ? {
-      ...prev,
-      player: nextPlayer,
-      currentRoom: rooms[nextPlayer.current_room_id] ?? prev.currentRoom,
-      message: `Moved to ${rooms[nextPlayer.current_room_id]?.name ?? roomId}`,
-    } : prev);
-  }, [state, call, data, rooms, setState]);
+    setState(next);
+  }, [state, session, setState]);
 
   const handlePlayCard = useCallback((cardId: CardId) => {
     if (!state) return;
-    const roll = Math.floor(Math.random() * 20) + 1;
-    const result = call('resolve_encounter', data, state.player, cardId, roll) as EncounterResult | null;
+    const { state: next, result } = applyPlayCard(session, state, cardId);
     if (!result) return;
     sfx.play(result.won ? 'win' : 'lose');
-
-    const logMsg = result.won
-      ? `[WIN] ${state.currentRoom.name}: D20 ${roll} + card ${CARD_DATA[cardId].combat_mod} + chem ${result.bonus} = ${result.total_score} vs ${result.difficulty} — salvage stored!`
-      : `[LOSS] ${state.currentRoom.name}: D20 ${roll} + card ${CARD_DATA[cardId].combat_mod} + chem ${result.bonus} = ${result.total_score} vs ${result.difficulty} — core integrity damaged.`;
-
-    setState(prev => prev ? {
-      ...prev,
-      player: result.player,
-      combatHistory: [logMsg, ...prev.combatHistory.slice(0, 49)],
-      message: result.won ? 'Encounter resolved' : 'Core hit',
-    } : prev);
-  }, [state, call, data, setState]);
+    setState(next);
+  }, [state, session, setState]);
 
   const handleReset = useCallback(() => {
-    setState(buildInitialState(session));
+    setState(newRun(session));
     sfx.play('click');
   }, [session, setState]);
+
+  const handleRestart = useCallback(() => {
+    handleReset();
+    setShowTitle(true);
+  }, [handleReset]);
 
   if (!isInitialized || !state) {
     return <div className="p-4 text-cyan-400">Booting neural connection...</div>;
@@ -116,7 +94,9 @@ export default function App({ session }: GameRendererProps) {
     );
   }
 
-  const isGameOver = state.player.hp <= 0;
+  const status = runStatus(state);
+  const isGameOver = status === 'lost';
+  const isWon = status === 'won';
 
   return (
     <GameShell
@@ -124,7 +104,22 @@ export default function App({ session }: GameRendererProps) {
       gameLabel="Wire & Rust"
       className="wire-rust-container font-mono bg-slate-950 text-slate-100 min-h-screen"
     >
-      {isGameOver ? (
+      {isWon ? (
+        <Card className="max-w-md mx-auto mt-12 p-6 border-emerald-500 bg-emerald-950/20 text-center">
+          <h2 className="text-2xl font-bold text-emerald-400 mb-4">SYSTEM ONLINE</h2>
+          <p className="text-slate-300 mb-2">You reached the Control Room and brought the scrapyard back to life.</p>
+          <p className="text-slate-400 text-sm mb-6">
+            Core integrity {state.player.hp} HP, {state.player.scrap} scrap, {state.cleared.length} rooms cleared.
+          </p>
+          <Button
+            onClick={handleRestart}
+            variant="primary"
+            className="w-full justify-center"
+            label="Play Again"
+            icon={<RefreshCw className="mr-2 h-4 w-4" />}
+          />
+        </Card>
+      ) : isGameOver ? (
         <Card className="max-w-md mx-auto mt-12 p-6 border-red-500 bg-red-950/20 text-center">
           <h2 className="text-2xl font-bold text-red-500 mb-4">SYSTEM SHUTDOWN</h2>
           <p className="text-slate-300 mb-6">Your core integrity reached critical limits. Your scrap has rusted over.</p>
@@ -150,6 +145,8 @@ export default function App({ session }: GameRendererProps) {
                   <span>Room Threat:</span>
                   <span className="text-yellow-500 font-bold">{state.currentRoom.difficulty}</span>
                 </div>
+                <p className="text-xs text-slate-400">Goal: reach the Control Room. It opens once you win in the Reactor Core.</p>
+                <Button onClick={handleRestart} variant="secondary" size="sm" label="Restart" />
               </div>
             </Card>
 
@@ -184,20 +181,24 @@ export default function App({ session }: GameRendererProps) {
                 <ArrowRight className="h-5 w-5" /> Navigation
               </h3>
               <div className="flex flex-col gap-2">
-                {state.currentRoom.connections.map(connId => (
-                  <Button
-                    key={connId}
-                    onClick={() => handleMove(connId)}
-                    variant="secondary"
-                    className="justify-between"
-                    label={`Move to ${rooms[connId]?.name || connId}`}
-                    icon={
-                      <span className="ml-2">
-                        <Badge variant="muted" label={`Threat ${rooms[connId]?.difficulty}`} />
-                      </span>
-                    }
-                  />
-                ))}
+                {state.currentRoom.connections.map(connId => {
+                  const open = canEnterRoom(state.cleared, connId);
+                  return (
+                    <Button
+                      key={connId}
+                      onClick={() => handleMove(connId)}
+                      disabled={!open}
+                      variant="secondary"
+                      className="justify-between"
+                      label={open ? `Move to ${rooms[connId]?.name || connId}` : `${rooms[connId]?.name || connId} (locked)`}
+                      icon={
+                        <span className="ml-2">
+                          <Badge variant="muted" label={open ? `Threat ${rooms[connId]?.difficulty}` : `Win in ${rooms[GATE_ROOM]?.name ?? GATE_ROOM} first`} />
+                        </span>
+                      }
+                    />
+                  );
+                })}
               </div>
             </Card>
           </div>
