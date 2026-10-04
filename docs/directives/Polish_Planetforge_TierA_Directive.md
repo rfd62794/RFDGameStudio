@@ -201,11 +201,12 @@ audit on the live page (including whether the icon-only Reset needs a text label
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-planetforge-tiera-directive |
 | Base branch | - |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
+- 2026-10-04 00:00 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
