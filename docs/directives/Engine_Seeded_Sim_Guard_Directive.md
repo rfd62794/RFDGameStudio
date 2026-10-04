@@ -79,3 +79,17 @@ Do NOT edit any sim file.
 ## 8. Report
 
 Test output tail, the baseline total (must read 119), and anything surprising in the walk (files with zero count that were excluded).
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 17:33 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
