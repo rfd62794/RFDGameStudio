@@ -187,11 +187,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/vd-embed-console |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review: verbatim module + test + A1 sentence; `npx vitest run test_embed_console_filter.ts` Test Files 1 passed (1) / Tests 6 passed (6); `test_arcade.ts` 33 passed (baseline 32 +1 main drift); `npx tsc --noEmit` printed nothing (metadata supplied); spec grep `embedConsoleFilter.ts` count 1; Python 3.12.10
 <!-- queue:end -->
