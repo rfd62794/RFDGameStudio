@@ -208,3 +208,17 @@ Findings first: the two bugs as measured (paste the first real failing assertion
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:14 · robert-claude-laptop · none → Queued
+<!-- queue:end -->
