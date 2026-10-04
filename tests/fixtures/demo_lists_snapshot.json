@@ -9,7 +9,8 @@
     "kingmaker-squads",
     "antsim-redux",
     "facility-escape",
-    "systemic-extract"
+    "systemic-extract",
+    "voiddrift-redux-core-loop"
   ],
   "demo_static_name": {
     "brewfield": "brewfield",
@@ -23,7 +24,8 @@
     "kingmaker-squads": "kingmaker_squads",
     "antsim-redux": "antsim_redux",
     "facility-escape": "facility_escape",
-    "systemic-extract": "systemic_extract"
+    "systemic-extract": "systemic_extract",
+    "voiddrift-redux-core-loop": "voiddrift_redux"
   },
   "demo_external_paths": {
     "slimebreeder": "SlimeBreeder"
@@ -107,7 +109,8 @@
       "ts/src/games/house_of_kings_collab"
     ],
     "voiddrift_redux": [
-      "ts/src/games/voiddrift_redux"
+      "ts/src/games/voiddrift_redux",
+      "examples/voiddrift-redux-core-loop"
     ],
     "succession": [
       "ts/src/games/succession"
