@@ -27,3 +27,8 @@ PARK.
 3. Hide coin_pusher_arcade from featured picks until decided - S - redesign D1 order/featured field.
 ## Open question for Robert
 Does coin_pusher_arcade stay beside SlimeCoin? Recommended default: PARK at dev now, decide after one 10-minute playtest of each.
+
+## Decision update 2026-10-04 (Robert)
+- Verdict changes from PARK to REDESIGN as a pachinko-style RPG (Robert 17:17: "Coin pusher can be reworked into a pachinko style rpg I think").
+- Concept and replan: docs/demos/coin_pusher_arcade/CONCEPT_PACHINKO_RPG.md; the Replan above is superseded.
+- coin_pusher_arcade stays held back from the publish (status dev, not featured) until the rework passes a playtest.
