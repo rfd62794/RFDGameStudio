@@ -138,3 +138,17 @@ Findings first: the three hint lines as shipped. Evidence second: the real vites
 ## Required from User
 
 none.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully pasted S change for Devin; dispatch only after Facility_Escape_Player_Wording_Directive merges (same App.tsx).
+<!-- queue:end -->
