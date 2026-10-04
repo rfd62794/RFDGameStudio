@@ -157,4 +157,5 @@ none. Review and merge are Robert's or Claude's after the run.
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:04 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
 - 2026-10-04 19:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-new-campaign-button-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 19:49 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-new-campaign-button-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
