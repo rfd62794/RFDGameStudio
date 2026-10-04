@@ -17,7 +17,7 @@ Each item is a command, a Playwright smoke step, or a yes/no from a screenshot. 
 - A4. Controls work at 1280x720 (mouse/keyboard) and at 390x844 touch emulation: the primary action is reachable, no horizontal scroll, no clipped control. Two screenshots, yes/no.
 - A5. Registry entry has a blurb of 60 words or fewer with no placeholder text, and one screenshot referenced by the arcade manifest. Yes/no.
 - A6. `cd ts && npm test` green, with at least one test file for the demo's logic (`external` demos exempt, but A1-A5 and A8 apply).
-- A7. `cd ts && npm run build:<id>` exits 0. If the script does not exist, adding it is part of that demo's Tier A work (only 10 demos have one today).
+- A7. `cd ts && npm run build:demo -- <id>` exits 0 (standalone demos build into `ts/dist-<id>`; example embeds are verified in a sandbox with `--check` and built on the laptop). The per-game `build:<id>` scripts still work as aliases.
 - A8. `external` demos only: the iframe loads, fits the shell, and the card labels it honestly ("embed" or "(Origin)"). Screenshot yes/no.
 
 ### Tier B: playable and sticky (demos worth a second visit)
@@ -84,7 +84,7 @@ Open question for Robert: (only if direction is unclear; else "none")
 0. Precondition: the demo's `docs/demos/<id>/SCOPE.md` exists and any open question on it is answered.
 1. Claude (Sonnet subagent or controller) writes a Devin directive from the scorecard row and the SCOPE.md (Scope and Out of scope copied verbatim): repo, absolute paths, tier target, the exact failing items, and what not to touch (protected repos, other demos, the live checkout on main).
 2. Devin works only in its worktree, one demo per directive, new behaviour in small new modules (SRP/KISS), shared code per ADR-014 checked first.
-3. Verification in every directive uses the real commands: `cd ts && npm test`, `cd ts && npm run build:<id>`, plus the Playwright smoke steps for the target tier, with output tails pasted into the report.
+3. Verification in every directive uses the real commands: `cd ts && npm test`, `cd ts && npm run build:demo -- <id>`, plus the Playwright smoke steps for the target tier, with output tails pasted into the report.
 4. Review by Claude (Sonnet subagent) with a screenshot checklist: desktop and phone screenshots of start, mid-play, and end; every item of the target tier answered yes/no; console error list attached.
 5. Merge by Claude with `gh pr merge --merge` (not squash) under Robert's standing approval for arcade and website publishing (2026-09-27), for green, non-protected work. Merge is not deploy; deployment follows the existing site pipeline.
 6. Claude marks the directive Done and updates the scorecard row. Robert is pulled in only for the open questions below.
