@@ -623,7 +623,7 @@ export default function App({ session }: GameRendererProps) {
       gameId="slimeworld"
       mode={mode}
       arcadeBaseUrl={arcadeBaseUrl}
-      statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span><button onClick={() => setShowOptionsMenu(true)} className="text-slate-400 hover:text-slate-200" aria-label="Options"><Settings className="w-4 h-4" /></button></div>}
+      statusArea={<div className="header-bank flex items-center gap-3"><span className="text-slate-400 font-mono text-xs">Cycle {state.cycle}</span><Button id="slimeworld-advance-cycle" label="Advance Cycle" icon={<FastForward className="w-3.5 h-3.5" />} onClick={handleAdvanceCycle} variant="primary" size="sm" /><span className="flex items-center gap-1"><Coins size={14} /> {state.credits} Biomass</span><button onClick={() => { setPendingHardReset(true); setShowOptionsMenu(true); }} className="text-slate-400 hover:text-slate-200 text-xs font-mono" aria-label="New Campaign">New Campaign</button><button onClick={() => setShowOptionsMenu(true)} className="text-slate-400 hover:text-slate-200" aria-label="Options"><Settings className="w-4 h-4" /></button></div>}
       footer={
         <MoreGamesByMe
           mode={mode}
