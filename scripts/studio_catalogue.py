@@ -109,6 +109,10 @@ def registry_slugs(path: Path) -> set[str] | None:
     text = _read(path)
     if text is None:
         return None
+    if "import.meta.glob" in text:
+        # Glob registry: every <folder>/config.ts except the folders its negative patterns exclude.
+        excluded = set(re.findall(r"""['"]!\./([A-Za-z0-9_]+)/config\.ts['"]""", text))
+        return {c.parent.name for c in path.parent.glob("*/config.ts")} - excluded
     return set(re.findall(r"""from\s+['"]\./([A-Za-z0-9_]+)/config['"]""", text))
 
 

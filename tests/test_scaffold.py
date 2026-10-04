@@ -182,37 +182,26 @@ def test_generated_entry_uses_glob(scaffold_env):
 
 
 # ---------------------------------------------------------------------------
-# Test 4: registry.ts entry is additive only
+# Test 4: registry.ts is not edited (it collects configs by glob); the config carries its order
 # ---------------------------------------------------------------------------
 
-def test_registry_entry_additive_only(scaffold_env):
-    """Existing entries byte-identical before/after; only new import + array line added."""
-    tmp_path, _, registry_path = scaffold_env
+def test_registry_is_not_edited_and_config_has_order(scaffold_env):
+    """registry.ts stays byte-identical; the new config.ts gets the next display order."""
+    tmp_path, games_src, registry_path = scaffold_env
     examples_dir = tmp_path / "examples"
     _make_ts_example(examples_dir, "new-concept")
+    (games_src / "horse_racing").mkdir()
+    (games_src / "horse_racing" / "config.ts").write_text("  gameId: 'horse_racing',\n  order: 50,\n", encoding="utf-8")
 
     original = registry_path.read_text(encoding="utf-8")
 
     result = studio_scaffold_game("new-concept", target_type="ts_native")
 
     assert "error" not in result
-    assert result["registry_modified"] is True
-
-    modified = registry_path.read_text(encoding="utf-8")
-
-    # New import line added
-    assert "import newConceptConfig from './new_concept/config';" in modified
-    # New array entry added
-    assert "  newConceptConfig," in modified
-
-    # Verify minimal diff: exactly 2 more lines
-    lines_before = original.splitlines(keepends=True)
-    lines_after = modified.splitlines(keepends=True)
-    assert len(lines_after) == len(lines_before) + 2
-
-    # Remove the 2 new lines and the rest should be identical
-    new_lines = set(lines_after) - set(lines_before)
-    assert len(new_lines) == 2
+    assert result["registry_modified"] is False
+    assert registry_path.read_text(encoding="utf-8") == original
+    config = (games_src / "new_concept" / "config.ts").read_text(encoding="utf-8")
+    assert "  order: 60," in config
 
 
 # ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { GAME_REGISTRY } from '../src/games/registry';
+import { GAME_REGISTRY, findGame } from '../src/games/registry';
 import {
   BOARD_THEMES,
   COIN_TYPES,
@@ -46,12 +46,10 @@ describe('Coin Pusher Arcade — registry registration', () => {
     expect(ids.filter(id => id === 'coin_pusher_arcade')).toHaveLength(1);
   });
 
-  it('registers inside the demos markers, matching the directive convention', () => {
+  it('is collected by the registry glob, with no hand-written import in registry.ts', () => {
     const registryText = readFileSync(resolve(GAME_DIR, '../registry.ts'), 'utf-8');
-    const demosBlock = registryText.split('// demos:begin')[1].split('// demos:end')[0];
-    expect(demosBlock).toContain('coinPusherArcadeConfig');
-    const importMatches = registryText.match(/from '\.\/coin_pusher_arcade\/config'/g) ?? [];
-    expect(importMatches).toHaveLength(1);
+    expect(registryText).not.toContain('coin_pusher_arcade');
+    expect(typeof findGame('coin_pusher_arcade')?.order).toBe('number');
   });
 });
 

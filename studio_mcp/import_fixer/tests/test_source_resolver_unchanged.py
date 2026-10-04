@@ -10,35 +10,17 @@ deliberate change to the registry, the examples/ tree, or intake/ state.
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 from studio_mcp.zip_verify.source_resolver import resolve_source, find_examples_dir_untracked
+from studio_mcp.demos.registry_files import registry_games
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 BASELINE_PATH = Path(__file__).resolve().parent / "fixtures" / "resolve_source_baseline.json"
 
 
 def _get_registry_slugs() -> list[str]:
-    registry_text = (REPO_ROOT / "ts" / "src" / "games" / "registry.ts").read_text(encoding="utf-8")
-    imports = re.findall(
-        r"import\s+\{?\s*([A-Za-z0-9_]+)\s*\}?\s+from\s+['\"]([^'\"]+)['\"]",
-        registry_text,
-    )
-    config_dir = REPO_ROOT / "ts" / "src" / "games"
-    slugs: list[str] = []
-    for _, module_path in imports:
-        base = config_dir / module_path.lstrip("./")
-        config_path = base.parent / (base.name + ".ts")
-        if not config_path.exists():
-            config_path = base.parent / (base.name + ".tsx")
-            if not config_path.exists():
-                continue
-        text = config_path.read_text(encoding="utf-8")
-        m = re.search(r"gameId:\s*['\"]([^'\"]+)['\"]", text)
-        if m:
-            slugs.append(m.group(1))
-    return slugs
+    return [r["id"] for r in registry_games(REPO_ROOT / "ts" / "src" / "games")]
 
 
 def test_source_resolver_unchanged_for_all_registry_slugs():

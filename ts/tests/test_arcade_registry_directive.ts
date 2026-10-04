@@ -138,23 +138,13 @@ describe('Registry invariants (replace the pinned order/count, Sep 19 2026)', ()
     expect(missing).toEqual([]);
   });
 
-  it('has exactly one pair of each demos marker', () => {
-    for (const marker of ['// demos:imports:begin', '// demos:imports:end', '// demos:begin', '// demos:end']) {
-      expect(registryText.split(marker).length - 1, marker).toBe(1);
-    }
+  it('registry.ts collects configs by glob and keeps no hand-kept import list', () => {
+    expect(registryText.split('import.meta.glob').length - 1).toBe(1);
+    expect(registryText.match(/from '\.\/\w+\/config'/g)).toBeNull();
   });
 
-  it('every entry between the demos markers is an example demo', () => {
-    // Skip the rest of the begin-marker line (it carries a comment), stop at the end marker.
-    const block = registryText.split('// demos:begin')[1].split('\n').slice(1).join('\n').split('// demos:end')[0];
-    const names = block.split(/[\s,]+/).filter(Boolean);
-    const importMap: Record<string, string> = Object.fromEntries(
-      [...registryText.matchAll(/import\s+(?:\{\s*(\w+)\s*\}|(\w+))\s+from\s+'\.\/(\w+)\/config'/g)]
-        .map(m => [m[1] ?? m[2], m[3]]));
-    expect(names.length).toBeGreaterThan(0);
-    for (const name of names) {
-      const game = GAME_REGISTRY.find(g => g.gameId === importMap[name]);
-      expect(game?.source?.kind, name).toBe('example');
-    }
+  it('the glob excludes exactly the known unregistered folders', () => {
+    const excluded = [...registryText.matchAll(/'!\.\/(\w+)\/config\.ts'/g)].map(m => m[1]).sort();
+    expect(excluded).toEqual(Object.keys(UNREGISTERED).sort());
   });
 });

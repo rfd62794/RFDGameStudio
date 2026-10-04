@@ -9,9 +9,9 @@ the examples/ tree, or intake/ state, then commit the updated fixture.
 """
 
 import json
-import re
 from pathlib import Path
 
+from studio_mcp.demos.registry_files import registry_games
 from studio_mcp.zip_verify.source_resolver import resolve_source
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -26,25 +26,7 @@ OUT = (
 
 
 def get_registry_slugs() -> list[str]:
-    registry_text = (REPO_ROOT / "ts" / "src" / "games" / "registry.ts").read_text(encoding="utf-8")
-    imports = re.findall(
-        r"import\s+\{?\s*([A-Za-z0-9_]+)\s*\}?\s+from\s+['\"]([^'\"]+)['\"]",
-        registry_text,
-    )
-    config_dir = REPO_ROOT / "ts" / "src" / "games"
-    slugs: list[str] = []
-    for _, module_path in imports:
-        base = config_dir / module_path.lstrip("./")
-        config_path = base.parent / (base.name + ".ts")
-        if not config_path.exists():
-            config_path = base.parent / (base.name + ".tsx")
-            if not config_path.exists():
-                continue
-        text = config_path.read_text(encoding="utf-8")
-        m = re.search(r"gameId:\s*['\"]([^'\"]+)['\"]", text)
-        if m:
-            slugs.append(m.group(1))
-    return slugs
+    return [r["id"] for r in registry_games(REPO_ROOT / "ts" / "src" / "games")]
 
 
 def rel(p) -> str | None:

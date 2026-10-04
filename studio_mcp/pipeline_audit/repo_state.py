@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from studio_mcp.demos.registry_files import registry_games, uses_glob
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 REGISTRY_PATH = REPO_ROOT / "ts" / "src" / "games" / "registry.ts"
 METADATA_PATH = REPO_ROOT / "ts" / "src" / "games" / "game-metadata.json"
@@ -74,7 +76,10 @@ def read_repo_state(
 ) -> dict[str, Any]:
     """Return the current state of the arcade registry with metadata cross-reference."""
     registry_text = registry_path.read_text(encoding="utf-8")
-    games = _extract_registry_games(registry_text)
+    if uses_glob(registry_text):
+        games = [{"id": r["id"], "config_export": "default"} for r in registry_games(registry_path.parent)]
+    else:
+        games = _extract_registry_games(registry_text)
     metadata = _load_metadata(metadata_path)
 
     for game in games:

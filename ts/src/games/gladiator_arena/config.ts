@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const gladiatorArenaConfig: GameConfig = {
   gameId:      'gladiator_arena',
+  order: 240,
   label:       'Gladiator Arena',
   description: 'Assemble cyber-organic gladiator frames. Manage your roster across a 5-tier champion ladder. Turn-based tactical combat with continuous anatomy damage, Blood Bowl recoil, and agent-driven decision AI.',
   color:       '#f59e0b',
@@ -11,3 +12,5 @@ export const gladiatorArenaConfig: GameConfig = {
   tags:        ['roster-management', 'tactical-combat'],
   component:   React.lazy(() => import('./App')),
 };
+
+export default gladiatorArenaConfig;

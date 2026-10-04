@@ -7,6 +7,7 @@ import type { GameConfig } from '../../engine/types';
 // it led to.
 const config: GameConfig = {
   gameId: 'corpworld',
+  order: 350,
   source: { kind: 'example', slug: 'corpworld' },
   label: 'CorpWorld',
   supersededBy: 'planetofgreed',

@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const chokePointConfig: GameConfig = {
   gameId: 'choke_point',
+  order: 120,
   label: 'Choke Point',
   description: 'Turn-based tactical grid defense. Preview enemy movement and attacks, and deploy perfect blockers.',
   color: '#f87171',
@@ -11,3 +12,5 @@ export const chokePointConfig: GameConfig = {
   tags: ['turn-based', 'tactical'],
   component: React.lazy(() => import('./App')),
 };
+
+export default chokePointConfig;

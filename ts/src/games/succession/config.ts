@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
   gameId: 'succession',
+  order: 270,
   label: 'Succession',
   description: 'A persuasion and court-intrigue sim — whisper rumors, present evidence, and deliver indictments to sway court figures. Rival AI counters your moves, contradictions expose lies, and your origin shapes the epilogue.',
   shortDescription: 'Whisper rumors, present evidence, and deliver indictments to sway court figures against a rival AI.',

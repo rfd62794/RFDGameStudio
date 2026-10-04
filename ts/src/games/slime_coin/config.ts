@@ -5,6 +5,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const slimeCoinConfig: GameConfig = {
   gameId: 'slime_coin',
+  order: 80,
   label: 'SlimeCoin',
   description: 'Real-time coin pusher with shooter, two-layer board, and chip synergies',
   color: '#a855f7',
@@ -15,3 +16,5 @@ export const slimeCoinConfig: GameConfig = {
   tags: ['coin-pusher', 'real-time'],
   component: React.lazy(() => import('./App')),
 };
+
+export default slimeCoinConfig;

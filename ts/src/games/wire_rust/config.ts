@@ -3,6 +3,7 @@ import type { GameConfig } from '../../engine/types';
 
 export const wire_rustConfig: GameConfig = {
   gameId: 'wire_rust',
+  order: 110,
   label: 'Wire & Rust',
   description: 'Turn-based deck builder with component chemistry reskinned as scrap-part synergies.',
   color: '#e0f2fe',
@@ -11,3 +12,5 @@ export const wire_rustConfig: GameConfig = {
   tags: ['deck-building', 'chemistry'],
   component: React.lazy(() => import('./App')),
 };
+
+export default wire_rustConfig;
