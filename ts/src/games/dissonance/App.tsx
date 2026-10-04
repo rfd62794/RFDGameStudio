@@ -248,7 +248,7 @@ export default function App({ session }: GameRendererProps) {
   ) : undefined;
 
   return (
-    <GameShell gameLabel="Dissonance Depths" gameId="dissonance" phase="Renderer Phase A" statusArea={statusArea}>
+    <GameShell gameLabel="Dissonance Depths" gameId="dissonance" statusArea={statusArea}>
       <div className="h-full overflow-y-auto bg-slate-950 p-4">
         {appPhase === 'title' && (
           <TitlePhase

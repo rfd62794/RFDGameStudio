@@ -36,7 +36,7 @@ export default function OpeningPhase({ pack, onComplete }: OpeningPhaseProps) {
       id="viewport-opening-phase"
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
-        <Badge label="ECHO Core Initialization — First Pack Reveal" variant="amber" />
+        <Badge label="Your first cards" variant="amber" />
         <h2
           style={{
             fontFamily: 'var(--font-display)',

@@ -1,6 +1,7 @@
 import { Swords, Shield, Skull } from 'lucide-react';
 import { Card, Panel, StatBar } from '../../../ui/components';
 import type { DeckCard, RunState } from '../types';
+import FirstCombatHint from '../components/FirstCombatHint';
 
 interface CombatPhaseProps {
   run: RunState;
@@ -116,6 +117,8 @@ export default function CombatPhase({ run, onPlayCard, data }: CombatPhaseProps)
           <span>Enemy Intent: {enemy.intent.description}</span>
         </div>
       </Panel>
+
+      <FirstCombatHint />
 
       <div
         style={{
