@@ -116,12 +116,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-tuning-sweep-tool-directive |
 | Base branch | - |
+| Base commit | 055e2399c53d6e889b14a8f483db08e7e9b1ab6a |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 18:36 · robert-claude-laptop · Queued → Approved — lint override: cited tuning sweep files are new files this directive creates
+- 2026-10-04 19:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-sweep-tool-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
