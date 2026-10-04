@@ -35,7 +35,14 @@ export const RaidRestartButton: React.FC<{ onRestart: () => void }> = ({ onResta
       title="Abandon this run and start over at the sanctuary"
     >
       <RotateCcw className="w-3.5 h-3.5" />
-      <span>{prompt === 'armed' ? 'CONFIRM NEW RUN?' : 'NEW RUN'}</span>
+      {prompt === 'armed' ? (
+        <>
+          <span className="sm:hidden">CONFIRM?</span>
+          <span className="hidden sm:inline">CONFIRM NEW RUN?</span>
+        </>
+      ) : (
+        <span>NEW RUN</span>
+      )}
     </button>
   );
 };

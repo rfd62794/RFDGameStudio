@@ -298,7 +298,7 @@ export const RaidHUD: React.FC<RaidHUDProps> = ({
       )}
 
       {/* TOP RIGHT CONTROLS */}
-      <div className="flex items-center gap-2 pointer-events-auto">
+      <div className="flex items-center gap-2 flex-wrap justify-end pointer-events-auto">
         {onNewRun && <RaidRestartButton onRestart={onNewRun} />}
         <button
           id="btn-ecs-inspector"
@@ -307,7 +307,7 @@ export const RaidHUD: React.FC<RaidHUDProps> = ({
           title="Inspect Bevy ECS Components & Architecture"
         >
           <Database className="w-3.5 h-3.5" />
-          <span>ECS INSPECT</span>
+          <span className="hidden sm:inline">ECS INSPECT</span>
         </button>
 
         <button
