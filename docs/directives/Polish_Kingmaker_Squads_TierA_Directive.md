@@ -214,15 +214,18 @@ merge; it is not part of this run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-kingmaker-squads-tiera-directive |
 | Base branch | - |
 | Base commit | 5608572bfa74bc8cf719bc62b23a9b2298dade61 |
+| Head commit | 70dca7a1ddca84438a4766e6fbb45124bc2ad681 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — wave 1 Tier A polish for kingmaker_squads (Origin entry): blurb path leak, stale README, A3 note; start-screen restart blocked on intake (examples untracked); docs/demos/kingmaker_squads/SCOPE.md
 - 2026-10-04 00:05 · robert-claude-laptop · Queued → Approved
 - 2026-10-04 00:41 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-kingmaker-squads-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 00:42 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-kingmaker-squads-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 00:52 · devin-overseer (delegated) · In progress → Review — Tier A polish done: config.ts blurb de-pathed (21 words, still names Planet of Greed), README rewritten to Origin-project text incl. A3 note + blocked-on-intake record. Verify: Python 3.12.12; vitest test_arcade_registry_directive.ts + test_registry_export.ts = 2 files passed, 16 passed | 1 skipped (17). Pre-push hook: full pytest + 177 vitest files (2111 passed | 32 skipped) + build test, all green. Commit 70dca7a1 pushed. Open item: start-screen Restart blocked on intake — examples/kingmaker-squads is untracked (Robert to force-add or decline). No file created; nothing deployed. [origin] spent: devin 2 min est. n/a
 <!-- queue:end -->
