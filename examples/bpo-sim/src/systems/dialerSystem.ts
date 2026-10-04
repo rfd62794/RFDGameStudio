@@ -22,6 +22,7 @@ export function computeSafePace(availableAgents: number): number {
  * - list.purity / list.freshness: lead quality, 0-100
  * - list.volume: remaining leads; cannot generate more calls than this
  * - availableAgents: idle agents that can take calls; sets the safe pace ceiling
+ * - contactFactor: share of calls that still connect given the country's overlap with client hours (1 = no effect)
  *
  * Behavior:
  * - At or below safe pace, generated calls = dialer.pace * quality factor.
@@ -33,6 +34,7 @@ export function computeCallGenerationRate(
   dialer: DialerConfig,
   list: LeadList,
   availableAgents: number,
+  contactFactor = 1,
 ): number {
   const safePace = computeSafePace(availableAgents);
   const excess = Math.max(0, dialer.pace - safePace);
@@ -41,7 +43,7 @@ export function computeCallGenerationRate(
     dialer.pace <= safePace ? dialer.pace : Math.max(0, safePace - excess * 0.5);
 
   const qualityFactor = (list.purity / 100) * (list.freshness / 100);
-  const rawCalls = effectivePace * qualityFactor * (1 + (dialer.tier - 1) * 0.1);
+  const rawCalls = effectivePace * qualityFactor * (1 + (dialer.tier - 1) * 0.1) * contactFactor;
 
   return Math.max(0, Math.floor(Math.min(list.volume, rawCalls)));
 }
