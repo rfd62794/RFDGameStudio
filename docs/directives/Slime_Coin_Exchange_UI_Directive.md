@@ -254,4 +254,5 @@ none. Deploying is Robert's.
 - 2026-10-04 · robert-claude-laptop · none → Queued — follow-up from the review of merged PR #106: Exchange button label shows 8/12 vs charged 7/11, error result treated as success, optimistic counter
 - 2026-10-04 07:24 · robert-claude-laptop · Queued → Approved — lint override: errors (if any) are files the run creates (utils/exchangeCost.ts, test_slime_coin_exchange_cost.ts), each marked with new-file markers; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 07:30 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-ui-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 07:30 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-ui-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
