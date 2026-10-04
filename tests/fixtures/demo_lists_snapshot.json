@@ -10,7 +10,8 @@
     "antsim-redux",
     "facility-escape",
     "systemic-extract",
-    "coin-pusher-arcade"
+    "coin-pusher-arcade",
+    "voiddrift-redux-core-loop"
   ],
   "demo_static_name": {
     "brewfield": "brewfield",
@@ -25,7 +26,8 @@
     "antsim-redux": "antsim_redux",
     "facility-escape": "facility_escape",
     "systemic-extract": "systemic_extract",
-    "coin-pusher-arcade": "coin_pusher_arcade"
+    "coin-pusher-arcade": "coin_pusher_arcade",
+    "voiddrift-redux-core-loop": "voiddrift_redux"
   },
   "demo_external_paths": {
     "slimebreeder": "SlimeBreeder"
@@ -113,7 +115,8 @@
       "ts/src/games/house_of_kings_collab"
     ],
     "voiddrift_redux": [
-      "ts/src/games/voiddrift_redux"
+      "ts/src/games/voiddrift_redux",
+      "examples/voiddrift-redux-core-loop"
     ],
     "succession": [
       "ts/src/games/succession"
