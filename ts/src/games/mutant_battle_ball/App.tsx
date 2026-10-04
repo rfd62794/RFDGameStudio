@@ -253,7 +253,7 @@ export default function App({ session }: GameRendererProps) {
         />
       }
     >
-      <TabManager tabs={TABS} active={activeTab} onChange={(id) => { setActiveTab(id); sfx.play('click'); }}>
+      <TabManager tabs={[...TABS]} active={activeTab} onChange={(id) => { setActiveTab(id); sfx.play('click'); }}>
         {activeTab === 'roster' && (
           <RosterTab state={state} setState={setGameState}
                      session={session} call={noopCall}
