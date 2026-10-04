@@ -234,4 +234,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:04 · robert-claude-laptop · Queued → Approved — lint override: path hits are app-relative paths under the kingmaker example, a gitignored generated file and a 'do not edit' mention, verified by hand
 - 2026-10-04 19:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 19:05 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-kingmaker-squads-combat-soak-and--90fe26; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
