@@ -3,12 +3,12 @@
 **Depends on:** BPO_Sim_Neutral_Copy_Check_Directive.md (edits the same files), BPO_Sim_Country_Data_Directive.md (the YAML), BPO_Sim_Repromote_And_Rename_Directive.md (the folder)
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
-`docs/demos/filipino_bpo_simulator/DIRECTION.md` ("Decision update 2026-10-04"), `examples/bpo-sim/src/data/countries.ts`, `examples/bpo-sim/src/data/countries.yaml` (header comment),
+`docs/demos/bpo_sim/DIRECTION.md` ("Decision update 2026-10-04"), `examples/bpo-sim/src/data/countries.ts`, `examples/bpo-sim/src/data/countries.yaml` (header comment),
 `examples/bpo-sim/src/systems/dialerSystem.ts`, `examples/bpo-sim/src/App.tsx` (lines 90-110, 165-200, 250-260, 450-460, 1030-1050), `examples/bpo-sim/src/components/RecruitingModal.tsx` (lines 1-30 and 66-95).
 
 ## 1. Why this exists
 
-Robert's decision (2026-10-04, recorded in `docs/demos/filipino_bpo_simulator/DIRECTION.md`, "Decision update"): BPO Sim opens with a start-screen country selector driven by a YAML data file, with BPO-heavy countries as the choices. Countries must differ ONLY through neutral business attributes. This directive builds the selector and gives each of the six attributes
+Robert's decision (2026-10-04, recorded in `docs/demos/bpo_sim/DIRECTION.md`, "Decision update"): BPO Sim opens with a start-screen country selector driven by a YAML data file, with BPO-heavy countries as the choices. Countries must differ ONLY through neutral business attributes. This directive builds the selector and gives each of the six attributes
 a real, small effect in the sim, so the choice matters. The data (`countries.yaml`), the name and the neutral copy are the three earlier BPO Sim directives; the neutral-copy test (`ts/tests/test_bpo_sim_neutral_copy.ts`) also guards this one: no country name may appear outside the YAML file, so the code below contains no country-specific branch.
 
 **What each attribute does (first-pass numbers, not balance-tested; every formula is a small pure function in the new `systems/countrySystem.ts`):**
@@ -30,6 +30,8 @@ Facts you need (verified by running the prototype; do not re-derive):
 - This run needs `examples/bpo-sim/src/data/countries.ts` and `countries.yaml` (Country Data directive) and the neutral copy (Neutral Copy directive: it edits the same `App.tsx`, `RecruitingModal.tsx` and `AfterHoursView.tsx`). If either file is missing, STOP and write why in the Status row.
 
 ## 2. Scope
+
+All paths to files in the app are relative to `examples/bpo-sim/src/` unless stated otherwise.
 
 1. New files: `<!-- new: examples/bpo-sim/src/systems/countrySystem.ts -->`, `<!-- new: examples/bpo-sim/src/data/countriesData.ts -->`, `<!-- new: examples/bpo-sim/src/raw.d.ts -->`, `<!-- new: examples/bpo-sim/src/components/CountrySelectScreen.tsx -->`, `<!-- new: ts/tests/test_bpo_sim_country_effects.ts -->`.
 2. Edits: `examples/bpo-sim/src/systems/dialerSystem.ts`, `examples/bpo-sim/src/components/RecruitingModal.tsx`, `examples/bpo-sim/src/components/AfterHoursView.tsx`, `examples/bpo-sim/src/App.tsx`, and one sentence in `ts/src/games/bpo_sim/config.ts`.
