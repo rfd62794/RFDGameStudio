@@ -173,4 +173,5 @@ none.
 - 2026-10-04 09:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 09:26 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baselines
 - 2026-10-04 11:37 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-manifest-counts-block-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 11:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-manifest-counts-block-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
