@@ -201,12 +201,14 @@ audit on the live page (including whether the icon-only Reset needs a text label
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-planetforge-tiera-directive |
 | Base branch | - |
+| Base commit | 5910e2b241c7c515b88cd89ea40b73691dc20eb9 |
 
 **Status log**
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
 - 2026-10-04 00:00 · robert-claude-laptop · Queued → Approved
+- 2026-10-04 03:07 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-planetforge-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
