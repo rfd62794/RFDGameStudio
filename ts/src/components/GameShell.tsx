@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { navigateHome, isEmbed } from '../arcade/routing';
 import { getGlossary, GlossaryPanel, glossaryPanelRequested } from '../foundation/glossary';
+import { ErrorBoundary } from '../ui/components/ErrorBoundary';
+import { installGlobalDiagnostics } from '../engine/diagnostics/diagnostics';
 
 export interface GameShellProps {
   /** Display name used in the marquee title treatment */
@@ -44,6 +47,11 @@ export function GameShell({
   className = '',
   mainClassName = '',
 }: GameShellProps) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    return installGlobalDiagnostics(window);
+  }, []);
+
   return (
     <div className={`game-shell ${className}`}>
       <header className="game-shell-header">
@@ -72,7 +80,9 @@ export function GameShell({
         </div>
       </header>
 
-      <div className={`game-shell-main ${mainClassName}`}>{children}</div>
+      <div className={`game-shell-main ${mainClassName}`}>
+        <ErrorBoundary gameId={gameId}>{children}</ErrorBoundary>
+      </div>
 
       {typeof window !== 'undefined' && glossaryPanelRequested(window.location.search) && (() => {
         const result = getGlossary(gameId);
