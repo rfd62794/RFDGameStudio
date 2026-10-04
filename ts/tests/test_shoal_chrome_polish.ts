@@ -1,6 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { sound } from '../src/games/shoal/utils/sound';
 import { detectReefEvents } from '../src/games/shoal/utils/reefEvents';
 import type { RenderState } from '../src/games/shoal/types';
@@ -8,26 +6,10 @@ import type { RenderState } from '../src/games/shoal/types';
 /**
  * test_shoal_chrome_polish
  *
- * Covers the Shoal polish pass (Polish_Shoal_Chrome_Directive):
- * shared TitleScreen menu with a How to Play entry, the OnboardingGate
- * first-run primer, the local Web Audio engine + render-state event
- * wiring, and the extinction EndStateScreen. Component wiring is
- * asserted at source level per suite convention (test_horse_racing_polish);
- * the event detector is a pure function and gets real unit tests.
+ * Behaviour tests for the Shoal chrome: the pure reef-event detector and the
+ * Web Audio engine. Title-screen behaviour lives in test_shoal_title_render.tsx
+ * and the simulation in test_shoal_headless.ts.
  */
-
-const appSource = readFileSync(
-  resolve(import.meta.dirname, '../src/games/shoal/App.tsx'),
-  'utf8'
-);
-const titleSource = readFileSync(
-  resolve(import.meta.dirname, '../src/games/shoal/components/TitleScreen.tsx'),
-  'utf8'
-);
-const primerSource = readFileSync(
-  resolve(import.meta.dirname, '../src/games/shoal/components/ReefPrimer.tsx'),
-  'utf8'
-);
 
 function mkRs(over: {
   fish?: number;
@@ -58,55 +40,6 @@ function mkRs(over: {
     tick_count: 0,
   };
 }
-
-describe('Shoal polish — title screen', () => {
-  it('is built on the shared ui/components TitleScreen', () => {
-    expect(titleSource).toContain("from '../../../ui/components'");
-    expect(titleSource).toContain('TitleScreen as SharedTitleScreen');
-    expect(titleSource).toContain('menuItems');
-  });
-
-  it('has a Start entry and a How to Play entry point', () => {
-    expect(titleSource).toContain("id: 'shoal-start-reef'");
-    expect(titleSource).toContain("label: 'How to Play'");
-    expect(titleSource).toContain('onHowToPlay');
-    expect(appSource).toContain('onHowToPlay');
-    expect(appSource).toContain('triggerPrimer()');
-  });
-
-  it('keeps the scenario picker, seed options, and live reef preview', () => {
-    expect(titleSource).toContain('OptionSelectGroup');
-    expect(titleSource).toContain('ReefPreview');
-    expect(titleSource).toContain('Random Seed');
-    expect(titleSource).toContain("Today's Reef");
-  });
-
-  it('threads the chosen scenario config into initGame (not dead session writes)', () => {
-    expect(appSource).toContain('pendingStartConfig');
-    expect(appSource).toContain('initialFish: cfg.initial_fish');
-    expect(appSource).toContain('initialSharks: cfg.initial_sharks');
-    expect(appSource).toContain('initialAlgaeHubs: cfg.initial_algae_hubs');
-    expect(appSource).not.toContain('spawn.initial_fish =');
-  });
-});
-
-describe('Shoal polish — first-run tutorial', () => {
-  it('gates the primer via the shared OnboardingGate + persisted flag', () => {
-    expect(appSource).toContain('useOnboardingGate');
-    expect(appSource).toContain("'shoal_tutorial_seen'");
-    expect(appSource).toContain('loadSave<boolean>(TUTORIAL_SEEN_KEY)');
-    expect(appSource).toContain('writeSave(TUTORIAL_SEEN_KEY, true)');
-  });
-
-  it('renders 3-5 teaching lines covering food drops and shark pressure', () => {
-    expect(primerSource).toContain('data-testid="shoal-reef-primer"');
-    const lineCount = (primerSource.match(/text: '/g) ?? []).length;
-    expect(lineCount).toBeGreaterThanOrEqual(3);
-    expect(lineCount).toBeLessThanOrEqual(5);
-    expect(primerSource).toContain('Spawn Algae');
-    expect(primerSource).toContain('Shark');
-  });
-});
 
 describe('Shoal polish — reef event detection (pure diff)', () => {
   it('emits nothing when state is unchanged', () => {
@@ -328,27 +261,5 @@ describe('Shoal polish — sound engine', () => {
       expect(osc.type).toBe('triangle');
       expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(freqs[i], 10 + i * 0.16);
     });
-  });
-
-  it('App wires event sounds to the render-state diff and a mute toggle', () => {
-    expect(appSource).toContain("import { sound } from './utils/sound'");
-    expect(appSource).toContain("from './utils/reefEvents'");
-    expect(appSource).toContain('sound.unlock()');
-    expect(appSource).toContain('sound.playNibble()');
-    expect(appSource).toContain('sound.playStrike(');
-    expect(appSource).toContain('sound.playBoundary(');
-    expect(appSource).toContain('sound.playReefEnd()');
-    expect(appSource).toContain('sound.playSpawn()');
-    expect(appSource).toContain('shoal-sound-toggle');
-    expect(appSource).toContain('sound.setEnabled(');
-  });
-});
-
-describe('Shoal polish — end state', () => {
-  it('shows the shared EndStateScreen on total extinction', () => {
-    expect(appSource).toContain('EndStateScreen');
-    expect(appSource).toContain('The Reef Went Silent');
-    expect(appSource).toContain('reefEnded');
-    expect(appSource).toContain('Seed a New Reef');
   });
 });
