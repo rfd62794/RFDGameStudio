@@ -163,12 +163,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-chimera-wilds-fix-unwinnable-bala-c0b987 |
 | Base branch | - |
+| Base commit | 6ca12552cef28ddaa5804be7c8fa5b3899443bf1 |
 
 **Status log**
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 13:16 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 13:23 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-chimera-wilds-fix-unwinnable-bala-c0b987; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
