@@ -41,7 +41,7 @@ Source files (all under `examples/voidrift-redux-particle-sandbox/`; `src/` is t
 - `examples/voidrift-redux-particle-sandbox/tsconfig.json` (508 bytes)
 - `examples/voidrift-redux-particle-sandbox/vite.config.ts` (708 bytes)
 
-Line counts that matter (all in `src/`): `simulation/buildings.ts` 1223 lines, `App.tsx` 943, `simulation/renderer.ts` 761, `components/BuildPanel.tsx` 659 are over the 600-line limit and must be split in the port; `simulation/grid.ts` 579, `types.ts` 441, `simulation/buildingDefs.ts` 382 are under. Exports worth knowing: `types.ts` has `enum MaterialType` (VACUUM=0, DUST, GAS, LIQUID, SOLID, PLASMA, VOID_CRYSTAL, MINERAL_SLURRY, REACTIVE_VAPOR, CONDENSATE, LUMINITE, STRUCTURAL_SOLID=11), `interface MaterialDef`, and `MATERIAL_DEFS: Record<MaterialType, MaterialDef>`; `simulation/grid.ts` has `GRID_WIDTH = 320`, `GRID_HEIGHT = 200`, `TOTAL_CELLS`, `ASTEROID_ZONE_HEIGHT = 40`, `class CellularGrid`; `simulation/buildingDefs.ts` has `BUILDING_TILE = 8`, `BUILDING_DEFS: BuildingDef[]`, `getMaterialState(mat)`, `createDefaultFilter(def, buildingId)`; `simulation/buildings.ts` has `TILES_X = 40`, `TILES_Y = 25`, `snapToTile`, `tileToCA`, `computeRoute`, `computeSegmentDirection`, `updatePipeFlowParticles`, `class BuildingManager`; `simulation/asteroids.ts` has `class AsteroidManager`; `simulation/renderer.ts` has `class GameRenderer`. The source imports only `react`, `react-dom/client`, `lucide-react`; it makes no network or AI calls.
+Line counts that matter (all in `src/`): `examples/voidrift-redux-particle-sandbox/src/simulation/buildings.ts` 1223 lines, `App.tsx` 943, `examples/voidrift-redux-particle-sandbox/src/simulation/renderer.ts` 761, `examples/voidrift-redux-particle-sandbox/src/components/BuildPanel.tsx` 659 are over the 600-line limit and must be split in the port; `examples/voidrift-redux-particle-sandbox/src/simulation/grid.ts` 579, `types.ts` 441, `examples/voidrift-redux-particle-sandbox/src/simulation/buildingDefs.ts` 382 are under. Exports worth knowing: `types.ts` has `enum MaterialType` (VACUUM=0, DUST, GAS, LIQUID, SOLID, PLASMA, VOID_CRYSTAL, MINERAL_SLURRY, REACTIVE_VAPOR, CONDENSATE, LUMINITE, STRUCTURAL_SOLID=11), `interface MaterialDef`, and `MATERIAL_DEFS: Record<MaterialType, MaterialDef>`; `examples/voidrift-redux-particle-sandbox/src/simulation/grid.ts` has `GRID_WIDTH = 320`, `GRID_HEIGHT = 200`, `TOTAL_CELLS`, `ASTEROID_ZONE_HEIGHT = 40`, `class CellularGrid`; `examples/voidrift-redux-particle-sandbox/src/simulation/buildingDefs.ts` has `BUILDING_TILE = 8`, `BUILDING_DEFS: BuildingDef[]`, `getMaterialState(mat)`, `createDefaultFilter(def, buildingId)`; `examples/voidrift-redux-particle-sandbox/src/simulation/buildings.ts` has `TILES_X = 40`, `TILES_Y = 25`, `snapToTile`, `tileToCA`, `computeRoute`, `computeSegmentDirection`, `updatePipeFlowParticles`, `class BuildingManager`; `examples/voidrift-redux-particle-sandbox/src/simulation/asteroids.ts` has `class AsteroidManager`; `examples/voidrift-redux-particle-sandbox/src/simulation/renderer.ts` has `class GameRenderer`. The source imports only `react`, `react-dom/client`, `lucide-react`; it makes no network or AI calls.
 
 ### Repo facts (pasted; do not go looking for them)
 
@@ -65,7 +65,7 @@ Line counts that matter (all in `src/`): `simulation/buildings.ts` 1223 lines, `
   };
   ```
   Demo-origin configs also carry `source: { kind: 'example', slug: '<examples dir name>' }` (see `ts/src/games/antsim_redux/config.ts`).
-  slime_coin's layout: `App.tsx`, `components/`, `config.ts`, `styles.css`, `types.ts`, `utils/sound.ts`.
+  slime_coin's layout: `App.tsx`, `components/`, `config.ts`, `styles.css`, `types.ts`, `ts/src/games/slime_coin/utils/sound.ts`.
 - Shared UI to reuse instead of bespoke chrome: `ts/src/ui/components/` (`Badge`, `EndStateScreen`, `StatBar`, `Panel`,
   `MoreGamesByMe`, `TitleScreen`, `OnboardingGate`), `ts/src/components` (`GameShell`), `ts/src/engine/shared/persistence.ts`
   (`loadSave<T>(key, opts?)`, `writeSave<T>(key, value, opts?)`, `clearSave(key)`). Do not use `localStorage` directly.
@@ -76,7 +76,7 @@ Line counts that matter (all in `src/`): `simulation/buildings.ts` 1223 lines, `
   chrome/wiring tests read component source with `readFileSync(resolve(import.meta.dirname, '../src/games/<id>/App.tsx'), 'utf8')`
   (see `ts/tests/test_voiddrift_redux_chrome.ts`). Game logic must be pure (no I/O, no rendering) so it is unit-testable.
 - Real test command (verified on the base commit, run from the worktree root):
-  `cd ts && npx vitest run tests/test_artgen_seeded_random.ts` printed `Test Files 1 passed (1)`, `Tests 2 passed (2)`,
+  `cd ts && npx vitest run test_artgen_seeded_random.ts` printed `Test Files 1 passed (1)`, `Tests 2 passed (2)`,
   `Duration 23.08s`. Expect ~25-45 s startup per invocation. Run only your own test files, one invocation at a time.
 - Type check: `cd ts && npx tsc --noEmit -p .` (npm run build runs `tsc` first). Do not run the full `npm test` suite more than once, at the end.
 - Repo convention (AGENTS.md): do not add or remove comments in existing code unless asked; files you write stay under 600 lines;
@@ -86,13 +86,13 @@ Line counts that matter (all in `src/`): `simulation/buildings.ts` 1223 lines, `
 
 Target id: `voidrift_particle_sandbox` (the example slug is `voidrift-redux-particle-sandbox`; its folder keeps the source's "voidrift" spelling). Create these files (all new; list them in the report):
 
-1. `ts/src/games/voidrift_particle_sandbox/types.ts`: the example's `src/types.ts`, copied as-is (441 lines).
-2. `ts/src/games/voidrift_particle_sandbox/simulation/grid.ts`, `asteroids.ts`, `buildingDefs.ts`: copied as-is (imports fixed), they are under 600 lines.
-3. `ts/src/games/voidrift_particle_sandbox/simulation/buildings.ts` split into small modules, for example `simulation/routing.ts` (`snapToTile`, `tileToCA`, `computeRoute`, `computeSegmentDirection`), `simulation/flowParticles.ts` (`spawnFlowParticle`, `updatePipeFlowParticles`) and `simulation/buildingManager.ts` (`BuildingManager`), each under 600 lines; keep exports and behaviour identical, and re-export from `simulation/buildings.ts` only if that keeps the diff smaller.
-4. `ts/src/games/voidrift_particle_sandbox/simulation/renderer.ts` (761 lines) split into two modules under 600 lines (for example `renderer.ts` plus `rendererOverlays.ts`), canvas drawing only.
+1. `ts/src/games/voidrift_particle_sandbox/types.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/types.ts -->: the example's `examples/voidrift-redux-particle-sandbox/src/types.ts`, copied as-is (441 lines).
+2. `ts/src/games/voidrift_particle_sandbox/simulation/grid.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/simulation/grid.ts -->, `asteroids.ts`, `buildingDefs.ts`: copied as-is (imports fixed), they are under 600 lines.
+3. `ts/src/games/voidrift_particle_sandbox/simulation/buildings.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/simulation/buildings.ts --> split into small modules, for example `ts/src/games/voidrift_particle_sandbox/simulation/routing.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/simulation/routing.ts --> (`snapToTile`, `tileToCA`, `computeRoute`, `computeSegmentDirection`), `ts/src/games/voidrift_particle_sandbox/simulation/flowParticles.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/simulation/flowParticles.ts --> (`spawnFlowParticle`, `updatePipeFlowParticles`) and `ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts --> (`BuildingManager`), each under 600 lines; keep exports and behaviour identical, and re-export from `ts/src/games/voidrift_particle_sandbox/simulation/buildings.ts` only if that keeps the diff smaller.
+4. `ts/src/games/voidrift_particle_sandbox/simulation/renderer.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/simulation/renderer.ts --> (761 lines) split into two modules under 600 lines (for example `renderer.ts` plus `rendererOverlays.ts`), canvas drawing only.
 5. `ts/src/games/voidrift_particle_sandbox/components/`: port `BuildPanel` (split in two to get under 600), `FilterPopup`, `Header`, `HelpModal`, `InspectPanel`, `ReconstructionCatalog`. Where the example has a Header with menu/exit chrome, wrap the game in the shared `GameShell` and use the shared UI components instead of bespoke copies.
-6. `ts/src/games/voidrift_particle_sandbox/App.tsx` (under 600 lines; move the sim loop and input handling into `hooks/` modules): takes `GameRendererProps`. If the source persists anything, use `loadSave`/`writeSave` from `ts/src/engine/shared/persistence.ts`, not `localStorage`. Port `index.html`'s title/meta needs only if the arcade shell requires them (it does not for slime_coin).
-7. `ts/src/games/voidrift_particle_sandbox/config.ts`:
+6. `ts/src/games/voidrift_particle_sandbox/App.tsx` <!-- new: ts/src/games/voidrift_particle_sandbox/App.tsx --> (under 600 lines; move the sim loop and input handling into `hooks/` modules): takes `GameRendererProps`. If the source persists anything, use `loadSave`/`writeSave` from `ts/src/engine/shared/persistence.ts`, not `localStorage`. Port `index.html`'s title/meta needs only if the arcade shell requires them (it does not for slime_coin).
+7. `ts/src/games/voidrift_particle_sandbox/config.ts` <!-- new: ts/src/games/voidrift_particle_sandbox/config.ts -->:
    ```ts
    import React from 'react';
    import type { GameConfig } from '../../engine/types';
@@ -108,7 +108,7 @@ Target id: `voidrift_particle_sandbox` (the example slug is `voidrift-redux-part
    };
    ```
 8. Registry: in `ts/src/games/registry.ts` add `import { voidriftParticleSandboxConfig } from './voidrift_particle_sandbox/config';` between `demos:imports:begin` and `demos:imports:end`, and `voidriftParticleSandboxConfig,` just above `// demos:end`. Status stays `dev`.
-9. Tests (new): `ts/tests/test_voidrift_particle_sandbox_sim.ts` (pure logic: `MATERIAL_DEFS` has an entry for each of the 12 `MaterialType` values and ids match keys; `BUILDING_DEFS` ids unique; `snapToTile`/`tileToCA` round-trip on tile corners and stay inside `TILES_X` x `TILES_Y`; `computeRoute` between two free tiles returns a connected path whose consecutive points are adjacent; `new CellularGrid()` has `TOTAL_CELLS` cells and, after placing one `GAS` cell and stepping a bounded number of ticks, material count is conserved) and `ts/tests/test_voidrift_particle_sandbox_registry.ts` (entry exists, `status === 'dev'`, `source.slug === 'voidrift-redux-particle-sandbox'`, `component` defined, `gameId` unique across `GAME_REGISTRY` and different from `voiddrift_redux`). Read the real signatures before writing assertions; if one assumed above does not hold, assert what the code does and say so in the report.
+9. Tests (new): `ts/tests/test_voidrift_particle_sandbox_sim.ts` <!-- new: ts/tests/test_voidrift_particle_sandbox_sim.ts --> (pure logic: `MATERIAL_DEFS` has an entry for each of the 12 `MaterialType` values and ids match keys; `BUILDING_DEFS` ids unique; `snapToTile`/`tileToCA` round-trip on tile corners and stay inside `TILES_X` x `TILES_Y`; `computeRoute` between two free tiles returns a connected path whose consecutive points are adjacent; `new CellularGrid()` has `TOTAL_CELLS` cells and, after placing one `GAS` cell and stepping a bounded number of ticks, material count is conserved) and `ts/tests/test_voidrift_particle_sandbox_registry.ts` <!-- new: ts/tests/test_voidrift_particle_sandbox_registry.ts --> (entry exists, `status === 'dev'`, `source.slug === 'voidrift-redux-particle-sandbox'`, `component` defined, `gameId` unique across `GAME_REGISTRY` and different from `voiddrift_redux`). Read the real signatures before writing assertions; if one assumed above does not hold, assert what the code does and say so in the report.
 
 Gameplay and simulation behaviour must match the example. This is a port, not a redesign.
 
@@ -126,12 +126,12 @@ Gameplay and simulation behaviour must match the example. This is a port, not a 
 Run from the worktree root and paste real output tails in the report:
 
 ```
-cd ts && npx vitest run tests/test_voidrift_particle_sandbox_sim.ts tests/test_voidrift_particle_sandbox_registry.ts
-cd ts && npx vitest run tests/test_arcade_registry_directive.ts tests/test_arcade_manifest.ts tests/test_arcade_metadata_expansion.ts
+cd ts && npx vitest run test_voidrift_particle_sandbox_sim.ts test_voidrift_particle_sandbox_registry.ts
+cd ts && npx vitest run test_arcade_registry_directive.ts test_arcade_manifest.ts test_arcade_metadata_expansion.ts
 cd ts && npx tsc --noEmit -p .
 ```
 
-Baseline for the command shape (verified): `cd ts && npx vitest run tests/test_artgen_seeded_random.ts` gives `Tests 2 passed (2)` in about 23 s. Then run `cd ts && npm test` once at the end and report pass/fail counts; failures that also fail on the base commit are reported, not fixed. Also report `wc -l` of every file you created (all under 600).
+Baseline for the command shape (verified): `cd ts && npx vitest run test_artgen_seeded_random.ts` gives `Tests 2 passed (2)` in about 23 s. Then run `cd ts && npm test` once at the end and report passing and failing counts; failures that also fail on the base commit are reported, not fixed. Also report `wc -l` of every file you created (all under 600).
 
 ## 6. Rules for this run
 

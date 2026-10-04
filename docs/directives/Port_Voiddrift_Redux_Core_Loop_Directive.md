@@ -14,7 +14,7 @@ The roadmap lists the VoidDrift Core Loop demo as "none registered yet", but the
 
 ## 2. Scope
 
-Edit `ts/src/games/voiddrift_redux/config.ts` (one added field); add `ts/tests/test_voiddrift_redux_engine.ts`; edit `docs/RFDGameStudio_DemoPortingRoadmap.md` (Tier 2 table note only). Nothing else. Do not register a second game for this demo.
+Edit `ts/src/games/voiddrift_redux/config.ts` (one added field); add `ts/tests/test_voiddrift_redux_engine.ts` <!-- new: ts/tests/test_voiddrift_redux_engine.ts -->; edit `docs/RFDGameStudio_DemoPortingRoadmap.md` (Tier 2 table note only). Nothing else. Do not register a second game for this demo.
 
 Source files (all under `examples/voiddrift-redux-core-loop/`):
 
@@ -41,7 +41,7 @@ Source files (all under `examples/voiddrift-redux-core-loop/`):
 - `examples/voiddrift-redux-core-loop/tsconfig.json` (508 bytes)
 - `examples/voiddrift-redux-core-loop/vite.config.ts` (708 bytes)
 
-Existing port (all under `ts/src/games/voiddrift_redux/`): `App.tsx` 15626 bytes, `config.ts` 621, `index.css` 24, `types.ts` 4834, `simulation/engine.ts` 43257 (1218 lines, an existing file, not to be split in this run), `components/`: `DetectionRadarPanel.tsx` 9837, `DispatchLogPanel.tsx` 3837, `DriftPrimer.tsx` 3036, `FSMInspector.tsx` 9424, `Header.tsx` 5530, `OrbitalCanvas.tsx` 32230, `PassFailDiagnosticsModal.tsx` 7128, `SignalStrip.tsx` 2801, `SimulationControlsPanel.tsx` 5945, `SmelterPanel.tsx` 9005.
+Existing port (all under `ts/src/games/voiddrift_redux/`): `App.tsx` 15626 bytes, `config.ts` 621, `index.css` 24, `types.ts` 4834, `ts/src/games/voiddrift_redux/simulation/engine.ts` 43257 (1218 lines, an existing file, not to be split in this run), `components/`: `DetectionRadarPanel.tsx` 9837, `DispatchLogPanel.tsx` 3837, `DriftPrimer.tsx` 3036, `FSMInspector.tsx` 9424, `Header.tsx` 5530, `OrbitalCanvas.tsx` 32230, `PassFailDiagnosticsModal.tsx` 7128, `SignalStrip.tsx` 2801, `SimulationControlsPanel.tsx` 5945, `SmelterPanel.tsx` 9005.
 
 Existing config (verbatim):
 ```ts
@@ -57,7 +57,7 @@ const config: GameConfig = {
 };
 ```
 
-Engine API (from `simulation/engine.ts`, class `VoidDriftEngine`): `constructor(config: Partial<SimulationConfig> = {})`; public fields `config, center, scouts, miningDrones, haulers, asteroids, fragments, logs, stats`; methods `initWorld(): void`, `populateAsteroids(): void`, `update(dt: number): void`, `addLog(...)`, `triggerManualDispatch(targetAsteroidId: string): boolean`, `triggerManualMiningDispatch(droneId, targetAsteroidId): boolean`, `triggerManualHaulerTug(haulerId, targetAsteroidId): boolean`, `toggleMiningDroneTier(droneId): boolean`, `setConfig(partial): void`, `startConversion(...)`, `startSmeltAluminum(inputBatch = 10): boolean`, `updateFleetSizes(scouts, miners, haulers): void`. Exported `DEFAULT_CONFIG: SimulationConfig` (scoutCount 1, miningDroneCount 3, haulerCount 2, scoutScanRadius 180, miningCapacity 50, miningDurationSec 3.0, tugDurationSec 4.0, ...). FSM types in `types.ts`: `MiningFSMState = 'Holding'|'Dispatched'|'Traveling'|'Mining'|'Returning'`, `HaulerFSMState = 'Docked'|'Dispatched'|'Traveling'|'Latched'|'Tugging'|'Released'|'Returning'`, `DroneRole = 'Scout'|'Mining'|'Hauler'`, `ResourceType = 'Metal'|'RawAluminum'|'Aluminum'|'H3Gas'`.
+Engine API (from `ts/src/games/voiddrift_redux/simulation/engine.ts`, class `VoidDriftEngine`): `constructor(config: Partial<SimulationConfig> = {})`; public fields `config, center, scouts, miningDrones, haulers, asteroids, fragments, logs, stats`; methods `initWorld(): void`, `populateAsteroids(): void`, `update(dt: number): void`, `addLog(...)`, `triggerManualDispatch(targetAsteroidId: string): boolean`, `triggerManualMiningDispatch(droneId, targetAsteroidId): boolean`, `triggerManualHaulerTug(haulerId, targetAsteroidId): boolean`, `toggleMiningDroneTier(droneId): boolean`, `setConfig(partial): void`, `startConversion(...)`, `startSmeltAluminum(inputBatch = 10): boolean`, `updateFleetSizes(scouts, miners, haulers): void`. Exported `DEFAULT_CONFIG: SimulationConfig` (scoutCount 1, miningDroneCount 3, haulerCount 2, scoutScanRadius 180, miningCapacity 50, miningDurationSec 3.0, tugDurationSec 4.0, ...). FSM types in `types.ts`: `MiningFSMState = 'Holding'|'Dispatched'|'Traveling'|'Mining'|'Returning'`, `HaulerFSMState = 'Docked'|'Dispatched'|'Traveling'|'Latched'|'Tugging'|'Released'|'Returning'`, `DroneRole = 'Scout'|'Mining'|'Hauler'`, `ResourceType = 'Metal'|'RawAluminum'|'Aluminum'|'H3Gas'`.
 
 ### Repo facts (pasted; do not go looking for them)
 
@@ -81,7 +81,7 @@ Engine API (from `simulation/engine.ts`, class `VoidDriftEngine`): `constructor(
   };
   ```
   Demo-origin configs also carry `source: { kind: 'example', slug: '<examples dir name>' }` (see `ts/src/games/antsim_redux/config.ts`).
-  slime_coin's layout: `App.tsx`, `components/`, `config.ts`, `styles.css`, `types.ts`, `utils/sound.ts`.
+  slime_coin's layout: `App.tsx`, `components/`, `config.ts`, `styles.css`, `types.ts`, `ts/src/games/slime_coin/utils/sound.ts`.
 - Shared UI to reuse instead of bespoke chrome: `ts/src/ui/components/` (`Badge`, `EndStateScreen`, `StatBar`, `Panel`,
   `MoreGamesByMe`, `TitleScreen`, `OnboardingGate`), `ts/src/components` (`GameShell`), `ts/src/engine/shared/persistence.ts`
   (`loadSave<T>(key, opts?)`, `writeSave<T>(key, value, opts?)`, `clearSave(key)`). Do not use `localStorage` directly.
@@ -92,7 +92,7 @@ Engine API (from `simulation/engine.ts`, class `VoidDriftEngine`): `constructor(
   chrome/wiring tests read component source with `readFileSync(resolve(import.meta.dirname, '../src/games/<id>/App.tsx'), 'utf8')`
   (see `ts/tests/test_voiddrift_redux_chrome.ts`). Game logic must be pure (no I/O, no rendering) so it is unit-testable.
 - Real test command (verified on the base commit, run from the worktree root):
-  `cd ts && npx vitest run tests/test_artgen_seeded_random.ts` printed `Test Files 1 passed (1)`, `Tests 2 passed (2)`,
+  `cd ts && npx vitest run test_artgen_seeded_random.ts` printed `Test Files 1 passed (1)`, `Tests 2 passed (2)`,
   `Duration 23.08s`. Expect ~25-45 s startup per invocation. Run only your own test files, one invocation at a time.
 - Type check: `cd ts && npx tsc --noEmit -p .` (npm run build runs `tsc` first). Do not run the full `npm test` suite more than once, at the end.
 - Repo convention (AGENTS.md): do not add or remove comments in existing code unless asked; files you write stay under 600 lines;
@@ -116,12 +116,12 @@ Engine API (from `simulation/engine.ts`, class `VoidDriftEngine`): `constructor(
 Run from the worktree root and paste real output tails in the report:
 
 ```
-cd ts && npx vitest run tests/test_voiddrift_redux_engine.ts tests/test_voiddrift_redux_chrome.ts
-cd ts && npx vitest run tests/test_arcade_registry_directive.ts tests/test_arcade_manifest.ts
+cd ts && npx vitest run test_voiddrift_redux_engine.ts test_voiddrift_redux_chrome.ts
+cd ts && npx vitest run test_arcade_registry_directive.ts test_arcade_manifest.ts
 cd ts && npx tsc --noEmit -p .
 ```
 
-Baseline for the command shape (verified): `cd ts && npx vitest run tests/test_artgen_seeded_random.ts` gives `Tests 2 passed (2)` in about 23 s. Also run `cd ts && npm test` once at the end and report pass/fail counts; failures that also fail on the base commit are reported, not fixed.
+Baseline for the command shape (verified): `cd ts && npx vitest run test_artgen_seeded_random.ts` gives `Tests 2 passed (2)` in about 23 s. Also run `cd ts && npm test` once at the end and report passing and failing counts; failures that also fail on the base commit are reported, not fixed.
 
 ## 6. Rules for this run
 
