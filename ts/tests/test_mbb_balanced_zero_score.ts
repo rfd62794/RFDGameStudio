@@ -25,10 +25,11 @@
 // a fix.
 //
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mulberry32 } from '../src/tests/helpers/seededRandom';
 import {
   createMbbSimulation,
   calculateStats,
@@ -320,6 +321,10 @@ describe('test_force_weights_reported', () => {
 
 describe('test_symmetric_opportunity_post_fix', () => {
   it('Under balanced stats, both teams demonstrate real, comparable scoring opportunity across multiple real matches', () => {
+    // Seed the mock to ensure deterministic Math.random() behavior
+    const mockRandom = mulberry32(12345);
+    vi.spyOn(Math, 'random').mockImplementation(mockRandom);
+
     const pm = [makeBalancedMutant('p1', 'PA', 'player'), makeBalancedMutant('p2', 'PB', 'player')];
     const om = [makeBalancedMutant('o1', 'OA', 'opponent'), makeBalancedMutant('o2', 'OB', 'opponent')];
 
@@ -370,6 +375,10 @@ describe('test_symmetric_opportunity_post_fix', () => {
     // The opponent should win at least one match (proving real symmetry)
     const oppWins = results.filter(r => r.opponent > r.player).length;
     expect(oppWins).toBeGreaterThan(0);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 });
 
