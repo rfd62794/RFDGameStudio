@@ -159,4 +159,5 @@ none.
 - 2026-10-04 13:14 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:22 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
 - 2026-10-04 16:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 16:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-hide-infirmary-tab-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
