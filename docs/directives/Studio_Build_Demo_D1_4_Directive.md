@@ -536,12 +536,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-studio-build-demo-d1-4-directive |
 | Base branch | - |
+| Base commit | b7527915d18bfaaf3e88462023ac177f7bb53b8b |
 
 **Status log**
 - 2026-10-04 11:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified, verified, sandbox-safe build work; dispatch only after D1.1 (in progress) merges.
 - 2026-10-04 11:50 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs; D1.1 (dependency) merged 87961f0b
+- 2026-10-04 12:19 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-build-demo-d1-4-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
