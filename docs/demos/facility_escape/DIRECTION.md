@@ -25,3 +25,7 @@ First 60 s: "INITIATE INFILTRATION", then a grid with guard sightlines; whether 
 3. facility_escape: 390x844 phone check and screenshot for A4/A5. S. Depends: 1.
 ## Open question for Robert
 None. Research agrees with the settled embed-only stance; no direction change proposed.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- The room counter (`Room n/8`, about line 577 of `examples/facility-escape/src/App.tsx`) and a final result card (rooms cleared, turns taken, hearts left, about lines 790 to 805) already exist. Replan step 2 therefore shrinks to the three-line turn-one hint (`Facility_Escape_First_Turn_Hint_Directive`).
+- The wording cleanup is `Facility_Escape_Player_Wording_Directive`. The 390x844 phone check and the screenshots need a browser and stay controller steps.

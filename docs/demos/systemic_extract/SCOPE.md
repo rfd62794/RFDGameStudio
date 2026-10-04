@@ -14,3 +14,4 @@ Out of scope: wiring HideoutView into the megamap, seeded RNG, typing cleanup, r
 Dependencies / risks: examples/ edits are overwritten by an AI Studio re-promotion (README "Improvement workflow"); ts/package.json has no build:systemic_extract (lines 9-19), so A7 would rest on the example's own build; the ts game dir holds only config.ts.
 Effort: S
 Open question for Robert: yes. README backlog 1 leaves open how (or whether) the orphaned hideout loop (Deconstructor, Research Bench, Fabricator, Deployment Bay) reaches the megamap, e.g. via the corner specialist buildings. Nothing past Tier A is proposed until answered.
+Tier: A only, hideout loop parked (2026-10-04, Robert's approval of the PARK verdict): no Tier B/C work until the hideout decision in HIDEOUT_DECISION.md is answered.

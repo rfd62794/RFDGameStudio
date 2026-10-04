@@ -25,3 +25,6 @@ No phase 3 until phase 2 is answered.
 3. systemic_extract: apply the chosen option. M (wire) or S (cut). Depends: Robert's answer.
 ## Open question for Robert
 How should salvage be spent, given a parked hideout? Recommended default: keep parked, and if you want it shipped as a game, choose the smallest option (one "Stash and upgrade" modal from the sanctuary reusing `HideoutView`), not the megamap's corner buildings. No contradiction with the settled PARK.
+
+## Corrections (2026-10-04, measured while writing the directives)
+- Directive 1 is `Systemic_Extract_Honest_Blurb_Directive` (blurb, tags and a favicon; the cover screenshot is a browser step). Directive 2, the hideout decision page, is `docs/demos/systemic_extract/HIDEOUT_DECISION.md` (created by `Docs_E_Corrections_Directive`). Directive 3 waits for Robert's answer.
