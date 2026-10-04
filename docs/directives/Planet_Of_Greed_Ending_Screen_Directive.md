@@ -278,11 +278,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/pog-ending |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — gameLinks.ts + endingView.ts + overlay summary + arcade-only Continue link + 'Play again' label per spec. `npx vitest run test_planetofgreed_ending_view.ts` → 4 passed; `test_planetofgreed` → 12 files / 173 passed; `npx tsc --noEmit` → only 4 pre-existing game-metadata.json errors. Not run: ending screenshots, live click-through (controller's).
 <!-- queue:end -->
