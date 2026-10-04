@@ -196,4 +196,5 @@ none. Deploying is Robert's.
 - 2026-10-04 · claude · none → Queued — Robert 2026-10-04: add the Restart / New Run control (Tier A) now; hideout loop stays parked
 - 2026-10-04 08:37 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (restart-confirm.ts, RaidRestartButton.tsx, test_systemic_extract_restart.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 - 2026-10-04 10:23 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-systemic-extract-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 10:24 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-systemic-extract-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
