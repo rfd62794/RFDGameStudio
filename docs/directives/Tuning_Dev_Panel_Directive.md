@@ -107,7 +107,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-dev-panel-directive |
 | Base branch | - |
@@ -118,4 +118,5 @@ none.
 - 2026-10-04 18:36 · robert-claude-laptop · Queued → Approved — lint override: cited dev panel files are new files this directive creates
 - 2026-10-04 19:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 19:45 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 19:47 · devin · In progress → Blocked — STOP per directive: ts/src/games/tuning-registry.ts does not exist in worktree — Tuning_Sweep_Tool_Directive still Approved/unmerged and both adopt directives still Queued; no knob to show. Redispatch after those merge.
 <!-- queue:end -->
