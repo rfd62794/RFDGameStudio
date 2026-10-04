@@ -1,0 +1,6 @@
+{
+  "name": "ScrapCrawl",
+  "description": "Headless room/interaction skeleton, scrap economy, tiered crafting, and proficiency system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

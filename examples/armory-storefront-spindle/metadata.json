@@ -1,0 +1,6 @@
+{
+  "name": "Armory: Storefront & Spindle",
+  "description": "A precision factory conveyor automation and automated gunsmith storefront simulation built with declarative SVG and deterministic state reducers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

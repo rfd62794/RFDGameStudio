@@ -1,0 +1,6 @@
+{
+  "name": "VoidRift Redux",
+  "description": "A space station simulation and universe reconstruction game with physical layout, drones, chemical synthesis, and signal bottles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
