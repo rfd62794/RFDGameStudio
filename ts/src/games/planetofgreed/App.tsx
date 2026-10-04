@@ -1862,7 +1862,7 @@ export default function App({ session }: GameRendererProps) {
                 Planetary Land Grab Dossier
               </h2>
               <p className="text-xs text-[#141414]/60 font-serif italic font-bold">
-                Executive operational instructions for CorpWorld commanders.
+                Executive operational instructions for Planet of Greed commanders.
               </p>
             </div>
 

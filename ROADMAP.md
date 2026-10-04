@@ -49,14 +49,9 @@ sprite sheets and shading, and it is swarm-facing as `docs/ROADMAP.md` M6 and M8
 
 ### Planet of Greed
 
-- **Culture stat asymmetry.** Six symmetric Houses under-sell a real
-  choice. Resolving this means real balance work with real risk of
-  introducing exploits. Deserves its own dedicated pass. Stat values
-  have not been touched through any phase. (Deferred since Phase 1,
-  restated through Merge & Polish Op v2)
-- **AI decision-logic upgrade.** `generateAIWeeklyOrders` remains
-  pure-random, zero rival-awareness. Explicitly named as a real,
-  separate, unresolved design question. (Deferred since Phase 2)
+- No deferred items. Culture stat asymmetry (`houseStats.ts`) and the
+  wheel-aware AI target selection (`aiDecisions.ts`) shipped; see
+  `ts/src/games/planetofgreed/CHANGELOG.md`.
 
 ### Mutant Battle Ball
 
