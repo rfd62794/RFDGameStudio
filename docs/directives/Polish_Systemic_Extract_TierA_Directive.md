@@ -186,15 +186,19 @@ none. Deploying is Robert's.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-polish-systemic-extract-tiera-directive |
 | Base branch | - |
 | Base commit | bb0488316d0127e1446fddf8d01701d19e07e9f1 |
+| Head commit | 738eb80f700d731021c2d5a940d4eab878f486aa |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · claude · none → Queued — Robert 2026-10-04: add the Restart / New Run control (Tier A) now; hideout loop stays parked
 - 2026-10-04 08:37 · robert-claude-laptop · Queued → Approved — lint override: any errors are files the run creates (restart-confirm.ts, RaidRestartButton.tsx, test_systemic_extract_restart.ts), marked new; author's dispatch lint gave 0 errors; this queue MCP process may still run pre-fix lint
 - 2026-10-04 10:23 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-systemic-extract-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 10:24 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-systemic-extract-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 10:40 · devin · In progress → Review — Committed 738eb80f on directive branch and pushed (pre-push hook green: 972 pytest passed/8 skipped, 2313 vitest passed/30 skipped). Verification: before-change vitest 2 files/14 tests passed; after-change 3 files/21 tests passed (7 new). Greps confirmed: key={runId} x1 in GameViewport, onNewRun in RaidHUD, START NEW RUN in RaidResolutionModal. [origin] spent: devin 14 min est. n/a
+- 2026-10-04 11:02 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
