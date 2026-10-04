@@ -57,3 +57,79 @@ waves:
         spawn_turn: 2
         spawn_y: 5
         hp: 6
+  3:
+    enemies:
+      - type: crawler
+        spawn_turn: 1
+        spawn_y: 2
+        hp: 6
+      - type: crawler
+        spawn_turn: 1
+        spawn_y: 4
+        hp: 6
+      - type: blaster
+        spawn_turn: 2
+        spawn_y: 3
+        hp: 8
+      - type: crawler
+        spawn_turn: 3
+        spawn_y: 1
+        hp: 6
+  4:
+    enemies:
+      - type: crawler
+        spawn_turn: 1
+        spawn_y: 5
+        hp: 6
+      - type: blaster
+        spawn_turn: 1
+        spawn_y: 3
+        hp: 8
+      - type: crawler
+        spawn_turn: 2
+        spawn_y: 2
+        hp: 6
+      - type: blaster
+        spawn_turn: 3
+        spawn_y: 4
+        hp: 8
+  5:
+    enemies:
+      - type: brute
+        spawn_turn: 1
+        spawn_y: 3
+        hp: 12
+      - type: crawler
+        spawn_turn: 2
+        spawn_y: 1
+        hp: 6
+      - type: crawler
+        spawn_turn: 2
+        spawn_y: 5
+        hp: 6
+      - type: blaster
+        spawn_turn: 3
+        spawn_y: 2
+        hp: 8
+  6:
+    enemies:
+      - type: brute
+        spawn_turn: 1
+        spawn_y: 2
+        hp: 12
+      - type: brute
+        spawn_turn: 1
+        spawn_y: 4
+        hp: 12
+      - type: blaster
+        spawn_turn: 2
+        spawn_y: 3
+        hp: 8
+      - type: crawler
+        spawn_turn: 3
+        spawn_y: 1
+        hp: 6
+      - type: crawler
+        spawn_turn: 3
+        spawn_y: 5
+        hp: 6

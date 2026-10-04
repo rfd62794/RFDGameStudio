@@ -45,7 +45,7 @@ describe('choke_point waves are solvable', () => {
     expect(isVictory(r.state)).toBe(true);
     expect(r.state.core_hp).toBeGreaterThan(0);
     expect(r.turns).toBeLessThan(MAX_TURNS);
-    expect([...r.seenWaves].sort()).toEqual([1, 2]);
+    expect([...r.seenWaves].sort()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('a loss is reachable: doing nothing lets the core fall', () => {
