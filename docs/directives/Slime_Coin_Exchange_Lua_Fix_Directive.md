@@ -198,14 +198,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-exchange-lua-fix-directive |
 | Base branch | - |
-| Base commit | 77fdba94d78ca1f5b00b360e7329ce845fe130ca |
+| Base commit | 85f7b69713491992e9fddecfeba446f7b8368cc4 |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 · robert-claude-laptop · none → Queued — wave-1 review follow-up: Exchange calls math.pow (nil in Lua 5.3), fix one line and add the missing exchange test
 - 2026-10-04 05:47 · robert-claude-laptop · Queued → Approved — lint override: sole error is ts/tests/test_slime_coin_exchange.ts, a file the run creates and marks new; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 06:56 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-exchange-lua-fix-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
