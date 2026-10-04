@@ -14,3 +14,5 @@ Out of scope: new habitats, orca/whale mechanic, typed arrays, layered canvas, s
 Dependencies / risks: shared persistence/GameShell (ADR-014); same source ships to itch and Y8 (CHANGELOG.md), so changes reach all three targets; any status change is Robert's call.
 Effort: S
 Open question for Robert: none
+Update 2026-10-04: Tier A closed (in-play New Reef control and pointer input, commit 13c01455), so the "no restart" finding above is stale.
+Phone layout: rotate-hint (the reef canvas needs width; the 2026-10-04 redesign spec, section c3, names Shoal). To be confirmed on the first 390x844 pass.

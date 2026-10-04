@@ -244,11 +244,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-trinity-siege-combat-tests-directive |
 | Base branch | - |
+| Base commit | 9b694c0568f6d3952d505b915faf9c5a0260a100 |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
+- 2026-10-04 14:37 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534 pending); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-04 14:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-combat-tests-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 14:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-combat-tests-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->

@@ -131,7 +131,7 @@ Then `git diff --stat` (paste it). Expected: seven files changed, `2 insertions(
 
 ## 7. Completion criteria
 
-- [ ] The seven files carry exactly the added lines above and nothing else changed (`git diff --stat` pasted: 7 files, 14 insertions, 0 deletions).
+- [x] The seven files carry exactly the added lines above and nothing else changed (`git diff --stat` pasted: 7 files, 14 insertions, 0 deletions).
 - [ ] `uv run pytest -q tests/test_demos.py` passes (real tail pasted).
 - [ ] The Status row is set to Review with a one-line log entry.
 

@@ -14,3 +14,5 @@ Out of scope: gameplay changes or bug fixes, merging with Dissonance Depths, un-
 Dependencies / risks: why the site export omitted this embed is unknown (I did not read the site pipeline); how other Origin embeds (corpworld) are built is unverified; blurb word count is 27 (audit batch1:54).
 Effort: S
 Open question for Robert: none
+Decision 2026-10-04 (Robert approved all recommendations): FOLD-INTO dissonance. The registry entry stays (external, supersededBy) as a labelled Origin exhibit, and Dissonance's title links to it ("Where Dissonance began"). The home-grid treatment (hide the card, or keep the labelled card as Slimebreeder does) is decided in the site repo.
+Phone layout: framed (an AI Studio export with a fixed layout).

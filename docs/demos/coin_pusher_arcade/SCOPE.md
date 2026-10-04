@@ -14,3 +14,5 @@ Out of scope: balance/art changes, new coins or levels, Gemini features (metadat
 Dependencies / risks: behaviour drift while splitting 1,446 lines of physics (highest risk, only light tests); overlap with slime_coin is limited (slime_coin is real-time shooter plus two-layer board, ts/src/games/slime_coin/config.ts); registry.ts edit conflicts with other demo ports at the demos:end marker.
 Effort: M
 Open question for Robert: none
+Decision 2026-10-04 (Robert approved all recommendations): PARK. The port is done and registered (commits 7a1fd77f and cd21e099), so "NOT registered" above is stale. Status stays dev, the game stays out of "Start here" and featured picks, and no further work (title screen, build script) happens until a 10-minute side-by-side playtest against SlimeCoin decides keep or fold.
+Phone layout: N/A while parked. Tier B and C: N/A while parked.
