@@ -464,4 +464,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 16:23 · robert-claude-laptop · none → Queued
 - 2026-10-04 16:24 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline+after proofs; Robert 2026-10-04 BPO Sim non-racist direction; lint FP fixes merged in AgentFlow #534
 - 2026-10-04 17:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 17:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-neutral-copy-blocklist-br-125fb6; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
