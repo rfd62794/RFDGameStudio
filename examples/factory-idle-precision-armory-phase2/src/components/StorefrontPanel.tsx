@@ -252,7 +252,7 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
 
                 {selectedGridTile.type === 'fitter' && (
                   <div className="bg-slate-900/90 rounded-md p-2 border border-slate-800 space-y-2">
-                    <div className="text-xs font-bold text-slate-300">Target Firearm Recipe:</div>
+                    <div className="text-xs font-bold text-slate-300">Target Tool Recipe:</div>
                     <div className="grid grid-cols-2 gap-1">
                       {weaponList.map((wId) => {
                         const rec = WEAPON_RECIPES[wId];

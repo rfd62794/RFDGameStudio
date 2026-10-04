@@ -205,11 +205,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/factory-idle-labels |
+| Base branch | main |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-04 17:21 · devin-cleanroom · Queued → Review — labels only reskin across 6 files + verbatim test; `vitest run test_factory_idle_labels.ts test_registry_export.ts` → `2 files / 8 passed`; greps `Firearm|ARMORY|SWAT|Duty Pistol|Rifled Barrel` over phase2/src → none, `Hand Drill` in recipes.ts; ready for controller finish: children.json
 <!-- queue:end -->

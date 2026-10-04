@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
               FACTORY IDLE
             </h1>
             <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-950/80 border border-amber-800/80 text-amber-400 font-bold">
-              ARMORY
+              WORKSHOP
             </span>
           </div>
           
