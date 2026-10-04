@@ -733,11 +733,12 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:57 · robert-claude-laptop · none → Queued
+- 2026-10-04 18:47 · robert-claude-laptop · Queued → Approved — lint override: [secret] hits are the identifier 'key: CountryAttribute' (false positive); cited systems/data/raw.d.ts paths are new files under examples/bpo-sim/src that this directive creates, and the stale demo path was fixed in PR 196
 <!-- queue:end -->
