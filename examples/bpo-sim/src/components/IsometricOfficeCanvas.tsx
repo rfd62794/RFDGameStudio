@@ -374,7 +374,7 @@ export const IsometricOfficeCanvas: React.FC<Props> = ({
       case 'RECEPTION_DESK': {
         // Elegant wood curved front desk
         drawIsoCube(ctx, sx, sy + 2, TILE_W, TILE_H, 20, '#b45309', '#92400e', '#78350f');
-        // "FILIPINO BPO" logo plaque
+        // reception plaque
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 8px sans-serif';
         ctx.textAlign = 'center';

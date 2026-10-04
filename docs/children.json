@@ -12,6 +12,11 @@
       "label": "AntSim Redux"
     },
     {
+      "id": "bpo_sim",
+      "path": "ts/src/games/bpo_sim",
+      "label": "BPO Sim"
+    },
+    {
       "id": "brewfield",
       "path": "ts/src/games/brewfield",
       "label": "Brewfield"
@@ -65,11 +70,6 @@
       "id": "factory_idle",
       "path": "ts/src/games/factory_idle",
       "label": "Factory Idle: Precision Armory"
-    },
-    {
-      "id": "filipino_bpo_simulator",
-      "path": "ts/src/games/filipino_bpo_simulator",
-      "label": "Call Center Tycoon"
     },
     {
       "id": "gladiator_arena",
