@@ -168,7 +168,7 @@ Findings first: what was ported, how the four oversized files were split, any be
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-port-voidrift-particle-sandbox-directive |
 | Base branch | - |
@@ -182,4 +182,5 @@ Findings first: what was ported, how the four oversized files were split, any be
 - 2026-10-04 04:11 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-port-voidrift-particle-sandbox-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 05:03 · agentflow-tick · In progress → Blocked — a tool call was rejected: npm run build:shoal; resume cap reached (2/2); wip commit failed; wip committed 27908e6, NOT pushed:
 - 2026-10-04 05:14 · robert-claude-laptop · Blocked → Review — run died mid-work; controller finished it (checkpoint 27908e69, type fixes/tests 571e44f7, registry artifacts), merged main, pushed through the hook at 5d1b459d [origin] spent: devin 51 min est. n/a
+- 2026-10-04 05:18 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
