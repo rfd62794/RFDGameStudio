@@ -81,4 +81,5 @@ Test tail, per game the keys you made required and any key you left optional bec
 - 2026-10-04 17:33 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:46 · robert-claude-laptop · Queued → Approved — lint override: cited paths are the new files this directive creates (Scope lists them under 'create'), not missing inputs
 - 2026-10-04 18:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-data-schemas-zod-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 18:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-data-schemas-zod-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
