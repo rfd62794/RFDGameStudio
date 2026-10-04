@@ -36,7 +36,7 @@ describe('GAME_REGISTRY (glob)', () => {
   it('keeps exactly the order the hand-written array had on 2026-10-04', () => {
     expect(GAME_REGISTRY.map(g => g.gameId)).toEqual([
       'dissonance', 'slimeworld', 'shoal', 'voiddrift', 'horse_racing', 'slither_rogue', 'mutant_battle_ball',
-      'slime_coin', 'chimera_wilds', 'scrapcrawl', 'wire_rust', 'choke_point', 'filipino_bpo_simulator', 'ledger',
+      'slime_coin', 'chimera_wilds', 'scrapcrawl', 'wire_rust', 'choke_point', 'bpo_sim', 'ledger',
       'trinity_siege', '7_days_to_fry', 'antsim_redux', 'facility_escape', 'systemic_extract', 'coin_pusher_arcade',
       'factory_idle', 'planetofgreed', 'planetforge', 'gladiator_arena', 'voiddrift_redux',
       'voidrift_particle_sandbox', 'succession', 'house_of_kings_collab', 'character_viewer', 'technique_showcase',

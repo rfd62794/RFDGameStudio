@@ -11,6 +11,12 @@
     "resolved_examples_name": "antsim-redux",
     "source_type": "tracked_dir_source"
   },
+  "bpo_sim": {
+    "examples_dir": "examples/bpo-sim",
+    "intake_dir": null,
+    "resolved_examples_name": "bpo-sim",
+    "source_type": "tracked_dir_source"
+  },
   "character_viewer": {
     "examples_dir": null,
     "intake_dir": null,
@@ -63,12 +69,6 @@
     "examples_dir": "examples/factory-idle-precision-armory-phase2",
     "intake_dir": null,
     "resolved_examples_name": "factory-idle-precision-armory-phase2",
-    "source_type": "tracked_dir_source"
-  },
-  "filipino_bpo_simulator": {
-    "examples_dir": "examples/filipino-bpo-simulator",
-    "intake_dir": null,
-    "resolved_examples_name": "filipino-bpo-simulator",
     "source_type": "tracked_dir_source"
   },
   "gladiator_arena": {
