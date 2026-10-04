@@ -353,7 +353,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-studio-registry-glob-d1-1-directive |
 | Base branch | - |
@@ -364,4 +364,5 @@ none.
 - 2026-10-04 10:48 · robert-claude-laptop · Queued → Approved — lint override: stale MCP lint; new-file markers present; author ran baseline and after proofs
 - 2026-10-04 11:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-registry-glob-d1-1-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 11:11 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-registry-glob-d1-1-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 11:28 · devin-overseer (delegated) · In progress → Blocked — All edits complete and committed locally as 6133ee16 (45 files: types.ts order field, collectConfigs.ts, 36 configs with order + 16 default exports, glob registry.ts, new test_collect_configs.ts, 5 edited tests). Verification green: vitest 7 files/64 passed|1 skipped (matches expected), test_dual_target_deploy -t test_registry_current 6 passed|20 skipped, npx tsc --noEmit exit 0, source checks pass (import.meta.glob x1, no per-game config imports, brewfield/early_learning_buddy untouched). BLOCKERS: (1) `npx vite-node tools/export-registry.ts` refused by sandbox permissions (vite-node not in allowed commands; no npm alias exists) — same code path covered by passing test_registry_export.ts; (2) `git push -u origin` blocked by pre-push hook running Python suite: 2 failures in studio_mcp/pipeline_audit/tests/test_repo_state.py reading registry.ts as text — the predicted D1.1/D1.1b red state. Branch not on remote; commit is local.
 <!-- queue:end -->
