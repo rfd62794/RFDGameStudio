@@ -163,12 +163,15 @@ none. Deploying the rebuilt embed is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-trinity-siege-tiera-directive |
 | Base branch | - |
+| Base commit | 77e1cac6169bedbf5fb0f016f7d07ff99ecf1ef8 |
 
 **Status log**
 - 2026-10-03 23:59 · claude · none → Queued — wave 1 Tier A directive from docs/demos/trinity_siege/SCOPE.md
 - 2026-10-04 00:04 · robert-claude-laptop · Queued → Approved — lint override: errors are the file the run creates (test_trinity_siege_blurb.ts), marked with a new-file marker; author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
+- 2026-10-04 03:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-trinity-siege-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 03:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-trinity-siege-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
