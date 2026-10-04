@@ -209,4 +209,5 @@ none for the run. After Review and merge, deploying is Robert's separate step. D
 - 2026-10-03 · robert-claude-laptop · none → Queued — demo polish wave 1, Tier A only; Scope and Out of scope copied from the demo's SCOPE.md
 - 2026-10-04 00:00 · robert-claude-laptop · Queued → Approved — lint override: all 3 errors are files the run creates (runControls.ts, AbandonRunButton.tsx, test_dissonance_run_controls.ts), each marked with a new-file marker; the author's dispatch lint on main code gave 0 errors; this queue MCP process still runs pre-fix lint until reconnect
 - 2026-10-04 00:59 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-dissonance-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 00:59 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-dissonance-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
