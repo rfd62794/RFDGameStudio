@@ -256,3 +256,17 @@ none
 ## Required from User
 
 none. Review and merge are Robert's or Claude's after the run.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-04 13:22 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified TS build (record.ts, App.tsx diff, test); dispatch only after Chimera_Wilds_Fix_Unwinnable_Balance merges.
+<!-- queue:end -->
