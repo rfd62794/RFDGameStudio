@@ -1,0 +1,6 @@
+{
+  "name": "VoidDrift Core Loop",
+  "description": "Automated space mining dispatch simulation featuring scout proximity detection, real FSM drone cycles, and live metal resource collection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
