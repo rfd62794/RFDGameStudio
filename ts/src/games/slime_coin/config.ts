@@ -2,13 +2,14 @@
 
 import React from 'react';
 import type { GameConfig } from '../../engine/types';
+import { SLIME_COIN_BLURB } from './blurb';
 
 export const slimeCoinConfig: GameConfig = {
   gameId: 'slime_coin',
   order: 80,
   moreGames: true,
   label: 'SlimeCoin',
-  description: 'Real-time coin pusher with shooter, two-layer board, and chip synergies',
+  description: SLIME_COIN_BLURB,
   color: '#a855f7',
   status: 'dev',
   // No `genre` — genuinely doesn't fit the curated 11-value taxonomy.

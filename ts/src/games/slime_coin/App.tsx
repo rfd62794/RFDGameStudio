@@ -17,6 +17,7 @@ import BoardCanvas from './components/BoardCanvas';
 import ShopModal from './components/ShopModal';
 import PocketPicker from './components/PocketPicker';
 import CoinPrimer from './components/CoinPrimer';
+import { SLIME_COIN_BLURB } from './blurb';
 import './styles.css';
 
 function buildInitialState(session: unknown): SlimeCoinGameState {
@@ -261,7 +262,7 @@ export default function App({ session }: GameRendererProps) {
         <TitleScreen
           title="SlimeCoin"
           tagline="Real-time coin pusher"
-          pitch="Real-time coin pusher with shooter, two-layer board, and chip synergies."
+          pitch={SLIME_COIN_BLURB}
           menuItems={[
             { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
           ]}
