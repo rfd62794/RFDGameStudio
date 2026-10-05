@@ -11,6 +11,7 @@ import { sfx } from '../../engine/shared/sfx';
 import { selectWeightedNeighbor } from './aiDecisions';
 import { initializeFragments, onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
+import { buildEndingViewModel, nextChapterHref, NEXT_CHAPTER_LABEL } from './endingView';
 import { getHouseStats } from './houseStats';
 import { getHouseTheme } from './houseThemes';
 import { factionThemeVars } from '../../ui/components/FactionTheme';
@@ -1817,7 +1818,7 @@ export default function App({ session }: GameRendererProps) {
           takes precedence when both are up. */}
       {gameState.endingEvent && (
         <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 select-none animate-fade-in" id="ending-placeholder" data-testid="pog-ending-placeholder">
-          <div className="bg-[#1a1a2e] border-2 border-amber-600/60 max-w-lg w-full p-8 flex flex-col gap-5 text-center text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.3)]">
+          <div className="bg-[#1a1a2e] border-2 border-amber-600/60 max-w-lg w-full max-h-full overflow-y-auto p-8 flex flex-col gap-5 text-center text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.3)]">
             <span className="font-serif italic text-[11px] text-amber-400/70 font-bold uppercase tracking-widest">
               {ENDING_TEXT.subtitle}
             </span>
@@ -1839,6 +1840,15 @@ export default function App({ session }: GameRendererProps) {
                   ? ENDING_TEXT.fragmentComplete
                   : ENDING_TEXT.fragmentIncomplete}
               </p>
+              {(() => {
+                const summary = buildEndingViewModel(playerCorp, gameState.endingEvent, gameState.date);
+                return (
+                  <div className="mt-3 pt-3 border-t border-amber-700/30 text-left text-amber-100/70" data-testid="pog-ending-summary">
+                    <div>{summary.houseName} finished at {summary.rankLabel} in {summary.yearLabel}.</div>
+                    <div>Fragments gathered: {summary.fragmentsLabel}.</div>
+                  </div>
+                );
+              })()}
             </div>
             <button
               onClick={handleRequestNewGame}
@@ -1848,6 +1858,15 @@ export default function App({ session }: GameRendererProps) {
             >
               {ENDING_TEXT.restartLabel}
             </button>
+            {nextChapterHref(mode, window.location.href) && (
+              <a
+                href={nextChapterHref(mode, window.location.href) ?? undefined}
+                className="block w-full text-center border-2 border-amber-600/70 text-amber-200 hover:bg-amber-900/40 py-3 text-xs font-mono uppercase tracking-widest transition"
+                data-testid="pog-ending-continue"
+              >
+                {NEXT_CHAPTER_LABEL}
+              </a>
+            )}
           </div>
         </div>
       )}
