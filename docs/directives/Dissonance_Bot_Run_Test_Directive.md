@@ -222,7 +222,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/queue-sync4 |
 | Base branch | - |
@@ -230,4 +230,5 @@ none.
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
 - 2026-10-04 · devin-cleanroom · Queued → Review: already merged on main via PR #177 (efb01a88); row sync only, no code change
+- 2026-10-04 20:54 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
