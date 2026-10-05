@@ -181,12 +181,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-choke-point-wave-counter-stars-directive |
 | Base branch | - |
+| Base commit | 42043c8665573394ad0cc49fa09403cbc6434d58 |
 
 **Status log**
 - 2026-10-04 13:25 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:02 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
+- 2026-10-05 01:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-counter-stars-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
