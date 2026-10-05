@@ -11,6 +11,7 @@ import { sfx } from '../../engine/shared/sfx';
 import { selectWeightedNeighbor } from './aiDecisions';
 import { initializeFragments, onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
+import { buildEndingViewModel, nextChapterHref, NEXT_CHAPTER_LABEL } from './endingView';
 import { getHouseStats } from './houseStats';
 import { getHouseTheme } from './houseThemes';
 import { factionThemeVars } from '../../ui/components/FactionTheme';
@@ -1839,6 +1840,15 @@ export default function App({ session }: GameRendererProps) {
                   ? ENDING_TEXT.fragmentComplete
                   : ENDING_TEXT.fragmentIncomplete}
               </p>
+              {(() => {
+                const summary = buildEndingViewModel(playerCorp, gameState.endingEvent, gameState.date);
+                return (
+                  <div className="mt-3 pt-3 border-t border-amber-700/30 text-left text-amber-100/70" data-testid="pog-ending-summary">
+                    <div>{summary.houseName} finished at {summary.rankLabel} in {summary.yearLabel}.</div>
+                    <div>Fragments gathered: {summary.fragmentsLabel}.</div>
+                  </div>
+                );
+              })()}
             </div>
             <button
               onClick={handleRequestNewGame}
@@ -1848,6 +1858,15 @@ export default function App({ session }: GameRendererProps) {
             >
               {ENDING_TEXT.restartLabel}
             </button>
+            {nextChapterHref(mode, window.location.href) && (
+              <a
+                href={nextChapterHref(mode, window.location.href) ?? undefined}
+                className="block w-full text-center border-2 border-amber-600/70 text-amber-200 hover:bg-amber-900/40 py-3 text-xs font-mono uppercase tracking-widest transition"
+                data-testid="pog-ending-continue"
+              >
+                {NEXT_CHAPTER_LABEL}
+              </a>
+            )}
           </div>
         </div>
       )}
