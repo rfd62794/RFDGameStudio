@@ -181,7 +181,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-choke-point-wave-counter-stars-directive |
 | Base branch | - |
@@ -195,4 +195,5 @@ none.
 - 2026-10-05 01:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-counter-stars-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 01:29 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-counter-stars-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 01:41 · devin · In progress → Review — rating.ts + wave label + victory stars shipped as specced; vitest tail: Test Files 5 passed (5) / Tests 12 passed (12) [origin] spent: devin 9 min est. n/a
+- 2026-10-05 01:45 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
