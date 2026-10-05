@@ -142,12 +142,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
-| Base branch | - |
+| Branch | directive/rfdgamestudio-systemic-extract-honest-blurb-directive |
+| Base branch | main @ 1d8383aa |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
 - 2026-10-04 14:40 · robert-claude-laptop · Queued → Approved — lint override: lint false positives (verified; fix in AgentFlow PR #534 pending); author ran baseline+after proofs; Robert 2026-10-04 approved all recommendations
+- 2026-10-05 · devin-cleanroom-overseer · Approved → Review — `config.ts` description/tags + `index.html` two meta descriptions + inline SVG favicon line applied verbatim; `ts/tests/test_systemic_extract_blurb.ts` created verbatim. Verified: `cd ts && npx vitest run test_systemic_extract_blurb.ts` → `Test Files 1 passed (1)` / `Tests 4 passed (4)` spec-exact; regression trio `test_systemic_extract_restart.ts test_registry_export.ts test_arcade_manifest.ts` → `3 passed (3)` / `15 passed (15)` (spec predicted 14 — one regression file grew a test since the spec was written; all green). Findings: new blurb shipped in all three places; favicon is an inline icon, no binary file. The cover screenshot, embed card label check and A1 console check are browser steps for the controller after the embed is rebuilt.
 <!-- queue:end -->
