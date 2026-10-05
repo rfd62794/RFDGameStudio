@@ -278,15 +278,18 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planet-of-greed-ending-screen-directive |
 | Base branch | - |
 | Base commit | 95d302292a085794d8fe9e4cc595ec4c5d13de96 |
+| Head commit | 71008fbb932f2a5b5be2c4a7790bd53bd9c54ddf |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
 - 2026-10-04 22:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-ending-screen-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 22:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-ending-screen-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 22:23 · devin-overseer (delegated) · In progress → Review — Ending screen built per spec: gameLinks.ts + endingView.ts new, summary block + Continue link in App.tsx, restartLabel 'Play again', new test file. vitest test_planetofgreed_ending_view 1/4 pass; test_planetofgreed 12 files/173 tests; tsc --noEmit clean (0 errors). Pushed 71008fbb. Note: advisory pre-push python suite crashed in pygame_gui (horse_racing test) - native access violation, unrelated to change. [origin] spent: devin 1 min est. n/a
 <!-- queue:end -->
