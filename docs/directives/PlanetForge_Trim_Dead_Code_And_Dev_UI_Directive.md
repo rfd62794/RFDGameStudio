@@ -253,7 +253,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-trim-dead-code-and-de-34bafa |
 | Base branch | - |
@@ -263,4 +263,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-05 00:38 · robert-claude-laptop · Queued → Approved — lint override: path hits follow the verified false-positive classes in this directive family: 'do not edit' mentions (demo_lists_snapshot.json), a gitignored generated file (game-metadata.json) and app-relative paths
 - 2026-10-05 00:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-trim-dead-code-and-de-34bafa; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 00:39 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
 <!-- queue:end -->
