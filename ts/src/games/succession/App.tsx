@@ -22,6 +22,7 @@ import { GossipTicker } from './components/GossipTicker';
 import { VerdictScreen } from './components/VerdictScreen';
 import { OnboardingTip } from './components/OnboardingTip';
 import CourtPrimer from './components/CourtPrimer';
+import RunControls from './components/RunControls';
 import { ONBOARDING_TIPS, OnboardingTipId } from './content/onboardingTips';
 import { determineTip } from './utils/onboardingTriggers';
 import { useOnboardingGate } from '../../ui/components/OnboardingGate';
@@ -114,6 +115,18 @@ export default function App({ session }: GameRendererProps) {
     setView('playing');
   };
 
+  const handleRestartRun = () => {
+    setActiveTip(null);
+    handlePlayAgain();
+  };
+
+  const handleBackToTitle = () => {
+    setActiveTip(null);
+    setGameState(null);
+    setPlayStage('chamber');
+    setView('title');
+  };
+
   const handleProceedFromInterlude = () => {
     if (!gameState) return;
     if (gameState.phase === 'verdict') {
@@ -198,6 +211,7 @@ export default function App({ session }: GameRendererProps) {
       gameId="succession"
       phase="The Council of Three"
       statusArea={<SegmentHeader segment={gameState.segment} />}
+      headerExtra={<RunControls onRestart={handleRestartRun} onBackToTitle={handleBackToTitle} />}
       mode={mode}
       arcadeBaseUrl={arcadeBaseUrl}
       mainClassName="game-shell-main--scrollable"
