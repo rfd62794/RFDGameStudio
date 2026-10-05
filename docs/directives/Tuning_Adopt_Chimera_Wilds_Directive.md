@@ -93,7 +93,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive |
 | Base branch | - |
@@ -104,4 +104,5 @@ none.
 - 2026-10-04 20:24 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions, a gitignored generated file, or new files this directive creates; verified in earlier directives of the same family
 - 2026-10-04 20:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 20:25 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
+- 2026-10-05 · devin-cleanroom-overseer · Blocked → Review — rescued after the laptop's env-side setup failure (deps now merged: Knob_Store #194, Sweep_Tool #201). New `ts/src/games/chimera_wilds/tuning.ts` (2 data knobs power 40-140/90 + endurance 40-140/85, 1 target 0.35-0.65, simulate via loadGame+applyDataOverrides), registry import + map entry, `ts/tests/test_chimera_wilds_tuning.ts` (3 tests: drift guard vs live YAML, override-70 drop, runRows/checkTargets). Real tails: `test_chimera_wilds_tuning.ts` 3 passed with `SIM default=0.397 overridden70=0.020`; `test_chimera_wilds_balance.ts` 2 passed unchanged; `test_tuning_targets.ts` 5 passed incl `chimera_wilds targets hold at defaults`; `npx tsc --noEmit` shows only the pre-existing 6 zod-resolution errors in `src/engine/schemas/*` (PR #193, declared-but-uninstalled; none in scope files). `data.yaml` untouched; `git status` shows only the 3 scope files.
 <!-- queue:end -->
