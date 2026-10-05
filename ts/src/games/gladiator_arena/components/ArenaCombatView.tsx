@@ -10,6 +10,7 @@ import { BodyPart } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { StickFighter, FighterPose } from './StickFighter';
 import { nextStepAfterBout } from '../utils/resultNextStep';
+import { CAMPAIGN_COMPLETE_BODY, CAMPAIGN_COMPLETE_TITLE, isFinalChampion } from '../utils/campaignEnd';
 import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { 
   Swords, 
@@ -772,6 +773,13 @@ export const ArenaCombatView: React.FC = () => {
                 </>
               )}
             </div>
+
+            {isVictory && isFinalChampion(activeBout.opponent.id) && (
+              <div id="campaign-complete-card" className="p-4 rounded-2xl bg-amber-950/60 border border-amber-500/60 text-center flex flex-col gap-1">
+                <span className="text-sm font-extrabold text-amber-300 uppercase tracking-wide">{CAMPAIGN_COMPLETE_TITLE}</span>
+                <span className="text-xs text-amber-100">{CAMPAIGN_COMPLETE_BODY}</span>
+              </div>
+            )}
 
             {/* Financial Purse Breakdown */}
             {isVictory && (
