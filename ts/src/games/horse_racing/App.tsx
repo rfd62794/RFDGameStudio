@@ -11,6 +11,7 @@ import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { navigateTo } from '../../arcade/routing';
 import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { sound } from './utils/sound';
+import { raceCooldownFor } from './utils/raceCooldown';
 import StableTab from './components/StableTab';
 import BettingTab from './components/BettingTab';
 import BreederTab from './components/BreederTab';
@@ -327,7 +328,7 @@ export default function App({ session }: GameRendererProps) {
       results,
       timestamp: Date.now(),
     };
-    const cooldownUntil = Date.now() + raceCooldownMs;
+    const cooldownUntil = Date.now() + raceCooldownFor(gameState.race_history.length, raceCooldownMs);
 
     setGameState(prev => {
       if (!prev) return prev;
@@ -672,7 +673,7 @@ export default function App({ session }: GameRendererProps) {
             <ul className="hr-tutorial">
               <li>Pick a horse in the Betting office, place Win/Place/Show bets, and run the race.</li>
               <li>Win pays the listed odds; Place (top 2) and Show (top 3) pay less for safer finishes.</li>
-              <li>Purses and winning bets feed your Stable Bank — horses need rest between runs.</li>
+              <li>Purses and winning bets feed your Stable Bank. Your first three races need no rest; after that, horses rest between runs.</li>
               <li>Breed a stallion and a mare in the Breeding Lab to raise the next generation.</li>
               <li>Your stable autosaves after every race.</li>
             </ul>
