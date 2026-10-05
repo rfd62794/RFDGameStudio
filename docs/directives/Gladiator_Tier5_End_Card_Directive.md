@@ -196,7 +196,7 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-gladiator-tier5-end-card-directive |
 | Base branch | - |
@@ -206,4 +206,5 @@ none. Review and merge are Robert's or Claude's after the run.
 - 2026-10-04 13:23 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified worktree-only build; dispatch after Gladiator_Bout_Result_Next_Step merges (shared ArenaCombatView edits).
 - 2026-10-04 20:52 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json); verified pattern across this directive family
 - 2026-10-04 20:52 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-gladiator-tier5-end-card-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 20:53 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: on `itch-publisher`
 <!-- queue:end -->
