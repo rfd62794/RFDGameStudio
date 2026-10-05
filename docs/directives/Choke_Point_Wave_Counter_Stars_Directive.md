@@ -191,4 +191,5 @@ none.
 - 2026-10-04 13:25 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:02 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
 - 2026-10-05 01:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-counter-stars-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 01:29 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-choke-point-wave-counter-stars-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
