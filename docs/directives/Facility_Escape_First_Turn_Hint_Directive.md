@@ -144,12 +144,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-facility-escape-first-turn-hint-d-f22579 |
 | Base branch | - |
+| Base commit | a04cfdc1f11d240460c7a06edf9c04a439970645 |
 
 **Status log**
 - 2026-10-04 13:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully pasted S change for Devin; dispatch only after Facility_Escape_Player_Wording_Directive merges (same App.tsx).
 - 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
+- 2026-10-05 01:45 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-first-turn-hint-d-f22579; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
