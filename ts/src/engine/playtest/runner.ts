@@ -95,9 +95,15 @@ export function playRun(
 
     let extraHit = false;
     for (const check of extra) {
-      const message = check.check(adapter, steps);
-      if (message !== null) {
-        record(check.name, steps, message);
+      try {
+        const message = check.check(adapter, steps);
+        if (message !== null) {
+          record(check.name, steps, message);
+          extraHit = true;
+          break;
+        }
+      } catch (e) {
+        record(check.name, steps, msg(e));
         extraHit = true;
         break;
       }

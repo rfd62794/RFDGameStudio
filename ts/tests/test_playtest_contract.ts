@@ -166,6 +166,19 @@ describe('playtest contract', () => {
     expect(r2.violations[0].step).toBe(3);
   });
 
+  it('a throwing ExtraCheck lands as a violation, never a crash', () => {
+    const check: ExtraCheck = {
+      name: 'fragile',
+      check: () => { throw new Error('check boom'); },
+    };
+    const r = playRun(new ToyAdapter(), scriptedPolicy(Array(5).fill('inc')), 1,
+      { extraChecks: [check] });
+    expect(r.violations).toHaveLength(1);
+    expect(r.violations[0].check).toBe('fragile');
+    expect(r.violations[0].message).toBe('check boom');
+    expect(r.violations[0].step).toBe(1);
+  });
+
   it('summarise counts outcomes, rates, length, outliers and byCheck', () => {
     const results: RunResult[] = [
       { seed: 1, steps: 10, outcome: 'victory', terminal: true, violations: [], metrics: {} },
