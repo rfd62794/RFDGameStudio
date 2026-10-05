@@ -288,4 +288,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
 - 2026-10-04 22:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-ending-screen-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 22:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-ending-screen-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
