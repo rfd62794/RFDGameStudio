@@ -156,11 +156,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync4 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review: already merged on main via PR #143 (42a4d35e); row sync only, no code change
 <!-- queue:end -->
