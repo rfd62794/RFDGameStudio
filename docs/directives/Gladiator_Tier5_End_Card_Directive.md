@@ -196,11 +196,12 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:23 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified worktree-only build; dispatch after Gladiator_Bout_Result_Next_Step merges (shared ArenaCombatView edits).
+- 2026-10-04 20:52 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json); verified pattern across this directive family
 <!-- queue:end -->
