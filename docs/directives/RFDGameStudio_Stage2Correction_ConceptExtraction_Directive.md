@@ -242,7 +242,7 @@ that's explicitly deferred (§0).
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-stage2correction-co-f57741 |
 | Base branch | - |
@@ -265,4 +265,5 @@ that's explicitly deferred (§0).
 - 2026-09-25 22:12 · robert-claude-laptop · Queued → Draft — DROPPED (Robert 2026-09-25 approved): superseded by Stage2Correction2 (95/0 floor), per this directive's own log. Not to be dispatched.
 - 2026-09-30 06:24 · devin-overseer (delegated) · Draft → Queued
 - 2026-09-30 08:17 · devin-overseer (delegated) · Queued → Approved — force: Robert 2026-09-30 batch order: approve all queued
+- 2026-10-05 · devin-cleanroom-overseer · Approved → Superseded — queue sync honoring Robert's 2026-09-25 DROP ("superseded by Stage2Correction2 (95/0 floor); not to be dispatched"), which the 09-30 batch re-queue overrode. Verified on main today: every §2/§3 deliverable already exists — `concept_grep.py` has `_strip_long_backtick_spans` (line 52), `_DIRECTIVE_MARKERS` + `_scope_to_directive_section` (lines 64-90), `verdict_synthesizer.py` prompts with `unmatched_concepts` (lines 50-52), and all eight §3 test anchors are present in `test_concept_grep.py`/`test_verdict_synthesizer.py`. No work remains; do not dispatch.
 <!-- queue:end -->
