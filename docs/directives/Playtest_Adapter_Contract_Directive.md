@@ -158,7 +158,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-adapter-contract-directive |
 | Base branch | - |
@@ -173,4 +173,5 @@ none.
 - 2026-10-04 18:28 · robert-claude-laptop · Queued → Approved — lint override: cited ts/src/engine/playtest paths are new files this directive creates
 - 2026-10-04 18:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adapter-contract-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 18:29 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 2: Caused by: failed to hardlink file from C:\Github\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adapter-contract-directive\.venv\Lib\site-packages\pluggy\_callers.py to C:\Users\cheat\AppData\Loc
+- 2026-10-04 · devin-cleanroom-overseer · Blocked → Review — rescued the env-blocked dispatch (twice failed on laptop uv sync; built clean in worktree RFDGameStudio--playtest-contract). The 7 scope files, all new: `ts/src/engine/playtest/{types,policies,invariants,runner,report,index}.ts` + `ts/tests/test_playtest_contract.ts`. playRun never throws — every adapter/policy call is wrapped; a throw lands as no-throw/policy. Verification tails: `npx vitest run test_playtest_contract.ts` -> Tests 12 passed (12); `test_dissonance_bot_run.ts` -> 5 passed (5); `test_scrapcrawl_sim_runs.ts` -> 3 passed (3) (`SIM unarmed=0.350 crafted=0.750`); `npx tsc --noEmit` -> 10 error lines, all pre-existing baseline (4 game-metadata.json + 6 engine/schemas zod drift), zero mention playtest; `git status` -> only the 7 scope files. Recommended next: merge, then dispatch Playtest_Adopt_Dissonance + Playtest_Adopt_Scrapcrawl (both gated on this row).
 <!-- queue:end -->
