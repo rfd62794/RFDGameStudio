@@ -252,3 +252,17 @@ Then say plainly what was not run (example build, the example's own suite, deplo
 ## Required from User
 
 none. Deploying is Robert's, after review.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | robert |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-05 00:32 · agentflow-tick · none → Queued — suggested by heartbeat: Work already landed and later directives build on it; re-running would revert config.ts. Close, don't dispatch.
+<!-- queue:end -->
