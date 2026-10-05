@@ -388,12 +388,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-seven-days-to-fry-tier-a-honest-c-991b72 |
 | Base branch | - |
+| Base commit | 8e65278936c4816299a51077a1537f769573e9b5 |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
 - 2026-10-05 00:37 · robert-claude-laptop · Queued → Approved — lint override: path hits follow the verified false-positive classes in this directive family: 'do not edit' mentions (demo_lists_snapshot.json), a gitignored generated file (game-metadata.json) and app-relative paths
+- 2026-10-05 00:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-tier-a-honest-c-991b72; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
