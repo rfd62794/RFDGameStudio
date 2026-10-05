@@ -211,12 +211,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-dissonance-origin-link-directive |
 | Base branch | - |
+| Base commit | ed59ad3384b31ded511c04f6714f54679b06346f |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
 - 2026-10-05 00:39 · robert-claude-laptop · Queued → Approved — lint override: path hits follow the verified false-positive classes in this directive family: 'do not edit' mentions (demo_lists_snapshot.json), a gitignored generated file (game-metadata.json) and app-relative paths
+- 2026-10-05 00:40 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; base origin/main (local main differs); lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
