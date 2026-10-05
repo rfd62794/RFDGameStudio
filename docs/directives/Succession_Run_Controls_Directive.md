@@ -305,12 +305,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-succession-run-controls-directive |
 | Base branch | - |
+| Base commit | 046dba20a1beefb0d73bb8c3bf589ef46f4d9109 |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
+- 2026-10-05 00:40 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-controls-directive; base origin/main (local main differs); lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
