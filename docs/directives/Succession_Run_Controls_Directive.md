@@ -305,7 +305,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-succession-run-controls-directive |
 | Base branch | - |
@@ -319,4 +319,5 @@ none.
 - 2026-10-05 00:40 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-controls-directive; base origin/main (local main differs); lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 00:40 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-controls-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 00:54 · devin · In progress → Review — devin · In progress -> Review — ConfirmButton + RunControls + App.tsx headerExtra + test file as specified; npx vitest run test_succession: 18 files / 172 passed; npx tsc --noEmit clean; pushed cb458976 (pre-push full suite green, 532s). Controller finish: Playwright header-fit check at 390x844 and 1280x720. [origin] spent: devin 12 min est. n/a
+- 2026-10-05 00:58 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
