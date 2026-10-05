@@ -92,12 +92,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-tuning-adopt-scrapcrawl-directive |
 | Base branch | - |
+| Base commit | a654ec08d1a3c3f68f8945755f6db1f767d7415d |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 20:25 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions, a gitignored generated file, or new files this directive creates; verified in earlier directives of the same family
+- 2026-10-04 20:25 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
