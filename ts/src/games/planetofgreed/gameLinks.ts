@@ -8,5 +8,9 @@
 export function arcadeGameHref(mode: 'arcade' | 'standalone', currentHref: string, gameId: string): string | null {
   if (mode !== 'arcade') return null;
   const base = currentHref.split('?')[0].split('#')[0];
-  return `${base}?game=${gameId}`;
+  // An embed session stays embedded: the cabinet iframe must not load the
+  // full arcade shell inside itself when the player follows a cross-game link.
+  const query = currentHref.split('#')[0].split('?').slice(1).join('?');
+  const embed = new URLSearchParams(query).get('embed') === '1';
+  return `${base}?game=${gameId}${embed ? '&embed=1' : ''}`;
 }

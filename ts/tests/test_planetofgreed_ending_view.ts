@@ -36,6 +36,14 @@ describe('test_planetofgreed_ending_view', () => {
     expect(nextChapterHref('standalone', 'https://example.com/')).toBeNull();
   });
 
+  it('keeps the cabinet embed param on the next-chapter link and only there', () => {
+    const framed = 'https://rfditservices.com/play/?game=planetofgreed&embed=1';
+    expect(nextChapterHref('arcade', framed)).toBe('https://rfditservices.com/play/?game=facility_escape&embed=1');
+    const plain = 'https://rfditservices.com/play/?game=planetofgreed';
+    expect(nextChapterHref('arcade', plain)).toBe('https://rfditservices.com/play/?game=facility_escape');
+    expect(nextChapterHref('standalone', framed)).toBeNull();
+  });
+
   it('player-facing labels are plain and the ending screen wires them in', () => {
     expect(NEXT_CHAPTER_LABEL).toBe('Continue to Facility Escape');
     expect(ENDING_TEXT.restartLabel).toBe('Play again');
