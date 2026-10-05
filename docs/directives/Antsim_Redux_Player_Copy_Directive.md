@@ -155,11 +155,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync4 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:17 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified S-size worktree edit; quoted lines verified on live checkout; Devin-shaped.
+- 2026-10-04 · devin-cleanroom · Queued → Review: already merged on main via PR #171 (ebaeca68); row sync only, no code change
 <!-- queue:end -->
