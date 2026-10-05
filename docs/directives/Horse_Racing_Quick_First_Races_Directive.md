@@ -193,12 +193,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-horse-racing-quick-first-races-directive |
 | Base branch | - |
+| Base commit | 27d37d87b46d9a85ceda21e39235710190689dae |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:02 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
+- 2026-10-05 01:11 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-horse-racing-quick-first-races-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
