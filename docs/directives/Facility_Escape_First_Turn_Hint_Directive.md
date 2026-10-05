@@ -144,7 +144,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-facility-escape-first-turn-hint-d-f22579 |
 | Base branch | - |
@@ -158,4 +158,5 @@ none.
 - 2026-10-05 01:45 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-first-turn-hint-d-f22579; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 01:46 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-first-turn-hint-d-f22579; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 01:51 · devin · In progress → Review — Already-landed: all 3 scoped files present byte-exact via merged commit b5668a1d. Verified vitest tail: 2 files / 5 tests passed. Empty marker commit 7987eca5 carries the verification; no code change needed. [origin] spent: devin 2 min est. n/a
+- 2026-10-05 01:52 · robert-claude-laptop · Review → Superseded — superseded_by: commit:b5668a1d
 <!-- queue:end -->
