@@ -9,6 +9,7 @@ import { useGame } from '../context/GameContext';
 import { BodyPart } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { StickFighter, FighterPose } from './StickFighter';
+import { nextStepAfterBout } from '../utils/resultNextStep';
 import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { 
   Swords, 
@@ -833,6 +834,14 @@ export const ArenaCombatView: React.FC = () => {
                 })}
               </div>
             </div>
+
+            <p id="bout-next-step" className="text-xs text-stone-300 text-center">
+              {nextStepAfterBout({
+                isVictory,
+                anyDamaged: activeBout.playerRoster.some(g => (Object.values(g.parts) as BodyPart[]).some(p => p.currentHp < p.maxHp)),
+                anyScarred: activeBout.playerRoster.some(g => (Object.values(g.parts) as BodyPart[]).some(p => p.scarHpPenalty > 0)),
+              })}
+            </p>
 
             {/* Return CTA */}
             <button
