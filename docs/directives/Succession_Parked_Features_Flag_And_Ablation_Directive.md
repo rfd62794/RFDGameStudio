@@ -466,12 +466,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-succession-parked-features-flag-a-57aff9 |
 | Base branch | - |
+| Base commit | 6c8f9ccbaaf3d6b5a21e8b0ce9b6b498997d3082 |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-05 23:40 · devin-overseer (delegated) · Queued → Approved — lint override: tests/fixtures/demo_lists_snapshot.json cite is inside the directive's Forbidden Actions boilerplate (a do-not-edit list), not a work input
+- 2026-10-05 23:57 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-parked-features-flag-a-57aff9; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
