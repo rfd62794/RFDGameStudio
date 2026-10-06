@@ -1,7 +1,7 @@
 // new: ts/tests/test_slimeworld_ranch_save.ts
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mulberry32 } from '../src/engine/shared/seededRandom';
-import { RANCH_SAVE_KEY } from '../src/games/slimeworld/ranch/data/constants';
+import { RANCH_SAVE_KEY, RANCH_SAVE_VERSION } from '../src/games/slimeworld/ranch/data/constants';
 import { addFruit, newRanchState } from '../src/games/slimeworld/ranch/model/state';
 import { catchSlime } from '../src/games/slimeworld/ranch/model/slimes';
 import { isRanchState, loadRanch, resetRanch, saveRanch } from '../src/games/slimeworld/ranch/save/ranchSave';
@@ -49,6 +49,30 @@ describe('ranch save (localStorage)', () => {
     expect(isRanchState({ ...newRanchState(), fruit: { berry: 'many' } })).toBe(false);
     expect(isRanchState({ ...newRanchState(), plortCredit: -5 })).toBe(false);
     expect(isRanchState(null)).toBe(false);
+  });
+
+  it('isRanchState rejects malformed sales entries', () => {
+    const good = playedState();
+    expect(isRanchState({ ...good, sales: [null] })).toBe(false);
+    expect(isRanchState({ ...good, sales: [{ speciesId: 'pip' }] })).toBe(false);
+    expect(isRanchState({ ...good, sales: [{ atAction: 4 }] })).toBe(false);
+    expect(isRanchState({ ...good, sales: [{ speciesId: 'pip', atAction: 4 }] })).toBe(true);
+  });
+
+  it('loadRanch falls back to a fresh ranch for a save with malformed sales', () => {
+    const bad = { ...playedState(), sales: [null] };
+    localStorage.setItem(RANCH_SAVE_KEY, JSON.stringify({ v: RANCH_SAVE_VERSION, data: bad }));
+    expect(loadRanch()).toEqual(newRanchState());
+  });
+
+  it('isRanchState rejects non-finite or negative counters', () => {
+    const good = playedState();
+    expect(isRanchState({ ...good, nextId: NaN })).toBe(false);
+    expect(isRanchState({ ...good, nextId: Infinity })).toBe(false);
+    expect(isRanchState({ ...good, nextId: -1 })).toBe(false);
+    expect(isRanchState({ ...good, actionCount: NaN })).toBe(false);
+    expect(isRanchState({ ...good, actionCount: -1 })).toBe(false);
+    expect(isRanchState({ ...good, actionCount: Infinity })).toBe(false);
   });
 
   it('resetRanch clears the save and returns a fresh ranch', () => {
