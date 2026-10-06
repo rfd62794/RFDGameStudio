@@ -1020,15 +1020,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slimeworld-ranch-core-scaffold-directive |
 | Base branch | - |
 | Base commit | 6539e932787341ab3b859bfba052bcee89a4a646 |
+| Head commit | 8c541d54be83657d761db4e8d3bb5cad36663f1a |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-06 00:53 · devin-overseer (delegated) · Queued → Approved — lint override: all cited paths (ranch/data, model, save, debug + 2 test files) are create-targets this scaffold run produces - verified ts/src/games/slimeworld/ranch/ does not exist on main; demo_lists_snapshot cite is Forbidden-Actions boilerplate
 - 2026-10-06 00:53 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-core-scaffold-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-06 00:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-core-scaffold-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-06 01:09 · devin · In progress → Review — 14 new files (12 ranch src + 2 tests), no edits. vitest ranch 2/32, test_slimeworld 28/182, guards 3/36, tsc clean. Commit 8c541d54 pushed. [origin] spent: devin 14 min est. n/a
 <!-- queue:end -->
