@@ -93,7 +93,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive |
 | Base branch | - |
@@ -104,4 +104,5 @@ none.
 - 2026-10-04 20:24 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions, a gitignored generated file, or new files this directive creates; verified in earlier directives of the same family
 - 2026-10-04 20:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 20:25 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
+- 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
 <!-- queue:end -->
