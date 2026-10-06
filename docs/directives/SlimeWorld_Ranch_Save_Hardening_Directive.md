@@ -41,15 +41,18 @@ cd ts && npx tsc --noEmit
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0 |
 | Base branch | - |
 | Base commit | 56354b80f34c12e76d56d2762ac435320fa446bd |
+| Head commit | dbfcd5bbe1735739939b0b1b742a34eb1f6a29c3 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-06 01:28 · devin-overseer (delegated) · none → Queued — authored from PR 224 review follow-up (robert-claude-laptop #1932 item 1); queued, not approved
 - 2026-10-06 01:29 · devin-overseer (delegated) · Queued → Approved
 - 2026-10-06 01:30 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-06 01:31 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-06 01:36 · devin · In progress → Review — isRanchState now checks each sales entry against SaleRecord shape and requires Number.isFinite + >= 0 on nextId/actionCount; 3 new tests in test_slimeworld_ranch_save.ts. Verified: npx vitest run test_slimeworld_ranch (35 passed), npx vitest run test_slimeworld (185 passed), npx tsc --noEmit (clean). Committed dbfcd5bb, pushed to origin. [origin] spent: devin 4 min est. n/a
 <!-- queue:end -->
