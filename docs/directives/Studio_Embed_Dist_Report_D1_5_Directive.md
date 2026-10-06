@@ -167,11 +167,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 11:22 · agentflow-tick · none → Queued — suggested by heartbeat: Report-only, fully specified; dispatch only after D1.4 (and D1.1) merge, since build-demo.ts doesn't exist yet
+- 2026-10-06 19:26 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
