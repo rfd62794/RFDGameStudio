@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import {
-  GameState, MapCell, Corporation, WeeklyOrder, UnitTransit, UnitGroup,
-  UnitType, GameEvent, CellCombatState, GameDate, CultureId
+  GameState, MapCell, Corporation, WeeklyOrder, UnitGroup,
+  GameEvent, CellCombatState, GameDate, CultureId
 } from './types';
 import { resolveCellCombat } from '../../engine/shared/combat';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sfx } from '../../engine/shared/sfx';
-import { selectWeightedNeighbor } from './aiDecisions';
+import { generateAIWeeklyOrders } from './aiWeeklyOrders';
+import { resolvePendingCombats } from './combatForces';
 import { onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
 import { PLAYER_CORP_ID, CULTURE_WHEEL, CULTURE_DEFINITIONS } from './campaignConstants';
 import { createInitialCampaign, computeRank } from './campaignState';
-import { defaultContext } from './rng';
+import { defaultContext, pickOne } from './rng';
 import { buildEndingViewModel, nextChapterHref, NEXT_CHAPTER_LABEL } from './endingView';
 import { getHouseStats } from './houseStats';
 import { getHouseTheme } from './houseThemes';
@@ -452,7 +453,7 @@ export default function App({ session }: GameRendererProps) {
 
           // Register Transit (transit days are per-House: Gale 2, Tide 6, default 4)
           const transitDays = playerStats.transitDays;
-          const transitId = `transit-player-${cell.id}-${order.targetCellId}-${Date.now()}-${Math.random()}`;
+          const transitId = `transit-player-${cell.id}-${order.targetCellId}-${defaultContext.now()}-${defaultContext.rng()}`;
           updatedTransits.push({
             id: transitId,
             corpId: PLAYER_CORP_ID,
@@ -511,7 +512,7 @@ export default function App({ session }: GameRendererProps) {
     }
 
     // Generate AI Weekly Orders
-    generateAIWeeklyOrders(updatedCells, updatedCorps, updatedTransits);
+    generateAIWeeklyOrders(updatedCells, updatedCorps, updatedTransits, defaultContext);
 
     setGameState(prev => {
       if (!prev) return null;
@@ -526,95 +527,6 @@ export default function App({ session }: GameRendererProps) {
 
     setIsPlanningPhase(false);
     addLog(`Weekly planning finalized. Resuming simulation for Week ${gameState.date.week}.`, 'info');
-  };
-
-  const generateAIWeeklyOrders = (cells: MapCell[], corps: Corporation[], transits: UnitTransit[]) => {
-    // Phase 3: lookup maps for the wheel-aware target selection. Built once
-    // per call so selectWeightedNeighbor doesn't re-scan the arrays per cell.
-    // The four-band probability roll (40/20/20/20) below is UNCHANGED --
-    // only the *which neighbor* step inside the Expand branch is replaced.
-    const cellsById: { [id: number]: MapCell } = {};
-    for (const c of cells) cellsById[c.id] = c;
-    const corpsById: { [id: string]: Corporation } = {};
-    for (const c of corps) corpsById[c.id] = c;
-
-    // Each AI corp reviews its controlled cells and makes a choice
-    for (const corp of corps) {
-      if (corp.id === PLAYER_CORP_ID) continue; // Skip player
-
-      const aiStats = getHouseStats(corp.cultureId);
-      const ownedCells = cells.filter(c => c.ownerId === corp.id);
-      if (ownedCells.length === 0) continue; // Wiped out
-
-      for (const cell of ownedCells) {
-        const totalUnits = cell.units.circle + cell.units.square + cell.units.triangle;
-
-        // Random AI choice weights:
-        // 40% chance Expand (if they have units)
-        // 20% chance Reinforce (if treasury >= $30k)
-        // 20% chance Fortify (if treasury >= fortifyCost and fortification < fortifyMax)
-        // 20% chance Idle/Hold
-        const roll = Math.random();
-
-        if (roll < 0.40 && totalUnits >= 2) {
-          // AI Expand
-          // Phase 3: wheel-aware weighted target selection (was uniform
-          // random). Wheel-opposite-owned neighbors weighted 3, wheel-
-          // adjacent-owned 1.5, baseline (neutral/non-rival/own) 1.
-          // Weighted random, not deterministic -- avoids every AI House
-          // behaving identically predictable every playthrough.
-          const targetNeighId = selectWeightedNeighbor(corp, cell, cellsById, corpsById);
-          if (targetNeighId === null) continue; // no neighbors, skip this cell
-          const targetCell = cells.find(c => c.id === targetNeighId)!;
-
-          // AI sends 1 or 2 units of random types, + bonus units from House stats
-          const maxSend = 2 + aiStats.expandBonusUnits;
-          const sendUnits: UnitGroup = { circle: 0, square: 0, triangle: 0 };
-          let unitsAdded = 0;
-
-          const unitTypes: UnitType[] = ['circle', 'square', 'triangle'];
-          for (const type of unitTypes) {
-            if (cell.units[type] > 0 && unitsAdded < maxSend) {
-              sendUnits[type] = 1;
-              cell.units[type]--;
-              unitsAdded++;
-            }
-          }
-
-          if (unitsAdded > 0) {
-            transits.push({
-              id: `transit-ai-${corp.id}-${cell.id}-${targetNeighId}-${Date.now()}`,
-              corpId: corp.id,
-              originCellId: cell.id,
-              targetCellId: targetNeighId,
-              units: sendUnits,
-              totalDays: aiStats.transitDays,
-              daysLeft: aiStats.transitDays
-            });
-            
-            // AI also marks target cell as scouted
-            corp.scoutedCells[targetNeighId] = true;
-            targetCell.neighbors.forEach(nid => {
-              corp.scoutedCells[nid] = true;
-            });
-          }
-        } else if (roll < 0.60 && corp.treasury >= 30000) {
-          // AI Reinforce
-          corp.treasury -= 30000;
-          // Queue reinforcement to spawn at end of week
-          const type: UnitType = ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)] as UnitType;
-          cell.recruitmentQueue.push({ type, weeksLeft: 1 });
-        } else if (roll < 0.80 && corp.treasury >= aiStats.fortifyCost && cell.fortification < aiStats.fortifyMax) {
-          // AI Fortify
-          corp.treasury -= aiStats.fortifyCost;
-          // Increment fortification at end of week
-          cell.fortification = Math.min(aiStats.fortifyMax, cell.fortification + 1);
-        } else {
-          // AI Idle
-          // Maintain garrison, progress passive production
-        }
-      }
-    }
   };
 
   // Main advancement of time
@@ -1060,7 +972,7 @@ export default function App({ session }: GameRendererProps) {
       const playerOwnedIds = updatedCells.filter(c => c.ownerId === PLAYER_CORP_ID).map(c => c.id);
       const candidates = scoutedIds.filter(id => !playerOwnedIds.includes(id));
       if (candidates.length > 0) {
-        const targetToReset = candidates[Math.floor(Math.random() * candidates.length)];
+        const targetToReset = pickOne(defaultContext.rng, candidates);
         delete updatedCorps[playerCorpIndex].scoutedCells[targetToReset];
       }
     }
@@ -1433,38 +1345,7 @@ export default function App({ session }: GameRendererProps) {
               className="flex-1 p-6 flex flex-col justify-center items-center overflow-y-auto"
             >
               <CombatResolutionView
-                combats={gameState.activeCombatsToResolve.map(cellId => {
-                  // Retrieve precalculated combat logs
-                  // If not precalculated, we can run resolve again or look it up
-                  // We already pushed them into gameState.currentCombatInView or active combats
-                  const cell = gameState.cells.find(c => c.id === cellId)!;
-                  
-                  const combatInitialForces: { [corpId: string]: UnitGroup } = {};
-                  if (cell.ownerId) {
-                    combatInitialForces[cell.ownerId] = { ...cell.units };
-                  }
-                  const cellInvaders = gameState.transits.filter(t => t.targetCellId === cellId && t.daysLeft === 0);
-                  cellInvaders.forEach(inv => {
-                    if (!combatInitialForces[inv.corpId]) {
-                      combatInitialForces[inv.corpId] = { circle: 0, square: 0, triangle: 0 };
-                    }
-                    combatInitialForces[inv.corpId].circle += inv.units.circle;
-                    combatInitialForces[inv.corpId].square += inv.units.square;
-                    combatInitialForces[inv.corpId].triangle += inv.units.triangle;
-                  });
-
-                  const corpNames: { [corpId: string]: string } = {};
-                  gameState.corporations.forEach(c => { corpNames[c.id] = c.name; });
-
-                  return resolveCellCombat(
-                    cellId,
-                    cell.name,
-                    combatInitialForces,
-                    cell.ownerId,
-                    cell.fortification,
-                    corpNames
-                  );
-                })}
+                combats={Object.values(resolvePendingCombats(gameState))}
                 corporations={gameState.corporations}
                 date={gameState.date}
                 onConcludeCombats={handleConcludeCombats}
