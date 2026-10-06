@@ -20,7 +20,7 @@ What this run builds (first-pass, deliberately small, in the same shape as Fries
 
 Facts you need (verified; do not re-derive):
 - `createOrder(wantsFries?: boolean)` in `examples/7-days-to-fry/src/demandCurve.ts` is called with no argument in many tests; the new second parameter defaults to "no drinks", so those calls are unchanged.
-- The example's own suite (`tests/lineSimulation.test.ts`, 4,899 lines) was run by the controller with a temporary `node_modules` junction: baseline `Tests  241 passed (241)`, and `241 passed` after these edits including the three rewritten anchors. A Devin run cannot run it, so the three rewrites below are exact text.
+- The example's own suite (`examples/7-days-to-fry/tests/lineSimulation.test.ts`, 4,899 lines) was run by the controller with a temporary `node_modules` junction: baseline `Tests  241 passed (241)`, and `241 passed` after these edits including the three rewritten anchors. A Devin run cannot run it, so the three rewrites below are exact text.
 - A ts test that imports the example's `sessionLoop`/`nightShop` makes `cd ts && npx tsc --noEmit` type-check the example under strict `noUnusedLocals`, which flags 12 unused declarations in 8 files; step 5 removes them (no behaviour change). Baseline `tsc` prints 4 errors, all `Cannot find module '.../game-metadata.json'`.
 - The Tier A directive (`Seven_Days_To_Fry_Tier_A_Honest_Card_And_Restart_Directive.md`) edits `NightScreen.tsx` and `App.tsx` (the Restart button, `onRestart` prop); this run edits the same files in other places, so merge that one first.
 
@@ -30,7 +30,7 @@ Facts you need (verified; do not re-derive):
 2. Orders and revenue: `examples/7-days-to-fry/src/demandCurve.ts`, `examples/7-days-to-fry/src/execution/stationExecution.ts`.
 3. Shop: `examples/7-days-to-fry/src/nightShop.ts`, `examples/7-days-to-fry/src/components/NightScreen.tsx`, `examples/7-days-to-fry/src/App.tsx`.
 4. Tests: rewrite anchors 162, 164, 166 in `examples/7-days-to-fry/tests/lineSimulation.test.ts`; new `<!-- new: ts/tests/test_seven_days_shop.ts -->`.
-5. Unused declarations in `customers.ts`, `execution/stationExecution.ts`, `nightShop.ts`, `scoring/taskSelection.ts`, `scoring/utilityScoring.ts`, `sessionLoop.ts`, `steering.ts`, `wasteEconomy.ts` (all under `examples/7-days-to-fry/src/`).
+5. Unused declarations in `customers.ts`, `examples/7-days-to-fry/src/execution/stationExecution.ts`, `nightShop.ts`, `examples/7-days-to-fry/src/scoring/taskSelection.ts`, `examples/7-days-to-fry/src/scoring/utilityScoring.ts`, `sessionLoop.ts`, `steering.ts`, `wasteEconomy.ts` (all under `examples/7-days-to-fry/src/`).
 
 ## 3. The work
 
@@ -771,7 +771,7 @@ describe('test_seven_days_shop', () => {
 - Do not change the sim (steering, utility scoring, station tasks, stock, waste, demand curve numbers), the worker AI, `KitchenCanvas`, or the pre-existing type error at `App.tsx` `KitchenCanvas` props. No new station, canvas art or map change; no Tier 2 / Day 8 continuation (victory stays terminal).
 - Do not change Fries behaviour beyond the two unlock-day constants; do not touch `CASH_PER_CLEAN_ORDER`'s value or any price other than the new add-ons.
 - Do not edit anchors other than 162, 164 and 166. Do not run the example's own test runner (a worktree has no `node_modules` for it).
-- No saving (a separate directive), no Lua, no engine changes, no deploys or rebuilds, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No saving (a separate directive), no Lua, no engine changes, no deploys or rebuilds, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -829,7 +829,7 @@ Then say plainly what was not run (the example's own suite, its type check, a pl
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

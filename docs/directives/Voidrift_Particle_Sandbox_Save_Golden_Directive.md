@@ -4,7 +4,7 @@
 **Queue-neutral:** this file carries no Queue block; the controller queues it. Decided by Robert's 2026-10-04 approval of all recommendations (`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, Phase 2 save half and Phase 3).
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
-`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx`,
+`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx` <!-- new: ts/src/games/voidrift_particle_sandbox/TitleGate.tsx -->,
 `ts/src/games/voidrift_particle_sandbox/simulation/grid.ts` (lines 1-60 and `clearAll`), `ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts` (lines 23-45 and 168-250),
 `ts/src/engine/shared/persistence.ts`, `ts/src/engine/shared/seededRandom.ts`.
 
@@ -23,7 +23,7 @@ Design facts (do not change them):
 ## 2. Scope
 
 1. New modules `<!-- new: ts/src/games/voidrift_particle_sandbox/simulation/sandboxSave.ts -->`, `<!-- new: ts/src/games/voidrift_particle_sandbox/simulation/starterFactory.ts -->`, `<!-- new: ts/src/games/voidrift_particle_sandbox/components/VictoryModal.tsx -->`.
-2. `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `simulation/buildingManager.ts` (one keyword).
+2. `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts` (one keyword).
 3. New test `<!-- new: ts/tests/test_voidrift_particle_sandbox_save.ts -->`.
 
 ## 3. The work
@@ -544,7 +544,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 

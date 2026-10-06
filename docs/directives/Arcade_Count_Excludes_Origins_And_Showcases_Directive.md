@@ -16,7 +16,7 @@ Measured on origin/main `afb1cefe` by running the exporter: `Wrote ... (36 games
 Design (already prototyped, see Verification): add `counts.playable` = published games that are not Origin entries (`supersededBy` is set) and not tagged `showcase`. `published` keeps its meaning (the site's D0.4 reads it). The showcase marker is the existing `tags` field plus the tag `showcase`, so no type in `ts/src/engine/` changes.
 
 Baseline, real: `cd ts && npx vitest run test_arcade_manifest_counts.ts test_arcade_manifest.ts test_registry_export.ts` gives `Test Files  3 passed (3)` / `Tests  12 passed (12)`.
-Do not use `npx vitest run test_arcade` (a prefix filter): 6 other arcade test files already fail on origin/main because the generated `src/games/game-metadata.json` is missing; that is not this run's problem.
+Do not use `npx vitest run test_arcade` (a prefix filter): 6 other arcade test files already fail on origin/main because the generated game-metadata JSON (under `ts/src/games/`) is missing; that is not this run's problem.
 
 ## 2. Scope
 
@@ -153,7 +153,7 @@ All four files are CRLF; keep their endings. The diffs below are the exact proto
 - Do not change any game's `status`, `supersededBy`, `arcadeSection` or label, and do not add the `showcase` tag to any game except House of Kings: Collab. Do not hide or delete any game or URL.
 - Do not commit `ts/src/games/arcade-manifest.json` (gitignored) and do not run the exporter (the sandbox refuses it; the controller runs it).
 - Do not touch the site repo or `data/arcade.json`; the site count test (D0.4) is a separate directive.
-- No Lua, no deploys, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No Lua, no deploys, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -172,7 +172,7 @@ cd ts && npx tsc --noEmit
 ```
 Real result from the prototype: only the 4 pre-existing `Cannot find module '.../game-metadata.json'` errors; none mentions `counts` or `house_of_kings_collab`.
 
-Controller step, not this run (the sandbox refuses it): `cd ts && npx vite-node tools/export-arcade-manifest.ts`. Real last line from the prototype: `Wrote ...arcade-manifest.json (36 games; published 33; playable 27; {"beta":1,"dev":15,"external":14,"stable":3,"tool":3})`. After merge the controller reruns it and tells the site directive (D0.4) that `playable` exists.
+Controller step, not this run (the sandbox refuses it): run `ts/tools/export-arcade-manifest.ts` with `npx vite-node` from the `ts` directory. Real last line from the prototype: `Wrote ...arcade-manifest.json (36 games; published 33; playable 27; {"beta":1,"dev":15,"external":14,"stable":3,"tool":3})`. After merge the controller reruns it and tells the site directive (D0.4) that `playable` exists.
 
 ## 6. Rules for this run
 
@@ -210,7 +210,7 @@ Then say plainly that the exporter was not run (the controller does it) and that
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

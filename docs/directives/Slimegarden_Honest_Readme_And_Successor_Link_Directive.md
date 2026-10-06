@@ -95,7 +95,7 @@ describe('slimegarden honesty', () => {
 
 - Do not change any gameplay code, the Reset button, the terminal tone or other copy inside the game (only the one added link).
 - Do not change `status`, `source`, `supersededBy`, `embedUrl`, `tags`, `label` or `gameId` in the config (registry parity tests key on them).
-- Do not touch `examples/slimeworld/`, `intake/slimegarden/`, `package.json`, `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`.
+- Do not touch `examples/slimeworld/`, `intake/slimegarden/`, `package.json`, `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`.
 - Do not run any build or install in `examples/`; do not deploy.
 
 ## 5. Verification
@@ -152,7 +152,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding any embed or dist; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`; Lua additions; engine changes under `ts/src/engine/`; any player-layer or cloud-save work.
+- Committing to or pushing main; pushing at all; deploying or rebuilding any embed or dist; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`; Lua additions; engine changes under `ts/src/engine/`; any player-layer or cloud-save work.
 
 ## Required from User
 

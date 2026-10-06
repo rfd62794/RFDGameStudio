@@ -66,7 +66,7 @@ export function clearMbbSave(): void {
 ```
 
 **Step 2: `App.tsx`.** Six edits:
-1. Directly above `import './styles.css';` add `import { loadMbbSave, writeMbbSave, clearMbbSave } from './persist';`.
+1. Directly above the line that imports `ts/src/games/mutant_battle_ball/styles.css` add `import { loadMbbSave, writeMbbSave, clearMbbSave } from './persist';`.
 2. Rename the existing `function buildInitialState(session: unknown): MBBGameState {` to `function buildFreshState(session: unknown): MBBGameState {` (body unchanged).
 3. Directly above `export default function App({ session }: GameRendererProps) {` add:
 ```tsx
@@ -216,7 +216,7 @@ Findings first: what is saved (iron, roster with parts, parts inventory, current
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`; adding Lua code or changing the engine; any player-layer or save-to-cloud work.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`; adding Lua code or changing the engine; any player-layer or save-to-cloud work.
 
 ## Required from User
 

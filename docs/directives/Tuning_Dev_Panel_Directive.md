@@ -10,9 +10,9 @@ Robert tunes by feel. He needs sliders on the running game and a way to bring th
 ## 2. Scope
 
 1. New `ts/src/engine/tuning/exportFormat.ts` (pure).
-2. New `ts/src/components/TuningPanel.tsx` (default export, lazy-loaded) and `ts/src/components/TuningPanel.css`.
+2. New `ts/src/components/TuningPanel.tsx` (default export, lazy-loaded) and `ts/src/components/TuningPanel.css` <!-- new: ts/src/components/TuningPanel.css -->.
 3. Edit `ts/src/components/GameShell.tsx`: mount the panel only when `?dev=1`.
-4. New tests `ts/tests/test_tuning_export.ts` and `ts/tests/test_tuning_panel.tsx`.
+4. New tests `ts/tests/test_tuning_export.ts` <!-- new: ts/tests/test_tuning_export.ts --> and `ts/tests/test_tuning_panel.tsx` <!-- new: ts/tests/test_tuning_panel.tsx -->.
 
 ## 3. The work
 

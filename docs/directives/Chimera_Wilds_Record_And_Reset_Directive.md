@@ -233,7 +233,7 @@ Real baseline and prototype result are identical: 4 errors, all `Cannot find mod
 
 ## 7. Completion criteria
 
-- [ ] `utils/record.ts` and the test file exist with the content above; `App.tsx` matches the diff and nothing else changed in it.
+- [ ] `ts/src/games/chimera_wilds/utils/record.ts` and the test file exist with the content above; `App.tsx` matches the diff and nothing else changed in it.
 - [ ] `cd ts && npx vitest run test_chimera_wilds_record.ts test_chimera_paper_doll_port.ts` shows 2 files, 45 tests passed (real tail pasted).
 - [ ] `cd ts && npx tsc --noEmit` shows no new error (real tail pasted).
 - [ ] No file outside the three in Scope changed.
@@ -251,7 +251,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding any embed or dist; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`; Lua additions; engine changes under `ts/src/engine/`; any player-layer or cloud-save work.
+- Committing to or pushing main; pushing at all; deploying or rebuilding any embed or dist; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`; Lua additions; engine changes under `ts/src/engine/`; any player-layer or cloud-save work.
 
 ## Required from User
 
