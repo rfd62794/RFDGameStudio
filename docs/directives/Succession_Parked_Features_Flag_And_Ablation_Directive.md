@@ -476,4 +476,5 @@ none.
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-05 23:40 · devin-overseer (delegated) · Queued → Approved — lint override: tests/fixtures/demo_lists_snapshot.json cite is inside the directive's Forbidden Actions boilerplate (a do-not-edit list), not a work input
 - 2026-10-05 23:57 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-parked-features-flag-a-57aff9; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 23:57 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-parked-features-flag-a-57aff9; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
