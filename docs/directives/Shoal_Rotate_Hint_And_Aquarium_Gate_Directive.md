@@ -263,7 +263,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3 |
 | Base branch | - |
@@ -277,4 +277,5 @@ none.
 - 2026-10-06 00:38 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-06 00:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-06 00:52 · devin · In progress → Review — RotateHint card + shouldShowRotateHint added (5 files, commit d84e3bac); vitest 6 files/54 tests pass, tsc clean, pushed [origin] spent: devin 11 min est. n/a
+- 2026-10-06 18:49 · robert-claude-laptop · Review → Done — note: branch merged into main (ancestor check, inventory 2026-10-06); laptop Claude
 <!-- queue:end -->
