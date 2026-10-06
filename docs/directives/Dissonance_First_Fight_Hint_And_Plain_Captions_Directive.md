@@ -265,7 +265,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-dissonance-first-fight-hint-and-p-c0d6c5 |
 | Base branch | - |
@@ -279,4 +279,5 @@ none.
 - 2026-10-05 21:30 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-first-fight-hint-and-p-c0d6c5; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 21:30 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-first-fight-hint-and-p-c0d6c5; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 21:37 · devin · In progress → Review — All five scope files already on main: work committed by Robert in d3ed5a0b, merged via PR #178 (fix/dissonance-first-hint) on 2026-10-04; branch carries only an empty verification commit. Verified in worktree: vitest run test_dissonance -> Test Files 8 passed | 1 skipped (9), Tests 142 passed | 2 skipped (144) incl. 4 new plain_words tests; npx tsc --noEmit clean exit 0; Python 3.12.12; git status clean, only the five scope files differ from pre-work state. Controller finish still owed: Playwright cold-load of Dissonance page, timing load->first played card (<=60s, standard B1), screenshots of first fight at 1280 and 390 px with hint visible. Recommended: mark Done (nothing left to merge). [origin] spent: devin 4 min est. n/a
+- 2026-10-05 21:42 · robert-claude-laptop · Review → Superseded — superseded_by: commit:d3ed5a0b - note: work landed on main d3ed5a0b 2026-10-04; run 13032 re-verified 5 scope files, vitest 142p/2s, tsc clean; Playwright cold-load timing not gating
 <!-- queue:end -->
