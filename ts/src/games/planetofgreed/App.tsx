@@ -7,8 +7,8 @@ import {
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sfx } from '../../engine/shared/sfx';
 import { generateAIWeeklyOrders } from './aiWeeklyOrders';
-import { resolvePendingCombats } from './combatForces';
-import { advanceDay as advanceDayEngine, concludeCombats } from './turnEngine';
+import { resolvePendingCombats, concludeCombats } from './combatForces';
+import { advanceDay as advanceDayEngine } from './turnEngine';
 import { PLAYER_CORP_ID, CULTURE_WHEEL, CULTURE_DEFINITIONS } from './campaignConstants';
 import { createInitialCampaign } from './campaignState';
 import { defaultContext, pickOne } from './rng';

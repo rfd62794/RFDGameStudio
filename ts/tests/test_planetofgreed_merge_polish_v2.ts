@@ -16,6 +16,7 @@ const appSource = [
   readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'), 'utf-8'),
   readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/campaignState.ts'), 'utf-8'),
   readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/turnEngine.ts'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/combatForces.ts'), 'utf-8'),
 ].join('\n');
 const walkthroughSource = readFileSync(
   resolve(repoRoot, 'ts/src/games/planetofgreed/components/GuidedWalkthrough.tsx'),
