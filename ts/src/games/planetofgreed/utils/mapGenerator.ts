@@ -65,7 +65,8 @@ function clipPolygon(poly: Point[], pointOnLine: Point, normal: Point): Point[] 
 
 // Generate mathematically perfect Voronoi cells that tile the map.
 // `rng` is injectable so a campaign can be replayed from a seed
-// (rng.ts / EngineContext); existing callers default to Math.random.
+// (rng.ts / EngineContext); existing callers default to Math.random, read
+// at call time so the balance harness's Math.random monkey-patch still works.
 export function generateVoronoiMap(width: number, height: number, cellCount: number, corps: Corporation[], rng: () => number = Math.random): MapCell[] {
   // 1. Generate 36 seeds on a 6x6 grid with jitter
   const cols = Math.ceil(Math.sqrt(cellCount)); // 6
