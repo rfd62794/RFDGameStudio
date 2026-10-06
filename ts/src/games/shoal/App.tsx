@@ -15,6 +15,8 @@ import ReefPrimer from './components/ReefPrimer';
 import NewReefControl from './components/NewReefControl';
 import { sound } from './utils/sound';
 import { detectReefEvents } from './utils/reefEvents';
+import { buildReefReport } from './utils/reefReport';
+import type { ReefEndSnapshot } from './utils/reefReport';
 import { clientToCanvas, clientToWorld } from './utils/pointerWorld';
 import { createShoalSimulation } from './simulation/shoalSimulation';
 import {
@@ -154,12 +156,7 @@ export default function App({ session }: GameRendererProps) {
     seed: 0,
   });
   const [reefEnded, setReefEnded] = useState(false);
-  const [endSnapshot, setEndSnapshot] = useState<{
-    seed: number;
-    ticks: number;
-    peakFish: number;
-    peakSharks: number;
-  } | null>(null);
+  const [endSnapshot, setEndSnapshot] = useState<ReefEndSnapshot | null>(null);
   const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
 
   // First-run reef primer: fires only on a genuinely first start, via the
@@ -168,12 +165,13 @@ export default function App({ session }: GameRendererProps) {
     useOnboardingGate({ mode: 'boolean', initialShow: false });
 
   const lifeSeenRef = useRef(false);
-  const peaksRef = useRef({ fish: 0, sharks: 0 });
+  const peaksRef = useRef({ fish: 0, sharks: 0, algae: 0 });
 
   const handleStats = useCallback((s: Stats, tickCount: number) => {
     setStats(s);
     if (s.fish_count > peaksRef.current.fish) peaksRef.current.fish = s.fish_count;
     if (s.shark_count > peaksRef.current.sharks) peaksRef.current.sharks = s.shark_count;
+    if (s.algae_count > peaksRef.current.algae) peaksRef.current.algae = s.algae_count;
     if (s.fish_count + s.shark_count > 0) {
       lifeSeenRef.current = true;
     } else if (lifeSeenRef.current) {
@@ -183,6 +181,8 @@ export default function App({ session }: GameRendererProps) {
         ticks: tickCount,
         peakFish: peaksRef.current.fish,
         peakSharks: peaksRef.current.sharks,
+        peakAlgae: peaksRef.current.algae,
+        endAlgae: s.algae_count,
       });
       setReefEnded(true);
       notifyGameplayStop();
@@ -191,7 +191,7 @@ export default function App({ session }: GameRendererProps) {
 
   const resetReefTracking = () => {
     lifeSeenRef.current = false;
-    peaksRef.current = { fish: 0, sharks: 0 };
+    peaksRef.current = { fish: 0, sharks: 0, algae: 0 };
     setReefEnded(false);
     setEndSnapshot(null);
   };
@@ -288,6 +288,7 @@ export default function App({ session }: GameRendererProps) {
   }
 
   if (reefEnded && endSnapshot) {
+    const report = buildReefReport(endSnapshot);
     return (
       <GameShell
         gameLabel="SHOAL"
@@ -306,13 +307,8 @@ export default function App({ session }: GameRendererProps) {
         <EndStateScreen
           won={false}
           headline="The Reef Went Silent"
-          flavorLine="No fish, no sharks — just empty water and the algae waiting for whatever you seed next."
-          stats={[
-            { label: 'Ticks Survived', value: endSnapshot.ticks },
-            { label: 'Peak Fish', value: endSnapshot.peakFish },
-            { label: 'Peak Sharks', value: endSnapshot.peakSharks },
-            { label: 'Seed', value: endSnapshot.seed },
-          ]}
+          flavorLine={`No fish, no sharks left. ${report.nudge}`}
+          stats={report.stats}
           onRestart={handleReplay}
           restartLabel="Seed a New Reef"
         />
