@@ -18,7 +18,7 @@ Measured on origin/main `0fa83acc` (2026-10-04): `uv run python --version` is `P
 5. New `ts/tools/playtest/pageProbes.ts` (in-page collectors; not unit-tested).
 6. New `ts/tools/playtest/entries.ts` (the 5 manifest entries).
 7. New `ts/tools/playtest-smoke.ts` (the runner; not run by you).
-8. New test `ts/tests/test_playtest_smoke_manifest.ts`.
+8. New test `ts/tests/test_playtest_smoke_manifest.ts` <!-- new: ts/tests/test_playtest_smoke_manifest.ts -->.
 
 ## 3. The work
 
@@ -81,7 +81,7 @@ export function classifyVerdict(findings: SmokeFinding[]): Verdict
 | `slimeworld` | arcade `slimeworld` | `[]` | `[[click text 'New Campaign' expect ['CONFIRM HARD RESET', 'CANCEL']]]` | `['New Campaign']` | `two-step hard reset` |
 | `kingmaker_squads` | embed slug `kingmaker_squads` | `[]` | `[[click text 'Restart' expect ['Confirm restart?']]]` | `['Restart']` | `no native confirm dialog` |
 
-**Step 7: `ts/tools/playtest-smoke.ts`** (the runner; you write it, you do NOT run it). Header comment with the usage lines `cd ts && npx vite-node tools/playtest-smoke.ts -- --base http://127.0.0.1:5199 --demos all` and `... --target live --base https://games.rfditservices.com --demos shoal`. Behaviour:
+**Step 7: `ts/tools/playtest-smoke.ts`** <!-- new: ts/tools/playtest-smoke.ts --> <!-- new: tools/playtest-smoke.ts --> (the runner; you write it, you do NOT run it). Header comment with the usage lines `cd ts && npx vite-node tools/playtest-smoke.ts -- --base http://127.0.0.1:5199 --demos all` and `... --target live --base https://games.rfditservices.com --demos shoal`. Behaviour:
 1. Parse args (`parseArgs`); on errors print them and `process.exit(2)`. Validate `SMOKE_ENTRIES` (`validateEntries`); a problem exits 2. Filter by `--demos`.
 2. Load the library WITHOUT a literal import: `const lib = 'playwright'; const pw: any = await import(lib).catch(() => null);` and if it is null print `playwright is not installed: run "cd ts && npm install -D playwright" once, then "npx playwright install chromium"` and exit 3.
 3. One Chromium launch. For each demo and each viewport create a context: desktop `{ viewport: { width: 1280, height: 720 } }`, phone `{ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }`. Attach `page.on('console')` (record errors always; warnings unless `isAllowedConsole(type, text)`), `page.on('pageerror')` (hard `uncaught-exception`), `page.on('requestfailed')` and `page.on('response')` with status >= 400 (hard `failed-request`, ignore `favicon.ico`). Start tracing with `context.tracing.start({ screenshots: true, snapshots: true })`; keep the trace zip (`<out>/playtest-<date>/<id>-<viewport>.zip`) only when that demo/viewport has a finding, else `tracing.stop()` without a path.

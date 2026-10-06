@@ -4,7 +4,7 @@
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
 `docs/demos/7_days_to_fry/DIRECTION.md` (Replan item 3), `docs/superpowers/specs/2026-10-03-demo-polish-standard.md` (B2),
-`examples/7-days-to-fry/src/App.tsx` (lines 1-60 and 85-125), `examples/7-days-to-fry/src/components/NewGameScreen.tsx` (lines 1-20 and 50-70), `examples/7-days-to-fry/src/components/RestartButton.tsx`.
+`examples/7-days-to-fry/src/App.tsx` (lines 1-60 and 85-125), `examples/7-days-to-fry/src/components/NewGameScreen.tsx` (lines 1-20 and 50-70), `examples/7-days-to-fry/src/components/RestartButton.tsx` <!-- new: examples/7-days-to-fry/src/components/RestartButton.tsx -->.
 
 ## 1. Why this exists
 
@@ -15,7 +15,7 @@ Mid-day progress is not saved (the day restarts from its Night); the start-scree
 
 Facts you need (verified; do not re-derive):
 - `App.tsx` keeps `screen: 'new_game' | 'playing'` and `kitchenState: KitchenState | null`; the start screen is `NewGameScreen` (props today: `onStartGame`); `handleRestartGame` returns to it; `GameOverScreen`/`VictoryScreen` call `handleRestartGame`.
-- The Tier A directive added `components/RestartButton.tsx` (two-step confirm); this run gives it three optional text props and reuses it for "Delete saved week".
+- The Tier A directive added `examples/7-days-to-fry/src/components/RestartButton.tsx` (two-step confirm); this run gives it three optional text props and reuses it for "Delete saved week".
 - This run edits files as the Coffee and Soda directive leaves them (it changes the `NightScreen` and `nightShop` import lines in `App.tsx` and adds `ShopUpgradeType`); merge the two earlier 7 Days to Fry directives first.
 - Baseline, real: `cd ts && npx tsc --noEmit` prints 4 errors, all `Cannot find module '.../game-metadata.json'`.
 
@@ -402,7 +402,7 @@ describe('test_seven_days_save', () => {
 - Do not save during a day, do not save more than once per Night state change, and do not use `sessionStorage`, `indexedDB`, cookies or the network. One `localStorage` key, `seven_days_to_fry_save_v1`. No cloud saves, no accounts, no player layer.
 - Do not change the simulation, `sessionLoop.ts`, the shop, balance, or the Design.md week. Do not change the existing `RestartButton` default texts or its three existing uses.
 - Do not edit `lineSimulation.test.ts` or the other directives' files beyond the three diffs above. Do not run the example's own test runner (a worktree has no `node_modules` for it).
-- No Lua, no engine changes, no deploys or rebuilds, no protected repos. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No Lua, no engine changes, no deploys or rebuilds, no protected repos. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -462,7 +462,7 @@ Then say plainly what was not run (the example's own suite and type check, a rel
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

@@ -179,7 +179,7 @@ describe('test_planetforge_trim', () => {
 
 - Do not touch `examples/planetforge/src/engine/slimeEngine.ts`, `examples/planetforge/src/engine/slimeEngine.test.ts`, `examples/planetforge/src/engine/tests.ts`, `TestRunnerModal.tsx` (the modal stays, it is only hidden), the ring visualizer or the inspector. No gameplay change, no goal or win state (a separate directive), no rename of the "SlimeWorld" title (the first-step directive owns player copy).
 - Do not edit `PlanetForge_Phase2b_Correction_Directive.md` or any queue row; the controller closes the Phase 2b row as Superseded.
-- Do not edit `ts/src/games/planetforge/config.ts`, `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- Do not edit `ts/src/games/planetforge/config.ts`, `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 - No Lua, no engine changes, no deploys or rebuilds, no protected repos, no player layer or cloud saves.
 
 ## 5. Verification
@@ -242,7 +242,7 @@ Then say plainly what was not run (example type check, rebuild, screenshots) and
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

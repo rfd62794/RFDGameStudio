@@ -10,11 +10,11 @@
 ## 2. Scope
 
 1. New `ts/src/games/dissonance/playtest.ts`: `createDissonanceAdapter()` and `dissonanceSanity` (an `ExtraCheck`).
-2. New test `ts/tests/test_playtest_dissonance.ts`.
+2. New test `ts/tests/test_playtest_dissonance.ts` <!-- new: ts/tests/test_playtest_dissonance.ts -->.
 
 ## 3. The work
 
-**Step 1: `ts/src/games/dissonance/playtest.ts`** (first line `// new: ts/src/games/dissonance/playtest.ts`). Copy, do not import, from `test_dissonance_bot_run.ts`: the `lua` helper and the `step` function (the `switch (run.status)` over `not_started`, `combat`, `rest_craft`, `treasure`, `store`, `anomaly`), changing only `step`'s signature so the combat card comes from the action: `step(session, data, run, card)` and `resolve_combat_turn` is called with `card` instead of `run.deckState.hand[0]`. Everything else in `step` stays byte-for-byte the same Lua calls in the same order.
+**Step 1: `ts/src/games/dissonance/playtest.ts`** <!-- new: ts/src/games/dissonance/playtest.ts --> (first line `// new: ts/src/games/dissonance/playtest.ts`). Copy, do not import, from `test_dissonance_bot_run.ts`: the `lua` helper and the `step` function (the `switch (run.status)` over `not_started`, `combat`, `rest_craft`, `treasure`, `store`, `anomaly`), changing only `step`'s signature so the combat card comes from the action: `step(session, data, run, card)` and `resolve_combat_turn` is called with `card` instead of `run.deckState.hand[0]`. Everything else in `step` stays byte-for-byte the same Lua calls in the same order.
 
 ```ts
 export type DissonanceAction = { kind: 'play'; card: DeckCard } | { kind: 'advance' };

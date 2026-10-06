@@ -10,11 +10,11 @@
 ## 2. Scope
 
 1. New `ts/src/games/scrapcrawl/playtest.ts`: `createScrapcrawlAdapter()`, `scrapcrawlPolicy(useCraft: boolean)`.
-2. New test `ts/tests/test_playtest_scrapcrawl.ts`.
+2. New test `ts/tests/test_playtest_scrapcrawl.ts` <!-- new: ts/tests/test_playtest_scrapcrawl.ts -->.
 
 ## 3. The work
 
-**Step 1: `ts/src/games/scrapcrawl/playtest.ts`** (first line `// new: ts/src/games/scrapcrawl/playtest.ts`). Copy, do not import, the private `seeded(seed)` function and the `CHAIN` constant (`['home_base', 'scrap_pit', 'vent_stack', 'chemical_leak', 'furnace_core']`) from `test_scrapcrawl_sim_runs.ts`. Import `newRun`, `applyFight`, `applyMove`, `RunOutcome` and the run-progress type from `../scrapcrawl/utils/runEnd`, and `loadGame`, `call` from `../../engine/runtime`.
+**Step 1: `ts/src/games/scrapcrawl/playtest.ts`** <!-- new: ts/src/games/scrapcrawl/playtest.ts --> (first line `// new: ts/src/games/scrapcrawl/playtest.ts`). Copy, do not import, the private `seeded(seed)` function and the `CHAIN` constant (`['home_base', 'scrap_pit', 'vent_stack', 'chemical_leak', 'furnace_core']`) from `test_scrapcrawl_sim_runs.ts`. Import `newRun`, `applyFight`, `applyMove`, `RunOutcome` and the run-progress type from `../scrapcrawl/utils/runEnd`, and `loadGame`, `call` from `../../engine/runtime`.
 
 ```ts
 export type ScrapAction = { kind: 'move'; to: string } | { kind: 'fight' } | { kind: 'craft' };

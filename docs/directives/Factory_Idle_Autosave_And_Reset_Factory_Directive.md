@@ -17,9 +17,9 @@ labelled "Reset factory" with a two-step confirm (polish standard B2 and A3). Me
 
 Facts you need (verified by reading the files; do not re-derive):
 - `App.tsx` line 15: `const [state, dispatch] = useReducer(gameReducer, undefined, getInitialGameState);`
-- `getInitialGameState()` (`engine/gameReducer.ts`) starts with `funds: 350`, `isRunning: true` and a starter layout already placed on sector A.
+- `getInitialGameState()` (`examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts`) starts with `funds: 350`, `isRunning: true` and a starter layout already placed on sector A.
 - `state.grid` and `state.items` are the live copy of the ACTIVE sector; `state.sectors[activeSectorId].grid` is stale until a sector switch (`SWITCH_SECTOR`, reducer line 185). So saving must fold `grid`/`items` back into `sectors` first.
-- Three declarations in `engine/gameReducer.ts` are unused (`TechUpgrade` import, `playConveyorTick` import, `const isFastBelts = ...`). Because the new test imports this file, `cd ts && npx tsc --noEmit` would otherwise gain 3 new errors. Baseline `tsc` on origin/main shows 4 errors, all `Cannot find module '.../game-metadata.json'` (a generated file, not part of this run). Step 1 removes the three unused declarations.
+- Three declarations in `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` are unused (`TechUpgrade` import, `playConveyorTick` import, `const isFastBelts = ...`). Because the new test imports this file, `cd ts && npx tsc --noEmit` would otherwise gain 3 new errors. Baseline `tsc` on origin/main shows 4 errors, all `Cannot find module '.../game-metadata.json'` (a generated file, not part of this run). Step 1 removes the three unused declarations.
 
 ## 2. Scope
 
@@ -33,10 +33,10 @@ Facts you need (verified by reading the files; do not re-derive):
 
 New files may use LF or CRLF; the existing files are CRLF, so use CRLF for the new ones too.
 
-**Step 1: remove the unused declarations in `engine/gameReducer.ts`.** In the first import, delete the line `  TechUpgrade,` (between `  CustomerOrder,` and `  SectorData`). In the audio import, delete the line `  playConveyorTick, `. Delete the line
+**Step 1: remove the unused declarations in `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts`.** In the first import, delete the line `  TechUpgrade,` (between `  CustomerOrder,` and `  SectorData`). In the audio import, delete the line `  playConveyorTick, `. Delete the line
 `      const isFastBelts = state.upgrades.some(u => u.id === 'tech_fast_belts' && u.purchased);` (in `case 'TICK'`, directly after the `isPowerMk2` line). Change nothing else.
 
-**Step 2: `engine/persistence.ts`.** Create with exactly:
+**Step 2: `examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts`.** Create with exactly:
 
 ```ts
 // new: examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts
@@ -122,7 +122,7 @@ export function clearSave(storage: StorageLike | null): void {
 }
 ```
 
-**Step 3: `engine/appReducer.ts`.** Create with exactly:
+**Step 3: `examples/factory-idle-precision-armory-phase2/src/engine/appReducer.ts`.** Create with exactly:
 
 ```ts
 // new: examples/factory-idle-precision-armory-phase2/src/engine/appReducer.ts
@@ -138,7 +138,7 @@ export function appReducer(state: GameState, action: AppAction): GameState {
 }
 ```
 
-**Step 4: `engine/useArmedConfirm.ts`.** Create with exactly (a copy of the pattern in `ts/src/games/gladiator_arena/utils/useArmedConfirm.ts`):
+**Step 4: `examples/factory-idle-precision-armory-phase2/src/engine/useArmedConfirm.ts`.** Create with exactly (a copy of the pattern in `ts/src/games/gladiator_arena/utils/useArmedConfirm.ts`):
 
 ```ts
 // new: examples/factory-idle-precision-armory-phase2/src/engine/useArmedConfirm.ts
@@ -218,7 +218,7 @@ export default function App() {
 4. In the `<Header ... />` props, directly after `        onReset={() => dispatch({ type: 'CLEAR_ALL_TILES' })}` add the line
 `        onResetFactory={() => { clearSave(browserStorage()); dispatch({ type: 'RESET_FACTORY' }); }}`.
 
-**Step 6: `components/Header.tsx`.** Four edits:
+**Step 6: `examples/factory-idle-precision-armory-phase2/src/components/Header.tsx`.** Four edits:
 1. After the line `import { PRESET_FACTORIES } from '../engine/recipes';` add `import { useArmedConfirm } from '../engine/useArmedConfirm';`.
 2. In `interface HeaderProps`, after `  onReset: () => void;` add `  onResetFactory: () => void;`.
 3. In the destructured props, after `  onReset,` add `  onResetFactory,`, and as the first line inside the component body (directly after `}) => {`) add `  const resetFactory = useArmedConfirm(onResetFactory);`.
@@ -316,10 +316,10 @@ describe('test_factory_idle_persistence', () => {
 
 ## 4. What NOT to do
 
-- Do not add a `RESET_FACTORY` case or any other edit to `engine/gameReducer.ts` beyond the three deletions in step 1 (it is already over 600 lines); `appReducer.ts` handles the new action.
+- Do not add a `RESET_FACTORY` case or any other edit to `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` beyond the three deletions in step 1 (it is already over 600 lines); `appReducer.ts` handles the new action.
 - No change to game balance, tick logic, recipes, labels (the reskin directive owns them), the Toolbar, `SvgWorkshopGrid.tsx` or `StorefrontPanel.tsx`.
 - Do not save more often than every 5 s, do not use `sessionStorage`/`indexedDB`/cookies, and do not send saves anywhere: this is one `localStorage` key, `factory_idle_save_v1`. No cloud saves, no accounts, no player layer.
-- Do not add Lua, change `ts/src/engine/`, deploy, rebuild, or touch protected repos. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- Do not add Lua, change `ts/src/engine/`, deploy, rebuild, or touch protected repos. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -364,7 +364,7 @@ Controller step, not this run: the example's own type check (`tsc --noEmit` insi
 
 ## 7. Completion criteria
 
-- [ ] The three new engine files and the test exist with the exact content above; `engine/gameReducer.ts` lost exactly the three unused declarations and nothing else.
+- [ ] The three new engine files and the test exist with the exact content above; `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` lost exactly the three unused declarations and nothing else.
 - [ ] `App.tsx` loads through `loadState`, autosaves, and passes `onResetFactory`; `Header.tsx` has the two-step "Reset factory" button.
 - [ ] `cd ts && npx vitest run test_factory_idle_persistence.ts` passes (real tail pasted).
 - [ ] `cd ts && npx tsc --noEmit` shows only the 4 pre-existing `game-metadata.json` errors (real tail pasted).
@@ -381,7 +381,7 @@ Then state plainly what was not run (the example's own type check, a browser smo
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

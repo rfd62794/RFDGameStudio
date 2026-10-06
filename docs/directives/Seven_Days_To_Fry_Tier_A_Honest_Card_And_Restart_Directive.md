@@ -53,7 +53,7 @@ All existing files are CRLF; keep their endings. New files use CRLF too.
  
 ```
 
-**Step 2: `components/RestartButton.tsx`.** Create with exactly:
+**Step 2: `examples/7-days-to-fry/src/components/RestartButton.tsx`.** Create with exactly:
 
 ```tsx
 // new: examples/7-days-to-fry/src/components/RestartButton.tsx
@@ -317,7 +317,7 @@ describe('test_7_days_to_fry_tier_a', () => {
 ## 4. What NOT to do
 
 - Do not change the sim (`sessionLoop.ts`, steering, scoring, economy, the night shop), balance, the Design.md week, or `KitchenCanvas` (leave its pre-existing type error). Do not add Coffee or Soda (a separate directive) or saving (another).
-- Do not change `label`, `gameId`, `status`, `embedUrl` or `source` in `config.ts`; do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- Do not change `label`, `gameId`, `status`, `embedUrl` or `source` in `config.ts`; do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 - Do not add network, `eval` or storage use to the example. Do not run the example's own test runner (a worktree has no `node_modules` for it).
 - No Lua, no engine changes, no deploys or rebuilds, no protected repos, no player layer or cloud saves.
 
@@ -377,7 +377,7 @@ Then say plainly what was not run (the example's own type check, a browser click
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

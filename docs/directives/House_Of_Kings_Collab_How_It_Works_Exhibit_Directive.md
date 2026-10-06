@@ -63,7 +63,7 @@ export const HOW_IT_WORKS_NOTE =
   'This page is an exhibit. Signing in needs its own hosted backend, so you may not be able to play.';
 ```
 
-**Step 2: `components/HowItWorks.tsx`.** Create with exactly:
+**Step 2: `ts/src/games/house_of_kings_collab/components/HowItWorks.tsx`.** Create with exactly:
 
 ```tsx
 // new: ts/src/games/house_of_kings_collab/components/HowItWorks.tsx
@@ -165,7 +165,7 @@ describe('test_house_of_kings_how_it_works', () => {
 - Do not add a link to a write-up: none exists yet (the blog is Robert's); when it does he adds one line. Do not invent a URL.
 - Do not change the hero, the sign-in button, the signed-in views, `config.ts`, the admin gate, the server, the Dockerfile, or Firebase files. Do not edit `ARCHITECTURE.md`.
 - No backend call, no fake or demo data, no signed-out "demo mode" (that would be a rewrite), no hosting or Cloud Run work.
-- No Lua, no engine changes, no deploys or rebuilds, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No Lua, no engine changes, no deploys or rebuilds, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -210,7 +210,7 @@ Controller step, not this run: screenshot of the signed-out landing page at 1280
 
 ## 7. Completion criteria
 
-- [ ] `howItWorks.ts`, `components/HowItWorks.tsx` and the test exist with the exact content above; `LandingPage.tsx` matches the prototype diff.
+- [ ] `howItWorks.ts`, `ts/src/games/house_of_kings_collab/components/HowItWorks.tsx` and the test exist with the exact content above; `LandingPage.tsx` matches the prototype diff.
 - [ ] `cd ts && npx vitest run test_house_of_kings` passes: 5 files, 40 tests with the Footer directive merged (real tail pasted); `cd ts && npx tsc --noEmit` shows only the 4 pre-existing errors (real tail pasted).
 - [ ] The Status row is set to Review with a one-line log entry.
 
@@ -225,7 +225,7 @@ Then say plainly what was not run (screenshots) and that there is deliberately n
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 

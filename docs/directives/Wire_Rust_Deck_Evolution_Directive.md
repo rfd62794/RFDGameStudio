@@ -1,6 +1,6 @@
 # Wire & Rust deck evolution: spend scrap to add parts, lose a part when a fight goes wrong
 
-**Depends on:** `Polish_Wire_Rust_TierA_Directive.md` merged (it adds `ts/src/games/wire_rust/run.ts`, the win rule and `test_wire_rust_run.ts`, which this run extends).
+**Depends on:** `Polish_Wire_Rust_TierA_Directive.md` merged (it adds `ts/src/games/wire_rust/run.ts` <!-- new: ts/src/games/wire_rust/run.ts -->, the win rule and `test_wire_rust_run.ts`, which this run extends).
 **Queue-neutral:** this file carries no Queue block; the controller queues it. Decided by Robert's 2026-10-04 approval of all recommendations (`docs/demos/wire_rust/DIRECTION.md`, Phase 2: "the missing pillar").
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
@@ -431,7 +431,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
