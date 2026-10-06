@@ -8,7 +8,7 @@
 
 In `isRanchState`:
 
-- `v.sales.every(s => isRecord(s) && typeof s.speciesId === 'string' && typeof s.atAction === 'number')` (match the `SaleRecord` shape used by `model/market.ts`).
+- `v.sales.every(s => isRecord(s) && typeof s.speciesId === 'string' && typeof s.atAction === 'number')` (match the `SaleRecord` shape used by `ts/src/games/slimeworld/ranch/model/market.ts`).
 - `Number.isFinite(v.nextId) && v.nextId >= 0` and `Number.isFinite(v.actionCount) && v.actionCount >= 0`.
 
 Nothing else — this is a guard fix, not a schema change.
