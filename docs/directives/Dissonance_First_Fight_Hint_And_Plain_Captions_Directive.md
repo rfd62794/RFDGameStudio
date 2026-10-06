@@ -265,12 +265,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-dissonance-first-fight-hint-and-p-c0d6c5 |
 | Base branch | - |
+| Base commit | 75d2c14c4664ab651ed0e45853e0e74b0defdcbc |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
 - 2026-10-05 05:29 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
+- 2026-10-05 21:30 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-first-fight-hint-and-p-c0d6c5; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
