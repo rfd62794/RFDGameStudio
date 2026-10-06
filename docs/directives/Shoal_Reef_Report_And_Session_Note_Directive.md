@@ -308,4 +308,5 @@ none.
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-05 05:29 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
 - 2026-10-05 20:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-reef-report-and-session-not-3f2d52; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 20:49 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-reef-report-and-session-not-3f2d52; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
