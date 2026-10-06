@@ -11,6 +11,8 @@ Depends on: `PlanetOfGreed_Extract_Turn_Engine_Directive.md` merged
 
 The previous directive created these files in `ts/src/games/planetofgreed/`: `rng.ts`, `campaignConstants.ts`, `campaignState.ts`, `annualReport.ts`, `aiWeeklyOrders.ts`, `combatForces.ts`, `turnEngine.ts`. Open each and confirm it exports what section 3 uses. If any file or export is missing, the dependency has not merged: STOP and write that in the Status row. Do not search for it and do not recreate it.
 
+Note (merged reality check): `concludeCombats` and `ConcludeCombatsOutcome` live in `combatForces.ts`, not `turnEngine.ts` (they were moved there for the 400-line cap during merge). Import them from `combatForces`. Also `game-metadata.json` is gitignored/generated — a fresh worktree shows tsc TS2307 and a failing `test_arcade_lineage` until metadata is generated; that is not a branch regression.
+
 ## 1. Why this exists
 
 Planet of Greed's turn engine used to live inside `App.tsx`, so no campaign could be replayed from a seed. After the extraction it is pure and takes an `EngineContext` (`makeContext(seed)` gives a seeded `rng` and a counter clock). Now the game can be played headless. Facts the run relies on (from the engine code, 2026-10-05):
