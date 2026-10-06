@@ -32,8 +32,15 @@ export function isRanchState(v: unknown): v is RanchState {
     typeof v.plortCredit === 'number' &&
     v.plortCredit >= 0 &&
     typeof v.actionCount === 'number' &&
+    Number.isFinite(v.actionCount) &&
+    v.actionCount >= 0 &&
     Array.isArray(v.sales) &&
-    typeof v.nextId === 'number'
+    v.sales.every(
+      (s) => isRecord(s) && typeof s.speciesId === 'string' && typeof s.atAction === 'number'
+    ) &&
+    typeof v.nextId === 'number' &&
+    Number.isFinite(v.nextId) &&
+    v.nextId >= 0
   );
 }
 
