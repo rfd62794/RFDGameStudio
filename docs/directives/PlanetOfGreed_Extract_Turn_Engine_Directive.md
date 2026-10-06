@@ -173,15 +173,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-planetofgreed-extract-turn-engine-f5f556 |
 | Base branch | - |
 | Base commit | 9cc06d476907b2e1a150afdf31b940fd06cc3c8f |
+| Head commit | bc6203f5b4c42c6d2b4d13d4f85065ab6169cfcf |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-05 22:13 · devin-overseer (delegated) · Queued → Approved — lint override: verified: utils/mapGenerator.ts resolves to ts/src/games/planetofgreed/utils/mapGenerator.ts (exists on main); ts/tests/test_planetofgreed_turn_engine.ts is a create-target the run adds in step 5; tests/fixtures/demo_lists_snapshot.json cite is inside the directive's Forbidden Actions list
 - 2026-10-05 22:13 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-extract-turn-engine-f5f556; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 22:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-extract-turn-engine-f5f556; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 23:36 · devin · In progress → Review — M0 turn-engine extraction complete: 7 engine modules under ts/src/games/planetofgreed/ (all <400 lines), App.tsx 1947->1091 lines, EngineContext DI (mulberry32 rng + deterministic clock), no input mutation, 38 new engine tests (212 total PoG tests green), full pre-push hook passed (975 py tests, 265 TS files/2643 tests, Y8 build). Branch pushed. [origin] spent: devin 74 min est. n/a
 <!-- queue:end -->
