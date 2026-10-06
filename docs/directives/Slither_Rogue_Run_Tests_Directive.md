@@ -172,12 +172,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slither-rogue-run-tests-directive |
 | Base branch | - |
+| Base commit | 5484952a537e83a5e81b24a1b4b3d8cf4b1b729b |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
 - 2026-10-06 19:29 · robert-claude-laptop · Queued → Approved
+- 2026-10-06 19:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slither-rogue-run-tests-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
