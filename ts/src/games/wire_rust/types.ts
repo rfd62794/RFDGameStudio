@@ -50,4 +50,10 @@ export interface WireRustGameState {
   currentRoom: Room;
   combatHistory: string[];
   message: string;
+  /** Room ids whose challenge the player has won this run. */
+  cleared: string[];
+  /** Seeds every D20 roll of this run. */
+  seed: number;
+  /** Cards played so far; with the seed it fixes the next roll. */
+  turn: number;
 }
