@@ -225,4 +225,5 @@ none.
 - 2026-10-05 00:40 · robert-claude-laptop · Blocked → Queued — requeue: setup died at uv sync (os error 1142 hard-link) in the laptop's STALE queue MCP process, which predates PR 558 copy mode; the tick-launched dispatcher has the fix
 - 2026-10-05 05:28 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
 - 2026-10-05 20:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 20:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
