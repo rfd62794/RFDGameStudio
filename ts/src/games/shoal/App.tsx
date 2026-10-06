@@ -40,6 +40,7 @@ import { notifyGameplayStart, notifyGameplayStop } from '../../engine/shared/por
 import { initY8 } from '../../engine/shared/portalAdapter/adapters/y8';
 import { detectPortalEnvironment } from '../../engine/shared/portalAdapter/detection';
 import { SHOAL_Y8_CONFIG } from './y8Config';
+import RotateHint from './components/RotateHint';
 import './styles.css';
 
 // Age-aware batch color: quantizes hue to a band AND applies age saturation,
@@ -332,6 +333,7 @@ export default function App({ session }: GameRendererProps) {
       footer={footer}
     >
       <div className="shoal-app">
+        <RotateHint />
         <div className="shoal-toolbar">
           {TOOLS.map((t) => (
             <Button
