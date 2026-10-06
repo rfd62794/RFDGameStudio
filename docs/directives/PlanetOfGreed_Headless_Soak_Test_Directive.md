@@ -151,12 +151,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetofgreed-headless-soak-test--0468fb |
 | Base branch | - |
+| Base commit | f01d8d274a0591b757ed9af2581c7936e50570a5 |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-05 23:55 · devin-overseer (delegated) · Queued → Approved — approved; held for: PlanetOfGreed_Extract_Turn_Engine_Directive.md was superseded - re-point Depends on; lint override: same boilerplate as the other demo directives: tests/fixtures/demo_lists_snapshot.json is cited inside the Forbidden Actions do-not-edit list, not a work input
+- 2026-10-06 00:08 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-headless-soak-test--0468fb; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
