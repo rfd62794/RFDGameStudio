@@ -263,15 +263,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3 |
 | Base branch | - |
 | Base commit | 8254247c655be6bdc10a2174934b64f7471998df |
+| Head commit | d84e3bac601956a6aaa54fcf2ade2a6b7ee149c1 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-06 00:15 · devin-overseer (delegated) · Queued → Approved — lint override: tests/fixtures/demo_lists_snapshot.json cite is inside the Forbidden Actions boilerplate do-not-edit list (same pattern as extract/soak/succession approvals)
 - 2026-10-06 00:38 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-06 00:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-06 00:52 · devin · In progress → Review — RotateHint card + shouldShowRotateHint added (5 files, commit d84e3bac); vitest 6 files/54 tests pass, tsc clean, pushed [origin] spent: devin 11 min est. n/a
 <!-- queue:end -->
