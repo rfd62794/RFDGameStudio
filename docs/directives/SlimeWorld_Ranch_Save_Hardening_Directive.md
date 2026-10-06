@@ -51,4 +51,5 @@ cd ts && npx tsc --noEmit
 - 2026-10-06 01:28 · devin-overseer (delegated) · none → Queued — authored from PR 224 review follow-up (robert-claude-laptop #1932 item 1); queued, not approved
 - 2026-10-06 01:29 · devin-overseer (delegated) · Queued → Approved
 - 2026-10-06 01:30 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-06 01:31 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
