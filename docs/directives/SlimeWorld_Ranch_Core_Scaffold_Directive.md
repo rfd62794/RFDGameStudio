@@ -1020,12 +1020,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-ranch-core-scaffold-directive |
 | Base branch | - |
+| Base commit | 6539e932787341ab3b859bfba052bcee89a4a646 |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-06 00:53 · devin-overseer (delegated) · Queued → Approved — lint override: all cited paths (ranch/data, model, save, debug + 2 test files) are create-targets this scaffold run produces - verified ts/src/games/slimeworld/ranch/ does not exist on main; demo_lists_snapshot cite is Forbidden-Actions boilerplate
+- 2026-10-06 00:53 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-core-scaffold-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
