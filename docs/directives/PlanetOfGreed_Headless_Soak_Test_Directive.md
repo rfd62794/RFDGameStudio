@@ -151,7 +151,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-planetofgreed-headless-soak-test--0468fb |
 | Base branch | - |
@@ -166,4 +166,5 @@ none.
 - 2026-10-06 00:09 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-headless-soak-test--0468fb; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-06 00:19 · devin · In progress → Blocked — Work complete and verified, committed as 728cbe3d on the directive branch; publish blocked: git push runs .githooks/pre-push -> scripts/check.ps1, whose pytest stage fails collecting tests/test_ui_interpreter.py, test_ui_manager.py, test_ui_reconciler.py on 'ImportError: cannot import name __version__ from pygame.base' — broken pygame native module in the provisioned .venv (reproduces via uv run pytest on main-line files; unrelated to this TS-only change; no installs allowed). Soak results: 12 runs, weeks min=40 median=144 max=144; endedBy year-cap x10, player-house-eliminated x2; 0 violations, 0 step-bound; vitest 14 files/215 tests pass; tsc --noEmit clean.
 - 2026-10-06 00:38 · devin-overseer (delegated) · Blocked → Review — push unblocked: run's pre-push hook died on a broken pygame wheel in the worktree venv; repaired .venv and pushed 728cbe3d from the worktree - full check.ps1 green (2646 vitest, python suite, build) [origin] spent: devin 10 min est. n/a
+- 2026-10-06 00:46 · devin-overseer (delegated) · Review → Done — note: merged via PR 222 (tip 728cbe3d); Haiku verify clean per robert-claude-laptop #1920
 <!-- queue:end -->
