@@ -263,12 +263,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3 |
 | Base branch | - |
+| Base commit | 8254247c655be6bdc10a2174934b64f7471998df |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-06 00:15 · devin-overseer (delegated) · Queued → Approved — lint override: tests/fixtures/demo_lists_snapshot.json cite is inside the Forbidden Actions boilerplate do-not-edit list (same pattern as extract/soak/succession approvals)
+- 2026-10-06 00:38 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
