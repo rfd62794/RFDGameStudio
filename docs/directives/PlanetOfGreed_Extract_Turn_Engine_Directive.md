@@ -173,7 +173,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-planetofgreed-extract-turn-engine-f5f556 |
 | Base branch | - |
@@ -187,4 +187,5 @@ none.
 - 2026-10-05 22:13 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-extract-turn-engine-f5f556; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 22:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-extract-turn-engine-f5f556; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 23:36 · devin · In progress → Review — M0 turn-engine extraction complete: 7 engine modules under ts/src/games/planetofgreed/ (all <400 lines), App.tsx 1947->1091 lines, EngineContext DI (mulberry32 rng + deterministic clock), no input mutation, 38 new engine tests (212 total PoG tests green), full pre-push hook passed (975 py tests, 265 TS files/2643 tests, Y8 build). Branch pushed. [origin] spent: devin 74 min est. n/a
+- 2026-10-05 23:54 · devin-overseer (delegated) · Review → Superseded — superseded_by: commit:bc6203f5b4c42c6d2b4d13d4f85065ab6169cfcf (verified: bc6203f5b4c42c6d2b4d13d4f85065ab6169cfcf on origin/main) - note: Sonnet verdict MERGE (robert-claude-laptop #1909); bc6203f5 is second parent of merge 5ec942a1 on main
 <!-- queue:end -->
