@@ -1,6 +1,6 @@
 # Planet of Greed M0: headless AI-vs-AI soak test that prints weeks-to-finish (Size S)
 
-Depends on: `PlanetOfGreed_Extract_Turn_Engine_Directive.md` merged
+PlanetOfGreed_Extract_Turn_Engine landed on main (PR 219, merge 5ec942a1)
 
 **Why Planet of Greed:** `docs/demos/planetofgreed/DIRECTION.md` ("Proposed first directives" item 2, "Port now (M0)", open question 4) and `ts/src/games/planetofgreed/ROADMAP.md` M0: a seeded headless run that plays full campaigns with every House on AI, prints weeks-to-finish, and asserts no softlock and no negative resource. Its output is the measurement Robert needs to decide the campaign length (open question 1).
 
@@ -155,7 +155,6 @@ none.
 | Assigned to | devin-laptop |
 | Branch | - |
 | Base branch | - |
-| Depends on | PlanetOfGreed_Extract_Turn_Engine_Directive.md |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
