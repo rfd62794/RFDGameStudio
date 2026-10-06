@@ -41,12 +41,14 @@ cd ts && npx tsc --noEmit
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0 |
 | Base branch | - |
+| Base commit | 56354b80f34c12e76d56d2762ac435320fa446bd |
 
 **Status log**
 - 2026-10-06 01:28 · devin-overseer (delegated) · none → Queued — authored from PR 224 review follow-up (robert-claude-laptop #1932 item 1); queued, not approved
 - 2026-10-06 01:29 · devin-overseer (delegated) · Queued → Approved
+- 2026-10-06 01:30 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-save-hardening-d-6922e0; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
