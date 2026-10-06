@@ -23,10 +23,12 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
-const appSource = readFileSync(
-  resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'),
-  'utf-8'
-);
+const appSource = [
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/campaignState.ts'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/turnEngine.ts'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/combatForces.ts'), 'utf-8'),
+].join('\n');
 
 describe('test_population_balance_triggers_defined', () => {
   it('Civic Unrest Focus raises Population Balance (default +8, Marsh +10 via House stats)', () => {
