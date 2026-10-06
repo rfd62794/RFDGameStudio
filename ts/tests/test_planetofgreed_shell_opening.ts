@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
-const appSource = readFileSync(
-  resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'),
-  'utf-8'
-);
+const appSource = [
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/campaignState.ts'), 'utf-8'),
+].join('\n');
 const openingSource = readFileSync(
   resolve(repoRoot, 'ts/src/games/planetofgreed/components/OpeningSequence.tsx'),
   'utf-8'

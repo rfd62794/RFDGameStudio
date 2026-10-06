@@ -63,8 +63,10 @@ function clipPolygon(poly: Point[], pointOnLine: Point, normal: Point): Point[] 
   return result;
 }
 
-// Generate mathematically perfect Voronoi cells that tile the map
-export function generateVoronoiMap(width: number, height: number, cellCount: number, corps: Corporation[]): MapCell[] {
+// Generate mathematically perfect Voronoi cells that tile the map.
+// `rng` is injectable so a campaign can be replayed from a seed
+// (rng.ts / EngineContext); existing callers default to Math.random.
+export function generateVoronoiMap(width: number, height: number, cellCount: number, corps: Corporation[], rng: () => number = Math.random): MapCell[] {
   // 1. Generate 36 seeds on a 6x6 grid with jitter
   const cols = Math.ceil(Math.sqrt(cellCount)); // 6
   const rows = Math.ceil(cellCount / cols); // 6
@@ -85,8 +87,8 @@ export function generateVoronoiMap(width: number, height: number, cellCount: num
       const maxJitterX = cellW * 0.35;
       const maxJitterY = cellH * 0.35;
       
-      const jitterX = (Math.random() * 2 - 1) * maxJitterX;
-      const jitterY = (Math.random() * 2 - 1) * maxJitterY;
+      const jitterX = (rng() * 2 - 1) * maxJitterX;
+      const jitterY = (rng() * 2 - 1) * maxJitterY;
       
       seeds.push({
         x: Math.round(baseX + jitterX),

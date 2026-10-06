@@ -4,13 +4,15 @@ import {
   GameState, MapCell, Corporation, WeeklyOrder, UnitTransit, UnitGroup,
   UnitType, GameEvent, CellCombatState, GameDate, CultureId
 } from './types';
-import { generateVoronoiMap } from './utils/mapGenerator';
 import { resolveCellCombat } from '../../engine/shared/combat';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sfx } from '../../engine/shared/sfx';
 import { selectWeightedNeighbor } from './aiDecisions';
-import { initializeFragments, onHouseEliminated } from './fragmentSystem';
+import { onHouseEliminated } from './fragmentSystem';
 import { checkEnding } from './endingSystem';
+import { PLAYER_CORP_ID, CULTURE_WHEEL, CULTURE_DEFINITIONS } from './campaignConstants';
+import { createInitialCampaign, computeRank } from './campaignState';
+import { defaultContext } from './rng';
 import { buildEndingViewModel, nextChapterHref, NEXT_CHAPTER_LABEL } from './endingView';
 import { getHouseStats } from './houseStats';
 import { getHouseTheme } from './houseThemes';
@@ -36,96 +38,6 @@ import {
   Activity, Info, RefreshCw
 } from 'lucide-react';
 
-const PLAYER_CORP_ID = 'player-vanguard';
-
-// Six Cultures, real hue-order wheel (OperatorGame_Vision.docx §8.3):
-// Ember -> Marsh -> Gale -> Tundra -> Crystal -> Tide -> (back to Ember).
-// This array's order IS the wheel order -- mapGenerator.ts's capital
-// placement depends on the corps array it receives being in this exact
-// cyclic sequence, so wheel-adjacency maps to map-adjacency.
-const CULTURE_WHEEL = ['ember', 'marsh', 'gale', 'tundra', 'crystal', 'tide'] as const;
-
-interface CultureDefinition {
-  corpName: string;
-  color: string;
-  borderColor: string;
-  bgClass: string;
-  textClass: string;
-}
-
-// Naming/flavor only (per Phase 1's ⚠️ RULE) -- no stat or gameplay
-// modifier is derived from culture identity anywhere in this phase.
-// Colors follow a real, evenly-spaced hue wheel (0/60/120/180/240/300deg)
-// in the same cyclic order as CULTURE_WHEEL.
-const CULTURE_DEFINITIONS: Record<CultureId, CultureDefinition> = {
-  ember: {
-    corpName: 'Ember Ironworks',
-    color: '#ef4444', // red — aggressive/industrial
-    borderColor: '#dc2626',
-    bgClass: 'bg-red-950/20',
-    textClass: 'text-red-400'
-  },
-  marsh: {
-    corpName: 'Marshveil Biotech',
-    color: '#eab308', // amber/olive — tough, beloved wetlands
-    borderColor: '#a16207',
-    bgClass: 'bg-yellow-950/20',
-    textClass: 'text-yellow-400'
-  },
-  gale: {
-    corpName: 'Gale Vector Logistics',
-    color: '#22c55e', // green — swift, elusive
-    borderColor: '#15803d',
-    bgClass: 'bg-green-950/20',
-    textClass: 'text-green-400'
-  },
-  tundra: {
-    corpName: 'Tundra Bastion Holdings',
-    color: '#06b6d4', // cyan — immovable wall
-    borderColor: '#0e7490',
-    bgClass: 'bg-cyan-950/20',
-    textClass: 'text-cyan-400'
-  },
-  crystal: {
-    corpName: 'Crystal Lattice Consortium',
-    color: '#6366f1', // indigo — wise defender
-    borderColor: '#4338ca',
-    bgClass: 'bg-indigo-950/20',
-    textClass: 'text-indigo-400'
-  },
-  tide: {
-    corpName: 'Tidewell Capital',
-    color: '#d946ef', // fuchsia — charismatic/financial
-    borderColor: '#a21caf',
-    bgClass: 'bg-fuchsia-950/20',
-    textClass: 'text-fuchsia-400'
-  }
-};
-
-// Builds all six corporations, in wheel order, with identical starting
-// treasury/garrison/combat strength -- only the player's chosen culture
-// differs in which slot gets PLAYER_CORP_ID vs an `ai-{cultureId}` id.
-function buildInitialCorporations(playerCultureId: CultureId): Corporation[] {
-  return CULTURE_WHEEL.map((cultureId) => {
-    const def = CULTURE_DEFINITIONS[cultureId];
-    const isPlayer = cultureId === playerCultureId;
-    return {
-      id: isPlayer ? PLAYER_CORP_ID : `ai-${cultureId}`,
-      name: def.corpName,
-      color: def.color,
-      borderColor: def.borderColor,
-      bgClass: def.bgClass,
-      textClass: def.textClass,
-      isPlayer,
-      cultureId,
-      treasury: 200000,
-      scoutedCells: {},
-      rank: 1, // placeholder -- computeRank() sets this for real right after map generation
-      fragments: [] // placeholder -- initializeFragments() sets this to [cultureId] right after
-    };
-  });
-}
-
 // Population Balance is read/written on a 0-100 scale, always clamped.
 // `cell.publicOpinion` is optional at the type level only because
 // mapGenerator.ts (read-only this phase) doesn't set it on cell literals --
@@ -134,27 +46,6 @@ function buildInitialCorporations(playerCultureId: CultureId): Corporation[] {
 function applyPublicOpinionOffset(cell: MapCell, offset: number) {
   const current = cell.publicOpinion ?? 50;
   cell.publicOpinion = Math.max(0, Math.min(100, current + offset));
-}
-
-// Rank = Territory + Population Balance standing, computed fresh from real
-// state -- not incrementally maintained. Mutates corp.rank in place on the
-// corps array passed in, matching this file's existing convention for
-// per-corp updates (e.g. generateAIWeeklyOrders' direct `corp.treasury -=`,
-// `corp.scoutedCells[...] =`). Called only at real, distinct trigger points
-// (Annual Report; post-combat displacement check) -- never continuously.
-function computeRank(corps: Corporation[], cells: MapCell[]): void {
-  const scores = corps.map(corp => {
-    const ownedCells = cells.filter(c => c.ownerId === corp.id);
-    const territory = ownedCells.length;
-    const avgPublicOpinion = ownedCells.length > 0
-      ? ownedCells.reduce((sum, c) => sum + (c.publicOpinion ?? 50), 0) / ownedCells.length
-      : 50;
-    // Placeholder weighting, tunable -- territory and standing both matter,
-    // neither dominates by construction alone.
-    return { corp, score: territory * 10 + avgPublicOpinion };
-  });
-  scores.sort((a, b) => b.score - a.score);
-  scores.forEach((s, i) => { s.corp.rank = i + 1; });
 }
 
 // 5 Boardroom events templates
@@ -382,71 +273,10 @@ export default function App({ session }: GameRendererProps) {
   }, [gameState, isPlanningPhase, selectedCellId]);
 
   const initializeNewGame = (playerCultureId: CultureId) => {
-    const freshCorps = buildInitialCorporations(playerCultureId);
-    const freshCells = generateVoronoiMap(600, 600, 36, freshCorps);
+    const initial = createInitialCampaign(playerCultureId, defaultContext);
+    setGameState(initial);
 
-    // Phase 3: each House starts holding exactly one Fragment -- its own
-    // cultureId. Pure initialization, before any game state exists.
-    initializeFragments(freshCorps);
-
-    // Normalize Population Balance to a real, concrete value on every cell.
-    // Base opinion is per-House (Marsh 60, Crystal 45, default 50) — derived
-    // from narrative. Each cell is owned by a specific corp at init (capitals),
-    // so we use the owner's culture stats. Unowned cells get the default 50.
-    freshCells.forEach(cell => {
-      if (cell.ownerId) {
-        const owner = freshCorps.find(c => c.id === cell.ownerId);
-        cell.publicOpinion = owner ? getHouseStats(owner.cultureId).baseOpinion : 50;
-      } else {
-        cell.publicOpinion = 50;
-      }
-    });
-
-    // Initial scouted cells for corporations:
-    // Mark capital cell and all immediate neighbors of capitals as scouted.
-    for (const corp of freshCorps) {
-      corp.scoutedCells = {};
-      const capitalCell = freshCells.find(c => c.ownerId === corp.id);
-      if (capitalCell) {
-        corp.scoutedCells[capitalCell.id] = true;
-        for (const neighId of capitalCell.neighbors) {
-          corp.scoutedCells[neighId] = true;
-        }
-      }
-    }
-
-    // Real initial Rank, not a placeholder left dangling until the first
-    // Annual Report.
-    computeRank(freshCorps, freshCells);
-
-    const initialDate: GameDate = { year: 1, month: 1, week: 1, day: 1 };
-
-    const playerCorpName = freshCorps.find(c => c.id === PLAYER_CORP_ID)?.name ?? 'Player Corporation';
-    const initialLog = {
-      date: initialDate,
-      message: `${playerCorpName} Pod landing confirmed. Grid operations initialized. Welcome to Sector Boardroom.`,
-      type: 'success' as const
-    };
-
-    setGameState({
-      date: initialDate,
-      cells: freshCells,
-      corporations: freshCorps,
-      transits: [],
-      playerOrders: {},
-      isSimulating: false,
-      simulationSpeed: 1,
-      currentActiveEvent: null,
-      eventHistory: [],
-      combatHistory: [],
-      activeCombatsToResolve: [],
-      currentCombatInView: null,
-      campaignOver: false,
-      endingEvent: null,
-      logs: [initialLog]
-    });
-
-    const capital = freshCells.find(c => c.ownerId === PLAYER_CORP_ID);
+    const capital = initial.cells.find(c => c.ownerId === PLAYER_CORP_ID);
     if (capital) {
       setSelectedCellId(capital.id);
     }

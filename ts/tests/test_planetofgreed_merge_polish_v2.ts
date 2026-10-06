@@ -12,10 +12,10 @@ import type { MapCell, Corporation } from '../src/games/planetofgreed/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(__filename), '..', '..');
-const appSource = readFileSync(
-  resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'),
-  'utf-8'
-);
+const appSource = [
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/campaignState.ts'), 'utf-8'),
+].join('\n');
 const walkthroughSource = readFileSync(
   resolve(repoRoot, 'ts/src/games/planetofgreed/components/GuidedWalkthrough.tsx'),
   'utf-8'
