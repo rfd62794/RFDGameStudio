@@ -565,12 +565,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-wire-rust-tiera-directive |
 | Base branch | - |
+| Base commit | 96da93fbd12714654b5ade451f39f580e39cfe9e |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
 - 2026-10-06 19:27 · robert-claude-laptop · Queued → Approved
+- 2026-10-06 19:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-wire-rust-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
