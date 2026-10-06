@@ -151,12 +151,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
-| Assigned to | devin |
+| Status | Approved |
+| Assigned to | devin-laptop |
 | Branch | - |
 | Base branch | - |
 | Depends on | PlanetOfGreed_Extract_Turn_Engine_Directive.md |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
+- 2026-10-05 23:55 · devin-overseer (delegated) · Queued → Approved — approved; held for: PlanetOfGreed_Extract_Turn_Engine_Directive.md was superseded - re-point Depends on; lint override: same boilerplate as the other demo directives: tests/fixtures/demo_lists_snapshot.json is cited inside the Forbidden Actions do-not-edit list, not a work input
 <!-- queue:end -->
