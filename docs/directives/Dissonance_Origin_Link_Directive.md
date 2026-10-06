@@ -211,7 +211,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-dissonance-origin-link-directive |
 | Base branch | - |
@@ -229,4 +229,5 @@ none.
 - 2026-10-05 20:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 20:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 21:00 · devin · In progress → Review — Work already present in base via e38c432a (committed to main by Robert 2026-10-04 16:20, predating this dispatch): TitlePhase onOpenOrigin + Button, App.tsx navigateTo/isStandalone wiring, ts/tests/test_dissonance_origin_link.tsx all match directive verbatim. Branch carries empty marker commit 274d0d3c since it had no commits beyond main. Verified: vitest run test_dissonance = 8 files passed | 1 skipped (9), 142 tests passed | 2 skipped (144) incl. 3 origin-link tests; npx tsc --noEmit clean exit 0; Python 3.12.12; git status clean. [origin] spent: devin 4 min est. n/a
+- 2026-10-05 22:02 · robert-claude-laptop · Review → Superseded — superseded_by: commit:e38c432a - note: work already on main e38c432a; branch is a no-op marker; Sonnet review re-ran test_dissonance_origin_link (3 passed)
 <!-- queue:end -->
