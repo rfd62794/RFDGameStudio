@@ -259,10 +259,11 @@ none. Deploying is Robert's, after review.
 | Field | Value |
 |---|---|
 | Status | Queued |
-| Assigned to | robert |
+| Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-05 00:32 · agentflow-tick · none → Queued — suggested by heartbeat: Work already landed and later directives build on it; re-running would revert config.ts. Close, don't dispatch.
+- 2026-10-06 18:52 · robert-claude-laptop · assignee robert -> devin — Reassign robert -> devin: build-only; deploy stays Robert's (inventory 2026-10-06).
 <!-- queue:end -->
