@@ -273,4 +273,5 @@ none.
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-06 00:15 · devin-overseer (delegated) · Queued → Approved — lint override: tests/fixtures/demo_lists_snapshot.json cite is inside the Forbidden Actions boilerplate do-not-edit list (same pattern as extract/soak/succession approvals)
 - 2026-10-06 00:38 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-06 00:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-rotate-hint-and-aquarium-ga-0323a3; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
