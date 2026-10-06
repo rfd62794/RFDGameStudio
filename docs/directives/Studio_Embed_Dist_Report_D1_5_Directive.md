@@ -177,4 +177,5 @@ none.
 - 2026-10-04 11:22 · agentflow-tick · none → Queued — suggested by heartbeat: Report-only, fully specified; dispatch only after D1.4 (and D1.1) merge, since build-demo.ts doesn't exist yet
 - 2026-10-06 19:26 · robert-claude-laptop · Queued → Approved
 - 2026-10-06 19:26 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-06 19:27 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
