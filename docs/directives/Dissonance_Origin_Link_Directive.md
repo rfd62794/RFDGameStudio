@@ -211,11 +211,11 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-dissonance-origin-link-directive |
 | Base branch | - |
-| Base commit | ed59ad3384b31ded511c04f6714f54679b06346f |
+| Base commit | 9d754122b1ae19a33ae375e9b25215e24b838bf1 |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
@@ -224,4 +224,5 @@ none.
 - 2026-10-05 00:40 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: on `itch-publisher`
 - 2026-10-05 00:40 · robert-claude-laptop · Blocked → Queued — requeue: setup died at uv sync (os error 1142 hard-link) in the laptop's STALE queue MCP process, which predates PR 558 copy mode; the tick-launched dispatcher has the fix
 - 2026-10-05 05:28 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
+- 2026-10-05 20:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
