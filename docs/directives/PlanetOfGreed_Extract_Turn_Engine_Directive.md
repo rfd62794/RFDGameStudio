@@ -173,12 +173,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetofgreed-extract-turn-engine-f5f556 |
 | Base branch | - |
+| Base commit | 9cc06d476907b2e1a150afdf31b940fd06cc3c8f |
 
 **Status log**
 - 2026-10-05 22:02 · robert-claude-laptop · none → Queued — authored from DIRECTION.md (2026-10-05); queued only, not approved
 - 2026-10-05 22:13 · devin-overseer (delegated) · Queued → Approved — lint override: verified: utils/mapGenerator.ts resolves to ts/src/games/planetofgreed/utils/mapGenerator.ts (exists on main); ts/tests/test_planetofgreed_turn_engine.ts is a create-target the run adds in step 5; tests/fixtures/demo_lists_snapshot.json cite is inside the directive's Forbidden Actions list
+- 2026-10-05 22:13 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetofgreed-extract-turn-engine-f5f556; lane=default; model=swe-2-high; persona=steady-builder
 <!-- queue:end -->
