@@ -1020,7 +1020,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slimeworld-ranch-core-scaffold-directive |
 | Base branch | - |
@@ -1034,4 +1034,5 @@ none.
 - 2026-10-06 00:53 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-core-scaffold-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-06 00:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-ranch-core-scaffold-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-06 01:09 · devin · In progress → Review — 14 new files (12 ranch src + 2 tests), no edits. vitest ranch 2/32, test_slimeworld 28/182, guards 3/36, tsc clean. Commit 8c541d54 pushed. [origin] spent: devin 14 min est. n/a
+- 2026-10-06 01:26 · devin-overseer (delegated) · Review → Done — note: merged via PR 224 (merge 8c541d54, tip 91b2a1c9); Sonnet MERGE per #1932
 <!-- queue:end -->
