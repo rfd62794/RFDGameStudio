@@ -466,7 +466,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-succession-parked-features-flag-a-57aff9 |
 | Base branch | - |
@@ -480,4 +480,5 @@ none.
 - 2026-10-05 23:57 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-parked-features-flag-a-57aff9; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 23:57 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-parked-features-flag-a-57aff9; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-06 00:14 · devin · In progress → Review — Flag + gates + estimate + 2 tests added; vitest test_succession 20 files/185 passed, ablation 6/6, tsc clean; ablation table matches prototype; pushed to branch [origin] spent: devin 13 min est. n/a
+- 2026-10-06 01:27 · devin-overseer (delegated) · Review → Done — note: merged via PR 221
 <!-- queue:end -->
