@@ -298,15 +298,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-shoal-reef-report-and-session-not-3f2d52 |
 | Base branch | - |
 | Base commit | 5f871224910242f1f34f746ff5bf2310ba10920a |
+| Head commit | 310e7b2456e5f6f6a1bf8855c5f27caffb52d13e |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-05 05:29 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
 - 2026-10-05 20:49 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-reef-report-and-session-not-3f2d52; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 20:49 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-shoal-reef-report-and-session-not-3f2d52; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 21:05 · devin-overseer (delegated) · In progress → Review — Done: reefReport.ts + test_shoal_reef_report.tsx created, App.tsx/TitleScreen.tsx patched per spec; vitest 4 files/45 tests pass, tsc clean; committed and pushed. [origin] spent: devin 0 min est. n/a
 <!-- queue:end -->
