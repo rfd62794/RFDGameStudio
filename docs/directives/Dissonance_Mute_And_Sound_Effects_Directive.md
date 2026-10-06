@@ -320,7 +320,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-dissonance-mute-and-sound-effects-7485ae |
 | Base branch | - |
@@ -332,4 +332,5 @@ none.
 - 2026-10-05 21:37 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-mute-and-sound-effects-7485ae; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-05 21:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-mute-and-sound-effects-7485ae; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-05 21:41 · devin · In progress → Blocked — Already done on main: commit 1495038b (merged Oct 4) contains all five scope files matching the spec exactly; branch has no commits beyond main so Review is refused. Re-verified: vitest run test_dissonance -> 8 files passed | 1 skipped, 142 tests passed | 2 skipped (all 5 sound tests pass); tsc --noEmit clean. Safe to mark Done.
+- 2026-10-05 22:03 · robert-claude-laptop · Blocked → Superseded — superseded_by: commit:1495038b - note: work already on main 1495038b (5 files verified); branch has no commits beyond main
 <!-- queue:end -->
