@@ -182,4 +182,5 @@ none.
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
 - 2026-10-06 19:29 · robert-claude-laptop · Queued → Approved
 - 2026-10-06 19:46 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slither-rogue-run-tests-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-06 19:47 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slither-rogue-run-tests-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
