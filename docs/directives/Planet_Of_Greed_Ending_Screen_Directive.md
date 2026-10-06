@@ -278,7 +278,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planet-of-greed-ending-screen-directive |
 | Base branch | - |
@@ -292,4 +292,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 22:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-ending-screen-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 22:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-ending-screen-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 22:23 · devin-overseer (delegated) · In progress → Review — Ending screen built per spec: gameLinks.ts + endingView.ts new, summary block + Continue link in App.tsx, restartLabel 'Play again', new test file. vitest test_planetofgreed_ending_view 1/4 pass; test_planetofgreed 12 files/173 tests; tsc --noEmit clean (0 errors). Pushed 71008fbb. Note: advisory pre-push python suite crashed in pygame_gui (horse_racing test) - native access violation, unrelated to change. [origin] spent: devin 1 min est. n/a
+- 2026-10-06 18:49 · robert-claude-laptop · Review → Done — note: origin branch merged into main (ancestor check, inventory 2026-10-06); laptop Claude
 <!-- queue:end -->
