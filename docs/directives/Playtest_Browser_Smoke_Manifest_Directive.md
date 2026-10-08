@@ -171,14 +171,16 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
+| Base commit | a88bfe479c1c4a55ae042d398a38d2ce16273302 |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:50 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
 - 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
 - 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:01 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; lane=strong; model=default; persona=steady-builder; agent_id=01M4ERHBX7AH6T3YQZ8NXFS711
 <!-- queue:end -->
