@@ -840,7 +840,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-seven-days-to-fry-coffee-and-soda-768575 |
 | Base branch | - |
@@ -855,4 +855,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-08 04:13 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-coffee-and-soda-768575; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 04:31 · devin · In progress → Blocked — Work complete and verified (vitest test_seven_days_shop.ts 6/6, tsc --noEmit clean, committed eb5a50d7; shop-day conflict resolved in favour of Design.md v4) but git push refused by repo pre-push hook: unrelated pre-existing failure in ts/tests/test_gladiator_arena_tier_a.ts (tierClearRates[1]=65 < 70; test last touched in 6f421876, nothing in this diff touches gladiator_arena). Branch exists locally only until gate is green.
 - 2026-10-08 05:03 · robert-claude-laptop · Blocked → Review — pushed after gates passed; PR 233
+- 2026-10-08 05:04 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #233 (merge commit); gates 2730 tests; example suite, play-through and deploy left to Robert
 <!-- queue:end -->
