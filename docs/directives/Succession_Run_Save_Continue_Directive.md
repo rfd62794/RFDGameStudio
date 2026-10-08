@@ -388,7 +388,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-succession-run-save-continue-directive |
 | Base branch | - |
@@ -402,4 +402,5 @@ none.
 - 2026-10-08 05:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-save-continue-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DDER3KVT7N4SN42QFRMCJ4
 - 2026-10-08 05:28 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-save-continue-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 05:41 · devin · In progress → Review — runSave.ts + TitleScreen/App diffs + test_succession_run_save.tsx applied; npx vitest run test_succession: 21 files / 190 tests pass (new file adds exactly 5); npx tsc --noEmit clean; pushed directive branch. Controller finish: Playwright act-reload-continue smoke at 1280 and 390 px. [origin] spent: devin 12 min est. n/a
+- 2026-10-08 05:46 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #235 (merge commit); gates 2742 vitest, 975 pytest; Playwright smoke at 1280/390 left to controller; deploy left to Robert
 <!-- queue:end -->
