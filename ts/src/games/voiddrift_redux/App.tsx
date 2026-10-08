@@ -90,6 +90,11 @@ export default function App({ session }: GameRendererProps) {
     sfx.play('click');
   };
 
+  const handleRestart = () => {
+    handleResetSimulation();
+    setScreen('title');
+  };
+
   const handleUpdateConfig = (newConfig: Partial<SimulationConfig>) => {
     engine.setConfig(newConfig);
     setConfig({ ...engine.config });
@@ -323,7 +328,7 @@ export default function App({ session }: GameRendererProps) {
               onUpdateFleet={handleUpdateFleet}
               onTogglePlayPause={handleTogglePlayPause}
               onSetSimSpeed={handleSetSimSpeed}
-              onResetSimulation={handleResetSimulation}
+              onResetSimulation={handleRestart}
             />
           </section>
 
