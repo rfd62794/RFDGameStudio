@@ -6,7 +6,6 @@
   "src/engine/shared/sportsSim/DisposalSystem.ts": 10,
   "src/engine/shared/sportsSim/GameEngine.ts": 8,
   "src/games/gladiator_arena/simulation/balanceHarness.ts": 2,
-  "src/games/gladiator_arena/simulation/championLadder.ts": 6,
   "src/games/gladiator_arena/simulation/combatEngine.ts": 6,
   "src/games/gladiator_arena/simulation/forgeEconomy.ts": 11,
   "src/games/mutant_battle_ball/simulation/mbbSimulation.ts": 1,
