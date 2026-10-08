@@ -323,12 +323,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab |
 | Base branch | - |
+| Base commit | 4d076e3453b1939e3d39dbcc5a65b23308c74289 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:41 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 17:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EQEY0XN1MJE88A4A2V9XFF
 <!-- queue:end -->
