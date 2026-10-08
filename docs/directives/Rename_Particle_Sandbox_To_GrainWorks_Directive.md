@@ -66,3 +66,17 @@ Source check (Grep tool, whole repo excluding `node_modules`, `dist*`, `review-r
 ## 7. Report
 
 In the Status row: the file moves (counts), the vitest and tsc tails verbatim, and anything you could not change and why.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin-any |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-08 19:49 · robert-claude-laptop · none → Queued — Robert 2026-10-08: GrainWorks, unrelated to Voidrift; runs after Tier A and Phone merge
+<!-- queue:end -->
