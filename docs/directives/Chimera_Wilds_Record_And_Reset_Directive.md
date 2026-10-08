@@ -262,12 +262,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-chimera-wilds-record-and-reset-directive |
 | Base branch | - |
+| Base commit | 658d4f71d39a3b5c381d8729d34eba8e5cf28fa4 |
 
 **Status log**
 - 2026-10-04 13:22 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified TS build (record.ts, App.tsx diff, test); dispatch only after Chimera_Wilds_Fix_Unwinnable_Balance merges.
 - 2026-10-08 03:26 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 03:27 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-chimera-wilds-record-and-reset-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D6HY2GV5PC2XFBNDZHH6NG
 <!-- queue:end -->
