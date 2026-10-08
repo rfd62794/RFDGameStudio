@@ -360,15 +360,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-voiddrift-redux-save-restore-directive |
 | Base branch | - |
 | Base commit | f5e8703caab15c428a01754ac3fd532d7d688ddb |
+| Head commit | 8ecb4ef1ff1029d9c4e68e2b6759e83bbdb2cb94 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
 - 2026-10-08 05:53 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 05:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-redux-save-restore-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DEXQD6897B18B7JZDDRJK8
 - 2026-10-08 05:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-redux-save-restore-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 06:12 · devin · In progress → Review — All 3 scope artifacts applied exactly as pasted: new ts/src/games/voiddrift_redux/simulation/save.ts (versioned {v:1,data} envelope under voiddrift_redux_save via shared persistence), 4 App.tsx edits (save import, restoreEngine on first engine create, 5s interval + pagehide autosave useEffect, clearEngineSave after engine.initWorld in handleResetSimulation), new ts/tests/test_voiddrift_redux_save.ts. Verification: `cd ts && npx vitest run test_voiddrift_redux_save.ts test_voiddrift_redux_restart.ts test_voiddrift_redux_chrome.ts test_voiddrift_redux_engine.ts` -> Test Files 3 passed (3) / Tests 29 passed (29): save 9 + chrome 10 + engine 10. `cd ts && npx tsc --noEmit` printed nothing (exit 0). uv run python --version -> Python 3.12.12. Grep: restoreEngine(engineRef.current); x1, clearEngineSave(); x1. DEPENDENCY CAVEAT: test_voiddrift_redux_restart.ts does not exist on base f5e8703c - Polish_Voiddrift_Redux_TierA is still Queued, its commit 30fe4686 lives only on origin/directive/vd-redux-tiera (adds handleRestart + that test file + build:voiddrift_redux). So the directive's expected 4-file/34-test tail is not reachable on this base; the restart file's ~5 tests arrive when TierA merges. The save work itself needs only handleResetSimulation/engine.initWorld which predates TierA, is exactly as pasted, and is merge-order-safe (Restart -> handleResetSimulation -> clearEngineSave holds either way). Not saved by design: private cycleTimeHistory (refills), selected asteroid/drone, pause state; a reload resumes the world after the title screen. Branch pushed; pre-push gate green (975 py, 281 files/2758 ts tests, build test). Recommend: review, merge after or alongside vd-redux-tiera, then re-run the 4-file vitest line to see 34/34. [origin] spent: devin 17 min est. n/a
 <!-- queue:end -->
