@@ -360,12 +360,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-voiddrift-redux-save-restore-directive |
 | Base branch | - |
+| Base commit | f5e8703caab15c428a01754ac3fd532d7d688ddb |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
 - 2026-10-08 05:53 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 05:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-redux-save-restore-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DEXQD6897B18B7JZDDRJK8
 <!-- queue:end -->
