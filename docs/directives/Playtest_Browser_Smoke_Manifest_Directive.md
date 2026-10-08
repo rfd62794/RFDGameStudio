@@ -171,7 +171,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
@@ -185,4 +185,5 @@ none.
 - 2026-10-08 18:01 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; lane=strong; model=default; persona=steady-builder; agent_id=01M4ERHBX7AH6T3YQZ8NXFS711
 - 2026-10-08 18:01 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; provisioned: uv sync --frozen
 - 2026-10-08 18:11 · devin (delegated) · In progress → Blocked — rejection-death: npx tried to fetch vitest - ts/node_modules absent on fresh hometower clone; WIP committed+pushed on branch (8 files); provisioning now fixed (npm ci ts/ + root, game-metadata.json generated); under delegate.envelope
+- 2026-10-08 18:11 · devin (delegated) · Blocked → Queued — requeue after transient-env death: hometower provisioned (ts/node_modules, root node_modules, game-metadata.json generated); WIP already on branch; under delegate.requeue
 <!-- queue:end -->
