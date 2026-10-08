@@ -141,20 +141,13 @@ export default function App() {
     });
   };
 
-  const handleResetSession = () => {
-    const state = createInitialKitchenState();
-    state.gamePhase = 'day';
-    state.dayNumber = 1;
-    setKitchenState(state);
-  };
-
   // Render Screen Gating
   if (screen === 'new_game' || !kitchenState) {
     return <NewGameScreen onStartGame={handleStartGame} />;
   }
 
   if (kitchenState.gamePhase === 'intro') {
-    return <IntroScreen onContinue={handleContinueFromIntro} />;
+    return <IntroScreen onContinue={handleContinueFromIntro} onRestart={handleRestartGame} />;
   }
 
   if (kitchenState.gamePhase === 'night') {
@@ -163,6 +156,7 @@ export default function App() {
         state={kitchenState}
         onUpdatePolicy={handleUpdatePolicy}
         onStartNextDay={handleStartNextDay}
+        onRestart={handleRestartGame}
         onPurchaseUpgrade={handlePurchaseUpgrade}
       />
     );
@@ -383,7 +377,7 @@ export default function App() {
                 onChangeSpeed={(spd) =>
                   setKitchenState((prev) => (prev ? { ...prev, speedMultiplier: spd } : null))
                 }
-                onResetSession={handleResetSession}
+                onResetSession={handleRestartGame}
               />
             </div>
 
