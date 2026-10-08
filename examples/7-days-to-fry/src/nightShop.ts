@@ -7,17 +7,21 @@ import {
   BASIC_UPGRADES_MIN_DAY,
   BRAND_RECOVERY_AMOUNT,
   BUFFER_CAPACITY_INCREASE,
+  COFFEE_SALES_MIN_DAY,
   DAY_DURATION_INCREASE_SECONDS,
   FRIES_UNLOCK_MIN_DAY,
+  SODA_UNLOCK_MIN_DAY,
   STOCK_CAPACITY_INCREASE,
   STOCK_UNITS_CAPACITY,
   UPGRADE_BRAND_RECOVERY_COST,
   UPGRADE_BUFFER_CAPACITY_COST,
+  UPGRADE_COFFEE_SALES_COST,
   UPGRADE_DAY_DURATION_COST,
   UPGRADE_FRIES_UNLOCK_COST,
+  UPGRADE_SODA_UNLOCK_COST,
   UPGRADE_STOCK_CAPACITY_COST,
 } from './data';
-import { KitchenState, StationId } from './types';
+import { KitchenState } from './types';
 
 export function purchaseBufferCapacity(state: KitchenState): boolean {
   if (state.dayNumber < BASIC_UPGRADES_MIN_DAY) return false;
@@ -75,5 +79,27 @@ export function purchaseFriesUnlock(state: KitchenState): boolean {
 
   state.cash -= UPGRADE_FRIES_UNLOCK_COST;
   state.unlockedStations = { ...state.unlockedStations, fryer: true };
+  return true;
+}
+
+/** Customer coffee sales (Design.md: Day 5). Staff coffee is unchanged; this only lets customers order a coffee add-on. */
+export function purchaseCoffeeSales(state: KitchenState): boolean {
+  if (state.dayNumber < COFFEE_SALES_MIN_DAY) return false;
+  if (state.coffeeSalesUnlocked) return false;
+  if (state.cash < UPGRADE_COFFEE_SALES_COST) return false;
+
+  state.cash -= UPGRADE_COFFEE_SALES_COST;
+  state.coffeeSalesUnlocked = true;
+  return true;
+}
+
+/** Soda (Design.md: Days 6-7). Lets customers order a soda add-on. */
+export function purchaseSodaUnlock(state: KitchenState): boolean {
+  if (state.dayNumber < SODA_UNLOCK_MIN_DAY) return false;
+  if (state.sodaUnlocked) return false;
+  if (state.cash < UPGRADE_SODA_UNLOCK_COST) return false;
+
+  state.cash -= UPGRADE_SODA_UNLOCK_COST;
+  state.sodaUnlocked = true;
   return true;
 }

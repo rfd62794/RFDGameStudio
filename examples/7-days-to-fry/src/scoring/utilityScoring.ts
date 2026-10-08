@@ -5,8 +5,6 @@
 
 import {
   BATHROOM_CLEAN_URGENCY_RISE_PER_SECOND,
-  BATHROOM_WEAR_CHANCE,
-  BLADDER_RISE_PER_MEAL_UNIT,
   BLADDER_URGENCY_MAX_SCORE,
   BLADDER_URGENCY_THRESHOLD,
   CLEAN_BATHROOM_BASE_SCORE,
@@ -157,7 +155,7 @@ export function scoreEatMeal(w: Worker, k: KitchenState): number {
 /**
  * Utility score for Drinking Water (Thirst).
  */
-export function scoreThirst(w: Worker, k: KitchenState): number {
+export function scoreThirst(w: Worker, _k: KitchenState): number {
   const thirst = w.thirst ?? 1.0;
   const urgency = Math.max(0, THIRST_URGENCY_THRESHOLD - thirst) / THIRST_URGENCY_THRESHOLD;
   return Math.pow(urgency, 2) * THIRST_URGENCY_MAX_SCORE;
@@ -215,7 +213,7 @@ export function scoreCleanMess(agent: { x: number; y: number; type?: WorkerType 
 /**
  * Utility score for Discharging Waste Buffer to Staff Meals.
  */
-export function scoreDischargeMeal(w: Worker, k: KitchenState): number {
+export function scoreDischargeMeal(_w: Worker, k: KitchenState): number {
   if (k.wasteBuffer < MEAL_UNIT_COST) return 0;
   const lowMealBonus = k.mealUnits <= 5 ? 2.0 : 1.0;
   return Math.min(8.0, (1.5 + Math.min(3.0, k.wasteBuffer)) * lowMealBonus);

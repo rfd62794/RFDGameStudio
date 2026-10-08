@@ -7,18 +7,28 @@ import {
   BASE_ARRIVAL_INTERVAL_MAX,
   DEMAND_ESCALATION_MAX_SECONDS,
   DEMAND_ESCALATION_MIN_SECONDS,
+  COFFEE_DEMAND_PROBABILITY,
   FRIES_DEMAND_PROBABILITY,
+  SODA_DEMAND_PROBABILITY,
 } from './data';
 import { KitchenState, LogEvent, Order } from './types';
 
 /**
  * Creates a new Order entity with a unique ID and rolled wantsFries property.
+ * Drink add-ons are hard-suppressed (never rolled) unless the matching menu item is unlocked.
  */
-export function createOrder(wantsFries?: boolean): Order {
+export function createOrder(
+  wantsFries?: boolean,
+  unlockedDrinks: { coffee?: boolean; soda?: boolean } = {}
+): Order {
   const rollWantsFries = wantsFries ?? Math.random() < FRIES_DEMAND_PROBABILITY;
+  const rollWantsCoffee = !!unlockedDrinks.coffee && Math.random() < COFFEE_DEMAND_PROBABILITY;
+  const rollWantsSoda = !!unlockedDrinks.soda && Math.random() < SODA_DEMAND_PROBABILITY;
   return {
     id: `order_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`,
     wantsFries: rollWantsFries,
+    wantsCoffee: rollWantsCoffee,
+    wantsSoda: rollWantsSoda,
     burgerComplete: false,
     friesComplete: !rollWantsFries,
     quality: 1.0,

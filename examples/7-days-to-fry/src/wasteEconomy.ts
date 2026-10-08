@@ -3,7 +3,6 @@
  * Manages spoilage accumulation into the waste buffer and manual Staff Meal discharge.
  */
 
-import { MAX_STAFF_MEAL_MORALE_BOOST, MORALE_PER_WASTE_UNIT } from './data';
 import { KitchenState, LogEvent } from './types';
 
 /**
