@@ -199,4 +199,5 @@ none.
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
 - 2026-10-08 04:04 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 04:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-why-it-won-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D8NAD3CFXPKKX376TXRH32
+- 2026-10-08 04:04 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-why-it-won-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
