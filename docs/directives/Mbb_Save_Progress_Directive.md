@@ -227,7 +227,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-mbb-save-progress-directive |
 | Base branch | - |
@@ -238,4 +238,5 @@ none.
 - 2026-10-08 03:28 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 03:29 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-save-progress-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D6N2TD1JRJAJJSR9854J3K
 - 2026-10-08 03:29 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-save-progress-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 03:39 · devin · In progress → Blocked — Work complete+verified (vitest test_mbb_: 13 files/210 tests pass), committed as 4714daad, but git push refused by pre-push hook: pre-existing failure test_arcade_metadata_expansion.ts>test_honest_taxonomy_gaps_are_real_and_documented (7_days_to_fry config has genre=management-sim since commit 59c80a09; test expects undefined) - unrelated to this directive's 3 files, out of scope to fix. Branch exists locally only; Review needs it pushed.
 <!-- queue:end -->
