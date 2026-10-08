@@ -227,11 +227,12 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified worktree-only TS build; dispatch after Mbb_Hide_Infirmary_Tab merges (shared App.tsx anchors)
+- 2026-10-08 03:28 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
