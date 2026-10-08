@@ -15,6 +15,7 @@ import {
   Unit,
   WEIGHT_FLOOR_BASELINE,
 } from "../types";
+import { explainDuel } from "../explain";
 import { AlertCircle, Flame, Shield, TrendingDown, Swords, CheckCircle } from "lucide-react";
 
 interface WaveLogProps {
@@ -273,6 +274,7 @@ export default function WaveLog({
                               </div>
                             </div>
 
+                            <p className="mt-1 text-[10px] font-sans text-slate-300 leading-snug">{explainDuel(duel)}</p>
                             {/* Duel result */}
                             <div className="mt-1 text-[9px] font-semibold text-slate-300 flex items-center justify-between bg-slate-900/40 px-1 py-0.5 rounded">
                               <span>Outcome:</span>
