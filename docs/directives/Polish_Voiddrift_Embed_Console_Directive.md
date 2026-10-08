@@ -187,12 +187,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-any |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-voiddrift-embed-console-directive |
 | Base branch | - |
+| Base commit | 2ce2092bd94f63a499bf93a47f3cf27a0bd29bef |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-08 18:45 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 18:54 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EVJMET5ZK86EZCM8283BFW
 <!-- queue:end -->
