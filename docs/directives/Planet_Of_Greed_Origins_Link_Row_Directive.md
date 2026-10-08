@@ -234,4 +234,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
 - 2026-10-08 02:41 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 02:41 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-origins-link-row--e40efe; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D3XQCVMW8MR7VXB3N29RKA
+- 2026-10-08 02:41 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-origins-link-row--e40efe; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
