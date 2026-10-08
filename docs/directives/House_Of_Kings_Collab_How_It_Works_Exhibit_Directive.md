@@ -236,11 +236,13 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-house-of-kings-collab-how-it-work-4c9470 |
 | Base branch | - |
 | Base commit | 9a329bba0a8762373c94c81f873f129b5c4f89ec |
+| Head commit | d2830e468096f869e3d768126209ffcb97bded7c |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
@@ -249,4 +251,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-08 18:17 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-house-of-kings-collab-how-it-work-4c9470; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESF3XPKE764XZZYMM4SQRE
 - 2026-10-08 18:17 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-house-of-kings-collab-how-it-work-4c9470; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 18:21 · devin (delegated) · In progress → Review — Added howItWorks.ts, HowItWorks.tsx, LandingPage.tsx exhibit element + test per spec. Python 3.12.10; vitest how_it_works 1/3 passed; vitest test_house_of_kings 5 files/40 passed; tsc --noEmit clean (0 errors). Screenshots not run (controller step); no write-up link yet by design.; under delegate.envelope [origin]
 <!-- queue:end -->
