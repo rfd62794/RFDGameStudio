@@ -135,10 +135,10 @@ Source checks (Grep tool, one call each): `ts/src/games/slimegarden/config.ts` c
 
 ## 7. Completion criteria
 
-- [ ] The four files are as specified; nothing else changed.
-- [ ] `cd ts && npx vitest run test_slimegarden_honesty.ts test_registry_export.ts test_arcade_manifest.ts` shows 3 files, 11 tests passed (real tail pasted).
-- [ ] The Grep checks in section 5 pass.
-- [ ] The Status row is set to Review with a one-line log entry.
+- [x] The four files are as specified; nothing else changed. (Already merged as `f7b7cd71`; verified byte-for-byte against spec this run.)
+- [x] `cd ts && npx vitest run test_slimegarden_honesty.ts test_registry_export.ts test_arcade_manifest.ts` shows 3 files, 11 tests passed (real tail pasted). (Actual tail: 3 files, 12 tests passed — the suite gained one test since this was written.)
+- [x] The Grep checks in section 5 pass. (`ts/src/games/slimeworld` remains once, in the retained header comment the spec says to leave; the description is clean.)
+- [x] The Status row is set to Review with a one-line log entry.
 
 ## 8. Report
 
