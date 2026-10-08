@@ -267,4 +267,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:39 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 17:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EQASGMN359AC8V6AZ30H3R
+- 2026-10-08 17:40 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
