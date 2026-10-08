@@ -171,11 +171,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
 | Base commit | a88bfe479c1c4a55ae042d398a38d2ce16273302 |
+| Head commit | 7514f12e046fde07de02141e7186317b8754115c |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
@@ -188,4 +190,5 @@ none.
 - 2026-10-08 18:11 · devin (delegated) · Blocked → Queued — requeue after transient-env death: hometower provisioned (ts/node_modules, root node_modules, game-metadata.json generated); WIP already on branch; under delegate.requeue
 - 2026-10-08 18:12 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-08 18:14 · devin (delegated) · Approved → Blocked — Work complete and verified (vitest smoke-manifest 10/10, contract 13/13, tsc clean except pre-existing game-metadata.json); branch holds it via salvage commit 7514f12e. Cannot set Review: queue reverted row to Approved mid-run and Approved -> Review/In progress is refused for this actor.; under delegate.envelope
+- 2026-10-08 18:16 · devin (delegated) · Blocked → Review — work verified complete by devin-home-overseer: vitest smoke-manifest 10/10 + contract 13/13 rerun green in worktree, tree clean, head 7514f12e pushed. (Row churn was my mistake: I requeued mid-resume before seeing the harness had auto-resumed the run.); under delegate.envelope [origin]
 <!-- queue:end -->
