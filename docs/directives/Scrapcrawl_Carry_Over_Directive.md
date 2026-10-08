@@ -236,7 +236,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-scrapcrawl-carry-over-directive |
 | Base branch | - |
@@ -250,4 +250,5 @@ none.
 - 2026-10-08 05:29 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-carry-over-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DDJ19DS657HWJ6DC04ZD9W
 - 2026-10-08 05:30 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-carry-over-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 05:41 · devin · In progress → Review — carryOver.ts + App/RunEndScreen wiring + test per spec; vitest tail: Test Files 2 passed (2), Tests 13 passed (13); committed 8dc134c5 and pushed to origin [origin] spent: devin 10 min est. n/a
+- 2026-10-08 05:47 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #236 (merge commit); gates 975 pytest, 2744 vitest; proficiency gives repeat players up to 1.5x weapon win odds - Robert to decide on keeping the easing; browser check left to controller; deploy left to Robert
 <!-- queue:end -->
