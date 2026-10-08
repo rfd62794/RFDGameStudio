@@ -13,7 +13,8 @@ import { useLuaCall, useGameState } from '../../hooks';
 import { sfx } from '../../engine/shared/sfx';
 import type { GameRendererProps } from '../../engine/types';
 import type { Room, CardId } from './types';
-import { GATE_ROOM, applyMove, applyPlayCard, canEnterRoom, newRun, runStatus } from './run';
+import { GATE_ROOM, applyBuyCard, applyMove, applyPlayCard, canEnterRoom, isSalvageRoom, newRun, runStatus } from './run';
+import { canAffordSalvage, deckSize, salvageCost } from './deck';
 import './styles.css';
 
 const CARD_DATA: Record<CardId, { name: string; element: string; combat_mod: number; color: string }> = {
@@ -64,6 +65,14 @@ export default function App({ session }: GameRendererProps) {
     const { state: next, result } = applyPlayCard(session, state, cardId);
     if (!result) return;
     sfx.play(result.won ? 'win' : 'lose');
+    setState(next);
+  }, [state, session, setState]);
+
+  const handleBuy = useCallback((cardId: CardId) => {
+    if (!state) return;
+    const next = applyBuyCard(session, state, cardId);
+    if (next === state) return;
+    sfx.play('confirm');
     setState(next);
   }, [state, session, setState]);
 
@@ -170,11 +179,39 @@ export default function App({ session }: GameRendererProps) {
                   <span className="font-bold text-yellow-400">{state.player.scrap}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs text-slate-400 mt-1">
+                  <span>Deck:</span>
+                  <span>{deckSize(state.player.deck)} parts</span>
+                </div>
+                <div className="flex justify-between items-center text-xs text-slate-400 mt-1">
                   <span>Stored Items:</span>
                   <span>{state.player.inventory?.items?.length || 0}</span>
                 </div>
               </div>
             </Card>
+
+            {isSalvageRoom(state.currentRoom) && (
+              <Card className="border-amber-700 bg-slate-900/60 p-4">
+                <h3 className="text-lg font-bold text-amber-400 mb-1">Salvage Bench</h3>
+                <p className="text-xs text-slate-400 mb-3">Spend scrap to add a part to your deck. A lost fight can scrap a part, so keep some spares.</p>
+                <div className="flex flex-col gap-2">
+                  {(Object.keys(CARD_DATA) as CardId[]).map(cardId => {
+                    const scrapValue = ((data.cards as Record<string, { scrap_value?: number }> | undefined)?.[cardId]?.scrap_value) ?? 1;
+                    return (
+                      <Button
+                        key={cardId}
+                        onClick={() => handleBuy(cardId)}
+                        disabled={!canAffordSalvage(state.player.scrap, scrapValue)}
+                        variant="secondary"
+                        size="sm"
+                        className="justify-between"
+                        label={`${CARD_DATA[cardId].name} (+${CARD_DATA[cardId].combat_mod})`}
+                        icon={<span className="ml-2"><Badge variant="muted" label={`${salvageCost(scrapValue)} scrap`} /></span>}
+                      />
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
 
             <Card className="border-cyan-800 bg-slate-900/60 p-4">
               <h3 className="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">
