@@ -473,12 +473,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-seven-days-to-fry-autosave-at-nig-e95efa |
 | Base branch | - |
+| Base commit | b8470e734937fe255810cbc6bf85101723ad67c4 |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
 - 2026-10-08 04:01 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 04:02 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-autosave-at-nig-e95efa; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D8J9PYXBQ3WFY0R778K65B
 <!-- queue:end -->
