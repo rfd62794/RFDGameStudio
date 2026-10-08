@@ -224,7 +224,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planet-of-greed-origins-link-row--e40efe |
 | Base branch | - |
@@ -239,4 +239,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-08 02:41 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-origins-link-row--e40efe; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 02:46 · devin · In progress → Blocked — Work complete, verified and committed on branch (e50d356b): 3 new files + App.tsx edits per spec; vitest 15 files/218 tests pass; tsc --noEmit clean. Push refused by pre-push hook: worktree .venv pygame.base.cp312 .pyd fails ImportError during pytest collection (3 test_ui_* modules), environmental and unrelated to TS-only change; fix needs uv sync/reinstall which the sandbox refuses.
 - 2026-10-08 03:09 · robert-claude-laptop · Blocked → Review — pushed after worktree venv repair; PR 227 [origin] spent: claude 215.0K units est. n/a; devin 4 min est. n/a
+- 2026-10-08 03:10 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #227 (merge commit); planetofgreed tests 218/218 on merged tree; deploy not done
 <!-- queue:end -->
