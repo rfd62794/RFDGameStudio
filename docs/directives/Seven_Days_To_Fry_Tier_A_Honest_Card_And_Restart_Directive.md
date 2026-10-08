@@ -388,11 +388,11 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-seven-days-to-fry-tier-a-honest-c-991b72 |
 | Base branch | - |
-| Base commit | 8e65278936c4816299a51077a1537f769573e9b5 |
+| Base commit | 345d16e9ffb7adfabd116560d9e50c150f1b2d33 |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
@@ -401,4 +401,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-05 00:38 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: on `itch-publisher`
 - 2026-10-05 00:40 · robert-claude-laptop · Blocked → Queued — requeue: setup died at uv sync (os error 1142 hard-link) in the laptop's STALE queue MCP process, which predates PR 558 copy mode; the tick-launched dispatcher has the fix
 - 2026-10-08 02:39 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 02:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-tier-a-honest-c-991b72; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D3SYT4WGP6YNFAEP3S7JAX
 <!-- queue:end -->
