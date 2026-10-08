@@ -197,4 +197,5 @@ none.
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-08 18:45 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 18:54 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EVJMET5ZK86EZCM8283BFW
+- 2026-10-08 18:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
