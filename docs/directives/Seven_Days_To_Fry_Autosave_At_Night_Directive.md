@@ -473,7 +473,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-seven-days-to-fry-autosave-at-nig-e95efa |
 | Base branch | - |
@@ -485,4 +485,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-08 04:02 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-autosave-at-nig-e95efa; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D8J9PYXBQ3WFY0R778K65B
 - 2026-10-08 04:03 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-autosave-at-nig-e95efa; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 04:06 · devin · In progress → Blocked — Prerequisite Seven_Days_To_Fry_Coffee_And_Soda_Unlocks_Directive not merged into base b8470e73: App.tsx nightShop import lacks purchaseCoffeeSales/purchaseSodaUnlock (quoted diff context differs), no ShopUpgradeType in types.ts, and required verification target ts/tests/test_seven_days_shop.ts is missing; merging the prerequisite is outside this run's permissions.
+- 2026-10-08 05:04 · robert-claude-laptop · Blocked → Queued — prerequisite Coffee_And_Soda merged (PR 233); requeue on new main
 <!-- queue:end -->
