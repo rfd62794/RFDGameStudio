@@ -236,15 +236,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-scrapcrawl-carry-over-directive |
 | Base branch | - |
 | Base commit | 4b63b0d175e7392f735c840d922839f2b371c36b |
+| Head commit | 8dc134c557b8e59340dd6e42ba411634c8052f67 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:28 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified, quoted lines verified against the live App.tsx; worktree-only TS change for Devin
 - 2026-10-08 05:29 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 05:29 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-carry-over-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DDJ19DS657HWJ6DC04ZD9W
 - 2026-10-08 05:30 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-scrapcrawl-carry-over-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 05:41 · devin · In progress → Review — carryOver.ts + App/RunEndScreen wiring + test per spec; vitest tail: Test Files 2 passed (2), Tests 13 passed (13); committed 8dc134c5 and pushed to origin [origin] spent: devin 10 min est. n/a
 <!-- queue:end -->
