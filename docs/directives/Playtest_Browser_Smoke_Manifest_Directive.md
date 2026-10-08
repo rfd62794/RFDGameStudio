@@ -171,7 +171,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
@@ -187,4 +187,5 @@ none.
 - 2026-10-08 18:11 · devin (delegated) · In progress → Blocked — rejection-death: npx tried to fetch vitest - ts/node_modules absent on fresh hometower clone; WIP committed+pushed on branch (8 files); provisioning now fixed (npm ci ts/ + root, game-metadata.json generated); under delegate.envelope
 - 2026-10-08 18:11 · devin (delegated) · Blocked → Queued — requeue after transient-env death: hometower provisioned (ts/node_modules, root node_modules, game-metadata.json generated); WIP already on branch; under delegate.requeue
 - 2026-10-08 18:12 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:14 · devin (delegated) · Approved → Blocked — Work complete and verified (vitest smoke-manifest 10/10, contract 13/13, tsc clean except pre-existing game-metadata.json); branch holds it via salvage commit 7514f12e. Cannot set Review: queue reverted row to Approved mid-run and Approved -> Review/In progress is refused for this actor.; under delegate.envelope
 <!-- queue:end -->
