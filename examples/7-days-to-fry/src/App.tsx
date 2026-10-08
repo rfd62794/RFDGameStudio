@@ -19,14 +19,24 @@ import { CONTAGION_EPSILON_FLOOR } from './data';
 import { getLiveStats } from './liveStats';
 import { createInitialKitchenState, startNextDay, tickKitchenState } from './sessionLoop';
 import { KitchenState } from './types';
+import { clearSave, describeSave, loadSave, saveNight, type StorageLike } from './saveGame';
 import { dischargeStaffMeal } from './wasteEconomy';
 import { unloadTruck } from './stockEconomy';
 import { purchaseBrandRecovery, purchaseBufferCapacity, purchaseCoffeeSales, purchaseDayDuration, purchaseFriesUnlock, purchaseSodaUnlock, purchaseStockCapacity } from './nightShop';
 import { Award, Clock, DollarSign, Info, Shield, ShoppingBag, Trash2, Zap } from 'lucide-react';
 
+function browserStorage(): StorageLike | null {
+  try {
+    return typeof window !== 'undefined' ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [screen, setScreen] = useState<'new_game' | 'playing'>('new_game');
   const [kitchenState, setKitchenState] = useState<KitchenState | null>(null);
+  const [savedGame, setSavedGame] = useState<KitchenState | null>(() => loadSave(browserStorage()));
   const [showSpecInfo, setShowSpecInfo] = useState(false);
   const lastTimeRef = useRef<number>(performance.now());
 
@@ -53,6 +63,17 @@ export default function App() {
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
   }, [screen, kitchenState?.gamePhase, kitchenState?.isPaused]);
+
+  // Autosave at every Night (between days); a finished run clears the save.
+  useEffect(() => {
+    if (!kitchenState) return;
+    if (kitchenState.gamePhase === 'night') {
+      saveNight(browserStorage(), kitchenState);
+    } else if (kitchenState.gamePhase === 'game_over' || kitchenState.gamePhase === 'victory') {
+      clearSave(browserStorage());
+      setSavedGame(null);
+    }
+  }, [kitchenState]);
 
   // Phase & Screen Action Handlers
   const handleStartGame = () => {
@@ -90,8 +111,21 @@ export default function App() {
   };
 
   const handleRestartGame = () => {
+    clearSave(browserStorage());
+    setSavedGame(null);
     setKitchenState(null);
     setScreen('new_game');
+  };
+
+  const handleContinueSavedGame = () => {
+    if (!savedGame) return;
+    setKitchenState(savedGame);
+    setScreen('playing');
+  };
+
+  const handleDeleteSave = () => {
+    clearSave(browserStorage());
+    setSavedGame(null);
   };
 
   const handleDischargeStaffMeal = () => {
@@ -145,7 +179,14 @@ export default function App() {
 
   // Render Screen Gating
   if (screen === 'new_game' || !kitchenState) {
-    return <NewGameScreen onStartGame={handleStartGame} />;
+    return (
+      <NewGameScreen
+        onStartGame={handleStartGame}
+        continueLabel={savedGame ? describeSave(savedGame) : undefined}
+        onContinue={savedGame ? handleContinueSavedGame : undefined}
+        onDeleteSave={savedGame ? handleDeleteSave : undefined}
+      />
+    );
   }
 
   if (kitchenState.gamePhase === 'intro') {

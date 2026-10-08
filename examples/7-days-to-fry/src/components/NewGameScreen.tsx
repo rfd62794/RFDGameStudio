@@ -5,12 +5,17 @@
 
 import React from 'react';
 import { Play, Utensils, ShieldAlert, Award, ArrowRight } from 'lucide-react';
+import { RestartButton } from './RestartButton';
 
 interface NewGameScreenProps {
   onStartGame: () => void;
+  /** A saved Night to resume, if any. */
+  continueLabel?: string;
+  onContinue?: () => void;
+  onDeleteSave?: () => void;
 }
 
-export const NewGameScreen: React.FC<NewGameScreenProps> = ({ onStartGame }) => {
+export const NewGameScreen: React.FC<NewGameScreenProps> = ({ onStartGame, continueLabel, onContinue, onDeleteSave }) => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-amber-500 selection:text-slate-950">
       <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-8 text-center relative overflow-hidden">
@@ -50,6 +55,26 @@ export const NewGameScreen: React.FC<NewGameScreenProps> = ({ onStartGame }) => 
             </p>
           </div>
         </div>
+
+        {onContinue && continueLabel && (
+          <div className="space-y-2">
+            <button
+              onClick={onContinue}
+              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-base shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition cursor-pointer"
+              data-testid="continue-saved-week"
+            >
+              <span>{continueLabel}</span>
+            </button>
+            {onDeleteSave && (
+              <RestartButton
+                onRestart={onDeleteSave}
+                label="Delete saved week"
+                armedLabel="Click again to delete your saved week"
+                title="Erase the saved week and start fresh"
+              />
+            )}
+          </div>
+        )}
 
         {/* Start Button */}
         <button
