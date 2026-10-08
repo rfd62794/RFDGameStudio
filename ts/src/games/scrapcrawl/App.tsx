@@ -22,6 +22,7 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sound } from './utils/sound';
 import { newRun, applyFight, applyMove, fightRoomIds } from './utils/runEnd';
+import { withSavedProficiency, saveProficiency, recordWin, clearCarryOver } from './utils/carryOver';
 import CrawlPrimer from './components/CrawlPrimer';
 import RunEndScreen from './components/RunEndScreen';
 import type { GameRendererProps, GameSession } from '../../engine/types';
@@ -44,7 +45,7 @@ const CATALOG_ORDER = [
 function buildInitialState(session: GameSession): ScrapCrawlGameState {
   const data = session.files.data as Record<string, unknown>;
   const rooms = (data.rooms ?? {}) as Record<string, Room>;
-  const player = session.executor.call('init_player')[0] as PlayerState;
+  const player = withSavedProficiency(session.executor.call('init_player')[0] as PlayerState);
   return {
     player,
     currentRoom: rooms[player.currentRoomId] ?? rooms.home_base,
@@ -125,6 +126,9 @@ export default function App({ session }: GameRendererProps) {
     const prevWeaponLife = state.player.equipped.weapon?.life ?? 0;
     const nextWeaponLife = result.player.equipped.weapon?.life ?? 0;
     if (prevWeaponLife > 0 && nextWeaponLife === 0) sound.playBreak();
+    if (result.won) saveProficiency(result.player.proficiencyXp);
+    const nextRun = applyFight(state.run, rooms, state.currentRoom.id, result.won);
+    if (nextRun.outcome === 'won') recordWin(nextRun.hp);
 
     setState(prev => prev ? {
       ...prev,
@@ -132,7 +136,7 @@ export default function App({ session }: GameRendererProps) {
       lastResult: result,
       combatHistory: pushLog(prev, log),
       message: result.won ? 'Combat won' : 'Combat lost',
-      run: applyFight(prev.run, rooms, prev.currentRoom.id, result.won),
+      run: nextRun,
     } : prev);
   }, [state, canFight, call, data, rooms, setState]);
 
@@ -179,6 +183,12 @@ export default function App({ session }: GameRendererProps) {
     setState(buildInitialState(session));
   }, [session, setState]);
 
+  const handleResetProgress = useCallback(() => {
+    sound.playUiConfirm();
+    clearCarryOver();
+    setState(buildInitialState(session));
+  }, [session, setState]);
+
   const handlePrimerBegin = useCallback(() => {
     writeSave('scrapcrawl_tutorial_seen', true);
     sound.playUiConfirm();
@@ -215,6 +225,7 @@ export default function App({ session }: GameRendererProps) {
           pitch="Room navigation, scrap economy, craft, and D20 combat with win-only proficiency."
           menuItems={[
             { id: 'new-game', label: 'New Game', variant: 'primary', onClick: handleNewGame },
+            { id: 'reset-progress', label: 'Reset saved progress', variant: 'secondary', onClick: handleResetProgress },
           ]}
         />
       </GameShell>
