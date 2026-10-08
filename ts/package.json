@@ -12,6 +12,7 @@
     "build:shoal:y8": "vite build --config vite.shoal.config.ts --mode y8",
     "build:slimeworld": "vite build --config vite.slimeworld.config.ts",
     "build:chimera_wilds": "vite build --config vite.chimera_wilds.config.ts",
+    "build:horse_racing": "vite build --config vite.horse_racing.config.ts",
     "build:mutant_battle_ball": "vite build --config vite.mutant_battle_ball.config.ts",
     "build:scrapcrawl": "vite build --config vite.scrapcrawl.config.ts",
     "build:slime_coin": "vite build --config vite.slime_coin.config.ts",
