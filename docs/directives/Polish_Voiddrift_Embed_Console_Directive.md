@@ -187,15 +187,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin-any |
 | Branch | directive/rfdgamestudio-polish-voiddrift-embed-console-directive |
 | Base branch | - |
 | Base commit | 2ce2092bd94f63a499bf93a47f3cf27a0bd29bef |
+| Head commit | 5cf6decacbfcb497f669729ef236def081405c9c |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-08 18:45 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 18:54 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EVJMET5ZK86EZCM8283BFW
 - 2026-10-08 18:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 19:10 · devin · In progress → Review — embedConsoleFilter.ts + test + A1 sentence added; vitest embed filter 6/6, test_arcade 33/33, tsc clean; committed 5cf6deca and pushed [origin] spent: devin 11 min est. n/a
 <!-- queue:end -->
