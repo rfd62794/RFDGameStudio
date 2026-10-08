@@ -221,12 +221,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-arcade-count-excludes-origins-and-02695f |
 | Base branch | - |
+| Base commit | de240d83efd7c358a8739f447d8f6ad37fbc7e1f |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:43 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 18:16 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-arcade-count-excludes-origins-and-02695f; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESDX6EF84ZEY3A3GF4MHYN
 <!-- queue:end -->
