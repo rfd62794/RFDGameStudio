@@ -236,14 +236,16 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-house-of-kings-collab-how-it-work-4c9470 |
 | Base branch | - |
+| Base commit | 9a329bba0a8762373c94c81f873f129b5c4f89ec |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:49 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
 - 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
 - 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:17 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-house-of-kings-collab-how-it-work-4c9470; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESF3XPKE764XZZYMM4SQRE
 <!-- queue:end -->
