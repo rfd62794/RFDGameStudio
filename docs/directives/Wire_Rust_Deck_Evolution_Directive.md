@@ -442,11 +442,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-wire-rust-deck-evolution-directive |
 | Base branch | - |
 | Base commit | 5925d30632412d44144ea31e384a192c3dc279d4 |
+| Head commit | f3befb6d0794b45c44024ab7b0b9ba6aef1c3bb3 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
@@ -455,4 +457,5 @@ none.
 - 2026-10-08 17:54 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-08 18:22 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-wire-rust-deck-evolution-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESR7Y2WT7AJH8XWNW8N5XM
 - 2026-10-08 18:22 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-wire-rust-deck-evolution-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 18:25 · devin (delegated) · In progress → Review — deck.ts + run.ts replaced, App.tsx 4 edits, test_wire_rust_deck.ts added. vitest: Test Files 3 passed (3), Tests 19 passed (19). pytest tests/test_wire_rust.py -q: 4 passed. npx tsc --noEmit: clean. Salvage Bench x1 in App.tsx. Commit f3befb6d.; under delegate.envelope [origin]
 <!-- queue:end -->
