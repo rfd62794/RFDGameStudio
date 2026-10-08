@@ -248,4 +248,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
 - 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-08 18:17 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-house-of-kings-collab-how-it-work-4c9470; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESF3XPKE764XZZYMM4SQRE
+- 2026-10-08 18:17 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-house-of-kings-collab-how-it-work-4c9470; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
