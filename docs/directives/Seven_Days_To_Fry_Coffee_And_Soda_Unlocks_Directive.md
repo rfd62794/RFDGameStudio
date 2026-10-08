@@ -840,12 +840,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-seven-days-to-fry-coffee-and-soda-768575 |
 | Base branch | - |
+| Base commit | 94413da2bc3a9b692ab3e6558190764fdb5269c7 |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
 - 2026-10-08 04:12 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 04:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-seven-days-to-fry-coffee-and-soda-768575; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D965HVJMQY6SYRKNSGHCHB
 <!-- queue:end -->
