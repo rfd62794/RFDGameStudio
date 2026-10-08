@@ -172,12 +172,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-voiddrift-family-naming-directive |
 | Base branch | - |
+| Base commit | 05106980aaa361b09917b4c28483ef0ebf899018 |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
 - 2026-10-08 03:14 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 03:15 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D5V4J5WDF62TQZCZBVZJ75
 <!-- queue:end -->
