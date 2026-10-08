@@ -262,7 +262,7 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-chimera-wilds-record-and-reset-directive |
 | Base branch | - |
@@ -273,4 +273,5 @@ none. Review and merge are Robert's or Claude's after the run.
 - 2026-10-08 03:26 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 03:27 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-chimera-wilds-record-and-reset-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D6HY2GV5PC2XFBNDZHH6NG
 - 2026-10-08 03:27 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-chimera-wilds-record-and-reset-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 03:40 · devin · In progress → Blocked — Work done and verified (commit 78a70af2 on branch; vitest 45/45 in 2 files; tsc clean), but git push -u origin was rejected by the pre-push hook: full vitest suite fails on PRE-EXISTING test_arcade_metadata_expansion.ts::test_honest_taxonomy_gaps_are_real_and_documented - 7_days_to_fry/config.ts already sets genre 'management-sim' at base 658d4f71 while the test expects no genre. Unrelated to this change; fixing it is outside directive scope, so the branch is unpushed and Review is refused.
 <!-- queue:end -->
