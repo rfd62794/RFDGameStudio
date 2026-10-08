@@ -237,11 +237,12 @@ none. Deploying is Robert's, after review.
 | Field | Value |
 |---|---|
 | Status | Approved |
-| Assigned to | devin-tower |
+| Assigned to | devin-any |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:49 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
+- 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
 <!-- queue:end -->
