@@ -227,12 +227,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-mbb-save-progress-directive |
 | Base branch | - |
+| Base commit | 8d69c9ff646035f9de194b2a6c1d98824bc0a7e0 |
 
 **Status log**
 - 2026-10-04 13:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified worktree-only TS build; dispatch after Mbb_Hide_Infirmary_Tab merges (shared App.tsx anchors)
 - 2026-10-08 03:28 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 03:29 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-save-progress-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D6N2TD1JRJAJJSR9854J3K
 <!-- queue:end -->
