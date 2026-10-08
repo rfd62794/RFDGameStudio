@@ -231,4 +231,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-08 17:43 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 18:16 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-arcade-count-excludes-origins-and-02695f; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESDX6EF84ZEY3A3GF4MHYN
+- 2026-10-08 18:16 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-arcade-count-excludes-origins-and-02695f; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
