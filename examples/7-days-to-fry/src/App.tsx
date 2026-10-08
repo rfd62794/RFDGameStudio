@@ -11,7 +11,7 @@ import { GameOverScreen } from './components/GameOverScreen';
 import { IntroScreen } from './components/IntroScreen';
 import { KitchenCanvas } from './components/KitchenCanvas';
 import { NewGameScreen } from './components/NewGameScreen';
-import { NightScreen } from './components/NightScreen';
+import { NightScreen, type ShopUpgradeType } from './components/NightScreen';
 import { SituationPanel } from './components/SituationPanel';
 import { StaffRoster } from './components/StaffRoster';
 import { VictoryScreen } from './components/VictoryScreen';
@@ -21,7 +21,7 @@ import { createInitialKitchenState, startNextDay, tickKitchenState } from './ses
 import { KitchenState } from './types';
 import { dischargeStaffMeal } from './wasteEconomy';
 import { unloadTruck } from './stockEconomy';
-import { purchaseBrandRecovery, purchaseBufferCapacity, purchaseDayDuration, purchaseFriesUnlock, purchaseStockCapacity } from './nightShop';
+import { purchaseBrandRecovery, purchaseBufferCapacity, purchaseCoffeeSales, purchaseDayDuration, purchaseFriesUnlock, purchaseSodaUnlock, purchaseStockCapacity } from './nightShop';
 import { Award, Clock, DollarSign, Info, Shield, ShoppingBag, Trash2, Zap } from 'lucide-react';
 
 export default function App() {
@@ -122,7 +122,7 @@ export default function App() {
     });
   };
 
-  const handlePurchaseUpgrade = (upgradeType: 'buffer_capacity' | 'stock_capacity' | 'day_duration' | 'brand_recovery' | 'fries_unlock') => {
+  const handlePurchaseUpgrade = (upgradeType: ShopUpgradeType) => {
     setKitchenState((prev) => {
       if (!prev) return null;
       const next: KitchenState = {
@@ -137,6 +137,8 @@ export default function App() {
       else if (upgradeType === 'day_duration') purchaseDayDuration(next);
       else if (upgradeType === 'brand_recovery') purchaseBrandRecovery(next);
       else if (upgradeType === 'fries_unlock') purchaseFriesUnlock(next);
+      else if (upgradeType === 'coffee_sales') purchaseCoffeeSales(next);
+      else if (upgradeType === 'soda_unlock') purchaseSodaUnlock(next);
       return next;
     });
   };

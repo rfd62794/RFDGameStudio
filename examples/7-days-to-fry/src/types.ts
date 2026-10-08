@@ -65,6 +65,8 @@ export interface Order {
   id: string;
   customerId?: string;
   wantsFries: boolean;
+  wantsCoffee?: boolean; // customer drink add-on, only ever true once coffee sales are unlocked
+  wantsSoda?: boolean; // customer drink add-on, only ever true once soda is unlocked
   burgerComplete: boolean;
   friesComplete: boolean;
   hadViolation?: boolean;
@@ -130,6 +132,7 @@ export interface KitchenState {
   stockCapacityBonus: number;
   unlockedStations: Record<StationId, boolean>;
   coffeeSalesUnlocked: boolean;
+  sodaUnlocked?: boolean;
   brandEquity: number; // 0-100, the win/loss meter
   peerCorrCutNorm: number; // 0-1, contagion state, floor applied at read time only
   wasteBuffer: number; // accumulates automatically, discharged manually via Staff Meal
