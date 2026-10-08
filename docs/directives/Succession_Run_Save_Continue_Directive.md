@@ -398,4 +398,5 @@ none.
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-08 05:27 · robert-claude-laptop · Queued → Approved
 - 2026-10-08 05:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-save-continue-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DDER3KVT7N4SN42QFRMCJ4
+- 2026-10-08 05:28 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-save-continue-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
