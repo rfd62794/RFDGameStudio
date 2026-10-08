@@ -364,12 +364,14 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-horse-racing-continue-new-game-an-17916f |
 | Base branch | - |
+| Base commit | a01a3d842e897bd69be865b5a14891a92dd3caf0 |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-08 05:51 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 05:51 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-horse-racing-continue-new-game-an-17916f; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DETEWDAW04BPY0D8BQ3BNC
 <!-- queue:end -->
