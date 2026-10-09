@@ -72,12 +72,14 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-any |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 |
 | Base branch | - |
+| Base commit | ee348031c108ecc76fb64813054badf0b6198273 |
 
 **Status log**
 - 2026-10-08 19:49 · robert-claude-laptop · none → Queued — Robert 2026-10-08: GrainWorks, unrelated to Voidrift; runs after Tier A and Phone merge
 - 2026-10-09 00:34 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 00:35 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FF3B5NJGS0VD3FM3MCS7RN
 <!-- queue:end -->
