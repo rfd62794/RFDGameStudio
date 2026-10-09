@@ -214,6 +214,11 @@ export function useCanvasInput(p: CanvasInputParams) {
 
     // Left Click Action
     if (e.button === 0) {
+      if (toolMode === 'PAN') {
+        isPanningRef.current = true;
+        panStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+        return;
+      }
       const coords = screenToGrid(e.clientX, e.clientY);
       if (!coords) return;
 

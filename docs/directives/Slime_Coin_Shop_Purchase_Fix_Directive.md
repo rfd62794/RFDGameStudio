@@ -292,12 +292,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slime-coin-shop-purchase-fix-directive |
 | Base branch | - |
+| Base commit | c274dc81f292296dcbed4549bdd58fb967b764e9 |
+| Head commit | a6cf8fece9536239a9fad7b7d70d3f1b2dca082f |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:00 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions (demo_lists_snapshot.json) and a gitignored generated file (game-metadata.json), verified by hand
+- 2026-10-05 00:19 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-shop-purchase-fix-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 00:20 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-shop-purchase-fix-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 00:29 · devin · In progress → Review — [origin] spent: devin 6 min est. n/a
+- 2026-10-05 00:33 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

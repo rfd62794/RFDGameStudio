@@ -16,3 +16,5 @@ Effort: M
 Open question for Robert: none (direction documented; change 3 waits on his answers to the four open items)
 Update 2026-10-04: Revamp_Succession_Continue is merged (PR #59). In-play restart and per-segment save are queued as Succession_Run_Controls_Directive and Succession_Run_Save_Continue_Directive.
 Phone layout: framed until a 390x844 pass says otherwise (the figure cards are dense; DIRECTION.md replan 3 proposes stacking them on narrow widths). The live /arcade/succession/ 404 and the missing cover are controller and site tasks (redesign D2).
+
+Update 2026-10-05: DIRECTION.md replaced (trim, measure, then an Inquest mode; overseer judgement, Robert may overrule). The "Open question: none" and "Out of scope: new origins/figures" lines stand; the murder-inquiry item 3 is now milestone M3 in ts/src/games/succession/ROADMAP.md. Wt-cpw note: a nested untracked worktree of the live checkout, not a second source.

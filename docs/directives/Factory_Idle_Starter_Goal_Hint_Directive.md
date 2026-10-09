@@ -1,6 +1,6 @@
 # Factory Idle: a one-line first-step hint and a starter goal (serve 5 customers)
 
-**Depends on:** Factory_Idle_Autosave_And_Reset_Factory_Directive.md (it adds `engine/persistence.ts` and the `useRef` in `App.tsx` this run uses)
+**Depends on:** Factory_Idle_Autosave_And_Reset_Factory_Directive.md (it adds `examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts` <!-- new: examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts --> and the `useRef` in `App.tsx` this run uses)
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
 `docs/demos/factory_idle/DIRECTION.md` (Replan item 3), `docs/superpowers/specs/2026-10-03-demo-polish-standard.md` (B1),
@@ -10,9 +10,9 @@
 
 A new player lands on Factory Idle with nothing telling them what is happening or what to do (no hint text anywhere in the example; no goal or win state: `docs/demos/factory_idle/DIRECTION.md`).
 The direction note suggested a hint "Place a spawner, belt it to an assembler". That is stale: `getInitialGameState()` already places a starter line (power generator, two spawners,
-conveyors, an assembly fitter and a storefront packer; `PRESET_FACTORIES[0]` in `engine/recipes.ts` is applied to sector A at `engine/gameReducer.ts` lines 73-85), the factory is running
+conveyors, an assembly fitter and a storefront packer; `PRESET_FACTORIES[0]` in `examples/factory-idle-precision-armory-phase2/src/engine/recipes.ts` is applied to sector A at `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` lines 73-85), the factory is running
 from the first second, and a customer is already waiting. So the honest first step is "your line is running: serve customers". Robert's decision (2026-10-04, all recommendations approved): a one-line,
-dismissible hint plus a starter goal ("serve 5 customers"), polish standard B1. The count already exists: `state.metrics.fulfilledOrders` (`engine/gameReducer.ts` line 1073 increments it on each sale to a waiting customer).
+dismissible hint plus a starter goal ("serve 5 customers"), polish standard B1. The count already exists: `state.metrics.fulfilledOrders` (`examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` line 1073 increments it on each sale to a waiting customer).
 
 ## 2. Scope
 
@@ -22,9 +22,9 @@ dismissible hint plus a starter goal ("serve 5 customers"), polish standard B1. 
 
 ## 3. The work
 
-New files use CRLF like the rest of the example. This run needs `engine/persistence.ts` (it exports the `StorageLike` type) from the Autosave directive; if that file does not exist, STOP and write why in the Status row.
+New files use CRLF like the rest of the example. This run needs `examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts` (it exports the `StorageLike` type) from the Autosave directive; if that file does not exist, STOP and write why in the Status row.
 
-**Step 1: `engine/starterGoal.ts`.** Create with exactly:
+**Step 1: `examples/factory-idle-precision-armory-phase2/src/engine/starterGoal.ts`.** Create with exactly:
 
 ```ts
 // new: examples/factory-idle-precision-armory-phase2/src/engine/starterGoal.ts
@@ -73,7 +73,7 @@ export function dismissHint(storage: StorageLike | null): void {
 }
 ```
 
-**Step 2: `components/StarterGoalBanner.tsx`.** Create with exactly:
+**Step 2: `examples/factory-idle-precision-armory-phase2/src/components/StarterGoalBanner.tsx`.** Create with exactly:
 
 ```tsx
 // new: examples/factory-idle-precision-armory-phase2/src/components/StarterGoalBanner.tsx
@@ -184,10 +184,10 @@ describe('test_factory_idle_starter_goal', () => {
 
 ## 4. What NOT to do
 
-- Do not edit `engine/gameReducer.ts`, `engine/persistence.ts` or any game rule: the goal only READS `metrics.fulfilledOrders`. The goal does not end the game, unlock anything or change balance.
+- Do not edit `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts`, `examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts` or any game rule: the goal only READS `metrics.fulfilledOrders`. The goal does not end the game, unlock anything or change balance.
 - No second hint, no tutorial overlay, no modal, no sound. The banner is one line and one "Got it" button.
 - Keep the player copy as written: no dev-speak, no weapon words (the reskin directive removes them elsewhere).
-- No cloud saves, accounts or player layer. No Lua, no engine changes, no deploys, no protected repos. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No cloud saves, accounts or player layer. No Lua, no engine changes, no deploys, no protected repos. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -230,7 +230,7 @@ Controller step, not this run: the example's own type check and a screenshot at 
 
 ## 7. Completion criteria
 
-- [ ] `engine/starterGoal.ts`, `components/StarterGoalBanner.tsx` and the test exist with the exact content above.
+- [ ] `examples/factory-idle-precision-armory-phase2/src/engine/starterGoal.ts`, `examples/factory-idle-precision-armory-phase2/src/components/StarterGoalBanner.tsx` and the test exist with the exact content above.
 - [ ] `App.tsx` imports and renders the banner under the header; no other line of it changed.
 - [ ] `cd ts && npx vitest run test_factory_idle_starter_goal.ts` passes (real tail pasted); `cd ts && npx tsc --noEmit` shows only the 4 pre-existing `game-metadata.json` errors (real tail pasted).
 - [ ] The Status row is set to Review with a one-line log entry.
@@ -241,12 +241,12 @@ none
 
 ## 8. Report
 
-Findings first: files changed, whether any quoted line differed from the file, and whether `engine/persistence.ts` was present. Evidence second: real tails of `uv run python --version`, the vitest command and `tsc --noEmit`.
+Findings first: files changed, whether any quoted line differed from the file, and whether `examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts` was present. Evidence second: real tails of `uv run python --version`, the vitest command and `tsc --noEmit`.
 Then state plainly what was not run (example type check, screenshots at 1280x720 and 390x844) for the controller, and that deploying is Robert's.
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 
@@ -257,11 +257,16 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Blocked |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-starter-goal-hint-directive |
 | Base branch | - |
+| Base commit | b1167ae0e9dca59e15acf125e4c3f0c6d5a024c4 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:39 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 17:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EQASGMN359AC8V6AZ30H3R
+- 2026-10-08 17:40 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 17:44 · devin · In progress → Blocked — Dependency missing in worktree: examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts (from Factory_Idle_Autosave_And_Reset_Factory_Directive) does not exist; App.tsx has no loadState/clearSave import, no browserStorage(), no stateRef anchor. Directive says STOP if persistence.ts is absent. Needs re-dispatch on a base that includes the Autosave directive's branch.
 <!-- queue:end -->

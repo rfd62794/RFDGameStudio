@@ -6,6 +6,20 @@
 import { ArenaTier, BodySlot, Gladiator } from '../types';
 import { SHOP_PART_CATALOG, STARTER_PARTS } from '../data/defaultParts';
 
+// ARENA_TIERS is built once at module import, before any caller can inject a
+// seeded Math.random. Enemy generation therefore uses its own fixed-seed PRNG
+// (mulberry32) and a counter instead of Date.now, so the ladder is identical
+// in every process.
+const LADDER_SEED = 0x1adde4;
+let ladderState = LADDER_SEED;
+function ladderRandom(): number {
+  ladderState = (ladderState + 0x6d2b79f5) | 0;
+  let t = Math.imul(ladderState ^ (ladderState >>> 15), 1 | ladderState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+let ladderIdCounter = 0;
+
 function createEnemyGladiator(
   name: string,
   title: string,
@@ -29,10 +43,10 @@ function createEnemyGladiator(
 
   (['head', 'torso', 'left_arm', 'right_arm', 'left_leg', 'right_leg'] as BodySlot[]).forEach(slot => {
     const candidate = matchingParts.find(p => p.slot === slot);
-    if (allowShopParts && candidate && Math.random() < 0.5) {
+    if (allowShopParts && candidate && ladderRandom() < 0.5) {
       parts[slot] = {
         ...candidate,
-        id: `enemy-${name}-${slot}-${Math.random().toString(36).substr(2, 4)}`,
+        id: `enemy-${name}-${slot}-${ladderRandom().toString(36).substr(2, 4)}`,
         currentHp: Math.round(candidate.maxHp * statScale),
         maxHp: Math.round(candidate.maxHp * statScale),
         scarHpPenalty: 0,
@@ -44,7 +58,7 @@ function createEnemyGladiator(
       const statBonus = Math.floor((tier - 1) * 1.5 * statScale);
       parts[slot] = {
         ...starter,
-        id: `enemy-${name}-${slot}-${Math.random().toString(36).substr(2, 4)}`,
+        id: `enemy-${name}-${slot}-${ladderRandom().toString(36).substr(2, 4)}`,
         maxHp: Math.round(starter.maxHp * tierHpMult),
         currentHp: Math.round(starter.maxHp * tierHpMult),
         power: Math.max(1, Math.round(starter.power * statScale) + statBonus),
@@ -55,14 +69,14 @@ function createEnemyGladiator(
   });
 
   return {
-    id: `gladiator-enemy-${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+    id: `gladiator-enemy-${name.toLowerCase().replace(/\s+/g, '-')}-${ladderIdCounter++}`,
     name,
     title,
     personality,
-    frameId: `ENEMY-FRAME-${Math.floor(Math.random() * 900 + 100)}`,
+    frameId: `ENEMY-FRAME-${Math.floor(ladderRandom() * 900 + 100)}`,
     parts,
     wins: tier * 3,
-    losses: Math.floor(Math.random() * tier * 2),
+    losses: Math.floor(ladderRandom() * tier * 2),
     kills: tier * 2,
     totalDamageDealt: 0,
   };

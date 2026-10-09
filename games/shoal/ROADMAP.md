@@ -41,3 +41,26 @@ Changelog: [`./CHANGELOG.md`](./CHANGELOG.md)
 - [ ] **Rewire Shoal's `drawFish`/`drawSharksBatched` to consume
   generated sprites** instead of raw Canvas primitives (deferred from
   artGen extraction).
+
+---
+
+## Direction 2026-10-05 (PROPOSED milestones; see docs/demos/shoal/DIRECTION.md)
+
+One engine, one page, two modes: Aquarium (ambient, nobody in control) and
+Evolve (inspired by Flow, Spore, Everything Is Crab: visual, optional, branching paths; never gates the Aquarium; click a fish to become it; eat, grow, evolve cosmetic traits and
+abilities; gentle stakes; world runs on normally around you; progress in
+browser local storage only). Milestone style is PROPOSED (playable
+slices); review model TBD, ask Robert.
+
+- [ ] **M0 Aquarium** - exists; must always stay shippable. Finish the
+  10-04 replan items (session-only label, reef report, rotate-hint).
+- [ ] **M1 Be a fish** - click a fish, steer it, eat algae. New small
+  modules under ts/src/games/shoal/evolve/.
+- [ ] **M2 Grow** - growth stages from `fed`; eaten sets back one stage.
+- [ ] **M3 Evolve** - cosmetic traits (color, fins, patterns) and
+  abilities (speed, glow, camouflage); mode switch both ways.
+- [ ] **M4 Keepsake** - local-storage save, summary, cabinet/itch
+  presentation of both modes.
+
+Constraint: new behaviour in small new modules (SOLID/SRP/KISS); no
+vendor-scale promises.

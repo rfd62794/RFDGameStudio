@@ -1,6 +1,7 @@
 // new: ts/src/games/scrapcrawl/components/RunEndScreen.tsx
 import { EndStateScreen } from '../../../ui/components';
 import type { RunProgress } from '../utils/runEnd';
+import { bestWinHp } from '../utils/carryOver';
 
 export default function RunEndScreen(props: {
   run: RunProgress;
@@ -10,6 +11,7 @@ export default function RunEndScreen(props: {
 }) {
   const { run, totalRooms, scrap, onRestart } = props;
   const won = run.outcome === 'won';
+  const best = bestWinHp();
   return (
     <EndStateScreen
       id="scrapcrawl-run-end"
@@ -24,6 +26,7 @@ export default function RunEndScreen(props: {
         { label: 'Rooms cleared', value: `${run.clearedRoomIds.length} / ${totalRooms}` },
         { label: 'HP', value: `${run.hp} / ${run.maxHp}` },
         { label: 'Scrap', value: scrap },
+        ...(best !== null ? [{ label: 'Best win (HP left)', value: best }] : []),
       ]}
       restartLabel="Restart"
       onRestart={onRestart}

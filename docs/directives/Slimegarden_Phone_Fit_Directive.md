@@ -141,11 +141,13 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync4 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:24 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified one-line fix plus one test, quotes checked against App.tsx; Devin-shaped worktree build
+- 2026-10-04 · devin-cleanroom · Queued → Review: already merged on main via PR #158 (b70714c3); row sync only, no code change
+- 2026-10-04 20:57 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

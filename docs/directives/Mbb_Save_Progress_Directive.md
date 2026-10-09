@@ -66,7 +66,7 @@ export function clearMbbSave(): void {
 ```
 
 **Step 2: `App.tsx`.** Six edits:
-1. Directly above `import './styles.css';` add `import { loadMbbSave, writeMbbSave, clearMbbSave } from './persist';`.
+1. Directly above the line that imports `ts/src/games/mutant_battle_ball/styles.css` add `import { loadMbbSave, writeMbbSave, clearMbbSave } from './persist';`.
 2. Rename the existing `function buildInitialState(session: unknown): MBBGameState {` to `function buildFreshState(session: unknown): MBBGameState {` (body unchanged).
 3. Directly above `export default function App({ session }: GameRendererProps) {` add:
 ```tsx
@@ -216,7 +216,7 @@ Findings first: what is saved (iron, roster with parts, parts inventory, current
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`; adding Lua code or changing the engine; any player-layer or save-to-cloud work.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`; adding Lua code or changing the engine; any player-layer or save-to-cloud work.
 
 ## Required from User
 
@@ -227,11 +227,20 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-mbb-save-progress-directive |
 | Base branch | - |
+| Base commit | 8d69c9ff646035f9de194b2a6c1d98824bc0a7e0 |
+| Head commit | 4714daad137819ee3831265ef88ded7eb82c21af |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:21 · agentflow-tick · none → Queued — suggested by heartbeat: Fully specified worktree-only TS build; dispatch after Mbb_Hide_Infirmary_Tab merges (shared App.tsx anchors)
+- 2026-10-08 03:28 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 03:29 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-save-progress-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D6N2TD1JRJAJJSR9854J3K
+- 2026-10-08 03:29 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-mbb-save-progress-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 03:39 · devin · In progress → Blocked — Work complete+verified (vitest test_mbb_: 13 files/210 tests pass), committed as 4714daad, but git push refused by pre-push hook: pre-existing failure test_arcade_metadata_expansion.ts>test_honest_taxonomy_gaps_are_real_and_documented (7_days_to_fry config has genre=management-sim since commit 59c80a09; test expects undefined) - unrelated to this directive's 3 files, out of scope to fix. Branch exists locally only; Review needs it pushed.
+- 2026-10-08 04:00 · robert-claude-laptop · Blocked → Review — pushed after gates passed; PR 231
+- 2026-10-08 04:00 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #231 (merge commit); pre-push full gates passed on branch (210 tests per Devin); browser check and deploy left to Robert
 <!-- queue:end -->

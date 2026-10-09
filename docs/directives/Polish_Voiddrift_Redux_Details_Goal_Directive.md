@@ -220,7 +220,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -231,11 +231,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-voiddrift-redux-details-go-d5e193 |
 | Base branch | - |
+| Base commit | b3807777d3f96c14a0a576c7e920f89ffa2e026d |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-09 01:11 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 01:11 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-redux-details-go-d5e193; lane=strong; model=default; persona=steady-builder; agent_id=01M4FH6D49G9K8VKN2YEDSFA5G
+- 2026-10-09 01:12 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-redux-details-go-d5e193; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->

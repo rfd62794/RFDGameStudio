@@ -15,6 +15,7 @@ import { sfx } from '../../engine/shared/sfx';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { ChokePointGameState, TowerType } from './types';
 import { isVictory } from './outcome';
+import { MAX_STARS, starsForCoreHp, waveLabel } from './rating';
 import './styles.css';
 
 const GRID_W = 6;
@@ -95,6 +96,9 @@ export default function App({ session }: GameRendererProps) {
 
   const isGameOver = state.core_hp <= 0;
   const isWon = isVictory(state);
+  const totalWaves = Object.keys((data.waves ?? {}) as Record<string, unknown>).length;
+  const startCoreHp = ((data.constants ?? {}) as Record<string, number>).start_core_hp ?? 10;
+  const stars = starsForCoreHp(state.core_hp, startCoreHp);
 
   return (
     <GameShell
@@ -105,7 +109,8 @@ export default function App({ session }: GameRendererProps) {
       {isWon ? (
         <Card className="max-w-md mx-auto mt-12 p-6 border-emerald-500 bg-emerald-950/20 text-center">
           <h2 className="text-2xl font-bold text-emerald-400 mb-4 font-mono">DEFENSE HELD</h2>
-          <p className="text-slate-300 mb-6 font-mono">All waves cleared. The core is intact.</p>
+          <p className="text-slate-300 mb-2 font-mono">All waves cleared. The core is intact.</p>
+          <p className="text-3xl mb-6 text-yellow-400" aria-label={`${stars} of ${MAX_STARS} stars`}>{'\u2605'.repeat(stars)}{'\u2606'.repeat(MAX_STARS - stars)}</p>
           <Button onClick={handleRestart} variant="primary" className="w-full justify-center" label="Play Again" />
         </Card>
       ) : isGameOver ? (
@@ -217,6 +222,7 @@ export default function App({ session }: GameRendererProps) {
                 <Zap className="h-5 w-5" /> Tactical Resources
               </h3>
               <div className="flex justify-between items-center mb-3">
+                <span className="text-sm">{waveLabel(state.wave, totalWaves)}</span>
                 <span className="text-sm">Available Energy:</span>
                 <span className="text-2xl font-bold text-yellow-400">{state.energy} units</span>
               </div>

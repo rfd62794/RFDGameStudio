@@ -127,7 +127,7 @@ Identical checklist from the second directive's §4, with one addition:
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Draft |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-crosspipeline-versiontracking-thi-a6c79a |
 | Base branch | - |
@@ -142,4 +142,5 @@ Identical checklist from the second directive's §4, with one addition:
 - 2026-09-25 22:12 · robert-claude-laptop · Queued → Draft — PARKED (Robert 2026-09-25 approved): third attempt died on refused webfetch; the task needs network access the sandbox never grants. Redesign it to work offline before requeueing.
 - 2026-09-30 06:24 · devin-overseer (delegated) · Draft → Queued
 - 2026-09-30 08:16 · devin-overseer (delegated) · Queued → Approved — force: Robert 2026-09-30 batch order: approve all queued
+- 2026-10-05 · devin-cleanroom-overseer · Approved → Draft — queue sync restoring Robert's 2026-09-25 PARKED decision, which the 09-30 batch re-queue overrode without the required redesign. The park still holds: the task needs network access (refused webfetch killed attempt 3) and cross-repo checkout `RFD_IT_Publishing`, which is not present on this machine. Do not dispatch until the spec is redesigned to work offline.
 <!-- queue:end -->

@@ -4,6 +4,7 @@ import { GameShell } from '../../components';
 import { TitleScreen, useOnboardingGate } from '../../ui/components';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { VoidDriftEngine } from './simulation/engine';
+import { AUTOSAVE_INTERVAL_MS, clearEngineSave, restoreEngine, saveEngine } from './simulation/save';
 import { OrbitalCanvas } from './components/OrbitalCanvas';
 import { SmelterPanel } from './components/SmelterPanel';
 import { FSMInspector } from './components/FSMInspector';
@@ -28,6 +29,7 @@ export default function App({ session }: GameRendererProps) {
 
   if (!engineRef.current) {
     engineRef.current = new VoidDriftEngine();
+    restoreEngine(engineRef.current);
   }
 
   const engine = engineRef.current;
@@ -47,6 +49,17 @@ export default function App({ session }: GameRendererProps) {
 
   // Shared SFX: muted until the first user gesture (autoplay-safe).
   useEffect(() => { sfx.autoUnlock(); }, []);
+
+  // Autosave the world every 5 s and when the tab is hidden or closed.
+  useEffect(() => {
+    const save = () => saveEngine(engine);
+    const interval = setInterval(save, AUTOSAVE_INTERVAL_MS);
+    window.addEventListener('pagehide', save);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('pagehide', save);
+    };
+  }, [engine]);
 
   // Sync state periodically from engine for React UI
   useEffect(() => {
@@ -70,10 +83,16 @@ export default function App({ session }: GameRendererProps) {
 
   const handleResetSimulation = () => {
     engine.initWorld();
+    clearEngineSave();
     setSelectedAsteroidId(null);
     setSelectedDroneId(null);
     setStats({ ...engine.stats });
     sfx.play('click');
+  };
+
+  const handleRestart = () => {
+    handleResetSimulation();
+    setScreen('title');
   };
 
   const handleUpdateConfig = (newConfig: Partial<SimulationConfig>) => {
@@ -309,7 +328,7 @@ export default function App({ session }: GameRendererProps) {
               onUpdateFleet={handleUpdateFleet}
               onTogglePlayPause={handleTogglePlayPause}
               onSetSimSpeed={handleSetSimSpeed}
-              onResetSimulation={handleResetSimulation}
+              onResetSimulation={handleRestart}
             />
           </section>
 

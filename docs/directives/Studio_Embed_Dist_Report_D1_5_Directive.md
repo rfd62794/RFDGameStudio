@@ -12,7 +12,7 @@
 
 The redesign spec (section c2) says the 404 embeds are "fixed by that build plus a deploy step Robert approves" and that Phase 1 directive 4 reads how the deploy discovers dists before changing anything. D1.4 gave every demo one build command and a `--check`;
 this run turns the result into one page Robert can decide from. The site repo (`RFD_IT_Services_Site`) is outside this worktree and this sandbox cannot read it, so the site-side facts are pasted below (measured by the controller on 2026-10-04 from
-`static/arcade/`, `data/arcade.json` and `data/arcade_health.json` at site commit `6d3116d`). They are claims, not live checks: no HTTP was done. If the dispatch happens on a later day, the controller re-pastes section 3 first.
+`static/arcade/`, the site's `arcade` and `arcade_health` JSON data files at site commit `6d3116d`). They are claims, not live checks: no HTTP was done. If the dispatch happens on a later day, the controller re-pastes section 3 first.
 
 Measured by reading the deploy tool (`studio_deploy_arcade`, `studio_mcp/tools.py`), do not take it from memory:
 
@@ -29,14 +29,14 @@ Measured by reading the deploy tool (`studio_deploy_arcade`, `studio_mcp/tools.p
 
 `static/arcade/` holds 21 folders: `7_days_to_fry antsim_redux brewfield chimera_wilds corpworld dissonance facility_escape house_of_kings_collab kingmaker_squads ledger mutant_battle_ball planetofgreed rfdgamestudio scrapcrawl shoal slime_coin slimebreeder slimegarden slimeworld systemic_extract trinity_siege`.
 
-`data/arcade_health.json`: `checked_at` is `2026-09-20T01:43:56+00:00` (14 days old on 2026-10-04) and all 22 builds in it are `ok`.
+The site's arcade health data: `checked_at` is `2026-09-20T01:43:56+00:00` (14 days old on 2026-10-04) and all 22 builds in it are `ok`.
 
-`data/arcade.json` has 27 cards: 19 play from their own folder (every one of those 19 folders exists in `static/arcade/`: slimeworld, shoal, mutant_battle_ball, planetofgreed, slime_coin, chimera_wilds, scrapcrawl, house_of_kings_collab, dissonance, systemic_extract,
+The site's arcade data has 27 cards: 19 play from their own folder (every one of those 19 folders exists in `static/arcade/`: slimeworld, shoal, mutant_battle_ball, planetofgreed, slime_coin, chimera_wilds, scrapcrawl, house_of_kings_collab, dissonance, systemic_extract,
 antsim_redux, 7_days_to_fry, facility_escape, ledger, trinity_siege, slimegarden, slimebreeder, corpworld, kingmaker_squads); 7 play inside the hub app at `/arcade/rfdgamestudio/?game=<id>` and need no folder of their own
 (succession, slither_rogue, horse_racing, wire_rust, choke_point, voiddrift_redux, gladiator_arena); 1 is an itch frame (voiddrift). The cards do not include `filipino_bpo_simulator`, `factory_idle`, `planetforge`, `dissonance_prototype`,
 `coin_pusher_arcade`, `voidrift_particle_sandbox`, `character_viewer`, `technique_showcase`, `role_symbol_viewer`.
 
-Studio side, the output of `cd ts && npx vite-node tools/build-demo.ts --all --check` run on D1.1 (2026-10-04), one line per game as `id | plan kind | has /arcade/ embedUrl | site static folder | site card`:
+Studio side, the output of `ts/tools/build-demo.ts --all --check` (via `npx vite-node`, run from the `ts` directory) run on D1.1 (2026-10-04), one line per game as `id | plan kind | has /arcade/ embedUrl | site static folder | site card`:
 
 ```
 dissonance | standalone | - | dist | card
@@ -82,7 +82,7 @@ The four `embedUrl` games with no site folder (`filipino_bpo_simulator`, `factor
 
 ## 4. The work
 
-**Step 1.** Run `cd ts && npx vite-node tools/build-demo.ts --all --check` and check that its 36 result lines match the studio-side columns above (plan kind and embedUrl). If one differs, say which in the report; do not change anything.
+**Step 1.** Run `ts/tools/build-demo.ts --all --check` (via `npx vite-node`, from the `ts` directory) and check that its 36 result lines match the studio-side columns above (plan kind and embedUrl). If one differs, say which in the report; do not change anything.
 
 **Step 2.** Read the deploy tool lines named in section 1 and confirm the four bullets there are still accurate against the file (line numbers can drift; report the real ones).
 
@@ -127,7 +127,7 @@ Source checks (Grep tool, one call each): the report contains the headings `## A
 ## 7. Rules for this run
 
 - This run is NON-INTERACTIVE. A tool call that needs a confirmation is rejected and the run ends mid-task.
-- ONE simple command per tool call. No `;`, `&&`, `||`, `|` chains and no redirects, with the single exception of `cd ts && npx vite-node tools/build-demo.ts --all --check`. Do not use `ls`, `Get-ChildItem` or `cat`: use Read, Glob and Grep. No live process probing.
+- ONE simple command per tool call. No `;`, `&&`, `||`, `|` chains and no redirects, with the single exception of the `cd ts && npx vite-node` build-demo command in the code block above. Do not use `ls`, `Get-ChildItem` or `cat`: use Read, Glob and Grep. No live process probing.
 - Do not install, download or fetch anything. Do not read outside this worktree. Do not search or hunt for facts: every path and fact you need is above or in the files named in Read first. If a path is missing or a quoted fact differs from the file, say so in the report; if
   `ts/tools/build-demo.ts` does not exist, STOP (D1.4 has not merged) and write that in the Status row.
 - Never commit to main, never push, never deploy. Work stays on your `directive/<slug>` branch; commit there. Only Robert merges.
@@ -167,11 +167,16 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Blocked |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-studio-embed-dist-report-d1-5-directive |
 | Base branch | - |
+| Base commit | 012afc783cfc8cf8ae0739916413daf15fd04c29 |
 
 **Status log**
 - 2026-10-04 11:22 · agentflow-tick · none → Queued — suggested by heartbeat: Report-only, fully specified; dispatch only after D1.4 (and D1.1) merge, since build-demo.ts doesn't exist yet
+- 2026-10-06 19:26 · robert-claude-laptop · Queued → Approved
+- 2026-10-06 19:26 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-06 19:27 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-06 19:29 · devin-overseer (delegated) · In progress → Blocked — Step 1 cannot run: all forms refused - `cd ts && npx vite-node tools/build-demo.ts --all --check`, `npm run build:demo -- --all --check`, `npx vite-node tools/build-demo.ts --all --check` (vite-node not in allowed commands). Step 2 verified OK: real deploy-tool lines are 762-775 (standalone dist-*/index.html discovery + staleness 768-774), 785-792 (example dist precheck), 826-829 (copy to static/arcade/<id>), 702/863 (_prepare_site_arcade). Report not written - needs the real --all --check tail.; under delegate.envelope
 <!-- queue:end -->

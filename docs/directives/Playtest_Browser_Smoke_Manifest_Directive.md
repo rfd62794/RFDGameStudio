@@ -18,7 +18,7 @@ Measured on origin/main `0fa83acc` (2026-10-04): `uv run python --version` is `P
 5. New `ts/tools/playtest/pageProbes.ts` (in-page collectors; not unit-tested).
 6. New `ts/tools/playtest/entries.ts` (the 5 manifest entries).
 7. New `ts/tools/playtest-smoke.ts` (the runner; not run by you).
-8. New test `ts/tests/test_playtest_smoke_manifest.ts`.
+8. New test `ts/tests/test_playtest_smoke_manifest.ts` <!-- new: ts/tests/test_playtest_smoke_manifest.ts -->.
 
 ## 3. The work
 
@@ -81,7 +81,7 @@ export function classifyVerdict(findings: SmokeFinding[]): Verdict
 | `slimeworld` | arcade `slimeworld` | `[]` | `[[click text 'New Campaign' expect ['CONFIRM HARD RESET', 'CANCEL']]]` | `['New Campaign']` | `two-step hard reset` |
 | `kingmaker_squads` | embed slug `kingmaker_squads` | `[]` | `[[click text 'Restart' expect ['Confirm restart?']]]` | `['Restart']` | `no native confirm dialog` |
 
-**Step 7: `ts/tools/playtest-smoke.ts`** (the runner; you write it, you do NOT run it). Header comment with the usage lines `cd ts && npx vite-node tools/playtest-smoke.ts -- --base http://127.0.0.1:5199 --demos all` and `... --target live --base https://games.rfditservices.com --demos shoal`. Behaviour:
+**Step 7: `ts/tools/playtest-smoke.ts`** <!-- new: ts/tools/playtest-smoke.ts --> <!-- new: tools/playtest-smoke.ts --> (the runner; you write it, you do NOT run it). Header comment with the usage lines `cd ts && npx vite-node tools/playtest-smoke.ts -- --base http://127.0.0.1:5199 --demos all` and `... --target live --base https://games.rfditservices.com --demos shoal`. Behaviour:
 1. Parse args (`parseArgs`); on errors print them and `process.exit(2)`. Validate `SMOKE_ENTRIES` (`validateEntries`); a problem exits 2. Filter by `--demos`.
 2. Load the library WITHOUT a literal import: `const lib = 'playwright'; const pw: any = await import(lib).catch(() => null);` and if it is null print `playwright is not installed: run "cd ts && npm install -D playwright" once, then "npx playwright install chromium"` and exit 3.
 3. One Chromium launch. For each demo and each viewport create a context: desktop `{ viewport: { width: 1280, height: 720 } }`, phone `{ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }`. Attach `page.on('console')` (record errors always; warnings unless `isAllowedConsole(type, text)`), `page.on('pageerror')` (hard `uncaught-exception`), `page.on('requestfailed')` and `page.on('response')` with status >= 400 (hard `failed-request`, ignore `favicon.ico`). Start tracing with `context.tracing.start({ screenshots: true, snapshots: true })`; keep the trace zip (`<out>/playtest-<date>/<id>-<viewport>.zip`) only when that demo/viewport has a finding, else `tracing.stop()` without a path.
@@ -171,11 +171,25 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
+| Base commit | a88bfe479c1c4a55ae042d398a38d2ce16273302 |
+| Head commit | 7514f12e046fde07de02141e7186317b8754115c |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:50 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
+- 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
+- 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:01 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; lane=strong; model=default; persona=steady-builder; agent_id=01M4ERHBX7AH6T3YQZ8NXFS711
+- 2026-10-08 18:01 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; provisioned: uv sync --frozen
+- 2026-10-08 18:11 · devin (delegated) · In progress → Blocked — rejection-death: npx tried to fetch vitest - ts/node_modules absent on fresh hometower clone; WIP committed+pushed on branch (8 files); provisioning now fixed (npm ci ts/ + root, game-metadata.json generated); under delegate.envelope
+- 2026-10-08 18:11 · devin (delegated) · Blocked → Queued — requeue after transient-env death: hometower provisioned (ts/node_modules, root node_modules, game-metadata.json generated); WIP already on branch; under delegate.requeue
+- 2026-10-08 18:12 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:14 · devin (delegated) · Approved → Blocked — Work complete and verified (vitest smoke-manifest 10/10, contract 13/13, tsc clean except pre-existing game-metadata.json); branch holds it via salvage commit 7514f12e. Cannot set Review: queue reverted row to Approved mid-run and Approved -> Review/In progress is refused for this actor.; under delegate.envelope
+- 2026-10-08 18:16 · devin (delegated) · Blocked → Review — work verified complete by devin-home-overseer: vitest smoke-manifest 10/10 + contract 13/13 rerun green in worktree, tree clean, head 7514f12e pushed. (Row churn was my mistake: I requeued mid-resume before seeing the harness had auto-resumed the run.); under delegate.envelope [origin]
+- 2026-10-09 00:06 · robert-claude-laptop · Review → Done — note: merged via PR #240 (merge commit); vitest 39 passed across the six merged branches' tests
 <!-- queue:end -->

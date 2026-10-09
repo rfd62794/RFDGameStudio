@@ -13,6 +13,7 @@ import { CLAIM_THEMES } from '../data/claimThemes';
 import { checkContradictionAgainstKnown } from '../engine/gossip';
 import { isLockedMethod, persuasionMethodGain } from '../engine/methodLock';
 import { DOMAIN_RIPPLE_CONFLICTS, WHISPER_FAVOR_GAIN } from '../data/gameConstants';
+import { isParked } from '../parkedFeatures';
 import { TickerEntry } from '../types/gameState';
 import { PlayerOriginId } from '../engine/types';
 
@@ -59,7 +60,7 @@ export const WhisperPanel: React.FC<WhisperPanelProps> = ({
 
   const isCurrentSelectionContradiction = isThemeContradiction(selectedThemeId);
 
-  const domainConflict = DOMAIN_RIPPLE_CONFLICTS[figure.id];
+  const domainConflict = isParked('domainRipple') ? undefined : DOMAIN_RIPPLE_CONFLICTS[figure.id];
   const opposingFigureMeta = domainConflict ? COURT_FIGURES[domainConflict.targetFigureId] : null;
 
   return (

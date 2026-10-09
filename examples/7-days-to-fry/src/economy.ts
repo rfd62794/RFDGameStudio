@@ -11,6 +11,8 @@ export const BRAND_EQUITY_GAIN_PER_CLEAN_ORDER = 3; // Clean order completion ga
 export const CASH_PER_CLEAN_ORDER = 5; // Legacy cash earned per clean order
 export const BASE_PRICE_BURGER = 4; // Base price earned on burger completion
 export const ADDON_PRICE_FRIES = 1.5; // Addon price earned when fries are fulfilled
+export const ADDON_PRICE_COFFEE = 1.0; // Addon price earned when a customer's coffee is served (first-pass number)
+export const ADDON_PRICE_SODA = 1.25; // Addon price earned when a customer's soda is served (first-pass number)
 export const TIP_MAX_PER_ORDER = 1.5; // Max tip per order at 100% quality
 export const CORNER_CUT_VIOLATION_CATCH_CHANCE = 0.22; // 22% chance a corner-cut order gets caught
 
@@ -23,14 +25,20 @@ export const AUTO_RESTOCK_DELAY_SECONDS = 4; // 4s delay window for visible Out 
 
 // Night Shop Upgrades
 export const WEEK_ONE_TIER_UP_MESSAGE = "You Survived Your First Week — Tier 2 Unlocked";
-export const FRIES_UNLOCK_MIN_DAY = 8;
-export const BASIC_UPGRADES_MIN_DAY = 8;
+// The week follows Design.md v4 "The Real Week": Night before Day 2 opens the shop with Fries; basic upgrades from Day 3;
+// customer Coffee from Day 5; Soda from Day 6. A Night shows `dayNumber` of the day it is preparing.
+export const FRIES_UNLOCK_MIN_DAY = 2;
+export const BASIC_UPGRADES_MIN_DAY = 3;
+export const COFFEE_SALES_MIN_DAY = 5;
+export const SODA_UNLOCK_MIN_DAY = 6;
 export const WAVE_INTENSITY_MULTIPLIER = 5; // Wave day peak demand tier multiplier
 export const UPGRADE_BUFFER_CAPACITY_COST = 35;
 export const UPGRADE_STOCK_CAPACITY_COST = 30;
 export const UPGRADE_DAY_DURATION_COST = 70;
 export const UPGRADE_BRAND_RECOVERY_COST = 25;
 export const UPGRADE_FRIES_UNLOCK_COST = 20;
+export const UPGRADE_COFFEE_SALES_COST = 25; // first-pass number, not balance-tested
+export const UPGRADE_SODA_UNLOCK_COST = 30; // first-pass number, not balance-tested
 export const BRAND_RECOVERY_AMOUNT = 15;
 export const BUFFER_CAPACITY_INCREASE = 2;
 export const STOCK_CAPACITY_INCREASE = 3;

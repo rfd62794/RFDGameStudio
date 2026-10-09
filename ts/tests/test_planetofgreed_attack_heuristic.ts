@@ -18,10 +18,11 @@ const defaultActionSource = readFileSync(
   resolve(repoRoot, 'ts/src/games/planetofgreed/defaultAction.ts'),
   'utf-8'
 );
-const appSource = readFileSync(
-  resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'),
-  'utf-8'
-);
+const appSource = [
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/App.tsx'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/turnEngine.ts'), 'utf-8'),
+  readFileSync(resolve(repoRoot, 'ts/src/games/planetofgreed/combatForces.ts'), 'utf-8'),
+].join('\n');
 
 // Test fixtures
 function makeCell(overrides: Partial<MapCell> & { id: number }): MapCell {

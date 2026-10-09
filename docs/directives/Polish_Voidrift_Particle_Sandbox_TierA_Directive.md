@@ -344,7 +344,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -355,11 +355,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/vps-tiera |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review — TitleGate wrapper (title screen + runKey remount restart), config lazy-loads TitleGate, App.tsx onRestart prop + window.confirm dropped, Header two-tap Clear + text Restart, standalone vite config/entry/html + build:voidrift_particle_sandbox. Six-file spec command → 6 files / 63 passed; `npx tsc --noEmit` → clean exit 0 with game-metadata.json present. Greps: 0 window.confirm, 1 import('./TitleGate'), App.tsx 581 lines. Controller finish: npm run build:voidrift_particle_sandbox + desktop/390 screenshots.
+- 2026-10-09 00:09 · robert-claude-laptop · Review → Done — note: merged via PR #246 (merge commit); vitest 68 passed on the resolved tree; build script + 390px screenshots still owed by the controller
 <!-- queue:end -->

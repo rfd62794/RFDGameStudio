@@ -4,7 +4,7 @@
 **Queue-neutral:** this file carries no Queue block; the controller queues it. Decided by Robert's 2026-10-04 approval of all recommendations (`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, Phase 2 save half and Phase 3).
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
-`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx`,
+`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx` <!-- new: ts/src/games/voidrift_particle_sandbox/TitleGate.tsx -->,
 `ts/src/games/voidrift_particle_sandbox/simulation/grid.ts` (lines 1-60 and `clearAll`), `ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts` (lines 23-45 and 168-250),
 `ts/src/engine/shared/persistence.ts`, `ts/src/engine/shared/seededRandom.ts`.
 
@@ -23,7 +23,7 @@ Design facts (do not change them):
 ## 2. Scope
 
 1. New modules `<!-- new: ts/src/games/voidrift_particle_sandbox/simulation/sandboxSave.ts -->`, `<!-- new: ts/src/games/voidrift_particle_sandbox/simulation/starterFactory.ts -->`, `<!-- new: ts/src/games/voidrift_particle_sandbox/components/VictoryModal.tsx -->`.
-2. `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `simulation/buildingManager.ts` (one keyword).
+2. `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts` (one keyword).
 3. New test `<!-- new: ts/tests/test_voidrift_particle_sandbox_save.ts -->`.
 
 ## 3. The work
@@ -544,7 +544,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -555,11 +555,25 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 |
 | Base branch | - |
+| Base commit | 457d32c999d5d30b10d53b5b5b5d6bb6aca1f1d1 |
+| Head commit | 1c6a8e2d38f4464d6b0595ace51af5f7d18693fe |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:48 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
+- 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
+- 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:17 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESGC3DW7Q7EBCK8KNZ9CH0
+- 2026-10-08 18:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 18:20 · devin (delegated) · In progress → Blocked — Declared deps not merged into worktree: TitleGate.tsx + test_..._tier_a.ts exist only on unmerged origin/directive/vps-tiera (8a81393f); FirstGoalCard.tsx + test_..._phone.ts exist on no branch (Phone directive still Queued). App.tsx is pre-polish text — quoted anchor 'import { FirstGoalCard }' absent; 5-file/48-test baseline and 6-file/59-test post commands cannot run. Stopped before edits per directive STOP rule.; under delegate.envelope
+- 2026-10-09 00:33 · devin (delegated) · Blocked → Queued — ordering dep resolved: both declared dependencies merged (TierA via PR #244, Phone via PR #247) - TitleGate.tsx and FirstGoalCard.tsx now exist on main at the cited paths; under delegate.requeue
+- 2026-10-09 00:33 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 00:33 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4FF0GEDPXA8NNDK5CTH5VHZ
+- 2026-10-09 00:33 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; resynced: merged main into directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 (50 commit(s), clean); provisioned: uv sync --frozen
+- 2026-10-09 00:39 · devin (delegated) · In progress → Review — All steps applied verbatim: sandboxSave.ts, starterFactory.ts, VictoryModal.tsx created; buildingManager.ts nextBuildingId public; TitleGate clears save on Restart; App.tsx wired (load-or-starter, 5s+pagehide autosave, VictoryModal swap). Golden digest matched: 1b3f7a91. Verify: python 3.12.10; baseline 5 files/48 tests; post 6 files/59 tests; reactions+tiles 2 files/23 tests; tsc --noEmit clean; placeStarterFactory once, no Award in App.tsx. Commit 1c6a8e2d.; under delegate.envelope [origin]
 <!-- queue:end -->
