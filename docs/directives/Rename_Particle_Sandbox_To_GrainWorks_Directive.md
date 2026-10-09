@@ -87,4 +87,5 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 - 2026-10-09 00:47 · robert-claude-laptop · Blocked → Queued — requeue: git mv was refused because '## 4. Sandbox needs' (numbered) was not parsed (sandbox_grants empty); heading fixed to '## Sandbox needs'
 - 2026-10-09 00:48 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 00:48 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FFVDFM2HR6K8A21ANAYQBM
+- 2026-10-09 00:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; resynced: merged main into directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 (6 commit(s), clean); provisioned: uv sync --frozen
 <!-- queue:end -->
