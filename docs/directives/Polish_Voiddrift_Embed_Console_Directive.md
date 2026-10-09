@@ -187,7 +187,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-any |
 | Branch | directive/rfdgamestudio-polish-voiddrift-embed-console-directive |
 | Base branch | - |
@@ -201,4 +201,5 @@ none.
 - 2026-10-08 18:54 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EVJMET5ZK86EZCM8283BFW
 - 2026-10-08 18:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-embed-console-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 19:10 · devin · In progress → Review — embedConsoleFilter.ts + test + A1 sentence added; vitest embed filter 6/6, test_arcade 33/33, tsc clean; committed 5cf6deca and pushed [origin] spent: devin 11 min est. n/a
+- 2026-10-09 00:07 · robert-claude-laptop · Review → Done — note: merged via PR #243 (merge commit)
 <!-- queue:end -->
