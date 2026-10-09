@@ -106,4 +106,5 @@ none.
 - 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
 - 2026-10-09 01:14 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-09 01:14 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FHBGG6CKNCS3VD9E16PREB
+- 2026-10-09 01:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
