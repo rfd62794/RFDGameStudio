@@ -171,7 +171,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
@@ -191,4 +191,5 @@ none.
 - 2026-10-08 18:12 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-08 18:14 · devin (delegated) · Approved → Blocked — Work complete and verified (vitest smoke-manifest 10/10, contract 13/13, tsc clean except pre-existing game-metadata.json); branch holds it via salvage commit 7514f12e. Cannot set Review: queue reverted row to Approved mid-run and Approved -> Review/In progress is refused for this actor.; under delegate.envelope
 - 2026-10-08 18:16 · devin (delegated) · Blocked → Review — work verified complete by devin-home-overseer: vitest smoke-manifest 10/10 + contract 13/13 rerun green in worktree, tree clean, head 7514f12e pushed. (Row churn was my mistake: I requeued mid-resume before seeing the harness had auto-resumed the run.); under delegate.envelope [origin]
+- 2026-10-09 00:06 · robert-claude-laptop · Review → Done — note: merged via PR #240 (merge commit); vitest 39 passed across the six merged branches' tests
 <!-- queue:end -->

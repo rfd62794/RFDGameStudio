@@ -21,6 +21,8 @@
     "build:succession": "vite build --config vite.succession.config.ts",
     "build:house_of_kings_collab": "vite build --config vite.house_of_kings_collab.config.ts",
     "build:choke_point": "vite build --config vite.choke_point.config.ts",
+    "build:voidrift_particle_sandbox": "vite build --config vite.voidrift_particle_sandbox.config.ts",
+    "build:voiddrift_redux": "vite build --config vite.voiddrift_redux.config.ts",
     "build:wire_rust": "vite build --config vite.wire_rust.config.ts",
     "build:slither_rogue": "vite build --config vite.slither_rogue.config.ts",
     "preview": "vite preview",

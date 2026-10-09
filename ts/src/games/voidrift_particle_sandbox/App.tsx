@@ -19,6 +19,7 @@ import { FilterPopup } from './components/FilterPopup';
 import { ReconstructionCatalog } from './components/ReconstructionCatalog';
 import { InspectPanel } from './components/InspectPanel';
 import { HelpModal } from './components/HelpModal';
+import { FirstGoalCard } from './components/FirstGoalCard';
 import { getTierGoal } from './components/buildPanelHelpers';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { useCanvasInput } from './hooks/useCanvasInput';
@@ -26,7 +27,9 @@ import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
 import { ZoomIn, ZoomOut, Maximize2, Sparkles, Award, Hammer } from 'lucide-react';
 
-export default function App(_props: GameRendererProps) {
+export type AppProps = GameRendererProps & { onRestart?: () => void };
+
+export default function App({ onRestart }: AppProps) {
   // Canvas Container & Simulation Engine Refs
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -76,6 +79,7 @@ export default function App(_props: GameRendererProps) {
   const [isVictoryModalOpen, setIsVictoryModalOpen] = useState<boolean>(false);
   const [hasWon, setHasWon] = useState<boolean>(false);
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+  const [goalCardDismissed, setGoalCardDismissed] = useState<boolean>(false);
 
   // Pan clamping helper: guarantees at least 20% of grid remains visible on screen
   const clampPan = useCallback(
@@ -348,13 +352,11 @@ export default function App(_props: GameRendererProps) {
   };
 
   const handleResetGrid = () => {
-    if (window.confirm('Reset the simulation sandbox and clear all materials and structures?')) {
-      gridRef.current.clearAll();
-      buildingMgrRef.current.clearAll();
-      setStoredCounts({});
-      setSelectedBuilding(null);
-      setFilterPopupPos(null);
-    }
+    gridRef.current.clearAll();
+    buildingMgrRef.current.clearAll();
+    setStoredCounts({});
+    setSelectedBuilding(null);
+    setFilterPopupPos(null);
   };
 
   const handleResetView = () => {
@@ -386,25 +388,30 @@ export default function App(_props: GameRendererProps) {
           }}
           onTriggerMeteorShower={() => asteroidMgrRef.current.spawnMeteorShower(gridRef.current, 50)}
           onResetGrid={handleResetGrid}
+          onRestart={onRestart}
           onOpenHelp={() => setIsHelpOpen(true)}
         />
 
         {/* Main Sandbox Area: Dynamic Viewport + Right Build Panel */}
-        <div className="flex-1 flex overflow-hidden relative">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
           {/* Central Dynamic Canvas Viewport */}
           <div
             ref={containerRef}
-            className="flex-1 relative bg-[#04060c] overflow-hidden flex items-center justify-center"
+            className="flex-1 min-h-[220px] relative bg-[#04060c] overflow-hidden flex items-center justify-center"
           >
             <canvas
               ref={canvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
+              onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                handleMouseDown(e);
+              }}
+              onPointerMove={handleMouseMove}
+              onPointerUp={handleMouseUp}
+              onPointerCancel={handleMouseUp}
+              onPointerLeave={handleMouseLeave}
               onContextMenu={(e) => e.preventDefault()}
               onWheel={handleWheel}
-              className="w-full h-full cursor-crosshair block"
+              className="w-full h-full cursor-crosshair block touch-none"
             />
 
             {/* Real-time Cell & Building Inspector Tooltip */}
@@ -463,6 +470,10 @@ export default function App(_props: GameRendererProps) {
               ASTEROID IMPACT ZONE (TOP 20%)
             </div>
 
+            {currentTier === 1 && !goalCardDismissed && (storedCounts[MaterialType.STRUCTURAL_SOLID] || 0) === 0 && (
+              <FirstGoalCard onDismiss={() => setGoalCardDismissed(true)} />
+            )}
+
             {/* Material Routing Filter Popup */}
             {selectedBuilding && filterPopupPos && (
               <FilterPopup
@@ -479,7 +490,7 @@ export default function App(_props: GameRendererProps) {
           </div>
 
           {/* Right Sidebar (320px wide) */}
-          <div className="w-80 h-full flex flex-col relative z-20">
+          <div className="w-full md:w-80 h-72 md:h-full flex flex-col relative z-20">
             {/* If Tier 4: Show navigation tab bar to switch between Construction and Cosmic Reconstruction */}
             {currentTier === 4 && (
               <div className="flex bg-[#080b15] border-l border-b border-[#1f293d] p-1 gap-1">

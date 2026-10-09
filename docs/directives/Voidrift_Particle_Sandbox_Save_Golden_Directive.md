@@ -567,4 +567,9 @@ none.
 - 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
 - 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-08 18:17 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESGC3DW7Q7EBCK8KNZ9CH0
+- 2026-10-08 18:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 18:20 · devin (delegated) · In progress → Blocked — Declared deps not merged into worktree: TitleGate.tsx + test_..._tier_a.ts exist only on unmerged origin/directive/vps-tiera (8a81393f); FirstGoalCard.tsx + test_..._phone.ts exist on no branch (Phone directive still Queued). App.tsx is pre-polish text — quoted anchor 'import { FirstGoalCard }' absent; 5-file/48-test baseline and 6-file/59-test post commands cannot run. Stopped before edits per directive STOP rule.; under delegate.envelope
+- 2026-10-09 00:33 · devin (delegated) · Blocked → Queued — ordering dep resolved: both declared dependencies merged (TierA via PR #244, Phone via PR #247) - TitleGate.tsx and FirstGoalCard.tsx now exist on main at the cited paths; under delegate.requeue
+- 2026-10-09 00:33 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 00:33 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4FF0GEDPXA8NNDK5CTH5VHZ
 <!-- queue:end -->
