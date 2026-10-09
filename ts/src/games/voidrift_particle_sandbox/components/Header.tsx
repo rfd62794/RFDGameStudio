@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MaterialType, MATERIAL_DEFS } from '../types';
 import { Pause, Sparkles, RefreshCw, Zap, Layers, HelpCircle } from 'lucide-react';
 
@@ -18,6 +18,7 @@ interface HeaderProps {
   onToggleAsteroids: () => void;
   onTriggerMeteorShower: () => void;
   onResetGrid: () => void;
+  onRestart?: () => void;
   onOpenHelp: () => void;
 }
 
@@ -32,8 +33,24 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleAsteroids,
   onTriggerMeteorShower,
   onResetGrid,
+  onRestart,
   onOpenHelp,
 }) => {
+  const [clearArmed, setClearArmed] = useState<boolean>(false);
+  useEffect(() => {
+    if (!clearArmed) return;
+    const timer = setTimeout(() => setClearArmed(false), 3000);
+    return () => clearTimeout(timer);
+  }, [clearArmed]);
+  const handleClearClick = () => {
+    if (!clearArmed) {
+      setClearArmed(true);
+      return;
+    }
+    setClearArmed(false);
+    onResetGrid();
+  };
+
   const keyMaterials = [
     MaterialType.STRUCTURAL_SOLID,
     MaterialType.DUST,
@@ -214,12 +231,25 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <button
-          onClick={onResetGrid}
-          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded border border-transparent hover:border-slate-700 transition"
-          title="Reset Simulation Canvas"
+          id="btn-clear-canvas"
+          onClick={handleClearClick}
+          className="px-2 py-1 text-[11px] font-mono text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded border border-transparent hover:border-slate-700 transition flex items-center gap-1"
+          title="Clear the canvas and every building"
         >
           <RefreshCw className="w-3.5 h-3.5" />
+          {clearArmed ? 'Tap again to clear' : 'Clear'}
         </button>
+
+        {onRestart && (
+          <button
+            id="btn-restart"
+            onClick={onRestart}
+            className="px-2 py-1 text-[11px] font-mono text-cyan-300 hover:bg-slate-800 rounded border border-slate-700 transition"
+            title="Start over from the title screen"
+          >
+            Restart
+          </button>
+        )}
       </div>
     </header>
   );

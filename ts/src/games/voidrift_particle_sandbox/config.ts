@@ -10,7 +10,7 @@ const config: GameConfig = {
   color: '#7ab8d4',
   status: 'dev',
   tags: ['cellular-automata', 'factory', 'sandbox'],
-  component: React.lazy(() => import('./App')),
+  component: React.lazy(() => import('./TitleGate')),
 };
 
 export default config;
