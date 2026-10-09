@@ -1,4 +1,4 @@
-// <!-- new: ts/tests/test_voidrift_particle_sandbox_tiles_materials.ts -->
+// <!-- new: ts/tests/test_grainworks_tiles_materials.ts -->
 // Guards the CA-cell <-> building-tile coordinate contract (snapToTile /
 // tileToCA over the 40x25 tile grid of 8x8 cells) and the MATERIAL_DEFS
 // catalog (12 entries keyed by MaterialType, sane colors/rgb/tiers, and the
@@ -7,17 +7,17 @@ import { describe, it, expect } from 'vitest';
 import {
   MaterialType,
   MATERIAL_DEFS,
-} from '../src/games/voidrift_particle_sandbox/types';
+} from '../src/games/grainworks/types';
 import {
   snapToTile,
   tileToCA,
   TILES_X,
   TILES_Y,
-} from '../src/games/voidrift_particle_sandbox/simulation/routing';
-import { BUILDING_TILE } from '../src/games/voidrift_particle_sandbox/simulation/buildingDefs';
-import { EMISSIVE_MATERIALS } from '../src/games/voidrift_particle_sandbox/simulation/flowParticles';
+} from '../src/games/grainworks/simulation/routing';
+import { BUILDING_TILE } from '../src/games/grainworks/simulation/buildingDefs';
+import { EMISSIVE_MATERIALS } from '../src/games/grainworks/simulation/flowParticles';
 
-describe('VoidRift Particle Sandbox — snapToTile / tileToCA', () => {
+describe('GrainWorks — snapToTile / tileToCA', () => {
   it('maps CA coordinates to 8x8 building tiles and back', () => {
     expect(snapToTile(17, 33)).toEqual({ tx: 2, ty: 4 });
     expect(tileToCA(2, 4)).toEqual({ x: 16, y: 32 });
@@ -62,7 +62,7 @@ describe('VoidRift Particle Sandbox — snapToTile / tileToCA', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — MATERIAL_DEFS catalog', () => {
+describe('GrainWorks — MATERIAL_DEFS catalog', () => {
   const defs = Object.values(MATERIAL_DEFS);
 
   it('has exactly 12 entries keyed 0..11 with def.id matching its key', () => {
