@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { GAME_REGISTRY, findGame } from '../src/games/registry';
 
-const GAME_DIR = resolve(import.meta.dirname, '../src/games/voidrift_particle_sandbox');
+const GAME_DIR = resolve(import.meta.dirname, '../src/games/grainworks');
 
 function listFiles(dir: string): string[] {
   const out: string[] = [];
@@ -18,30 +18,30 @@ function listFiles(dir: string): string[] {
   return out;
 }
 
-describe('VoidRift Particle Sandbox — registry registration', () => {
+describe('GrainWorks — registry registration', () => {
   it('is registered in GAME_REGISTRY as a dev game', () => {
-    const entry = GAME_REGISTRY.find((g) => g.gameId === 'voidrift_particle_sandbox');
+    const entry = GAME_REGISTRY.find((g) => g.gameId === 'grainworks');
     expect(entry).toBeDefined();
-    expect(entry!.label).toBe('VoidRift Particle Sandbox');
+    expect(entry!.label).toBe('GrainWorks');
     expect(entry!.status).toBe('dev');
     expect(entry!.description).toBeTruthy();
     expect(entry!.component).toBeDefined();
   });
 
   it('declares the AI Studio example as its demo source', () => {
-    const entry = GAME_REGISTRY.find((g) => g.gameId === 'voidrift_particle_sandbox');
-    expect(entry!.source).toEqual({ kind: 'example', slug: 'voidrift-redux-particle-sandbox' });
+    const entry = GAME_REGISTRY.find((g) => g.gameId === 'grainworks');
+    expect(entry!.source).toEqual({ kind: 'example', slug: 'grainworks' });
   });
 
   it('has a unique gameId across GAME_REGISTRY', () => {
     const ids = GAME_REGISTRY.map((g) => g.gameId);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.filter((id) => id === 'voidrift_particle_sandbox')).toHaveLength(1);
+    expect(ids.filter((id) => id === 'grainworks')).toHaveLength(1);
   });
 
   it('does not collide with the sibling voiddrift_redux registration', () => {
     const redux = GAME_REGISTRY.find((g) => g.gameId === 'voiddrift_redux');
-    const sandbox = GAME_REGISTRY.find((g) => g.gameId === 'voidrift_particle_sandbox');
+    const sandbox = GAME_REGISTRY.find((g) => g.gameId === 'grainworks');
     expect(redux).toBeDefined();
     expect(sandbox).toBeDefined();
     expect(sandbox!.gameId).not.toBe(redux!.gameId);
@@ -49,12 +49,12 @@ describe('VoidRift Particle Sandbox — registry registration', () => {
 
   it('is collected by the registry glob, with no hand-written import in registry.ts', () => {
     const registryText = readFileSync(resolve(GAME_DIR, '../registry.ts'), 'utf-8');
-    expect(registryText).not.toContain('voidrift_particle_sandbox');
-    expect(typeof findGame('voidrift_particle_sandbox')?.order).toBe('number');
+    expect(registryText).not.toContain('grainworks');
+    expect(typeof findGame('grainworks')?.order).toBe('number');
   });
 });
 
-describe('VoidRift Particle Sandbox — source organization', () => {
+describe('GrainWorks — source organization', () => {
   it('has the expected ported file layout', () => {
     const expected = [
       'types.ts',

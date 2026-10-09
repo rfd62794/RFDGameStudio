@@ -1,14 +1,14 @@
-// <!-- new: ts/tests/test_voidrift_particle_sandbox_reactions.ts -->
+// <!-- new: ts/tests/test_grainworks_reactions.ts -->
 // Guards the MATERIAL_REACTIONS table (all five pairs fire on adjacent inputs,
 // and do not fire when the roll exceeds the probability) and the per-material
 // CellularGrid.step() movement/expiry rules (falls, plasma rise, plasma
 // lifespan, bedrock rest). Math.random is stubbed so every step is deterministic.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MaterialType } from '../src/games/voidrift_particle_sandbox/types';
+import { MaterialType } from '../src/games/grainworks/types';
 import {
   CellularGrid,
   GRID_HEIGHT,
-} from '../src/games/voidrift_particle_sandbox/simulation/grid';
+} from '../src/games/grainworks/simulation/grid';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -29,7 +29,7 @@ function stepSingle(material: MaterialType, x = 100, y = 50, customLife = 0): Ce
   return grid;
 }
 
-describe('VoidRift Particle Sandbox — material reactions (stub 0.01)', () => {
+describe('GrainWorks — material reactions (stub 0.01)', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0.01);
   });
@@ -70,7 +70,7 @@ describe('VoidRift Particle Sandbox — material reactions (stub 0.01)', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — reaction probability gate (stub 0.99)', () => {
+describe('GrainWorks — reaction probability gate (stub 0.99)', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99);
   });
@@ -83,7 +83,7 @@ describe('VoidRift Particle Sandbox — reaction probability gate (stub 0.99)', 
   });
 });
 
-describe('VoidRift Particle Sandbox — per-material step rules (stub 0.5)', () => {
+describe('GrainWorks — per-material step rules (stub 0.5)', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
   });

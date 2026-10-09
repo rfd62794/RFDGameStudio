@@ -2,10 +2,10 @@ import React from 'react';
 import type { GameConfig } from '../../engine/types';
 
 const config: GameConfig = {
-  gameId: 'voidrift_particle_sandbox',
+  gameId: 'grainworks',
   order: 260,
-  source: { kind: 'example', slug: 'voidrift-redux-particle-sandbox' },
-  label: 'VoidRift Particle Sandbox',
+  source: { kind: 'example', slug: 'grainworks' },
+  label: 'GrainWorks',
   description: 'Cellular-automata material sandbox and factory builder on a 64,000-cell grid — catch asteroid debris with collectors, pipe it through processors, and climb four tiers to the Reconstruction finale.',
   color: '#7ab8d4',
   status: 'dev',
