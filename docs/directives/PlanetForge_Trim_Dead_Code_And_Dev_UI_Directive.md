@@ -267,4 +267,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-05 00:40 · robert-claude-laptop · Blocked → Queued — requeue: setup died at uv sync (os error 1142 hard-link) in the laptop's STALE queue MCP process, which predates PR 558 copy mode; the tick-launched dispatcher has the fix
 - 2026-10-09 06:48 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 07:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-trim-dead-code-and-de-34bafa; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4G5DTWEE43R29N1HCAHB09C
+- 2026-10-09 07:06 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-trim-dead-code-and-de-34bafa; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
