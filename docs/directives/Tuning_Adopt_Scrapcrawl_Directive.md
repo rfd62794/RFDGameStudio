@@ -92,7 +92,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-scrapcrawl-directive |
 | Base branch | - |
@@ -104,4 +104,5 @@ none.
 - 2026-10-04 20:25 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 20:26 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
 - 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
+- 2026-10-09 01:14 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 <!-- queue:end -->
