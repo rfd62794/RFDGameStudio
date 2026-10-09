@@ -1,4 +1,7 @@
 // new: ts/src/games/scrapcrawl/utils/runEnd.ts
+import { tuned } from '../../../engine/tuning';
+import '../knobs';
+
 export type RunOutcome = 'playing' | 'won' | 'lost';
 
 export interface RunProgress {
@@ -15,8 +18,8 @@ type RoomTypes = Record<string, { interaction_types?: string[] }>;
 
 export function newRun(): RunProgress {
   return {
-    hp: PLAYER_MAX_HP,
-    maxHp: PLAYER_MAX_HP,
+    hp: tuned('scrapcrawl.player_max_hp'),
+    maxHp: tuned('scrapcrawl.player_max_hp'),
     clearedRoomIds: [],
     outcome: 'playing',
   };
@@ -37,7 +40,7 @@ export function applyFight(run: RunProgress, rooms: RoomTypes, roomId: string, w
     const allCleared = fightIds.length > 0 && fightIds.every(id => clearedRoomIds.includes(id));
     return { ...run, clearedRoomIds, outcome: allCleared ? 'won' : 'playing' };
   }
-  const hp = Math.max(0, run.hp - LOSS_DAMAGE);
+  const hp = Math.max(0, run.hp - tuned('scrapcrawl.loss_damage'));
   return { ...run, hp, outcome: hp === 0 ? 'lost' : 'playing' };
 }
 
