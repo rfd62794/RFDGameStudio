@@ -72,7 +72,7 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin-any |
 | Branch | directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 |
 | Base branch | - |
@@ -85,4 +85,5 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 - 2026-10-09 00:35 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-09 00:44 · devin-overseer (delegated) · In progress → Blocked — Sandbox refused `git mv ts/src/games/voidrift_particle_sandbox ts/src/games/grainworks` — declared Exec(git mv) was not granted (git mv is outside the run's allowed command list). No permitted alternative exists: directive requires git mv only / no copy-then-delete, and no move/rename primitive (mv, Move-Item, git rm) is allowed. No files changed; worktree clean. Grant git mv or perform the 12 moves out-of-band, then requeue.; under delegate.envelope
 - 2026-10-09 00:47 · robert-claude-laptop · Blocked → Queued — requeue: git mv was refused because '## 4. Sandbox needs' (numbered) was not parsed (sandbox_grants empty); heading fixed to '## Sandbox needs'
+- 2026-10-09 00:48 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
