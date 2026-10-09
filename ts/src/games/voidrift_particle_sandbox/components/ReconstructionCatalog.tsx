@@ -19,7 +19,7 @@ export const ReconstructionCatalog: React.FC<ReconstructionCatalogProps> = ({
   const reconstructedCount = entities.filter((e) => e.reconstructed).length;
 
   return (
-    <div className="w-80 bg-[#0d121f] border-l border-[#1f293d] flex flex-col h-full overflow-hidden text-xs text-slate-300 select-none">
+    <div className="w-full md:w-80 bg-[#0d121f] border-t md:border-t-0 md:border-l border-[#1f293d] flex flex-col h-full overflow-hidden text-xs text-slate-300 select-none">
       {/* Header */}
       <div className="p-3 border-b border-[#1f293d] bg-gradient-to-r from-[#10172a] to-[#1a152e]">
         <div className="flex items-center justify-between">

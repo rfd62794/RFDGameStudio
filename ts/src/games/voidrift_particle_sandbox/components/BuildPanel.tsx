@@ -8,12 +8,14 @@ import {
 } from '../types';
 import { BUILDING_DEFS } from '../simulation/buildingDefs';
 import { getGoalData, renderCardGraphic } from './buildPanelHelpers';
+import { unlockedDefs } from './buildPanelVisibility';
 import {
   ArrowDownToLine,
   Box,
   Workflow,
   Cpu,
   Paintbrush,
+  Move,
   Trash2,
   Lock,
   ArrowUp,
@@ -25,7 +27,7 @@ import {
   Layers,
 } from 'lucide-react';
 
-export type ToolMode = 'BUILD' | 'DEMOLISH' | 'PAINT';
+export type ToolMode = 'BUILD' | 'DEMOLISH' | 'PAINT' | 'PAN';
 export type BuildCategoryTab = 'COLLECTORS' | 'CONTAINERS' | 'PIPES' | 'PROCESSORS' | 'MATERIALS';
 
 interface BuildPanelProps {
@@ -102,12 +104,13 @@ export const BuildPanel: React.FC<BuildPanelProps> = ({
   };
 
   // Group definitions by category
-  const collectors = BUILDING_DEFS.filter((b) => b.category === BuildingCategory.COLLECTOR);
-  const containers = BUILDING_DEFS.filter((b) => b.category === BuildingCategory.CONTAINER);
-  const conduits = BUILDING_DEFS.filter(
+  const available = unlockedDefs(BUILDING_DEFS, currentTier);
+  const collectors = available.filter((b) => b.category === BuildingCategory.COLLECTOR);
+  const containers = available.filter((b) => b.category === BuildingCategory.CONTAINER);
+  const conduits = available.filter(
     (b) => b.category === BuildingCategory.PIPE || b.category === BuildingCategory.WALL
   );
-  const processors = BUILDING_DEFS.filter((b) => b.category === BuildingCategory.PROCESSOR);
+  const processors = available.filter((b) => b.category === BuildingCategory.PROCESSOR);
   const materialsList = Object.values(MATERIAL_DEFS);
 
   const goalData = getGoalData(currentTier, storedCounts);
@@ -131,7 +134,7 @@ export const BuildPanel: React.FC<BuildPanelProps> = ({
   const currentItems = getActiveTabItems();
 
   return (
-    <div className="w-80 bg-[#0c101d] border-l border-[#1f293d] flex flex-col h-full overflow-hidden text-xs text-slate-300 select-none shadow-2xl z-20">
+    <div className="w-full md:w-80 bg-[#0c101d] border-t md:border-t-0 md:border-l border-[#1f293d] flex flex-col h-full overflow-hidden text-xs text-slate-300 select-none shadow-2xl z-20">
       {/* 3A: Current Goal Bar (60px height) */}
       <div className="h-[60px] min-h-[60px] px-3 py-2 bg-[#090d18] border-b border-[#1f293d] flex flex-col justify-center relative overflow-hidden">
         {unlockBanner && unlockBanner.show ? (
@@ -241,6 +244,23 @@ export const BuildPanel: React.FC<BuildPanelProps> = ({
             title="Sandbox Material Painter (M)"
           >
             <Paintbrush className="w-4 h-4" />
+          </button>
+
+          {/* Pan Mode Button (touch devices have no middle-click or Alt-drag) */}
+          <button
+            id="tool-pan"
+            onClick={() => {
+              onSetToolMode(toolMode === 'PAN' ? 'BUILD' : 'PAN');
+              onSelectBuildingDef(null);
+            }}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center transition ${
+              toolMode === 'PAN'
+                ? 'bg-slate-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+            title="Move the view: drag to pan"
+          >
+            <Move className="w-4 h-4" />
           </button>
 
           {/* Demolish Mode Button */}
@@ -508,6 +528,8 @@ export const BuildPanel: React.FC<BuildPanelProps> = ({
                   ? 'Paint Mode: Click and drag on canvas'
                   : toolMode === 'DEMOLISH'
                   ? 'Demolish Mode: Click to dismantle'
+                  : toolMode === 'PAN'
+                  ? 'Move Mode: drag to move the view'
                   : 'Select an item to place →'}
               </div>
             )}
