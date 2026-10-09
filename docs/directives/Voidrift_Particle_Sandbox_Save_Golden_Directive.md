@@ -572,4 +572,5 @@ none.
 - 2026-10-09 00:33 · devin (delegated) · Blocked → Queued — ordering dep resolved: both declared dependencies merged (TierA via PR #244, Phone via PR #247) - TitleGate.tsx and FirstGoalCard.tsx now exist on main at the cited paths; under delegate.requeue
 - 2026-10-09 00:33 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-09 00:33 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4FF0GEDPXA8NNDK5CTH5VHZ
+- 2026-10-09 00:33 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; resynced: merged main into directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 (50 commit(s), clean); provisioned: uv sync --frozen
 <!-- queue:end -->
