@@ -221,7 +221,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-arcade-count-excludes-origins-and-02695f |
 | Base branch | - |
@@ -235,4 +235,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-08 18:16 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-arcade-count-excludes-origins-and-02695f; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESDX6EF84ZEY3A3GF4MHYN
 - 2026-10-08 18:16 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-arcade-count-excludes-origins-and-02695f; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 18:20 · devin (delegated) · In progress → Review — 4 diffs applied verbatim (no context drift); vitest 3 files / 15 tests pass (directive predicted 14 — baseline grew by 1 test since prototype); tsc --noEmit clean exit 0 (no errors: game-metadata.json was provisioned into this worktree). Exporter not run — controller step; playable not yet read by the site. Commit cb05b42a, pushed.; under delegate.envelope [origin]
+- 2026-10-09 00:06 · robert-claude-laptop · Review → Done — note: merged via PR #241 (merge commit)
 <!-- queue:end -->
