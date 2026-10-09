@@ -33,7 +33,7 @@ New names: id `grainworks`, display title `GrainWorks`, game folder `ts/src/game
 - Do not rename the VoidDrift or VoidDrift Redux games. Do not run `git merge origin/main`. Do not install, download or fetch anything, read outside the worktree, or search for facts: every path you need is listed above. If a listed path is missing, stop and write why in the Status row.
 - Never commit to main, never push except your `directive/<slug>` branch, never deploy. No scratch files (use `.devin-scratch/`).
 
-## 4. Sandbox needs
+## Sandbox needs
 
 - Exec(git mv)
 
@@ -82,4 +82,9 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 - 2026-10-08 19:49 · robert-claude-laptop · none → Queued — Robert 2026-10-08: GrainWorks, unrelated to Voidrift; runs after Tier A and Phone merge
 - 2026-10-09 00:34 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 00:35 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FF3B5NJGS0VD3FM3MCS7RN
+- 2026-10-09 00:35 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-09 00:44 · devin-overseer (delegated) · In progress → Blocked — Sandbox refused `git mv ts/src/games/voidrift_particle_sandbox ts/src/games/grainworks` — declared Exec(git mv) was not granted (git mv is outside the run's allowed command list). No permitted alternative exists: directive requires git mv only / no copy-then-delete, and no move/rename primitive (mv, Move-Item, git rm) is allowed. No files changed; worktree clean. Grant git mv or perform the 12 moves out-of-band, then requeue.; under delegate.envelope
+- 2026-10-09 00:47 · robert-claude-laptop · Blocked → Queued — requeue: git mv was refused because '## 4. Sandbox needs' (numbered) was not parsed (sandbox_grants empty); heading fixed to '## Sandbox needs'
+- 2026-10-09 00:48 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 00:48 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FFVDFM2HR6K8A21ANAYQBM
 <!-- queue:end -->
