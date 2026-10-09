@@ -171,11 +171,25 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-browser-smoke-manifest-d-759d53 |
 | Base branch | - |
+| Base commit | a88bfe479c1c4a55ae042d398a38d2ce16273302 |
+| Head commit | 7514f12e046fde07de02141e7186317b8754115c |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:50 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
+- 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
+- 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:01 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; lane=strong; model=default; persona=steady-builder; agent_id=01M4ERHBX7AH6T3YQZ8NXFS711
+- 2026-10-08 18:01 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-browser-smoke-manifest-d-759d53; provisioned: uv sync --frozen
+- 2026-10-08 18:11 · devin (delegated) · In progress → Blocked — rejection-death: npx tried to fetch vitest - ts/node_modules absent on fresh hometower clone; WIP committed+pushed on branch (8 files); provisioning now fixed (npm ci ts/ + root, game-metadata.json generated); under delegate.envelope
+- 2026-10-08 18:11 · devin (delegated) · Blocked → Queued — requeue after transient-env death: hometower provisioned (ts/node_modules, root node_modules, game-metadata.json generated); WIP already on branch; under delegate.requeue
+- 2026-10-08 18:12 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:14 · devin (delegated) · Approved → Blocked — Work complete and verified (vitest smoke-manifest 10/10, contract 13/13, tsc clean except pre-existing game-metadata.json); branch holds it via salvage commit 7514f12e. Cannot set Review: queue reverted row to Approved mid-run and Approved -> Review/In progress is refused for this actor.; under delegate.envelope
+- 2026-10-08 18:16 · devin (delegated) · Blocked → Review — work verified complete by devin-home-overseer: vitest smoke-manifest 10/10 + contract 13/13 rerun green in worktree, tree clean, head 7514f12e pushed. (Row churn was my mistake: I requeued mid-resume before seeing the harness had auto-resumed the run.); under delegate.envelope [origin]
+- 2026-10-09 00:06 · robert-claude-laptop · Review → Done — note: merged via PR #240 (merge commit); vitest 39 passed across the six merged branches' tests
 <!-- queue:end -->
