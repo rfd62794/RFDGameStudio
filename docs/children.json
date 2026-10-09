@@ -77,6 +77,11 @@
       "label": "Gladiator Arena"
     },
     {
+      "id": "grainworks",
+      "path": "ts/src/games/grainworks",
+      "label": "GrainWorks"
+    },
+    {
       "id": "horse_racing",
       "path": "ts/src/games/horse_racing",
       "label": "Derby Sim"
@@ -180,11 +185,6 @@
       "id": "voiddrift_redux",
       "path": "ts/src/games/voiddrift_redux",
       "label": "VoidDrift Redux"
-    },
-    {
-      "id": "grainworks",
-      "path": "ts/src/games/grainworks",
-      "label": "GrainWorks"
     },
     {
       "id": "wire_rust",
