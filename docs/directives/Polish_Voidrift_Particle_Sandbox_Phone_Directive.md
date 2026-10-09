@@ -309,4 +309,5 @@ none.
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-09 00:10 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 00:11 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voidrift-particle-sandbox--302aa1; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FDPYGFRVASMHKDSXBK1XVM
+- 2026-10-09 00:11 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voidrift-particle-sandbox--302aa1; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
