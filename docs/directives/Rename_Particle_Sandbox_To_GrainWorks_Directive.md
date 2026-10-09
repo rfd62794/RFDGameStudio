@@ -12,7 +12,7 @@ Measured footprint (Grep, 2026-10-08, excluding `node_modules`, `dist*`, `review
 - Source example folder: `examples/voidrift-redux-particle-sandbox/`.
 - Direction docs folder: `docs/demos/voidrift_particle_sandbox/` (`DIRECTION.md`, `SCOPE.md`).
 - Tests: `ts/tests/test_voidrift_particle_sandbox_flow.ts`, `_reactions.ts`, `_registry.ts`, `_simulation.ts`, `_tiles_materials.ts` (plus `_tier_a.ts` and any phone test the two dependency directives add).
-- Id or title strings inside: `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/config.ts`, `ts/src/games/arcade-manifest.json`, `ts/src/games/game-metadata.json`, `ts/src/games/registry-export.json`, `ts/tests/test_collect_configs.ts`, `ts/tests/seeded_sim_guard.baseline.json`, `docs/children.json`.
+- Id or title strings inside: `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/config.ts`, `ts/tests/test_collect_configs.ts`, `ts/tests/seeded_sim_guard.baseline.json`, `docs/children.json`. The generated registry files `ts/src/games/arcade-manifest.json`, `ts/src/games/game-metadata.json` and `ts/src/games/registry-export.json` are gitignored and not in the worktree: do not look for or edit them; the controller regenerates them after merge.
 - Pending directive that names the old paths: `docs/directives/Voidrift_Particle_Sandbox_Save_Golden_Directive.md`.
 
 ## 2. Scope
