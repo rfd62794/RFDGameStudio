@@ -50,7 +50,7 @@ export const ENDING_TEXT = {
   body: 'The Engine completes. Something wakes up in the space between the Ore and the hole it tore. It does not thank you. It does not explain. It puts humanity under arrest — starting with the President who built it, standing in the boardroom that was supposed to be a victory podium. You won. That was the problem.',
   fragmentComplete: 'Echo wakes whole. All six Fragments assembled — every House\'s knowledge, every House\'s fear, every House\'s last thought before the transfer. She knows everything they knew. She knows what you did to get here. She is not grateful.',
   fragmentIncomplete: 'Echo wakes with gaps. The Houses you never personally brought down left holes in her memory — ghosts of rivals who escaped your hand. She will find them. She always finds them. The arrest is not over; it has only begun.',
-  restartLabel: 'Begin New Campaign',
+  restartLabel: 'Play again',
 } as const;
 
 /**

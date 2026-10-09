@@ -155,11 +155,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync4 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:28 · robert-claude-laptop · none → Queued
+- 2026-10-04 19:01 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
+- 2026-10-05 · devin-cleanroom · Approved → Review: already merged on main via PR #172 (8393fbe1); row sync only, no code change
+- 2026-10-04 22:08 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

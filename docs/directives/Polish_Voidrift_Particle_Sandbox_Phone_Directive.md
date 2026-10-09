@@ -18,7 +18,7 @@ This run: stack the panel under the canvas below 768 px; use pointer events with
 ## 2. Scope
 
 1. New modules `<!-- new: ts/src/games/voidrift_particle_sandbox/components/buildPanelVisibility.ts -->` and `<!-- new: ts/src/games/voidrift_particle_sandbox/components/FirstGoalCard.tsx -->`.
-2. `ts/src/games/voidrift_particle_sandbox/components/BuildPanel.tsx`, `components/ReconstructionCatalog.tsx`, `hooks/useCanvasInput.ts`, `App.tsx`.
+2. `ts/src/games/voidrift_particle_sandbox/components/BuildPanel.tsx`, `ts/src/games/voidrift_particle_sandbox/components/ReconstructionCatalog.tsx`, `ts/src/games/voidrift_particle_sandbox/hooks/useCanvasInput.ts`, `App.tsx`.
 3. New test `<!-- new: ts/tests/test_voidrift_particle_sandbox_phone.ts -->`.
 
 ## 3. The work
@@ -288,7 +288,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 

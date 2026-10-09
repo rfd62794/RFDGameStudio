@@ -4,6 +4,7 @@ export { Badge } from './Badge';
 export { StatBar } from './StatBar';
 export { EmptyState } from './EmptyState';
 export { ErrorBox } from './ErrorBox';
+export { ErrorBoundary } from './ErrorBoundary';
 export { Card } from './Card';
 export { TabBar } from './TabBar';
 export { Modal } from './Modal';

@@ -107,3 +107,186 @@ retired_cast_names:
   - danica
   - roxanne
   - kathryn
+
+# ---- Added by the broaden directive: all twelve countries, not only the first one. ----
+
+# Demonyms and nationality or ethnicity shorthand for every country in countries.yaml.
+# Bare "polish" is NOT listed (it is also an ordinary English verb); only its unambiguous phrases are.
+demonym_terms:
+  - indian
+  - indians
+  - desi
+  - malaysian
+  - malaysians
+  - vietnamese
+  - polish people
+  - polish speaker
+  - polish speakers
+  - romanian
+  - romanians
+  - egyptian
+  - egyptians
+  - south african
+  - south africans
+  - kenyan
+  - kenyans
+  - colombian
+  - colombians
+  - mexican
+  - mexicans
+  - costa rican
+  - costa ricans
+  - tico
+  - ticos
+  - tica
+  - ticas
+  - latino
+  - latina
+  - latinos
+  - hispanic
+  - latam
+
+# Major cities and BPO hubs. Spellings with and without diacritics.
+city_and_hub_terms:
+  - mumbai
+  - bombay
+  - bangalore
+  - bengaluru
+  - pune
+  - hyderabad
+  - chennai
+  - madras
+  - gurgaon
+  - gurugram
+  - noida
+  - delhi
+  - new delhi
+  - kolkata
+  - kuala lumpur
+  - penang
+  - cyberjaya
+  - ho chi minh
+  - saigon
+  - hanoi
+  - da nang
+  - krakow
+  - kraków
+  - wroclaw
+  - wrocław
+  - warsaw
+  - katowice
+  - bucharest
+  - cluj
+  - cairo
+  - cape town
+  - johannesburg
+  - durban
+  - pretoria
+  - nairobi
+  - mombasa
+  - medellin
+  - medellín
+  - bogota
+  - bogotá
+  - barranquilla
+  - monterrey
+  - guadalajara
+  - mexico city
+  - tijuana
+  - san jose
+  - san josé
+  - heredia
+  - davao
+  - bacolod
+  - iloilo
+
+# Local currency names and symbols. Ambiguous English words ("pound", "shilling", "rand", "leu", "colon") are
+# not listed bare; the three-letter codes live in case_sensitive_codes below.
+currency_terms:
+  - rupee
+  - rupees
+  - ringgit
+  - dong
+  - zloty
+  - złoty
+  - zlotys
+  - romanian leu
+  - egyptian pound
+  - south african rand
+  - kenyan shilling
+  - kenya shillings
+  - colombian peso
+  - mexican peso
+  - costa rican colon
+  - colón
+  - colones
+  - "₹"
+  - "₫"
+  - "zł"
+
+# National languages. "spanish" is listed as a language NAME only; ordinary Spanish words such as "peso" are
+# covered separately and no other Spanish vocabulary is blocked.
+language_terms:
+  - hindi
+  - tamil
+  - telugu
+  - bengali
+  - marathi
+  - punjabi
+  - urdu
+  - malay
+  - bahasa
+  - romanian
+  - arabic
+  - afrikaans
+  - zulu
+  - xhosa
+  - swahili
+  - kiswahili
+  - spanish
+  - castellano
+  - español
+  - polish language
+  - vietnamese language
+
+# More stereotype shorthand: accents, "native speaker" framing, food and culture shorthand, call-centre jokes.
+# Bare "accent" is NOT listed (the game's own code uses Tailwind's accent-* classes and "Accent" in comments).
+stereotype_phrase_terms:
+  - heavy accent
+  - thick accent
+  - strong accent
+  - foreign accent
+  - accent reduction
+  - accent training
+  - accent neutral
+  - native speaker
+  - native speakers
+  - native english
+  - exotic
+  - curry
+  - jugaad
+  - chai wallah
+  - bollywood
+  - do the needful
+  - kindly revert
+  - low cost country
+  - low-cost labor
+  - low-cost labour
+  - offshore labor
+  - offshore labour
+
+# Three-letter currency codes. Matched CASE-SENSITIVELY as whole words (so "cop", "ron", "crc" the checksum
+# in lower case, and "kes" do not fire, only the upper-case code).
+case_sensitive_codes:
+  - INR
+  - MYR
+  - VND
+  - PLN
+  - RON
+  - EGP
+  - ZAR
+  - KES
+  - COP
+  - MXN
+  - CRC
+  - PHP

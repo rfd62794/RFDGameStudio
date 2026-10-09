@@ -242,11 +242,13 @@ executing agent once collected, not assumed here.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-rfdgamestudio-pipelineaudit-phase-fa27c3 |
 | Base branch | - |
 | Base commit | 85f7e987de1127fe0c1da29042d828fd4730f095 |
+| Head commit | a5da6d794370d3625582da88a1965c8fedb0c7ac |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-09-23 01:19 · agentflow-tick · none → Queued — suggested by heartbeat: Read-only, TDD-spec'd, zero-blast-radius build work — fits Devin's directive queue.
@@ -260,4 +262,6 @@ executing agent once collected, not assumed here.
 - 2026-09-27 04:36 · robert-claude-laptop · Review → Blocked — FIX FIRST (laptop review 2026-09-27): studio_mcp/pipeline_audit/known_issues.py:130-145 check_cross_pipeline_version_tracking double-counts - publishing_root (packages/itch_publisher) is inside repo_root, so total = repo + publishing counts the itch_publisher hits twice (report said 192; true 169). Count repo_root excluding packages/itch_publisher (or subtract the overlap) and add a nested-dir test. Unit tests 34/34 otherwise green.
 - 2026-09-27 04:50 · robert-claude-laptop · Blocked → Queued — requeued instead of closing: fix-first round on the same branch per the Blocked note (known_issues.py double-count)
 - 2026-09-28 19:27 · devin-overseer (delegated) · Queued → Approved — lint override: false positive: line 184 is prose in a test-spec table ('realistic mocked pytest summary line'), not an invocation - bare-python-in-prose class
+- 2026-10-04 17:48 · dispatcher · Approved → Blocked — preflight: needs: Read(C:/Github/OpenAgentMCP/**)
+- 2026-10-06 17:28 · agentflow-tick · Blocked → Review — already merged at a5da6d794370d3625582da88a1965c8fedb0c7ac
 <!-- queue:end -->

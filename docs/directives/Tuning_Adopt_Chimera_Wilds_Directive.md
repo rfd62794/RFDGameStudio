@@ -17,11 +17,11 @@ Win rate over the test's 1000 seeded encounters is 52.8% at 90/85, 14.8% at 80/7
 
 1. New `ts/src/games/chimera_wilds/tuning.ts`.
 2. Edit `ts/src/games/tuning-registry.ts`: add the import and the map entry `chimera_wilds`.
-3. New test `ts/tests/test_chimera_wilds_tuning.ts`.
+3. New test `ts/tests/test_chimera_wilds_tuning.ts` <!-- new: ts/tests/test_chimera_wilds_tuning.ts -->.
 
 ## 3. The work
 
-**`tuning.ts`** (first line `// new: ts/src/games/chimera_wilds/tuning.ts`): default export a `GameTuning`:
+**`tuning.ts`** (first line `// new: ts/src/games/chimera_wilds/tuning.ts`) <!-- new: ts/src/games/chimera_wilds/tuning.ts -->: default export a `GameTuning`:
 - `gameId: 'chimera_wilds'`.
 - knob `chimera_wilds.baseline_player.power`: label `Starting power`, group `Player`, min 40, max 140, step 5, default 90, affects `How hard the player's chimera hits; the main lever on whether a first encounter is winnable.`, source `{ kind: 'data', file: 'games/chimera_wilds/data.yaml', path: 'baseline_player.power' }`.
 - knob `chimera_wilds.baseline_player.endurance`: label `Starting endurance`, group `Player`, min 40, max 140, step 5, default 85, affects `How much punishment the player's chimera survives.`, path `baseline_player.endurance`.
@@ -40,7 +40,7 @@ Win rate over the test's 1000 seeded encounters is 52.8% at 90/85, 14.8% at 80/7
 ## 5. Verification
 
 `cd ts && npx vitest run test_chimera_wilds_tuning.ts` all passed; `cd ts && npx vitest run test_chimera_wilds_balance.ts` still `Tests  2 passed (2)`; `cd ts && npx vitest run test_tuning_targets.ts` passes and now includes `chimera_wilds targets hold at defaults`; `cd ts && npx tsc --noEmit` no new errors. Paste real tails, including the measured rates.
-**Controller finish (after merge):** `cd ts && npx vite-node tools/tune-sweep.ts -- --game chimera_wilds --knob chimera_wilds.baseline_player.power --from 60 --to 120 --step 10 --runs 300 --report`.
+**Controller finish (after merge):** run `ts/tools/tune-sweep.ts` via `npx vite-node` from the `ts` directory, as `-- --game chimera_wilds --knob chimera_wilds.baseline_player.power --from 60 --to 120 --step 10 --runs 300 --report`.
 
 ## 6. Rules for this run
 
@@ -95,9 +95,14 @@ none.
 |---|---|
 | Status | Queued |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive |
 | Base branch | - |
+| Base commit | b1bac35661ca192fdc5d824991bafe6b47a419e0 |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 20:24 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions, a gitignored generated file, or new files this directive creates; verified in earlier directives of the same family
+- 2026-10-04 20:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 20:25 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
+- 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
 <!-- queue:end -->

@@ -2,7 +2,7 @@
  * Archetype definitions, Factions, and Map Generation for KingMaker Squads
  */
 
-import { Faction, UnitArchetype, UnitStats, CellType, TerritoryCell, UnitState, Zodiac, HouseId } from '../types';
+import { Faction, UnitArchetype, UnitStats, TerritoryCell, UnitState, Zodiac, HouseId } from '../types';
 import { HOVEL_NAME } from './worldGeometry';
 
 export interface HouseInfo {
@@ -72,7 +72,6 @@ export const HOUSES: Record<HouseId, HouseInfo> = {
   },
 };
 import { computeTerritoryAdjacency } from '../utils/territoryAdjacency';
-import { generateProceduralCity } from '../utils/cityGeneration/cityGenerator';
 
 const ZODIAC_SIGNS: Zodiac[] = [
   'aries',

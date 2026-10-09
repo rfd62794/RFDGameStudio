@@ -34,4 +34,4 @@ const manifest = buildArcadeManifest({
 const out = resolve(repoRoot, 'ts', 'src', 'games', 'arcade-manifest.json');
 writeFileSync(out, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
 for (const s of manifest.skipped) console.warn(`devlog entry skipped (no date): ${s}`);
-console.log(`Wrote ${out} (${manifest.games.length} games; published ${manifest.counts.published}; ${JSON.stringify(manifest.counts.byStatus)})`);
+console.log(`Wrote ${out} (${manifest.games.length} games; published ${manifest.counts.published}; playable ${manifest.counts.playable}; ${JSON.stringify(manifest.counts.byStatus)})`);

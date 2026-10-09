@@ -12,6 +12,7 @@
     "build:shoal:y8": "vite build --config vite.shoal.config.ts --mode y8",
     "build:slimeworld": "vite build --config vite.slimeworld.config.ts",
     "build:chimera_wilds": "vite build --config vite.chimera_wilds.config.ts",
+    "build:horse_racing": "vite build --config vite.horse_racing.config.ts",
     "build:mutant_battle_ball": "vite build --config vite.mutant_battle_ball.config.ts",
     "build:scrapcrawl": "vite build --config vite.scrapcrawl.config.ts",
     "build:slime_coin": "vite build --config vite.slime_coin.config.ts",
@@ -21,10 +22,13 @@
     "build:house_of_kings_collab": "vite build --config vite.house_of_kings_collab.config.ts",
     "build:choke_point": "vite build --config vite.choke_point.config.ts",
     "build:voidrift_particle_sandbox": "vite build --config vite.voidrift_particle_sandbox.config.ts",
+    "build:voiddrift_redux": "vite build --config vite.voiddrift_redux.config.ts",
+    "build:wire_rust": "vite build --config vite.wire_rust.config.ts",
     "build:slither_rogue": "vite build --config vite.slither_rogue.config.ts",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "tune": "vite-node tools/tune-sweep.ts --"
   },
   "dependencies": {
     "@google-cloud/monitoring": "^6.0.0",
@@ -45,7 +49,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^4.1.14",
-    "yuka": "^0.7.8"
+    "yuka": "^0.7.8",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

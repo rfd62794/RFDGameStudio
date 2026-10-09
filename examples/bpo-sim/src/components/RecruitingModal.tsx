@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Agent, AgentRole, ShiftType } from '../types';
 import { getRandomName } from '../utils/names';
 import { sounds } from '../utils/audio';
+import { candidateCount, scaleSalary } from '../systems/countrySystem';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   money: number;
   availableDesksCount: number;
+  /** Country effects: pay scale and how many candidates apply (1 = baseline). */
+  laborCostIndex?: number;
+  talentPoolIndex?: number;
   onHireAgent: (candidate: Omit<Agent, 'id' | 'deskId' | 'gridX' | 'gridY'>) => void;
 }
 
@@ -31,6 +35,8 @@ export const RecruitingModal: React.FC<Props> = ({
   onClose,
   money,
   availableDesksCount,
+  laborCostIndex = 1,
+  talentPoolIndex = 1,
   onHireAgent,
 }) => {
   const [candidates, setCandidates] = useState<Candidate[]>(() => generateInitialCandidates());
@@ -70,7 +76,7 @@ export const RecruitingModal: React.FC<Props> = ({
       ]
     };
 
-    return Array.from({ length: 6 }).map((_, i) => {
+    return Array.from({ length: candidateCount(talentPoolIndex) }).map((_, i) => {
       const { name, gender } = getRandomName();
       const role = roles[i % roles.length];
       const shift = shifts[Math.floor(Math.random() * shifts.length)];
@@ -85,7 +91,7 @@ export const RecruitingModal: React.FC<Props> = ({
         role,
         shift,
         experienceYears: exp,
-        askingSalary: baseSal + exp * 1500,
+        askingSalary: scaleSalary(baseSal + exp * 1500, laborCostIndex),
         communicationSkill: 65 + Math.floor(Math.random() * 30),
         empathySkill: 60 + Math.floor(Math.random() * 35),
         techSkill: role === 'TSR' || role === 'IT' ? 85 + Math.floor(Math.random() * 12) : 50 + Math.floor(Math.random() * 35),

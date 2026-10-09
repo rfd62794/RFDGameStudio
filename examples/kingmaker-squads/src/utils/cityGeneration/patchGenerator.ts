@@ -1,4 +1,3 @@
-import { TerritoryCell } from '../../types';
 import {
   CAPITAL_HILL_ANCHOR,
   OUTER_CITY_LIMIT,

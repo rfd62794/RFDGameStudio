@@ -9,6 +9,8 @@ interface Props {
   activeList: LeadList;
   upgradeCost: number;
   lastVerdict: DayVerdict | null;
+  /** Names of agents who resigned at the end of this day. */
+  departures?: string[];
   onUpgradeDialer: () => void;
   onRequestNewList: () => void;
   onStartNextDay: () => void;
@@ -48,6 +50,7 @@ export const AfterHoursView: React.FC<Props> = ({
   activeList,
   upgradeCost,
   lastVerdict,
+  departures = [],
   onUpgradeDialer,
   onRequestNewList,
   onStartNextDay,
@@ -69,6 +72,12 @@ export const AfterHoursView: React.FC<Props> = ({
           Completed {quota.progress} / {quota.target} calls at ${quota.payoutPerCall} per call
         </div>
       </div>
+
+      {departures.length > 0 && (
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4 text-xs text-slate-300" data-testid="departures">
+          Left the team today: {departures.join(', ')}. Hiring more agents keeps the floor staffed.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">

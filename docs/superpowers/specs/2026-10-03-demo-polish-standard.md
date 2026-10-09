@@ -11,7 +11,7 @@ Registry status (`ts/src/engine/types.ts` GameStatus): `external` = iframe of th
 Each item is a command, a Playwright smoke step, or a yes/no from a screenshot. Tiers are cumulative.
 
 ### Tier A: baseline (every demo; required for `beta`)
-- A1. `/games/<id>/` loads; Playwright records zero `console.error` and zero failed network requests in 10 s.
+- A1. `/games/<id>/` loads; Playwright records zero `console.error` and zero failed network requests in 10 s. For `external` embeds, a console error that the embedded third-party page raises itself and that is listed in `ts/src/arcade/embedConsoleFilter.ts` is recorded but does not fail A1.
 - A2. Launches from the arcade shell (card click, game visible) and returns via the shell's back control. Smoke step.
 - A3. A visible Start and a visible Restart (or New Game); Restart returns to the first screen without a page reload. Smoke step.
 - A4. Controls work at 1280x720 (mouse/keyboard) and at 390x844 touch emulation: the primary action is reachable, no horizontal scroll, no clipped control. Two screenshots, yes/no.

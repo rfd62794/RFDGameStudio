@@ -144,11 +144,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Superseded |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-facility-escape-first-turn-hint-d-f22579 |
 | Base branch | - |
+| Base commit | a04cfdc1f11d240460c7a06edf9c04a439970645 |
+| Head commit | 7987eca507f9705a9cb0b2bb39129e133f6e52ff |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:20 · agentflow-tick · none → Queued — suggested by heartbeat: Fully pasted S change for Devin; dispatch only after Facility_Escape_Player_Wording_Directive merges (same App.tsx).
+- 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hit is a 'do not edit' mention (demo_lists_snapshot.json), verified by hand
+- 2026-10-05 01:45 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-first-turn-hint-d-f22579; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 01:46 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-facility-escape-first-turn-hint-d-f22579; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 01:51 · devin · In progress → Review — Already-landed: all 3 scoped files present byte-exact via merged commit b5668a1d. Verified vitest tail: 2 files / 5 tests passed. Empty marker commit 7987eca5 carries the verification; no code change needed. [origin] spent: devin 2 min est. n/a
+- 2026-10-05 01:52 · robert-claude-laptop · Review → Superseded — superseded_by: commit:b5668a1d
 <!-- queue:end -->

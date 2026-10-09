@@ -3,11 +3,9 @@
  */
 
 import {
-  CombatAction,
   CombatFrame,
   CombatResult,
   CombatUnit,
-  SynergyBonus,
   UnitState,
 } from '../types';
 
@@ -15,11 +13,7 @@ import { BOARD_SIZE } from '../constants';
 
 import {
   GridPos,
-  isOutOfBounds,
   isSamePos,
-  getSlidingMoves,
-  getKnightMoves,
-  getPawnMoves,
   getLegalMoves,
   canAttackFrom,
 } from './chessMovement';
@@ -139,6 +133,10 @@ export function simulateCombat(
     const enemyAlive = allUnits.filter((u) => u.team === 'enemy' && u.currentHp > 0);
 
     if (playerAlive.length === 0 || enemyAlive.length === 0) break;
+
+    // Stalemate guard: `turnStep` only advances when a unit acts, so a round in which nobody can move,
+    // attack or heal would repeat forever. Count the frames before the round and stop if it added none.
+    const framesBeforeRound = frames.length;
 
     // Sort turn order by initiative
     const turnQueue = [...allUnits]
@@ -346,6 +344,8 @@ export function simulateCombat(
         });
       }
     }
+
+    if (frames.length === framesBeforeRound) break; // stalemate: nobody could act this round
   }
 
   const finalPlayerAlive = allUnits.filter((u) => u.team === 'player' && u.currentHp > 0);

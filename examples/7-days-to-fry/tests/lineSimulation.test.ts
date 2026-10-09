@@ -3079,10 +3079,10 @@ describe('The Line — Directive Test Anchors (§3)', () => {
     expect(k.hasSeenCautionHint).toBe(true);
   });
 
-  // Anchor 162: purchaseFriesUnlock returns false and deducts no cash when dayNumber === 7 (Wave Day itself, one day short)
-  it('162. purchaseFriesUnlock returns false and deducts no cash when dayNumber === 7, even with sufficient cash', () => {
+  // Anchor 162: purchaseFriesUnlock returns false and deducts no cash on Day 1 (one day before the shop opens, Design.md v4)
+  it('162. purchaseFriesUnlock returns false and deducts no cash when dayNumber === 1, even with sufficient cash', () => {
     const k = createInitialKitchenState();
-    k.dayNumber = 7;
+    k.dayNumber = FRIES_UNLOCK_MIN_DAY - 1;
     k.cash = 100;
     const initialCash = k.cash;
 
@@ -3104,10 +3104,10 @@ describe('The Line — Directive Test Anchors (§3)', () => {
     expect(k.unlockedStations.fryer).toBe(true);
   });
 
-  // Anchor 164: purchaseBufferCapacity, purchaseStockCapacity, purchaseDayDuration each return false and deduct no cash when dayNumber === 7 (one day short), even with sufficient cash
-  it('164. purchaseBufferCapacity, purchaseStockCapacity, purchaseDayDuration each return false and deduct no cash when dayNumber === 7', () => {
+  // Anchor 164: purchaseBufferCapacity, purchaseStockCapacity, purchaseDayDuration each return false and deduct no cash one day before basic upgrades open (Design.md v4), even with sufficient cash
+  it('164. purchaseBufferCapacity, purchaseStockCapacity, purchaseDayDuration each return false and deduct no cash when dayNumber === 2', () => {
     const k = createInitialKitchenState();
-    k.dayNumber = 7;
+    k.dayNumber = BASIC_UPGRADES_MIN_DAY - 1;
     k.cash = 500;
     const initialCash = k.cash;
 
@@ -3134,28 +3134,26 @@ describe('The Line — Directive Test Anchors (§3)', () => {
     expect(k.purchasedUpgrades?.day_duration).toBe(true);
   });
 
-  // Anchor 166: Real integration probe: simulate through Days 1-7 — confirm nothing in the shop is purchasable at any point during that span
-  it('166. Real integration probe: simulate through Days 1-7 — confirm nothing in shop is purchasable at any day', () => {
-    const k = createInitialKitchenState();
-    k.cash = 1000;
-
+  // Anchor 166: Real integration probe: simulate through Days 1-7 — the shop follows Design.md v4's week (Fries Day 2, basic upgrades Day 3, nothing before)
+  it('166. Real integration probe: simulate through Days 1-7 — shop items open on their Design.md days and not before', () => {
     for (let day = 1; day <= 7; day++) {
-      k.dayNumber = day;
-      expect(purchaseFriesUnlock(k)).toBe(false);
-      expect(purchaseBufferCapacity(k)).toBe(false);
-      expect(purchaseStockCapacity(k)).toBe(false);
-      expect(purchaseDayDuration(k)).toBe(false);
+      const friesOpen = day >= FRIES_UNLOCK_MIN_DAY;
+      const upgradesOpen = day >= BASIC_UPGRADES_MIN_DAY;
 
-      const friesAvail = !k.unlockedStations?.fryer && k.dayNumber >= FRIES_UNLOCK_MIN_DAY;
-      const bufferAvail = !k.purchasedUpgrades?.buffer_capacity && k.dayNumber >= BASIC_UPGRADES_MIN_DAY;
-      const stockAvail = !k.purchasedUpgrades?.stock_capacity && k.dayNumber >= BASIC_UPGRADES_MIN_DAY;
-      const durationAvail = !k.purchasedUpgrades?.day_duration && k.dayNumber >= BASIC_UPGRADES_MIN_DAY;
+      const fries = createInitialKitchenState();
+      fries.cash = 1000;
+      fries.dayNumber = day;
+      expect(purchaseFriesUnlock(fries)).toBe(friesOpen);
 
-      expect(friesAvail).toBe(false);
-      expect(bufferAvail).toBe(false);
-      expect(stockAvail).toBe(false);
-      expect(durationAvail).toBe(false);
+      const upgrades = createInitialKitchenState();
+      upgrades.cash = 1000;
+      upgrades.dayNumber = day;
+      expect(purchaseBufferCapacity(upgrades)).toBe(upgradesOpen);
+      expect(purchaseStockCapacity(upgrades)).toBe(upgradesOpen);
+      expect(purchaseDayDuration(upgrades)).toBe(upgradesOpen);
     }
+    expect(FRIES_UNLOCK_MIN_DAY).toBe(2);
+    expect(BASIC_UPGRADES_MIN_DAY).toBe(3);
   });
 
   // Anchor 167: Real integration probe: simulate to dayNumber === 8 — confirm all four items now show available and correctly flagged NEW via isNewThisNight

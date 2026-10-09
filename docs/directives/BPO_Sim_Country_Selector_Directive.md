@@ -3,12 +3,12 @@
 **Depends on:** BPO_Sim_Neutral_Copy_Check_Directive.md (edits the same files), BPO_Sim_Country_Data_Directive.md (the YAML), BPO_Sim_Repromote_And_Rename_Directive.md (the folder)
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
-`docs/demos/filipino_bpo_simulator/DIRECTION.md` ("Decision update 2026-10-04"), `examples/bpo-sim/src/data/countries.ts`, `examples/bpo-sim/src/data/countries.yaml` (header comment),
+`docs/demos/bpo_sim/DIRECTION.md` ("Decision update 2026-10-04"), `examples/bpo-sim/src/data/countries.ts`, `examples/bpo-sim/src/data/countries.yaml` (header comment),
 `examples/bpo-sim/src/systems/dialerSystem.ts`, `examples/bpo-sim/src/App.tsx` (lines 90-110, 165-200, 250-260, 450-460, 1030-1050), `examples/bpo-sim/src/components/RecruitingModal.tsx` (lines 1-30 and 66-95).
 
 ## 1. Why this exists
 
-Robert's decision (2026-10-04, recorded in `docs/demos/filipino_bpo_simulator/DIRECTION.md`, "Decision update"): BPO Sim opens with a start-screen country selector driven by a YAML data file, with BPO-heavy countries as the choices. Countries must differ ONLY through neutral business attributes. This directive builds the selector and gives each of the six attributes
+Robert's decision (2026-10-04, recorded in `docs/demos/bpo_sim/DIRECTION.md`, "Decision update"): BPO Sim opens with a start-screen country selector driven by a YAML data file, with BPO-heavy countries as the choices. Countries must differ ONLY through neutral business attributes. This directive builds the selector and gives each of the six attributes
 a real, small effect in the sim, so the choice matters. The data (`countries.yaml`), the name and the neutral copy are the three earlier BPO Sim directives; the neutral-copy test (`ts/tests/test_bpo_sim_neutral_copy.ts`) also guards this one: no country name may appear outside the YAML file, so the code below contains no country-specific branch.
 
 **What each attribute does (first-pass numbers, not balance-tested; every formula is a small pure function in the new `systems/countrySystem.ts`):**
@@ -30,6 +30,8 @@ Facts you need (verified by running the prototype; do not re-derive):
 - This run needs `examples/bpo-sim/src/data/countries.ts` and `countries.yaml` (Country Data directive) and the neutral copy (Neutral Copy directive: it edits the same `App.tsx`, `RecruitingModal.tsx` and `AfterHoursView.tsx`). If either file is missing, STOP and write why in the Status row.
 
 ## 2. Scope
+
+All paths to files in the app are relative to `examples/bpo-sim/src/` unless stated otherwise.
 
 1. New files: `<!-- new: examples/bpo-sim/src/systems/countrySystem.ts -->`, `<!-- new: examples/bpo-sim/src/data/countriesData.ts -->`, `<!-- new: examples/bpo-sim/src/raw.d.ts -->`, `<!-- new: examples/bpo-sim/src/components/CountrySelectScreen.tsx -->`, `<!-- new: ts/tests/test_bpo_sim_country_effects.ts -->`.
 2. Edits: `examples/bpo-sim/src/systems/dialerSystem.ts`, `examples/bpo-sim/src/components/RecruitingModal.tsx`, `examples/bpo-sim/src/components/AfterHoursView.tsx`, `examples/bpo-sim/src/App.tsx`, and one sentence in `ts/src/games/bpo_sim/config.ts`.
@@ -731,11 +733,19 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-bpo-sim-country-selector-directive |
 | Base branch | - |
+| Base commit | 3d0dc7e15b2ae76f15a47ff21763e929ce0cb200 |
+| Head commit | f48c03c12a38fec2696d6a8d92074971444f5c80 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:57 · robert-claude-laptop · none → Queued
+- 2026-10-04 18:47 · robert-claude-laptop · Queued → Approved — lint override: [secret] hits are the identifier 'key: CountryAttribute' (false positive); cited systems/data/raw.d.ts paths are new files under examples/bpo-sim/src that this directive creates, and the stale demo path was fixed in PR 196
+- 2026-10-04 18:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-country-selector-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 18:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-country-selector-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 19:04 · devin · In progress → Review — devin: 5 new files + 4 diffs + config sentence applied; vitest 4 files 30/30 passed (pasted tail said 25, suites now carry 30); tsc --noEmit 0 errors (game-metadata.json present in worktree, so the 4 pre-existing errors do not appear); pre-push hook green (975 pytest, 2522 vitest). Effect sizes are first-pass numbers for Robert to tune; example's own suite/build and play-through not run (controller step). [origin] spent: devin 15 min est. n/a
+- 2026-10-04 19:13 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

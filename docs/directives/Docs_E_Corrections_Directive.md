@@ -214,11 +214,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/queue-sync4 |
 | Base branch | - |
 
 **Status log**
 - 2026-10-04 13:25 · robert-claude-laptop · none → Queued
+- 2026-10-04 · devin-cleanroom · Queued → Review: already merged on main via PR #140 (fd0d16db); row sync only, no code change
+- 2026-10-04 20:55 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

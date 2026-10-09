@@ -1,6 +1,6 @@
 # VoidDrift family names: one spelling, three clearly different labels
 
-**Depends on:** `Polish_Voiddrift_Redux_TierA_Directive.md` and `Polish_Voidrift_Particle_Sandbox_TierA_Directive.md` merged (they add `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx` and the two `ts/src/standalone/*/index.html` files this run renames). No other ordering.
+**Depends on:** `Polish_Voiddrift_Redux_TierA_Directive.md` and `Polish_Voidrift_Particle_Sandbox_TierA_Directive.md` merged (they add `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx` <!-- new: ts/src/games/voidrift_particle_sandbox/TitleGate.tsx --> and the two `ts/src/standalone/*/index.html` files <!-- new: ts/src/standalone/voiddrift_redux/index.html --><!-- new: ts/src/standalone/voidrift_particle_sandbox/index.html --> this run renames). No other ordering.
 **Queue-neutral:** this file carries no Queue block; the controller queues it. The open questions in `docs/demos/voiddrift/DIRECTION.md` and `docs/demos/voiddrift_redux/DIRECTION.md` are answered by Robert's 2026-10-04 approval of all recommendations: "VoidDrift" is the one spelling (it matches the Rust game's repo and README); the family gets visibly different labels; labels only, ids unchanged.
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
@@ -9,13 +9,13 @@
 ## 1. Why this exists
 
 Three cabinet entries from one family are spelled three ways and two of them share a name (`docs/demos/voiddrift/DIRECTION.md`: "label 'VoidRift', gameId/repo 'VoidDrift', itch slug 'voidrift'"). Measured on origin/main `d3084de0`:
-`ts/src/games/voiddrift/config.ts:6` `label: 'VoidRift',`; `ts/src/games/voiddrift_redux/config.ts:8` `label: 'VoidDrift Redux',`; `ts/src/games/voidrift_particle_sandbox/config.ts:8` `label: 'VoidRift Particle Sandbox',`; the sandbox header says `VOIDRIFT ... REDUX` (`components/Header.tsx`), and a third, unregistered sibling also calls itself "VoidRift Redux". A player cannot tell the cards apart or tell which is the paid game.
+`ts/src/games/voiddrift/config.ts:6` `label: 'VoidRift',`; `ts/src/games/voiddrift_redux/config.ts:8` `label: 'VoidDrift Redux',`; `ts/src/games/voidrift_particle_sandbox/config.ts:8` `label: 'VoidRift Particle Sandbox',`; the sandbox header says `VOIDRIFT ... REDUX` (`ts/src/games/voidrift_particle_sandbox/components/Header.tsx`), and a third, unregistered sibling also calls itself "VoidRift Redux". A player cannot tell the cards apart or tell which is the paid game.
 Decision: the shipped Rust game is "VoidDrift"; the TS-native idle game is "VoidDrift: Core Loop"; the falling-sand toy is "VoidDrift: Particle Sandbox". The itch address stays `https://rdug627.itch.io/voidrift` (lowercase, unchanged, so no URL breaks) and every `gameId` stays as it is.
 
 ## 2. Scope
 
 1. Labels in `ts/src/games/voiddrift/config.ts`, `ts/src/games/voiddrift_redux/config.ts`, `ts/src/games/voidrift_particle_sandbox/config.ts` and the standalone menu list in `ts/src/games/registry.ts`.
-2. The same names where players see them: `ts/src/games/voiddrift_redux/App.tsx` (3 strings), `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `components/Header.tsx`, `components/HelpModal.tsx`, and the two standalone `index.html` titles.
+2. The same names where players see them: `ts/src/games/voiddrift_redux/App.tsx` (3 strings), `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `ts/src/games/voidrift_particle_sandbox/components/Header.tsx`, `ts/src/games/voidrift_particle_sandbox/components/HelpModal.tsx`, and the two standalone `index.html` titles.
 3. Two existing tests that pin the old text: `ts/tests/test_voidrift_particle_sandbox_registry.ts` and `ts/tests/test_arcade.ts`.
 4. New test `<!-- new: ts/tests/test_voiddrift_family_names.ts -->`.
 
@@ -152,7 +152,7 @@ Source check (Grep tool, each over `ts/src`): the case-sensitive strings `VoidRi
 ## 8. Report
 
 Findings first: the files changed and the real test counts. Evidence second: the real tails.
-**Controller finish (after merge):** regenerate the arcade manifest and status pages the usual way (`cd ts && npx vite-node tools/export-arcade-manifest.ts`; the sandbox refuses it), so the site cards read the new labels.
+**Controller finish (after merge):** regenerate the arcade manifest and status pages the usual way (run `ts/tools/export-arcade-manifest.ts` via `npx vite-node` from the `ts` directory; the sandbox refuses it), so the site cards read the new labels.
 Recommended action: review, merge.
 
 ## Sandbox needs
@@ -161,7 +161,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -172,11 +172,16 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Blocked |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-voiddrift-family-naming-directive |
 | Base branch | - |
+| Base commit | 05106980aaa361b09917b4c28483ef0ebf899018 |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-08 03:14 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 03:15 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D5V4J5WDF62TQZCZBVZJ75
+- 2026-10-08 03:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 03:18 · devin · In progress → Blocked — Dependencies not merged: TitleGate.tsx and both standalone index.html files missing; registry.ts quoted line differs (glob-derived list, no literal entry). Requeue after the two Tier A directives merge and re-measure registry.ts.
 <!-- queue:end -->

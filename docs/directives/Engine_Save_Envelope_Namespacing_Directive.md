@@ -68,12 +68,19 @@ Test tails for both files, the public API as final signatures, and any behaviour
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-save-envelope-namespacing--3a8f05 |
 | Base branch | - |
+| Base commit | 17c15eaa597ac341ca9e7eded282f38563019bd4 |
+| Head commit | 003b480f26aa68cec3f6c152a7a3d88578a90218 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:33 · robert-claude-laptop · none → Queued
 - 2026-10-04 17:35 · robert-claude-laptop · Queued → Approved — lint override: author ran baseline proofs; Robert 2026-10-04 17:28 'use your recommendations for the game engine' and approved all recommendations
+- 2026-10-04 18:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-save-envelope-namespacing--3a8f05; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 18:29 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-save-envelope-namespacing--3a8f05; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 18:46 · devin · In progress → Review — Verified: vitest test_save_namespace.ts 8 passed; test_shared_persistence.ts 9 passed; tsc --noEmit exit 0. 3 new files (saveNamespace.ts, saveMigrations.ts, test_save_namespace.ts) + 2 edited (persistence.ts +registryMigrate, index.ts +2 exports). Committed 003b480f, pushed; pre-push gate green (975 pytest, 2509 vitest). [origin] spent: devin 15 min est. n/a
+- 2026-10-04 18:52 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

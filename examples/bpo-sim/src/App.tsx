@@ -31,6 +31,10 @@ import {
   applyDialerUpgrade,
 } from './systems/dialerSystem';
 import { createQuota, updateProgress, resetDay, getDayVerdict } from './systems/quotaSystem';
+import { COUNTRIES } from './data/countriesData';
+import { findCountry } from './data/countries';
+import { CountrySelectScreen } from './components/CountrySelectScreen';
+import { NEUTRAL_PROFILE, contactWindowFactor, netPayout, eventWeight, pickWeighted, applyAttrition } from './systems/countrySystem';
 
 import { IsometricOfficeCanvas } from './components/IsometricOfficeCanvas';
 import { AfterHoursView } from './components/AfterHoursView';
@@ -100,6 +104,18 @@ export default function App() {
   const [hrPolicy, setHrPolicy] = useState<HRPolicy>(INITIAL_HR_CONFIG);
   const [officeLevel, setOfficeLevel] = useState<number>(1);
 
+  // Country: chosen on the first screen, remembered between visits
+  const [countryId, setCountryId] = useState<string | null>(() => {
+    try {
+      const saved = localStorage.getItem('bpo_country');
+      return COUNTRIES.some(c => c.id === saved) ? saved : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const profile = findCountry(COUNTRIES, countryId) ?? NEUTRAL_PROFILE;
+  const [departures, setDepartures] = useState<string[]>([]);
+
   // Phase 1 core systems: List, Dialer, Quota
   const [activeList, setActiveList] = useState<LeadList>(() =>
     createList('starter-001', 'ACBS', 85, 90, 1000)
@@ -141,6 +157,20 @@ export default function App() {
     }
   }, [grid, agents]);
 
+  // Day-end turnover: some agents resign, depending on the country's attrition rate
+  const agentsRef = useRef(agents);
+  agentsRef.current = agents;
+  useEffect(() => {
+    if (day <= 1 || profile.attritionRate <= 0) return;
+    const { stayed, left } = applyAttrition(agentsRef.current, profile.attritionRate, Math.random);
+    setDepartures(left.map(a => a.name));
+    if (left.length === 0) return;
+    const leftIds = new Set(left.map(a => a.id));
+    setAgents(stayed);
+    setGrid(prev => prev.map(t => (t.assignedAgentId && leftIds.has(t.assignedAgentId) ? { ...t, assignedAgentId: null } : t)));
+    setSelectedAgent(prev => (prev && leftIds.has(prev.id) ? null : prev));
+  }, [day]);
+
   // Format Time to 12-Hour format (e.g. "11:30 AM")
   const formatTime = (totalMinutes: number): string => {
     const hours24 = Math.floor(totalMinutes / 60) % 24;
@@ -165,7 +195,7 @@ export default function App() {
 
   // Main Simulation Loop
   useEffect(() => {
-    if (gameSpeed === 0) return;
+    if (gameSpeed === 0 || countryId === null) return;
 
     const intervalTime = 1000 / gameSpeed;
     const timer = setInterval(() => {
@@ -192,7 +222,8 @@ export default function App() {
       const generatedCalls = computeCallGenerationRate(
         dialerConfig,
         activeList,
-        availableAgents
+        availableAgents,
+        contactWindowFactor(profile.clientOverlap)
       );
       if (generatedCalls > 0) {
         setCallsQueue(q => Math.min(q + generatedCalls, 99));
@@ -251,7 +282,7 @@ export default function App() {
               updatedAgent.stress = Math.min(100, updatedAgent.stress + 1);
 
               const activeCamp = campaigns.find(c => c.active) || campaigns[0];
-              moneyEarned += activeCamp.payoutPerCall;
+              moneyEarned += netPayout(activeCamp.payoutPerCall, profile.regulatoryOverhead);
               callsHandled += 1;
 
               // CSAT rating calculation
@@ -323,7 +354,7 @@ export default function App() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [gameSpeed, callsQueue, campaigns, itConfig, hrPolicy, activeEvent, agents, dialerConfig, activeList, quota]);
+  }, [gameSpeed, countryId, profile, callsQueue, campaigns, itConfig, hrPolicy, activeEvent, agents, dialerConfig, activeList, quota]);
 
   // Phase 2: screen / planning handlers
   const handlePaceChange = (newPace: number) => {
@@ -450,7 +481,7 @@ export default function App() {
       }
     ];
 
-    const chosen = eventPool[Math.floor(Math.random() * eventPool.length)];
+    const chosen = pickWeighted(eventPool, id => eventWeight(id, profile.connectivityRisk), Math.random);
     setActiveEvent(chosen);
   };
 
@@ -519,6 +550,19 @@ export default function App() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 flex flex-col font-sans select-none text-slate-100">
+      {countryId === null && (
+        <CountrySelectScreen
+          countries={COUNTRIES}
+          onChoose={(id) => {
+            try {
+              localStorage.setItem('bpo_country', id);
+            } catch (e) {
+              /* ignore */
+            }
+            setCountryId(id);
+          }}
+        />
+      )}
       
       {/* 1. TOP-LEFT LOGO & LEFT ACTION TOOLBAR */}
       <div className="absolute top-3 left-3 z-30 flex flex-col gap-2 pointer-events-auto">
@@ -542,6 +586,9 @@ export default function App() {
             <h2 className="font-pixel text-[10px] text-sky-400 tracking-wide mt-0.5">
               CALL CENTER TYCOON
             </h2>
+            {countryId !== null && (
+              <p className="font-pixel text-[9px] text-slate-400 mt-0.5" data-testid="country-name">{profile.name}</p>
+            )}
           </div>
         </div>
 
@@ -733,6 +780,7 @@ export default function App() {
             activeList={activeList}
             upgradeCost={dialerUpgradeCost(dialerConfig.tier)}
             lastVerdict={lastVerdict}
+            departures={departures}
             onUpgradeDialer={handleUpgradeDialer}
             onRequestNewList={handleRequestNewList}
             onStartNextDay={handleStartNextDay}
@@ -840,6 +888,8 @@ export default function App() {
         onClose={() => setActiveModal(null)}
         money={money}
         availableDesksCount={Math.max(0, totalDesks - agents.filter(a => a.deskId).length)}
+        laborCostIndex={profile.laborCostIndex}
+        talentPoolIndex={profile.talentPoolIndex}
         onHireAgent={handleHireAgent}
       />
 
@@ -1031,6 +1081,9 @@ export default function App() {
         onResetGame={() => {
           localStorage.removeItem('bpo_grid');
           localStorage.removeItem('bpo_agents');
+          localStorage.removeItem('bpo_country');
+          setCountryId(null);
+          setDepartures([]);
           setGrid(generateInitialGrid());
           setAgents(generateInitialAgents(generateInitialGrid()));
           setMoney(50000);

@@ -53,12 +53,17 @@ describe('Arcade Metadata Expansion — GameConfig backward compatibility', () =
     // games genuinely don't fit the 11-value taxonomy cleanly and were
     // left without a `genre` rather than forced — confirmed here so a
     // future regression (accidentally forcing a wrong fit) is caught.
-    const noCleanFitIds = ['shoal', 'slime_coin', '7_days_to_fry'];
+    // 7_days_to_fry left this list when PR #226 gave it a real genre.
+    const noCleanFitIds = ['shoal', 'slime_coin'];
     for (const gameId of noCleanFitIds) {
       const config = GAME_REGISTRY.find(g => g.gameId === gameId);
       expect(config).toBeDefined();
       expect(config!.genre).toBeUndefined();
     }
+    // ...and its genre is now asserted so it cannot silently regress.
+    const fry = GAME_REGISTRY.find(g => g.gameId === '7_days_to_fry');
+    expect(fry).toBeDefined();
+    expect(fry!.genre).toBe('management-sim');
   });
 });
 

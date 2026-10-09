@@ -5,7 +5,7 @@ export const bpoSimConfig: GameConfig = {
   order: 130,
   source: { kind: 'example', slug: 'bpo-sim' },
   label: 'BPO Sim',
-  description: 'Run the data side of an outsourced call center: pick a lead list, set the dialer pace, hit the daily quota, then spend your earnings after hours. Early build.',
+  description: 'Run the data side of an outsourced call center from a country you choose: pick a lead list, set the dialer pace, hit the daily quota, then spend your earnings after hours. Early build.',
   shortDescription: 'Call center management sim: lead lists, dialer pacing and daily quotas.',
   longDescription: 'A management sim set in an outsourced call center. Keep your lead lists healthy, tune the dialer pace, hit the daily quota, then spend the after-hours phase upgrading equipment and refreshing lists.',
   color: '#38bdf8',

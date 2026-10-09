@@ -2,12 +2,18 @@ import React, { useState } from 'react';
 import { Crown, Sparkles, Shield, Coins, ScrollText, ArrowRight, Check, AlertCircle, Award } from 'lucide-react';
 import { PlayerOriginId } from '../engine/types';
 import { PLAYER_ORIGINS } from '../data/origins';
+import { TOTAL_SEGMENTS } from '../data/gameConstants';
+import ConfirmButton from './ConfirmButton';
 
 interface TitleScreenProps {
   onBegin: (originId: PlayerOriginId) => void;
+  /** A run saved at a segment boundary, if any. */
+  savedRun?: { segment: number; originName: string } | null;
+  onContinue?: () => void;
+  onResetSave?: () => void;
 }
 
-export const TitleScreen: React.FC<TitleScreenProps> = ({ onBegin }) => {
+export const TitleScreen: React.FC<TitleScreenProps> = ({ onBegin, savedRun, onContinue, onResetSave }) => {
   const [selectedOriginId, setSelectedOriginId] = useState<PlayerOriginId>('bastard_scion');
 
   const selectedOrigin = PLAYER_ORIGINS.find((o) => o.id === selectedOriginId) || PLAYER_ORIGINS[0];
@@ -159,6 +165,28 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({ onBegin }) => {
             </div>
           </div>
         </div>
+
+        {/* Continue a saved run */}
+        {savedRun && onContinue && (
+          <div className="pt-2 flex flex-col items-center gap-2">
+            <button
+              id="continue-claim-btn"
+              type="button"
+              onClick={onContinue}
+              className="w-full sm:w-auto px-8 py-3.5 border border-amber-500/80 text-amber-200 font-serif font-bold text-base rounded-xl hover:bg-amber-950/40 transition-all duration-200 cursor-pointer"
+            >
+              Continue your claim as {savedRun.originName} (segment {savedRun.segment} of {TOTAL_SEGMENTS})
+            </button>
+            {onResetSave && (
+              <ConfirmButton
+                id="succession-reset-save"
+                label="Forget this saved run"
+                confirmLabel="Forget it for good?"
+                onConfirm={onResetSave}
+              />
+            )}
+          </div>
+        )}
 
         {/* Begin Button */}
         <div className="pt-2 flex justify-center">

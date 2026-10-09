@@ -178,7 +178,7 @@ Findings first: the sentence shapes as shipped (counter won / wrong shape lost w
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`; adding Lua code or changing the engine; any player-layer or save-to-cloud work.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`; adding Lua code or changing the engine; any player-layer or save-to-cloud work.
 
 ## Required from User
 
@@ -189,11 +189,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-trinity-siege-why-it-won-directive |
 | Base branch | - |
+| Base commit | b1054f635430ba6184d81449e82d6b5886c34a18 |
+| Head commit | 53c3bf954d06d3181250e554864d6cf916f43039 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-08 04:04 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 04:04 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-why-it-won-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D8NAD3CFXPKKX376TXRH32
+- 2026-10-08 04:04 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-trinity-siege-why-it-won-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 04:14 · devin · In progress → Review — explain.ts + WaveLog wiring + App.tsx MVP wording removed; vitest tail: Test Files 2 passed (2) / Tests 10 passed (10); commit 53c3bf95 pushed [origin] spent: devin 8 min est. n/a
+- 2026-10-08 04:16 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #232 (merge commit); screenshots/embed rebuild/deploy left to Robert
 <!-- queue:end -->
