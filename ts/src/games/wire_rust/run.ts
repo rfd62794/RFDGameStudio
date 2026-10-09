@@ -2,6 +2,7 @@ import type { GameSession } from '../../engine/types';
 import { call } from '../../engine/runtime';
 import { mulberry32 } from '../../engine/shared/seededRandom';
 import type { CardId, EncounterResult, PlayerState, Room, WireRustGameState } from './types';
+import { addCardToDeck, canAffordSalvage, removeCardFromDeck, salvageCost } from './deck';
 
 export const GATE_ROOM = 'reactor_core';
 export const GOAL_ROOM = 'control_room';
@@ -58,6 +59,28 @@ export function applyMove(session: GameSession, state: WireRustGameState, roomId
   };
 }
 
+export function isSalvageRoom(room: Room): boolean {
+  return (room.interaction_types ?? []).includes('salvage');
+}
+
+/** Spends scrap to add one copy of a part to the deck. Returns the same state when it is not allowed. */
+export function applyBuyCard(session: GameSession, state: WireRustGameState, cardId: CardId): WireRustGameState {
+  if (!isSalvageRoom(state.currentRoom)) return state;
+  const data = session.files.data as Record<string, unknown>;
+  const cards = (data.cards ?? {}) as Record<string, { name?: string; scrap_value?: number }>;
+  const card = cards[cardId];
+  if (!card) return state;
+  const scrapValue = card.scrap_value ?? 1;
+  if (!canAffordSalvage(state.player.scrap, scrapValue)) return state;
+  const cost = salvageCost(scrapValue);
+  const player = addCardToDeck({ ...state.player, scrap: state.player.scrap - cost }, cardId);
+  return {
+    ...state,
+    player,
+    message: `Bought ${card.name ?? cardId} for ${cost} scrap. You will draw it after your next move.`,
+  };
+}
+
 export interface PlayOutcome {
   state: WireRustGameState;
   result: EncounterResult | null;
@@ -72,15 +95,18 @@ export function applyPlayCard(session: GameSession, state: WireRustGameState, ca
   const cards = (data.cards ?? {}) as Record<string, { combat_mod?: number }>;
   const cardMod = cards[cardId]?.combat_mod ?? 0;
   const math = `D20 ${roll} + card ${cardMod} + chem ${result.bonus} = ${result.total_score} vs ${result.difficulty}`;
+  const lostPlayer = result.won ? result.player : removeCardFromDeck(result.player, cardId);
+  const scrapped = !result.won && lostPlayer !== result.player;
+  const cardName = (data.cards as Record<string, { name?: string }> | undefined)?.[cardId]?.name ?? cardId;
   const logMsg = result.won
     ? `[WIN] ${state.currentRoom.name}: ${math} — salvage stored!`
-    : `[LOSS] ${state.currentRoom.name}: ${math} — core integrity damaged.`;
+    : `[LOSS] ${state.currentRoom.name}: ${math} — core integrity damaged${scrapped ? `, and your ${cardName} was scrapped` : ''}.`;
 
   return {
     result,
     state: {
       ...state,
-      player: result.player,
+      player: lostPlayer,
       combatHistory: [logMsg, ...state.combatHistory.slice(0, 49)],
       message: result.won ? 'Encounter resolved' : 'Core hit',
       cleared: result.won && !state.cleared.includes(state.currentRoom.id)
