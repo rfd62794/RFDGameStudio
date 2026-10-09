@@ -72,7 +72,7 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin-any |
 | Branch | directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 |
 | Base branch | - |
@@ -91,4 +91,5 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 - 2026-10-09 00:48 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FFVDFM2HR6K8A21ANAYQBM
 - 2026-10-09 00:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; resynced: merged main into directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 (6 commit(s), clean); provisioned: uv sync --frozen
 - 2026-10-09 06:20 · robert-claude-laptop · In progress → Review — Run stopped at pre-push hook after push landed; remote tip eb2cb76e verified, vitest 77/77 + tsc clean per log. Overseer salvage. [origin] spent: devin 18 min est. n/a
+- 2026-10-09 06:35 · robert-claude-laptop · Review → Superseded — superseded_by: commit:e591efd9 - note: Landed via PR #248 (merge e591efd9); Sonnet review MERGE, vitest 77/77 + tsc clean. Follow-ups: regenerate registry JSONs, fix resolve_source_baseline.json:206.
 <!-- queue:end -->
