@@ -3,6 +3,7 @@ import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
 import { TitleScreen } from '../../ui/components';
 import App from './App';
+import { clearSandboxSave } from './simulation/sandboxSave';
 
 export default function TitleGate(props: GameRendererProps) {
   const [screen, setScreen] = useState<'title' | 'play'>('title');
@@ -38,6 +39,7 @@ export default function TitleGate(props: GameRendererProps) {
       key={runKey}
       {...props}
       onRestart={() => {
+        clearSandboxSave();
         setRunKey((k) => k + 1);
         setScreen('title');
       }}
