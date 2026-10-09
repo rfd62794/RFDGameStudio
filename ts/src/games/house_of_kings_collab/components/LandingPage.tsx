@@ -17,6 +17,7 @@ import {
   Clock,
   Lock,
 } from 'lucide-react';
+import { HowItWorks } from './HowItWorks';
 
 interface LandingPageProps {
   onSignedIn?: () => void;
@@ -101,6 +102,9 @@ export const LandingPage: React.FC<LandingPageProps> = () => {
           </div>
         </div>
       </div>
+
+      {/* Static exhibit: works without sign-in or a backend */}
+      <HowItWorks />
 
       {/* Feature Architecture Grid */}
       <div className="space-y-6">
