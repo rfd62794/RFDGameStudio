@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { mulberry32 } from '../src/engine/shared/seededRandom';
-import { MaterialType } from '../src/games/voidrift_particle_sandbox/types';
-import { CellularGrid } from '../src/games/voidrift_particle_sandbox/simulation/grid';
-import { BuildingManager } from '../src/games/voidrift_particle_sandbox/simulation/buildings';
-import { placeStarterFactory } from '../src/games/voidrift_particle_sandbox/simulation/starterFactory';
+import { MaterialType } from '../src/games/grainworks/types';
+import { CellularGrid } from '../src/games/grainworks/simulation/grid';
+import { BuildingManager } from '../src/games/grainworks/simulation/buildings';
+import { placeStarterFactory } from '../src/games/grainworks/simulation/starterFactory';
 import {
   SAVE_KEY,
   SAVE_VERSION,
@@ -16,9 +16,9 @@ import {
   rleEncode,
   saveSandbox,
   snapshotSandbox,
-} from '../src/games/voidrift_particle_sandbox/simulation/sandboxSave';
+} from '../src/games/grainworks/simulation/sandboxSave';
 
-const GAME = resolve(import.meta.dirname, '../src/games/voidrift_particle_sandbox');
+const GAME = resolve(import.meta.dirname, '../src/games/grainworks');
 
 beforeEach(() => {
   localStorage.clear();
@@ -49,7 +49,7 @@ function seededWorld(): { grid: CellularGrid; mgr: BuildingManager } {
   return { grid, mgr };
 }
 
-describe('VoidRift Particle Sandbox golden determinism', () => {
+describe('GrainWorks golden determinism', () => {
   it('200 seeded steps of the starter world give a fixed material digest', () => {
     const { grid } = seededWorld();
     for (let i = 0; i < 200; i++) grid.step();
@@ -57,7 +57,7 @@ describe('VoidRift Particle Sandbox golden determinism', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox run-length coding', () => {
+describe('GrainWorks run-length coding', () => {
   it('round-trips and rejects bad lengths', () => {
     const data = Uint8Array.from([0, 0, 0, 5, 5, 1, 0, 0]);
     const pairs = rleEncode(data);
@@ -69,7 +69,7 @@ describe('VoidRift Particle Sandbox run-length coding', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox save and restore', () => {
+describe('GrainWorks save and restore', () => {
   it('restores grid, buildings and pipes exactly', () => {
     const a = seededWorld();
     for (let i = 0; i < 100; i++) a.grid.step();
@@ -107,7 +107,7 @@ describe('VoidRift Particle Sandbox save and restore', () => {
     saveSandbox(a.grid, a.mgr, 1, [], false);
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as { v: number };
     expect(raw.v).toBe(SAVE_VERSION);
-    expect(SAVE_KEY).toBe('voidrift_particle_sandbox_save');
+    expect(SAVE_KEY).toBe('grainworks_save');
   });
 
   it('returns null for missing, corrupt or wrong-version saves, and false for a bad grid', () => {
@@ -134,7 +134,7 @@ describe('VoidRift Particle Sandbox save and restore', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox save wiring', () => {
+describe('GrainWorks save wiring', () => {
   const app = readFileSync(resolve(GAME, 'App.tsx'), 'utf8');
 
   it('restores a save before falling back to the starter factory', () => {

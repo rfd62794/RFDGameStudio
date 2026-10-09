@@ -4,7 +4,7 @@ import type { CellularGrid } from './grid';
 import type { BuildingManager } from './buildingManager';
 import { TILES_X } from './routing';
 
-export const SAVE_KEY = 'voidrift_particle_sandbox_save';
+export const SAVE_KEY = 'grainworks_save';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL_MS = 5000;
 
