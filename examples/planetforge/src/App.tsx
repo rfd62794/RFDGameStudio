@@ -25,6 +25,8 @@ import { InspectorPanel } from './components/InspectorPanel';
 import { EventLog } from './components/EventLog';
 import { TestRunnerModal } from './components/TestRunnerModal';
 import { debugToolsEnabled } from './debugTools';
+import { evaluate_goal } from './goal';
+import { GoalBanner } from './components/GoalBanner';
 
 export default function App() {
   const showDebugTools = debugToolsEnabled(window.location.search);
@@ -34,6 +36,12 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(1);
   const [isTestModalOpen, setIsTestModalOpen] = useState<boolean>(false);
+  const goal = evaluate_goal(world);
+
+  // A finished world stops ticking; the finish screen offers a fresh start.
+  useEffect(() => {
+    if (goal.status !== 'playing') setIsPlaying(false);
+  }, [goal.status]);
 
   // Keep selected sector synced when tile selection changes
   const handleSelectTile = (idx: number) => {
@@ -227,6 +235,8 @@ export default function App() {
         onOpenTests={() => setIsTestModalOpen(true)}
         showTestRunner={showDebugTools}
       />
+
+      <GoalBanner goal={goal} onRestart={handleResetWorld} />
 
       {/* Main God-Game Canvas Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
