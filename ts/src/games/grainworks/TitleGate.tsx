@@ -12,13 +12,13 @@ export default function TitleGate(props: GameRendererProps) {
   if (screen === 'title') {
     return (
       <GameShell
-        gameLabel="VoidRift Particle Sandbox"
-        gameId="voidrift_particle_sandbox"
-        phase="PARTICLE SANDBOX"
+        gameLabel="GrainWorks"
+        gameId="grainworks"
+        phase="GRAINWORKS"
         className="bg-[#070913] text-slate-200 font-sans"
       >
         <TitleScreen
-          title="Particle Sandbox"
+          title="GrainWorks"
           tagline="Drop it. Catch it. Build on it."
           pitch="Sand, gas and glowing crystals fall through a tiny space station. Catch the debris, pipe it through machines, and grow a little factory that remembers the universe."
           menuItems={[

@@ -12,7 +12,7 @@ Measured footprint (Grep, 2026-10-08, excluding `node_modules`, `dist*`, `review
 - Source example folder: `examples/voidrift-redux-particle-sandbox/`.
 - Direction docs folder: `docs/demos/voidrift_particle_sandbox/` (`DIRECTION.md`, `SCOPE.md`).
 - Tests: `ts/tests/test_voidrift_particle_sandbox_flow.ts`, `_reactions.ts`, `_registry.ts`, `_simulation.ts`, `_tiles_materials.ts` (plus `_tier_a.ts` and any phone test the two dependency directives add).
-- Id or title strings inside: `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/config.ts`, `ts/tests/test_collect_configs.ts`, `ts/tests/seeded_sim_guard.baseline.json`, `docs/children.json`. The generated registry files `ts/src/games/arcade-manifest.json`, `ts/src/games/game-metadata.json` and `ts/src/games/registry-export.json` are gitignored and not in the worktree: do not look for or edit them; the controller regenerates them after merge.
+- Id or title strings inside: `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/config.ts`, `ts/tests/test_collect_configs.ts`, `ts/tests/seeded_sim_guard.baseline.json`, `docs/children.json`. The generated registry files in the games folder (arcade manifest, game metadata and registry export JSONs) are gitignored and not in the worktree: do not look for or edit them; the controller regenerates them after merge.
 - Pending directive that names the old paths: `docs/directives/Voidrift_Particle_Sandbox_Save_Golden_Directive.md`.
 
 ## 2. Scope
@@ -33,7 +33,7 @@ New names: id `grainworks`, display title `GrainWorks`, game folder `ts/src/game
 - Do not rename the VoidDrift or VoidDrift Redux games. Do not run `git merge origin/main`. Do not install, download or fetch anything, read outside the worktree, or search for facts: every path you need is listed above. If a listed path is missing, stop and write why in the Status row.
 - Never commit to main, never push except your `directive/<slug>` branch, never deploy. No scratch files (use `.devin-scratch/`).
 
-## 4. Sandbox needs
+## Sandbox needs
 
 - Exec(git mv)
 
@@ -72,11 +72,23 @@ In the Status row: the file moves (counts), the vitest and tsc tails verbatim, a
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin-any |
-| Branch | - |
+| Branch | directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 |
 | Base branch | - |
+| Base commit | ee348031c108ecc76fb64813054badf0b6198273 |
+| Head commit | eb2cb76edbfd72e9b1378bc7c6f892ca86de40f8 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-08 19:49 · robert-claude-laptop · none → Queued — Robert 2026-10-08: GrainWorks, unrelated to Voidrift; runs after Tier A and Phone merge
+- 2026-10-09 00:34 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 00:35 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FF3B5NJGS0VD3FM3MCS7RN
+- 2026-10-09 00:35 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-09 00:44 · devin-overseer (delegated) · In progress → Blocked — Sandbox refused `git mv ts/src/games/voidrift_particle_sandbox ts/src/games/grainworks` — declared Exec(git mv) was not granted (git mv is outside the run's allowed command list). No permitted alternative exists: directive requires git mv only / no copy-then-delete, and no move/rename primitive (mv, Move-Item, git rm) is allowed. No files changed; worktree clean. Grant git mv or perform the 12 moves out-of-band, then requeue.; under delegate.envelope
+- 2026-10-09 00:47 · robert-claude-laptop · Blocked → Queued — requeue: git mv was refused because '## 4. Sandbox needs' (numbered) was not parsed (sandbox_grants empty); heading fixed to '## Sandbox needs'
+- 2026-10-09 00:48 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 00:48 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FFVDFM2HR6K8A21ANAYQBM
+- 2026-10-09 00:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6; resynced: merged main into directive/rfdgamestudio-rename-particle-sandbox-to-grainw-cb7df6 (6 commit(s), clean); provisioned: uv sync --frozen
+- 2026-10-09 06:20 · robert-claude-laptop · In progress → Review — Run stopped at pre-push hook after push landed; remote tip eb2cb76e verified, vitest 77/77 + tsc clean per log. Overseer salvage. [origin] spent: devin 18 min est. n/a
 <!-- queue:end -->

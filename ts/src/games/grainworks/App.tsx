@@ -385,9 +385,9 @@ export default function App({ onRestart }: AppProps) {
 
   return (
     <GameShell
-      gameLabel="VoidRift Particle Sandbox"
-      gameId="voidrift_particle_sandbox"
-      phase="PARTICLE SANDBOX"
+      gameLabel="GrainWorks"
+      gameId="grainworks"
+      phase="GRAINWORKS"
       className="bg-[#070913] text-slate-200 font-sans"
       mainClassName="game-shell-main--scrollable"
     >

@@ -15,4 +15,4 @@ Dependencies / risks: tests import ../ts/src/games/voidrift_redux and need re-po
 Effort: M
 Open question for Robert: none
 
-Status (2026-10-04): PARKED. Tier A, polish and port work are N/A until voiddrift_redux and voidrift_particle_sandbox each have a title screen, a Restart control and a save. Source and tests stay where they are; nothing is deleted. See DIRECTION.md.
+Status (2026-10-04): PARKED. Tier A, polish and port work are N/A until voiddrift_redux and grainworks each have a title screen, a Restart control and a save. Source and tests stay where they are; nothing is deleted. See DIRECTION.md.

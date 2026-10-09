@@ -1,12 +1,12 @@
 import ReactDOM from 'react-dom/client';
 import '../../index.css';
-import App from '../../games/voidrift_particle_sandbox/TitleGate';
+import App from '../../games/grainworks/TitleGate';
 import type { GameSession } from '../../engine/types';
 
 const session: GameSession = {
-  gameId: 'voidrift_particle_sandbox',
+  gameId: 'grainworks',
   files: {
-    gameId: 'voidrift_particle_sandbox',
+    gameId: 'grainworks',
     data: {},
     ui: {},
     logic: '',
