@@ -241,4 +241,5 @@ none.
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-09 01:11 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
 - 2026-10-09 01:11 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-redux-details-go-d5e193; lane=strong; model=default; persona=steady-builder; agent_id=01M4FH6D49G9K8VKN2YEDSFA5G
+- 2026-10-09 01:12 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-redux-details-go-d5e193; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
