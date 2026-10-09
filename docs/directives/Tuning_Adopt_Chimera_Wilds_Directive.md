@@ -93,7 +93,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive |
 | Base branch | - |
@@ -106,4 +106,5 @@ none.
 - 2026-10-04 20:25 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
 - 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
 - 2026-10-09 01:13 · devin (delegated) · Queued → Approved — lint override: branch-conflict is a stale orphan: directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive holds an abandoned implementation (8599ff39) that never merged and whose queue block diverges from main - a fresh suffixed dispatch branch will not collide with it; under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 01:13 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FH9MWNVRP6039WPGCRASKS
 <!-- queue:end -->
