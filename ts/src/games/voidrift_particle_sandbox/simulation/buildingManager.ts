@@ -25,7 +25,7 @@ export class BuildingManager {
   public pipes: Map<string, PipeNode>; // "tx,ty" -> PipeNode
   public buildingTileGrid: Int32Array; // Maps (ty * 40 + tx) to buildingId (or 0)
   public pipeTileGrid: Uint8Array; // 1 if tile has a pipe, 0 otherwise
-  private nextBuildingId = 1;
+  public nextBuildingId = 1;
 
   constructor() {
     this.buildings = [];
