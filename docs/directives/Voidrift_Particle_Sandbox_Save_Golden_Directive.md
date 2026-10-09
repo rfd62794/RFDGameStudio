@@ -557,7 +557,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 |
 | Base branch | - |
@@ -578,4 +578,5 @@ none.
 - 2026-10-09 00:33 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4FF0GEDPXA8NNDK5CTH5VHZ
 - 2026-10-09 00:33 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; resynced: merged main into directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 (50 commit(s), clean); provisioned: uv sync --frozen
 - 2026-10-09 00:39 · devin (delegated) · In progress → Review — All steps applied verbatim: sandboxSave.ts, starterFactory.ts, VictoryModal.tsx created; buildingManager.ts nextBuildingId public; TitleGate clears save on Restart; App.tsx wired (load-or-starter, 5s+pagehide autosave, VictoryModal swap). Golden digest matched: 1b3f7a91. Verify: python 3.12.10; baseline 5 files/48 tests; post 6 files/59 tests; reactions+tiles 2 files/23 tests; tsc --noEmit clean; placeStarterFactory once, no Award in App.tsx. Commit 1c6a8e2d.; under delegate.envelope [origin]
+- 2026-10-09 06:42 · robert-claude-laptop · Review → Superseded — superseded_by: commit:cf236fdd - note: Landed via PR #249 (cf236fdd) at branch tip 7b10ea65 after re-path onto grainworks/; recorded head was stale. vitest 82/82, tsc clean, golden 1b3f7a91 unchanged.
 <!-- queue:end -->
