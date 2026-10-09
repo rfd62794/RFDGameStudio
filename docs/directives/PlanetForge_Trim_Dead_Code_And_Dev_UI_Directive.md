@@ -253,11 +253,11 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-planetforge-trim-dead-code-and-de-34bafa |
 | Base branch | - |
-| Base commit | e87242bc3f08bc0fc4ca610503d7eb11e4df4b90 |
+| Base commit | 5be826567c74d430ac227147371a4e24ad4c3070 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
@@ -266,4 +266,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-05 00:39 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
 - 2026-10-05 00:40 · robert-claude-laptop · Blocked → Queued — requeue: setup died at uv sync (os error 1142 hard-link) in the laptop's STALE queue MCP process, which predates PR 558 copy mode; the tick-launched dispatcher has the fix
 - 2026-10-09 06:48 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 07:05 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-trim-dead-code-and-de-34bafa; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4G5DTWEE43R29N1HCAHB09C
 <!-- queue:end -->
