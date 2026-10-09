@@ -33,7 +33,7 @@ New names: id `grainworks`, display title `GrainWorks`, game folder `ts/src/game
 - Do not rename the VoidDrift or VoidDrift Redux games. Do not run `git merge origin/main`. Do not install, download or fetch anything, read outside the worktree, or search for facts: every path you need is listed above. If a listed path is missing, stop and write why in the Status row.
 - Never commit to main, never push except your `directive/<slug>` branch, never deploy. No scratch files (use `.devin-scratch/`).
 
-## 4. Sandbox needs
+## Sandbox needs
 
 - Exec(git mv)
 
