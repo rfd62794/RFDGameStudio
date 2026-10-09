@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { BUILDING_DEFS } from '../src/games/voidrift_particle_sandbox/simulation/buildingDefs';
-import { isUnlocked, unlockedDefs } from '../src/games/voidrift_particle_sandbox/components/buildPanelVisibility';
+import { BUILDING_DEFS } from '../src/games/grainworks/simulation/buildingDefs';
+import { isUnlocked, unlockedDefs } from '../src/games/grainworks/components/buildPanelVisibility';
 
-const GAME = resolve(import.meta.dirname, '../src/games/voidrift_particle_sandbox');
+const GAME = resolve(import.meta.dirname, '../src/games/grainworks');
 const read = (rel: string) => readFileSync(resolve(GAME, rel), 'utf8');
 
-describe('VoidRift Particle Sandbox progressive build panel', () => {
+describe('GrainWorks progressive build panel', () => {
   it('shows only the 10 Tier 1 tools at Tier 1', () => {
     const shown = unlockedDefs(BUILDING_DEFS, 1).map((d) => d.id);
     expect(shown).toHaveLength(10);
@@ -30,7 +30,7 @@ describe('VoidRift Particle Sandbox progressive build panel', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox phone input and layout', () => {
+describe('GrainWorks phone input and layout', () => {
   it('uses pointer events with touch-action none on the canvas', () => {
     const app = read('App.tsx');
     for (const handler of ['onPointerDown', 'onPointerMove', 'onPointerUp', 'onPointerCancel', 'onPointerLeave']) {

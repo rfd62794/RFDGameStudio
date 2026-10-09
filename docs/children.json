@@ -182,9 +182,9 @@
       "label": "VoidDrift Redux"
     },
     {
-      "id": "voidrift_particle_sandbox",
-      "path": "ts/src/games/voidrift_particle_sandbox",
-      "label": "VoidRift Particle Sandbox"
+      "id": "grainworks",
+      "path": "ts/src/games/grainworks",
+      "label": "GrainWorks"
     },
     {
       "id": "wire_rust",
