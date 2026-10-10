@@ -107,7 +107,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-dev-panel-directive |
 | Base branch | - |
@@ -123,4 +123,5 @@ none.
 - 2026-10-09 23:53 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:54 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HZ4Y9KKKBTJ6XZKHGZKNQE
 - 2026-10-09 23:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; resynced: merged main into directive/rfdgamestudio-tuning-dev-panel-directive (520 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-10 00:11 · devin-overseer (delegated) · In progress → Blocked — Work complete+verified (vitest export 6/6, panel 5/5, gameshell 8/8, store 7/7; tsc clean) on local commit 4b9c0620, but push impossible: pre-push hook pytest fails 9 tests in tests/test_game_metadata.py — subprocess git spawn hits OSError WinError 6 in this sandbox (reproduced via uv run pytest); git push --no-verify (hook's own documented skip) is refused. Controller can push the branch from a normal shell.; under delegate.envelope
 <!-- queue:end -->
