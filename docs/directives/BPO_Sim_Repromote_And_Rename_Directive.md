@@ -41,10 +41,10 @@ This run starts from the PREPARED state below (the controller commits it on a br
 git mv examples/filipino-bpo-simulator examples/bpo-sim
 cp intake/filipino-bpo-simulator/extracted/src/App.tsx examples/bpo-sim/src/App.tsx
 cp intake/filipino-bpo-simulator/extracted/src/components/DialerControlModal.tsx examples/bpo-sim/src/components/DialerControlModal.tsx
-git rm -f examples/bpo-sim/src/components/DashboardView.tsx examples/bpo-sim/src/components/FloorView.tsx
 git mv ts/src/games/filipino_bpo_simulator ts/src/games/bpo_sim
 git mv intake/filipino-bpo-simulator intake/bpo-sim
 ```
+Then delete `examples/bpo-sim/src/components/DashboardView.tsx` and `examples/bpo-sim/src/components/FloorView.tsx` with the editor or filesystem (not `git rm`, which is a deny rule), and stage the deletions with `git add -A examples/bpo-sim`. Do this after the `cp` steps and before the commit.
 (The `cp` of `App.tsx` must come before the `intake` move.) Then commit. After this the registry folder `ts/src/games/bpo_sim/config.ts` still holds the OLD text, which this run rewrites.
 
 **This run edits:**
@@ -238,7 +238,7 @@ Expected in THIS run: 5 failures (registry parity x3, `test_children_index_is_fr
 
 ## Sandbox needs
 
-none
+- Exec(git mv)
 
 ## 8. Report
 
