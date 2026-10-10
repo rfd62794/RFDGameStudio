@@ -258,7 +258,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-bpo-sim-repromote-and-rename-directive |
 | Base branch | - |
@@ -271,4 +271,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-09 23:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-repromote-and-rename-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HZ2TKBVF1CVB8K117GG66M
 - 2026-10-09 23:53 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-repromote-and-rename-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-09 23:59 · devin · In progress → Blocked — False-positive re-dispatch: work already landed at ff0a5946 (rename to bpo_sim, Phase 2b promotion, identity test, children.json + baseline regen); later directives 5bf2bab7 (registry refactor) and f48c03c1 (country selector) built on it. Zero edits made - literal re-apply impossible (registry.ts + test_registry_export.ts anchors gone) and would revert f48c03c1. Review refused: 'branch has no commits beyond main' - there is no work to land. Verified: python 3.12.12; vitest 5 files 31 passed | 1 skipped; tsc --noEmit 0 errors; pytest trio 6 passed / 2 failed - both failures are unrelated staleness for voidrift_particle_sandbox + grainworks (children.json + resolve_source baseline regen, controller-side). All bpo_sim invariants pass; nothing published. Recommend close, per heartbeat note 2026-10-05.
+- 2026-10-10 00:08 · robert-claude-laptop · Blocked → Superseded — superseded_by: commit:ff0a5946 - note: Work already on main at ff0a5946 (rename to bpo_sim, Phase 2b promotion, identity test, children.json regen); later commits 5bf2bab7 and f48c03c1 build on it. The 2026-10-09 re-dispatch found nothing to do (vitest 31 passed, tsc clean).
 <!-- queue:end -->
