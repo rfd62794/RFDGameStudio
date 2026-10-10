@@ -258,7 +258,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
@@ -266,4 +266,5 @@ none. Deploying is Robert's, after review.
 **Status log**
 - 2026-10-05 00:32 · agentflow-tick · none → Queued — suggested by heartbeat: Work already landed and later directives build on it; re-running would revert config.ts. Close, don't dispatch.
 - 2026-10-06 18:52 · robert-claude-laptop · assignee robert -> devin — Reassign robert -> devin: build-only; deploy stays Robert's (inventory 2026-10-06).
+- 2026-10-09 23:52 · robert-claude-laptop · Queued → Approved — lint override: DashboardView.tsx and FloorView.tsx are cited at their post-`git mv` path (examples/bpo-sim/...); they exist on main at examples/filipino-bpo-simulator/src/components/ and the step deletes them after the move. Not a missing-path error.
 <!-- queue:end -->
