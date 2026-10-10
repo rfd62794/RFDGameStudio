@@ -26,6 +26,7 @@ describe('Dissonance through the PlaytestAdapter contract', () => {
         extraChecks: [dissonanceSanity],
       });
       results[seed] = result;
+      console.log(`seed ${seed}: ${result.outcome} in ${result.steps} steps`);
       expect(result.violations).toEqual([]);
       expect(result.terminal).toBe(true);
       expect(result.steps).toBeLessThan(500);
