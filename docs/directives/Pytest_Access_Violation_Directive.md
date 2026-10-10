@@ -57,12 +57,12 @@ violation, and the traceback-naming change in `scripts/check.ps1`.
 
 | Field | Value |
 |---|---|
-| Status | Draft |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
-| Base commit | - |
 
 **Status log**
 - 2026-10-10 · robert-claude · none → Draft — Intermittent 0xC0000005 in pre-push pytest stage; not reproduced in diagnosis.
+- 2026-10-10 00:32 · robert-claude-laptop · Draft → Queued — Queued by the laptop overseer 2026-10-10: the pre-push hook now blocks on any failed stage (PR #270), so the intermittent pytest access violation will block pushes until it is found.
 <!-- queue:end -->
