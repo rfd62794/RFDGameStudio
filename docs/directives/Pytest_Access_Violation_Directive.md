@@ -78,7 +78,7 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-pytest-access-violation-directive |
 | Base branch | - |
@@ -93,4 +93,5 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 - 2026-10-10 00:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-pytest-access-violation-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J1PWFG6V1MJEY1HBHRYJ8J
 - 2026-10-10 00:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-pytest-access-violation-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-10 01:23 · devin-overseer (delegated) · In progress → Review — SDL_VIDEODRIVER+SDL_AUDIODRIVER=dummy now set suite-wide in root conftest.py before any pygame import (several test modules set only VIDEODRIVER); -X faulthandler added to scripts/check.ps1 pytest call. 5 consecutive full runs of the hook selection clean (977 passed, exit 0 each), plus a 6th via the real pre-push hook on push. Crash itself never reproduced; fix covers the missing-dummy-driver cause and instruments the hook for the next occurrence.; under delegate.envelope [origin] spent: devin 16 min est. n/a
+- 2026-10-10 07:12 · robert-claude-laptop · Review → Done — note: PR #276 merged 2026-10-10 on Robert's "merge as diagnostics": SDL dummy drivers suite-wide in conftest.py, -X faulthandler in scripts/check.ps1; 6 clean hook-selection runs, the 0xC0000005 never reproduced. The pre-push hook is enforced since #270, so a recurrence blocks the push and names its frame.
 <!-- queue:end -->
