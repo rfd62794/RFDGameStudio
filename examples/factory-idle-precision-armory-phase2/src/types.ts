@@ -30,7 +30,7 @@ export interface PartDefinition {
 export interface WeaponRecipe {
   id: WeaponId;
   name: string;
-  category: 'Handgun' | 'Scatter' | 'Rifle' | 'Special Ops' | 'Precision';
+  category: 'Hand Tools' | 'Fasteners' | 'Power Saws' | 'Finishing' | 'Measuring';
   requiredParts: Record<RawPartId, number>;
   baseCost: number;
   salePrice: number;

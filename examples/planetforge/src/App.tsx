@@ -1,5 +1,5 @@
 /**
- * SlimeWorld (God-Game) - Main Application
+ * PlanetForge (God-Game) - Main Application
  * Phase: SectorZone Soil Upgrade Pass + Monument Construction (ADR 002 Engine)
  */
 
@@ -27,10 +27,22 @@ import { TestRunnerModal } from './components/TestRunnerModal';
 import { debugToolsEnabled } from './debugTools';
 import { evaluate_goal } from './goal';
 import { GoalBanner } from './components/GoalBanner';
+import { loadWorld, saveWorld, clearSave, type StorageLike } from './persistence';
+import { firstStepHint } from './hint';
+
+function browserStorage(): StorageLike | null {
+  try {
+    return typeof window !== 'undefined' ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function App() {
   const showDebugTools = debugToolsEnabled(window.location.search);
-  const [world, setWorld] = useState<WorldState>(() => create_initial_world());
+  const [world, setWorld] = useState<WorldState>(() => loadWorld(browserStorage(), create_initial_world()));
+  const worldRef = useRef(world);
+  worldRef.current = world;
   const [selectedTileIdx, setSelectedTileIdx] = useState<number>(0);
   const [selectedSectorId, setSelectedSectorId] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -64,6 +76,19 @@ export default function App() {
       return current;
     });
   };
+
+  // Autosave every 5 s and when the tab is hidden or closed.
+  useEffect(() => {
+    const save = () => { saveWorld(browserStorage(), worldRef.current); };
+    const id = setInterval(save, 5000);
+    window.addEventListener('beforeunload', save);
+    document.addEventListener('visibilitychange', save);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('beforeunload', save);
+      document.removeEventListener('visibilitychange', save);
+    };
+  }, []);
 
   // Simulation Loop
   useEffect(() => {
@@ -214,6 +239,7 @@ export default function App() {
   };
 
   const handleResetWorld = () => {
+    clearSave(browserStorage());
     setIsPlaying(false);
     setWorld(create_initial_world());
     setSelectedTileIdx(0);
@@ -236,7 +262,7 @@ export default function App() {
         showTestRunner={showDebugTools}
       />
 
-      <GoalBanner goal={goal} onRestart={handleResetWorld} />
+      <GoalBanner goal={goal} hint={firstStepHint(world.current_tick, isPlaying)} onRestart={handleResetWorld} />
 
       {/* Main God-Game Canvas Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

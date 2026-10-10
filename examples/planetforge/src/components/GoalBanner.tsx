@@ -3,15 +3,18 @@ import { goalLine, WIN_TITLE, WIN_BODY, LOSE_TITLE, LOSE_BODY, type GoalProgress
 
 interface GoalBannerProps {
   goal: GoalProgress;
+  /** Optional first-step line shown under the goal (null once the player is under way). */
+  hint?: string | null;
   onRestart: () => void;
 }
 
-export const GoalBanner: React.FC<GoalBannerProps> = ({ goal, onRestart }) => {
+export const GoalBanner: React.FC<GoalBannerProps> = ({ goal, hint = null, onRestart }) => {
   const finished = goal.status !== 'playing';
   return (
     <>
       <div role="status" className="w-full px-4 lg:px-8 py-2 text-xs bg-indigo-950/60 border-b border-indigo-800/60 text-indigo-100">
         {goalLine(goal)}
+        {hint && <span className="block mt-0.5 text-indigo-300" data-testid="pf-first-step-hint">{hint}</span>}
       </div>
       {finished && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4" data-testid="pf-goal-finished">
