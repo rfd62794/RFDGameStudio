@@ -59,7 +59,7 @@ if (-not $SkipPython) {
     # same whether or not the machine sets PYTEST_DISABLE_PLUGIN_AUTOLOAD.
     $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
     Invoke-Step "Python tests (slow and e2e excluded)" {
-        uv run --no-sync python -m pytest -m "not e2e and not slow" -q -p pytest_rerunfailures --reruns 2
+        uv run --no-sync python -X faulthandler -m pytest -m "not e2e and not slow" -q -p pytest_rerunfailures --reruns 2
     }
 }
 
