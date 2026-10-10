@@ -212,7 +212,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-studio-embed-dist-report-d1-5-directive |
 | Base branch | - |
@@ -225,4 +225,5 @@ none.
 - 2026-10-06 19:27 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-06 19:29 · devin-overseer (delegated) · In progress → Blocked — Step 1 cannot run: all forms refused - `cd ts && npx vite-node tools/build-demo.ts --all --check`, `npm run build:demo -- --all --check`, `npx vite-node tools/build-demo.ts --all --check` (vite-node not in allowed commands). Step 2 verified OK: real deploy-tool lines are 762-775 (standalone dist-*/index.html discovery + staleness 768-774), 785-792 (example dist precheck), 826-829 (copy to static/arcade/<id>), 702/863 (_prepare_site_arcade). Report not written - needs the real --all --check tail.; under delegate.envelope
 - 2026-10-09 23:47 · robert-claude-laptop · Blocked → Queued — Rewritten in PR #258 (merged): Step 1 now reads the controller-captured build-demo --all --check output embedded in the directive; no vite-node in the run. Line refs refreshed against main.
+- 2026-10-09 23:56 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
