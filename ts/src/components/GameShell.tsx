@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { navigateHome, isEmbed } from '../arcade/routing';
 import { getGlossary, GlossaryPanel, glossaryPanelRequested } from '../foundation/glossary';
 import { ErrorBoundary } from '../ui/components/ErrorBoundary';
 import { installGlobalDiagnostics } from '../engine/diagnostics/diagnostics';
+import { devTuningEnabled } from '../engine/tuning';
+
+const TuningPanel = lazy(() => import('./TuningPanel'));
 
 export interface GameShellProps {
   /** Display name used in the marquee title treatment */
@@ -88,6 +91,10 @@ export function GameShell({
         const result = getGlossary(gameId);
         return result ? <GlossaryPanel result={result} /> : null;
       })()}
+
+      {typeof window !== 'undefined' && devTuningEnabled(window.location.search) && (
+        <Suspense fallback={null}><TuningPanel gameId={gameId} /></Suspense>
+      )}
 
       {footer && <div className="game-shell-footer">{footer}</div>}
     </div>

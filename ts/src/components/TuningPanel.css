@@ -1,0 +1,121 @@
+@import url('../ui/tokens.css');
+
+.tuning-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  max-height: 45vh;
+  overflow-y: auto;
+  padding: 0.75rem;
+  background: var(--surface);
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.tuning-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tuning-note {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+}
+
+.tuning-group-name {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.tuning-row {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.tuning-row.changed {
+  border-color: var(--yellow);
+}
+
+.tuning-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tuning-default {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+}
+
+.tuning-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.tuning-inputs input {
+  min-height: 44px;
+}
+
+.tuning-inputs input[type='range'] {
+  flex: 1;
+}
+
+.tuning-inputs input[type='number'] {
+  width: 5.5rem;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 0.35rem;
+}
+
+.tuning-affects {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+}
+
+.tuning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tuning-actions button {
+  min-height: 44px;
+  padding: 0 0.75rem;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.tuning-copied {
+  margin: 0.5rem 0 0;
+  color: var(--green);
+}
+
+.tuning-fallback {
+  width: 100%;
+  min-height: 4rem;
+  margin-top: 0.5rem;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
