@@ -107,7 +107,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-dev-panel-directive |
 | Base branch | - |
@@ -127,4 +127,5 @@ none.
 - 2026-10-09 23:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; resynced: merged main into directive/rfdgamestudio-tuning-dev-panel-directive (520 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-10 00:11 · devin-overseer (delegated) · In progress → Blocked — Work complete+verified (vitest export 6/6, panel 5/5, gameshell 8/8, store 7/7; tsc clean) on local commit 4b9c0620, but push impossible: pre-push hook pytest fails 9 tests in tests/test_game_metadata.py — subprocess git spawn hits OSError WinError 6 in this sandbox (reproduced via uv run pytest); git push --no-verify (hook's own documented skip) is refused. Controller can push the branch from a normal shell.; under delegate.envelope
 - 2026-10-10 00:18 · robert-claude-laptop · Blocked → Review — Branch 4b9c0620 pushed by the controller from a clean-venv worktree (the run's venv had python.exe swapped for pythonw; fixed in AgentFlow #672). Run's verification: vitest export 6/6, panel 5/5, gameshell 8/8, store 7/7; tsc clean. Python suite crashed (access violation) in the pre-push hook, which did not block - hook enforcement fix in progress. [origin] spent: devin 16 min est. n/a
+- 2026-10-10 00:20 · robert-claude-laptop · Review → Done — note: PR #267 merged 2026-10-10 after Sonnet review (export 6, panel 5, gameshell 8, store 7, targets 5 tests passed; tsc clean; panel lazy-loaded only under ?dev=1). Controller screenshots at ?dev=1 still owed.
 <!-- queue:end -->
