@@ -82,7 +82,7 @@ The four `embedUrl` games with no site folder (`filipino_bpo_simulator`, `factor
 
 ## Step 1 input (captured by the controller 2026-10-09)
 
-The controller ran `cd ts && npx vite-node tools/build-demo.ts --all --check` in the live checkout on 2026-10-09 (read-only `--check`; exit code 1 because of the two PROBLEMS lines). Full output, 36 result lines (19 standalone, 13 embed, 4 none) and 2 PROBLEMS:
+The controller ran `ts/tools/build-demo.ts --all --check` (via `npx vite-node`, from the `ts` directory) in the live checkout on 2026-10-09 (read-only `--check`; exit code 1 because of the two PROBLEMS lines). Full output, 36 result lines (19 standalone, 13 embed, 4 none) and 2 PROBLEMS:
 
 ```text
 dissonance: standalone (vite.dissonance.config.ts): ok
