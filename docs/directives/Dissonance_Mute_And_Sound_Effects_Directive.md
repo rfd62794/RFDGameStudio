@@ -320,11 +320,17 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Superseded |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-dissonance-mute-and-sound-effects-7485ae |
 | Base branch | - |
+| Base commit | 4daefe169190b88efb18533b5ecece0f82e84b62 |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
+- 2026-10-05 05:28 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
+- 2026-10-05 21:37 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-mute-and-sound-effects-7485ae; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 21:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-mute-and-sound-effects-7485ae; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 21:41 · devin · In progress → Blocked — Already done on main: commit 1495038b (merged Oct 4) contains all five scope files matching the spec exactly; branch has no commits beyond main so Review is refused. Re-verified: vitest run test_dissonance -> 8 files passed | 1 skipped, 142 tests passed | 2 skipped (all 5 sound tests pass); tsc --noEmit clean. Safe to mark Done.
+- 2026-10-05 22:03 · robert-claude-laptop · Blocked → Superseded — superseded_by: commit:1495038b - note: work already on main 1495038b (5 files verified); branch has no commits beyond main
 <!-- queue:end -->

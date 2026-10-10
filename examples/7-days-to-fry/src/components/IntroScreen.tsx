@@ -5,12 +5,14 @@
 
 import React from 'react';
 import { ArrowRight, Sparkles, Building2 } from 'lucide-react';
+import { RestartButton } from './RestartButton';
 
 interface IntroScreenProps {
   onContinue: () => void;
+  onRestart?: () => void;
 }
 
-export const IntroScreen: React.FC<IntroScreenProps> = ({ onContinue }) => {
+export const IntroScreen: React.FC<IntroScreenProps> = ({ onContinue, onRestart }) => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-amber-500 selection:text-slate-950">
       <div className="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6 text-center">
@@ -50,6 +52,8 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onContinue }) => {
           <span>Continue to Night Setup</span>
           <ArrowRight className="w-4 h-4" />
         </button>
+
+        {onRestart && <RestartButton onRestart={onRestart} />}
       </div>
     </div>
   );

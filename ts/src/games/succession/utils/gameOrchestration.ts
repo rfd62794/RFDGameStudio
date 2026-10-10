@@ -19,6 +19,7 @@ import {
   DOMAIN_RIPPLE_CONFLICTS,
 } from '../data/gameConstants';
 import { getOriginModifiers } from '../data/origins';
+import { isParked } from '../parkedFeatures';
 
 
 export function createInitialGameState(originId?: PlayerOriginId): GameState {
@@ -183,7 +184,7 @@ export function whisperTo(state: GameState, figureId: FigureId, themeId: string)
   // Zero-sum domain ripple friction: large claim to one domain creates slight friction on opposing domain
   let rippleData = undefined;
   if (!exposed) {
-    const conflict = DOMAIN_RIPPLE_CONFLICTS[figureId];
+    const conflict = isParked('domainRipple') ? undefined : DOMAIN_RIPPLE_CONFLICTS[figureId];
     if (conflict) {
       const opposingFigure = figures.find((f) => f.id === conflict.targetFigureId);
       if (opposingFigure && opposingFigure.favor.player > 0) {
@@ -274,7 +275,7 @@ export function presentEvidenceTo(state: GameState, figureId: FigureId, evidence
 
   // Zero-sum domain ripple friction for evidence presentation
   let rippleData = undefined;
-  const conflict = DOMAIN_RIPPLE_CONFLICTS[figureId];
+  const conflict = isParked('domainRipple') ? undefined : DOMAIN_RIPPLE_CONFLICTS[figureId];
   if (conflict) {
     const opposingFigure = figures.find((f) => f.id === conflict.targetFigureId);
     if (opposingFigure && opposingFigure.favor.player > 0) {
@@ -353,6 +354,7 @@ export function deliverIndictmentTo(
   triad: IndictmentTriad
 ): GameState {
   if (state.phase === 'verdict') return state;
+  if (isParked('indictment')) return state;
 
   const validation = validateIndictmentForFigure(figureId, triad);
   const isCorrect = validation.isCorrect;
@@ -417,6 +419,7 @@ export function discreditFigure(
   targetRivalId: ClaimantId
 ): GameState {
   if (state.phase === 'verdict') return state;
+  if (isParked('discredit')) return state;
   if (targetRivalId === 'player') return state;
 
   const figures = state.figures.map((f) =>

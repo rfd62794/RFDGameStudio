@@ -193,12 +193,19 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-horse-racing-quick-first-races-directive |
 | Base branch | - |
+| Base commit | 27d37d87b46d9a85ceda21e39235710190689dae |
+| Head commit | 337269b19af5748ade2fd8a3c8cbc1a04735ed89 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:02 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
+- 2026-10-05 01:11 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-horse-racing-quick-first-races-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 01:12 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-horse-racing-quick-first-races-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 01:24 · devin · In progress → Review — First 3 races skip rest via raceCooldownFor; vitest 2 files/14 tests pass; tsc clean; pushed 337269b1 [origin] spent: devin 10 min est. n/a
+- 2026-10-05 01:27 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

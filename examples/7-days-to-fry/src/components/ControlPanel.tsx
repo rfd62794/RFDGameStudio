@@ -6,8 +6,9 @@
 
 import React from 'react';
 import { KitchenState } from '../types';
-import { Coffee, Shield, Pause, Play, RotateCcw, Truck } from 'lucide-react';
+import { Coffee, Shield, Pause, Play, Truck } from 'lucide-react';
 import { STOCK_UNITS_CAPACITY, UNLOAD_TRUCK_COST } from '../data';
+import { RestartButton } from './RestartButton';
 
 interface ControlPanelProps {
   state: KitchenState;
@@ -56,13 +57,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             ))}
           </div>
 
-          <button
-            onClick={onResetSession}
-            className="p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 transition cursor-pointer"
-            title="Reset Shift"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+          <RestartButton onRestart={onResetSession} />
         </div>
       </div>
 

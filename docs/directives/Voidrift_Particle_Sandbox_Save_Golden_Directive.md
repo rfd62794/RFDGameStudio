@@ -1,16 +1,18 @@
+Renamed to GrainWorks by Rename_Particle_Sandbox_To_GrainWorks_Directive.md
+
 # Particle Sandbox saves: autosave the whole base, restore it on load, and pin the physics with a seeded golden test
 
 **Depends on:** `Polish_Voidrift_Particle_Sandbox_TierA_Directive.md` and `Polish_Voidrift_Particle_Sandbox_Phone_Directive.md` merged (all three edit `App.tsx`; this run assumes their final text, including `TitleGate.tsx`).
-**Queue-neutral:** this file carries no Queue block; the controller queues it. Decided by Robert's 2026-10-04 approval of all recommendations (`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, Phase 2 save half and Phase 3).
+**Queue-neutral:** this file carries no Queue block; the controller queues it. Decided by Robert's 2026-10-04 approval of all recommendations (`docs/demos/grainworks/DIRECTION.md`, Phase 2 save half and Phase 3).
 
 **Read first** (everything this run needs is pasted below; these are the files to open):
-`docs/demos/voidrift_particle_sandbox/DIRECTION.md`, `ts/src/games/voidrift_particle_sandbox/App.tsx`, `ts/src/games/voidrift_particle_sandbox/TitleGate.tsx`,
-`ts/src/games/voidrift_particle_sandbox/simulation/grid.ts` (lines 1-60 and `clearAll`), `ts/src/games/voidrift_particle_sandbox/simulation/buildingManager.ts` (lines 23-45 and 168-250),
+`docs/demos/grainworks/DIRECTION.md`, `ts/src/games/grainworks/App.tsx`, `ts/src/games/grainworks/TitleGate.tsx` <!-- new: ts/src/games/grainworks/TitleGate.tsx -->,
+`ts/src/games/grainworks/simulation/grid.ts` (lines 1-60 and `clearAll`), `ts/src/games/grainworks/simulation/buildingManager.ts` (lines 23-45 and 168-250),
 `ts/src/engine/shared/persistence.ts`, `ts/src/engine/shared/seededRandom.ts`.
 
 ## 1. Why this exists
 
-`DIRECTION.md`: "no localStorage anywhere in the game", and a closed tab loses the whole base. Measured: `grep -rn localStorage ts/src/games/voidrift_particle_sandbox` finds nothing.
+`DIRECTION.md`: "no localStorage anywhere in the game", and a closed tab loses the whole base. Measured: `grep -rn localStorage ts/src/games/grainworks` finds nothing.
 The sandbox state is three typed arrays on `CellularGrid` (`materials`, `structureFlags`, `lifespan`, each 64,000 cells: `GRID_WIDTH` 320 x `GRID_HEIGHT` 200), plus `BuildingManager.buildings` (plain objects), `BuildingManager.pipes` (a `Map<string, PipeNode>`), and in `App.tsx` the tier, the reconstruction entities and the victory flag.
 Phase 3 of the direction also asks for "a seeded grid-step golden test ... Verify: it passes before and after any later refactor": nothing today pins the physics against the original.
 Design facts (do not change them):
@@ -22,9 +24,9 @@ Design facts (do not change them):
 
 ## 2. Scope
 
-1. New modules `<!-- new: ts/src/games/voidrift_particle_sandbox/simulation/sandboxSave.ts -->`, `<!-- new: ts/src/games/voidrift_particle_sandbox/simulation/starterFactory.ts -->`, `<!-- new: ts/src/games/voidrift_particle_sandbox/components/VictoryModal.tsx -->`.
-2. `ts/src/games/voidrift_particle_sandbox/App.tsx`, `TitleGate.tsx`, `simulation/buildingManager.ts` (one keyword).
-3. New test `<!-- new: ts/tests/test_voidrift_particle_sandbox_save.ts -->`.
+1. New modules `<!-- new: ts/src/games/grainworks/simulation/sandboxSave.ts -->`, `<!-- new: ts/src/games/grainworks/simulation/starterFactory.ts -->`, `<!-- new: ts/src/games/grainworks/components/VictoryModal.tsx -->`.
+2. `ts/src/games/grainworks/App.tsx`, `TitleGate.tsx`, `ts/src/games/grainworks/simulation/buildingManager.ts` (one keyword).
+3. New test `<!-- new: ts/tests/test_grainworks_save.ts -->`.
 
 ## 3. The work
 
@@ -38,7 +40,7 @@ import type { CellularGrid } from './grid';
 import type { BuildingManager } from './buildingManager';
 import { TILES_X } from './routing';
 
-export const SAVE_KEY = 'voidrift_particle_sandbox_save';
+export const SAVE_KEY = 'grainworks_save';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL_MS = 5000;
 
@@ -314,16 +316,16 @@ Leave `// Perform initial dynamic sizing and viewport centering` and the code af
 followed by a blank line.
 5. Nothing else. `handleResetGrid` (Clear) is unchanged: the autosave simply saves the cleared state.
 
-**Step 7: test**, exactly `ts/tests/test_voidrift_particle_sandbox_save.ts`. The golden digest `1b3f7a91` is the real value from running the starter world with a `mulberry32(12345)` stand-in for `Math.random` for 200 steps (it was stable across repeated runs):
+**Step 7: test**, exactly `ts/tests/test_grainworks_save.ts`. The golden digest `1b3f7a91` is the real value from running the starter world with a `mulberry32(12345)` stand-in for `Math.random` for 200 steps (it was stable across repeated runs):
 ```
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { mulberry32 } from '../src/engine/shared/seededRandom';
-import { MaterialType } from '../src/games/voidrift_particle_sandbox/types';
-import { CellularGrid } from '../src/games/voidrift_particle_sandbox/simulation/grid';
-import { BuildingManager } from '../src/games/voidrift_particle_sandbox/simulation/buildings';
-import { placeStarterFactory } from '../src/games/voidrift_particle_sandbox/simulation/starterFactory';
+import { MaterialType } from '../src/games/grainworks/types';
+import { CellularGrid } from '../src/games/grainworks/simulation/grid';
+import { BuildingManager } from '../src/games/grainworks/simulation/buildings';
+import { placeStarterFactory } from '../src/games/grainworks/simulation/starterFactory';
 import {
   SAVE_KEY,
   SAVE_VERSION,
@@ -334,9 +336,9 @@ import {
   rleEncode,
   saveSandbox,
   snapshotSandbox,
-} from '../src/games/voidrift_particle_sandbox/simulation/sandboxSave';
+} from '../src/games/grainworks/simulation/sandboxSave';
 
-const GAME = resolve(import.meta.dirname, '../src/games/voidrift_particle_sandbox');
+const GAME = resolve(import.meta.dirname, '../src/games/grainworks');
 
 beforeEach(() => {
   localStorage.clear();
@@ -367,7 +369,7 @@ function seededWorld(): { grid: CellularGrid; mgr: BuildingManager } {
   return { grid, mgr };
 }
 
-describe('VoidRift Particle Sandbox golden determinism', () => {
+describe('GrainWorks golden determinism', () => {
   it('200 seeded steps of the starter world give a fixed material digest', () => {
     const { grid } = seededWorld();
     for (let i = 0; i < 200; i++) grid.step();
@@ -375,7 +377,7 @@ describe('VoidRift Particle Sandbox golden determinism', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox run-length coding', () => {
+describe('GrainWorks run-length coding', () => {
   it('round-trips and rejects bad lengths', () => {
     const data = Uint8Array.from([0, 0, 0, 5, 5, 1, 0, 0]);
     const pairs = rleEncode(data);
@@ -387,7 +389,7 @@ describe('VoidRift Particle Sandbox run-length coding', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox save and restore', () => {
+describe('GrainWorks save and restore', () => {
   it('restores grid, buildings and pipes exactly', () => {
     const a = seededWorld();
     for (let i = 0; i < 100; i++) a.grid.step();
@@ -425,7 +427,7 @@ describe('VoidRift Particle Sandbox save and restore', () => {
     saveSandbox(a.grid, a.mgr, 1, [], false);
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as { v: number };
     expect(raw.v).toBe(SAVE_VERSION);
-    expect(SAVE_KEY).toBe('voidrift_particle_sandbox_save');
+    expect(SAVE_KEY).toBe('grainworks_save');
   });
 
   it('returns null for missing, corrupt or wrong-version saves, and false for a bad grid', () => {
@@ -452,7 +454,7 @@ describe('VoidRift Particle Sandbox save and restore', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox save wiring', () => {
+describe('GrainWorks save wiring', () => {
   const app = readFileSync(resolve(GAME, 'App.tsx'), 'utf8');
 
   it('restores a save before falling back to the starter factory', () => {
@@ -493,16 +495,16 @@ Expected `Python 3.12.x`; verified here: `Python 3.12.12`.
 
 Baseline with the two earlier directives merged (prototype state):
 ```
-cd ts && npx vitest run test_voidrift_particle_sandbox_phone.ts test_voidrift_particle_sandbox_tier_a.ts test_voidrift_particle_sandbox_registry.ts test_voidrift_particle_sandbox_simulation.ts test_voidrift_particle_sandbox_flow.ts
+cd ts && npx vitest run test_grainworks_phone.ts test_grainworks_tier_a.ts test_grainworks_registry.ts test_grainworks_simulation.ts test_grainworks_flow.ts
 ```
 Expected `Test Files  5 passed (5)` / `Tests  48 passed (48)`.
 
 After editing:
 ```
-cd ts && npx vitest run test_voidrift_particle_sandbox_save.ts test_voidrift_particle_sandbox_phone.ts test_voidrift_particle_sandbox_tier_a.ts test_voidrift_particle_sandbox_registry.ts test_voidrift_particle_sandbox_simulation.ts test_voidrift_particle_sandbox_flow.ts
+cd ts && npx vitest run test_grainworks_save.ts test_grainworks_phone.ts test_grainworks_tier_a.ts test_grainworks_registry.ts test_grainworks_simulation.ts test_grainworks_flow.ts
 ```
 Expected `Test Files  6 passed (6)` / `Tests  59 passed (59)` (11 new). Real prototype tail for the whole particle family (8 files): `Test Files  8 passed (8)` / `Tests  82 passed (82)`; the golden test took about 340 ms.
-Also run the two remaining family files once, unchanged: `cd ts && npx vitest run test_voidrift_particle_sandbox_reactions.ts test_voidrift_particle_sandbox_tiles_materials.ts` (expected `Tests  23 passed (23)`).
+Also run the two remaining family files once, unchanged: `cd ts && npx vitest run test_grainworks_reactions.ts test_grainworks_tiles_materials.ts` (expected `Tests  23 passed (23)`).
 Type check, prints nothing when clean: `cd ts && npx tsc --noEmit` (a lone missing `game-metadata.json` import error means the worktree lacks that gitignored file: write that in the Status row, do not hunt).
 Source check (Grep tool): `App.tsx` contains `placeStarterFactory(grid, bMgr);` once and no `Award`; `App.tsx` is at most 600 lines (the registry test also checks this).
 
@@ -535,7 +537,7 @@ Source check (Grep tool): `App.tsx` contains `placeStarterFactory(grid, bMgr);` 
 ## 8. Report
 
 Findings first: the files and real test counts, and the golden digest that your run printed. Evidence second: the real tails.
-**Controller finish (after merge):** `cd ts && npm run build:voidrift_particle_sandbox`, then in a browser: build a pipe, wait 6 seconds, reload, confirm the base is back; press Restart, confirm a fresh starter factory.
+**Controller finish (after merge):** `cd ts && npm run build:grainworks`, then in a browser: build a pipe, wait 6 seconds, reload, confirm the base is back; press Restart, confirm a fresh starter factory.
 Recommended action: review, merge.
 
 ## Sandbox needs
@@ -544,7 +546,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -555,11 +557,26 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Superseded |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 |
 | Base branch | - |
+| Base commit | 457d32c999d5d30b10d53b5b5b5d6bb6aca1f1d1 |
+| Head commit | 1c6a8e2d38f4464d6b0595ace51af5f7d18693fe |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:48 · robert-claude-laptop · Queued → Approved — dispatch deferred to work-tower
+- 2026-10-08 17:51 · robert-claude-laptop · assignee devin-tower -> devin-any — reassigned to the devin-any pool: Robert meant the Home Tower
+- 2026-10-08 17:55 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-08 18:17 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4ESGC3DW7Q7EBCK8KNZ9CH0
+- 2026-10-08 18:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 18:20 · devin (delegated) · In progress → Blocked — Declared deps not merged into worktree: TitleGate.tsx + test_..._tier_a.ts exist only on unmerged origin/directive/vps-tiera (8a81393f); FirstGoalCard.tsx + test_..._phone.ts exist on no branch (Phone directive still Queued). App.tsx is pre-polish text — quoted anchor 'import { FirstGoalCard }' absent; 5-file/48-test baseline and 6-file/59-test post commands cannot run. Stopped before edits per directive STOP rule.; under delegate.envelope
+- 2026-10-09 00:33 · devin (delegated) · Blocked → Queued — ordering dep resolved: both declared dependencies merged (TierA via PR #244, Phone via PR #247) - TitleGate.tsx and FirstGoalCard.tsx now exist on main at the cited paths; under delegate.requeue
+- 2026-10-09 00:33 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 00:33 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; lane=strong; model=default; persona=steady-builder; agent_id=01M4FF0GEDPXA8NNDK5CTH5VHZ
+- 2026-10-09 00:33 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0; resynced: merged main into directive/rfdgamestudio-voidrift-particle-sandbox-save-go-bef8b0 (50 commit(s), clean); provisioned: uv sync --frozen
+- 2026-10-09 00:39 · devin (delegated) · In progress → Review — All steps applied verbatim: sandboxSave.ts, starterFactory.ts, VictoryModal.tsx created; buildingManager.ts nextBuildingId public; TitleGate clears save on Restart; App.tsx wired (load-or-starter, 5s+pagehide autosave, VictoryModal swap). Golden digest matched: 1b3f7a91. Verify: python 3.12.10; baseline 5 files/48 tests; post 6 files/59 tests; reactions+tiles 2 files/23 tests; tsc --noEmit clean; placeStarterFactory once, no Award in App.tsx. Commit 1c6a8e2d.; under delegate.envelope [origin]
+- 2026-10-09 06:42 · robert-claude-laptop · Review → Superseded — superseded_by: commit:cf236fdd - note: Landed via PR #249 (cf236fdd) at branch tip 7b10ea65 after re-path onto grainworks/; recorded head was stale. vitest 82/82, tsc clean, golden 1b3f7a91 unchanged.
 <!-- queue:end -->

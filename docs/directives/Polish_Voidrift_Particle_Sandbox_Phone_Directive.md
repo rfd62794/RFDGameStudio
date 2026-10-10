@@ -18,7 +18,7 @@ This run: stack the panel under the canvas below 768 px; use pointer events with
 ## 2. Scope
 
 1. New modules `<!-- new: ts/src/games/voidrift_particle_sandbox/components/buildPanelVisibility.ts -->` and `<!-- new: ts/src/games/voidrift_particle_sandbox/components/FirstGoalCard.tsx -->`.
-2. `ts/src/games/voidrift_particle_sandbox/components/BuildPanel.tsx`, `components/ReconstructionCatalog.tsx`, `hooks/useCanvasInput.ts`, `App.tsx`.
+2. `ts/src/games/voidrift_particle_sandbox/components/BuildPanel.tsx`, `ts/src/games/voidrift_particle_sandbox/components/ReconstructionCatalog.tsx`, `ts/src/games/voidrift_particle_sandbox/hooks/useCanvasInput.ts`, `App.tsx`.
 3. New test `<!-- new: ts/tests/test_voidrift_particle_sandbox_phone.ts -->`.
 
 ## 3. The work
@@ -288,7 +288,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -299,11 +299,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
-| Assigned to | devin |
-| Branch | - |
+| Status | Done |
+| Assigned to | devin-any |
+| Branch | directive/rfdgamestudio-polish-voidrift-particle-sandbox--302aa1 |
 | Base branch | - |
+| Base commit | 772c35565c231547dfe8163da0aa2daf9cc5ceb5 |
+| Head commit | f66957a0c90dd6595d455d845a0d96eb68f6d054 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-09 00:10 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 00:11 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voidrift-particle-sandbox--302aa1; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4FDPYGFRVASMHKDSXBK1XVM
+- 2026-10-09 00:11 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voidrift-particle-sandbox--302aa1; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-09 00:28 · devin · In progress → Review — Phone polish done: buildPanelVisibility.ts + FirstGoalCard.tsx added; BuildPanel/ReconstructionCatalog responsive at md; pointer events + touch-none + PAN tool; progressive 10-tool Tier 1 panel. vitest: Test Files 5 passed (5), Tests 48 passed (48); npx tsc --noEmit clean; Python 3.12.12; App.tsx 591 lines; commit f66957a0 pushed. [origin] spent: devin 14 min est. n/a
+- 2026-10-09 00:31 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #247 (merge commit); sandbox tests 71 passed on merged tree; Devin pre-push: 977 py / 2822 ts / 16 build passed
 <!-- queue:end -->

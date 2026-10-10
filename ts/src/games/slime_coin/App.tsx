@@ -18,6 +18,7 @@ import ShopModal from './components/ShopModal';
 import PocketPicker from './components/PocketPicker';
 import CoinPrimer from './components/CoinPrimer';
 import { SLIME_COIN_BLURB } from './blurb';
+import { buyShopItem } from './shopItems';
 import './styles.css';
 
 function buildInitialState(session: unknown): SlimeCoinGameState {
@@ -385,10 +386,15 @@ export default function App({ session }: GameRendererProps) {
           tokens={state.tokens ?? 0}
           onSelectCard={handleSelectCard}
           onPurchase={(itemId) => {
-            const result = call('shop_purchase', itemId) as { tokens: number } | null;
-            if (result) {
+            const result = buyShopItem(call, itemId);
+            if (result.ok) {
               sound.playExchange();
-              setState(prev => prev ? { ...prev, tokens: result.tokens } : prev);
+              setState(prev => prev ? {
+                ...prev,
+                tokens: result.tokens,
+                pocket_coins: result.pocketCoins ?? prev.pocket_coins,
+                max_hand_in: result.maxHandIn ?? prev.max_hand_in,
+              } : prev);
             }
           }}
         />

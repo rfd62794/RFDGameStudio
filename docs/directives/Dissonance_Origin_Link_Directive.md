@@ -211,11 +211,23 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Superseded |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-dissonance-origin-link-directive |
 | Base branch | - |
+| Base commit | 9d754122b1ae19a33ae375e9b25215e24b838bf1 |
+| Head commit | 274d0d3c7301ad56b17964a56dd05d87d7b9a620 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:39 · robert-claude-laptop · none → Queued
+- 2026-10-05 00:39 · robert-claude-laptop · Queued → Approved — lint override: path hits follow the verified false-positive classes in this directive family: 'do not edit' mentions (demo_lists_snapshot.json), a gitignored generated file (game-metadata.json) and app-relative paths
+- 2026-10-05 00:40 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; base origin/main (local main differs); lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 00:40 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: on `itch-publisher`
+- 2026-10-05 00:40 · robert-claude-laptop · Blocked → Queued — requeue: setup died at uv sync (os error 1142 hard-link) in the laptop's STALE queue MCP process, which predates PR 558 copy mode; the tick-launched dispatcher has the fix
+- 2026-10-05 05:28 · robert-claude-laptop · Queued → Approved — lint override: dispatch-path-missing false positives, verified 2026-10-05: ts/src/games/game-metadata.json is gitignored but copied into every worktree via .agentflow/worktree-files; tests/fixtures/demo_lists_snapshot.json is a stale do-not-edit mention (deleted in c7231fd2), not a read dependency
+- 2026-10-05 20:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 20:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-dissonance-origin-link-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 21:00 · devin · In progress → Review — Work already present in base via e38c432a (committed to main by Robert 2026-10-04 16:20, predating this dispatch): TitlePhase onOpenOrigin + Button, App.tsx navigateTo/isStandalone wiring, ts/tests/test_dissonance_origin_link.tsx all match directive verbatim. Branch carries empty marker commit 274d0d3c since it had no commits beyond main. Verified: vitest run test_dissonance = 8 files passed | 1 skipped (9), 142 tests passed | 2 skipped (144) incl. 3 origin-link tests; npx tsc --noEmit clean exit 0; Python 3.12.12; git status clean. [origin] spent: devin 4 min est. n/a
+- 2026-10-05 22:02 · robert-claude-laptop · Review → Superseded — superseded_by: commit:e38c432a - note: work already on main e38c432a; branch is a no-op marker; Sonnet review re-ran test_dissonance_origin_link (3 passed)
 <!-- queue:end -->

@@ -10,11 +10,11 @@
 ## 2. Scope
 
 1. New `ts/src/games/scrapcrawl/playtest.ts`: `createScrapcrawlAdapter()`, `scrapcrawlPolicy(useCraft: boolean)`.
-2. New test `ts/tests/test_playtest_scrapcrawl.ts`.
+2. New test `ts/tests/test_playtest_scrapcrawl.ts` <!-- new: ts/tests/test_playtest_scrapcrawl.ts -->.
 
 ## 3. The work
 
-**Step 1: `ts/src/games/scrapcrawl/playtest.ts`** (first line `// new: ts/src/games/scrapcrawl/playtest.ts`). Copy, do not import, the private `seeded(seed)` function and the `CHAIN` constant (`['home_base', 'scrap_pit', 'vent_stack', 'chemical_leak', 'furnace_core']`) from `test_scrapcrawl_sim_runs.ts`. Import `newRun`, `applyFight`, `applyMove`, `RunOutcome` and the run-progress type from `../scrapcrawl/utils/runEnd`, and `loadGame`, `call` from `../../engine/runtime`.
+**Step 1: `ts/src/games/scrapcrawl/playtest.ts`** <!-- new: ts/src/games/scrapcrawl/playtest.ts --> (first line `// new: ts/src/games/scrapcrawl/playtest.ts`). Copy, do not import, the private `seeded(seed)` function and the `CHAIN` constant (`['home_base', 'scrap_pit', 'vent_stack', 'chemical_leak', 'furnace_core']`) from `test_scrapcrawl_sim_runs.ts`. Import `newRun`, `applyFight`, `applyMove`, `RunOutcome` and the run-progress type from `../scrapcrawl/utils/runEnd`, and `loadGame`, `call` from `../../engine/runtime`.
 
 ```ts
 export type ScrapAction = { kind: 'move'; to: string } | { kind: 'fight' } | { kind: 'craft' };
@@ -109,11 +109,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive |
 | Base branch | - |
+| Base commit | b4667e53ec6daa48e74e4f31d98f9328613fdcb0 |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
+- 2026-10-09 23:14 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWWZKVN066VC33V08Q018N
+- 2026-10-09 23:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->

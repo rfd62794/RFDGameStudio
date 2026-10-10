@@ -15,7 +15,7 @@ scrapcrawl is the TS-constant example: `ts/src/games/scrapcrawl/utils/runEnd.ts`
 4. New `ts/src/games/scrapcrawl/tuning.ts`.
 5. New `ts/src/games/scrapcrawl/knobs.ts` (the two knob definitions, Step 3).
 6. Edit `ts/src/games/tuning-registry.ts`: add `scrapcrawl`.
-7. New test `ts/tests/test_scrapcrawl_tuning.ts`.
+7. New test `ts/tests/test_scrapcrawl_tuning.ts` <!-- new: ts/tests/test_scrapcrawl_tuning.ts -->.
 
 ## 3. The work
 
@@ -23,9 +23,9 @@ scrapcrawl is the TS-constant example: `ts/src/games/scrapcrawl/utils/runEnd.ts`
 
 **Step 2: test.** In `test_scrapcrawl_sim_runs.ts` delete the moved definitions, import `simulateRun`, and add `const simulate = (seed: number, useCraft: boolean): RunOutcome => simulateRun(seed, useCraft).outcome;` so `winRate` and the other tests are untouched. All three existing tests keep their names and expectations.
 
-**Step 3: `runEnd.ts`.** Keep `export const PLAYER_MAX_HP = 10;` and `export const LOSS_DAMAGE = 2;` (tests import them). Add `import { tuned } from '../../../engine/tuning';` and, in `newRun()` and `applyFight()`, replace the uses with `tuned('scrapcrawl.player_max_hp')` and `tuned('scrapcrawl.loss_damage')`. The knobs are registered in `tuning.ts`, so `runEnd.ts` must import that module for its side effect: `import '../tuning';` would create a cycle with `simulateRun.ts`, so instead create the two knobs in a tiny new module `ts/src/games/scrapcrawl/knobs.ts` (first line `// new: ts/src/games/scrapcrawl/knobs.ts`) that calls `defineKnob` for both and exports the array `SCRAPCRAWL_KNOBS`; `runEnd.ts` does `import './knobs';` and `tuning.ts` re-uses `SCRAPCRAWL_KNOBS`. Defaults 10 and 2. Behaviour with no overrides must be byte-for-byte the same.
+**Step 3: `runEnd.ts`.** Keep `export const PLAYER_MAX_HP = 10;` and `export const LOSS_DAMAGE = 2;` (tests import them). Add `import { tuned } from '../../../engine/tuning';` and, in `newRun()` and `applyFight()`, replace the uses with `tuned('scrapcrawl.player_max_hp')` and `tuned('scrapcrawl.loss_damage')`. The knobs are registered in `tuning.ts`, so `runEnd.ts` must import that module for its side effect: `import '../tuning';` would create a cycle with `simulateRun.ts`, so instead create the two knobs in a tiny new module `ts/src/games/scrapcrawl/knobs.ts` <!-- new: ts/src/games/scrapcrawl/knobs.ts --> (first line `// new: ts/src/games/scrapcrawl/knobs.ts`) that calls `defineKnob` for both and exports the array `SCRAPCRAWL_KNOBS`; `runEnd.ts` does `import './knobs';` and `tuning.ts` re-uses `SCRAPCRAWL_KNOBS`. Defaults 10 and 2. Behaviour with no overrides must be byte-for-byte the same.
 
-**Step 4: knobs and `tuning.ts`.** In `knobs.ts`: `scrapcrawl.player_max_hp` (label `Player hit points`, group `Run`, min 4, max 20, step 1, default 10, affects `How many mistakes a run survives.`, source `{ kind: 'const', file: 'ts/src/games/scrapcrawl/utils/runEnd.ts', name: 'PLAYER_MAX_HP' }`) and `scrapcrawl.loss_damage` (label `Damage per lost fight`, group `Run`, min 1, max 5, step 1, default 2, affects `How punishing a lost fight is; the main lever on the win rate.`, name `LOSS_DAMAGE`). `tuning.ts` (first line `// new: ts/src/games/scrapcrawl/tuning.ts`) default-exports `{ gameId: 'scrapcrawl', knobs: SCRAPCRAWL_KNOBS, scenarios: ['unarmed', 'crafted'], targets: [...], simulate }` with `simulate({ seed, scenario })` returning `{ won: outcome === 'won' ? 1 : 0, hp: hp, steps }` from `simulateRun(seed, scenario === 'crafted')`. Targets pin today's bands, not new intent: `{ id: 'unarmed_win_rate', scenario: 'unarmed', metric: 'won', min: 0.20, max: 0.50, note: 'Unarmed is hard but winnable (35.0% measured).' }` and `{ id: 'crafted_win_rate', scenario: 'crafted', metric: 'won', min: 0.60, max: 0.90, note: 'Crafting a Beat Stick clearly helps (75.0% measured).' }`.
+**Step 4: knobs and `tuning.ts`.** In `knobs.ts`: `scrapcrawl.player_max_hp` (label `Player hit points`, group `Run`, min 4, max 20, step 1, default 10, affects `How many mistakes a run survives.`, source `{ kind: 'const', file: 'ts/src/games/scrapcrawl/utils/runEnd.ts', name: 'PLAYER_MAX_HP' }`) and `scrapcrawl.loss_damage` (label `Damage per lost fight`, group `Run`, min 1, max 5, step 1, default 2, affects `How punishing a lost fight is; the main lever on the win rate.`, name `LOSS_DAMAGE`). `tuning.ts` (first line `// new: ts/src/games/scrapcrawl/tuning.ts`) <!-- new: ts/src/games/scrapcrawl/tuning.ts --> default-exports `{ gameId: 'scrapcrawl', knobs: SCRAPCRAWL_KNOBS, scenarios: ['unarmed', 'crafted'], targets: [...], simulate }` with `simulate({ seed, scenario })` returning `{ won: outcome === 'won' ? 1 : 0, hp: hp, steps }` from `simulateRun(seed, scenario === 'crafted')`. Targets pin today's bands, not new intent: `{ id: 'unarmed_win_rate', scenario: 'unarmed', metric: 'won', min: 0.20, max: 0.50, note: 'Unarmed is hard but winnable (35.0% measured).' }` and `{ id: 'crafted_win_rate', scenario: 'crafted', metric: 'won', min: 0.60, max: 0.90, note: 'Crafting a Beat Stick clearly helps (75.0% measured).' }`.
 
 **Step 5: registry** line `import scrapcrawl from './scrapcrawl/tuning';` and entry `scrapcrawl`.
 
@@ -39,7 +39,7 @@ scrapcrawl is the TS-constant example: `ts/src/games/scrapcrawl/utils/runEnd.ts`
 ## 5. Verification
 
 `cd ts && npx vitest run test_scrapcrawl_sim_runs.ts` still `Tests  3 passed (3)` with `SIM unarmed=0.350 crafted=0.750`; `cd ts && npx vitest run test_scrapcrawl_run_end.ts` unchanged and green; `cd ts && npx vitest run test_scrapcrawl_tuning.ts` all passed; `cd ts && npx vitest run test_tuning_targets.ts` passes with `scrapcrawl targets hold at defaults`; `cd ts && npx tsc --noEmit` no new errors. Paste real tails.
-**Controller finish (after merge):** `cd ts && npx vite-node tools/tune-sweep.ts -- --game scrapcrawl --knob scrapcrawl.loss_damage --from 1 --to 4 --step 1 --runs 200 --report`.
+**Controller finish (after merge):** run `ts/tools/tune-sweep.ts` via `npx vite-node` from the `ts` directory, as `-- --game scrapcrawl --knob scrapcrawl.loss_damage --from 1 --to 4 --step 1 --runs 200 --report`.
 
 ## 6. Rules for this run
 
@@ -92,11 +92,22 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-tuning-adopt-scrapcrawl-directive |
 | Base branch | - |
+| Base commit | d94dddf663d68bad152459c87b3fd64bb1bec7ba |
+| Head commit | ee0083ba584fa9331ad3b768ec8f356a62bc3c1d |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
+- 2026-10-04 20:25 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions, a gitignored generated file, or new files this directive creates; verified in earlier directives of the same family
+- 2026-10-04 20:25 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 20:26 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
+- 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
+- 2026-10-09 01:14 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 01:14 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FHBGG6CKNCS3VD9E16PREB
+- 2026-10-09 01:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-09 01:23 · devin (delegated) · In progress → Review — Done: simulateRun.ts moved verbatim (SIM unarmed=0.350 crafted=0.750, 3/3 pass), knobs.ts (player_max_hp 10, loss_damage 2), runEnd.ts reads tuned() with consts exported, tuning.ts + registry entry, test_scrapcrawl_tuning.ts 5/5 pass (targets 0.35/0.75 hold, loss_damage=4 drops unarmed 0.390->0.200), test_tuning_targets.ts 5/5 incl. 'scrapcrawl targets hold at defaults', test_scrapcrawl_run_end.ts 6/6, tsc --noEmit clean. Deviation: runEnd.ts imports '../knobs' (file is in utils/, knobs.ts at game root) - the directive's './knobs' literal would not resolve.; under delegate.envelope [origin]
 <!-- queue:end -->

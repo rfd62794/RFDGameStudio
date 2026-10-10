@@ -305,12 +305,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-succession-run-controls-directive |
 | Base branch | - |
+| Base commit | 046dba20a1beefb0d73bb8c3bf589ef46f4d9109 |
+| Head commit | cb4589769710d97fe55ed654a8a3bb02558bf43a |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:40 · robert-claude-laptop · none → Queued
 - 2026-10-04 19:03 · robert-claude-laptop · Queued → Approved — lint override: path hits are 'do not edit' mentions and a gitignored generated file (game-metadata.json), verified by hand
+- 2026-10-05 00:40 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-controls-directive; base origin/main (local main differs); lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-05 00:40 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-succession-run-controls-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-05 00:54 · devin · In progress → Review — devin · In progress -> Review — ConfirmButton + RunControls + App.tsx headerExtra + test file as specified; npx vitest run test_succession: 18 files / 172 passed; npx tsc --noEmit clean; pushed cb458976 (pre-push full suite green, 532s). Controller finish: Playwright header-fit check at 390x844 and 1280x720. [origin] spent: devin 12 min est. n/a
+- 2026-10-05 00:58 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

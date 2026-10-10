@@ -24,14 +24,24 @@ import { RingVisualizer } from './components/RingVisualizer';
 import { InspectorPanel } from './components/InspectorPanel';
 import { EventLog } from './components/EventLog';
 import { TestRunnerModal } from './components/TestRunnerModal';
+import { debugToolsEnabled } from './debugTools';
+import { evaluate_goal } from './goal';
+import { GoalBanner } from './components/GoalBanner';
 
 export default function App() {
+  const showDebugTools = debugToolsEnabled(window.location.search);
   const [world, setWorld] = useState<WorldState>(() => create_initial_world());
   const [selectedTileIdx, setSelectedTileIdx] = useState<number>(0);
   const [selectedSectorId, setSelectedSectorId] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(1);
   const [isTestModalOpen, setIsTestModalOpen] = useState<boolean>(false);
+  const goal = evaluate_goal(world);
+
+  // A finished world stops ticking; the finish screen offers a fresh start.
+  useEffect(() => {
+    if (goal.status !== 'playing') setIsPlaying(false);
+  }, [goal.status]);
 
   // Keep selected sector synced when tile selection changes
   const handleSelectTile = (idx: number) => {
@@ -223,7 +233,10 @@ export default function App() {
         onSetSpeed={setSpeed}
         onResetWorld={handleResetWorld}
         onOpenTests={() => setIsTestModalOpen(true)}
+        showTestRunner={showDebugTools}
       />
+
+      <GoalBanner goal={goal} onRestart={handleResetWorld} />
 
       {/* Main God-Game Canvas Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -262,10 +275,12 @@ export default function App() {
       </main>
 
       {/* Verification & Test Suite Modal */}
-      <TestRunnerModal
-        isOpen={isTestModalOpen}
-        onClose={() => setIsTestModalOpen(false)}
-      />
+      {showDebugTools && (
+        <TestRunnerModal
+          isOpen={isTestModalOpen}
+          onClose={() => setIsTestModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

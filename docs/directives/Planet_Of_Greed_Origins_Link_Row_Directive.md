@@ -60,7 +60,7 @@ export function originLinks(mode: 'arcade' | 'standalone', currentHref: string):
 }
 ```
 
-**Step 2: `components/OriginsRow.tsx`.** Create with exactly:
+**Step 2: `ts/src/games/planetofgreed/components/OriginsRow.tsx`.** Create with exactly:
 
 ```tsx
 // new: ts/src/games/planetofgreed/components/OriginsRow.tsx
@@ -152,7 +152,7 @@ describe('test_planetofgreed_origins_row', () => {
 - Do not hide, retire or relabel Kingmaker Squads or CorpWorld, do not change their configs, `status`, `supersededBy` or `arcadeSection`, and do not touch `ts/src/games/registry.ts`. The Origin label stays.
 - No change to game rules, saves or the culture-select screen. The row is one heading and two links on the title screen only.
 - Keep the player copy as written: inviting, no dev-speak.
-- No Lua, no engine changes, no deploys, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`.
+- No Lua, no engine changes, no deploys, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`.
 
 ## 5. Verification
 
@@ -197,7 +197,7 @@ Controller step, not this run: screenshot of the title screen at 1280x720 and 39
 
 ## 7. Completion criteria
 
-- [ ] `originGames.ts`, `components/OriginsRow.tsx` and the test exist with the exact content above; `App.tsx` has the import and the `<OriginsRow mode={mode} />` child.
+- [ ] `originGames.ts`, `ts/src/games/planetofgreed/components/OriginsRow.tsx` and the test exist with the exact content above; `App.tsx` has the import and the `<OriginsRow mode={mode} />` child.
 - [ ] `cd ts && npx vitest run test_planetofgreed` passes: 13 files, 176 tests (real tail pasted); `cd ts && npx tsc --noEmit` shows only the 4 pre-existing errors (real tail pasted).
 - [ ] No registry or config file changed.
 - [ ] The Status row is set to Review with a one-line log entry.
@@ -213,7 +213,7 @@ Then state plainly what was not run (screenshots, the live click-through) for th
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 
@@ -224,11 +224,20 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planet-of-greed-origins-link-row--e40efe |
 | Base branch | - |
+| Base commit | dd813d102fc2877c99298b58f00787dc7e3d6cdb |
+| Head commit | e50d356bc6b6e55205486cbd022a6b160e832a6f |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:36 · robert-claude-laptop · none → Queued
+- 2026-10-08 02:41 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 02:41 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-origins-link-row--e40efe; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4D3XQCVMW8MR7VXB3N29RKA
+- 2026-10-08 02:41 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planet-of-greed-origins-link-row--e40efe; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 02:46 · devin · In progress → Blocked — Work complete, verified and committed on branch (e50d356b): 3 new files + App.tsx edits per spec; vitest 15 files/218 tests pass; tsc --noEmit clean. Push refused by pre-push hook: worktree .venv pygame.base.cp312 .pyd fails ImportError during pytest collection (3 test_ui_* modules), environmental and unrelated to TS-only change; fix needs uv sync/reinstall which the sandbox refuses.
+- 2026-10-08 03:09 · robert-claude-laptop · Blocked → Review — pushed after worktree venv repair; PR 227 [origin] spent: claude 215.0K units est. n/a; devin 4 min est. n/a
+- 2026-10-08 03:10 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #227 (merge commit); planetofgreed tests 218/218 on merged tree; deploy not done
 <!-- queue:end -->

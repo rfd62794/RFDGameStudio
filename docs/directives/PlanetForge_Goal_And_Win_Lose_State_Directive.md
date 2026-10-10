@@ -29,7 +29,7 @@ Facts you need (verified; do not re-derive):
 
 ## 3. The work
 
-All existing files are CRLF; keep their endings. New files use CRLF too. This run edits `App.tsx` as left by the PlanetForge Trim directive (it adds `debugToolsEnabled`); if `examples/planetforge/src/debugTools.ts` does not exist, STOP and write why in the Status row.
+All existing files are CRLF; keep their endings. New files use CRLF too. This run edits `App.tsx` as left by the PlanetForge Trim directive (it adds `debugToolsEnabled`); if `examples/planetforge/src/debugTools.ts` <!-- new: examples/planetforge/src/debugTools.ts --> does not exist, STOP and write why in the Status row.
 
 **Step 1: `slimeEngine.ts`.** Delete the line `    const sectorId = Math.floor(i / TILES_PER_SECTOR);` and the whitespace-only line directly after it (inside `create_initial_world`'s `for (let i = 0; i < RING_SIZE; i++)` loop). Prototype diff:
 
@@ -96,7 +96,7 @@ export const LOSE_TITLE = 'The ring has gone quiet';
 export const LOSE_BODY = 'Every tile has been drained, so nothing is left to grow. It happens to every world builder. Start fresh and try again.';
 ```
 
-**Step 3: `components/GoalBanner.tsx`.** Create with exactly:
+**Step 3: `examples/planetforge/src/components/GoalBanner.tsx`.** Create with exactly:
 
 ```tsx
 // new: examples/planetforge/src/components/GoalBanner.tsx
@@ -256,7 +256,7 @@ describe('test_planetforge_goal', () => {
 - Do not change `resolve_tick`, the harvest or soil rules, monument cost, tile tiers or any balance number. The goal only READS `tiles` and `sectors`.
 - Do not add a timer, score, leaderboard, saves (the next directive adds autosave) or a second goal. Do not edit `SimulationHeader.tsx`, the visualizer, the inspector, or the Test Runner.
 - Keep the player copy as written: inviting, no dev-speak (no "ADR", no "Phase").
-- No Lua, no engine changes outside the one deleted line, no deploys or rebuilds, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No Lua, no engine changes outside the one deleted line, no deploys or rebuilds, no protected repos, no player layer or cloud saves. Do not touch `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 
 ## 5. Verification
 
@@ -297,7 +297,7 @@ Controller step, not this run: the example's own type check (the prototype passe
 
 ## 7. Completion criteria
 
-- [ ] `goal.ts`, `components/GoalBanner.tsx` and the test exist with the exact content above; the one line is gone from `slimeEngine.ts`; `App.tsx` matches the prototype diff.
+- [ ] `goal.ts`, `examples/planetforge/src/components/GoalBanner.tsx` and the test exist with the exact content above; the one line is gone from `slimeEngine.ts`; `App.tsx` matches the prototype diff.
 - [ ] `cd ts && npx vitest run test_planetforge_goal.ts` passes: 7 tests (real tail pasted); `cd ts && npx tsc --noEmit` shows only the 4 pre-existing errors (real tail pasted).
 - [ ] The Status row is set to Review with a one-line log entry.
 
@@ -312,7 +312,7 @@ Then say plainly what was not run (example type check, rebuild, screenshots) and
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 
@@ -323,11 +323,22 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab |
 | Base branch | - |
+| Base commit | 4d076e3453b1939e3d39dbcc5a65b23308c74289 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:41 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 17:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EQEY0XN1MJE88A4A2V9XFF
+- 2026-10-08 17:42 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 17:47 · devin · In progress → Blocked — STOP condition met: examples/planetforge/src/debugTools.ts does not exist - dependency PlanetForge_Trim_Dead_Code_And_Dev_UI_Directive.md is still Queued (2026-10-05 dispatch died at uv sync setup, requeued, never ran); App.tsx lacks debugToolsEnabled/showTestRunner so the prototype diff cannot apply.
+- 2026-10-09 07:24 · robert-claude-laptop · Blocked → Queued — Dependency PlanetForge_Trim merged (PR #250, 595e2f72), debugTools.ts now on main. Branch had no commits; nothing lost.
+- 2026-10-09 07:26 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 07:27 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4G6NDMH87A9RRTAWRWK4KBA
+- 2026-10-09 07:27 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab; resynced: merged main into directive/rfdgamestudio-planetforge-goal-and-win-lose-sta-c6ffab (128 commit(s), clean); provisioned: uv sync --frozen
+- 2026-10-09 07:36 · devin · In progress → Blocked — All directive work done, verified, committed at 49bcaab8 (goal.ts, GoalBanner.tsx, App.tsx, slimeEngine line removed, test_planetforge_goal.ts; vitest 7/7 pass; tsc --noEmit exit 0 - provisioned game-metadata.json means even the 4 baseline errors are absent; debugTools.ts present). Push refused by pre-push hook: tests/test_children_fresh.py::test_children_index_is_fresh fails - committed docs/children.json is stale at base commit (grainworks ordering); pre-existing, unrelated to this change, and the directive forbids editing docs/children.json and running `uv run python -m studio.demos index`. Needs children.json regenerated on main (or a directive that names the file), then re-push.
+- 2026-10-09 07:48 · robert-claude-laptop · Blocked → Done — note: PR #252 merged (8b534c4d). Diff read by overseer (pure goal.ts, banner, App wiring); vitest 10/10, tsc clean, pre-push full suite 2839 passed. Push had been blocked by stale children.json, fixed in #251.
 <!-- queue:end -->

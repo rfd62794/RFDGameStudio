@@ -9,6 +9,8 @@ import { useGame } from '../context/GameContext';
 import { BodyPart } from '../types';
 import { AnatomyPaperDoll } from './AnatomyPaperDoll';
 import { StickFighter, FighterPose } from './StickFighter';
+import { nextStepAfterBout } from '../utils/resultNextStep';
+import { CAMPAIGN_COMPLETE_BODY, CAMPAIGN_COMPLETE_TITLE, isFinalChampion } from '../utils/campaignEnd';
 import { getGladiatorAnatomySummary } from '../../../engine/shared/anatomy';
 import { 
   Swords, 
@@ -772,6 +774,13 @@ export const ArenaCombatView: React.FC = () => {
               )}
             </div>
 
+            {isVictory && isFinalChampion(activeBout.opponent.id) && (
+              <div id="campaign-complete-card" className="p-4 rounded-2xl bg-amber-950/60 border border-amber-500/60 text-center flex flex-col gap-1">
+                <span className="text-sm font-extrabold text-amber-300 uppercase tracking-wide">{CAMPAIGN_COMPLETE_TITLE}</span>
+                <span className="text-xs text-amber-100">{CAMPAIGN_COMPLETE_BODY}</span>
+              </div>
+            )}
+
             {/* Financial Purse Breakdown */}
             {isVictory && (
               <div className="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col gap-2 font-mono text-xs">
@@ -833,6 +842,14 @@ export const ArenaCombatView: React.FC = () => {
                 })}
               </div>
             </div>
+
+            <p id="bout-next-step" className="text-xs text-stone-300 text-center">
+              {nextStepAfterBout({
+                isVictory,
+                anyDamaged: activeBout.playerRoster.some(g => (Object.values(g.parts) as BodyPart[]).some(p => p.currentHp < p.maxHp)),
+                anyScarred: activeBout.playerRoster.some(g => (Object.values(g.parts) as BodyPart[]).some(p => p.scarHpPenalty > 0)),
+              })}
+            </p>
 
             {/* Return CTA */}
             <button

@@ -10,11 +10,11 @@
 
 Factory Idle: Precision Armory is a factory sim whose products are firearms: `WEAPON_RECIPES` in
 `examples/factory-idle-precision-armory-phase2/src/engine/recipes.ts` sells a Duty Pistol, Tactical Shotgun, Service Rifle, Tactical SMG and
-Mil-Spec DMR, and the storefront customers are "Tactical SWAT Unit" and "Federal Task Force" (`engine/gameReducer.ts` line 1133). The card
+Mil-Spec DMR, and the storefront customers are "Tactical SWAT Unit" and "Federal Task Force" (`examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` line 1133). The card
 will sit in an arcade next to business-facing client pages. Robert's decision (2026-10-04, all recommendations approved): reskin the LABELS
 only to tools, same mechanics, same ids. Measured on origin/main `afb1cefe`: the player-visible weapon words are in `recipes.ts` (names,
-categories, descriptions, tech names, sector taglines, preset names), `components/Header.tsx` line 68 (`ARMORY`), `components/RecipeBookModal.tsx`
-lines 32, 94, 185, 188, `components/StorefrontPanel.tsx` line 255, and the customer name and role arrays in `engine/gameReducer.ts` lines 1132-1133.
+categories, descriptions, tech names, sector taglines, preset names), `examples/factory-idle-precision-armory-phase2/src/components/Header.tsx` line 68 (`ARMORY`), `examples/factory-idle-precision-armory-phase2/src/components/RecipeBookModal.tsx`
+lines 32, 94, 185, 188, `examples/factory-idle-precision-armory-phase2/src/components/StorefrontPanel.tsx` line 255, and the customer name and role arrays in `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` lines 1132-1133.
 
 ## 2. Scope
 
@@ -52,11 +52,11 @@ presets: `Pistol Starter Assembly` -> `Hand Drill Starter Assembly`; `two parall
 The upgrade text `Unlocks Rifled Barrel ($10) and Tactical Shotgun recipe ...` becomes `Unlocks Drive Shaft ($10) and Power Nailer recipe ...` by the same substring rules.
 
 **Step 2: the UI strings.**
-- `components/Header.tsx` line 68: the text `ARMORY` becomes `WORKSHOP`.
-- `components/RecipeBookModal.tsx`: line 32 `Firearms Blueprint & Schematic Codex` -> `Tool Blueprint & Schematic Codex`; line 94 `Firearm Assembly Formulations` -> `Tool Assembly Formulations`; line 185 `finished firearms directly` -> `finished tools directly`; line 188 `finished weapons so` -> `finished tools so`.
-- `components/StorefrontPanel.tsx` line 255: `Target Firearm Recipe:` -> `Target Tool Recipe:`.
+- `examples/factory-idle-precision-armory-phase2/src/components/Header.tsx` line 68: the text `ARMORY` becomes `WORKSHOP`.
+- `examples/factory-idle-precision-armory-phase2/src/components/RecipeBookModal.tsx`: line 32 `Firearms Blueprint & Schematic Codex` -> `Tool Blueprint & Schematic Codex`; line 94 `Firearm Assembly Formulations` -> `Tool Assembly Formulations`; line 185 `finished firearms directly` -> `finished tools directly`; line 188 `finished weapons so` -> `finished tools so`.
+- `examples/factory-idle-precision-armory-phase2/src/components/StorefrontPanel.tsx` line 255: `Target Firearm Recipe:` -> `Target Tool Recipe:`.
 
-**Step 3: customers.** In `engine/gameReducer.ts` replace line 1132 (`const names = [...]`) with
+**Step 3: customers.** In `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` replace line 1132 (`const names = [...]`) with
 `          const names = ['Alex Rivera', 'Sam Okafor', 'Jordan Lee', 'Priya Nair', 'Casey Moreau', 'Taylor Brandt', 'Morgan Ito', 'Dana Novak'];`
 and line 1133 (`const roles = [...]`) with
 `          const roles = ['Framing Crew', 'City Maintenance Dept', 'Roofing Contractor', 'Property Manager', 'Renovation Crew', 'Facilities Team'];`
@@ -127,7 +127,7 @@ describe('test_factory_idle_labels', () => {
 ## 4. What NOT to do
 
 - No change to ids, prices, craft times, recipe part counts, tech prerequisites, balance, tile logic, the reducer's behaviour, or the `WeaponId` / `WEAPON_RECIPES` identifiers (renaming code identifiers is a different, larger change).
-- No new machines, recipes, persistence, goal or hint (separate directives), no changes to `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json`, `ts/src/games/registry.ts`.
+- No new machines, recipes, persistence, goal or hint (separate directives), no changes to `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json`, `ts/src/games/registry.ts`.
 - Do not touch the Phase 1 or spindle folders. No Lua, no engine changes, no deploys, no protected repos, no player-layer or cloud saves.
 - Do not add network, `eval` or storage use to the example.
 
@@ -177,7 +177,7 @@ Not runnable in this run: building the example, a browser smoke test.
 ## 7. Completion criteria
 
 - [ ] Every table row and substring rule in Step 1 is applied; Grep for `Firearm|ARMORY|SWAT|Duty Pistol|Rifled Barrel` over the Phase 2 `src` finds nothing.
-- [ ] `engine/gameReducer.ts` lines 1132-1133 are the two new arrays; no other line of that file changed.
+- [ ] `examples/factory-idle-precision-armory-phase2/src/engine/gameReducer.ts` lines 1132-1133 are the two new arrays; no other line of that file changed.
 - [ ] `ts/tests/test_factory_idle_labels.ts` exists and `cd ts && npx vitest run test_factory_idle_labels.ts` passes (real tail pasted); `test_registry_export.ts` still passes (real tail pasted).
 - [ ] `config.ts` label and `metadata.json` name say `Precision Workshop`; nothing else in `config.ts` changed.
 - [ ] `docs/children.json` is untouched and the log line carries `ready for controller finish: children.json`.
@@ -194,7 +194,7 @@ Then say plainly what was not run (example build, browser smoke) and that the co
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, `tests/fixtures/demo_lists_snapshot.json`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
+- Committing to or pushing main; pushing at all; deploying or rebuilding anything; installing or fetching anything; reading outside the worktree; touching protected repos (TeleseroAdminSuite2026, DialerListPulse); editing `docs/children.json`, the demo-lists snapshot fixture under `tests/fixtures/`, `ts/package.json` or `ts/src/games/registry.ts` unless this directive names the file; adding Lua; changing `ts/src/engine/`; adding player-layer, cloud-save or account features.
 
 ## Required from User
 
@@ -205,11 +205,18 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-storefront-labels-re-7667e5 |
 | Base branch | - |
+| Base commit | e649165605d74ed8cae311c13fac732c314f0d66 |
+| Head commit | 8e6ddef12ed855ad1935d721ebfad165d5f17f16 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-09 23:18 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:18 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HX3H2FAS88223N1BJY5KNR
+- 2026-10-09 23:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-09 23:48 · devin · In progress → Review — Labels reskinned to tools: recipes.ts (10 table rows + all substring rules), Header/RecipeBookModal/StorefrontPanel strings, gameReducer names/roles arrays, config.ts label + metadata.json name -> Precision Workshop; types.ts WeaponRecipe.category union widened to the new labels (required by pre-push tsc). ts/tests/test_factory_idle_labels.ts added: baseline 3 failed | 1 passed (4), after edits Test Files 1 passed (1) / Tests 4 passed (4); test_registry_export.ts Test Files 1 passed (1) / Tests 4 passed (4) (directive expected 3 - file now carries 4 tests, all pass). uv run python --version: Python 3.12.12. Grep Firearm|ARMORY|SWAT|Duty Pistol|Rifled Barrel over phase2 src: no match. ready for controller finish: children.json [origin] spent: devin 28 min est. n/a
 <!-- queue:end -->

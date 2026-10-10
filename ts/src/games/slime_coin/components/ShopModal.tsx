@@ -1,5 +1,6 @@
 import { Modal } from '../../../ui/components';
-import type { ChipCard, ShopItem } from '../types';
+import type { ChipCard } from '../types';
+import { SHOP_ITEMS } from '../shopItems';
 
 interface ShopModalProps {
   offeredCards: ChipCard[];
@@ -11,13 +12,6 @@ interface ShopModalProps {
 export default function ShopModal({
   offeredCards, tokens, onSelectCard, onPurchase
 }: ShopModalProps) {
-  const shopItems: ShopItem[] = [
-    { id: 'pocket_boom',    name: 'Blast Slime',   description: '+1 pocket coin',   cost: 15, item_type: 'pocket_coin' },
-    { id: 'pocket_pull',    name: 'Magnet Slime',  description: '+1 pocket coin',   cost: 15, item_type: 'pocket_coin' },
-    { id: 'pocket_echo',    name: 'Echo Slime',    description: '+1 pocket coin',   cost: 10, item_type: 'pocket_coin' },
-    { id: 'hand_upgrade',   name: 'Hand +2',       description: '+2 max hand size', cost: 25, item_type: 'hand_upgrade' },
-  ];
-
   return (
     <Modal title={`Shop — ${tokens} tokens`} showClose={false}>
       <div className="shop-section">
@@ -49,7 +43,7 @@ export default function ShopModal({
       <div className="shop-section">
         <h3>Purchase Items</h3>
         <div className="shop-items">
-          {shopItems.map(item => (
+          {SHOP_ITEMS.map(item => (
             <button
               key={item.id}
               className="shop-item"

@@ -39,6 +39,7 @@ import { ApproachId, nextExpandedApproach } from '../utils/approachDisclosure';
 import { WhisperPanel } from './WhisperPanel';
 import { EvidencePanel } from './EvidencePanel';
 import { IndictmentPanel } from './IndictmentPanel';
+import { isParked } from '../parkedFeatures';
 
 interface AudienceStageProps {
   figure: FigureState;
@@ -484,6 +485,7 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
         />
 
         {/* Section 4: Indictment Panel */}
+        {!isParked('indictment') && (
         <IndictmentPanel
           figure={figure}
           playerEvidence={playerEvidence}
@@ -491,8 +493,10 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
           isExpanded={expandedApproach === 'indictment'}
           onToggle={() => toggleApproach('indictment')}
         />
+        )}
 
         {/* Section 5: Discredit a Rival */}
+        {!isParked('discredit') && (
         <div
           id="audience-action-discredit"
           className="bg-stone-900/80 border border-stone-800 hover:border-rose-700/60 rounded-2xl p-5 sm:p-6 space-y-4"
@@ -570,6 +574,7 @@ export const AudienceStage: React.FC<AudienceStageProps> = ({
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );

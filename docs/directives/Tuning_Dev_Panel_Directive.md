@@ -10,9 +10,9 @@ Robert tunes by feel. He needs sliders on the running game and a way to bring th
 ## 2. Scope
 
 1. New `ts/src/engine/tuning/exportFormat.ts` (pure).
-2. New `ts/src/components/TuningPanel.tsx` (default export, lazy-loaded) and `ts/src/components/TuningPanel.css`.
+2. New `ts/src/components/TuningPanel.tsx` (default export, lazy-loaded) and `ts/src/components/TuningPanel.css` <!-- new: ts/src/components/TuningPanel.css -->.
 3. Edit `ts/src/components/GameShell.tsx`: mount the panel only when `?dev=1`.
-4. New tests `ts/tests/test_tuning_export.ts` and `ts/tests/test_tuning_panel.tsx`.
+4. New tests `ts/tests/test_tuning_export.ts` <!-- new: ts/tests/test_tuning_export.ts --> and `ts/tests/test_tuning_panel.tsx` <!-- new: ts/tests/test_tuning_panel.tsx -->.
 
 ## 3. The work
 
@@ -117,4 +117,9 @@ none.
 - 2026-10-04 17:27 · robert-claude-laptop · none → Queued
 - 2026-10-04 18:36 · robert-claude-laptop · Queued → Approved — lint override: cited dev panel files are new files this directive creates
 - 2026-10-04 19:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-04 19:45 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-04 19:47 · devin · In progress → Blocked — STOP per directive: ts/src/games/tuning-registry.ts does not exist in worktree — Tuning_Sweep_Tool_Directive still Approved/unmerged and both adopt directives still Queued; no knob to show. Redispatch after those merge.
+- 2026-10-09 23:47 · robert-claude-laptop · Blocked → Queued — Dependencies landed: Tuning_Sweep_Tool merged, Tuning_Adopt_Chimera_Wilds merged (PR #256) so ts/src/games/tuning-registry.ts on main now has an entry; scrapcrawl follows in PR #259. Fresh worktree from current main.
+- 2026-10-09 23:53 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:54 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HZ4Y9KKKBTJ6XZKHGZKNQE
 <!-- queue:end -->

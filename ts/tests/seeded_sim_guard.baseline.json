@@ -1,0 +1,18 @@
+{
+  "_note": "GUARD BASELINE: counts may only shrink; lower a number when you remove a use",
+  "src/engine/shared/anatomy/anatomyModule.ts": 5,
+  "src/engine/shared/sportsSim/BallSystem.ts": 5,
+  "src/engine/shared/sportsSim/CombatSystem.ts": 7,
+  "src/engine/shared/sportsSim/DisposalSystem.ts": 10,
+  "src/engine/shared/sportsSim/GameEngine.ts": 8,
+  "src/games/gladiator_arena/simulation/balanceHarness.ts": 2,
+  "src/games/gladiator_arena/simulation/combatEngine.ts": 6,
+  "src/games/gladiator_arena/simulation/forgeEconomy.ts": 11,
+  "src/games/mutant_battle_ball/simulation/mbbSimulation.ts": 1,
+  "src/games/shoal/simulation/shoalSimulation.ts": 1,
+  "src/games/voiddrift_redux/simulation/engine.ts": 40,
+  "src/games/grainworks/simulation/asteroids.ts": 7,
+  "src/games/grainworks/simulation/flowParticles.ts": 3,
+  "src/games/grainworks/simulation/grid.ts": 15,
+  "src/games/grainworks/simulation/renderer.ts": 1
+}

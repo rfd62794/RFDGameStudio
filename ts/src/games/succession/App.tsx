@@ -22,6 +22,9 @@ import { GossipTicker } from './components/GossipTicker';
 import { VerdictScreen } from './components/VerdictScreen';
 import { OnboardingTip } from './components/OnboardingTip';
 import CourtPrimer from './components/CourtPrimer';
+import RunControls from './components/RunControls';
+import { loadRun, saveRun, clearRun } from './utils/runSave';
+import { PLAYER_ORIGINS } from './data/origins';
 import { ONBOARDING_TIPS, OnboardingTipId } from './content/onboardingTips';
 import { determineTip } from './utils/onboardingTriggers';
 import { useOnboardingGate } from '../../ui/components/OnboardingGate';
@@ -49,6 +52,8 @@ export default function App({ session }: GameRendererProps) {
   const [completedSegment, setCompletedSegment] = useState<number>(1);
   const [chosenOriginId, setChosenOriginId] = useState<PlayerOriginId>('bastard_scion');
   const [activeTip, setActiveTip] = useState<OnboardingTipId | null>(null);
+  // A run saved at a segment boundary; shown as "Continue" on the title screen.
+  const [savedRun, setSavedRun] = useState(() => loadRun());
 
   // First-run court primer: fires only when the game has never been
   // completed-onboarded, via the shared OnboardingGate (boolean mode) —
@@ -58,6 +63,16 @@ export default function App({ session }: GameRendererProps) {
   );
   const { shouldShow: showPrimer, handleComplete: completePrimer, trigger: triggerPrimer } =
     useOnboardingGate({ mode: 'boolean', initialShow: false });
+
+  // Save at every segment boundary while a run is in play; a finished run clears the save.
+  useEffect(() => {
+    if (view !== 'playing' || !gameState) return;
+    if (gameState.phase === 'verdict') {
+      clearRun();
+    } else {
+      saveRun({ originId: chosenOriginId, gameState });
+    }
+  }, [view, gameState, chosenOriginId]);
 
   // Shared SFX: muted until the first user gesture (autoplay-safe).
   useEffect(() => { sfx.autoUnlock(); }, []);
@@ -114,6 +129,39 @@ export default function App({ session }: GameRendererProps) {
     setView('playing');
   };
 
+  const handleRestartRun = () => {
+    setActiveTip(null);
+    handlePlayAgain();
+  };
+
+  const handleBackToTitle = () => {
+    setActiveTip(null);
+    setGameState(null);
+    setPlayStage('chamber');
+    setSavedRun(loadRun());
+    setView('title');
+  };
+
+  const handleContinue = () => {
+    const run = loadRun();
+    if (!run) {
+      setSavedRun(null);
+      return;
+    }
+    setChosenOriginId(run.originId);
+    setGameState(run.gameState);
+    setSelectedFigureId('chancellor');
+    setPlayStage('chamber');
+    setActiveTip(null);
+    setView('playing');
+    sfx.play('confirm');
+  };
+
+  const handleResetSave = () => {
+    clearRun();
+    setSavedRun(null);
+  };
+
   const handleProceedFromInterlude = () => {
     if (!gameState) return;
     if (gameState.phase === 'verdict') {
@@ -167,7 +215,19 @@ export default function App({ session }: GameRendererProps) {
         arcadeBaseUrl={arcadeBaseUrl}
         mainClassName="game-shell-main--scrollable"
       >
-        <TitleScreen onBegin={handleBegin} />
+        <TitleScreen
+          onBegin={handleBegin}
+          savedRun={
+            savedRun
+              ? {
+                  segment: savedRun.gameState.segment,
+                  originName: PLAYER_ORIGINS.find((o) => o.id === savedRun.originId)?.name ?? 'your origin',
+                }
+              : null
+          }
+          onContinue={handleContinue}
+          onResetSave={handleResetSave}
+        />
       </GameShell>
     );
   }
@@ -198,6 +258,7 @@ export default function App({ session }: GameRendererProps) {
       gameId="succession"
       phase="The Council of Three"
       statusArea={<SegmentHeader segment={gameState.segment} />}
+      headerExtra={<RunControls onRestart={handleRestartRun} onBackToTitle={handleBackToTitle} />}
       mode={mode}
       arcadeBaseUrl={arcadeBaseUrl}
       mainClassName="game-shell-main--scrollable"

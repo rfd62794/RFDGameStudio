@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { GameShell } from '../../components';
 import { useLuaCall, useGameState } from '../../hooks';
@@ -9,6 +9,7 @@ import { STANDALONE_BUILD_GAMES } from '../../games/registry';
 import { PaperDoll } from '../../engine/paperDoll';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sound } from './utils/sound';
+import { clearRecord, loadRecord, saveRecord } from './utils/record';
 import type { GameRendererProps, GameSession } from '../../engine/types';
 import type { Part, Chimera, EncounterResult, ChimeraWildsGameState } from './types';
 import './styles.css';
@@ -23,7 +24,7 @@ function buildInitialState(session: GameSession): ChimeraWildsGameState {
     player: baseline,
     currentChimera: null,
     lastResult: null,
-    history: [],
+    history: loadRecord(),
   };
 }
 
@@ -49,6 +50,17 @@ export default function App({ session }: GameRendererProps) {
   const { shouldShow: showTutorial, handleComplete: completeTutorial, trigger: triggerTutorial } =
     useOnboardingGate({ mode: 'boolean', initialShow: false });
   const [soundMuted, setSoundMuted] = useState(!sound.isSoundEnabled());
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (state) saveRecord(state.history);
+  }, [state]);
+
+  const handleResetRecord = useCallback(() => {
+    clearRecord();
+    setState(prev => prev ? { ...prev, currentChimera: null, lastResult: null, history: [] } : prev);
+    setConfirmingReset(false);
+  }, []);
 
   const handleNewGame = useCallback(() => {
     setShowTitle(false);
@@ -226,6 +238,17 @@ export default function App({ session }: GameRendererProps) {
         <div className="cw-panel">
           <h2>Encounter</h2>
           <button className="cw-button" onClick={handleEncounter}>Face the Wilds</button>
+          {state.history.length > 0 && (
+            confirmingReset ? (
+              <div className="cw-reset-confirm">
+                <span>Erase your record and start fresh?</span>
+                <button className="cw-button" onClick={handleResetRecord}>Yes, start fresh</button>
+                <button className="cw-button" onClick={() => setConfirmingReset(false)}>Keep playing</button>
+              </div>
+            ) : (
+              <button className="cw-button cw-reset" onClick={() => setConfirmingReset(true)}>Reset record</button>
+            )
+          )}
           {state.lastResult && (
             <div className="cw-result">
               <span className={`cw-badge ${state.lastResult.won ? 'cw-win' : 'cw-loss'}`}>

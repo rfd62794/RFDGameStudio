@@ -1,7 +1,7 @@
 # Monkey fuzz: seeded action generator, replayable log, detectors, runner (M)
 
-**Depends on:** `Playtest_Adapter_Contract_Directive` merged (reuses `formatFinding` and `createStallTracker` from `ts/src/engine/playtest/`) and `Playtest_Browser_Smoke_Manifest_Directive` merged (reuses `ts/tools/playtest/manifest.ts` `urlFor`/`SMOKE_ENTRIES`/`Target`, and `isAllowedConsole` from `ts/tools/playtest/verdict.ts`). If any of those files does not exist, STOP and write which in the Status row.
-**Read first:** `docs/superpowers/specs/2026-10-04-automated-playtesting.md` (section c3), `ts/tools/playtest/manifest.ts`, `ts/tools/playtest/verdict.ts`, `ts/tools/playtest/args.ts` (the argument-parser shape to copy), `ts/tools/playtest-smoke.ts` (the runner shape to copy: dynamic library load, contexts, console/pageerror hooks), `ts/src/engine/shared/seededRandom.ts` (`mulberry32(seed: number): () => number`).
+**Depends on:** `Playtest_Adapter_Contract_Directive` merged (reuses `formatFinding` and `createStallTracker` from `ts/src/engine/playtest/`) and `Playtest_Browser_Smoke_Manifest_Directive` merged (reuses `ts/tools/playtest/manifest.ts` <!-- new: ts/tools/playtest/manifest.ts --> `urlFor`/`SMOKE_ENTRIES`/`Target`, and `isAllowedConsole` from `ts/tools/playtest/verdict.ts` <!-- new: ts/tools/playtest/verdict.ts -->). If any of those files does not exist, STOP and write which in the Status row.
+**Read first:** `docs/superpowers/specs/2026-10-04-automated-playtesting.md` (section c3), `ts/tools/playtest/manifest.ts`, `ts/tools/playtest/verdict.ts`, `ts/tools/playtest/args.ts` <!-- new: ts/tools/playtest/args.ts --> (the argument-parser shape to copy), `ts/tools/playtest-smoke.ts` <!-- new: ts/tools/playtest-smoke.ts --> (the runner shape to copy: dynamic library load, contexts, console/pageerror hooks), `ts/src/engine/shared/seededRandom.ts` (`mulberry32(seed: number): () => number`).
 
 ## 1. Why this exists
 
@@ -17,7 +17,7 @@ Measured on origin/main `0fa83acc` (2026-10-04): `uv run python --version` is `P
 4. New `ts/tools/playtest/monkeyArgs.ts` (`parseMonkeyArgs`).
 5. New `ts/tools/playtest/monkeyProbes.ts` (in-page code; not unit-tested).
 6. New `ts/tools/playtest-monkey.ts` (the runner; not run by you).
-7. New test `ts/tests/test_playtest_monkey.ts`.
+7. New test `ts/tests/test_playtest_monkey.ts` <!-- new: ts/tests/test_playtest_monkey.ts -->.
 
 ## 3. The work
 
@@ -60,7 +60,7 @@ export function shouldStop(findings: MonkeyFinding[], max?: number): boolean    
 
 **Step 5: `monkeyProbes.ts`.** Self-contained functions Playwright serialises into the page (no imports, no outer variables): `installFrameProbes(): void` (defines `window.__mk = { frames: 0, lastFrame: performance.now(), frameTimes: [], longTasks: 0 }`, a `requestAnimationFrame` loop that updates it and keeps the last 120 frame deltas, and a `PerformanceObserver` for `longtask` (50 ms threshold, https://developer.mozilla.org/en-US/docs/Web/API/PerformanceLongTaskTiming, accessed 2026-10-04) wrapped in try/catch because it is not available in every browser), `readTargets(): { x: number; y: number; w: number; h: number }[]` (visible rects, width and height at least 4, of `button, a[href], [role="button"], input, select, canvas, [onclick]` that are inside the viewport), `readState(): { text: string; frameAge: number; frameTimes: number[]; longTasks: number; canvasSample: number[] }` (`document.body.innerText`, `performance.now() - __mk.lastFrame`, the frame deltas, the long-task count, and for the largest `<canvas>` a 2D-context `getImageData` sample of an 8x8 grid of pixels flattened to `[r,g,b,a,...]` inside try/catch, `[]` when it cannot be read, for example a WebGL canvas).
 
-**Step 6: `ts/tools/playtest-monkey.ts`** (the runner; you write it, you do NOT run it). Header comment with `cd ts && npx vite-node tools/playtest-monkey.ts -- --demos scrapcrawl --seconds 60 --seed 4242` and `... --demos scrapcrawl --replay docs/state/playtest-monkey/scrapcrawl-4242.jsonl`. Behaviour:
+**Step 6: `ts/tools/playtest-monkey.ts`** <!-- new: ts/tools/playtest-monkey.ts --> <!-- new: tools/playtest-monkey.ts --> (the runner; you write it, you do NOT run it). Header comment with the usage line cd ts && npx vite-node tools/playtest-monkey.ts -- --demos scrapcrawl --seconds 60 --seed 4242, and `... --demos scrapcrawl --replay <the .jsonl file the first run wrote under docs/state/playtest-monkey>`. Behaviour:
 1. `parseMonkeyArgs`, errors exit 2. Load the library as in `playtest-smoke.ts` (variable-name dynamic import, exit 3 with the same install hint when missing). Everything inside an `async function main()`.
 2. Per demo: context for the viewport (phone: 390x844 `isMobile`, `hasTouch`, `deviceScaleFactor: 2`; desktop 1280x720); `context.addInitScript(installFrameProbes)`; origin guard `context.route('**/*', r => same origin or `data:`/`blob:` ? r.continue() : r.abort())`; close any popup page (`context.on('page')`); hooks for `pageerror` (finding `exception`), `console` of type `error` not allowed by `isAllowedConsole` (finding `console-error`), page `close` or `crash` events (finding `crash`).
 3. `seed = args.seed === 'random' ? (Date.now() ^ (Math.random() * 2 ** 32)) >>> 0 : args.seed`; print `seed=<n>` at the start. `rng = mulberry32(seed)`. Navigate to `urlFor(entry, args.target, args.base)` (find the entry by id in `SMOKE_ENTRIES`; a demo id with no entry is skipped with a printed note).
@@ -129,7 +129,7 @@ Then `git status`: only the 7 files in Scope appear.
 
 ## 8. Report
 
-Findings first: the 12 test results and the exports as built; anything in the runner you could not make match Step 6 and why. Then **Controller finish (after merge, not this run):** with `playwright` installed and the demos staged as in the smoke directive, run `cd ts && npx vite-node tools/playtest-monkey.ts -- --demos all --seconds 60`, read `docs/state/playtest-monkey-<date>.md`, and for each UNSAFE demo replay its log (`--replay`) to confirm the finding reproduces before writing a fix directive; paste the report into `docs/state/`. Recommended action: review and merge.
+Findings first: the 12 test results and the exports as built; anything in the runner you could not make match Step 6 and why. Then **Controller finish (after merge, not this run):** with `playwright` installed and the demos staged as in the smoke directive, the controller then runs, from the ts folder, cd ts && npx vite-node tools/playtest-monkey.ts -- --demos all --seconds 60, then reads `docs/state/playtest-monkey-<date>.md`, and for each UNSAFE demo replay its log (`--replay`) to confirm the finding reproduces before writing a fix directive; paste the report into `docs/state/`. Recommended action: review and merge.
 
 ## Sandbox needs
 
@@ -148,11 +148,15 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-monkey-fuzz-directive |
 | Base branch | - |
+| Base commit | 5c651572eeeecbbe273fbb5b4a27d0e8ed56b1ff |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
+- 2026-10-09 23:34 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYRV8FYQ00R30GPP0K8X13
+- 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->

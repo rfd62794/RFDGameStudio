@@ -554,7 +554,7 @@ none
 
 ## Forbidden Actions
 
-- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or `tests/fixtures/demo_lists_snapshot.json`.
+- Committing to or pushing main; pushing at all; deploying; installing or fetching anything; reading outside the worktree; touching protected repos; editing `archive/`, `docs/children.json` or the demo-lists snapshot fixture under `tests/fixtures/`.
 
 ## Required from User
 
@@ -565,11 +565,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-polish-wire-rust-tiera-directive |
 | Base branch | - |
+| Base commit | 96da93fbd12714654b5ade451f39f580e39cfe9e |
+| Head commit | f42de3d9c785cc4cf214ff099354a80b4dff1a06 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
+- 2026-10-06 19:27 · robert-claude-laptop · Queued → Approved
+- 2026-10-06 19:28 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-wire-rust-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder
+- 2026-10-06 19:28 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-wire-rust-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-06 19:43 · devin · In progress → Review — f42de3d9: run.ts (seeded rollD20, gate lock, status), App.tsx Restart+win screen, standalone files + build:wire_rust script, 9 new vitest tests. Tails: vitest Test Files 2 passed (2) / Tests 11 passed (11); pytest 4 passed; tsc --noEmit clean. Wins are easy today (gate usually falls in 1-2 cards); Lua math.random (hand shuffles, scrap amounts) still seeded only once per page load by the loader. [origin] spent: devin 14 min est. n/a
+- 2026-10-08 15:58 · robert-claude-laptop · Review → Done
 <!-- queue:end -->

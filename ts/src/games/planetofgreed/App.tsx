@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import type { GameRendererProps } from '../../engine/types';
 import {
-  GameState, MapCell, Corporation, WeeklyOrder, UnitTransit, UnitGroup,
-  UnitType, GameEvent, CellCombatState, GameDate, CultureId
+  GameState, MapCell, Corporation, WeeklyOrder, UnitGroup,
+  CellCombatState, GameDate, CultureId
 } from './types';
-import { generateVoronoiMap } from './utils/mapGenerator';
-import { resolveCellCombat } from '../../engine/shared/combat';
 import { loadSave, writeSave } from '../../engine/shared/persistence';
 import { sfx } from '../../engine/shared/sfx';
-import { selectWeightedNeighbor } from './aiDecisions';
-import { initializeFragments, onHouseEliminated } from './fragmentSystem';
-import { checkEnding } from './endingSystem';
+import { generateAIWeeklyOrders } from './aiWeeklyOrders';
+import { resolvePendingCombats, concludeCombats } from './combatForces';
+import { advanceDay as advanceDayEngine } from './turnEngine';
+import { PLAYER_CORP_ID, CULTURE_WHEEL, CULTURE_DEFINITIONS } from './campaignConstants';
+import { createInitialCampaign } from './campaignState';
+import { defaultContext, pickOne } from './rng';
+import { OriginsRow } from './components/OriginsRow';
+import { buildEndingViewModel, nextChapterHref, NEXT_CHAPTER_LABEL } from './endingView';
 import { getHouseStats } from './houseStats';
 import { getHouseTheme } from './houseThemes';
 import { factionThemeVars } from '../../ui/components/FactionTheme';
@@ -35,96 +38,6 @@ import {
   Activity, Info, RefreshCw
 } from 'lucide-react';
 
-const PLAYER_CORP_ID = 'player-vanguard';
-
-// Six Cultures, real hue-order wheel (OperatorGame_Vision.docx §8.3):
-// Ember -> Marsh -> Gale -> Tundra -> Crystal -> Tide -> (back to Ember).
-// This array's order IS the wheel order -- mapGenerator.ts's capital
-// placement depends on the corps array it receives being in this exact
-// cyclic sequence, so wheel-adjacency maps to map-adjacency.
-const CULTURE_WHEEL = ['ember', 'marsh', 'gale', 'tundra', 'crystal', 'tide'] as const;
-
-interface CultureDefinition {
-  corpName: string;
-  color: string;
-  borderColor: string;
-  bgClass: string;
-  textClass: string;
-}
-
-// Naming/flavor only (per Phase 1's ⚠️ RULE) -- no stat or gameplay
-// modifier is derived from culture identity anywhere in this phase.
-// Colors follow a real, evenly-spaced hue wheel (0/60/120/180/240/300deg)
-// in the same cyclic order as CULTURE_WHEEL.
-const CULTURE_DEFINITIONS: Record<CultureId, CultureDefinition> = {
-  ember: {
-    corpName: 'Ember Ironworks',
-    color: '#ef4444', // red — aggressive/industrial
-    borderColor: '#dc2626',
-    bgClass: 'bg-red-950/20',
-    textClass: 'text-red-400'
-  },
-  marsh: {
-    corpName: 'Marshveil Biotech',
-    color: '#eab308', // amber/olive — tough, beloved wetlands
-    borderColor: '#a16207',
-    bgClass: 'bg-yellow-950/20',
-    textClass: 'text-yellow-400'
-  },
-  gale: {
-    corpName: 'Gale Vector Logistics',
-    color: '#22c55e', // green — swift, elusive
-    borderColor: '#15803d',
-    bgClass: 'bg-green-950/20',
-    textClass: 'text-green-400'
-  },
-  tundra: {
-    corpName: 'Tundra Bastion Holdings',
-    color: '#06b6d4', // cyan — immovable wall
-    borderColor: '#0e7490',
-    bgClass: 'bg-cyan-950/20',
-    textClass: 'text-cyan-400'
-  },
-  crystal: {
-    corpName: 'Crystal Lattice Consortium',
-    color: '#6366f1', // indigo — wise defender
-    borderColor: '#4338ca',
-    bgClass: 'bg-indigo-950/20',
-    textClass: 'text-indigo-400'
-  },
-  tide: {
-    corpName: 'Tidewell Capital',
-    color: '#d946ef', // fuchsia — charismatic/financial
-    borderColor: '#a21caf',
-    bgClass: 'bg-fuchsia-950/20',
-    textClass: 'text-fuchsia-400'
-  }
-};
-
-// Builds all six corporations, in wheel order, with identical starting
-// treasury/garrison/combat strength -- only the player's chosen culture
-// differs in which slot gets PLAYER_CORP_ID vs an `ai-{cultureId}` id.
-function buildInitialCorporations(playerCultureId: CultureId): Corporation[] {
-  return CULTURE_WHEEL.map((cultureId) => {
-    const def = CULTURE_DEFINITIONS[cultureId];
-    const isPlayer = cultureId === playerCultureId;
-    return {
-      id: isPlayer ? PLAYER_CORP_ID : `ai-${cultureId}`,
-      name: def.corpName,
-      color: def.color,
-      borderColor: def.borderColor,
-      bgClass: def.bgClass,
-      textClass: def.textClass,
-      isPlayer,
-      cultureId,
-      treasury: 200000,
-      scoutedCells: {},
-      rank: 1, // placeholder -- computeRank() sets this for real right after map generation
-      fragments: [] // placeholder -- initializeFragments() sets this to [cultureId] right after
-    };
-  });
-}
-
 // Population Balance is read/written on a 0-100 scale, always clamped.
 // `cell.publicOpinion` is optional at the type level only because
 // mapGenerator.ts (read-only this phase) doesn't set it on cell literals --
@@ -133,27 +46,6 @@ function buildInitialCorporations(playerCultureId: CultureId): Corporation[] {
 function applyPublicOpinionOffset(cell: MapCell, offset: number) {
   const current = cell.publicOpinion ?? 50;
   cell.publicOpinion = Math.max(0, Math.min(100, current + offset));
-}
-
-// Rank = Territory + Population Balance standing, computed fresh from real
-// state -- not incrementally maintained. Mutates corp.rank in place on the
-// corps array passed in, matching this file's existing convention for
-// per-corp updates (e.g. generateAIWeeklyOrders' direct `corp.treasury -=`,
-// `corp.scoutedCells[...] =`). Called only at real, distinct trigger points
-// (Annual Report; post-combat displacement check) -- never continuously.
-function computeRank(corps: Corporation[], cells: MapCell[]): void {
-  const scores = corps.map(corp => {
-    const ownedCells = cells.filter(c => c.ownerId === corp.id);
-    const territory = ownedCells.length;
-    const avgPublicOpinion = ownedCells.length > 0
-      ? ownedCells.reduce((sum, c) => sum + (c.publicOpinion ?? 50), 0) / ownedCells.length
-      : 50;
-    // Placeholder weighting, tunable -- territory and standing both matter,
-    // neither dominates by construction alone.
-    return { corp, score: territory * 10 + avgPublicOpinion };
-  });
-  scores.sort((a, b) => b.score - a.score);
-  scores.forEach((s, i) => { s.corp.rank = i + 1; });
 }
 
 // 5 Boardroom events templates
@@ -381,71 +273,10 @@ export default function App({ session }: GameRendererProps) {
   }, [gameState, isPlanningPhase, selectedCellId]);
 
   const initializeNewGame = (playerCultureId: CultureId) => {
-    const freshCorps = buildInitialCorporations(playerCultureId);
-    const freshCells = generateVoronoiMap(600, 600, 36, freshCorps);
+    const initial = createInitialCampaign(playerCultureId, defaultContext);
+    setGameState(initial);
 
-    // Phase 3: each House starts holding exactly one Fragment -- its own
-    // cultureId. Pure initialization, before any game state exists.
-    initializeFragments(freshCorps);
-
-    // Normalize Population Balance to a real, concrete value on every cell.
-    // Base opinion is per-House (Marsh 60, Crystal 45, default 50) — derived
-    // from narrative. Each cell is owned by a specific corp at init (capitals),
-    // so we use the owner's culture stats. Unowned cells get the default 50.
-    freshCells.forEach(cell => {
-      if (cell.ownerId) {
-        const owner = freshCorps.find(c => c.id === cell.ownerId);
-        cell.publicOpinion = owner ? getHouseStats(owner.cultureId).baseOpinion : 50;
-      } else {
-        cell.publicOpinion = 50;
-      }
-    });
-
-    // Initial scouted cells for corporations:
-    // Mark capital cell and all immediate neighbors of capitals as scouted.
-    for (const corp of freshCorps) {
-      corp.scoutedCells = {};
-      const capitalCell = freshCells.find(c => c.ownerId === corp.id);
-      if (capitalCell) {
-        corp.scoutedCells[capitalCell.id] = true;
-        for (const neighId of capitalCell.neighbors) {
-          corp.scoutedCells[neighId] = true;
-        }
-      }
-    }
-
-    // Real initial Rank, not a placeholder left dangling until the first
-    // Annual Report.
-    computeRank(freshCorps, freshCells);
-
-    const initialDate: GameDate = { year: 1, month: 1, week: 1, day: 1 };
-
-    const playerCorpName = freshCorps.find(c => c.id === PLAYER_CORP_ID)?.name ?? 'Player Corporation';
-    const initialLog = {
-      date: initialDate,
-      message: `${playerCorpName} Pod landing confirmed. Grid operations initialized. Welcome to Sector Boardroom.`,
-      type: 'success' as const
-    };
-
-    setGameState({
-      date: initialDate,
-      cells: freshCells,
-      corporations: freshCorps,
-      transits: [],
-      playerOrders: {},
-      isSimulating: false,
-      simulationSpeed: 1,
-      currentActiveEvent: null,
-      eventHistory: [],
-      combatHistory: [],
-      activeCombatsToResolve: [],
-      currentCombatInView: null,
-      campaignOver: false,
-      endingEvent: null,
-      logs: [initialLog]
-    });
-
-    const capital = freshCells.find(c => c.ownerId === PLAYER_CORP_ID);
+    const capital = initial.cells.find(c => c.ownerId === PLAYER_CORP_ID);
     if (capital) {
       setSelectedCellId(capital.id);
     }
@@ -621,7 +452,7 @@ export default function App({ session }: GameRendererProps) {
 
           // Register Transit (transit days are per-House: Gale 2, Tide 6, default 4)
           const transitDays = playerStats.transitDays;
-          const transitId = `transit-player-${cell.id}-${order.targetCellId}-${Date.now()}-${Math.random()}`;
+          const transitId = `transit-player-${cell.id}-${order.targetCellId}-${defaultContext.now()}-${defaultContext.rng()}`;
           updatedTransits.push({
             id: transitId,
             corpId: PLAYER_CORP_ID,
@@ -680,7 +511,7 @@ export default function App({ session }: GameRendererProps) {
     }
 
     // Generate AI Weekly Orders
-    generateAIWeeklyOrders(updatedCells, updatedCorps, updatedTransits);
+    generateAIWeeklyOrders(updatedCells, updatedCorps, updatedTransits, defaultContext);
 
     setGameState(prev => {
       if (!prev) return null;
@@ -697,487 +528,19 @@ export default function App({ session }: GameRendererProps) {
     addLog(`Weekly planning finalized. Resuming simulation for Week ${gameState.date.week}.`, 'info');
   };
 
-  const generateAIWeeklyOrders = (cells: MapCell[], corps: Corporation[], transits: UnitTransit[]) => {
-    // Phase 3: lookup maps for the wheel-aware target selection. Built once
-    // per call so selectWeightedNeighbor doesn't re-scan the arrays per cell.
-    // The four-band probability roll (40/20/20/20) below is UNCHANGED --
-    // only the *which neighbor* step inside the Expand branch is replaced.
-    const cellsById: { [id: number]: MapCell } = {};
-    for (const c of cells) cellsById[c.id] = c;
-    const corpsById: { [id: string]: Corporation } = {};
-    for (const c of corps) corpsById[c.id] = c;
-
-    // Each AI corp reviews its controlled cells and makes a choice
-    for (const corp of corps) {
-      if (corp.id === PLAYER_CORP_ID) continue; // Skip player
-
-      const aiStats = getHouseStats(corp.cultureId);
-      const ownedCells = cells.filter(c => c.ownerId === corp.id);
-      if (ownedCells.length === 0) continue; // Wiped out
-
-      for (const cell of ownedCells) {
-        const totalUnits = cell.units.circle + cell.units.square + cell.units.triangle;
-
-        // Random AI choice weights:
-        // 40% chance Expand (if they have units)
-        // 20% chance Reinforce (if treasury >= $30k)
-        // 20% chance Fortify (if treasury >= fortifyCost and fortification < fortifyMax)
-        // 20% chance Idle/Hold
-        const roll = Math.random();
-
-        if (roll < 0.40 && totalUnits >= 2) {
-          // AI Expand
-          // Phase 3: wheel-aware weighted target selection (was uniform
-          // random). Wheel-opposite-owned neighbors weighted 3, wheel-
-          // adjacent-owned 1.5, baseline (neutral/non-rival/own) 1.
-          // Weighted random, not deterministic -- avoids every AI House
-          // behaving identically predictable every playthrough.
-          const targetNeighId = selectWeightedNeighbor(corp, cell, cellsById, corpsById);
-          if (targetNeighId === null) continue; // no neighbors, skip this cell
-          const targetCell = cells.find(c => c.id === targetNeighId)!;
-
-          // AI sends 1 or 2 units of random types, + bonus units from House stats
-          const maxSend = 2 + aiStats.expandBonusUnits;
-          const sendUnits: UnitGroup = { circle: 0, square: 0, triangle: 0 };
-          let unitsAdded = 0;
-
-          const unitTypes: UnitType[] = ['circle', 'square', 'triangle'];
-          for (const type of unitTypes) {
-            if (cell.units[type] > 0 && unitsAdded < maxSend) {
-              sendUnits[type] = 1;
-              cell.units[type]--;
-              unitsAdded++;
-            }
-          }
-
-          if (unitsAdded > 0) {
-            transits.push({
-              id: `transit-ai-${corp.id}-${cell.id}-${targetNeighId}-${Date.now()}`,
-              corpId: corp.id,
-              originCellId: cell.id,
-              targetCellId: targetNeighId,
-              units: sendUnits,
-              totalDays: aiStats.transitDays,
-              daysLeft: aiStats.transitDays
-            });
-            
-            // AI also marks target cell as scouted
-            corp.scoutedCells[targetNeighId] = true;
-            targetCell.neighbors.forEach(nid => {
-              corp.scoutedCells[nid] = true;
-            });
-          }
-        } else if (roll < 0.60 && corp.treasury >= 30000) {
-          // AI Reinforce
-          corp.treasury -= 30000;
-          // Queue reinforcement to spawn at end of week
-          const type: UnitType = ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)] as UnitType;
-          cell.recruitmentQueue.push({ type, weeksLeft: 1 });
-        } else if (roll < 0.80 && corp.treasury >= aiStats.fortifyCost && cell.fortification < aiStats.fortifyMax) {
-          // AI Fortify
-          corp.treasury -= aiStats.fortifyCost;
-          // Increment fortification at end of week
-          cell.fortification = Math.min(aiStats.fortifyMax, cell.fortification + 1);
-        } else {
-          // AI Idle
-          // Maintain garrison, progress passive production
-        }
-      }
-    }
-  };
-
   // Main advancement of time
   const advanceDay = () => {
     if (!gameState) return;
 
     setGameState(prev => {
       if (!prev) return null;
-
-      const newDate = { ...prev.date };
-      newDate.day += 1;
-
-      let triggerEvent: GameEvent | null = null;
-      let updatedLogs = [...prev.logs];
-
-      const updatedTransits = prev.transits.map(t => {
-        return {
-          ...t,
-          daysLeft: Math.max(0, t.daysLeft - 1)
-        };
-      });
-
-      // Filter transits that arrived today (daysLeft === 0)
-      const arrivedTransits = updatedTransits.filter(t => t.daysLeft === 0);
-      const remainingTransits = updatedTransits.filter(t => t.daysLeft > 0);
-
-      // Clone corporations early to allow updating scoutedCells during instant capture
-      const updatedCorps = prev.corporations.map(c => ({
-        ...c,
-        scoutedCells: { ...c.scoutedCells }
-      }));
-
-      // Keep track of transits consumed by instant captures
-      const instantCapturedTransitIds = new Set<string>();
-
-      // Apply arrived transits to cells' garrisons/occupations
-      const updatedCells = prev.cells.map(cell => {
-        const matchingArrivals = arrivedTransits.filter(t => t.targetCellId === cell.id);
-        if (matchingArrivals.length === 0) return cell;
-
-        const newUnits = { ...cell.units };
-        
-        if (cell.ownerId === null) {
-          const arrivingCorpIds = new Set(matchingArrivals.map(a => a.corpId));
-          if (arrivingCorpIds.size === 1) {
-            // Uncontested neutral claim — capture NOW, not at Month-End.
-            const corpId = [...arrivingCorpIds][0];
-            
-            // Merge all arrived units
-            matchingArrivals.forEach(arr => {
-              newUnits.circle += arr.units.circle;
-              newUnits.square += arr.units.square;
-              newUnits.triangle += arr.units.triangle;
-              instantCapturedTransitIds.add(arr.id);
-            });
-
-            // Mark cell + its neighbors scouted for the new owner
-            const corpIdx = updatedCorps.findIndex(c => c.id === corpId);
-            if (corpIdx !== -1) {
-              updatedCorps[corpIdx].scoutedCells[cell.id] = true;
-              for (const nid of cell.neighbors) {
-                updatedCorps[corpIdx].scoutedCells[nid] = true;
-              }
-              
-              // Add boarding alert log for instant neutral claim
-              updatedLogs = [{
-                date: newDate,
-                message: `SEC-OP: ${updatedCorps[corpIdx].name} secured uncontested neutral sector ${cell.name}.`,
-                type: 'success' as const
-              }, ...updatedLogs];
-            }
-
-            return {
-              ...cell,
-              ownerId: corpId,
-              units: newUnits
-            };
-          }
-          // If arrivingCorpIds.size > 1, this IS a real dispute — leave it in
-          // the existing Month-End contested flow, unchanged.
-        }
-
-        matchingArrivals.forEach(arr => {
-          // If the arrived unit belongs to the cell's owner, they merge with garrison!
-          if (arr.corpId === cell.ownerId) {
-            newUnits.circle += arr.units.circle;
-            newUnits.square += arr.units.square;
-            newUnits.triangle += arr.units.triangle;
-          }
-        });
-
-        return {
-          ...cell,
-          units: newUnits
-        };
-      });
-
-      // Re-add arrived transits that are from other corps (invaders) or neutral claims
-      // BUT exclude transits that were consumed by instant capture!
-      const activeInvaders = arrivedTransits.filter(t => 
-        !instantCapturedTransitIds.has(t.id) &&
-        t.corpId !== updatedCells.find(c => c.id === t.targetCellId)?.ownerId
-      );
-      const finalTransits = [...remainingTransits, ...activeInvaders];
-
-      // Random Event Chance!
-      // Occurs on Days 2 to 6 with a 12% probability. (Avoid Day 1 which triggers planning, and Day 7 which ends the week).
-      if (newDate.day >= 2 && newDate.day <= 6 && Math.random() < 0.12) {
-        // Find a random cell owned by the player to anchor the event
-        const playerCells = updatedCells.filter(c => c.ownerId === PLAYER_CORP_ID);
-        if (playerCells.length > 0) {
-          const anchorCell = playerCells[Math.floor(Math.random() * playerCells.length)];
-          const template = EVENTS_TEMPLATES[Math.floor(Math.random() * EVENTS_TEMPLATES.length)];
-          
-          triggerEvent = {
-            id: `event-${Date.now()}`,
-            title: template.title,
-            description: template.description.replace('local', anchorCell.name).replace('assembly sectors', anchorCell.name),
-            targetCellId: anchorCell.id,
-            choices: template.choices.map(c => ({
-              text: c.text,
-              cost: c.cost,
-              effectText: c.effectText,
-              action: c.action
-            }))
-          };
-        }
-      }
-
-      // Transition Weekly?
-      let mustPauseForPlanning = false;
-      let monthEndCombatsToResolve: number[] = [];
-      let isCampaignOver = prev.campaignOver;
-      let isCampaignOverWithElimination = prev.campaignOver;
-
-      if (newDate.day > 7) {
-        newDate.day = 1;
-        newDate.week += 1;
-
-        // Process Week-End Recruitment and passive production
-        updatedCells.forEach(cell => {
-          // 1. Process Recruitment Queue (Reinforce order arrivals)
-          cell.recruitmentQueue = cell.recruitmentQueue.map(item => {
-            return {
-              ...item,
-              weeksLeft: item.weeksLeft - 1
-            };
-          });
-
-          const completedRecruits = cell.recruitmentQueue.filter(item => item.weeksLeft <= 0);
-          cell.recruitmentQueue = cell.recruitmentQueue.filter(item => item.weeksLeft > 0);
-
-          completedRecruits.forEach(r => {
-            cell.units[r.type] += 1;
-          });
-
-          // 2. Passive unit production: 1 unit every 2 weeks (accelerated by Civic Production Focus)
-          if (cell.ownerId) {
-            const cellOrders = prev.playerOrders[cell.id] || [];
-            const hasProductionCivic = cell.ownerId === PLAYER_CORP_ID && cellOrders.some(o => o.type === 'civic' && o.focus === 'production');
-
-            cell.productionProgress += hasProductionCivic ? 2 : 1;
-            if (cell.productionProgress >= 2) {
-              cell.units[cell.preferredProduction] += 1;
-              cell.productionProgress = 0; // reset progress
-            }
-          }
-        });
-
-        // 3. Collect Weekly Profit: each controlled cell generates income
-        // to owner (per-House: Tide $12k, default $10k)
-        updatedCells.forEach(cell => {
-          if (cell.ownerId) {
-            const ownerIdx = updatedCorps.findIndex(c => c.id === cell.ownerId);
-            if (ownerIdx !== -1) {
-              // Population Balance consequence: cells with opinion <30 produce
-              // no income (workforce strike). Real consequence, not just a
-              // number that affects rank.
-              if ((cell.publicOpinion ?? 50) >= 30) {
-                const ownerStats = getHouseStats(updatedCorps[ownerIdx].cultureId);
-                updatedCorps[ownerIdx].treasury += ownerStats.incomePerCell;
-              }
-            }
-          }
-        });
-
-        // 4. Population Balance passive erosion: cells drift toward 50
-        // (neutral) by 1 per week unless actively maintained. This makes
-        // Population Balance a living system — investment via Civic Unrest
-        // Focus is needed to keep it high, not a one-time boost.
-        updatedCells.forEach(cell => {
-          const current = cell.publicOpinion ?? 50;
-          if (current > 50) {
-            cell.publicOpinion = current - 1;
-          } else if (current < 50) {
-            cell.publicOpinion = current + 1;
-          }
-        });
-
-        // Check if Month Ended!
-        if (newDate.week > 4) {
-          newDate.week = 1;
-          newDate.month += 1;
-
-          // Process Month-End Combat Check!
-          // Find any cells that have invaders (transits with daysLeft === 0 ending at cell where corpId !== cell.ownerId,
-          // or multiple corporations holding arrived units in a neutral cell).
-          const contestedCellIds = new Set<number>();
-          
-          updatedCells.forEach(cell => {
-            const cellInvaders = finalTransits.filter(t => t.targetCellId === cell.id && t.daysLeft === 0);
-            
-            if (cell.ownerId) {
-              // Cell is owned. If any invader of different corp has arrived, it's contested!
-              const alienInvaders = cellInvaders.filter(t => t.corpId !== cell.ownerId);
-              if (alienInvaders.length > 0) {
-                contestedCellIds.add(cell.id);
-              }
-            } else {
-              // Neutral cell. If units from multiple corps have arrived, or even 1 corp has arrived,
-              // it needs to be resolved! (If only 1 corp arrived, they easily capture it. If multiple corps arrived, they fight).
-              if (cellInvaders.length > 0) {
-                contestedCellIds.add(cell.id);
-              }
-            }
-          });
-
-          monthEndCombatsToResolve = Array.from(contestedCellIds);
-
-          // Check if Year Ended!
-          if (newDate.month > 12) {
-            newDate.month = 1;
-            newDate.year += 1;
-          }
-        }
-
-        // Check if Campaign Over
-        // Campaign completes at the end of Year 3 (meaning Year 4, Month 1, Week 1, Day 1 is reached)
-        isCampaignOver = prev.campaignOver;
-        if (newDate.year >= 4) {
-          isCampaignOver = true;
-          prev.isSimulating = false;
-        }
-
-        // Trigger Planning phase unless campaign is over
-        if (!isCampaignOver) {
-          mustPauseForPlanning = true;
-        }
-      }
-
-      // Check if Player is Eliminated (owns 0 cells)
-      const playerControlledCount = updatedCells.filter(c => c.ownerId === PLAYER_CORP_ID).length;
-      isCampaignOverWithElimination = prev.campaignOver;
-      if (playerControlledCount === 0 && !prev.campaignOver) {
-        isCampaignOverWithElimination = true;
-        prev.isSimulating = false;
-      }
-
-      // Assemble next logs or state
-      if (triggerEvent) {
-        updatedLogs = [{
-          date: newDate,
-          message: `URGENT BOARDROOM ALERT: ${triggerEvent.title} initiated. Simulation paused.`,
-          type: 'warning' as const
-        }, ...updatedLogs];
-      }
-
-      if (mustPauseForPlanning && !triggerEvent && !isCampaignOverWithElimination) {
-        updatedLogs = [{
-          date: newDate,
-          message: `Weekly Epoch complete. Initializing strategic Planning Phase for Week ${newDate.week}.`,
-          type: 'info' as const
-        }, ...updatedLogs];
-      }
-
-      // If Month-End conflicts exist, we generate the combat logs
-      let activeCombats: CellCombatState[] = [];
-      let currentCombatView: CellCombatState | null = null;
-      
-      if (monthEndCombatsToResolve.length > 0) {
-        // Generate battles
-        activeCombats = monthEndCombatsToResolve.map(cellId => {
-          const cell = updatedCells.find(c => c.id === cellId)!;
-          
-          // Assemble all initial forces
-          const combatInitialForces: { [corpId: string]: UnitGroup } = {};
-          
-          // Original owner's garrison (if any)
-          if (cell.ownerId) {
-            combatInitialForces[cell.ownerId] = { ...cell.units };
-          }
-          
-          // Transiting invaders
-          const cellInvaders = finalTransits.filter(t => t.targetCellId === cellId && t.daysLeft === 0);
-          cellInvaders.forEach(inv => {
-            if (!combatInitialForces[inv.corpId]) {
-              combatInitialForces[inv.corpId] = { circle: 0, square: 0, triangle: 0 };
-            }
-            combatInitialForces[inv.corpId].circle += inv.units.circle;
-            combatInitialForces[inv.corpId].square += inv.units.square;
-            combatInitialForces[inv.corpId].triangle += inv.units.triangle;
-          });
-
-          // Corp Name map
-          const corpNames: { [corpId: string]: string } = {};
-          updatedCorps.forEach(c => { corpNames[c.id] = c.name; });
-
-          return resolveCellCombat(
-            cellId,
-            cell.name,
-            combatInitialForces,
-            cell.ownerId,
-            cell.fortification,
-            corpNames
-          );
-        });
-
-        currentCombatView = activeCombats[0];
-        prev.isSimulating = false; // Pause simulation during combat
-      }
-
-      // Check if we should auto-trigger the annual report view if year ticked up (and no combat)
-      const yearTickReport = newDate.week === 1 && newDate.day === 1 && newDate.month === 1 && newDate.year > prev.date.year && monthEndCombatsToResolve.length === 0;
-      if (yearTickReport) {
-        setShowAnnualReport(true);
-        prev.isSimulating = false;
-      }
-
-      if (isCampaignOverWithElimination) {
-        setShowAnnualReport(true);
-      }
-
-      // Rank recompute trigger 1 of 2: Annual Report -- full recompute,
-      // general growth (territory + Population Balance) reflected, any
-      // time the report is about to be shown.
-      if (yearTickReport || isCampaignOverWithElimination) {
-        computeRank(updatedCorps, updatedCells);
-
-        // House stat: annual bonus units (Crystal +1 per owned cell).
-        // Applied at Annual Report — a research dividend, bounded and
-        // tied to a specific trigger, not a compounding multiplier.
-        for (const corp of updatedCorps) {
-          const stats = getHouseStats(corp.cultureId);
-          if (stats.annualBonusUnits > 0) {
-            const ownedCells = updatedCells.filter(c => c.ownerId === corp.id);
-            for (const cell of ownedCells) {
-              cell.units[cell.preferredProduction] += stats.annualBonusUnits;
-            }
-          }
-        }
-      }
-
-      // Phase 3: Rank-1 ending check at every Annual Report (not only the
-      // campaign-final). Runs AFTER computeRank so ranks are fresh. Only
-      // the PLAYER reaching Rank 1 fires; an AI at Rank 1 does not. If it
-      // fires, halt further cycling (campaignOver) and store the payload.
-      let endingEvent = prev.endingEvent;
-      if ((yearTickReport || isCampaignOverWithElimination) && !prev.endingEvent) {
-        const ending = checkEnding(updatedCorps, PLAYER_CORP_ID);
-        if (ending) {
-          endingEvent = ending;
-          isCampaignOver = true;
-          prev.isSimulating = false;
-          updatedLogs = [{
-            date: newDate,
-            message: `ENDING TRIGGERED: Rank 1 reached. Fragment count: ${ending.fragmentCount}/${ending.total}.`,
-            type: 'success' as const
-          }, ...updatedLogs];
-        }
-      }
-
-      // Reset player orders dict for the new week
-      let nextPlayerOrders = prev.playerOrders;
-      if (mustPauseForPlanning) {
-        nextPlayerOrders = {};
+      const out = advanceDayEngine(prev, defaultContext, EVENTS_TEMPLATES);
+      if (out.showAnnualReport) setShowAnnualReport(true);
+      if (out.enterPlanning) {
         setIsPlanningPhase(true);
         setPlanningMode('guided');
-        prev.isSimulating = false; // Pause during planning phase
       }
-
-      return {
-        ...prev,
-        date: newDate,
-        cells: updatedCells,
-        corporations: updatedCorps,
-        transits: finalTransits,
-        playerOrders: nextPlayerOrders,
-        currentActiveEvent: triggerEvent,
-        activeCombatsToResolve: monthEndCombatsToResolve,
-        currentCombatInView: currentCombatView,
-        campaignOver: isCampaignOver || isCampaignOverWithElimination,
-        endingEvent,
-        logs: updatedLogs
-      };
+      return out.state;
     });
   };
 
@@ -1229,7 +592,7 @@ export default function App({ session }: GameRendererProps) {
       const playerOwnedIds = updatedCells.filter(c => c.ownerId === PLAYER_CORP_ID).map(c => c.id);
       const candidates = scoutedIds.filter(id => !playerOwnedIds.includes(id));
       if (candidates.length > 0) {
-        const targetToReset = candidates[Math.floor(Math.random() * candidates.length)];
+        const targetToReset = pickOne(defaultContext.rng, candidates);
         delete updatedCorps[playerCorpIndex].scoutedCells[targetToReset];
       }
     }
@@ -1253,197 +616,11 @@ export default function App({ session }: GameRendererProps) {
   const handleConcludeCombats = (results: { [cellId: number]: CellCombatState }) => {
     if (!gameState) return;
     if (Object.keys(results).length > 0) sfx.play('hit');
-
-    const updatedCells = [...gameState.cells];
-    let updatedTransits = [...gameState.transits];
-    const updatedCorps = [...gameState.corporations];
-    // Targeted displacement: real trigger off the real combat result below,
-    // no separate system. Ranks compared here are the CURRENT ones (as of
-    // the last Annual Report or previous displacement), captured before any
-    // recompute happens in this batch -- consistent across every battle
-    // concluded in the same call, not chained against each other.
-    let displacementFired = false;
-    const displacementMessages: string[] = [];
-
-    // Phase 3: elimination detection + Fragment transfer. Track each corp's
-    // running cell count as battles are resolved in this batch. When a corp
-    // hits 0 cells, the eliminator is the victor of the battle that brought
-    // the count to 0 (the clean, single-attributable-House case from the
-    // directive). If that final battle was mutual destruction (no victor),
-    // fall back to the most recent victor that took a cell from this corp in
-    // the same batch (flagged in the log); if there was none, fragments are
-    // lost (also flagged) -- rare edge case, not silently invented.
-    const runningCellCount: { [corpId: string]: number } = {};
-    for (const corp of updatedCorps) {
-      runningCellCount[corp.id] = updatedCells.filter(c => c.ownerId === corp.id).length;
-    }
-    const lastVictorTookFrom: { [corpId: string]: string | null } = {};
-    const eliminations: { eliminatedId: string; eliminatorId: string | null }[] = [];
-
-    for (const cellIdStr in results) {
-      const cellId = Number(cellIdStr);
-      const battle = results[cellId];
-      const cellIndex = updatedCells.findIndex(c => c.id === cellId);
-      const cell = updatedCells[cellIndex];
-      const previousOwnerId = cell.ownerId; // capture BEFORE mutating below
-
-      // Update Owner and survivors
-      if (battle.victorId) {
-        // Targeted displacement check: did the victor just take this cell
-        // from the corp CURRENTLY ranked directly above them?
-        if (previousOwnerId && previousOwnerId !== battle.victorId) {
-          const victorCorp = updatedCorps.find(c => c.id === battle.victorId);
-          const defeatedCorp = updatedCorps.find(c => c.id === previousOwnerId);
-          if (victorCorp && defeatedCorp && victorCorp.rank === defeatedCorp.rank + 1) {
-            displacementFired = true;
-            displacementMessages.push(
-              `House ${victorCorp.name} displaces House ${defeatedCorp.name} — Rank ${defeatedCorp.rank} claimed by force.`
-            );
-          }
-        }
-
-        // Phase 3: track cell-loss attribution for elimination detection.
-        // The previous owner lost this cell to the victor.
-        if (previousOwnerId && previousOwnerId !== battle.victorId) {
-          lastVictorTookFrom[previousOwnerId] = battle.victorId;
-        }
-
-        cell.ownerId = battle.victorId;
-        cell.units = { ...battle.finalUnits[battle.victorId] };
-
-        // Decrease fortifications by lost points
-        cell.fortification = Math.max(0, cell.fortification - battle.fortificationsLost);
-
-        // Mark this cell as scouted for the victor
-        const victorIdx = updatedCorps.findIndex(c => c.id === battle.victorId);
-        if (victorIdx !== -1) {
-          updatedCorps[victorIdx].scoutedCells[cell.id] = true;
-          cell.neighbors.forEach(nid => {
-            updatedCorps[victorIdx].scoutedCells[nid] = true;
-          });
-        }
-
-        addLog(`Conflict Resolved in ${cell.name}: ${updatedCorps.find(c => c.id === battle.victorId)?.name} secures control.`, 'success');
-      } else {
-        // Mutual destruction
-        cell.ownerId = null;
-        cell.units = { circle: 0, square: 0, triangle: 0 };
-        cell.fortification = 0;
-        addLog(`Conflict Resolved in ${cell.name}: Complete garrison annihilation. Sector reverts to Neutral.`, 'warning');
-      }
-
-      // Population Balance: combat damages public opinion on this cell (-5).
-      // Violence is bad for civilian morale, regardless of who wins.
-      applyPublicOpinionOffset(cell, -5);
-
-      // Phase 3: update running cell counts and detect eliminations. The
-      // previous owner lost this cell (to a victor or to mutual destruction).
-      if (previousOwnerId && previousOwnerId !== cell.ownerId) {
-        runningCellCount[previousOwnerId] = (runningCellCount[previousOwnerId] || 0) - 1;
-        if (runningCellCount[previousOwnerId] <= 0) {
-          // This corp just hit 0 cells -- eliminated. Eliminator is the
-          // victor of THIS battle if there is one; otherwise fall back to
-          // the last victor that took a cell from them this batch.
-          const eliminatorId = battle.victorId ?? lastVictorTookFrom[previousOwnerId] ?? null;
-          eliminations.push({ eliminatedId: previousOwnerId, eliminatorId });
-        }
-      }
-
-      // Remove arrived transits that participated in this battle
-      updatedTransits = updatedTransits.filter(t => !(t.targetCellId === cellId && t.daysLeft === 0));
-    }
-
-    // Phase 3: process eliminations -- transfer Fragments from each
-    // eliminated House to its eliminator. Pure transfer logic lives in
-    // fragmentSystem.onHouseEliminated; attribution is done above.
-    if (eliminations.length > 0) sfx.play('alert');
-    for (const { eliminatedId, eliminatorId } of eliminations) {
-      const eliminatedCorp = updatedCorps.find(c => c.id === eliminatedId);
-      if (!eliminatedCorp) continue;
-      if (eliminatorId) {
-        const eliminatorCorp = updatedCorps.find(c => c.id === eliminatorId);
-        if (eliminatorCorp) {
-          const transferredCount = eliminatedCorp.fragments.length;
-          onHouseEliminated(eliminatedCorp, eliminatorCorp);
-          addLog(
-            `House ${eliminatorCorp.name} eliminated House ${eliminatedCorp.name} — inherited ${transferredCount} Fragment${transferredCount === 1 ? '' : 's'}. (Total held: ${eliminatorCorp.fragments.length}/6)`,
-            'warning'
-          );
-        }
-      } else {
-        // Edge case: eliminated by mutual destruction with no prior victor
-        // in this batch. Fragments are lost, not transferred. Flagged, not
-        // silently invented -- the directive says report rather than guess.
-        addLog(
-          `House ${eliminatedCorp.name} was annihilated with no attributable eliminator — Fragments lost (${eliminatedCorp.fragments.length}).`,
-          'error'
-        );
-        eliminatedCorp.fragments = [];
-      }
-    }
-
-    // Rank recompute trigger 2 of 2: immediate, but ONLY on a real
-    // displacement -- not on every combat. Logged explicitly, not silently
-    // folded into the routine "Conflict Resolved" lines above.
-    if (displacementFired) {
-      computeRank(updatedCorps, updatedCells);
-      displacementMessages.forEach(msg => addLog(msg, 'warning'));
-    }
-
-    setGameState(prev => {
-      if (!prev) return null;
-      
-      const newCombatHistory = Object.values(results).map(log => ({
-        date: prev.date,
-        cellId: log.cellId,
-        cellName: log.cellName,
-        victorId: log.victorId,
-        log
-      }));
-
-      return {
-        ...prev,
-        cells: updatedCells,
-        transits: updatedTransits,
-        corporations: updatedCorps,
-        currentCombatInView: null,
-        activeCombatsToResolve: [],
-        combatHistory: [...prev.combatHistory, ...newCombatHistory]
-      };
-    });
-
-    if (gameState.campaignOver) {
-      // Annual Report trigger, same as advanceDay's -- full recompute
-      // whenever the report is about to be shown, on top of any
-      // displacement recompute already applied above.
-      computeRank(updatedCorps, updatedCells);
-
-      // House stat: annual bonus units (same as advanceDay's Annual Report)
-      for (const corp of updatedCorps) {
-        const stats = getHouseStats(corp.cultureId);
-        if (stats.annualBonusUnits > 0) {
-          const ownedCells = updatedCells.filter(c => c.ownerId === corp.id);
-          for (const cell of ownedCells) {
-            cell.units[cell.preferredProduction] += stats.annualBonusUnits;
-          }
-        }
-      }
-
-      // Phase 3: Rank-1 ending check, same as advanceDay's Annual Report
-      // path. Only fires for the PLAYER reaching Rank 1. If it fires,
-      // store the payload and halt cycling (campaignOver already true here,
-      // but endingEvent must be set on state for the placeholder screen).
-      const ending = checkEnding(updatedCorps, PLAYER_CORP_ID);
-      if (ending) {
-        sfx.play('win');
-        setGameState(prev => prev ? { ...prev, endingEvent: ending, corporations: updatedCorps } : null);
-        addLog(
-          `ENDING TRIGGERED: Rank 1 reached. Fragment count: ${ending.fragmentCount}/${ending.total}.`,
-          'success'
-        );
-      }
-      setShowAnnualReport(true);
-    }
+    const out = concludeCombats(gameState, results);
+    if (out.eliminationCount > 0) sfx.play('alert');
+    setGameState(out.state);
+    if (out.endingFired) sfx.play('win');
+    if (out.showAnnualReport) setShowAnnualReport(true);
   };
 
   // Manage planning order saving
@@ -1486,7 +663,9 @@ export default function App({ session }: GameRendererProps) {
             { id: 'new-game', label: 'New Campaign', variant: 'primary', onClick: handleTitleNewGame },
             { id: 'continue', label: 'Continue', variant: 'secondary', onClick: handleTitleContinue, disabled: !gameState },
           ]}
-        />
+        >
+          <OriginsRow mode={mode} />
+        </TitleScreen>
       </GameShell>
     );
   }
@@ -1602,38 +781,7 @@ export default function App({ session }: GameRendererProps) {
               className="flex-1 p-6 flex flex-col justify-center items-center overflow-y-auto"
             >
               <CombatResolutionView
-                combats={gameState.activeCombatsToResolve.map(cellId => {
-                  // Retrieve precalculated combat logs
-                  // If not precalculated, we can run resolve again or look it up
-                  // We already pushed them into gameState.currentCombatInView or active combats
-                  const cell = gameState.cells.find(c => c.id === cellId)!;
-                  
-                  const combatInitialForces: { [corpId: string]: UnitGroup } = {};
-                  if (cell.ownerId) {
-                    combatInitialForces[cell.ownerId] = { ...cell.units };
-                  }
-                  const cellInvaders = gameState.transits.filter(t => t.targetCellId === cellId && t.daysLeft === 0);
-                  cellInvaders.forEach(inv => {
-                    if (!combatInitialForces[inv.corpId]) {
-                      combatInitialForces[inv.corpId] = { circle: 0, square: 0, triangle: 0 };
-                    }
-                    combatInitialForces[inv.corpId].circle += inv.units.circle;
-                    combatInitialForces[inv.corpId].square += inv.units.square;
-                    combatInitialForces[inv.corpId].triangle += inv.units.triangle;
-                  });
-
-                  const corpNames: { [corpId: string]: string } = {};
-                  gameState.corporations.forEach(c => { corpNames[c.id] = c.name; });
-
-                  return resolveCellCombat(
-                    cellId,
-                    cell.name,
-                    combatInitialForces,
-                    cell.ownerId,
-                    cell.fortification,
-                    corpNames
-                  );
-                })}
+                combats={Object.values(resolvePendingCombats(gameState))}
                 corporations={gameState.corporations}
                 date={gameState.date}
                 onConcludeCombats={handleConcludeCombats}
@@ -1817,7 +965,7 @@ export default function App({ session }: GameRendererProps) {
           takes precedence when both are up. */}
       {gameState.endingEvent && (
         <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 select-none animate-fade-in" id="ending-placeholder" data-testid="pog-ending-placeholder">
-          <div className="bg-[#1a1a2e] border-2 border-amber-600/60 max-w-lg w-full p-8 flex flex-col gap-5 text-center text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.3)]">
+          <div className="bg-[#1a1a2e] border-2 border-amber-600/60 max-w-lg w-full max-h-full overflow-y-auto p-8 flex flex-col gap-5 text-center text-amber-50 shadow-[0_0_40px_rgba(217,119,6,0.3)]">
             <span className="font-serif italic text-[11px] text-amber-400/70 font-bold uppercase tracking-widest">
               {ENDING_TEXT.subtitle}
             </span>
@@ -1839,6 +987,15 @@ export default function App({ session }: GameRendererProps) {
                   ? ENDING_TEXT.fragmentComplete
                   : ENDING_TEXT.fragmentIncomplete}
               </p>
+              {(() => {
+                const summary = buildEndingViewModel(playerCorp, gameState.endingEvent, gameState.date);
+                return (
+                  <div className="mt-3 pt-3 border-t border-amber-700/30 text-left text-amber-100/70" data-testid="pog-ending-summary">
+                    <div>{summary.houseName} finished at {summary.rankLabel} in {summary.yearLabel}.</div>
+                    <div>Fragments gathered: {summary.fragmentsLabel}.</div>
+                  </div>
+                );
+              })()}
             </div>
             <button
               onClick={handleRequestNewGame}
@@ -1848,6 +1005,15 @@ export default function App({ session }: GameRendererProps) {
             >
               {ENDING_TEXT.restartLabel}
             </button>
+            {nextChapterHref(mode, window.location.href) && (
+              <a
+                href={nextChapterHref(mode, window.location.href) ?? undefined}
+                className="block w-full text-center border-2 border-amber-600/70 text-amber-200 hover:bg-amber-900/40 py-3 text-xs font-mono uppercase tracking-widest transition"
+                data-testid="pog-ending-continue"
+              >
+                {NEXT_CHAPTER_LABEL}
+              </a>
+            )}
           </div>
         </div>
       )}
