@@ -148,15 +148,18 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-monkey-fuzz-directive |
 | Base branch | - |
 | Base commit | 5c651572eeeecbbe273fbb5b4a27d0e8ed56b1ff |
+| Head commit | 0b9ee1d032e226df8565b4e74ca39173d5d91de0 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:34 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYRV8FYQ00R30GPP0K8X13
 - 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-10 00:30 · devin-overseer (delegated) · In progress → Review — 7 scope files added; vitest test_playtest_monkey.ts 12 passed (12); tsc --noEmit clean; regression test_playtest_smoke_manifest.ts 10 passed, test_playtest_contract.ts 13 passed (suite grew by one since the directive wrote 12); git status showed only the 7 files; pre-push hook green (2863 tests).; under delegate.envelope [origin] spent: devin 9 min est. n/a
 <!-- queue:end -->
