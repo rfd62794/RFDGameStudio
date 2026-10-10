@@ -272,4 +272,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-10 00:30 · robert-claude-laptop · Blocked → Queued — Dependency landed: Factory_Idle_Autosave_And_Reset_Factory merged (PR #269), examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts is on main. Fresh worktree from current main; the Base commit line in the directive is stale (b1167ae0) - follow the code on main.
 - 2026-10-10 00:31 · robert-claude-laptop · Queued → Approved
 - 2026-10-10 00:31 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J19Q4PEGW0FTK0SPHZD3MJ
+- 2026-10-10 00:32 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; resynced: merged main into directive/rfdgamestudio-factory-idle-starter-goal-hint-directive (250 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
