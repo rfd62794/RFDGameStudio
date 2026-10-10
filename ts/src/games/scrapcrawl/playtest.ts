@@ -5,7 +5,7 @@ import type { PlaytestAdapter, Policy } from '../../engine/playtest';
 import { newRun, applyFight, applyMove } from '../scrapcrawl/utils/runEnd';
 import type { RunOutcome, RunProgress } from '../scrapcrawl/utils/runEnd';
 
-export type ScrapAction = { kind: 'move'; to: string } | { kind: 'fight' } | { kind: 'craft' };
+export type ScrapAction = { kind: 'move'; to: string } | { kind: 'walkHome' } | { kind: 'fight' } | { kind: 'craft' };
 export interface ScrapObs { room: string; hp: number; scrap: number; hasWeapon: boolean; cleared: string[] }
 
 type Rooms = Record<string, { id: string; interaction_types?: string[]; difficulty?: number }>;
@@ -30,6 +30,10 @@ export function createScrapcrawlAdapter(): PlaytestAdapter<ScrapObs, ScrapAction
   let rnd: () => number;
   let player: Player;
   let run: RunProgress;
+  const moveTo = (to: string): void => {
+    player = call(session, 'move_player', data, player, to)[0] as Player;
+    run = applyMove(run, rooms, to);
+  };
   return {
     gameId: 'scrapcrawl',
     init(seed: number): void {
@@ -52,14 +56,20 @@ export function createScrapcrawlAdapter(): PlaytestAdapter<ScrapObs, ScrapAction
       const i = CHAIN.indexOf(player.currentRoomId);
       if (CHAIN[i + 1] !== undefined) actions.push({ kind: 'move', to: CHAIN[i + 1] });
       if (i > 0) actions.push({ kind: 'move', to: CHAIN[i - 1] });
-      if (player.currentRoomId === CHAIN[CHAIN.length - 1]) actions.push({ kind: 'move', to: 'home_base' });
+      if (player.currentRoomId !== 'home_base') actions.push({ kind: 'walkHome' });
       if (player.currentRoomId === 'home_base' && player.scrap >= 10) actions.push({ kind: 'craft' });
       return actions;
     },
     act(a: ScrapAction): void {
       if (a.kind === 'move') {
-        player = call(session, 'move_player', data, player, a.to)[0] as Player;
-        run = applyMove(run, rooms, a.to);
+        moveTo(a.to);
+        return;
+      }
+      if (a.kind === 'walkHome') {
+        while (player.currentRoomId !== 'home_base') {
+          const i = CHAIN.indexOf(player.currentRoomId);
+          moveTo(i === CHAIN.length - 1 ? 'home_base' : CHAIN[i - 1]);
+        }
         return;
       }
       if (a.kind === 'craft') {
@@ -96,8 +106,7 @@ export function scrapcrawlPolicy(useCraft: boolean): Policy<ScrapObs, ScrapActio
       return { kind: 'move', to: CHAIN[here + 1] };
     }
     if (useCraft && obs.hp <= 4 && !obs.hasWeapon && obs.scrap >= 10) {
-      const to = here === CHAIN.length - 1 ? 'home_base' : CHAIN[here - 1];
-      return { kind: 'move', to };
+      return { kind: 'walkHome' };
     }
     return { kind: 'fight' };
   };
