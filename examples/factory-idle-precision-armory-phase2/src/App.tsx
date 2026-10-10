@@ -8,6 +8,8 @@ import {
 import { getInitialGameState } from './engine/gameReducer';
 import { appReducer } from './engine/appReducer';
 import { loadState, saveState, clearSave, type StorageLike } from './engine/persistence';
+import { isHintDismissed, dismissHint } from './engine/starterGoal';
+import { StarterGoalBanner } from './components/StarterGoalBanner';
 import { Header } from './components/Header';
 import { StorefrontPanel } from './components/StorefrontPanel';
 import { SvgWorkshopGrid } from './components/SvgWorkshopGrid';
@@ -24,6 +26,7 @@ function browserStorage(): StorageLike | null {
 
 export default function App() {
   const [state, dispatch] = useReducer(appReducer, undefined, () => loadState(browserStorage(), getInitialGameState()));
+  const [hintDismissed, setHintDismissed] = useState(() => isHintDismissed(browserStorage()));
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -197,6 +200,13 @@ export default function App() {
         onResetFactory={() => { clearSave(browserStorage()); dispatch({ type: 'RESET_FACTORY' }); }}
         onOpenRecipes={() => setIsRecipeModalOpen(true)}
       />
+
+      {!hintDismissed && (
+        <StarterGoalBanner
+          metrics={state.metrics}
+          onDismiss={() => { dismissHint(browserStorage()); setHintDismissed(true); }}
+        />
+      )}
 
       {/* Main Split-Screen Workspace */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
