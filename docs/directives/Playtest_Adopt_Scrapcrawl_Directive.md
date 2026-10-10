@@ -109,12 +109,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive |
 | Base branch | - |
+| Base commit | b4667e53ec6daa48e74e4f31d98f9328613fdcb0 |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:14 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWWZKVN066VC33V08Q018N
 <!-- queue:end -->
