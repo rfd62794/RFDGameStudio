@@ -269,4 +269,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-06 18:52 · robert-claude-laptop · assignee robert -> devin — Reassign robert -> devin: build-only; deploy stays Robert's (inventory 2026-10-06).
 - 2026-10-09 23:52 · robert-claude-laptop · Queued → Approved — lint override: DashboardView.tsx and FloorView.tsx are cited at their post-`git mv` path (examples/bpo-sim/...); they exist on main at examples/filipino-bpo-simulator/src/components/ and the step deletes them after the move. Not a missing-path error.
 - 2026-10-09 23:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-repromote-and-rename-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HZ2TKBVF1CVB8K117GG66M
+- 2026-10-09 23:53 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-bpo-sim-repromote-and-rename-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
