@@ -1,6 +1,7 @@
 import React from 'react';
 import { GameState, SectorData } from '../types';
 import { PRESET_FACTORIES } from '../engine/recipes';
+import { useArmedConfirm } from '../engine/useArmedConfirm';
 import { 
   Play, 
   Pause, 
@@ -32,6 +33,7 @@ interface HeaderProps {
   onUnlockSector: (sectorId: string) => void;
   onLoadPreset: (presetId: string) => void;
   onReset: () => void;
+  onResetFactory: () => void;
   onOpenRecipes: () => void;
 }
 
@@ -45,8 +47,10 @@ export const Header: React.FC<HeaderProps> = ({
   onUnlockSector,
   onLoadPreset,
   onReset,
+  onResetFactory,
   onOpenRecipes,
 }) => {
+  const resetFactory = useArmedConfirm(onResetFactory);
   const isBrownout = state.powerRatio < 1.0;
   const powerLoadPct = state.powerCapacity > 0 
     ? Math.min(100, Math.round((state.powerConsumed / state.powerCapacity) * 100)) 
@@ -282,6 +286,19 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <RotateCcw size={14} />
           <span>Clear Floor</span>
+        </button>
+
+        {/* Reset factory: a brand-new start, two-step confirm */}
+        <button
+          onClick={resetFactory.trigger}
+          className={`px-2 py-1 rounded-md text-xs border transition-all ${
+            resetFactory.armed
+              ? 'bg-rose-900 text-rose-100 border-rose-600'
+              : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-rose-400'
+          }`}
+          title="Start over with a new factory (your saved progress is erased)"
+        >
+          {resetFactory.armed ? 'Click again to erase and restart' : 'Reset factory'}
         </button>
       </div>
     </header>

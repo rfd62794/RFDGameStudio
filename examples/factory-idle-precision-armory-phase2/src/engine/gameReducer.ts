@@ -8,7 +8,6 @@ import {
   WeaponId, 
   TileType,
   CustomerOrder,
-  TechUpgrade,
   SectorData
 } from '../types';
 import { 
@@ -20,7 +19,6 @@ import {
   PRESET_FACTORIES 
 } from './recipes';
 import { 
-  playConveyorTick, 
   playAssemblyComplete, 
   playCashSale, 
   playMissedSale 
@@ -667,7 +665,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       // Multipliers from upgrades
       const isPowerMk2 = state.upgrades.some(u => u.id === 'tech_power_mk2' && u.purchased);
-      const isFastBelts = state.upgrades.some(u => u.id === 'tech_fast_belts' && u.purchased);
 
       // --- STEP 1: CALCULATE POWER GRID & MAINTENANCE ---
       let totalPowerGen = 0;

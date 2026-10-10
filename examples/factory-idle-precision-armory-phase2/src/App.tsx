@@ -1,19 +1,44 @@
-import React, { useReducer, useEffect, useState, useCallback } from 'react';
+import React, { useReducer, useEffect, useRef, useState, useCallback } from 'react';
 import { 
   ToolMode, 
   CardinalDirection, 
   RawPartId,
   WeaponId 
 } from './types';
-import { gameReducer, getInitialGameState } from './engine/gameReducer';
+import { getInitialGameState } from './engine/gameReducer';
+import { appReducer } from './engine/appReducer';
+import { loadState, saveState, clearSave, type StorageLike } from './engine/persistence';
 import { Header } from './components/Header';
 import { StorefrontPanel } from './components/StorefrontPanel';
 import { SvgWorkshopGrid } from './components/SvgWorkshopGrid';
 import { Toolbar } from './components/Toolbar';
 import { RecipeBookModal } from './components/RecipeBookModal';
 
+function browserStorage(): StorageLike | null {
+  try {
+    return typeof window !== 'undefined' ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
-  const [state, dispatch] = useReducer(gameReducer, undefined, getInitialGameState);
+  const [state, dispatch] = useReducer(appReducer, undefined, () => loadState(browserStorage(), getInitialGameState()));
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  // Autosave every 5 s and when the tab is hidden or closed.
+  useEffect(() => {
+    const save = () => { saveState(browserStorage(), stateRef.current); };
+    const id = setInterval(save, 5000);
+    window.addEventListener('beforeunload', save);
+    document.addEventListener('visibilitychange', save);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('beforeunload', save);
+      document.removeEventListener('visibilitychange', save);
+    };
+  }, []);
   
   const [toolMode, setToolMode] = useState<ToolMode>('conveyor');
   const [direction, setDirection] = useState<CardinalDirection>('E');
@@ -169,6 +194,7 @@ export default function App() {
         onUnlockSector={(sectorId) => dispatch({ type: 'UNLOCK_SECTOR', sectorId })}
         onLoadPreset={(presetId) => dispatch({ type: 'LOAD_PRESET', presetId })}
         onReset={() => dispatch({ type: 'CLEAR_ALL_TILES' })}
+        onResetFactory={() => { clearSave(browserStorage()); dispatch({ type: 'RESET_FACTORY' }); }}
         onOpenRecipes={() => setIsRecipeModalOpen(true)}
       />
 
