@@ -165,7 +165,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-voiddrift-family-naming-directive |
 | Base branch | - |
@@ -181,4 +181,5 @@ none.
 - 2026-10-09 23:48 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYTN690WQFTZR9RK6M0B4A
 - 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; resynced: merged main into directive/rfdgamestudio-voiddrift-family-naming-directive (276 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-09 23:56 · devin · In progress → Blocked — Work complete and verified (commit 1b19288e, all 9 replacements + new test; vitest 5 files/59 tests pass; tsc --noEmit clean; Python 3.12.12) but cannot push: `git push -u origin directive/rfdgamestudio-voiddrift-family-naming-directive` fails in pre-push hook - pytest collection errors on broken pygame import (pygame.base __version__ ImportError) in worktree venv, unrelated to the change. Review refused without pushed branch.
 <!-- queue:end -->
