@@ -18,6 +18,14 @@ import os
 
 import pytest
 
+# SDL dummy drivers for the whole suite, set here — before any test module's
+# pygame import. Several pygame-touching modules set only SDL_VIDEODRIVER (or
+# set it at their own import time, which is too late when a renderer module is
+# imported earlier); a real audio/video driver init on a headless machine is a
+# native-crash risk (0xC0000005). See docs/directives/Pytest_Access_Violation_Directive.md.
+os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
+
 # Exact-filename matches -- these test genuinely shared/engine infrastructure
 # (studio_mcp tooling, the Lua bridge, the pygame renderer engine, generic
 # UI system), even where a few incidentally use one game (often horse_racing)
