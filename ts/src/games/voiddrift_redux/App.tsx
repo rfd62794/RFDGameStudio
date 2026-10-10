@@ -11,6 +11,7 @@ import { FSMInspector } from './components/FSMInspector';
 import { DetectionRadarPanel } from './components/DetectionRadarPanel';
 import { DispatchLogPanel } from './components/DispatchLogPanel';
 import { SignalStrip } from './components/SignalStrip';
+import { GoalStrip } from './components/GoalStrip';
 import { SimulationControlsPanel } from './components/SimulationControlsPanel';
 import { PassFailDiagnosticsModal } from './components/PassFailDiagnosticsModal';
 import DriftPrimer from './components/DriftPrimer';
@@ -41,6 +42,7 @@ export default function App({ session }: GameRendererProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [screen, setScreen] = useState<'title' | 'sim'>('title');
   const [soundMuted, setSoundMuted] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   // First-run drift primer: fires only on a genuinely first start, via the
   // shared OnboardingGate (boolean mode) + persisted tutorial-seen flag.
@@ -226,17 +228,27 @@ export default function App({ session }: GameRendererProps) {
               VD
             </div>
             <button
-              id="open-diagnostics-btn"
-              onClick={() => setIsModalOpen(true)}
-              className={`px-3 py-1.5 rounded-lg border font-mono font-bold text-xs flex items-center gap-2 transition shrink-0 ${
-                stats.boundaryTelemetry.isBoundaryValid && stats.boundaryTelemetry.ring2GatedMiningValid
-                  ? 'bg-emerald-950/50 border-emerald-500/60 text-emerald-300 hover:bg-emerald-900/50'
-                  : 'bg-rose-950/50 border-rose-500/60 text-rose-300 hover:bg-rose-900/50 animate-pulse'
-              }`}
+              id="voiddrift-details-btn"
+              onClick={() => setShowDetails((v) => !v)}
+              aria-pressed={showDetails}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-800 font-mono font-bold text-xs text-slate-400 hover:text-slate-100 hover:border-slate-600 transition shrink-0"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Pass/Fail Telemetry
+              {showDetails ? 'Hide details' : 'Details'}
             </button>
+            {showDetails && (
+              <button
+                id="open-diagnostics-btn"
+                onClick={() => setIsModalOpen(true)}
+                className={`px-3 py-1.5 rounded-lg border font-mono font-bold text-xs flex items-center gap-2 transition shrink-0 ${
+                  stats.boundaryTelemetry.isBoundaryValid && stats.boundaryTelemetry.ring2GatedMiningValid
+                    ? 'bg-emerald-950/50 border-emerald-500/60 text-emerald-300 hover:bg-emerald-900/50'
+                    : 'bg-rose-950/50 border-rose-500/60 text-rose-300 hover:bg-rose-900/50 animate-pulse'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                Pass/Fail Telemetry
+              </button>
+            )}
             <span className="text-[11px] text-slate-400 font-mono hidden md:block">
               VoidDrift Core Loop — Gas Core Branching • Mk II Breaker In-Place Drill • Burst Fragments & Hauler Retrieval
             </span>
@@ -321,6 +333,8 @@ export default function App({ session }: GameRendererProps) {
               />
             </div>
 
+            <GoalStrip h3Gas={stats.resources?.H3Gas || 0} />
+
             <SimulationControlsPanel
               config={config}
               stats={stats}
@@ -341,13 +355,15 @@ export default function App({ session }: GameRendererProps) {
             />
 
             {/* FSM Inspector for both Mining Fleet and Tug Hauler Fleet */}
-            <FSMInspector
-              miningDrones={engine.miningDrones}
-              haulers={engine.haulers}
-              selectedDroneId={selectedDroneId}
-              onSelectDrone={setSelectedDroneId}
-              onToggleDroneTier={handleToggleMiningDroneTier}
-            />
+            {showDetails && (
+              <FSMInspector
+                miningDrones={engine.miningDrones}
+                haulers={engine.haulers}
+                selectedDroneId={selectedDroneId}
+                onSelectDrone={setSelectedDroneId}
+                onToggleDroneTier={handleToggleMiningDroneTier}
+              />
+            )}
 
             {/* Target Queue & Manual Dispatch Panel */}
             <DetectionRadarPanel
@@ -369,7 +385,7 @@ export default function App({ session }: GameRendererProps) {
 
       {/* Pass/Fail Telemetry Diagnostics Modal */}
       <PassFailDiagnosticsModal
-        isOpen={isModalOpen}
+        isOpen={isModalOpen && showDetails}
         onClose={() => setIsModalOpen(false)}
         stats={stats}
       />
