@@ -93,11 +93,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive |
 | Base branch | - |
 | Base commit | b1bac35661ca192fdc5d824991bafe6b47a419e0 |
+| Head commit | f20145f59cf1e1d07c74cdcca54bdc84539493ad |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
@@ -105,4 +107,9 @@ none.
 - 2026-10-04 20:24 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 20:25 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
 - 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
+- 2026-10-09 01:13 · devin (delegated) · Queued → Approved — lint override: branch-conflict is a stale orphan: directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive holds an abandoned implementation (8599ff39) that never merged and whose queue block diverges from main - a fresh suffixed dispatch branch will not collide with it; under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 01:13 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FH9MWNVRP6039WPGCRASKS
+- 2026-10-09 01:13 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; copied ts/src/games/game-metadata.json; resynced: merged main into directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive (412 commits; queue-file conflicts auto-resolved: docs/directives/Tuning_Adopt_Chimera_Wilds_Directive.md); provisioned: uv sync --frozen
+- 2026-10-09 01:18 · devin (delegated) · In progress → Review — Verified existing on-branch implementation matches spec; vitest: tuning 3/3 (SIM default=0.397 overridden70=0.020), balance 2/2, tuning_targets 5/5 incl. chimera_wilds targets; tsc --noEmit clean; data.yaml unchanged; diff vs main is exactly the 3 scope files.; under delegate.envelope [origin]
+- 2026-10-09 23:47 · robert-claude-laptop · Review → Done — note: PR #256 merged 2026-10-10 after Sonnet review (Test Files 3 passed, Tests 10 passed; SIM default=0.397 inside the 0.35-0.65 band). The run re-verified the earlier 8599ff39 implementation, which satisfies Scope.
 <!-- queue:end -->

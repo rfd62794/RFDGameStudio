@@ -205,11 +205,19 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-storefront-labels-re-7667e5 |
 | Base branch | - |
+| Base commit | e649165605d74ed8cae311c13fac732c314f0d66 |
+| Head commit | 8e6ddef12ed855ad1935d721ebfad165d5f17f16 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-09 23:18 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:18 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HX3H2FAS88223N1BJY5KNR
+- 2026-10-09 23:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-09 23:48 · devin · In progress → Review — Labels reskinned to tools: recipes.ts (10 table rows + all substring rules), Header/RecipeBookModal/StorefrontPanel strings, gameReducer names/roles arrays, config.ts label + metadata.json name -> Precision Workshop; types.ts WeaponRecipe.category union widened to the new labels (required by pre-push tsc). ts/tests/test_factory_idle_labels.ts added: baseline 3 failed | 1 passed (4), after edits Test Files 1 passed (1) / Tests 4 passed (4); test_registry_export.ts Test Files 1 passed (1) / Tests 4 passed (4) (directive expected 3 - file now carries 4 tests, all pass). uv run python --version: Python 3.12.12. Grep Firearm|ARMORY|SWAT|Duty Pistol|Rifled Barrel over phase2 src: no match. ready for controller finish: children.json [origin] spent: devin 28 min est. n/a
+- 2026-10-10 00:04 · robert-claude-laptop · Review → Done — note: PR #260 merged 2026-10-10 after Sonnet review (8 tests passed; labels only, IDs/prices/logic unchanged). children.json regeneration queued as a controller follow-up.
 <!-- queue:end -->

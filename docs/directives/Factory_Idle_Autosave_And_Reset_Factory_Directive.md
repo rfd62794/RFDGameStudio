@@ -392,11 +392,19 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d |
 | Base branch | - |
+| Base commit | 66629d10752d7593715bc7903cc33676a38032b9 |
+| Head commit | c55f7f3f3e7288406661f80214609fcf4d4810d8 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-09 23:20 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HY7T23WGZEDTYE5ZSY0JJ8
+- 2026-10-09 23:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-10 00:23 · devin-overseer (delegated) · In progress → Review — Autosave + two-step Reset factory implemented; vitest 5/5, tsc --noEmit clean, push hook green (977 py + 2844 ts); commit c55f7f3f pushed to origin.; under delegate.envelope [origin] spent: devin 19 min est. n/a
+- 2026-10-10 00:30 · robert-claude-laptop · Review → Done — note: PR #269 merged 2026-10-10 after Sonnet review (5 persistence tests passed, tsc clean, every storage call in try/catch, two-step labelled reset). Browser reload/reset smoke is a controller follow-up.
 <!-- queue:end -->

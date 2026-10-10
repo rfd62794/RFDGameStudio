@@ -107,11 +107,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-dev-panel-directive |
 | Base branch | - |
 | Base commit | 072e21864722efc01b81b64a4ad6cb003e79e0c4 |
+| Head commit | 4b9c0620aa4aed82d9c138f75e672cbe95adbcca |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:27 · robert-claude-laptop · none → Queued
@@ -119,4 +121,11 @@ none.
 - 2026-10-04 19:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 19:45 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 19:47 · devin · In progress → Blocked — STOP per directive: ts/src/games/tuning-registry.ts does not exist in worktree — Tuning_Sweep_Tool_Directive still Approved/unmerged and both adopt directives still Queued; no knob to show. Redispatch after those merge.
+- 2026-10-09 23:47 · robert-claude-laptop · Blocked → Queued — Dependencies landed: Tuning_Sweep_Tool merged, Tuning_Adopt_Chimera_Wilds merged (PR #256) so ts/src/games/tuning-registry.ts on main now has an entry; scrapcrawl follows in PR #259. Fresh worktree from current main.
+- 2026-10-09 23:53 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:54 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HZ4Y9KKKBTJ6XZKHGZKNQE
+- 2026-10-09 23:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-dev-panel-directive; resynced: merged main into directive/rfdgamestudio-tuning-dev-panel-directive (520 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-10 00:11 · devin-overseer (delegated) · In progress → Blocked — Work complete+verified (vitest export 6/6, panel 5/5, gameshell 8/8, store 7/7; tsc clean) on local commit 4b9c0620, but push impossible: pre-push hook pytest fails 9 tests in tests/test_game_metadata.py — subprocess git spawn hits OSError WinError 6 in this sandbox (reproduced via uv run pytest); git push --no-verify (hook's own documented skip) is refused. Controller can push the branch from a normal shell.; under delegate.envelope
+- 2026-10-10 00:18 · robert-claude-laptop · Blocked → Review — Branch 4b9c0620 pushed by the controller from a clean-venv worktree (the run's venv had python.exe swapped for pythonw; fixed in AgentFlow #672). Run's verification: vitest export 6/6, panel 5/5, gameshell 8/8, store 7/7; tsc clean. Python suite crashed (access violation) in the pre-push hook, which did not block - hook enforcement fix in progress. [origin] spent: devin 16 min est. n/a
+- 2026-10-10 00:20 · robert-claude-laptop · Review → Done — note: PR #267 merged 2026-10-10 after Sonnet review (export 6, panel 5, gameshell 8, store 7, targets 5 tests passed; tsc clean; panel lazy-loaded only under ?dev=1). Controller screenshots at ?dev=1 still owed.
 <!-- queue:end -->

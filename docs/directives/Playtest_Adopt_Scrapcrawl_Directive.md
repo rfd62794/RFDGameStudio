@@ -17,7 +17,7 @@
 **Step 1: `ts/src/games/scrapcrawl/playtest.ts`** <!-- new: ts/src/games/scrapcrawl/playtest.ts --> (first line `// new: ts/src/games/scrapcrawl/playtest.ts`). Copy, do not import, the private `seeded(seed)` function and the `CHAIN` constant (`['home_base', 'scrap_pit', 'vent_stack', 'chemical_leak', 'furnace_core']`) from `test_scrapcrawl_sim_runs.ts`. Import `newRun`, `applyFight`, `applyMove`, `RunOutcome` and the run-progress type from `../scrapcrawl/utils/runEnd`, and `loadGame`, `call` from `../../engine/runtime`.
 
 ```ts
-export type ScrapAction = { kind: 'move'; to: string } | { kind: 'fight' } | { kind: 'craft' };
+export type ScrapAction = { kind: 'move'; to: string } | { kind: 'walkHome' } | { kind: 'fight' } | { kind: 'craft' };
 export interface ScrapObs { room: string; hp: number; scrap: number; hasWeapon: boolean; cleared: string[] }
 export function createScrapcrawlAdapter(): PlaytestAdapter<ScrapObs, ScrapAction>
 export function scrapcrawlPolicy(useCraft: boolean): Policy<ScrapObs, ScrapAction>
@@ -25,17 +25,17 @@ export function scrapcrawlPolicy(useCraft: boolean): Policy<ScrapObs, ScrapActio
 Adapter, a port of `simulate`'s body (same Lua calls, same arguments):
 - `init(seed)`: `session = loadGame('scrapcrawl')`, `data = session.files.data`, `rooms = data.rooms`, `rnd = seeded(seed)`, `player = call(session, 'init_player')[0]`, `run = newRun()`.
 - `isTerminal()`: `run.outcome !== 'playing'`; `outcome()`: `run.outcome` (`'won'`, `'lost'`, `'playing'`).
-- `legalActions()`: `[]` when terminal. Otherwise: `{ kind: 'fight' }` always; `{ kind: 'move', to }` for `CHAIN[i + 1]` when it exists and for `CHAIN[i - 1]` when `i > 0`, where `i = CHAIN.indexOf(player.currentRoomId)`, plus `{ kind: 'move', to: 'home_base' }` when the player is in `CHAIN[CHAIN.length - 1]` (the old `walkHome` goes straight home from the last room); `{ kind: 'craft' }` only when the room is `home_base` and `player.scrap >= 10`.
-- `act(a)`: `move`: `player = call(session, 'move_player', data, player, a.to)[0]; run = applyMove(run, rooms, a.to)`. `craft`: `player = call(session, 'craft', data, player, rooms.home_base, 'beatStick', 1)[0]`. `fight`: in this exact order, `roll = Math.floor(rnd() * 20) + 1` then `reward = 3 + Math.floor(rnd() * 6)` (the order of the two `rnd()` calls decides every number), `res = call(session, 'resolve_fight', data, player, rooms[player.currentRoomId], roll, reward)[0]`, `player = res.player`, `run = applyFight(run, rooms, player.currentRoomId, res.won)`. `rnd` is called ONLY by `fight`.
+- `legalActions()`: `[]` when terminal. Otherwise: `{ kind: 'fight' }` always; `{ kind: 'move', to }` for `CHAIN[i + 1]` when it exists and for `CHAIN[i - 1]` when `i > 0`, where `i = CHAIN.indexOf(player.currentRoomId)`, plus `{ kind: 'walkHome' }` whenever the room is not `home_base`; `{ kind: 'craft' }` only when the room is `home_base` and `player.scrap >= 10`.
+- `act(a)`: `move`: `player = call(session, 'move_player', data, player, a.to)[0]; run = applyMove(run, rooms, a.to)`. `walkHome` is a multi-hop action that runs to completion inside ONE `act` call, exactly like the old loop's `walkHome` closure (`simulateRun.ts`, `while (player.currentRoomId !== 'home_base')`): repeat `i = CHAIN.indexOf(player.currentRoomId)`, `to = i === CHAIN.length - 1 ? 'home_base' : CHAIN[i - 1]`, then the same `move_player` + `applyMove` pair as `move`, until `player.currentRoomId === 'home_base'` (the last room jumps straight home; it does not check `run.outcome` between hops, as the old loop does not). No rule of the policy runs between the hops, so nothing can interrupt or re-route the walk. `craft`: `player = call(session, 'craft', data, player, rooms.home_base, 'beatStick', 1)[0]`. `fight`: in this exact order, `roll = Math.floor(rnd() * 20) + 1` then `reward = 3 + Math.floor(rnd() * 6)` (the order of the two `rnd()` calls decides every number), `res = call(session, 'resolve_fight', data, player, rooms[player.currentRoomId], roll, reward)[0]`, `player = res.player`, `run = applyFight(run, rooms, player.currentRoomId, res.won)`. `rnd` is called ONLY by `fight`.
 - `observe()`: `{ room: player.currentRoomId, hp: run.hp, scrap: player.scrap, hasWeapon: !!player.equipped.weapon && player.equipped.weapon.life !== 0, cleared: run.clearedRoomIds }`.
 - `metrics()`: `{ hp: run.hp, scrap: player.scrap, cleared: run.clearedRoomIds.length }`. `fingerprint()`: `JSON.stringify([player.currentRoomId, run.hp, player.scrap, run.clearedRoomIds.length, run.outcome])`. A fight that changes nothing (a won fight that gives 0 scrap in a cleared room) cannot repeat 25 times in a row before the run ends, so the default stall window is fine; if a real run trips `stall`, that is a finding, not a bug in your code.
 Policy `scrapcrawlPolicy(useCraft)`: a pure port of one loop iteration of `simulate` (obs and legal given, return one action):
 1. `target = CHAIN.find(id => id !== 'home_base' && !obs.cleared.includes(id))`.
 2. If `useCraft && obs.room === 'home_base' && !obs.hasWeapon && obs.scrap >= 10` return `{ kind: 'craft' }` (the old loop crafts, then moves in the same iteration; here the move is the next action, which is equivalent because at `home_base` the player is always before `target`).
 3. If `CHAIN.indexOf(obs.room) < CHAIN.indexOf(target)` return `{ kind: 'move', to: CHAIN[CHAIN.indexOf(obs.room) + 1] }`.
-4. If `useCraft && obs.hp <= 4 && !obs.hasWeapon && obs.scrap >= 10`: walk home one hop: `to` is `'home_base'` from the last room else `CHAIN[CHAIN.indexOf(obs.room) - 1]`; return that move.
+4. If `useCraft && obs.hp <= 4 && !obs.hasWeapon && obs.scrap >= 10`: return `{ kind: 'walkHome' }` (run-to-completion: the one action walks all the way to `home_base`; do NOT port it as a one-hop `move`, because the next step would re-evaluate rule 3, which sends the player back toward `target`, and the run bounces between rooms until the step cap; that reading measured crafting won=0.51 instead of 0.75). On the next step the player is at `home_base`, where rule 2 crafts, then rule 3 moves out, matching the old loop's `walkHome(); continue;` followed by craft-then-move.
 5. Otherwise `{ kind: 'fight' }`.
-Always return an action that is in `legal` (the policy is only used with this adapter).
+Rule order matters: rule 3 runs before rule 4 exactly as in the old loop (the `here < indexOf(target)` check precedes the walk-home check). Always return an action that is in `legal` (the policy is only used with this adapter).
 
 **Step 2: `ts/tests/test_playtest_scrapcrawl.ts`.** Exactly these 6 `it` cases, using `playMany` with `seeds = Array.from({ length: 200 }, (_, i) => 5000 + i)` and `{ maxSteps: 800 }`:
 1. Unarmed policy over the 200 seeds: no violations at all, every run `terminal: true`, outcomes only `'won'` or `'lost'`.
@@ -44,7 +44,7 @@ Always return an action that is in `legal` (the policy is only used with this ad
 4. Both `'won'` and `'lost'` occur over the 200 unarmed seeds.
 5. Determinism: seed 5003 run twice (crafting) gives deeply equal results.
 6. Report smoke: `console.log(renderPlaytestReport('scrapcrawl', 'unarmed', summarise(results)))` and `...'crafting'...` for the two result sets; assert only that each report string contains `Runs: 200`.
-If case 3 does NOT match exactly, do not loosen it: check the order of the two `rnd()` calls and the craft-then-move equivalence, and if it still differs STOP and write the two measured rates in the Status row.
+If case 3 does NOT match exactly, do not loosen it: check the order of the two `rnd()` calls, that `walkHome` runs to completion in one `act` (not one hop per step), and the craft-then-move equivalence, and if it still differs STOP and write the two measured rates in the Status row.
 
 ## 4. What NOT to do
 
@@ -104,16 +104,31 @@ none (`cd ts && npx vitest run <bare-filename>`, `cd ts && npx tsc --noEmit`, gi
 
 none.
 
+Requeued 2026-10-10: rule 4 now ports walkHome as run-to-completion (sticky until home), matching the old loop; the earlier one-hop reading measured 0.51.
+
 <!-- queue:start -->
 ## Queue
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive |
 | Base branch | - |
+| Base commit | b4667e53ec6daa48e74e4f31d98f9328613fdcb0 |
+| Head commit | 5722a46ae88012d5894fe9e51b8da0012f6a8e78 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
+- 2026-10-09 23:14 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWWZKVN066VC33V08Q018N
+- 2026-10-09 23:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-09 23:57 · devin · In progress → Blocked — Parity failed as specified: measured unarmed won=0.35 (exact), crafting won=0.51 vs expected 0.75; 66/200 crafting runs bounce home-walk (rule 3 resends the one-hop walk toward target) and hit the 800-step cap. rnd order and craft-then-move checked; the spec's one-hop walkHome port diverges from the old loop's run-to-completion walkHome. Committed as-written on branch.
+- 2026-10-10 00:11 · robert-claude-laptop · Blocked → Queued — Spec fixed in PR #264 (merged): walkHome is now a multi-hop action that runs to completion inside one act call, matching the old loop (the one-hop reading bounced between rooms and measured 0.51). Continue on the same branch: replace the one-hop port with the walkHome action per rule 4, re-measure, expect crafted≈0.75 / unarmed=0.35.
+- 2026-10-10 00:12 · robert-claude-laptop · Queued → Approved
+- 2026-10-10 00:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J06Q18RGN9W2Y6NQDQ1SCZ
+- 2026-10-10 00:12 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; resynced: merged main into directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive (74 commit(s), clean); provisioned: uv sync --frozen
+- 2026-10-10 00:22 · devin · In progress → Review — walkHome ported as run-to-completion action; vitest test_playtest_scrapcrawl.ts 6/6 pass, parity exact unarmed won=0.35 crafted won=0.75; regression test_scrapcrawl_sim_runs.ts 3/3 SIM unarmed=0.350 crafted=0.750; tsc --noEmit clean. Reports: unarmed 'Runs: 200 | lost 65% | won 35% | len med 11 p95 12 max 12', crafting 'Runs: 200 | lost 25% | won 75% | len med 17 p95 21 max 22', no violations. Committed 5722a46a and pushed. Note: pre-push hook's python suite crashed on unrelated pygame_gui access violation in test_generic_renderer.py; push still completed. [origin] spent: devin 46 min est. n/a
+- 2026-10-10 00:25 · robert-claude-laptop · Review → Done — note: PR #268 merged 2026-10-10 after Sonnet review (9 tests passed; parity exact: unarmed won 35%, crafting won 75%; walkHome run-to-completion per the corrected rule 4).
 <!-- queue:end -->
