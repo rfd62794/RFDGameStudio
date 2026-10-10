@@ -18,7 +18,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-cyan-400" />
             <span className="font-bold text-slate-100 text-base">
-              VoidRift Field Manual & Reaction Codex
+              GrainWorks Field Manual & Reaction Codex
             </span>
           </div>
           <button
@@ -38,7 +38,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               Core Concept & Simulation Engine
             </h3>
             <p className="text-slate-300 leading-relaxed">
-              VoidRift is a physical cellular automata sandbox and automation factory running on a{' '}
+              GrainWorks is a physical cellular automata sandbox and automation factory running on a{' '}
               <strong className="text-white">320 × 200 grid</strong> (64,000 active cells). Physical
               materials fall from cosmic asteroids at the top. You construct automated processing loops
               using <strong className="text-cyan-300">Collectors</strong>,{' '}

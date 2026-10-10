@@ -172,7 +172,7 @@ export default function App({ session }: GameRendererProps) {
     return (
       <>
         <GameShell
-          gameLabel="VoidDrift Redux"
+          gameLabel="VoidDrift: Core Loop"
           gameId="voiddrift_redux"
           phase="PHASE 4: GAS-BEARING BRANCH & BREAKER TIER"
           mode={mode}
@@ -181,7 +181,7 @@ export default function App({ session }: GameRendererProps) {
           statusArea={soundToggle}
         >
           <TitleScreen
-            title="VoidDrift Redux"
+            title="VoidDrift: Core Loop"
             tagline="Idle orbital mining at the edge of the drift"
             pitch="A scout sweeps two rings of rock around the Hub. Direct mining drones, Breaker units, and tug haulers — ore comes in, gas gets drilled, and the smelter turns it into something worth keeping."
             menuItems={[
@@ -208,7 +208,7 @@ export default function App({ session }: GameRendererProps) {
   return (
     <>
       <GameShell
-        gameLabel="VoidDrift Redux"
+        gameLabel="VoidDrift: Core Loop"
         gameId="voiddrift_redux"
         phase="PHASE 4: GAS-BEARING BRANCH & BREAKER TIER"
         mode={mode}
