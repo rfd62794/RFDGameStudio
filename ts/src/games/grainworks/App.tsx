@@ -20,12 +20,20 @@ import { ReconstructionCatalog } from './components/ReconstructionCatalog';
 import { InspectPanel } from './components/InspectPanel';
 import { HelpModal } from './components/HelpModal';
 import { FirstGoalCard } from './components/FirstGoalCard';
+import { VictoryModal } from './components/VictoryModal';
+import { placeStarterFactory } from './simulation/starterFactory';
+import {
+  AUTOSAVE_INTERVAL_MS,
+  applySandboxSave,
+  loadSandboxSave,
+  saveSandbox,
+} from './simulation/sandboxSave';
 import { getTierGoal } from './components/buildPanelHelpers';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { useCanvasInput } from './hooks/useCanvasInput';
 import type { GameRendererProps } from '../../engine/types';
 import { GameShell } from '../../components';
-import { ZoomIn, ZoomOut, Maximize2, Sparkles, Award, Hammer } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Sparkles, Hammer } from 'lucide-react';
 
 export type AppProps = GameRendererProps & { onRestart?: () => void };
 
@@ -134,27 +142,19 @@ export default function App({ onRestart }: AppProps) {
     const grid = gridRef.current;
     const bMgr = buildingMgrRef.current;
 
-    // Starter setup: Collector -> Pipe -> Compressor -> Solid Bin
-    // Collector: 2x2 at tile (19, 4) -> spans CA (152..168, 32..48)
-    const collectorDef = BUILDING_DEFS.find((b) => b.id === 'collector_dust')!;
-    bMgr.placeBuilding(grid, collectorDef, 19, 4);
-
-    // Pipes connecting downward
-    const pipeDef = BUILDING_DEFS.find((b) => b.id === 'pipe')!;
-    bMgr.placeBuilding(grid, pipeDef, 19, 6, 'DOWN');
-    bMgr.placeBuilding(grid, pipeDef, 19, 7, 'DOWN');
-
-    // Compressor: 3x3 at tile (19, 8)
-    const compressorDef = BUILDING_DEFS.find((b) => b.id === 'processor_compressor')!;
-    bMgr.placeBuilding(grid, compressorDef, 19, 8);
-
-    // Pipes from compressor to solid container
-    bMgr.placeBuilding(grid, pipeDef, 19, 11, 'DOWN');
-    bMgr.placeBuilding(grid, pipeDef, 19, 12, 'DOWN');
-
-    // Solid Bin: 2x3 at tile (19, 13)
-    const solidBinDef = BUILDING_DEFS.find((b) => b.id === 'container_solid')!;
-    bMgr.placeBuilding(grid, solidBinDef, 19, 13);
+    // A saved sandbox replaces the starter factory
+    const saved = loadSandboxSave();
+    if (saved && applySandboxSave(grid, bMgr, saved)) {
+      setCurrentTier(saved.tier);
+      setHasWon(saved.hasWon);
+      setReconstructionEntities(
+        RECONSTRUCTION_ENTITIES.map((e) =>
+          saved.reconstructedIds.includes(e.id) ? { ...e, reconstructed: true } : e
+        )
+      );
+    } else {
+      placeStarterFactory(grid, bMgr);
+    }
 
     // Perform initial dynamic sizing and viewport centering
     updateCanvasDimensions(true);
@@ -166,6 +166,26 @@ export default function App({ onRestart }: AppProps) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [updateCanvasDimensions]);
+
+  // Autosave every 5 s and when the tab is hidden or closed
+  const saveStateRef = useRef({ tier: currentTier, ids: [] as string[], won: hasWon });
+  saveStateRef.current = {
+    tier: currentTier,
+    ids: reconstructionEntities.filter((e) => e.reconstructed).map((e) => e.id),
+    won: hasWon,
+  };
+  useEffect(() => {
+    const save = () => {
+      const s = saveStateRef.current;
+      saveSandbox(gridRef.current, buildingMgrRef.current, s.tier, s.ids, s.won);
+    };
+    const interval = setInterval(save, AUTOSAVE_INTERVAL_MS);
+    window.addEventListener('pagehide', save);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('pagehide', save);
+    };
+  }, []);
 
   useSimulationLoop({
     canvasRef,
@@ -365,9 +385,9 @@ export default function App({ onRestart }: AppProps) {
 
   return (
     <GameShell
-      gameLabel="VoidRift Particle Sandbox"
-      gameId="voidrift_particle_sandbox"
-      phase="PARTICLE SANDBOX"
+      gameLabel="GrainWorks"
+      gameId="grainworks"
+      phase="GRAINWORKS"
       className="bg-[#070913] text-slate-200 font-sans"
       mainClassName="game-shell-main--scrollable"
     >
@@ -550,38 +570,7 @@ export default function App({ onRestart }: AppProps) {
           </div>
         </div>
 
-        {/* Victory Modal */}
-        {isVictoryModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-gradient-to-b from-[#11192e] to-[#0a0f1d] border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 text-center shadow-2xl shadow-amber-500/20 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/40 animate-bounce">
-                <Award className="w-8 h-8 text-slate-950" />
-              </div>
-
-              <h2 className="text-xl font-bold text-amber-300 tracking-wide">
-                RECONSTRUCTION COMPLETE
-              </h2>
-
-              <p className="text-sm font-serif italic text-amber-100/90 leading-relaxed bg-[#0b101f] p-4 rounded-xl border border-amber-500/30">
-                "The first things exist again. The universe remembers."
-              </p>
-
-              <p className="text-xs text-slate-300 leading-relaxed">
-                All five primeval constructs have been resurrected through complete automation loops,
-                reactions, and refining conduits. You may continue freely experimenting with infinite
-                cellular automata physics in the sandbox.
-              </p>
-
-              <button
-                id="btn-continue-endless"
-                onClick={() => setIsVictoryModalOpen(false)}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/30 transition cursor-pointer"
-              >
-                Continue Endless Sandbox
-              </button>
-            </div>
-          </div>
-        )}
+        <VictoryModal isOpen={isVictoryModalOpen} onContinue={() => setIsVictoryModalOpen(false)} />
 
         {/* Field Manual & Reaction Codex Modal */}
         <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />

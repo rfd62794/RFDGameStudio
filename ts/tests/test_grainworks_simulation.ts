@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest';
-import { MaterialType, MATERIAL_DEFS, RECONSTRUCTION_ENTITIES } from '../src/games/voidrift_particle_sandbox/types';
+import { MaterialType, MATERIAL_DEFS, RECONSTRUCTION_ENTITIES } from '../src/games/grainworks/types';
 import {
   CellularGrid,
   GRID_HEIGHT,
   GRID_WIDTH,
   ASTEROID_ZONE_HEIGHT,
-} from '../src/games/voidrift_particle_sandbox/simulation/grid';
+} from '../src/games/grainworks/simulation/grid';
 import {
   BuildingManager,
   computeRoute,
   TILES_X,
   TILES_Y,
-} from '../src/games/voidrift_particle_sandbox/simulation/buildings';
-import { AsteroidManager } from '../src/games/voidrift_particle_sandbox/simulation/asteroids';
-import { BUILDING_DEFS, BUILDING_TILE } from '../src/games/voidrift_particle_sandbox/simulation/buildingDefs';
+} from '../src/games/grainworks/simulation/buildings';
+import { AsteroidManager } from '../src/games/grainworks/simulation/asteroids';
+import { BUILDING_DEFS, BUILDING_TILE } from '../src/games/grainworks/simulation/buildingDefs';
 
 const def = (id: string) => BUILDING_DEFS.find((b) => b.id === id)!;
 
-describe('VoidRift Particle Sandbox — cellular grid', () => {
+describe('GrainWorks — cellular grid', () => {
   it('allocates the full 320x200 grid with bedrock terrain', () => {
     const grid = new CellularGrid();
     expect(grid.materials.length).toBe(GRID_WIDTH * GRID_HEIGHT);
@@ -51,7 +51,7 @@ describe('VoidRift Particle Sandbox — cellular grid', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — building placement', () => {
+describe('GrainWorks — building placement', () => {
   it('rejects non-collector placement inside the asteroid zone', () => {
     const grid = new CellularGrid();
     const mgr = new BuildingManager();
@@ -92,7 +92,7 @@ describe('VoidRift Particle Sandbox — building placement', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — material filters and storage', () => {
+describe('GrainWorks — material filters and storage', () => {
   it('updateFilter denies and resetFilterToDefaults restores a socket material', () => {
     const grid = new CellularGrid();
     const mgr = new BuildingManager();
@@ -128,7 +128,7 @@ describe('VoidRift Particle Sandbox — material filters and storage', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — asteroids and catalog', () => {
+describe('GrainWorks — asteroids and catalog', () => {
   it('setTier drives asteroid spawn rate and tier', () => {
     const aMgr = new AsteroidManager();
     aMgr.setTier(4);
@@ -159,7 +159,7 @@ describe('VoidRift Particle Sandbox — asteroids and catalog', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — building defs', () => {
+describe('GrainWorks — building defs', () => {
   it('defines unique ids with costs, tiers, and sockets', () => {
     const ids = BUILDING_DEFS.map((b) => b.id);
     expect(new Set(ids).size).toBe(ids.length);

@@ -1,20 +1,20 @@
-// <!-- new: ts/tests/test_voidrift_particle_sandbox_flow.ts -->
+// <!-- new: ts/tests/test_grainworks_flow.ts -->
 // Guards pipe-network material flow (updatePipes buffer hand-off, conserved
 // totals, terminal spill into the CA grid) and the pipe flow-particle visuals
 // (updatePipeFlowParticles / spawnFlowParticle / EMISSIVE_MATERIALS).
 // Math.random is stubbed so lateral offsets, opacity and size are deterministic.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MaterialType } from '../src/games/voidrift_particle_sandbox/types';
-import type { PipeDirection, PipeNode } from '../src/games/voidrift_particle_sandbox/types';
-import { CellularGrid } from '../src/games/voidrift_particle_sandbox/simulation/grid';
-import { BuildingManager } from '../src/games/voidrift_particle_sandbox/simulation/buildingManager';
-import { computeRoute } from '../src/games/voidrift_particle_sandbox/simulation/routing';
-import { updatePipes } from '../src/games/voidrift_particle_sandbox/simulation/buildingFlow';
+import { MaterialType } from '../src/games/grainworks/types';
+import type { PipeDirection, PipeNode } from '../src/games/grainworks/types';
+import { CellularGrid } from '../src/games/grainworks/simulation/grid';
+import { BuildingManager } from '../src/games/grainworks/simulation/buildingManager';
+import { computeRoute } from '../src/games/grainworks/simulation/routing';
+import { updatePipes } from '../src/games/grainworks/simulation/buildingFlow';
 import {
   EMISSIVE_MATERIALS,
   spawnFlowParticle,
   updatePipeFlowParticles,
-} from '../src/games/voidrift_particle_sandbox/simulation/flowParticles';
+} from '../src/games/grainworks/simulation/flowParticles';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -39,7 +39,7 @@ const makePipe = (
 const bufferTotal = (pipe: PipeNode): number =>
   pipe.buffer.reduce((s, item) => s + item.amount, 0);
 
-describe('VoidRift Particle Sandbox — pipe network flow (stub 0.5)', () => {
+describe('GrainWorks — pipe network flow (stub 0.5)', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
   });
@@ -79,7 +79,7 @@ describe('VoidRift Particle Sandbox — pipe network flow (stub 0.5)', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — pipe flow particles (stub 0.5)', () => {
+describe('GrainWorks — pipe flow particles (stub 0.5)', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
   });
@@ -128,7 +128,7 @@ describe('VoidRift Particle Sandbox — pipe flow particles (stub 0.5)', () => {
   });
 });
 
-describe('VoidRift Particle Sandbox — spawnFlowParticle start positions (stub 0.5)', () => {
+describe('GrainWorks — spawnFlowParticle start positions (stub 0.5)', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
   });

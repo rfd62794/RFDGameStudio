@@ -24,6 +24,8 @@ interface SimulationHeaderProps {
   onSetSpeed: (speed: number) => void;
   onResetWorld: () => void;
   onOpenTests: () => void;
+  /** Developer tools only: the Test Runner button shows when true (page opened with ?debug=1). */
+  showTestRunner?: boolean;
 }
 
 export const SimulationHeader: React.FC<SimulationHeaderProps> = ({
@@ -36,6 +38,7 @@ export const SimulationHeader: React.FC<SimulationHeaderProps> = ({
   onSetSpeed,
   onResetWorld,
   onOpenTests,
+  showTestRunner = false,
 }) => {
   return (
     <header className="w-full bg-slate-950/90 border-b border-slate-800/80 sticky top-0 z-30 backdrop-blur-md px-4 lg:px-8 py-3.5 shadow-xl">
@@ -171,20 +174,23 @@ export const SimulationHeader: React.FC<SimulationHeaderProps> = ({
           {/* Reset World */}
           <button
             onClick={onResetWorld}
-            className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800"
+            className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 text-xs font-bold flex items-center gap-1.5"
             title="Reset Simulation World"
           >
             <RotateCcw className="w-4 h-4" />
+            Reset world
           </button>
 
-          {/* Test Suite Runner Button */}
-          <button
-            onClick={onOpenTests}
-            className="px-3 py-1.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-950/40"
-          >
-            <FlaskConical className="w-3.5 h-3.5 text-indigo-400" />
-            Test Suite (3/3)
-          </button>
+          {/* Test Suite Runner Button (developer tool, hidden unless ?debug=1) */}
+          {showTestRunner && (
+            <button
+              onClick={onOpenTests}
+              className="px-3 py-1.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-950/40"
+            >
+              <FlaskConical className="w-3.5 h-3.5 text-indigo-400" />
+              Test Suite (3/3)
+            </button>
+          )}
         </div>
       </div>
     </header>

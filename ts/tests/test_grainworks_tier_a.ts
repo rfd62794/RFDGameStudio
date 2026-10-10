@@ -4,27 +4,27 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import TitleGate from '../src/games/voidrift_particle_sandbox/TitleGate';
+import TitleGate from '../src/games/grainworks/TitleGate';
 import type { GameSession } from '../src/engine/types';
 
 const root = resolve(import.meta.dirname, '..');
 const read = (rel: string) => readFileSync(resolve(root, rel), 'utf8');
-const GAME = 'src/games/voidrift_particle_sandbox';
+const GAME = 'src/games/grainworks';
 
 const session: GameSession = {
-  gameId: 'voidrift_particle_sandbox',
-  files: { gameId: 'voidrift_particle_sandbox', data: {}, ui: {}, logic: '', engineSource: '' },
+  gameId: 'grainworks',
+  files: { gameId: 'grainworks', data: {}, ui: {}, logic: '', engineSource: '' },
   executor: { call: () => [] },
 };
 
-describe('VoidRift Particle Sandbox Tier A', () => {
+describe('GrainWorks Tier A', () => {
   it('opens on a title screen with a one-line pitch and a Start Building button', async () => {
     const container = document.createElement('div');
     const reactRoot = createRoot(container);
     await act(async () => {
       reactRoot.render(React.createElement(TitleGate, { session }));
     });
-    expect(container.textContent).toContain('Particle Sandbox');
+    expect(container.textContent).toContain('GrainWorks');
     expect(container.textContent).toContain('Drop it. Catch it. Build on it.');
     const start = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Start Building')
@@ -60,15 +60,15 @@ describe('VoidRift Particle Sandbox Tier A', () => {
   });
 
   it('has the standalone files and the build script', () => {
-    expect(existsSync(resolve(root, 'vite.voidrift_particle_sandbox.config.ts'))).toBe(true);
-    expect(existsSync(resolve(root, 'src/standalone/voidrift_particle_sandbox/entry.tsx'))).toBe(true);
-    expect(existsSync(resolve(root, 'src/standalone/voidrift_particle_sandbox/index.html'))).toBe(true);
-    expect(read('src/standalone/voidrift_particle_sandbox/entry.tsx')).toContain(
-      "'../../games/voidrift_particle_sandbox/TitleGate'"
+    expect(existsSync(resolve(root, 'vite.grainworks.config.ts'))).toBe(true);
+    expect(existsSync(resolve(root, 'src/standalone/grainworks/entry.tsx'))).toBe(true);
+    expect(existsSync(resolve(root, 'src/standalone/grainworks/index.html'))).toBe(true);
+    expect(read('src/standalone/grainworks/entry.tsx')).toContain(
+      "'../../games/grainworks/TitleGate'"
     );
     const scripts = (JSON.parse(read('package.json')) as { scripts: Record<string, string> }).scripts;
-    expect(scripts['build:voidrift_particle_sandbox']).toBe(
-      'vite build --config vite.voidrift_particle_sandbox.config.ts'
+    expect(scripts['build:grainworks']).toBe(
+      'vite build --config vite.grainworks.config.ts'
     );
   });
 });

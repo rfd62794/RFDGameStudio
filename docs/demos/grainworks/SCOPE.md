@@ -1,5 +1,5 @@
-# voidrift_particle_sandbox scope analysis (2026-10-03, Sonnet scope agent, registry status: NOT registered; directive Port_Voidrift_Particle_Sandbox_Directive.md is Approved)
-Direction: cellular-automata sandbox and factory builder: twelve physical materials, pipes, containers, processors, tiered reconstruction (examples/voidrift-redux-particle-sandbox/src/types.ts:1-14; roadmap docs/RFDGameStudio_DemoPortingRoadmap.md:88 `particle_void`). Points at a port as its own game, separate from voiddrift_redux (directive section 1, line 12).
+# grainworks scope analysis (2026-10-03, Sonnet scope agent, registry status: NOT registered; directive Port_Voidrift_Particle_Sandbox_Directive.md is Approved)
+Direction: cellular-automata sandbox and factory builder: twelve physical materials, pipes, containers, processors, tiered reconstruction (examples/grainworks/src/types.ts:1-14; roadmap docs/RFDGameStudio_DemoPortingRoadmap.md:88 `particle_void`). Points at a port as its own game, separate from voiddrift_redux (directive section 1, line 12).
 Working:
 - Twelve MaterialType values 0-11 and MATERIAL_DEFS (src/types.ts:1-31); simulation split across grid.ts (579), buildings.ts (1,223), renderer.ts (761), buildingDefs.ts (382), asteroids.ts (123).
 - Tier goals exist: Tier 1 100 Structural Solid, Tier 2 80 Void Crystal, Tier 3 20 Luminite, Tier 4 reconstruction view (src/App.tsx:47,76-77,174-191).
