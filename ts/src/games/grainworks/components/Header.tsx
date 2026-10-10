@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="font-bold text-sm text-slate-100 tracking-wider flex items-center gap-1.5">
-              VOIDRIFT <span className="text-cyan-400 font-mono text-xs">REDUX</span>
+              GRAINWORKS <span className="text-cyan-400 font-mono text-xs">SANDBOX</span>
             </div>
           </div>
         </div>

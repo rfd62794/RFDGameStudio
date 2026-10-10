@@ -6,7 +6,7 @@ const config: GameConfig = {
   order: 250,
   moreGames: true,
   source: { kind: 'example', slug: 'voiddrift-redux-core-loop' },
-  label: 'VoidDrift Redux',
+  label: 'VoidDrift: Core Loop',
   description: 'A TS-native reimagining of the Rust/Bevy VoidDrift — idle space mining at the edge of a black hole. Real Mining/Hauler FSM states, the Aluminum/H3Gas resource chain, tap-to-dispatch interaction, and fragment-drift orbital simulation.',
   color: '#22d3ee',
   status: 'dev',
