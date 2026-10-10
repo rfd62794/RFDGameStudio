@@ -165,7 +165,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-voiddrift-family-naming-directive |
 | Base branch | - |
@@ -178,4 +178,5 @@ none.
 - 2026-10-08 03:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-08 03:18 · devin · In progress → Blocked — Dependencies not merged: TitleGate.tsx and both standalone index.html files missing; registry.ts quoted line differs (glob-derived list, no literal entry). Requeue after the two Tier A directives merge and re-measure registry.ts.
 - 2026-10-09 06:27 · robert-claude-laptop · Blocked → Queued — Blocked on TierA/Phone deps, both merged to main (PR 244/247); branch has 0 commits so nothing lost. Re-measure registry.ts line (glob-derived list) per Save_Golden log.
+- 2026-10-09 23:48 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
