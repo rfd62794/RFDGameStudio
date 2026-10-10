@@ -215,4 +215,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:18 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:18 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HX3H2FAS88223N1BJY5KNR
+- 2026-10-09 23:18 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
