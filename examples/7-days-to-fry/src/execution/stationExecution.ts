@@ -5,7 +5,9 @@
 
 import { activateCustomerAtWindow } from '../customers';
 import {
+  ADDON_PRICE_COFFEE,
   ADDON_PRICE_FRIES,
+  ADDON_PRICE_SODA,
   BASE_PRICE_BURGER,
   BATCH_QUALITY_GAIN_PER_PROTOCOL,
   BATCH_QUALITY_LOSS_PER_CORNER_CUT,
@@ -13,7 +15,6 @@ import {
   BATCH_QUALITY_MIN,
   BRAND_EQUITY_GAIN_PER_CLEAN_ORDER,
   BRAND_EQUITY_VIOLATION_PENALTY,
-  CASH_PER_CLEAN_ORDER,
   CORNER_CUT_VIOLATION_CATCH_CHANCE,
   EQUIPMENT_DEGRADATION_CHANCE,
   StationConfig,
@@ -119,7 +120,11 @@ export function executeStationTaskCompletion(
       station.orders.shift();
       state.stockUnits -= STOCK_UNITS_PER_ORDER;
       state.brandEquity = Math.min(100, state.brandEquity + BRAND_EQUITY_GAIN_PER_CLEAN_ORDER * order.quality);
-      const basePrice = BASE_PRICE_BURGER + (order.wantsFries ? ADDON_PRICE_FRIES : 0);
+      const basePrice =
+        BASE_PRICE_BURGER +
+        (order.wantsFries ? ADDON_PRICE_FRIES : 0) +
+        (order.wantsCoffee ? ADDON_PRICE_COFFEE : 0) +
+        (order.wantsSoda ? ADDON_PRICE_SODA : 0);
       const tip = TIP_MAX_PER_ORDER * order.quality;
       const earned = basePrice + tip;
       state.cash += earned;

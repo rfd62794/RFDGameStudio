@@ -3,7 +3,7 @@
  * Manages customer entities across order lifecycle (Waiting, Receiving, Leaving).
  */
 
-import { CUSTOMER_LINGER_SECONDS, CUSTOMER_MESS_CHANCE, ENTRANCE_POS, STATION_CONFIGS } from './data';
+import { CUSTOMER_LINGER_SECONDS, CUSTOMER_MESS_CHANCE, ENTRANCE_POS } from './data';
 import { Customer, KitchenState, Order } from './types';
 
 /**
@@ -34,7 +34,6 @@ export function spawnCustomerForOrder(state: KitchenState, order: Order): Custom
  * Transitions the paired customer to 'receiving' at the Pickup Window when order completes.
  */
 export function activateCustomerAtWindow(state: KitchenState, orderId: string, orderQuality?: number): void {
-  const windowConfig = STATION_CONFIGS.window;
   let customer = state.customers?.find((c) => c.orderId === orderId);
   if (!customer) {
     // Defensive fallback

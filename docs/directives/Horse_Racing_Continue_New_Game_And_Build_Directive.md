@@ -364,11 +364,19 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Done |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-horse-racing-continue-new-game-an-17916f |
 | Base branch | - |
+| Base commit | a01a3d842e897bd69be865b5a14891a92dd3caf0 |
+| Head commit | 1340a0b2dbd299cef6a28b704743de689083eb72 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-08 05:51 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 05:51 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-horse-racing-continue-new-game-an-17916f; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4DETEWDAW04BPY0D8BQ3BNC
+- 2026-10-08 05:52 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-horse-racing-continue-new-game-an-17916f; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 05:59 · devin · In progress → Review — Done: careerSave.ts (SAVE_KEY/hasSavedCareer/wipeSavedCareer), App.tsx Continue + two-step New Game, package.json build:horse_racing, vite.horse_racing.config.ts, standalone entry+index.html, test_horse_racing_new_game.ts. vitest: 2 files / 16 tests passed. tsc --noEmit: 0 errors (game-metadata.json was provisioned). Build/click-through not run per directive. [origin] spent: devin 4 min est. n/a
+- 2026-10-08 06:00 · robert-claude-laptop · Review → Done — note: merged via RFDGameStudio PR #237 (merge commit); browser check, build and deploy left to Robert
 <!-- queue:end -->

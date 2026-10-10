@@ -92,11 +92,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-scrapcrawl-directive |
 | Base branch | - |
-| Base commit | a654ec08d1a3c3f68f8945755f6db1f767d7415d |
+| Base commit | d94dddf663d68bad152459c87b3fd64bb1bec7ba |
+| Head commit | ee0083ba584fa9331ad3b768ec8f356a62bc3c1d |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:26 · robert-claude-laptop · none → Queued
@@ -104,4 +106,8 @@ none.
 - 2026-10-04 20:25 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-04 20:26 · dispatcher · In progress → Blocked — setup failed before spawn: setup command 'uv sync --frozen' exited 1: supports. (os error 1142)
 - 2026-10-06 18:33 · robert-claude-laptop · Blocked → Queued — Requeue: uv sync os error 1142 (hard-link cap) at worktree setup, transient; .worktrees now reaped (2 left). Laptop overseer 2026-10-06.
+- 2026-10-09 01:14 · devin (delegated) · Queued → Approved — under delegate.band-normal, delegate.rate-limit
+- 2026-10-09 01:14 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FHBGG6CKNCS3VD9E16PREB
+- 2026-10-09 01:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-09 01:23 · devin (delegated) · In progress → Review — Done: simulateRun.ts moved verbatim (SIM unarmed=0.350 crafted=0.750, 3/3 pass), knobs.ts (player_max_hp 10, loss_damage 2), runEnd.ts reads tuned() with consts exported, tuning.ts + registry entry, test_scrapcrawl_tuning.ts 5/5 pass (targets 0.35/0.75 hold, loss_damage=4 drops unarmed 0.390->0.200), test_tuning_targets.ts 5/5 incl. 'scrapcrawl targets hold at defaults', test_scrapcrawl_run_end.ts 6/6, tsc --noEmit clean. Deviation: runEnd.ts imports '../knobs' (file is in utils/, knobs.ts at game root) - the directive's './knobs' literal would not resolve.; under delegate.envelope [origin]
 <!-- queue:end -->

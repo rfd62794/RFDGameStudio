@@ -5,10 +5,19 @@ import { RotateCcw } from 'lucide-react';
 interface RestartButtonProps {
   onRestart: () => void;
   className?: string;
+  label?: string;
+  armedLabel?: string;
+  title?: string;
 }
 
 /** Two-step confirm: the first click arms for 3 seconds, a second click inside that window restarts the week. */
-export const RestartButton: React.FC<RestartButtonProps> = ({ onRestart, className = '' }) => {
+export const RestartButton: React.FC<RestartButtonProps> = ({
+  onRestart,
+  className = '',
+  label = 'Restart week',
+  armedLabel = 'Click again to restart the week',
+  title = 'Start the week over from the first screen',
+}) => {
   const [armed, setArmed] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onRestartRef = useRef(onRestart);
@@ -47,10 +56,10 @@ export const RestartButton: React.FC<RestartButtonProps> = ({ onRestart, classNa
           ? 'bg-rose-900 border-rose-600 text-rose-100'
           : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
       } ${className}`}
-      title="Start the week over from the first screen"
+      title={title}
     >
       <RotateCcw className="w-3.5 h-3.5" />
-      {armed ? 'Click again to restart the week' : 'Restart week'}
+      {armed ? armedLabel : label}
     </button>
   );
 };

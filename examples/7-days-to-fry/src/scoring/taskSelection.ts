@@ -34,7 +34,7 @@ import {
   scoreUseBathroom,
 } from './utilityScoring';
 
-export interface Action<TAgent> {
+export interface Action<_TAgent> {
   name: string;
   score: number;
 }

@@ -13,6 +13,10 @@ import {
   UPGRADE_DAY_DURATION_COST,
   UPGRADE_BRAND_RECOVERY_COST,
   UPGRADE_FRIES_UNLOCK_COST,
+  UPGRADE_COFFEE_SALES_COST,
+  UPGRADE_SODA_UNLOCK_COST,
+  COFFEE_SALES_MIN_DAY,
+  SODA_UNLOCK_MIN_DAY,
   BRAND_RECOVERY_AMOUNT,
   BUFFER_CAPACITY_INCREASE,
   STOCK_CAPACITY_INCREASE,
@@ -26,6 +30,8 @@ import {
   purchaseBufferCapacity,
   purchaseDayDuration,
   purchaseFriesUnlock,
+  purchaseCoffeeSales,
+  purchaseSodaUnlock,
   purchaseStockCapacity,
 } from '../nightShop';
 import { RestartButton } from './RestartButton';
@@ -46,12 +52,21 @@ export function isNewThisNight(
   return !wasSeenBefore;
 }
 
+export type ShopUpgradeType =
+  | 'buffer_capacity'
+  | 'stock_capacity'
+  | 'day_duration'
+  | 'brand_recovery'
+  | 'fries_unlock'
+  | 'coffee_sales'
+  | 'soda_unlock';
+
 interface NightScreenProps {
   state: KitchenState;
   onUpdatePolicy: (policy: number) => void;
   onStartNextDay: () => void;
   onRestart?: () => void;
-  onPurchaseUpgrade?: (upgradeType: 'buffer_capacity' | 'stock_capacity' | 'day_duration' | 'brand_recovery' | 'fries_unlock') => void;
+  onPurchaseUpgrade?: (upgradeType: ShopUpgradeType) => void;
 }
 
 export const NightScreen: React.FC<NightScreenProps> = ({
@@ -70,12 +85,16 @@ export const NightScreen: React.FC<NightScreenProps> = ({
   const stockAvailable = !state.purchasedUpgrades?.stock_capacity && state.dayNumber >= BASIC_UPGRADES_MIN_DAY;
   const durationAvailable = !state.purchasedUpgrades?.day_duration && state.dayNumber >= BASIC_UPGRADES_MIN_DAY;
   const brandAvailable = state.brandEquity < 100;
+  const coffeeAvailable = !state.coffeeSalesUnlocked && state.dayNumber >= COFFEE_SALES_MIN_DAY;
+  const sodaAvailable = !state.sodaUnlocked && state.dayNumber >= SODA_UNLOCK_MIN_DAY;
 
   const isFriesNew = isNewThisNight(shopItemsEverAvailable, 'fries_unlock', friesAvailable);
   const isBufferNew = isNewThisNight(shopItemsEverAvailable, 'buffer_capacity', bufferAvailable);
   const isStockNew = isNewThisNight(shopItemsEverAvailable, 'stock_capacity', stockAvailable);
   const isDurationNew = isNewThisNight(shopItemsEverAvailable, 'day_duration', durationAvailable);
   const isBrandNew = isNewThisNight(shopItemsEverAvailable, 'brand_recovery', brandAvailable);
+  const isCoffeeNew = isNewThisNight(shopItemsEverAvailable, 'coffee_sales', coffeeAvailable);
+  const isSodaNew = isNewThisNight(shopItemsEverAvailable, 'soda_unlock', sodaAvailable);
 
   React.useEffect(() => {
     if (!state.shopItemsEverAvailable) {
@@ -86,9 +105,11 @@ export const NightScreen: React.FC<NightScreenProps> = ({
     if (stockAvailable) state.shopItemsEverAvailable['stock_capacity'] = true;
     if (durationAvailable) state.shopItemsEverAvailable['day_duration'] = true;
     if (brandAvailable) state.shopItemsEverAvailable['brand_recovery'] = true;
-  }, [friesAvailable, bufferAvailable, stockAvailable, durationAvailable, brandAvailable, state]);
+    if (coffeeAvailable) state.shopItemsEverAvailable['coffee_sales'] = true;
+    if (sodaAvailable) state.shopItemsEverAvailable['soda_unlock'] = true;
+  }, [friesAvailable, bufferAvailable, stockAvailable, durationAvailable, brandAvailable, coffeeAvailable, sodaAvailable, state]);
 
-  const handlePurchase = (type: 'buffer_capacity' | 'stock_capacity' | 'day_duration' | 'brand_recovery' | 'fries_unlock') => {
+  const handlePurchase = (type: ShopUpgradeType) => {
     if (onPurchaseUpgrade) {
       onPurchaseUpgrade(type);
     } else {
@@ -97,6 +118,8 @@ export const NightScreen: React.FC<NightScreenProps> = ({
       else if (type === 'day_duration') purchaseDayDuration(state);
       else if (type === 'brand_recovery') purchaseBrandRecovery(state);
       else if (type === 'fries_unlock') purchaseFriesUnlock(state);
+      else if (type === 'coffee_sales') purchaseCoffeeSales(state);
+      else if (type === 'soda_unlock') purchaseSodaUnlock(state);
     }
   };
 
@@ -310,6 +333,76 @@ export const NightScreen: React.FC<NightScreenProps> = ({
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-black text-xs rounded-lg transition cursor-pointer disabled:cursor-not-allowed shadow-md shadow-amber-500/20"
                 >
                   ${UPGRADE_FRIES_UNLOCK_COST}
+                </button>
+              )}
+            </div>
+
+            {/* Menu Expansion: customer Coffee (Day 5) */}
+            <div className="bg-gradient-to-r from-amber-950/30 via-slate-900 to-amber-950/10 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between col-span-1 sm:col-span-2">
+              <div>
+                <div className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  Menu Expansion • Tier 2
+                  {isCoffeeNew && (
+                    <span className="text-[10px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      NEW
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm font-bold text-slate-100">Sell Coffee to Customers</div>
+                <div className="text-[11px] text-slate-400">
+                  Customers can add a coffee to their order on future shifts. Your crew keeps using the same coffee station.
+                </div>
+              </div>
+              {state.coffeeSalesUnlocked ? (
+                <span className="text-xs font-bold text-amber-400 bg-amber-950/80 px-3 py-1.5 rounded-lg border border-amber-800/60">
+                  Unlocked
+                </span>
+              ) : state.dayNumber < COFFEE_SALES_MIN_DAY ? (
+                <span className="text-xs font-bold text-slate-500 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+                  Unlocks Day {COFFEE_SALES_MIN_DAY}
+                </span>
+              ) : (
+                <button
+                  onClick={() => handlePurchase('coffee_sales')}
+                  disabled={state.cash < UPGRADE_COFFEE_SALES_COST}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-black text-xs rounded-lg transition cursor-pointer disabled:cursor-not-allowed shadow-md shadow-amber-500/20"
+                >
+                  ${UPGRADE_COFFEE_SALES_COST}
+                </button>
+              )}
+            </div>
+
+            {/* Menu Expansion: Soda (Days 6-7) */}
+            <div className="bg-gradient-to-r from-amber-950/30 via-slate-900 to-amber-950/10 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between col-span-1 sm:col-span-2">
+              <div>
+                <div className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  Menu Expansion • Tier 3
+                  {isSodaNew && (
+                    <span className="text-[10px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      NEW
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm font-bold text-slate-100">Add a Soda Fountain</div>
+                <div className="text-[11px] text-slate-400">
+                  Customers can add a soda to their order on future shifts.
+                </div>
+              </div>
+              {state.sodaUnlocked ? (
+                <span className="text-xs font-bold text-amber-400 bg-amber-950/80 px-3 py-1.5 rounded-lg border border-amber-800/60">
+                  Unlocked
+                </span>
+              ) : state.dayNumber < SODA_UNLOCK_MIN_DAY ? (
+                <span className="text-xs font-bold text-slate-500 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+                  Unlocks Day {SODA_UNLOCK_MIN_DAY}
+                </span>
+              ) : (
+                <button
+                  onClick={() => handlePurchase('soda_unlock')}
+                  disabled={state.cash < UPGRADE_SODA_UNLOCK_COST}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-black text-xs rounded-lg transition cursor-pointer disabled:cursor-not-allowed shadow-md shadow-amber-500/20"
+                >
+                  ${UPGRADE_SODA_UNLOCK_COST}
                 </button>
               )}
             </div>
