@@ -1129,8 +1129,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           if (isPrecisionUnlocked) availableWeapons.push('dmr');
 
           const chosenWeapon = availableWeapons[Math.floor(Math.random() * availableWeapons.length)];
-          const names = ['Captain Vargas', 'Agent Vance', 'Sheriff Thorne', 'Commander Hayes', 'Operative Cruz', 'Marshal Stone', 'Major Sterling', 'Director Novak'];
-          const roles = ['Tactical SWAT Unit', 'Federal Task Force', 'County Constabulary', 'Private Security Detail', 'Special Recon Group', 'High-Risk Armored Escort'];
+          const names = ['Alex Rivera', 'Sam Okafor', 'Jordan Lee', 'Priya Nair', 'Casey Moreau', 'Taylor Brandt', 'Morgan Ito', 'Dana Novak'];
+          const roles = ['Framing Crew', 'City Maintenance Dept', 'Roofing Contractor', 'Property Manager', 'Renovation Crew', 'Facilities Team'];
           const avatarColors = ['#0284c7', '#0f766e', '#7c3aed', '#d97706', '#be123c', '#4338ca'];
 
           // High-tier weapons and reputation boost bonus multiplier (1.5x to 2.2x)
