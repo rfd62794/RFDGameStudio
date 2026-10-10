@@ -8,13 +8,13 @@ than and authoritative over the 2026-10-04 pasted facts.
 
 ## Answer
 
-All 13 example embeds have no dist in this worktree — a fresh worktree has no
-`ts/dist-*/` and no `examples/*/dist/` (verified by glob here); the
-controller's checkout is what matters. Two embeds are broken in the hub per the
-10-09 capture (2 PROBLEMS): `dissonance_prototype` and `slimebreeder`. Three
-more (`bpo_sim`, `factory_idle`, `planetforge`) build cleanly but have no site
-folder yet, so they 404 until built and deployed. One unbuilt embed blocks the
-whole deploy, since the deploy prechecks every example demo before copying.
+All 13 example embeds have no dist in this worktree (a fresh worktree has no
+`ts/dist-*/` or `examples/*/dist/`; the controller's checkout is what matters).
+Two embeds are broken in the hub per the 10-09 capture (2 PROBLEMS):
+`dissonance_prototype` and `slimebreeder`. Three more (`bpo_sim`,
+`factory_idle`, `planetforge`) build cleanly but have no site folder yet, so
+they 404 until built and deployed. One unbuilt embed blocks the whole deploy,
+since the deploy prechecks every example demo before copying.
 
 ## Broken embeds (2)
 
@@ -30,8 +30,6 @@ The 10-09 check supersedes the directive's 10-04 rows: `bpo_sim`,
 `examples/filipino-bpo-simulator` does not.
 
 ## Built but no site folder yet (3)
-
-Captured `embed ... ok`; each 404s until built and deployed.
 
 | game | what config says | what exists | cause | action |
 |---|---|---|---|---|
