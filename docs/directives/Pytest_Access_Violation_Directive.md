@@ -78,7 +78,7 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
@@ -86,4 +86,5 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 **Status log**
 - 2026-10-10 · robert-claude · none → Draft — Intermittent 0xC0000005 in pre-push pytest stage; not reproduced in diagnosis.
 - 2026-10-10 00:32 · robert-claude-laptop · Draft → Queued — Queued by the laptop overseer 2026-10-10: the pre-push hook now blocks on any failed stage (PR #270), so the intermittent pytest access violation will block pushes until it is found.
+- 2026-10-10 00:38 · robert-claude-laptop · Queued → Approved — lint override: Line 42 is prose stating that tests/conftest.py does NOT exist (the real root conftest.py is the cited path); not a path to read.
 <!-- queue:end -->
