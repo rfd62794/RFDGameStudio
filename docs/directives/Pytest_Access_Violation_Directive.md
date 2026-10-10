@@ -78,11 +78,13 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-pytest-access-violation-directive |
 | Base branch | - |
 | Base commit | 14b8cc261286647081b6189da7dd08ca2c14b8d4 |
+| Head commit | d94df2e26be2b5dbea90bd57d6d8f280c1398a68 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-10 · robert-claude · none → Draft — Intermittent 0xC0000005 in pre-push pytest stage; not reproduced in diagnosis.
@@ -90,4 +92,5 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 - 2026-10-10 00:38 · robert-claude-laptop · Queued → Approved — lint override: Line 42 is prose stating that tests/conftest.py does NOT exist (the real root conftest.py is the cited path); not a path to read.
 - 2026-10-10 00:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-pytest-access-violation-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J1PWFG6V1MJEY1HBHRYJ8J
 - 2026-10-10 00:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-pytest-access-violation-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-10 01:23 · devin-overseer (delegated) · In progress → Review — SDL_VIDEODRIVER+SDL_AUDIODRIVER=dummy now set suite-wide in root conftest.py before any pygame import (several test modules set only VIDEODRIVER); -X faulthandler added to scripts/check.ps1 pytest call. 5 consecutive full runs of the hook selection clean (977 passed, exit 0 each), plus a 6th via the real pre-push hook on push. Crash itself never reproduced; fix covers the missing-dummy-driver cause and instruments the hook for the next occurrence.; under delegate.envelope [origin] spent: devin 16 min est. n/a
 <!-- queue:end -->
