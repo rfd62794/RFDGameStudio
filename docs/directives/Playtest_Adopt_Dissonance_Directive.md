@@ -113,4 +113,5 @@ none.
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:12 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-dissonance-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWSEJ3PK9ZC9TEQFN17D1T
+- 2026-10-09 23:13 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-dissonance-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
