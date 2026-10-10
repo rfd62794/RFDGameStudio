@@ -212,7 +212,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-studio-embed-dist-report-d1-5-directive |
 | Base branch | - |
@@ -231,4 +231,5 @@ none.
 - 2026-10-10 00:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J0DPM1WYCST8PAV6EGD1KB
 - 2026-10-10 00:17 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; resynced: merged main into directive/rfdgamestudio-studio-embed-dist-report-d1-5-directive (354 commit(s), clean); provisioned: uv sync --frozen
 - 2026-10-10 00:33 · devin · In progress → Review — 2026-10-10 · devin · Report written, committed and pushed (docs/state/Embed_Dist_Report_2026-10-04.md, 118 lines). Findings: 4 broken embeds (bpo_sim ex-filipino_bpo_simulator, factory_idle, planetforge, dissonance_prototype); one unbuilt demo blocks the whole deploy. Drift noted: bpo_sim/factory_idle now have linked example sources (buildable); only dissonance_prototype needs Robert's call; voiddrift_redux/grainworks standalone but still in _example_demos (set is 16 incl. slimebreeder sibling). Deploy lines verified: 762-775 discovery, 768-774 staleness, 785-792 precheck, 825-829 copy, 702/863 _prepare_site_arcade. Check tail: 36 lines (19 standalone/13 embed/4 none), PROBLEMS=dissonance_prototype,slimebreeder. uv run python --version -> Python 3.12.12. [origin] spent: devin 11 min est. n/a
+- 2026-10-10 00:40 · robert-claude-laptop · Review → Superseded — superseded_by: commit:5f3e8c778d612acb43ea5724d663f67c6a086ad1 - note: Work landed: PR #273 merged 2026-10-10 (merge commit 5f3e8c77; report only). Closed via commit evidence because the Done gate reads the merged tip as carrying no work. The report's "Broken embeds (4)" framing followed the directive's own checks, which contradicted its Step 1 capture (2 PROBLEMS); a docs follow-up PR corrects both.
 <!-- queue:end -->
