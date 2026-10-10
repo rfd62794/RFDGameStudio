@@ -227,4 +227,5 @@ none.
 - 2026-10-09 23:47 · robert-claude-laptop · Blocked → Queued — Rewritten in PR #258 (merged): Step 1 now reads the controller-captured build-demo --all --check output embedded in the directive; no vite-node in the run. Line refs refreshed against main.
 - 2026-10-09 23:56 · robert-claude-laptop · Queued → Approved
 - 2026-10-10 00:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J0DPM1WYCST8PAV6EGD1KB
+- 2026-10-10 00:17 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; resynced: merged main into directive/rfdgamestudio-studio-embed-dist-report-d1-5-directive (354 commit(s), clean); provisioned: uv sync --frozen
 <!-- queue:end -->
