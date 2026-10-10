@@ -111,7 +111,7 @@ Requeued 2026-10-10: rule 4 now ports walkHome as run-to-completion (sticky unti
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive |
 | Base branch | - |
@@ -123,4 +123,5 @@ Requeued 2026-10-10: rule 4 now ports walkHome as run-to-completion (sticky unti
 - 2026-10-09 23:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWWZKVN066VC33V08Q018N
 - 2026-10-09 23:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-09 23:57 · devin · In progress → Blocked — Parity failed as specified: measured unarmed won=0.35 (exact), crafting won=0.51 vs expected 0.75; 66/200 crafting runs bounce home-walk (rule 3 resends the one-hop walk toward target) and hit the 800-step cap. rnd order and craft-then-move checked; the spec's one-hop walkHome port diverges from the old loop's run-to-completion walkHome. Committed as-written on branch.
+- 2026-10-10 00:11 · robert-claude-laptop · Blocked → Queued — Spec fixed in PR #264 (merged): walkHome is now a multi-hop action that runs to completion inside one act call, matching the old loop (the one-hop reading bounced between rooms and measured 0.51). Continue on the same branch: replace the one-hop port with the walkHome action per rule 4, re-measure, expect crafted≈0.75 / unarmed=0.35.
 <!-- queue:end -->
