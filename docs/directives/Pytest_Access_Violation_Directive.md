@@ -15,7 +15,7 @@ hook's selection on clean origin/main (070e6381) finished with no crash
 ## 2. Reproduction attempts so far
 
 ```
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run --no-sync python -X faulthandler -m pytest \
+uv run --no-sync python -X faulthandler -m pytest \
   -m "not e2e and not slow" -q -p pytest_rerunfailures --reruns 2 --no-header -rN -p no:cacheprovider
 ```
 
@@ -38,7 +38,8 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run --no-sync python -X faulthandler -m pyte
 2. Bisect by file from the traceback, then run that file alone with `-v`.
 3. Fix at the cause (destroyed-object access, or missing dummy drivers). If it
    is only environment, set `SDL_VIDEODRIVER=dummy` and `SDL_AUDIODRIVER=dummy`
-   in a root `tests/conftest.py` before any pygame import.
+   in the root `conftest.py` (the pytest-wide conftest; there is no
+   `tests/conftest.py`) before any pygame import.
 4. Add `faulthandler_timeout`/`-X faulthandler` to `scripts/check.ps1`'s pytest
    call so the next crash names its frame in the hook output.
 
@@ -51,6 +52,26 @@ Do not touch protected repos. Do not weaken the hook. Do not mark tests
 
 Five consecutive full runs of the hook's pytest selection with no access
 violation, and the traceback-naming change in `scripts/check.ps1`.
+
+## Verification
+
+Run from the repo root in a fresh worktree. First command is the exact
+selection `scripts/check.ps1` runs in the pre-push hook; the second re-runs
+the suspect module alone. Set `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` in the shell
+first, as `scripts/check.ps1` does before its pytest call.
+
+```
+uv run --no-sync python -m pytest -m "not e2e and not slow" -q -p pytest_rerunfailures --reruns 2
+uv run --no-sync python -m pytest -v tests/test_generic_renderer.py -p pytest_rerunfailures --reruns 2
+```
+
+Expected: no `0xC0000005` / "Windows fatal exception" in either run. Exit 0 on
+the first run is the pass bar; the second is the bisect check and must also
+exit 0. Five consecutive clean runs of the first command satisfy section 5.
+
+## Sandbox needs
+
+- Exec(uv run --no-sync python -m pytest)
 
 <!-- queue:start -->
 ## Queue
