@@ -205,12 +205,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-storefront-labels-re-7667e5 |
 | Base branch | - |
+| Base commit | e649165605d74ed8cae311c13fac732c314f0d66 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:18 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:18 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-storefront-labels-re-7667e5; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HX3H2FAS88223N1BJY5KNR
 <!-- queue:end -->
