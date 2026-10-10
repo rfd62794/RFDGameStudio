@@ -148,12 +148,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-monkey-fuzz-directive |
 | Base branch | - |
+| Base commit | 5c651572eeeecbbe273fbb5b4a27d0e8ed56b1ff |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:34 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYRV8FYQ00R30GPP0K8X13
 <!-- queue:end -->
