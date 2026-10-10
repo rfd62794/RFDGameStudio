@@ -27,12 +27,11 @@ The 10-09 check supersedes the directive's 10-04 rows: `bpo_sim`,
 `factory_idle` and `planetforge` all build (`embed ... ok`). Glob-verified here:
 `examples/bpo-sim`, `examples/dissonance-prototype`,
 `examples/factory-idle-precision-armory-phase1` and `…-phase2` exist;
-`examples/filipino-bpo-simulator` does not (`bpo_sim` is its renamed id).
+`examples/filipino-bpo-simulator` does not.
 
 ## Built but no site folder yet (3)
 
-Captured as `embed ... ok`: buildable, not broken. Each 404s until built and
-deployed.
+Captured `embed ... ok`; each 404s until built and deployed.
 
 | game | what config says | what exists | cause | action |
 |---|---|---|---|---|
