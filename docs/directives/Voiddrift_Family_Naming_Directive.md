@@ -165,11 +165,13 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-voiddrift-family-naming-directive |
 | Base branch | - |
 | Base commit | 05106980aaa361b09917b4c28483ef0ebf899018 |
+| Head commit | 1b19288ed6b05c8994e12bd1ffd7096505533c54 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:29 · robert-claude-laptop · none → Queued
@@ -182,4 +184,5 @@ none.
 - 2026-10-09 23:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYTN690WQFTZR9RK6M0B4A
 - 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; resynced: merged main into directive/rfdgamestudio-voiddrift-family-naming-directive (276 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-09 23:56 · devin · In progress → Blocked — Work complete and verified (commit 1b19288e, all 9 replacements + new test; vitest 5 files/59 tests pass; tsc --noEmit clean; Python 3.12.12) but cannot push: `git push -u origin directive/rfdgamestudio-voiddrift-family-naming-directive` fails in pre-push hook - pytest collection errors on broken pygame import (pygame.base __version__ ImportError) in worktree venv, unrelated to the change. Review refused without pushed branch.
+- 2026-10-10 00:10 · robert-claude-laptop · Blocked → Review — Branch 1b19288e pushed by the controller from a clean-venv worktree (the run's own venv had python.exe swapped for pythonw, fixed in AgentFlow #672). Run's verification: vitest 5 files/59 tests, tsc clean. Python suite crashed with an access violation during the pre-push hook and the hook did not block - flagged separately. [origin] spent: devin 5 min est. n/a
 <!-- queue:end -->
