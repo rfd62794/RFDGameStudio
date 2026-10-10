@@ -103,12 +103,14 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playtest-adopt-dissonance-directive |
 | Base branch | - |
+| Base commit | 9597bdfe6b0b3cb81bf8b1722c25694fe9bbf21c |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:12 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-dissonance-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWSEJ3PK9ZC9TEQFN17D1T
 <!-- queue:end -->
