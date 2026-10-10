@@ -158,4 +158,5 @@ none.
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:34 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:47 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYRV8FYQ00R30GPP0K8X13
+- 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-monkey-fuzz-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
