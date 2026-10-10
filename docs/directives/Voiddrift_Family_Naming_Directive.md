@@ -180,4 +180,5 @@ none.
 - 2026-10-09 06:27 · robert-claude-laptop · Blocked → Queued — Blocked on TierA/Phone deps, both merged to main (PR 244/247); branch has 0 commits so nothing lost. Re-measure registry.ts line (glob-derived list) per Save_Golden log.
 - 2026-10-09 23:48 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:48 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HYTN690WQFTZR9RK6M0B4A
+- 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; resynced: merged main into directive/rfdgamestudio-voiddrift-family-naming-directive (276 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
