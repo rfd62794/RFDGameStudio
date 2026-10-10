@@ -77,7 +77,7 @@ corpworld | embed | embedUrl | dist | card
 kingmaker_squads | embed | embedUrl | dist | card
 ```
 
-The four `embedUrl` games with no site folder (`filipino_bpo_simulator`, `factory_idle`, `planetforge`, `dissonance_prototype`) are the broken embeds: the studio hub app's `GameLoader` renders `embedUrl` in a frame, so each shows a 404 inside the hub (the site cards do not list them).
+The `embedUrl` games with no site folder are not all broken: the captured Step 1 output decides. Its PROBLEMS lines are the broken embeds (the studio hub app's `GameLoader` renders `embedUrl` in a frame, so each one shows a 404 inside the hub; the site cards do not list them). `embed ... ok` games with no site folder yet are buildable and 404 until built and deployed.
 `slimebreeder` has a site folder but its plan is `none`: its source is the sibling repo `SlimeBreeder`, built there, not from this repo.
 
 ## Step 1 input (captured by the controller 2026-10-09)
@@ -137,11 +137,8 @@ kingmaker_squads: embed (examples/kingmaker-squads): ok
 **Step 3.** Write `docs/state/Embed_Dist_Report_2026-10-04.md` with exactly these sections, in this order. Findings first, then evidence:
 
 1. `## Answer`: three sentences. How many of the 13 example embeds have no dist in `ts/dist-*` or `examples/*/dist` in this worktree (all 13, a fresh worktree has none; say so and that the controller's checkout is what matters), which four embeds are broken in the hub, and that one unbuilt embed blocks the whole deploy.
-2. `## Broken embeds (4)`: a table `game | what config says | what exists | cause | action`. Fixed causes and actions, one row each:
-   - `planetforge`: embed source exists (`examples/planetforge`), never built or deployed. Action: controller runs `cd ts && npm run build:demo -- planetforge` on the laptop, then the deploy loop, with Robert's approval for the deploy.
-   - `filipino_bpo_simulator`, `factory_idle`, `dissonance_prototype`: config says `/arcade/<id>/`, no standalone entry and no example source linked (note: `examples/filipino-bpo-simulator`, `examples/factory-idle-precision-armory-phase1` and `examples/factory-idle-precision-armory-phase2`,
-     `examples/dissonance-prototype` folders exist on disk, unlinked: check with the Glob tool and report which exist in this worktree). Action: Robert's call, spec question 2 (default: publish the three with a game loop by adding `source: { kind: 'example', slug }` and building; hide tools and origin
-     embeds by removing `embedUrl`). Do not pick for him: list the options.
+2. `## Broken embeds (N)`, where N and the ids are the PROBLEM count and ids from the captured Step 1 output: a table `game | what config says | what exists | cause | action`, one row per PROBLEM line, with the cause and action taken from that line. For a config-only problem (`nothing builds it`), the action is Robert's call, spec question 2: list the options (publish by adding a `source` and building, or hide by removing `embedUrl`); do not pick for him. For a sibling-source problem, the action is to build in the sibling repo or remove `embedUrl`; Robert decides.
+   - Then `## Built but no site folder yet (N)`, where N counts the `embed ... ok` games with an `embedUrl` and no site folder: one row per game, with the same columns. Action: controller runs `cd ts && npm run build:demo -- <id>` on the laptop, then the deploy loop, with Robert's approval for the deploy. Check each linked `examples/<slug>` path with the Glob tool and report which exist in this worktree.
 3. `## Embeds that need a build before the deploy loop can run`: the 13 example embeds from section 3 (plan `embed`), each with the command `cd ts && npm run build:demo -- <id>` and whether the site already has its folder: 9 do (`ledger`, `trinity_siege`, `7_days_to_fry`, `antsim_redux`, `facility_escape`, `systemic_extract`, `slimegarden`, `corpworld`, `kingmaker_squads`: rebuilding refreshes them) and 4 do not
    (`planetforge`, `coin_pusher_arcade`, `voiddrift_redux`, `voidrift_particle_sandbox`; only `planetforge` has an `embedUrl`, but the deploy loop iterates every example demo, so all 4 must be built too or the deploy stops; say this plainly).
 4. `## Games with a plan but no site folder that need none`: `choke_point`, `gladiator_arena`, `succession`, `voiddrift_redux` play inside the hub (7 hub cards in section 3); say so, and that `character_viewer`, `technique_showcase`, `coin_pusher_arcade`, `voidrift_particle_sandbox`
@@ -166,7 +163,7 @@ uv run python --version
 Expected: `Python 3.12.x`. Verified on this machine: `Python 3.12.12`.
 The `--all --check` tool is not run by this directive; its output is captured in the "Step 1 input" section. Expected there (2026-10-09): 36 result lines (19 standalone, 13 embed, 4 none) and exactly two `PROBLEMS` lines (`dissonance_prototype`, `slimebreeder`).
 
-Source checks (Grep tool, one call each): the report contains the headings `## Answer`, `## Broken embeds (4)`, `## How the deploy finds dists`, `## Not verified`, and each of `planetforge`, `filipino_bpo_simulator`, `factory_idle`, `dissonance_prototype`;
+Source checks (Grep tool, one call each): the report contains the headings `## Answer`, `## Broken embeds (N)` (N and the ids = the PROBLEM count and ids from the captured Step 1 output), `## Built but no site folder yet (N)`, `## How the deploy finds dists`, `## Not verified`, and each PROBLEM id from that output;
 `git status` shows only the new report file.
 
 ## 7. Rules for this run
