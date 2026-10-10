@@ -29,7 +29,7 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-100">
-                Firearms Blueprint & Schematic Codex
+                Tool Blueprint & Schematic Codex
               </h2>
               <p className="text-xs text-slate-400">
                 Formula compositions, component costs, and retail margins.
@@ -91,7 +91,7 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
               <Zap size={14} className="text-amber-400" />
-              Firearm Assembly Formulations
+              Tool Assembly Formulations
             </h3>
 
             <div className="space-y-3">
@@ -182,10 +182,10 @@ export const RecipeBookModal: React.FC<RecipeBookModalProps> = ({
               • <strong>Fitter Buffering:</strong> An Assembly Fitter collects incoming parts in its internal buffer until all parts for the highest-value available recipe arrive.
             </p>
             <p className="leading-relaxed text-slate-300">
-              • <strong>Storefront Buffer:</strong> Packing Crates deliver finished firearms directly into the Storefront Shelf. AI Customer Agents automatically purchase available stock.
+              • <strong>Storefront Buffer:</strong> Packing Crates deliver finished tools directly into the Storefront Shelf. AI Customer Agents automatically purchase available stock.
             </p>
             <p className="leading-relaxed text-slate-300">
-              • <strong>Preventing Missed Sales:</strong> Maintain a steady conveyor flow of finished weapons so customer patience bars do not expire.
+              • <strong>Preventing Missed Sales:</strong> Maintain a steady conveyor flow of finished tools so customer patience bars do not expire.
             </p>
           </div>
         </div>
