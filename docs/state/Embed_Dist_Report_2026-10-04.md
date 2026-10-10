@@ -8,33 +8,34 @@ than and authoritative over the 2026-10-04 pasted facts.
 
 ## Answer
 
-All 13 example embeds have no dist in this worktree — a fresh worktree has no
-`ts/dist-*/` and no `examples/*/dist/` (verified by glob here); the
-controller's checkout is what matters for the real deploy. Four embeds are
-broken in the hub: `bpo_sim` (renamed from `filipino_bpo_simulator`),
-`factory_idle`, `planetforge` and `dissonance_prototype` — each declares an
-`embedUrl` of `/arcade/<id>/` with no `static/arcade/<id>/` folder on the
-site, so `GameLoader` renders a 404 frame. The deploy prechecks every example
-demo before copying anything and errors on the first one without a dist, so
-one unbuilt embed blocks the deploy of everything.
+All 13 example embeds have no dist in this worktree (a fresh worktree has no
+`ts/dist-*/` or `examples/*/dist/`; the controller's checkout is what matters).
+Two embeds are broken in the hub per the 10-09 capture (2 PROBLEMS):
+`dissonance_prototype` and `slimebreeder`. Three more (`bpo_sim`,
+`factory_idle`, `planetforge`) build cleanly but have no site folder yet, so
+they 404 until built and deployed. One unbuilt embed blocks the whole deploy,
+since the deploy prechecks every example demo before copying.
 
-## Broken embeds (4)
+## Broken embeds (2)
+
+| game | what config says | what exists | cause | action |
+|---|---|---|---|---|
+| `dissonance_prototype` | `embedUrl /arcade/dissonance_prototype/`; no `source` field | `examples/dissonance-prototype/` exists on disk but is unlinked; plan `none` → PROBLEMS: "config has embedUrl /arcade/dissonance_prototype/ but nothing builds it: no standalone entry and no example source" | config points at a URL nothing builds | Robert's call (spec §f q2): publish by adding `source: { kind: 'example', slug: 'dissonance-prototype' }` and building, or hide it by removing `embedUrl` |
+| `slimebreeder` | `embedUrl /arcade/slimebreeder/`; `source: { kind: 'sibling', repo: 'SlimeBreeder' }` | site folder `static/arcade/slimebreeder/` exists (pasted site facts); plan `none` → PROBLEMS: "source {"kind":"sibling","repo":"SlimeBreeder"} has no examples/<slug>/package.json" | sibling source is built in the `SlimeBreeder` repo, not here; this repo's `build:demo` cannot build it | build the `SlimeBreeder` repo's own `dist/` in that repo (outside this worktree), or remove `embedUrl`; Robert decides |
+
+The 10-09 check supersedes the directive's 10-04 rows: `bpo_sim`,
+`factory_idle` and `planetforge` all build (`embed ... ok`). Glob-verified here:
+`examples/bpo-sim`, `examples/dissonance-prototype`,
+`examples/factory-idle-precision-armory-phase1` and `…-phase2` exist;
+`examples/filipino-bpo-simulator` does not.
+
+## Built but no site folder yet (3)
 
 | game | what config says | what exists | cause | action |
 |---|---|---|---|---|
 | `planetforge` | `embedUrl /arcade/planetforge/`; `source: examples/planetforge` | example source tracked; no dist; no site folder | source linked, never built or deployed | controller runs `cd ts && npm run build:demo -- planetforge` on the laptop, then the deploy loop; Robert approves any deploy |
 | `bpo_sim` (was `filipino_bpo_simulator`) | `embedUrl /arcade/bpo_sim/`; `source: examples/bpo-sim` | `examples/bpo-sim` tracked; no dist; no site folder | renamed and source linked since 10-04; never built or deployed | same as `planetforge` |
 | `factory_idle` | `embedUrl /arcade/factory_idle/`; `source: examples/factory-idle-precision-armory-phase2` | `phase1` and `phase2` example folders tracked; no dist; no site folder | source linked since 10-04; never built or deployed | same as `planetforge` |
-| `dissonance_prototype` | `embedUrl /arcade/dissonance_prototype/`; no `source` field | `examples/dissonance-prototype/` exists on disk but is unlinked; plan `none` → PROBLEMS | config points at a URL nothing builds | Robert's call (spec §f q2): publish by adding `source: { kind: 'example', slug: 'dissonance-prototype' }` and building, or hide it by removing `embedUrl` |
-
-The causes above differ from the directive's prescribed rows, which were
-written against the 10-04 facts: `filipino_bpo_simulator` and `factory_idle`
-had no linked example source then, but the 10-09 check shows both do now, so
-only `dissonance_prototype` still needs a config decision (spec default:
-"publish the 3 with a game loop, hide tools and origin embeds"). Glob-verified
-in this worktree: `examples/bpo-sim`, `examples/dissonance-prototype`,
-`examples/factory-idle-precision-armory-phase1` and `…-phase2` all exist;
-`examples/filipino-bpo-simulator` does not.
 
 ## Embeds that need a build before the deploy loop can run
 
