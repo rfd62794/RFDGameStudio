@@ -179,12 +179,12 @@
     {
       "id": "voiddrift",
       "path": "ts/src/games/voiddrift",
-      "label": "VoidRift"
+      "label": "VoidDrift"
     },
     {
       "id": "voiddrift_redux",
       "path": "ts/src/games/voiddrift_redux",
-      "label": "VoidDrift Redux"
+      "label": "VoidDrift: Core Loop"
     },
     {
       "id": "wire_rust",
