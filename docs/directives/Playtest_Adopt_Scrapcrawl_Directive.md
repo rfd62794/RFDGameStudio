@@ -111,11 +111,13 @@ Requeued 2026-10-10: rule 4 now ports walkHome as run-to-completion (sticky unti
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive |
 | Base branch | - |
 | Base commit | b4667e53ec6daa48e74e4f31d98f9328613fdcb0 |
+| Head commit | 5722a46ae88012d5894fe9e51b8da0012f6a8e78 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
@@ -127,4 +129,5 @@ Requeued 2026-10-10: rule 4 now ports walkHome as run-to-completion (sticky unti
 - 2026-10-10 00:12 · robert-claude-laptop · Queued → Approved
 - 2026-10-10 00:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J06Q18RGN9W2Y6NQDQ1SCZ
 - 2026-10-10 00:12 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; resynced: merged main into directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive (74 commit(s), clean); provisioned: uv sync --frozen
+- 2026-10-10 00:22 · devin · In progress → Review — walkHome ported as run-to-completion action; vitest test_playtest_scrapcrawl.ts 6/6 pass, parity exact unarmed won=0.35 crafted won=0.75; regression test_scrapcrawl_sim_runs.ts 3/3 SIM unarmed=0.350 crafted=0.750; tsc --noEmit clean. Reports: unarmed 'Runs: 200 | lost 65% | won 35% | len med 11 p95 12 max 12', crafting 'Runs: 200 | lost 25% | won 75% | len med 17 p95 21 max 22', no violations. Committed 5722a46a and pushed. Note: pre-push hook's python suite crashed on unrelated pygame_gui access violation in test_generic_renderer.py; push still completed. [origin] spent: devin 46 min est. n/a
 <!-- queue:end -->
