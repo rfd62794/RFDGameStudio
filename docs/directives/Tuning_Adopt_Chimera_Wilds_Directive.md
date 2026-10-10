@@ -93,7 +93,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive |
 | Base branch | - |
@@ -111,4 +111,5 @@ none.
 - 2026-10-09 01:13 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FH9MWNVRP6039WPGCRASKS
 - 2026-10-09 01:13 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-chimera-wilds-directive; copied ts/src/games/game-metadata.json; resynced: merged main into directive/rfdgamestudio-tuning-adopt-chimera-wilds-directive (412 commits; queue-file conflicts auto-resolved: docs/directives/Tuning_Adopt_Chimera_Wilds_Directive.md); provisioned: uv sync --frozen
 - 2026-10-09 01:18 · devin (delegated) · In progress → Review — Verified existing on-branch implementation matches spec; vitest: tuning 3/3 (SIM default=0.397 overridden70=0.020), balance 2/2, tuning_targets 5/5 incl. chimera_wilds targets; tsc --noEmit clean; data.yaml unchanged; diff vs main is exactly the 3 scope files.; under delegate.envelope [origin]
+- 2026-10-09 23:47 · robert-claude-laptop · Review → Done — note: PR #256 merged 2026-10-10 after Sonnet review (Test Files 3 passed, Tests 10 passed; SIM default=0.397 inside the 0.35-0.65 band). The run re-verified the earlier 8599ff39 implementation, which satisfies Scope.
 <!-- queue:end -->

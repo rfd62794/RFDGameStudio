@@ -92,7 +92,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-tuning-adopt-scrapcrawl-directive |
 | Base branch | - |
@@ -110,4 +110,5 @@ none.
 - 2026-10-09 01:14 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4FHBGG6CKNCS3VD9E16PREB
 - 2026-10-09 01:14 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-tuning-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-09 01:23 · devin (delegated) · In progress → Review — Done: simulateRun.ts moved verbatim (SIM unarmed=0.350 crafted=0.750, 3/3 pass), knobs.ts (player_max_hp 10, loss_damage 2), runEnd.ts reads tuned() with consts exported, tuning.ts + registry entry, test_scrapcrawl_tuning.ts 5/5 pass (targets 0.35/0.75 hold, loss_damage=4 drops unarmed 0.390->0.200), test_tuning_targets.ts 5/5 incl. 'scrapcrawl targets hold at defaults', test_scrapcrawl_run_end.ts 6/6, tsc --noEmit clean. Deviation: runEnd.ts imports '../knobs' (file is in utils/, knobs.ts at game root) - the directive's './knobs' literal would not resolve.; under delegate.envelope [origin]
+- 2026-10-09 23:57 · robert-claude-laptop · Review → Done — note: PR #259 merged 2026-10-10 after Sonnet review and a main resync (4 files / 20 tests passed on the merged tree; SIM unarmed=0.350 crafted=0.750 unchanged; pre-push hook all checks passed in 367s).
 <!-- queue:end -->

@@ -16,10 +16,10 @@ this run turns the result into one page Robert can decide from. The site repo (`
 
 Measured by reading the deploy tool (`studio_deploy_arcade`, `studio_mcp/tools.py`), do not take it from memory:
 
-- It discovers standalone builds by scanning `ts/` for folders named `dist-<gameId>/` that contain `index.html` (lines 759-769) and copies each to the site's `static/arcade/<gameId>/` (line 825). That is exactly where `build:demo` (D1.4) writes.
-- Every demo returned by `example_demos` (the 13 example embeds plus the sibling-repo `slimebreeder`, 14 in all) that has no `ts/dist-<gameId>/` must have `<source root>/dist/` (`examples/<slug>/dist/`; the sibling repo's own `dist/`) (lines 784-791), otherwise the whole deploy returns an error: "demo '<slug>' has neither ts/dist-<id>/index.html nor <path> / dist/. Build it first." One unbuilt embed blocks the deploy of everything.
-- A `ts/dist-<id>/` older than `ts/src/games/<id>/` is refused as stale (lines 764-769).
-- After copying, `_prepare_site_arcade` (line 701) exports the arcade manifest, injects return pills and refreshes `arcade_health.json` through the site repo's scripts.
+- It discovers standalone builds by scanning `ts/` for folders named `dist-<gameId>/` that contain `index.html` (lines 762-775) and copies each to the site's `static/arcade/<gameId>/` (lines 826-829). That is exactly where `build:demo` (D1.4) writes.
+- Every demo returned by `example_demos` (the 13 example embeds plus the sibling-repo `slimebreeder`, 14 in all) that has no `ts/dist-<gameId>/` must have `<source root>/dist/` (`examples/<slug>/dist/`; the sibling repo's own `dist/`) (lines 785-792), otherwise the whole deploy returns an error: "demo '<slug>' has neither ts/dist-<id>/index.html nor <path> / dist/. Build it first." One unbuilt embed blocks the deploy of everything.
+- A `ts/dist-<id>/` older than `ts/src/games/<id>/` is refused as stale (lines 769-775).
+- After copying, `_prepare_site_arcade` (defined at line 702, called at line 863) exports the arcade manifest, injects return pills and refreshes `arcade_health.json` through the site repo's scripts.
 
 ## 2. Scope
 
@@ -80,9 +80,57 @@ kingmaker_squads | embed | embedUrl | dist | card
 The four `embedUrl` games with no site folder (`filipino_bpo_simulator`, `factory_idle`, `planetforge`, `dissonance_prototype`) are the broken embeds: the studio hub app's `GameLoader` renders `embedUrl` in a frame, so each shows a 404 inside the hub (the site cards do not list them).
 `slimebreeder` has a site folder but its plan is `none`: its source is the sibling repo `SlimeBreeder`, built there, not from this repo.
 
+## Step 1 input (captured by the controller 2026-10-09)
+
+The controller ran `ts/tools/build-demo.ts --all --check` (via `npx vite-node`, from the `ts` directory) in the live checkout on 2026-10-09 (read-only `--check`; exit code 1 because of the two PROBLEMS lines). Full output, 36 result lines (19 standalone, 13 embed, 4 none) and 2 PROBLEMS:
+
+```text
+dissonance: standalone (vite.dissonance.config.ts): ok
+slimeworld: standalone (vite.slimeworld.config.ts): ok
+shoal: standalone (vite.shoal.config.ts): ok
+voiddrift: none: ok
+  warn: no standalone entry and no example source
+horse_racing: standalone (vite.horse_racing.config.ts): ok
+slither_rogue: standalone (vite.slither_rogue.config.ts): ok
+mutant_battle_ball: standalone (vite.mutant_battle_ball.config.ts): ok
+slime_coin: standalone (vite.slime_coin.config.ts): ok
+chimera_wilds: standalone (vite.chimera_wilds.config.ts): ok
+scrapcrawl: standalone (vite.scrapcrawl.config.ts): ok
+wire_rust: standalone (vite.wire_rust.config.ts): ok
+choke_point: standalone (vite.choke_point.config.ts): ok
+bpo_sim: embed (examples/bpo-sim): ok
+ledger: embed (examples/ledger): ok
+trinity_siege: embed (examples/trinity-siege): ok
+7_days_to_fry: embed (examples/7-days-to-fry): ok
+antsim_redux: embed (examples/antsim-redux): ok
+facility_escape: embed (examples/facility-escape): ok
+systemic_extract: embed (examples/systemic-extract): ok
+coin_pusher_arcade: embed (examples/coin-pusher-arcade): ok
+  warn: config has no embedUrl (the embed is not served at /arcade/<id>/)
+factory_idle: embed (examples/factory-idle-precision-armory-phase2): ok
+planetofgreed: standalone (vite.planetofgreed.config.ts): ok
+planetforge: embed (examples/planetforge): ok
+gladiator_arena: standalone (vite.gladiator_arena.config.ts): ok
+voiddrift_redux: standalone (vite.voiddrift_redux.config.ts): ok
+grainworks: standalone (vite.grainworks.config.ts): ok
+succession: standalone (vite.succession.config.ts): ok
+house_of_kings_collab: standalone (vite.house_of_kings_collab.config.ts): ok
+character_viewer: standalone (vite.character_viewer.config.ts): ok
+technique_showcase: standalone (vite.demo.config.ts): ok
+role_symbol_viewer: none: ok
+  warn: no standalone entry and no example source
+dissonance_prototype: none: PROBLEMS
+  problem: config has embedUrl /arcade/dissonance_prototype/ but nothing builds it: no standalone entry and no example source
+slimegarden: embed (examples/slimegarden): ok
+slimebreeder: none: PROBLEMS
+  problem: config has embedUrl /arcade/slimebreeder/ but nothing builds it: source {"kind":"sibling","repo":"SlimeBreeder"} has no examples/<slug>/package.json
+corpworld: embed (examples/corpworld): ok
+kingmaker_squads: embed (examples/kingmaker-squads): ok
+```
+
 ## 4. The work
 
-**Step 1.** Run `ts/tools/build-demo.ts --all --check` (via `npx vite-node`, from the `ts` directory) and check that its 36 result lines match the studio-side columns above (plan kind and embedUrl). If one differs, say which in the report; do not change anything.
+**Step 1.** Do not run the tool (vite-node is refused in this sandbox). Read the captured output in the "Step 1 input" section above and check that its 36 result lines match the studio-side columns in section 3 (plan kind and embedUrl). The captured output is newer than section 3 and is the authority for the studio-side columns. Where it differs, say which games differ in the report (known drift: `filipino_bpo_simulator` is now `bpo_sim`, `voidrift_particle_sandbox` is now `grainworks`, `factory_idle` now builds, only `dissonance_prototype` and `slimebreeder` report PROBLEMS); do not change anything.
 
 **Step 2.** Read the deploy tool lines named in section 1 and confirm the four bullets there are still accurate against the file (line numbers can drift; report the real ones).
 
@@ -116,10 +164,7 @@ The report is plain prose and tables, no code changes, under 120 lines.
 uv run python --version
 ```
 Expected: `Python 3.12.x`. Verified on this machine: `Python 3.12.12`.
-```
-cd ts && npx vite-node tools/build-demo.ts --all --check
-```
-Expected (verified 2026-10-04 on D1.1 plus D1.4): exit 1, 36 result lines (14 standalone, 13 embed, 9 none), exactly four `PROBLEMS` lines (`filipino_bpo_simulator`, `factory_idle`, `dissonance_prototype`, `slimebreeder`).
+The `--all --check` tool is not run by this directive; its output is captured in the "Step 1 input" section. Expected there (2026-10-09): 36 result lines (19 standalone, 13 embed, 4 none) and exactly two `PROBLEMS` lines (`dissonance_prototype`, `slimebreeder`).
 
 Source checks (Grep tool, one call each): the report contains the headings `## Answer`, `## Broken embeds (4)`, `## How the deploy finds dists`, `## Not verified`, and each of `planetforge`, `filipino_bpo_simulator`, `factory_idle`, `dissonance_prototype`;
 `git status` shows only the new report file.
@@ -127,7 +172,7 @@ Source checks (Grep tool, one call each): the report contains the headings `## A
 ## 7. Rules for this run
 
 - This run is NON-INTERACTIVE. A tool call that needs a confirmation is rejected and the run ends mid-task.
-- ONE simple command per tool call. No `;`, `&&`, `||`, `|` chains and no redirects, with the single exception of the `cd ts && npx vite-node` build-demo command in the code block above. Do not use `ls`, `Get-ChildItem` or `cat`: use Read, Glob and Grep. No live process probing.
+- ONE simple command per tool call. No `;`, `&&`, `||`, `|` chains and no redirects, with no exceptions. Do not run `vite-node` at all. Do not use `ls`, `Get-ChildItem` or `cat`: use Read, Glob and Grep. No live process probing.
 - Do not install, download or fetch anything. Do not read outside this worktree. Do not search or hunt for facts: every path and fact you need is above or in the files named in Read first. If a path is missing or a quoted fact differs from the file, say so in the report; if
   `ts/tools/build-demo.ts` does not exist, STOP (D1.4 has not merged) and write that in the Status row.
 - Never commit to main, never push, never deploy. Work stays on your `directive/<slug>` branch; commit there. Only Robert merges.
@@ -167,7 +212,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-studio-embed-dist-report-d1-5-directive |
 | Base branch | - |
@@ -179,4 +224,6 @@ none.
 - 2026-10-06 19:26 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; lane=default; model=swe-2-high; persona=steady-builder
 - 2026-10-06 19:27 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-studio-embed-dist-report-d1-5-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-06 19:29 · devin-overseer (delegated) · In progress → Blocked — Step 1 cannot run: all forms refused - `cd ts && npx vite-node tools/build-demo.ts --all --check`, `npm run build:demo -- --all --check`, `npx vite-node tools/build-demo.ts --all --check` (vite-node not in allowed commands). Step 2 verified OK: real deploy-tool lines are 762-775 (standalone dist-*/index.html discovery + staleness 768-774), 785-792 (example dist precheck), 826-829 (copy to static/arcade/<id>), 702/863 (_prepare_site_arcade). Report not written - needs the real --all --check tail.; under delegate.envelope
+- 2026-10-09 23:47 · robert-claude-laptop · Blocked → Queued — Rewritten in PR #258 (merged): Step 1 now reads the controller-captured build-demo --all --check output embedded in the directive; no vite-node in the run. Line refs refreshed against main.
+- 2026-10-09 23:56 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->

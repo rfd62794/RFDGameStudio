@@ -103,15 +103,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-adopt-dissonance-directive |
 | Base branch | - |
 | Base commit | 9597bdfe6b0b3cb81bf8b1722c25694fe9bbf21c |
+| Head commit | 881967f563d890948e5abeb38c4661a8a779392b |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 17:47 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:12 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:13 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-dissonance-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWSEJ3PK9ZC9TEQFN17D1T
 - 2026-10-09 23:13 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-dissonance-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-09 23:37 · devin · In progress → Review — devin · test_playtest_dissonance.ts: 7 passed (7) — seeds 1-4 victory/victory/game_over/game_over, both outcomes reachable, seed 2 deterministic, random seeds 1-20: 20 runs, no violations (game_over 50% | victory 50%, len med 25/p95 29/max 32); test_dissonance_bot_run.ts still 5 passed; npx tsc --noEmit clean; only the 2 Scope files changed; pushed to directive branch. Pre-push hook note: its bundled pytest leg crashed inside pygame_gui (native access violation, horse_racing renderer test) — pre-existing environmental issue unrelated to this change; push still succeeded. [origin] spent: devin 21 min est. n/a
+- 2026-10-10 00:04 · robert-claude-laptop · Review → Done — note: PR #262 merged 2026-10-10 after Sonnet review (7 + 5 tests passed; 20 random runs, no violations).
 <!-- queue:end -->

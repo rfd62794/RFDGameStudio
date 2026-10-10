@@ -51,14 +51,14 @@ export const SimulationHeader: React.FC<SimulationHeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base font-extrabold tracking-tight text-white">
-                SlimeWorld
+                PlanetForge
               </h1>
               <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-700/60">
-                Phase: Soil Upgrade + Monument
+                Ring World
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              32-Tile Ring Engine • ADR 002 Deterministic Simulation
+              Nurture a 32-tile ring world, one sector at a time
             </p>
           </div>
         </div>
