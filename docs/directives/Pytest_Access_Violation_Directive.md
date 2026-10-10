@@ -89,4 +89,5 @@ exit 0. Five consecutive clean runs of the first command satisfy section 5.
 - 2026-10-10 00:32 · robert-claude-laptop · Draft → Queued — Queued by the laptop overseer 2026-10-10: the pre-push hook now blocks on any failed stage (PR #270), so the intermittent pytest access violation will block pushes until it is found.
 - 2026-10-10 00:38 · robert-claude-laptop · Queued → Approved — lint override: Line 42 is prose stating that tests/conftest.py does NOT exist (the real root conftest.py is the cited path); not a path to read.
 - 2026-10-10 00:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-pytest-access-violation-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J1PWFG6V1MJEY1HBHRYJ8J
+- 2026-10-10 00:39 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-pytest-access-violation-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
