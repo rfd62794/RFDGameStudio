@@ -165,7 +165,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-voiddrift-family-naming-directive |
 | Base branch | - |
@@ -185,4 +185,5 @@ none.
 - 2026-10-09 23:48 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-voiddrift-family-naming-directive; resynced: merged main into directive/rfdgamestudio-voiddrift-family-naming-directive (276 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-09 23:56 · devin · In progress → Blocked — Work complete and verified (commit 1b19288e, all 9 replacements + new test; vitest 5 files/59 tests pass; tsc --noEmit clean; Python 3.12.12) but cannot push: `git push -u origin directive/rfdgamestudio-voiddrift-family-naming-directive` fails in pre-push hook - pytest collection errors on broken pygame import (pygame.base __version__ ImportError) in worktree venv, unrelated to the change. Review refused without pushed branch.
 - 2026-10-10 00:10 · robert-claude-laptop · Blocked → Review — Branch 1b19288e pushed by the controller from a clean-venv worktree (the run's own venv had python.exe swapped for pythonw, fixed in AgentFlow #672). Run's verification: vitest 5 files/59 tests, tsc clean. Python suite crashed with an access violation during the pre-push hook and the hook did not block - flagged separately. [origin] spent: devin 5 min est. n/a
+- 2026-10-10 00:14 · robert-claude-laptop · Review → Done — note: PR #265 merged 2026-10-10 after Sonnet review (5 files / 59 tests passed, tsc clean; labels VoidDrift / VoidDrift: Core Loop / GrainWorks). Arcade manifest export queued as a controller follow-up.
 <!-- queue:end -->
