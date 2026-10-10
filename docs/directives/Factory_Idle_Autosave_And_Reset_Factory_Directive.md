@@ -402,4 +402,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:20 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HY7T23WGZEDTYE5ZSY0JJ8
+- 2026-10-09 23:38 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
 <!-- queue:end -->
