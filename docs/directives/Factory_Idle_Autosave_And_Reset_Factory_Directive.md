@@ -392,12 +392,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d |
 | Base branch | - |
+| Base commit | 66629d10752d7593715bc7903cc33676a38032b9 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:20 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:38 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-autosave-and-reset-f-18a08d; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HY7T23WGZEDTYE5ZSY0JJ8
 <!-- queue:end -->
