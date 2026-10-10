@@ -8,7 +8,18 @@
 toplevel="$(git rev-parse --show-toplevel)"
 zero="0000000000000000000000000000000000000000"
 run_checks() {
-    exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$toplevel/scripts/check.ps1"
+    # 2026-10-10: do NOT `exec` here and do NOT pass check.ps1's raw exit code
+    # through. A stage killed by a native crash exits with an NTSTATUS code such
+    # as -1073741819 (0xC0000005); Git for Windows does not treat that status as
+    # a hook failure, so the push went through with a failed stage. Collapse any
+    # non-zero status to exactly 1.
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$toplevel/scripts/check.ps1"
+    rc=$?
+    if [ "$rc" -ne 0 ]; then
+        echo "pre-push: checks failed (exit $rc); push blocked. Skip once with: git push --no-verify" >&2
+        exit 1
+    fi
+    exit 0
 }
 
 all_files=""
