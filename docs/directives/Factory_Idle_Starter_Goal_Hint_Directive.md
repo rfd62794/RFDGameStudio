@@ -257,7 +257,7 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-factory-idle-starter-goal-hint-directive |
 | Base branch | - |
@@ -276,4 +276,5 @@ none. Deploying is Robert's, after review.
 - 2026-10-10 00:31 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J19Q4PEGW0FTK0SPHZD3MJ
 - 2026-10-10 00:32 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; resynced: merged main into directive/rfdgamestudio-factory-idle-starter-goal-hint-directive (250 commit(s), clean); provisioned: uv sync --frozen; venv pythonw swap
 - 2026-10-10 00:57 · devin-overseer (delegated) · In progress → Review — starterGoal.ts + StarterGoalBanner.tsx + test created verbatim; App.tsx banner wired under Header (3 edits only); vitest 3/3 pass, tsc --noEmit clean (0 errors, metadata file present); pushed 3a2efd97; first push rejected by flaky WinError-6 hook run, retry passed all gates in 340s; under delegate.envelope [origin] spent: devin 7 min est. n/a
+- 2026-10-10 01:00 · robert-claude-laptop · Review → Done — note: PR #275 merged 2026-10-10 after Sonnet review (12 tests passed incl. persistence/labels regression; tsc clean; reuses the merged persistence layer; only new constant is the target 5). Controller screenshots (1280x720, 390x844) still owed.
 <!-- queue:end -->
