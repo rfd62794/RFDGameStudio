@@ -418,12 +418,14 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-planetforge-autosave-and-first-st-5ab37d |
 | Base branch | - |
+| Base commit | 793b5032787db44df24960a5ff7ccf2735172dbe |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
 - 2026-10-09 23:16 · robert-claude-laptop · Queued → Approved
+- 2026-10-09 23:16 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-planetforge-autosave-and-first-st-5ab37d; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWZZAB00CKC89PDJPGZW7Y
 <!-- queue:end -->
