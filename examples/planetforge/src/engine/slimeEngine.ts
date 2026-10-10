@@ -1,5 +1,5 @@
 /**
- * SlimeWorld God-Game Engine
+ * PlanetForge God-Game Engine
  * Implements ADR 002 + Phase Directive (SectorZone Soil Upgrade & Monument Construction)
  */
 
