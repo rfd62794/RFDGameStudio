@@ -109,7 +109,7 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive |
 | Base branch | - |
@@ -120,4 +120,5 @@ none.
 - 2026-10-09 23:14 · robert-claude-laptop · Queued → Approved
 - 2026-10-09 23:14 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4HWWZKVN066VC33V08Q018N
 - 2026-10-09 23:15 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; venv pythonw swap
+- 2026-10-09 23:57 · devin · In progress → Blocked — Parity failed as specified: measured unarmed won=0.35 (exact), crafting won=0.51 vs expected 0.75; 66/200 crafting runs bounce home-walk (rule 3 resends the one-hop walk toward target) and hit the 800-step cap. rnd order and craft-then-move checked; the spec's one-hop walkHome port diverges from the old loop's run-to-completion walkHome. Committed as-written on branch.
 <!-- queue:end -->
