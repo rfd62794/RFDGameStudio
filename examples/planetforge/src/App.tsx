@@ -1,5 +1,5 @@
 /**
- * SlimeWorld (God-Game) - Main Application
+ * PlanetForge (God-Game) - Main Application
  * Phase: SectorZone Soil Upgrade Pass + Monument Construction (ADR 002 Engine)
  */
 
@@ -24,14 +24,36 @@ import { RingVisualizer } from './components/RingVisualizer';
 import { InspectorPanel } from './components/InspectorPanel';
 import { EventLog } from './components/EventLog';
 import { TestRunnerModal } from './components/TestRunnerModal';
+import { debugToolsEnabled } from './debugTools';
+import { evaluate_goal } from './goal';
+import { GoalBanner } from './components/GoalBanner';
+import { loadWorld, saveWorld, clearSave, type StorageLike } from './persistence';
+import { firstStepHint } from './hint';
+
+function browserStorage(): StorageLike | null {
+  try {
+    return typeof window !== 'undefined' ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function App() {
-  const [world, setWorld] = useState<WorldState>(() => create_initial_world());
+  const showDebugTools = debugToolsEnabled(window.location.search);
+  const [world, setWorld] = useState<WorldState>(() => loadWorld(browserStorage(), create_initial_world()));
+  const worldRef = useRef(world);
+  worldRef.current = world;
   const [selectedTileIdx, setSelectedTileIdx] = useState<number>(0);
   const [selectedSectorId, setSelectedSectorId] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(1);
   const [isTestModalOpen, setIsTestModalOpen] = useState<boolean>(false);
+  const goal = evaluate_goal(world);
+
+  // A finished world stops ticking; the finish screen offers a fresh start.
+  useEffect(() => {
+    if (goal.status !== 'playing') setIsPlaying(false);
+  }, [goal.status]);
 
   // Keep selected sector synced when tile selection changes
   const handleSelectTile = (idx: number) => {
@@ -54,6 +76,19 @@ export default function App() {
       return current;
     });
   };
+
+  // Autosave every 5 s and when the tab is hidden or closed.
+  useEffect(() => {
+    const save = () => { saveWorld(browserStorage(), worldRef.current); };
+    const id = setInterval(save, 5000);
+    window.addEventListener('beforeunload', save);
+    document.addEventListener('visibilitychange', save);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('beforeunload', save);
+      document.removeEventListener('visibilitychange', save);
+    };
+  }, []);
 
   // Simulation Loop
   useEffect(() => {
@@ -204,6 +239,7 @@ export default function App() {
   };
 
   const handleResetWorld = () => {
+    clearSave(browserStorage());
     setIsPlaying(false);
     setWorld(create_initial_world());
     setSelectedTileIdx(0);
@@ -223,7 +259,10 @@ export default function App() {
         onSetSpeed={setSpeed}
         onResetWorld={handleResetWorld}
         onOpenTests={() => setIsTestModalOpen(true)}
+        showTestRunner={showDebugTools}
       />
+
+      <GoalBanner goal={goal} hint={firstStepHint(world.current_tick, isPlaying)} onRestart={handleResetWorld} />
 
       {/* Main God-Game Canvas Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -262,10 +301,12 @@ export default function App() {
       </main>
 
       {/* Verification & Test Suite Modal */}
-      <TestRunnerModal
-        isOpen={isTestModalOpen}
-        onClose={() => setIsTestModalOpen(false)}
-      />
+      {showDebugTools && (
+        <TestRunnerModal
+          isOpen={isTestModalOpen}
+          onClose={() => setIsTestModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

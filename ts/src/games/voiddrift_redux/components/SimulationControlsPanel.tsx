@@ -48,10 +48,11 @@ export const SimulationControlsPanel: React.FC<SimulationControlsPanelProps> = (
           <button
             id="sim-reset-btn"
             onClick={onResetSimulation}
-            className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-950 border border-slate-800 rounded transition"
-            title="Reset World"
+            className="px-3 py-1.5 text-xs font-mono font-bold flex items-center gap-1.5 text-slate-300 hover:text-slate-100 bg-slate-950 border border-slate-800 rounded transition"
+            title="Restart from the title screen"
           >
             <RotateCcw className="w-3.5 h-3.5" />
+            Restart
           </button>
         </div>
       </div>

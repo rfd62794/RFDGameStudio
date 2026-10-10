@@ -257,11 +257,16 @@ none. Deploying is Robert's, after review.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Blocked |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-factory-idle-starter-goal-hint-directive |
 | Base branch | - |
+| Base commit | b1167ae0e9dca59e15acf125e4c3f0c6d5a024c4 |
 
 **Status log**
 - 2026-10-04 14:35 · robert-claude-laptop · none → Queued
+- 2026-10-08 17:39 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 17:39 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EQASGMN359AC8V6AZ30H3R
+- 2026-10-08 17:40 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-factory-idle-starter-goal-hint-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 17:44 · devin · In progress → Blocked — Dependency missing in worktree: examples/factory-idle-precision-armory-phase2/src/engine/persistence.ts (from Factory_Idle_Autosave_And_Reset_Factory_Directive) does not exist; App.tsx has no loadState/clearSave import, no browserStorage(), no stateRef anchor. Directive says STOP if persistence.ts is absent. Needs re-dispatch on a base that includes the Autosave directive's branch.
 <!-- queue:end -->

@@ -69,12 +69,17 @@
     {
       "id": "factory_idle",
       "path": "ts/src/games/factory_idle",
-      "label": "Factory Idle: Precision Armory"
+      "label": "Factory Idle: Precision Workshop"
     },
     {
       "id": "gladiator_arena",
       "path": "ts/src/games/gladiator_arena",
       "label": "Gladiator Arena"
+    },
+    {
+      "id": "grainworks",
+      "path": "ts/src/games/grainworks",
+      "label": "GrainWorks"
     },
     {
       "id": "horse_racing",
@@ -174,17 +179,12 @@
     {
       "id": "voiddrift",
       "path": "ts/src/games/voiddrift",
-      "label": "VoidRift"
+      "label": "VoidDrift"
     },
     {
       "id": "voiddrift_redux",
       "path": "ts/src/games/voiddrift_redux",
-      "label": "VoidDrift Redux"
-    },
-    {
-      "id": "voidrift_particle_sandbox",
-      "path": "ts/src/games/voidrift_particle_sandbox",
-      "label": "VoidRift Particle Sandbox"
+      "label": "VoidDrift: Core Loop"
     },
     {
       "id": "wire_rust",

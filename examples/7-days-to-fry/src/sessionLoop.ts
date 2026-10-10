@@ -36,7 +36,7 @@ import {
   WASTE_PER_SPOILAGE,
   WAVE_INTENSITY_MULTIPLIER,
 } from './data';
-import { createOrder, getArrivalInterval, getEscalationInterval, updateDemandCurve } from './demandCurve';
+import { createOrder, getArrivalInterval, getEscalationInterval } from './demandCurve';
 import { chooseStation } from './stationAssignment';
 import { checkAutoRestock } from './stockEconomy';
 import {
@@ -146,6 +146,7 @@ export function createInitialKitchenState(): KitchenState {
     stockCapacityBonus: 0,
     unlockedStations,
     coffeeSalesUnlocked: false,
+    sodaUnlocked: false,
     brandEquity: INITIAL_BRAND_EQUITY,
     peerCorrCutNorm: 0.0,
     wasteBuffer: 0,
@@ -325,7 +326,10 @@ export function tickKitchenState(state: KitchenState, dt: number): void {
     const queueStation = state.stations.find((s) => s.id === 'queue');
     if (queueStation) {
       if (queueStation.orders.length < queueStation.bufferCapacity) {
-        const order = createOrder(state.unlockedStations.fryer ? undefined : false);
+        const order = createOrder(state.unlockedStations.fryer ? undefined : false, {
+          coffee: state.coffeeSalesUnlocked,
+          soda: !!state.sodaUnlocked,
+        });
         queueStation.orders.push(order);
         spawnCustomerForOrder(state, order);
         if (order.wantsFries) {

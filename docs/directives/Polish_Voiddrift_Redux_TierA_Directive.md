@@ -251,11 +251,19 @@ none.
 
 | Field | Value |
 |---|---|
-| Status | Queued |
-| Assigned to | devin |
-| Branch | - |
+| Status | Done |
+| Assigned to | devin-any |
+| Branch | directive/rfdgamestudio-polish-voiddrift-redux-tiera-directive |
 | Base branch | - |
+| Base commit | d6102b3218ee3f3c84ab2ad16622ded90c52a9cc |
+| Head commit | 8071fdd06e543dd06156250f5f42ef67f4d659a1 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-04 13:26 · robert-claude-laptop · none → Queued
+- 2026-10-08 18:46 · robert-claude-laptop · Queued → Approved
+- 2026-10-08 19:00 · dispatcher · Approved → In progress — dispatched devin-any on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-redux-tiera-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4EVY8M0AXZGC8XCN2E2536T
+- 2026-10-08 19:01 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-polish-voiddrift-redux-tiera-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-08 19:17 · devin · In progress → Review — Tier A done: Restart text button returns to title (handleRestart wired to sim-reset-btn); build:voiddrift_redux + standalone entry/config/html added; new test_voiddrift_redux_restart.ts. vitest 25/25 (restart+chrome+engine), regression 12/12, tsc clean, py 3.12.12. Commit 8071fdd0. [origin] spent: devin 11 min est. n/a
+- 2026-10-09 00:08 · robert-claude-laptop · Review → Done — note: merged via PR #244 (merge commit)
 <!-- queue:end -->

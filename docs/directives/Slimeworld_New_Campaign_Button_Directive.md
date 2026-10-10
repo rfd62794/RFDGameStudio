@@ -147,7 +147,7 @@ none. Review and merge are Robert's or Claude's after the run.
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Superseded |
 | Assigned to | devin |
 | Branch | directive/queue-sync4 |
 | Base branch | - |
@@ -160,4 +160,5 @@ none. Review and merge are Robert's or Claude's after the run.
 - 2026-10-04 19:49 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slimeworld-new-campaign-button-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-04 19:54 · devin · In progress → Blocked — Already on main: the spec-exact change was committed directly to main as b4385ce8 (Robert, 16:03 today - the 'prototype' the directive cites). origin/main..branch = 0 commits, so Review is refused (no delta to review). Re-verified on the worktree: python 3.12.12; vitest 4-file run = 4 files/19 tests passed; tsc --noEmit clean; aria-label="New Campaign" once; only the 2 in-scope files differ in the commit. Recommend mark Done.
 - 2026-10-05 · devin-cleanroom · Blocked → Review: impl already on main via PR #162 (f9f76d1d, spec-exact commit b4385ce8); dispatched run's Blocked note verified correct; row sync only
+- 2026-10-08 16:00 · robert-claude-laptop · Review → Superseded — superseded_by: commit:b4385ce8 - note: change already on main (b4385ce8); queue-sync4 branch held only status flips
 <!-- queue:end -->

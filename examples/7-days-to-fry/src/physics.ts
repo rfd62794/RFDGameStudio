@@ -133,6 +133,8 @@ export const PRIMARY_STATION_OWNERSHIP_BONUS = 1.35;
 export const DEMAND_ESCALATION_MIN_SECONDS = 60;
 export const DEMAND_ESCALATION_MAX_SECONDS = 300;
 export const FRIES_DEMAND_PROBABILITY = 0.6;
+export const COFFEE_DEMAND_PROBABILITY = 0.5; // share of orders that add a coffee once coffee sales are unlocked
+export const SODA_DEMAND_PROBABILITY = 0.5; // share of orders that add a soda once soda is unlocked
 export const CUSTOMER_LINGER_SECONDS = 3.5;
 
 export const SPOILAGE_CHECK_INTERVAL_SEC = 2;

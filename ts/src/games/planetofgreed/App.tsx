@@ -12,6 +12,7 @@ import { advanceDay as advanceDayEngine } from './turnEngine';
 import { PLAYER_CORP_ID, CULTURE_WHEEL, CULTURE_DEFINITIONS } from './campaignConstants';
 import { createInitialCampaign } from './campaignState';
 import { defaultContext, pickOne } from './rng';
+import { OriginsRow } from './components/OriginsRow';
 import { buildEndingViewModel, nextChapterHref, NEXT_CHAPTER_LABEL } from './endingView';
 import { getHouseStats } from './houseStats';
 import { getHouseTheme } from './houseThemes';
@@ -662,7 +663,9 @@ export default function App({ session }: GameRendererProps) {
             { id: 'new-game', label: 'New Campaign', variant: 'primary', onClick: handleTitleNewGame },
             { id: 'continue', label: 'Continue', variant: 'secondary', onClick: handleTitleContinue, disabled: !gameState },
           ]}
-        />
+        >
+          <OriginsRow mode={mode} />
+        </TitleScreen>
       </GameShell>
     );
   }

@@ -1,5 +1,5 @@
 /**
- * SlimeWorld God-Game Engine
+ * PlanetForge God-Game Engine
  * Implements ADR 002 + Phase Directive (SectorZone Soil Upgrade & Monument Construction)
  */
 
@@ -270,8 +270,6 @@ export function create_initial_world(): WorldState {
 
   // Initialize 32 tiles
   for (let i = 0; i < RING_SIZE; i++) {
-    const sectorId = Math.floor(i / TILES_PER_SECTOR);
-    
     // Preset some thematic aspect distributions for rich gameplay
     let aspects: [AspectId | null, AspectId | null, AspectId | null, AspectId | null] = [
       null,

@@ -1,5 +1,5 @@
 /**
- * SlimeWorld (God-Game) - Core Type Definitions
+ * PlanetForge (God-Game) - Core Type Definitions
  * Based on ADR 002 & Phase Directive: SectorZone Soil Upgrade Pass + Monument Construction
  */
 
