@@ -126,4 +126,5 @@ Requeued 2026-10-10: rule 4 now ports walkHome as run-to-completion (sticky unti
 - 2026-10-10 00:11 · robert-claude-laptop · Blocked → Queued — Spec fixed in PR #264 (merged): walkHome is now a multi-hop action that runs to completion inside one act call, matching the old loop (the one-hop reading bounced between rooms and measured 0.51). Continue on the same branch: replace the one-hop port with the walkHome action per rule 4, re-measure, expect crafted≈0.75 / unarmed=0.35.
 - 2026-10-10 00:12 · robert-claude-laptop · Queued → Approved
 - 2026-10-10 00:12 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4J06Q18RGN9W2Y6NQDQ1SCZ
+- 2026-10-10 00:12 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playtest-adopt-scrapcrawl-directive; resynced: merged main into directive/rfdgamestudio-playtest-adopt-scrapcrawl-directive (74 commit(s), clean); provisioned: uv sync --frozen
 <!-- queue:end -->
