@@ -87,3 +87,17 @@ TBD, ask Robert. His time per demo varies, so no review cadence is assumed.
 5. Mobile touch controls: drag-to-steer, tap-to-go, or a virtual stick? (Pointer events already used; rotate-hint layout applies.)
 6. Cabinet presentation of both modes: one card, two screenshots, genre/tag wording. config.ts currently comments Shoal as "no-player-agency" and tags it `ecosystem-sim`; that text needs updating once Evolve ships.
 7. Milestone style (accept the PROPOSED playable slices?) and review model per milestone.
+
+## Settled decision 2026-10-11 (Robert)
+
+The 2026-10-05 delivery decision "one engine, one page, two modes" is superseded. The product intent remains: Aquarium is ambient and Evolve adds control, growth, and visual evolution. The delivery boundary is now **one shared simulation core, two independently shippable experiences**:
+
+- `RFDGameStudio/shoal` remains the stable ambient Aquarium entry. It must remain independently playable and shippable.
+- `RFDGameStudio/shoal_evolve` is the sequel entry, **Shoal: Evolve**, with its own direction, roadmap, verification, persistence namespace, arcade presentation, and release lifecycle.
+- Both entries consume the existing Shoal simulation modules. Do not fork or duplicate `shoalSimulation.ts`.
+- Extract a new shared API only when the sequel demonstrates an actual second use; avoid a speculative whole-simulation refactor.
+- Any change to shared simulation code must pass both the original Shoal headless suite and Shoal: Evolve tests.
+- The first sequel slice is ecological competition, not multiplayer or a leaderboard: control one ordinary fish, compete with AI fish for algae, avoid predators, and grow visibly by one stage. Predation causes a gentle setback.
+- Progress is local-only and uses a separate storage namespace. No accounts and no cross-title progression initially.
+
+The earlier proposed M1-M4 Evolve slices move to `docs/demos/shoal_evolve/ROADMAP.md`. Shoal's own roadmap remains focused on preserving and polishing the ambient Aquarium.

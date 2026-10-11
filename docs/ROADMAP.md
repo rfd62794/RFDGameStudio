@@ -554,4 +554,40 @@ milestones:
     detail: Give the site repo M12/M13 stable exported examples for Game to Related Game or Studio Story paths. Do not deploy or copy builds to the site in this milestone.
     accept:
     - test: cd ts && npx vitest run
+- id: M11
+  title: Shoal Evolve is an independently shippable sequel over Shoal's simulation core
+  status: pending
+  exit:
+  - grep:
+      path: docs/children.json
+      pattern: shoal_evolve
+  - test: cd ts && npx vitest run tests/test_shoal_headless.ts tests/test_shoal_evolve_foundation.ts
+  - test: cd ts && npm run build
+  steps:
+  - id: M11.1
+    title: Register the sequel without forking the simulation
+    kind: refactor
+    size: S
+    value: 5
+    status: pending
+    directive: RFDGameStudio_Shoal_Evolve_Foundation_Directive.md
+    detail: Create RFDGameStudio/shoal_evolve as a separate child and arcade entry with its own docs, thin shell, persistence namespace, and release lifecycle. Reuse the existing Shoal simulation directly and extract only demonstrated second-use seams.
+    accept:
+    - grep:
+        path: docs/children.json
+        pattern: shoal_evolve
+    - test: cd ts && npx vitest run tests/test_shoal_headless.ts
+  - id: M11.2
+    title: Control one fish and grow one stage in the living reef
+    kind: feature
+    size: M
+    value: 5
+    needs:
+    - M11.1
+    status: pending
+    directive: RFDGameStudio_Shoal_Evolve_Foundation_Directive.md
+    detail: Add deterministic pointer/touch steering, competition with AI fish for algae, one visible growth threshold, and a gentle one-stage predation setback. Keep player control, growth rules, and sequel state in small dedicated modules; original Shoal remains unchanged.
+    accept:
+    - test: cd ts && npx vitest run tests/test_shoal_evolve_foundation.ts
+    - test: cd ts && npx vitest run tests/test_shoal_headless.ts
 ```
