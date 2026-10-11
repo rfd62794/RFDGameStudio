@@ -88,14 +88,16 @@ List schema, validation rules, fixtures, preserved fields, exact test output and
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-federated-arcade-source-contract--6b84f0 |
 | Base branch | main |
+| Base commit | 634b29f013c0f87e79d76171703fd77064248b54 |
 | Model | swe-2-high |
 
 **Status log**
 - 2026-10-11 · devin-laptop-repoman · none → Draft — source-side handoff for RFD_IT_Services_Site M12/M13; blocked until the site federation contract is committed
 - 2026-10-11 19:14 · robert-claude-laptop · Draft → Queued — Reviewed by Sonnet (approve-after-edit); edits merged via RFDGameStudio PR #280; site spec is not a dependency
 - 2026-10-11 19:17 · robert-claude-laptop · Queued → Approved
+- 2026-10-11 19:17 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-federated-arcade-source-contract--6b84f0; lane=explicit; model=swe-2-high; persona=steady-builder; agent_id=01M4PM325JB01GTE7R75D51SYK
 <!-- queue:end -->
