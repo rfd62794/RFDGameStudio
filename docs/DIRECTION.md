@@ -37,6 +37,23 @@ games are the product; the studio is the factory (SDD v0.4 §8, quoted in
 - Documentation follows ADR-017's four-document split:
   `/CHANGELOG.md`, `/ROADMAP.md`, `docs/adr/`, `docs/status.md`.
 
+## Website federation contract (approved 2026-10-11)
+
+RFDGameStudio remains the source of game identity, play paths, publication metadata and explicit
+relationships exported to the Arcade. The website repo owns presentation and the Office-Blog-
+Arcade federation; the Studio must not copy Hugo or WordPress concerns into the game runtime.
+
+For the unified system, the Arcade stays the playful property while sharing identity,
+accessibility and navigation behavior with the Office and Blog. Game-to-story relationships must
+be explicit manifest/source data propagated through the existing export pipeline—never inferred
+from titles and never hand-edited into the site's generated `data/arcade.json`. Ambient website
+chrome, gallery presentation and cross-site navigation stay in `RFD_IT_Services_Site`; per-game
+return/exit behavior and source metadata stay here.
+
+The coordination contract is recorded in
+`docs/notes/2026-10-11-federated-identity-handoff.md`, roadmap M10 and
+`docs/directives/Federated_Arcade_Source_Contract_Directive.md`.
+
 ## Next steps
 
 Drawn from `/ROADMAP.md` and `docs/state/StatusBoard.md` — see the

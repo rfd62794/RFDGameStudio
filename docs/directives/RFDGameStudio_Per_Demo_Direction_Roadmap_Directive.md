@@ -84,11 +84,15 @@ Demo count, how many direction blocks were appended vs. already present, how man
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Review |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-per-demo-direction-roadmap |
 | Base branch | - |
+| Base commit | 0bbdc15c4bc6f02521bcb06531f0915e84b0741a |
+| Head commit | 948613966c6ebb26c95186a34b91b935ed3c3b53 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-11 12:05 · devin-overseer (delegated) · none → Queued — under delegate.envelope
+- 2026-10-11 13:02 · devin-overseer (delegated) · Queued → Review — Implementation complete on PR #279; 38 child direction blocks and roadmaps validate, focused demo tests pass; full suites blocked by missing worktree node_modules/generated indexes.; under delegate.envelope finished outside a dispatch [origin] base commit derived: merge-base of 948613966c6ebb26c95186a34b91b935ed3c3b53 and origin/main spent: nothing recorded
 <!-- queue:end -->

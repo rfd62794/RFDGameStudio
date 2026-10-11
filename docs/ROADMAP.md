@@ -516,6 +516,45 @@ milestones:
         pattern: yaml roadmap
     - test: uv run pytest -q
 - id: M10
+  title: The Studio exports the source contract for the federated Arcade
+  status: pending
+  exit:
+  - file: docs/notes/2026-10-11-federated-identity-handoff.md
+  - test: cd ts && npx vitest run
+  steps:
+  - id: M10.1
+    title: Define explicit game-to-story and related-game manifest fields
+    kind: design
+    size: S
+    value: 5
+    status: pending
+    directive: docs/directives/Federated_Arcade_Source_Contract_Directive.md
+    detail: Coordinate with RFD_IT_Services_Site M12. Relationships are authored in Studio source and exported through the existing manifest pipeline; never inferred from titles and never hand-edited in site data. Keep website chrome and presentation outside this repo.
+    accept:
+    - file: docs/notes/2026-10-11-federated-identity-handoff.md
+  - id: M10.2
+    title: Export verified relationship metadata without changing play behavior
+    kind: feature
+    size: M
+    value: 4
+    needs: [M10.1]
+    status: pending
+    directive: docs/directives/Federated_Arcade_Source_Contract_Directive.md
+    detail: Extend the authoritative source and manifest exporter with optional exact destinations for related games and Studio/Blog stories. Preserve every existing id, URL, badge and publication contract; absence means no relationship, not a guessed fallback.
+    accept:
+    - test: cd ts && npx vitest run
+  - id: M10.3
+    title: Provide deterministic fixtures for site-side journey validation
+    kind: test
+    size: S
+    value: 4
+    needs: [M10.2]
+    status: pending
+    directive: docs/directives/Federated_Arcade_Source_Contract_Directive.md
+    detail: Give the site repo M12/M13 stable exported examples for Game to Related Game or Studio Story paths. Do not deploy or copy builds to the site in this milestone.
+    accept:
+    - test: cd ts && npx vitest run
+- id: M11
   title: Shoal Evolve is an independently shippable sequel over Shoal's simulation core
   status: pending
   exit:
@@ -525,7 +564,7 @@ milestones:
   - test: cd ts && npx vitest run tests/test_shoal_headless.ts tests/test_shoal_evolve_foundation.ts
   - test: cd ts && npm run build
   steps:
-  - id: M10.1
+  - id: M11.1
     title: Register the sequel without forking the simulation
     kind: refactor
     size: S
@@ -538,13 +577,13 @@ milestones:
         path: docs/children.json
         pattern: shoal_evolve
     - test: cd ts && npx vitest run tests/test_shoal_headless.ts
-  - id: M10.2
+  - id: M11.2
     title: Control one fish and grow one stage in the living reef
     kind: feature
     size: M
     value: 5
     needs:
-    - M10.1
+    - M11.1
     status: pending
     directive: RFDGameStudio_Shoal_Evolve_Foundation_Directive.md
     detail: Add deterministic pointer/touch steering, competition with AI fish for algae, one visible growth threshold, and a gentle one-stage predation setback. Keep player control, growth rules, and sequel state in small dedicated modules; original Shoal remains unchanged.
