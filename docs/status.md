@@ -1,6 +1,6 @@
 # RFDGameStudio — Status
 
-*Last updated: September 3 2026*
+*Last updated: October 11 2026*
 
 > **This file is a short summary.** For full history see
 > [CHANGELOG.md](../CHANGELOG.md). For future plans see
@@ -37,6 +37,12 @@
 - **BrewField** — delisted from arcade, source preserved, enemies ported to Dissonance
 - **SlimeBreeder** — removed from registry, source preserved in `ts/src/games/slimebreeder/`
 - **SlimeGarden** — removed from registry, source preserved in `ts/src/games/slimegarden/`
+
+## In flight
+
+| What | Who | Branch | Notes |
+|---|---|---|---|
+| Per-demo direction and roadmap for all 38 demos (roadmap M9) | Laptop Claude | `feature/per-demo-roadmap` | Adds docs_path to children.json and creates machine-readable DIRECTION.md/ROADMAP.md files; see `docs/directives/RFDGameStudio_Per_Demo_Direction_Roadmap_Directive.md` |
 
 ## Infrastructure
 

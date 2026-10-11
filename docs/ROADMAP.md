@@ -20,6 +20,9 @@ item names (horse_racing, mutant_battle_ball, slither_rogue) now compile;
 the only remaining `tsc` errors are three in `house_of_kings_collab`. M3 clears the five `status_unconfirmed`
 rows on the Status Board — each is an explicit "direct status check
 needed" item, and ADR-016 requires a verification method on such claims.
+M9 is new: it makes every demo an addressable child project with its own
+machine-readable direction and roadmap, so AgentFlow can propel per-demo
+work instead of treating the whole studio as one blob.
 
 ```yaml roadmap
 status: approved
@@ -461,4 +464,55 @@ milestones:
     detail: 'Foundation spec step 4 (section 7): the call(...) bridge splits {state, events}; a bare state keeps working. Event juice wins over comparison juice on the same anchor in the same update. Dissonance combat.lua emits dodge, retaliate, detonate and cauterize - the Brewfield mechanics a state comparison cannot see.'
     accept:
     - test: cd ts && npx vitest run
+- id: M9
+  title: Every demo has its own direction and roadmap the swarm can read
+  status: pending
+  exit:
+  - file: docs/children.json
+  - grep:
+      path: docs/demos/shoal/DIRECTION.md
+      pattern: yaml direction
+  - grep:
+      path: docs/demos/shoal/ROADMAP.md
+      pattern: yaml roadmap
+  - test: uv run pytest -q
+  - test: cd ts && npx vitest run
+  steps:
+  - id: M9.1
+    title: Add docs_path to docs/children.json from studio/demos.py
+    kind: refactor
+    size: S
+    value: 4
+    status: pending
+    directive: RFDGameStudio_Per_Demo_Direction_Roadmap_Directive.md
+    detail: Extend studio/demos.py Demo with docs_path, update render_children_index() to emit docs_path when docs/demos/<id>/ exists, regenerate docs/children.json, and add a test asserting docs_path coverage.
+    accept:
+    - file: docs/children.json
+    - test: uv run pytest -q
+  - id: M9.2
+    title: Add yaml direction blocks to every demo's existing DIRECTION.md
+    kind: docs
+    size: M
+    value: 4
+    status: pending
+    directive: RFDGameStudio_Per_Demo_Direction_Roadmap_Directive.md
+    detail: For each of the 38 demos in docs/children.json, append a yaml direction block to docs/demos/<id>/DIRECTION.md. Start from the repo-level direction and derive purpose/done_when/do_not from the existing prose direction note.
+    accept:
+    - grep:
+        path: docs/demos/shoal/DIRECTION.md
+        pattern: yaml direction
+    - test: uv run pytest -q
+  - id: M9.3
+    title: Create a ROADMAP.md for every demo
+    kind: docs
+    size: L
+    value: 5
+    status: pending
+    directive: RFDGameStudio_Per_Demo_Direction_Roadmap_Directive.md
+    detail: For each of the 38 demos, create docs/demos/<id>/ROADMAP.md with a yaml roadmap block containing 1-3 milestones distilled from the existing prose direction note. All roadmaps start as draft until Robert approves.
+    accept:
+    - grep:
+        path: docs/demos/shoal/ROADMAP.md
+        pattern: yaml roadmap
+    - test: uv run pytest -q
 ```
