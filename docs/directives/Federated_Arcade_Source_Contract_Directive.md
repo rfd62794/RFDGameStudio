@@ -100,4 +100,5 @@ List schema, validation rules, fixtures, preserved fields, exact test output and
 - 2026-10-11 19:14 · robert-claude-laptop · Draft → Queued — Reviewed by Sonnet (approve-after-edit); edits merged via RFDGameStudio PR #280; site spec is not a dependency
 - 2026-10-11 19:17 · robert-claude-laptop · Queued → Approved
 - 2026-10-11 19:17 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-federated-arcade-source-contract--6b84f0; lane=explicit; model=swe-2-high; persona=steady-builder; agent_id=01M4PM325JB01GTE7R75D51SYK
+- 2026-10-11 19:17 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-federated-arcade-source-contract--6b84f0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
