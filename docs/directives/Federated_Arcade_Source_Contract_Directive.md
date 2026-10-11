@@ -88,7 +88,7 @@ List schema, validation rules, fixtures, preserved fields, exact test output and
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | main |
@@ -97,4 +97,5 @@ List schema, validation rules, fixtures, preserved fields, exact test output and
 **Status log**
 - 2026-10-11 · devin-laptop-repoman · none → Draft — source-side handoff for RFD_IT_Services_Site M12/M13; blocked until the site federation contract is committed
 - 2026-10-11 19:14 · robert-claude-laptop · Draft → Queued — Reviewed by Sonnet (approve-after-edit); edits merged via RFDGameStudio PR #280; site spec is not a dependency
+- 2026-10-11 19:17 · robert-claude-laptop · Queued → Approved
 <!-- queue:end -->
