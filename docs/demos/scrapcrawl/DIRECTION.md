@@ -32,11 +32,14 @@ None. Default: keep the Lua logic frozen; any new rule goes in TS beside `runEnd
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A tiny crafting dungeon-crawl: move between rooms, collect scrap, craft disposable gear, fight on D20 rolls, with win-only proficiency as the hook. It began as a four-file Lua port of a \"67-test original\", with \"real tier costs\" (`4e862bb8`, 2026-07-08), then a UI rewrite (`476a0f7c`), then chrome (title screen `35fc337b`, primer and SFX `cbfcd49a`, 09-29). `examples/scrapcrawl` (tracked `0c416b4f`, 10-04) is the AI Studio original: \"Headless room/interaction skeleton, scrap economy, tiered crafting, and proficiency\" (`metadata.json`) with a companion and Gemini content layer. Intent drifted from \"headless economy skeleton\" to a playable but goal-less slice; \"Phase A\" is still in `data.yaml`."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A tiny crafting dungeon-crawl: move between rooms, collect scrap, craft disposable gear, fight on D20 rolls, with win-only proficiency as the hook.'
+done_when:
+- 'scrapcrawl: fixed-roll simulated-run tests (winnable, losable) and replace placeholder HP/damage numbers. M. Depends: none.'
+- 'scrapcrawl: persist and display proficiency across runs plus best-run line. M. Depends: 1.'
+- 'scrapcrawl: cover screenshot and room-progress cue. S. Depends: 1.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

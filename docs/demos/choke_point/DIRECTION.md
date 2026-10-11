@@ -31,11 +31,14 @@ None. Default: leave the Lua logic as is; if a mechanic ever needs new logic, co
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A compact turn-based tactical defense puzzle: place barricades and autocannons on a 6x5 grid, see enemy moves and attacks previewed, commit the turn. Born overnight as one of two scaffolds, \"feat(overnight): complete choke_point prototype and register both games\" (`e0f1e44a`, 2026-09-03; paired with wire_rust), verified in `24ead23b` (TS build fix, arcade wiring). `docs/status.md:31` calls it a \"Lua-backed tower-defense prototype\". Its pitch, \"Preview enemy movement ... deploy perfect blockers\" (`config.ts`), has not drifted; it just never got content past a first slice."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A compact turn-based tactical defense puzzle: place barricades and autocannons on a 6x5 grid, see enemy moves and attacks previewed, commit the turn.'
+done_when:
+- 'choke_point: headless all-waves solvability test (win reachable, no softlock). S. Depends: none.'
+- 'choke_point: waves 3-6 and one enemy in `data.yaml`, extend the test to match. M. Depends: 1.'
+- 'choke_point: wave counter, star result card, cover screenshot. S. Depends: 2.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

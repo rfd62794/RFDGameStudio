@@ -30,11 +30,14 @@ Hide the tile (recommended) or keep a labelled "(Origin)" card as the slimebreed
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "The AI Studio (Gemini-built) core-loop prototype that Dissonance Depths grew from: turn-based combat, relation-based combination, Locked/Hinted/Discovered stabilization (ts/src/games/dissonance_prototype/config.ts:13). It was tracked on 2026-08-30 (177f0640, \"was untracked, same PlanetForge-class risk\") and registered as an Origin project (docs/adr/ADR-023-legacy-origin-projects-type.md; DemoPortingRoadmap Legacy table). Drift: none; it was never meant to evolve. The registry comment still says the source is tmp/dissonance-src/ (config.ts:5) although it lives in examples/dissonance-prototype/."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'The AI Studio (Gemini-built) core-loop prototype that Dissonance Depths grew from: turn-based combat, relation-based combination, Locked/Hinted/Discovered stabilization (ts/src/games/dissonance_prototype/config.ts:13).'
+done_when:
+- Publish dissonance_prototype embed and clean its description - S - redesign D1/D2 build template (or a manual dist copy).
+- Dissonance credits link to the Origin and hide the prototype tile - S - directive 1.
+- Fix stale source-path comments (config.ts, ADR-023) - S - none.
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

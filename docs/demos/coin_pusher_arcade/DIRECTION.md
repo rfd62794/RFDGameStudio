@@ -35,11 +35,14 @@ Does coin_pusher_arcade stay beside SlimeCoin? Recommended default: PARK at dev 
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "An AI Studio export of a physics coin pusher: drops, combos, a reward wheel, special pocket coins, named pressure levels (Neon Entryway, Slate Boulevard...) with push targets, and localStorage meta-progression (examples/coin-pusher-arcade/src/data.ts:182; metadata.json). It was tracked in the intake commit 0f5b08d1 (2026-10-03), then ported to TS-native in one commit, 7a1fd77f (2026-10-04, 20 files, +4,142), as `status: 'dev'` per Port_Coin_Pusher_Arcade_Directive; cd21e099 aligned the config and added data tests. The DemoPortingRoadmap listed it as \"Archived, not deployed\" (line 76). Drift: the 10-03 SCOPE.md still treats it as unported; it is not. It was registered before anyone asked what it adds beside slime_coin."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'An AI Studio export of a physics coin pusher: drops, combos, a reward wheel, special pocket coins, named pressure levels (Neon Entryway, Slate Boulevard...) with push targets, and localStorage meta-progression (examples/coin-pusher-arcade/src/data.ts:182; metadata.json).'
+done_when:
+- 'Coin pusher vs SlimeCoin comparison note: 10 minutes each, 5 questions, one-page verdict - S - none (Claude or Robert, not Devin).'
+- Coin Pusher Arcade title screen + build script (only on a "keep") - S - directive 1.
+- Hide coin_pusher_arcade from featured picks until decided - S - redesign D1 order/featured field.
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

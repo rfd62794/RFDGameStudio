@@ -39,11 +39,14 @@ This is the contact-center dialer domain of your day job (fictional names ACBS, 
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "\"Call Center Tycoon\": you are the remote dialer operator, tuning list purity/freshness and dialer pace against a daily quota while the floor is watched, not commanded (intake/filipino-bpo-simulator/Design.md:6-27 pillars \"Limited Control, Full Responsibility\", \"Agents Are Weather\"). It began as an AI Studio cubicle tycoon (87f351f0, 2026-09-03) full of agent management; the same day Design.md (ddd0cd3c) cut agents as an entity and Phase 1 built List/Dialer/Quota (1e23c9bc, 22 tests), Phase 2 added tabbed Dashboard/Floor/AfterHours (30b17dd4), Phase 2b replaced tabs with a permanent isometric floor plus popups, RollerCoaster Tycoon style (9d584a8b, Phase2b_PermanentFloor_Directive.md). The whole history is one day (2026-09-03); nothing since."
-done_when: []
+answered: 2026-10-11 robert
+purpose: '"Call Center Tycoon": you are the remote dialer operator, tuning list purity/freshness and dialer pace against a daily quota while the floor is watched, not commanded (intake/filipino-bpo-simulator/Design.md:6-27 pillars "Limited Control, Full Responsibility", "Agents Are Weather").'
+done_when:
+- 'Re-promote Phase 2b into examples/filipino-bpo-simulator and add `source`. S. depends-on: none.'
+- 'Remove agent-management menus per Design.md:65. M. depends-on: 1.'
+- 'Persist day/money/lists and add New Game. S. depends-on: 2.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

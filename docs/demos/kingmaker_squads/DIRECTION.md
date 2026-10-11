@@ -32,11 +32,14 @@ Is "Origin of Planet of Greed" the right label? The redesign's default hides Ori
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A tactical squad campaign on an 8x8 grid: pick a faction, buy and field squads in a shop phase, move with chess-style rules, fight a deterministic combat engine, take territory, hold the crown, manage loyalty (examples/kingmaker-squads/src: utils/chessMovement.ts, combatEngine.ts, crownLogic.ts, loyaltyLogic.ts; screens New Game, Shop, Forces, Territory, Victory, Game Over). AI Studio export, intake v0.1.0R1 (cb5e5366, 2026-08-04). It was never meant to be a precursor: its wheel/culture identity became Planet of Greed's six-culture wheel (docs/analysis/planetofgreed_merge_audit.md, ADR-023), and Planet of Greed's design explicitly leaves Kingmaker's \"individually-tracked-unit combat and tactical placement layer\" deferred and \"non-portable\" (PlanetOfGreed_Design_v0.2.md:175-176). So the tactical game exists in only one place. Registered as Origin 2026-08-23 (d53a0d15); source force-added 2026-10-04 (fa3f359c) after being gitignored."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A tactical squad campaign on an 8x8 grid: pick a faction, buy and field squads in a shop phase, move with chess-style rules, fight a deterministic combat engine, take territory, hold the crown, manage loyalty (examples/kingmaker-squads/src: utils/chessMovement.ts, combatEngine.ts, crownLogic.ts, loyaltyLogic.ts; screens New Game, Shop, Forces, Terr'
+done_when:
+- 'Review and merge Kingmaker_Squads_Restart_Directive (controller). S. depends-on: none.'
+- 'Fix kingmaker_squads and corpworld READMEs (shared directive with corpworld). S. depends-on: none.'
+- 'Kingmaker headless campaign balance test (B4: no softlock, win/loss reachable). S. depends-on: 1.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

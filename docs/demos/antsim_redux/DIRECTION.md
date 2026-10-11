@@ -31,11 +31,14 @@ None. Settled decision (honest embed, Tier A only) stands; research found no con
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "An ant-colony simulation lab, not a game: pheromone trails, direct food sensing, queen/egg/larva lifecycle, multi-colony Lanchester combat, tunnel pathfinding. Imported as an AI Studio export (intake manifest `ae4d0f9b`, 2026-08-06; source tracked `e44bdc72`, 08-30). The sim grew in numbered phases to \"Phase 4g Complete\" (`examples/antsim-redux/docs/state/current.md:1`, \"120 test anchors\" per `docs/status.md:27`). The porting roadmap (`docs/RFDGameStudio_DemoPortingRoadmap.md:62,111`) calls a TS-native port \"real, substantial future work\"; that was settled 2026-10-04 as: honest embed, Tier A only. Intent never included a player goal: the player places food and watches (`App.tsx` per SCOPE.md)."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'An ant-colony simulation lab, not a game: pheromone trails, direct food sensing, queen/egg/larva lifecycle, multi-colony Lanchester combat, tunnel pathfinding.'
+done_when:
+- 'antsim_redux: remove dev-speak from the player UI - delete the anchors tab, phase badge and subtitle in `examples/antsim-redux/src/App.tsx`; add a player-facing one-liner. S. Depends: none.'
+- 'antsim_redux: re-measure phone fit at 390x844 and fix any remaining overflow in the embed. S. Depends: 1.'
+- 'antsim_redux: A5 screenshot + "embed" label check (test fails on banned words in config description and UI strings). S. Depends: 1.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

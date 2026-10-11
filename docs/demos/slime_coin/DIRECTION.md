@@ -32,11 +32,17 @@ None.
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A roguelite coin pusher: shoot slime coins onto a two-layer board, hand in coins to hit a rising target over 15 rounds (target_growth 1.5), build with 12 chip cards, 4 pocket coins and a spin wheel (games/slime_coin/data.yaml round_config, chip cards; 3f23f60f, 2026-06-27). Logic is Lua (920 lines); TS renders it through useLuaCall. Drift: config text still sells \"shooter, two-layer board, chip synergies\" (config.ts:9), but the real product is the 15-round run with shop and synergies; the Lua bridge had no tests until 10-04."
-done_when: []
-do_not: []
+answered: 2026-10-11 robert
+purpose: 'A roguelite coin pusher: shoot slime coins onto a two-layer board, hand in coins to hit a rising target over 15 rounds (target_growth 1.5), build with 12 chip cards, 4 pocket coins and a spin wheel (games/slime_coin/data.yaml round_config, chip cards; 3f23f60f, 2026-06-27).'
+done_when:
+- SlimeCoin Lua entry-point sweep test - S - none.
+- SlimeCoin blurb + 390 px board check - S - none.
+- SlimeCoin round recap panel - M - directive 1.
+do_not:
+- new chips or coins
+- cross-run meta
+- merging coin_pusher_arcade mechanics
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

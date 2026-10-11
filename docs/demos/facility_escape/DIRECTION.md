@@ -32,11 +32,14 @@ None. Research agrees with the settled embed-only stance; no direction change pr
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A turn-based stealth puzzle where guards commit to their next action before you move, so every turn is a read-the-sightlines decision. Imported as AI Studio export v0.1.0R1 (intake manifest `ae4d0f9b`, 2026-08-06; source tracked `3f47e61d`, 08-30; genre `puzzle-stealth` `d17e85fa`, 08-23). The code self-describes as a \"MECHANICS PROTOTYPE\" (`examples/facility-escape/src/App.tsx:543`), and the porting roadmap rates it \"real BFS guard pathfinding, real A* level solver\" (`docs/RFDGameStudio_DemoPortingRoadmap.md:63`). Intent was a rules test; the drift is that it now ships as a card."
-done_when: []
+answered: 2026-10-11 robert
+purpose: A turn-based stealth puzzle where guards commit to their next action before you move, so every turn is a read-the-sightlines decision.
+done_when:
+- 'facility_escape: replace prototype wording with player wording in `examples/facility-escape/src/App.tsx`; add a grep test. S. Depends: none.'
+- 'facility_escape: room counter, turn-one hint, and a final result card. M. Depends: 1.'
+- 'facility_escape: 390x844 phone check and screenshot for A4/A5. S. Depends: 1.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

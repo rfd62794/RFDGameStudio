@@ -33,11 +33,14 @@ None. Default: keep the Lua sim as is (ADR-013 retired Lua as a portability carv
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "\"Slither.io meets roguelike\": steal segments, collect evolution cards on level-up, survive a timed arena run, chase a high score. Built 2026-06-26 as a Lua-driven port alongside horse_racing (`a5fd236d`, Phase 2g) (`76623568` data/logic, `24f8e21d` App with menu/game/game-over, `f76e05f4` canvas), then moved physics, collision and AI out of TS into Lua in \"Phase 2h\" (`8b0d73d7`, `945de2e1`, 06-27) and rebalanced in Phase 2s (`9c9ff3af`: magnet radius cut 60 to 25 px, shield regen). Since then only chrome: GameShell migration (`3be74824`), svh fix (`c4fcbfd4`), first-run primer, HUD mute, SFX, canvas contrast (`3e35ef1e`, 09-29). Intent is unchanged; the game stopped growing at balance."
-done_when: []
+answered: 2026-10-11 robert
+purpose: '"Slither.io meets roguelike": steal segments, collect evolution cards on level-up, survive a timed arena run, chase a high score.'
+done_when:
+- 'slither_rogue: delete `GameCanvas.phase2g.tsx`, label Restart, add `build:slither_rogue` and fix its TS errors. S. Depends: none.'
+- 'slither_rogue: headless run-logic test via the Lua fixtures. M. Depends: none.'
+- 'slither_rogue: game-over cause-of-death line and cover screenshot. S. Depends: 1.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

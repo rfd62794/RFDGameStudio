@@ -28,14 +28,14 @@ None.
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A manager sim: \"you never swing the sword, you decide what it's attached to\" (App.tsx:104). Assemble cyber-organic frames in the Forge, keep a roster, climb a 5-tier champion ladder through auto-played turn-based bouts with per-part anatomy damage (RimWorld-style efficiency, Blood Bowl recoil) and an agent decision engine. First commits are one large drop on 2026-08-15 (`d5f10559` anatomy + decision engine; `1109b50a` App.tsx plus a fix for \"200+ typos\" such as rrom/rlex in BalanceReportView, i.e. generated code mangled in transit). Then chrome only: GameShell (`f7a34aa8`, 09-20), title + first-run Manager's Primer (`34031d23`, 09-29), Tier A on 2026-10-04 (`75a90e01`: New Game with 2-click confirm, phone tab-bar fit, `build:gladiator_arena`, career-simulation test). Drift: intent is unchanged, but build tooling (Balance Lab, harness) became a player-facing tab."
+answered: 2026-10-11 robert
+purpose: 'A manager sim: "you never swing the sword, you decide what it''s attached to" (App.tsx:104).'
 done_when:
-  - "Phase 1 TRIM (S): CUT the Balance tab from the player nav (reason: dev tooling; keep the files, the career test uses the harness) behind `?dev=1`, and the jargon in the blurb. ADD a plain blurb of 60 words or fewer. Verify: Playwright tab list has 4 tabs without the flag, 5 with it; `git grep -n \"Balance Lab\\|Blood Bowl\" ts/src/games/gladiator_arena/config.ts` is empty."
-  - "Phase 2 POLISH (M): CUT nothing. ADD a win/loss result card in ArenaCombatView with one next action (B3, B6), a re-measure at 390x844 after the tab-bar fix (A4), and a cover. Verify: screenshot pair of result cards; scrollWidth <= viewport; cover in manifest."
-  - "Phase 3 (S): finish line. ADD an end screen when tier 5 is cleared (new season / keep playing). CUT nothing. Verify: the career test already reaches tier 5; add a vitest asserting the end-state flag renders the screen."
+- Gladiator_Hide_Balance_Lab_And_Blurb - dev flag for the Balance tab, plain blurb, test; S; none.
+- 'Gladiator_Bout_Result_Card_And_Phone_Check - result card plus next action, 390 px audit; M; after 1 (ArenaCombatView is 851 lines: touch only the result path).'
+- Gladiator_Tier5_End_Screen_And_Cover - end-of-ladder screen, cover; S; after 2.
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

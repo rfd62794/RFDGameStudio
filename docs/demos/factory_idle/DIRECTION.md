@@ -34,11 +34,14 @@ Correction 2026-10-04: the player does not land on an empty grid. getInitialGame
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A Factorio-style tile factory (conveyors, splitters, tunnels, power grid, research) feeding a weapons storefront with impatient customers: \"Armory: Storefront & Spindle\" (docs/RFDGameStudio_DemoPortingRoadmap.md:65). Lineage is three AI Studio exports: `examples/armory-storefront-spindle` (763-line reducer), `-phase1` (4,498 ts/tsx lines), `-phase2` (4,831 lines, 1,205-line `engine/gameReducer.ts`). All were tracked as-is (04c9eb6e, f1ca2956 on 2026-08-30; 0c416b4f on 2026-10-04). Registered 2026-08-22 (907f2509) as `external`, genre `idle-incremental` (d17e85fa), but the thing is a logistics sandbox, not an idle game: it starts running with $350 (gameReducer.ts:92,147) and has no offline progress. The roadmap claim \"phases 2-5 byte-identical\" is wrong: only three dirs exist and they differ."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A Factorio-style tile factory (conveyors, splitters, tunnels, power grid, research) feeding a weapons storefront with impatient customers: "Armory: Storefront & Spindle" (docs/RFDGameStudio_DemoPortingRoadmap.md:65).'
+done_when:
+- 'Factory Idle Tier A publish (already written: docs/directives/Polish_Factory_Idle_TierA_Directive.md). S. depends-on: none.'
+- 'Factory Idle autosave + labelled reset (examples/factory-idle-precision-armory-phase2). S. depends-on: 1.'
+- 'Factory Idle first-step hint + starter goal. S. depends-on: 1.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

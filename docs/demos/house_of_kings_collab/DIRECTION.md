@@ -33,11 +33,14 @@ None; this follows your settled showcase decision. One line: the card still sits
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A shared, server-authoritative kingdom builder: Firebase Auth + Firestore, Cloud Run, visit-triggered daily evaluation, house festivals, a Game Master tab (ARCHITECTURE.md:1-37). It grew from 2026-08-15 (767b8ca1 backend deps) through a month of server plumbing: CORS, Express 5 routes, cache-bust Dockerfile, a 355k-line production bundle (5072f96d), Google-only sign-in (a177db10), GameShell adoption (882c3d6b), TS-error cleanup (9535c6d3). Intent drifted from \"a game\" to \"a reference architecture\": ARCHITECTURE.md calls itself a \"Reusable Pattern Reference & Engineering Handbook\". The last commits (9fa49399, 2026-10-04) made it an honest showcase with a fail-closed admin gate (lib/adminGate.ts)."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A shared, server-authoritative kingdom builder: Firebase Auth + Firestore, Cloud Run, visit-triggered daily evaluation, house festivals, a Game Master tab (ARCHITECTURE.md:1-37).'
+done_when:
+- 'HoK Collab: untrack or mark the generated bundle, drop the dev footer. S. depends-on: none.'
+- 'HoK Collab: "How it works" exhibit on the landing page from ARCHITECTURE.md. S. depends-on: none.'
+- 'Showcase marker excluded from published count. S. depends-on: studio-redesign D0.3.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

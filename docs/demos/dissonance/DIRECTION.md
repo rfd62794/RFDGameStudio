@@ -32,11 +32,16 @@ None.
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "\"Dissonance Depths\": a turn-based deckbuilding roguelike where cards combine by element relation (ember/ash/spark/cinder x sever/mend/guard/unmake, 56 named combinations) over a 5-floor descent through a fracturing station AI (config.ts:7; games/dissonance/data.yaml, 50569c27). It started as the AI Studio core-loop prototype (examples/dissonance-prototype), was rebuilt as YAML+Lua logic with a TS UI on 2026-07-22 (6aaabbd2, 52ca6a55; a placeholder App.tsx was removed in 2be99cf6 to show an honest \"No Renderer\"), then absorbed Brewfield's chemistry (residues, 4x4 matrix) on 2026-09-20 (games/dissonance/CHANGELOG.md). Drift: depth grew twice (build archetypes, then chemistry) while the player-facing frame stayed a wizard of 12 one-screen phases."
-done_when: []
-do_not: []
+answered: 2026-10-11 robert
+purpose: '"Dissonance Depths": a turn-based deckbuilding roguelike where cards combine by element relation (ember/ash/spark/cinder x sever/mend/guard/unmake, 56 named combinations) over a 5-floor descent through a fracturing station AI (config.ts:7; games/dissonance/data.yaml, 50569c27).'
+done_when:
+- Dissonance headless bot run test - S - none.
+- Dissonance first-combat hint and remove dev captions - M - none.
+- Dissonance mute + SFX - S - shared SFX module (Polish_Shared_Sfx).
+do_not:
+- new cards/cultures/floors
+- moving logic out of Lua (the settled hedge is YAML data)
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

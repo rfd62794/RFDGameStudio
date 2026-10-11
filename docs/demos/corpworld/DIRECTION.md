@@ -32,11 +32,14 @@ None. (Contradicts nothing settled; slimebreeder's frozen-exhibit decision is th
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A cold-corporate land-grab 4X: Voronoi map, fog of war, weekly orders, Circle/Square/Triangle combat. Built in AI Studio as CorpWorld v0.1.0R1..R5 (intake d54bcb1f R2, 4c568563 R3, 831151d5 R4, all 2026-07-12; Polish_Corpworld_TierA_Directive.md:44 records R5). On 2026-08-13 Planet of Greed forked it and 7 duplicate files were promoted to shared engine code (5e7d12fc: combat resolver, BoardroomHeader, PlanetMap, DailyEventModal...). On 2026-08-23 ADR-023 re-registered it as an Origin entry (d53a0d15, a4fecf54). Intent never drifted: it was a prototype, then an ancestor. Planet of Greed has since added the wheel, fragments, ending, AI decisions (docs/analysis/planetofgreed_merge_audit.md)."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A cold-corporate land-grab 4X: Voronoi map, fog of war, weekly orders, Circle/Square/Triangle combat.'
+done_when:
+- 'Fix corpworld and kingmaker_squads READMEs (examples now tracked, base now set). S. depends-on: none.'
+- 'Planet of Greed title screen "Origins" link row (corpworld, kingmaker_squads). S. depends-on: none.'
+- 'Origin entries excluded from the published count and Start-here list (config flag + test). S. depends-on: studio-redesign D0.3.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

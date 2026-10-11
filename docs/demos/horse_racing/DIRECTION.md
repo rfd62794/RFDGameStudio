@@ -28,14 +28,14 @@ Downgrade the public badge `stable` to `beta` for horse_racing (and slimeworld) 
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "\"Derby Sim\": breed horses, race them, bet Win/Place/Show, run a career (config.ts:6-11). It began 2026-06-23 as an AI Studio export (`examples/horse-racing-&-breeding`, first commit `e0578e7c`) turned into the studio's first Lua-backed game, then served as the proof case for the engine itself: GameRenderer interface (`407fe6c2`), UI interpreter (`de3d3b7d`), shared hooks (`7351e364`), Always-Live arcade (`fb00e101`, where it got the amber \"stable\" badge), AI-only races plus Calendar (`c553125f`). Drift: it was a framework demo that got promoted to a player-facing game; the last real feature work was 2026-06-27 and everything since is chrome (`8867b364` tutorial/HUD/SFX/bankruptcy, #49). A legacy pygame renderer (renderers/pygame/games/horse_racing) remains as an exhibit."
+answered: 2026-10-11 robert
+purpose: '"Derby Sim": breed horses, race them, bet Win/Place/Show, run a career (config.ts:6-11).'
 done_when:
-  - "Phase 1 (S): honesty and reset. CUT the `stable` badge to `beta` (public label, no Tier B evidence; Robert's call) and the New Game that does nothing. ADD Continue vs New Game (confirmed wipe of the `derby_sim_state_v1` save) and `build:horse_racing`. Verify: `cd ts && npm run build:horse_racing` exits 0; vitest for New Game clearing the save."
-  - "Phase 2 (S): proof. CUT source-text assertions that duplicate behaviour tests. ADD a headless balance test: 200 races with a flat-bet strategy, assert no negative funds, bankruptcy reachable, odds sum sane (overround 1.12). Verify: the named numbers in the vitest output."
-  - "Phase 3 (S): inviting. ADD a \"Quick race\" first run (skip cooldown for the first 3 races, then explain it) and a cover/screenshot. CUT nothing else; no new genetics. Verify: Playwright cold load reaches a finished race in under 60 s; cover present in manifest."
+- Horse_Racing_New_Game_Reset_And_Build - Continue/New Game, build script; S; none.
+- Horse_Racing_Headless_Balance_Test - 200-race run asserting funds and bankruptcy; S; none.
+- Horse_Racing_Status_Cover_First_Race - status beta, cover, first-3-races cooldown skip; S; after 1 (status needs Robert's OK).
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

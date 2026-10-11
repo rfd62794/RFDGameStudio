@@ -28,14 +28,14 @@ VoidDrift or VoidRift? Default: "VoidDrift" for the Rust game and its card (matc
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "The studio's window onto the shipped Rust/Bevy VoidDrift (the paid itch.io release, `VD:docs/roadmap.md:10`; `VD:` = the VoidDrift repo): a no-win idle-mining game, \"No win condition. No escape.\" (`ts/src/games/voiddrift/config.ts:6`). Born as the first external entry: b4cf16e4 (2026-07-10) was a redirect to itch, 840ef227 (same day) swapped it for an inline iframe with an aspect-ratio box and an \"Open on itch.io\" fallback. It has not drifted; it is the one demo whose real game lives elsewhere, so it is the cabinet's honest bridge to the store."
+answered: 2026-10-11 robert
+purpose: 'The studio''s window onto the shipped Rust/Bevy VoidDrift (the paid itch.io release, `VD:docs/roadmap.md:10`; `VD:` = the VoidDrift repo): a no-win idle-mining game, "No win condition.'
 done_when:
-  - "Phase 1 (S): classify the cross-origin error as non-failing. CUT: the false A1 FAIL (cannot be fixed from the iframe, GameLoader.tsx:92-97). ADD: an origin filter in the smoke plus one scorecard note. Verify: `cd ts && npm run test` green and the audit row reads PASS."
-  - "Phase 2 (S): identity. CUT: the three spellings. ADD: one display name, a cover from `npm run covers` (spec c4), and a card line \"Full game on itch.io\". Verify: the hermetic cover-exists test passes; card shows \"embed\"."
-  - "No Phase 3. Do not add studio chrome around the embed; the cabinet's job is the path to itch."
+- 'Embed smoke ignores third-party frame console errors. S. Depends on: none.'
+- 'Reconcile voiddrift display name and blurb (needs the answer below). S. Depends on: 1 (same scorecard file).'
+- 'Cover and "embed" card text for voiddrift. S. Depends on: the spec''s `npm run covers` directive.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```

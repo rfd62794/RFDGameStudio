@@ -30,11 +30,14 @@ Is this a product you intend to ship (then it gets its own repo and server decis
 
 ```yaml direction
 version: 1
-answered: "2026-10-11 robert"
-purpose: "A voice-powered learning companion for young children: practice letters, numbers and words by speaking, a fuzzy matcher accepts approximate pronunciations, AI-generated story beats reward progress, stars and characters persist, parents get settings and can request characters. It arrived whole on 2026-08-15 in a commit titled \"add backend dependencies\" (`767b8ca1`: express, firebase, @google/genai, monitoring), i.e. it was imported as a finished AI Studio project, not grown in this repo. `config.ts` says it is \"intentionally unlisted from the public arcade\", and the board row classes it `separate_infrastructure` (`ts/src/status/board.data.ts:100`). It never was an arcade game; it is a different product living in the games folder."
-done_when: []
+answered: 2026-10-11 robert
+purpose: 'A voice-powered learning companion for young children: practice letters, numbers and words by speaking, a fuzzy matcher accepts approximate pronunciations, AI-generated story beats reward progress, stars and characters persist, parents get settings and can request characters.'
+done_when:
+- 'early_learning_buddy: set the board row to parked and add a SCOPE "N/A" line. S. Depends: none.'
+- 'early_learning_buddy: replace the console-only story-fetch failure with a visible fallback message (only if it is ever shown to anyone). S. Depends: Robert wants it live.'
+- 'early_learning_buddy: privacy and microphone consent review of `utils/speech.ts` and the server env handling. S, review only. Depends: Robert wants it live.'
 do_not: []
 audience: players
-hours_per_week: "1-3"
+hours_per_week: 1-3
 stakes: medium
 ```
