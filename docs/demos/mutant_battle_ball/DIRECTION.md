@@ -44,3 +44,20 @@ audience: players
 hours_per_week: 1-3
 stakes: medium
 ```
+
+## Settled direction 2026-10-11 (Robert)
+
+The persistence, hidden Infirmary stub, and seeded symmetry work described above have landed. The next product arc is **grow the roster, then make the roster matter**:
+
+1. A completed match can yield a salvage recruit, growing the roster beyond the fixed two starters.
+2. Once a third mutant exists, the player chooses exactly two healthy mutants for the active squad.
+3. Injury consequences and the real Infirmary land together, so no intermediate release strands an injured mutant without recovery.
+4. The remaining player/opponent speed and health imbalance is measured first with seeded aggregate matches. The evidence determines whether to normalize player-side effective stats or scale opponent data; do not choose by intuition.
+
+Engineering boundaries:
+
+- Preserve `calculateStats` as the raw parts-summing and modifier pipeline.
+- Keep recruitment, squad selection, injury transitions, and balance policy in separate modules/functions.
+- Preserve the Lua source required by migration tests.
+- Do not add brands, OEM tiers, Gravekeeper systems, or other collection depth until this loop is complete.
+- Every milestone must keep `cd ts && npx vitest run tests/test_mbb_*` green; the verified baseline on 2026-10-11 is 13 files and 210 tests.
