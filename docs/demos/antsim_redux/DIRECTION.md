@@ -28,3 +28,14 @@ None. Settled decision (honest embed, Tier A only) stands; research found no con
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - Directive 1 is `Antsim_Redux_Player_Copy_Directive` (it also rewords the `Core Directive` banner and points the README at the state doc). Directives 2 and 3 (phone re-measure, A5 screenshot, `embed` label) need a browser and stay controller steps after the embed is rebuilt.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "An ant-colony simulation lab, not a game: pheromone trails, direct food sensing, queen/egg/larva lifecycle, multi-colony Lanchester combat, tunnel pathfinding. Imported as an AI Studio export (intake manifest `ae4d0f9b`, 2026-08-06; source tracked `e44bdc72`, 08-30). The sim grew in numbered phases to \"Phase 4g Complete\" (`examples/antsim-redux/docs/state/current.md:1`, \"120 test anchors\" per `docs/status.md:27`). The porting roadmap (`docs/RFDGameStudio_DemoPortingRoadmap.md:62,111`) calls a TS-native port \"real, substantial future work\"; that was settled 2026-10-04 as: honest embed, Tier A only. Intent never included a player goal: the player places food and watches (`App.tsx` per SCOPE.md)."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

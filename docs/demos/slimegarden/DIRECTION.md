@@ -24,3 +24,16 @@ TRIM (then Tier A).
 3. Slimegarden_Cover_And_Manifest - screenshot + manifest reference; S; after 2.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "An AI Studio (Gemini) export of a multi-tank slime breeding sandbox with dispatch, mediation, exploration, territory claims and garrison risk over a 15-node hex planet (examples/slimegarden/README.md:5-9). Intake as \"v0.1.0R1\" from a zip (`2beb19c6`, 2026-07-13), extracted scaffold `dbfd428e` (07-14), removed from the registry when SlimeWorld became the lead game (`d222dbe2`, 07-22), then re-registered as a labelled Origin (`d53a0d15`, 08-23, ADR-023; `supersededBy: 'slimeworld'`). Source tracked after a loss scare (`0ecf80f4`, 08-30). It never had its own design; the studio's SlimeWorld is the TS-native rewrite of this loop, so its job today is history."
+done_when:
+  - "Phase 1 (S): CUT `examples/slimeworld/` (verified duplicate; the deploy no longer reads it) and keep `intake/` as the only raw archive. ADD nothing. Verify: `diff -rq examples/slimegarden/src examples/slimeworld/src` is empty before deletion (it is today); `python -m pytest tests/test_deploy_arcade_copy_order.py` and `cd ts && npx vitest run test_registry_export.ts` stay green."
+  - "Phase 2 (S): Tier A. CUT the GEMINI README text. ADD a 390 px fix (test the decorative `w-[500px]` blob at App.tsx:652 first), a \"Play the successor: SlimeWorld\" link in the header, a cover. Verify: Playwright 390x844 scrollWidth <= viewport; screenshot yes/no."
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

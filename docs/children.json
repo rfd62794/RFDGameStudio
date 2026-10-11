@@ -4,192 +4,230 @@
     {
       "id": "7_days_to_fry",
       "path": "ts/src/games/7_days_to_fry",
-      "label": "7 Days To Fry"
+      "label": "7 Days To Fry",
+      "docs_path": "docs/demos/7_days_to_fry"
     },
     {
       "id": "antsim_redux",
       "path": "ts/src/games/antsim_redux",
-      "label": "AntSim Redux"
+      "label": "AntSim Redux",
+      "docs_path": "docs/demos/antsim_redux"
     },
     {
       "id": "bpo_sim",
       "path": "ts/src/games/bpo_sim",
-      "label": "BPO Sim"
+      "label": "BPO Sim",
+      "docs_path": "docs/demos/bpo_sim"
     },
     {
       "id": "brewfield",
       "path": "ts/src/games/brewfield",
-      "label": "Brewfield"
+      "label": "Brewfield",
+      "docs_path": "docs/demos/brewfield"
     },
     {
       "id": "character_viewer",
       "path": "ts/src/games/character_viewer",
-      "label": "Character Viewer"
+      "label": "Character Viewer",
+      "docs_path": "docs/demos/character_viewer"
     },
     {
       "id": "chimera_wilds",
       "path": "ts/src/games/chimera_wilds",
-      "label": "Chimera Wilds"
+      "label": "Chimera Wilds",
+      "docs_path": "docs/demos/chimera_wilds"
     },
     {
       "id": "choke_point",
       "path": "ts/src/games/choke_point",
-      "label": "Choke Point"
+      "label": "Choke Point",
+      "docs_path": "docs/demos/choke_point"
     },
     {
       "id": "coin_pusher_arcade",
       "path": "ts/src/games/coin_pusher_arcade",
-      "label": "Coin Pusher Arcade"
+      "label": "Coin Pusher Arcade",
+      "docs_path": "docs/demos/coin_pusher_arcade"
     },
     {
       "id": "corpworld",
       "path": "ts/src/games/corpworld",
-      "label": "CorpWorld"
+      "label": "CorpWorld",
+      "docs_path": "docs/demos/corpworld"
     },
     {
       "id": "dissonance",
       "path": "ts/src/games/dissonance",
-      "label": "Dissonance Depths"
+      "label": "Dissonance Depths",
+      "docs_path": "docs/demos/dissonance"
     },
     {
       "id": "dissonance_prototype",
       "path": "ts/src/games/dissonance_prototype",
-      "label": "Dissonance Loop Prototype"
+      "label": "Dissonance Loop Prototype",
+      "docs_path": "docs/demos/dissonance_prototype"
     },
     {
       "id": "early_learning_buddy",
       "path": "ts/src/games/early_learning_buddy",
-      "label": "Early Learning Buddy"
+      "label": "Early Learning Buddy",
+      "docs_path": "docs/demos/early_learning_buddy"
     },
     {
       "id": "facility_escape",
       "path": "ts/src/games/facility_escape",
-      "label": "Facility Escape"
+      "label": "Facility Escape",
+      "docs_path": "docs/demos/facility_escape"
     },
     {
       "id": "factory_idle",
       "path": "ts/src/games/factory_idle",
-      "label": "Factory Idle: Precision Workshop"
+      "label": "Factory Idle: Precision Workshop",
+      "docs_path": "docs/demos/factory_idle"
     },
     {
       "id": "gladiator_arena",
       "path": "ts/src/games/gladiator_arena",
-      "label": "Gladiator Arena"
+      "label": "Gladiator Arena",
+      "docs_path": "docs/demos/gladiator_arena"
     },
     {
       "id": "grainworks",
       "path": "ts/src/games/grainworks",
-      "label": "GrainWorks"
+      "label": "GrainWorks",
+      "docs_path": "docs/demos/grainworks"
     },
     {
       "id": "horse_racing",
       "path": "ts/src/games/horse_racing",
-      "label": "Derby Sim"
+      "label": "Derby Sim",
+      "docs_path": "docs/demos/horse_racing"
     },
     {
       "id": "house_of_kings_collab",
       "path": "ts/src/games/house_of_kings_collab",
-      "label": "House of Kings: Collab"
+      "label": "House of Kings: Collab",
+      "docs_path": "docs/demos/house_of_kings_collab"
     },
     {
       "id": "kingmaker_squads",
       "path": "ts/src/games/kingmaker_squads",
-      "label": "Kingmaker Squads"
+      "label": "Kingmaker Squads",
+      "docs_path": "docs/demos/kingmaker_squads"
     },
     {
       "id": "ledger",
       "path": "ts/src/games/ledger",
-      "label": "Ledger"
+      "label": "Ledger",
+      "docs_path": "docs/demos/ledger"
     },
     {
       "id": "mutant_battle_ball",
       "path": "ts/src/games/mutant_battle_ball",
-      "label": "Mutant Battle Ball"
+      "label": "Mutant Battle Ball",
+      "docs_path": "docs/demos/mutant_battle_ball"
     },
     {
       "id": "planetforge",
       "path": "ts/src/games/planetforge",
-      "label": "PlanetForge"
+      "label": "PlanetForge",
+      "docs_path": "docs/demos/planetforge"
     },
     {
       "id": "planetofgreed",
       "path": "ts/src/games/planetofgreed",
-      "label": "Planet of Greed"
+      "label": "Planet of Greed",
+      "docs_path": "docs/demos/planetofgreed"
     },
     {
       "id": "role_symbol_viewer",
       "path": "ts/src/games/role_symbol_viewer",
-      "label": "Role Symbol Viewer"
+      "label": "Role Symbol Viewer",
+      "docs_path": "docs/demos/role_symbol_viewer"
     },
     {
       "id": "scrapcrawl",
       "path": "ts/src/games/scrapcrawl",
-      "label": "ScrapCrawl"
+      "label": "ScrapCrawl",
+      "docs_path": "docs/demos/scrapcrawl"
     },
     {
       "id": "shoal",
       "path": "ts/src/games/shoal",
-      "label": "Shoal"
+      "label": "Shoal",
+      "docs_path": "docs/demos/shoal"
     },
     {
       "id": "slime_coin",
       "path": "ts/src/games/slime_coin",
-      "label": "SlimeCoin"
+      "label": "SlimeCoin",
+      "docs_path": "docs/demos/slime_coin"
     },
     {
       "id": "slimebreeder",
       "path": "ts/src/games/slimebreeder",
-      "label": "SlimeBreeder"
+      "label": "SlimeBreeder",
+      "docs_path": "docs/demos/slimebreeder"
     },
     {
       "id": "slimegarden",
       "path": "ts/src/games/slimegarden",
-      "label": "Slimegarden"
+      "label": "Slimegarden",
+      "docs_path": "docs/demos/slimegarden"
     },
     {
       "id": "slimeworld",
       "path": "ts/src/games/slimeworld",
-      "label": "SlimeWorld"
+      "label": "SlimeWorld",
+      "docs_path": "docs/demos/slimeworld"
     },
     {
       "id": "slither_rogue",
       "path": "ts/src/games/slither_rogue",
-      "label": "Snake Roguelike"
+      "label": "Snake Roguelike",
+      "docs_path": "docs/demos/slither_rogue"
     },
     {
       "id": "succession",
       "path": "ts/src/games/succession",
-      "label": "Succession"
+      "label": "Succession",
+      "docs_path": "docs/demos/succession"
     },
     {
       "id": "systemic_extract",
       "path": "ts/src/games/systemic_extract",
-      "label": "Systemic Extract"
+      "label": "Systemic Extract",
+      "docs_path": "docs/demos/systemic_extract"
     },
     {
       "id": "technique_showcase",
       "path": "ts/src/games/technique_showcase",
-      "label": "Technique Showcase"
+      "label": "Technique Showcase",
+      "docs_path": "docs/demos/technique_showcase"
     },
     {
       "id": "trinity_siege",
       "path": "ts/src/games/trinity_siege",
-      "label": "Trinity Siege"
+      "label": "Trinity Siege",
+      "docs_path": "docs/demos/trinity_siege"
     },
     {
       "id": "voiddrift",
       "path": "ts/src/games/voiddrift",
-      "label": "VoidDrift"
+      "label": "VoidDrift",
+      "docs_path": "docs/demos/voiddrift"
     },
     {
       "id": "voiddrift_redux",
       "path": "ts/src/games/voiddrift_redux",
-      "label": "VoidDrift: Core Loop"
+      "label": "VoidDrift: Core Loop",
+      "docs_path": "docs/demos/voiddrift_redux"
     },
     {
       "id": "wire_rust",
       "path": "ts/src/games/wire_rust",
-      "label": "Wire & Rust"
+      "label": "Wire & Rust",
+      "docs_path": "docs/demos/wire_rust"
     }
   ]
 }

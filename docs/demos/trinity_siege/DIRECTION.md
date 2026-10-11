@@ -28,3 +28,14 @@ None. Default: the Rust three-faction chassis stays Far Future (the board's own 
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - All 12 unit tests of `combat.ts` pass on current code, so the 'fabricated combat logic' worry is closed (`Trinity_Siege_Combat_Tests_Directive`). The 'why it won' line is `Trinity_Siege_Why_It_Won_Directive`; a how-to-play manual already exists, so no separate first-wave hint is added. Phone re-measure and cover screenshot stay controller steps.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "Two ideas share this id. The board row implies a three-faction siege on a Rust/Bevy-or-egui chassis (never built here) and still reads \"Bevy vs. egui architecture question left unresolved\", status `status_unconfirmed` (`ts/src/status/board.data.ts:120-123`, last updated 2026-08-15, and `docs/DIRECTION.md:52`). What actually exists is an AI Studio hex-ring wave defense: shape counters, race leans, persistent fortifications, 5 waves, 15 lives (`examples/trinity-siege/metadata.json`; `src/types.ts`). It was embedded as a same-origin iframe on 2026-07-10 (`e40954be`) and its source tracked 07-11 (`6b7c2b09`). Intent drifted from a Rust faction-combat chassis to a small browser tower-defense; the board row never caught up."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

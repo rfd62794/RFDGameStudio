@@ -27,3 +27,14 @@ No further phases: no gameplay edits, no Tier B.
 3. Fix stale source-path comments (config.ts, ADR-023) - S - none.
 ## Open question for Robert
 Hide the tile (recommended) or keep a labelled "(Origin)" card as the slimebreeder exhibit does? One rule for all Origins is simpler; default: follow whatever slimebreeder does.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "The AI Studio (Gemini-built) core-loop prototype that Dissonance Depths grew from: turn-based combat, relation-based combination, Locked/Hinted/Discovered stabilization (ts/src/games/dissonance_prototype/config.ts:13). It was tracked on 2026-08-30 (177f0640, \"was untracked, same PlanetForge-class risk\") and registered as an Origin project (docs/adr/ADR-023-legacy-origin-projects-type.md; DemoPortingRoadmap Legacy table). Drift: none; it was never meant to evolve. The registry comment still says the source is tmp/dissonance-src/ (config.ts:5) although it lives in examples/dissonance-prototype/."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

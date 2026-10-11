@@ -25,3 +25,17 @@ RETHINK (first action: a bug fix).
 3. Chimera_Wilds_Build_Your_Fighter_Spec - spec only, budget rules and starter set; S; after 1 (Robert approves the rule change).
 ## Open question for Robert
 The fix changes the rules (SCOPE.md called rules changes his call). Recommended default: yes, set baseline so a fresh player wins about half the time, then build Phase 2.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A deliberately minimal \"Phase 1\": one D20 roll against a random six-part chimera, plus the first consumer of the shared Paper Doll renderer. Born 2026-07-08 (`c7c87d1c`: 13 parts \"copied per ADR-005\" from Mutant Battle Ball, `generate_chimera`/`resolve_encounter` in Lua, 8 Python tests). Then it became an engine testbed: GameShell (`3be74824`), shared part-slot types with MBB (`bf8f743b`), Paper Doll adoption (`635130a9`, `f068960f` archetype=\"quadruped\"), title screen (`35fc337b`), tutorial/HUD/sfx (`38958e16`, 09-28). ROADMAP names it a candidate pixel/vector style adopter (ROADMAP.md:314) and a creatureArt consumer (:366). Every commit after day one polished chrome; none touched the rules. The Polish directive calls it \"done mechanically\"."
+done_when:
+  - "Phase 1 (S): make it winnable. CUT the Lua-picks-first/TS-picks-random split (make Lua accept the already-chosen parts, one contract; reason: two owners of selection invite a wrong test). ADD a balance change so win rate lands near 50% (arithmetic: baseline 170 gives about 41%, 180 about 58%; tune by test), a persisted record, and a visible Reset. Verify: new vitest runs 1,000 encounters and asserts win rate 35-65%; `uv run pytest tests/test_chimera_wilds.py`."
+  - "Phase 2 (M): one decision. CUT random player stats (fixed baseline). ADD \"build your fighter\": pick one part per slot from a small starter set under a price budget (uses the existing price field), then fight; wins pay credits to unlock more parts. Verify: headless test that every budget-legal build is playable and the best build beats the median chimera."
+  - "Phase 3 (S): showcase only if Phase 2 lands: ADD creatureArt/pixel-style toggle as the first adopter. CUT nothing. Verify: screenshot pair vector vs pixel."
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

@@ -51,3 +51,14 @@ TBD, ask Robert.
 5. Cabinet presentation: Inquest as a second cabinet card or a mode inside the one Succession card?
 6. May the M2 feedback prompt and devlog ask go out, and who posts them?
 No support or vendor-scale promises: this is a solo-built demo; feedback is read when read, nothing is guaranteed back.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "Robert's intent: Clue with the added pressure of vying for a Crown. What got built is a persuasion game: win three court figures (Chancellor Vane, Archbishop Valerius, General Brand) by Whisper, Formal Appeal or Archival Evidence, before two rivals (Aldric, Vivienne) do (ts/src/games/succession/docs/Succession_Design_and_Identity.md \"The Core Loop, Locked\"). Built in one burst on 2026-08-15, hardened by seven ADRs (ADR-007 locked methods, 09-29, PR #59). The Clue half is only partly there: engine/deduction.ts holds a Suspect/Method/Motive triad and an Indictment move, but each councilor is the culprit of his own fixed case (COUNCIL_CASE_SOLUTIONS, deduction.ts:121), so there is no single \"who killed the old ruler\". Drift: the design doc's \"next phase\" is more inquiry systems while the core loop has never been tested with a player."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

@@ -1,0 +1,22 @@
+# House of Kings: Collab roadmap
+
+```yaml roadmap
+status: draft
+milestones:
+  - id: M0
+    name: Keep-alive gate
+    exits:
+      - file: docs/demos/house_of_kings_collab/DIRECTION.md
+    steps:
+      - kind: docs
+        size: S
+        text: Confirm the current shippable state against the direction note.
+  - id: M1
+    name: "Await Robert’s approved direction before changing the demo."
+    exits:
+      - file: docs/demos/house_of_kings_collab/DIRECTION.md
+    steps:
+      - kind: docs
+        size: S
+        text: "Await Robert’s approved direction before changing the demo."
+```

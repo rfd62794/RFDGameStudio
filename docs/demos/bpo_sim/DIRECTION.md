@@ -36,3 +36,14 @@ This is the contact-center dialer domain of your day job (fictional names ACBS, 
 - The demo becomes "BPO Sim": country-agnostic, not Filipino-specific. The player picks a BPO-heavy country from a data list (Philippines, India, Malaysia, Vietnam, Poland, Romania, Egypt, South Africa, Kenya, Colombia, Mexico, Costa Rica). Countries differ ONLY by neutral business attributes (labor cost, time-zone overlap with the client, talent-pool size, connectivity risk, attrition, regulatory overhead). No accent or language jokes, no caricature, no national stereotyping in copy, characters or events; the cast is diverse and neutral.
 - Directives: BPO_Sim_Country_Data_Directive, BPO_Sim_Repromote_And_Rename_Directive, BPO_Sim_Country_Selector_Directive, BPO_Sim_Neutral_Copy_Check_Directive (docs/directives/).
 - Publishing is not part of those directives: Robert approves the deploy after the local safe check.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "\"Call Center Tycoon\": you are the remote dialer operator, tuning list purity/freshness and dialer pace against a daily quota while the floor is watched, not commanded (intake/filipino-bpo-simulator/Design.md:6-27 pillars \"Limited Control, Full Responsibility\", \"Agents Are Weather\"). It began as an AI Studio cubicle tycoon (87f351f0, 2026-09-03) full of agent management; the same day Design.md (ddd0cd3c) cut agents as an entity and Phase 1 built List/Dialer/Quota (1e23c9bc, 22 tests), Phase 2 added tabbed Dashboard/Floor/AfterHours (30b17dd4), Phase 2b replaced tabs with a permanent isometric floor plus popups, RollerCoaster Tycoon style (9d584a8b, Phase2b_PermanentFloor_Directive.md). The whole history is one day (2026-09-03); nothing since."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

@@ -28,3 +28,14 @@ How should salvage be spent, given a parked hideout? Recommended default: keep p
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - Directive 1 is `Systemic_Extract_Honest_Blurb_Directive` (blurb, tags and a favicon; the cover screenshot is a browser step). Directive 2, the hideout decision page, is `docs/demos/systemic_extract/HIDEOUT_DECISION.md` (created by `Docs_E_Corrections_Directive`). Directive 3 waits for Robert's answer.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A top-down extraction roguelite plus base-builder on one 200x200 megamap: deploy from a sanctuary into four dungeon sectors, survive spreading hazards and escalating hives on a headless ECS simulation, extract salvage, spend it on the base. Imported from AI Studio as intake 0.1.0R1 (`75277c70`, 2026-09-18), registered the same day (`2e85920a`), given its own node_modules and vitest (`0b1878fe`), and documented with an architecture map and audit backlog (`81727dde`). The intent is two loops (raid and hideout); the code shipped one: the megamap rewrite (\"ADR 011\") left the hideout meta loop orphaned, and the README backlog item 1 says players collect scrap \"with nowhere to spend it\"."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

@@ -30,3 +30,14 @@ None. Default: keep the Lua sim as is (ADR-013 retired Lua as a portability carv
 - Run logic is not untested: `tests/test_slither_rogue.py` already runs the real Lua headless (14 tests). Replan step 2 became whole-run checks (`Slither_Rogue_Run_Tests_Directive`).
 - There are no 'pre-existing TS errors': `tsc --noEmit` reports nothing in any `slither_rogue` file and a prototype `vite build:slither_rogue` succeeded (661.89 kB JS). The build script is `Slither_Rogue_Hygiene_Build_Directive`.
 - Nobody dies in this game: the only `game_over` is the timer, and rivals steal tail segments (a Shield card blocks it). Replan step 3's 'cause of death' became a 'try this next' tip on the end card (`Slither_Rogue_Run_Tip_Directive`).
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "\"Slither.io meets roguelike\": steal segments, collect evolution cards on level-up, survive a timed arena run, chase a high score. Built 2026-06-26 as a Lua-driven port alongside horse_racing (`a5fd236d`, Phase 2g) (`76623568` data/logic, `24f8e21d` App with menu/game/game-over, `f76e05f4` canvas), then moved physics, collision and AI out of TS into Lua in \"Phase 2h\" (`8b0d73d7`, `945de2e1`, 06-27) and rebalanced in Phase 2s (`9c9ff3af`: magnet radius cut 60 to 25 px, shield regen). Since then only chrome: GameShell migration (`3be74824`), svh fix (`c4fcbfd4`), first-run primer, HUD mute, SFX, canvas contrast (`3e35ef1e`, 09-29). Intent is unchanged; the game stopped growing at balance."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

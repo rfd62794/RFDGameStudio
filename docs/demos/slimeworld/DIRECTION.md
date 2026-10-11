@@ -163,3 +163,14 @@ TBD, ask Robert. (Candidates: Tier A polish standard plus a headless balance tes
 1. Slimeworld_Ranch_Data_And_Model: data files (species, recipes, zones, gates, fruit) plus the pure-TS model (traits, inheritance, mutation, plort economy, gate check, save schema), with unit tests; no UI; S-M; blocked on open questions 1, 5, 6, 13.
 2. Slimeworld_Ranch_Forage_Loop: trees, basket, lure resolution, twist interface, Meadow screen at 360 px with a headless lure test; M; after 1.
 3. Slimeworld_Ranch_Hub: the five Hub stations and zone map, Frost twist, one gate, headless balance test; M; after 2.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "The 2026-10-04 version of this file said \"merge of SlimeGarden's breeding/dispatch/territory loop and SlimeBreeder's codex, TS-native on a Lua rules layer.\" That is accurate history (`games/slimeworld` starts 2026-07-14, `4182ccc1`; 142+ commits) and it is also the diagnosis: the loop grew into breed + dispatch + territory + belief/culture/fealty/favors/petitions, a territory-conquest game wearing a slime skin (docs/gdd/SlimeWorld_Design_Rev3.md; games/slimeworld/territory.lua, regionlock.lua, favors.lua, missions.lua). It collapsed under its own scope."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

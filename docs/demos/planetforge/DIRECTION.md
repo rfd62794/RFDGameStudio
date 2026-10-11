@@ -29,3 +29,14 @@ TRIM. 1) Two engines plus a duplicate directive is accumulated noise; cut it bef
 
 ## Open question for Robert
 Delete the dead `gameLogic.ts` (the Phase 2 directive deferred this to you)? Recommended default: yes, it is unused and its tests assert behaviour the game does not run.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A ring-world god-game: 32 tiles in 8 four-tile sectors, elemental tiers per tile, soil stability that ratchets sectors up, harvesting, and one-shot Monuments that add \"Focus\" to planetary balance (examples/planetforge/src/App.tsx:1-4, engine/slimeEngine.ts:76-101). It is a translation of an abandoned Rust spec (ADR-002): Phase 2 directive says slimeEngine \"appears to be a near-direct translation of the abandoned Rust ADR-002 spec\" built without authorization (docs/directives/PlanetForge_Phase2_Correction_Directive.md:17-20). Registered 2026-08-22 (907f2509). 2026-09-24/27: Phase 1 TS model (62a3d8cf), Phase 2 correction (clamp tiers to [0,3], throw on unhandled soil, PR #45), source link for deploy (3ccc415c, 2026-10-04)."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

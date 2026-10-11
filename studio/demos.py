@@ -15,8 +15,7 @@ Everything is derived from evidence already in the repo:
     ts/src/games/game-metadata.json     git-derived tracking data (also
                                         gitignored — absent is normal)
     ts/src/games/<id>/                  a demo's primary folder
-    games/<id>/                         the Lua four-file folder (doubles as
-                                        the demo's docs_path)
+    docs/demos/<id>/                    per-demo docs folder, when present
 
     uv run python -m studio.demos list           # every demo, sorted by id
     uv run python -m studio.demos paths <id>     # a demo's working area
@@ -68,7 +67,7 @@ class Demo:
     path: str          # repo-relative primary folder
     stage: str         # manifest status, else config status, else pipeline stage
     published: bool    # pipeline stage reached a real deploy target
-    docs_path: str | None  # games/<id>/ when that folder exists, else None
+    docs_path: str | None  # docs/demos/<id>/ when that folder exists, else None
 
 
 def _read(path: Path) -> str | None:
@@ -169,7 +168,7 @@ def list_demos(root: Path = REPO_ROOT) -> tuple[Demo, ...]:
             path=path,
             stage=str(stage),
             published=pipeline in DEPLOYED_STAGES,
-            docs_path=f"games/{demo_id}" if demo_id in lua_dirs else None,
+            docs_path=f"docs/demos/{demo_id}" if (root / "docs" / "demos" / demo_id).is_dir() else None,
         ))
     return tuple(demos)
 
@@ -278,11 +277,13 @@ def demo_check(demo_id: str, root: Path = REPO_ROOT) -> str:
 def render_children_index(root: Path = REPO_ROOT) -> str:
     """The text of the swarm-facing children index, computed in memory.
     Deterministic: sorted by id, two-space indent, one trailing newline."""
-    children = [
-        {"id": d.id, "path": d.path, "label": d.label}
-        for d in list_demos(root)
-    ]
-    return json.dumps({"version": 1, "children": children}, indent=2) + "\n"
+    children = []
+    for d in list_demos(root):
+        child = {"id": d.id, "path": d.path, "label": d.label}
+        if d.docs_path is not None:
+            child["docs_path"] = d.docs_path
+        children.append(child)
+    return json.dumps({"version": 1, "children": children}, indent=2, sort_keys=False) + "\n"
 
 
 def write_children_index(
@@ -310,9 +311,8 @@ def problems(root: Path = REPO_ROOT) -> list[str]:
 
     if manifest is not None:
         for demo in demos:
-            if demo.id in manifest and not (root / demo.path).is_dir() and not (
-                demo.docs_path and (root / demo.docs_path).is_dir()
-            ):
+            has_code_folder = (root / demo.path).is_dir() or (root / LUA_GAMES_REL / demo.id).is_dir()
+            if demo.id in manifest and not has_code_folder:
                 out.append(f"{demo.id}: listed in arcade-manifest.json but has no demo folder")
 
     indexes = [n for n, d in (("arcade-manifest.json", manifest),

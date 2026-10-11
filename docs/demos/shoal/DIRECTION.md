@@ -87,3 +87,14 @@ TBD, ask Robert. His time per demo varies, so no review cadence is assumed.
 5. Mobile touch controls: drag-to-steer, tap-to-go, or a virtual stick? (Pointer events already used; rotate-hint layout applies.)
 6. Cabinet presentation of both modes: one card, two screenshots, genre/tag wording. config.ts currently comments Shoal as "no-player-agency" and tags it `ecosystem-sim`; that text needs updating once Evolve ships.
 7. Milestone style (accept the PROPOSED playable slices?) and review model per milestone.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A watch-and-seed reef: fish graze, sharks hunt, algae rises and sinks with grazing pressure, no win state (ts/src/games/shoal/config.ts:7-14). It began as an external static embed (e40954be, 2026-07-10), was rebuilt as \"Shoal 2.0\" continuous steering in TS+Lua (b592356c, db31a159, 07-11), then the Lua executor was replaced by a TS-native sim for a measured 151.7x speedup (games/shoal/ROADMAP.md, CHANGELOG \"Production TS-Native Migration\", 2026-08-14). Drift: the intent stayed \"ecosystem toy\", but 80% of the effort since went into performance and renderer profiling, not into giving a player a reason to return."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

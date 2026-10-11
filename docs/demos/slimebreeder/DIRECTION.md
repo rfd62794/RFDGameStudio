@@ -24,3 +24,16 @@ POLISH (Tier A only, then freeze).
 3. Slimebreeder_Screenshot_Cover - one cover/screenshot in the arcade manifest (A5); S; after 1.
 ## Open question for Robert
 None. (Contradiction noted: SlimeBreeder's own ROADMAP still says "active"; recommended default is to mark it frozen, per the settled decision.)
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A standalone offline idle breeding PWA for a Moto G (React 19 + Zustand + Dexie), built 2026-04-10..11 in sibling repo SlimeBreeder (first commit `ec8738b`, scaffold; `5fc00b7` core loop; `7cd3b72` economy spec, 55 commits total). Four tabs: CHAMBER (30 s incubation, display rooms), MUTATE (breeding), CODEX (12 colors x 11 shapes), MARKET (wanderer contracts) (SlimeBreeder docs/DIRECTION.md:5-35). Intent drifted twice: its own repo kept planning a long economy roadmap (docs/ROADMAP.md M1 caps/gates, status draft, approved \"\"), while the studio decided it is an Origin of SlimeWorld (`supersededBy`, config.ts:3-8, ADR-023). Studio archived the source (`ee207f4b`, 2026-09-22), audited absorption (docs/analysis/slimebreeder-absorption.md: 10 absorbed / 4 port / 1 data / 8 drop) and ported the 4 items (`44522310` regents, `b5e457d0` decline, `ab3a95ad` tier pricing, `0d7753a2` worker income)."
+done_when:
+  - "Phase 1 (S): finish Tier A. CUT the repo path from the blurb (leaks dev detail). ADD Reset/New Game with a 2-click confirm and an \"Origin of SlimeWorld, play it here\" link in the header. Verify: `cd ts && npx vitest run` blurb test, plus a Playwright click on Reset returns to the first screen."
+  - "Phase 2 (S): freeze. CUT the sibling ROADMAP.md M1-M3 by marking the repo's DIRECTION/ROADMAP \"frozen exhibit; see RFDGameStudio docs/demos/slimebreeder/DIRECTION.md\" (stops Devin picking it up again, `8c008e9` already superseded one auto-directive). ADD a real README (3 lines). Verify: `git grep -n \"frozen exhibit\"` in SlimeBreeder."
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

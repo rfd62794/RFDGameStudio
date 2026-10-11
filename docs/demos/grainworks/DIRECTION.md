@@ -25,3 +25,17 @@ POLISH.
 3. Particle sandbox autosave and seeded golden test. M. Depends on: 1.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "`particle_void` from roadmap Tier 2 (`docs/RFDGameStudio_DemoPortingRoadmap.md:88`): an AI Studio cellular-automata sandbox with 12 materials, pipes, collectors, processors and four tiers ending in a Reconstruction view (`examples/grainworks/src/types.ts:1-31`). Intake 0f5b08d1 (2026-10-03); ported by `Port_Voidrift_Particle_Sandbox_Directive.md` (marked Done in d86c888f); the Devin run died and was finished by hand (27908e69 \"wip\", 571e44f7 \"finish port after run died\"). The intent is intact (a falling-sand toy that becomes a factory game); nobody has yet tuned it for the cabinet."
+done_when:
+  - "Phase 1 (S): Tier A. CUT: `window.confirm` reset (blocks in iframes). ADD: TitleScreen with a one-line pitch, an in-game Restart button, `build:grainworks`. Verify: build exits 0; audit A3/A4."
+  - "Phase 2 (M): first 60 seconds. CUT: all but Tier 1 tools until the first goal is met (the rest of the panel is noise on a first visit). ADD: a \"drop material, catch it\" first-goal card, a 390 px touch pan/zoom check, autosave of grid plus buildings. Verify: Playwright phone screenshot; save round-trip test."
+  - "Phase 3 (S): determinism. ADD: seeded grid-step golden test. Verify: it passes before and after any later refactor."
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

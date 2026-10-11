@@ -30,3 +30,14 @@ POLISH. 1) Strongest design and sim in the group; the week structure is already 
 
 ## Open question for Robert
 Embed or TS-native port? SCOPE called a rewrite a Wave 2 candidate (polish spec section 4) and the roadmap notes the `aiBehavior` adapter fit. Recommended default: stay an embed through directive 3; revisit the port only after the tests can run under `cd ts && npm test`.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "\"The Line\": a kitchen where a crew of autonomous workers runs a burger joint and you set policy, over seven escalating days where each night's shop unlock IS the tutorial (examples/7-days-to-fry/docs/Design.md v4: Vision, \"The Real Week\" table). Day 1 burgers only; Day 2 Fries; Days 3-4 numeric upgrades; Day 5 coffee for customers; Days 6-7 Soda; Day 7 survived = Week Survived, then an uncapped Tier 2. Intake manifests 2026-08-04 (cb5e5366), source tracked 2026-08-30 (c203df7e). The registry blurb (\"a cooking survival game\", config.ts:7) comes from the AI Studio title and has never matched the design: a taxonomy-gap comment in config.ts shows the genre was left empty (d17e85fa, 2026-08-23)."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

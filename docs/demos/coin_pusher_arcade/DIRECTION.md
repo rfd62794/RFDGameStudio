@@ -32,3 +32,14 @@ Does coin_pusher_arcade stay beside SlimeCoin? Recommended default: PARK at dev 
 - Verdict changes from PARK to REDESIGN as a pachinko-style RPG (Robert 17:17: "Coin pusher can be reworked into a pachinko style rpg I think").
 - Concept and replan: docs/demos/coin_pusher_arcade/CONCEPT_PACHINKO_RPG.md; the Replan above is superseded.
 - coin_pusher_arcade stays held back from the publish (status dev, not featured) until the rework passes a playtest.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "An AI Studio export of a physics coin pusher: drops, combos, a reward wheel, special pocket coins, named pressure levels (Neon Entryway, Slate Boulevard...) with push targets, and localStorage meta-progression (examples/coin-pusher-arcade/src/data.ts:182; metadata.json). It was tracked in the intake commit 0f5b08d1 (2026-10-03), then ported to TS-native in one commit, 7a1fd77f (2026-10-04, 20 files, +4,142), as `status: 'dev'` per Port_Coin_Pusher_Arcade_Directive; cd21e099 aligned the config and added data tests. The DemoPortingRoadmap listed it as \"Archived, not deployed\" (line 76). Drift: the 10-03 SCOPE.md still treats it as unported; it is not. It was registered before anyone asked what it adds beside slime_coin."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

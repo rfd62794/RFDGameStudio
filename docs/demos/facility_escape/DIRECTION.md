@@ -29,3 +29,14 @@ None. Research agrees with the settled embed-only stance; no direction change pr
 ## Corrections (2026-10-04, measured while writing the directives)
 - The room counter (`Room n/8`, about line 577 of `examples/facility-escape/src/App.tsx`) and a final result card (rooms cleared, turns taken, hearts left, about lines 790 to 805) already exist. Replan step 2 therefore shrinks to the three-line turn-one hint (`Facility_Escape_First_Turn_Hint_Directive`).
 - The wording cleanup is `Facility_Escape_Player_Wording_Directive`. The 390x844 phone check and the screenshots need a browser and stay controller steps.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A turn-based stealth puzzle where guards commit to their next action before you move, so every turn is a read-the-sightlines decision. Imported as AI Studio export v0.1.0R1 (intake manifest `ae4d0f9b`, 2026-08-06; source tracked `3f47e61d`, 08-30; genre `puzzle-stealth` `d17e85fa`, 08-23). The code self-describes as a \"MECHANICS PROTOTYPE\" (`examples/facility-escape/src/App.tsx:543`), and the porting roadmap rates it \"real BFS guard pathfinding, real A* level solver\" (`docs/RFDGameStudio_DemoPortingRoadmap.md:63`). Intent was a rules test; the drift is that it now ships as a card."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```

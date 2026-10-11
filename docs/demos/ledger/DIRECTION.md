@@ -28,3 +28,14 @@ Stop there; promote nothing, port nothing.
 3. Ledger game-over reason line - S - none.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: "2026-10-11 robert"
+purpose: "A tight 10-day trading-and-appraisal run: inspect walk-ins, bid in Dutch auctions, resell into a volatile market, and clear a compounding loan by day 10, with soft lockout for missed payments (examples/ledger/metadata.json; ts/src/games/ledger/config.ts:7). It is an AI Studio export (examples/ledger/README.md), embedded as a same-origin demo on 2026-07-10 (e40954be), tracked 07-11 (6b7c2b09). Drift: none; it was always a finished short run, not a campaign, and the studio has treated it as an honest embed since."
+done_when: []
+do_not: []
+audience: players
+hours_per_week: "1-3"
+stakes: medium
+```
