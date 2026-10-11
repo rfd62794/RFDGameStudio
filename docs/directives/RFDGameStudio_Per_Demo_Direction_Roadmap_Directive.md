@@ -78,3 +78,17 @@ AgentFlow is gaining the ability to address each demo as `RFDGameStudio/<demo>` 
 ## 8. Report
 
 Demo count, how many direction blocks were appended vs. already present, how many roadmaps were created, the derivation rules used, and any demos whose prose was too thin to derive fields.
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-11 12:05 · devin-overseer (delegated) · none → Queued — under delegate.envelope
+<!-- queue:end -->
