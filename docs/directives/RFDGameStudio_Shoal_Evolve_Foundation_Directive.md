@@ -18,18 +18,19 @@ This supersedes only the earlier "one page, two modes" delivery decision. It pre
 2. Reuse `ts/src/games/shoal/simulation/shoalSimulation.ts` directly. Do not copy or fork it.
 3. Add small sequel modules under `ts/src/games/shoal_evolve/` (or a comparably narrow sequel-owned folder):
    - `playerFishController.ts` — pointer/touch target in, steering force out; pure and deterministic.
-   - `growthStages.ts` — feeding thresholds, one visible growth transition, and one-stage setback; pure data/functions.
-   - `modeState.ts` — selected fish, player progress, and respawn/setback state; pure.
-4. Add the smallest optional steering/control seam to the shared simulation. Uncontrolled fish must retain their current AI behavior.
-5. Implement the first playable slice:
+   - `growthStages.ts` — cumulative-graze thresholds, one visible growth transition, and one-stage setback; pure data/functions. Do not use `Fish.fed` as durable progress because breeding resets it.
+   - `modeState.ts` — selected fish id, cumulative feeding progress, stage, respawn/setback state, and rebinding after respawn; pure.
+4. Extend `InputState` additively with an optional steering command shaped as `{ fishId, fx, fy }`. The sequel computes force; the simulation only applies it to the matching live fish before the existing movement clamps. `tickGame(dt, null)` and all uncontrolled fish must retain current behavior.
+5. Use the public `createShoalSimulation().getState()` seam for `Fish.fed`, radius, speed, and alive state; do not add redundant fields to `RenderState` solely for sequel orchestration. Use public `tickGame`, not the exported test helper `tickGameInternal`, which currently ignores input.
+6. Implement the first playable slice:
    - initialize the existing living reef,
    - select or assign one ordinary fish,
    - steer it with pointer/touch,
    - eat algae while AI fish compete for the same food,
    - cross one feeding threshold and visibly change size/speed,
    - when eaten, respawn with a one-stage setback rather than permanent death.
-6. Keep the sequel UI thin. Existing Shoal `App.tsx` must not gain sequel-specific responsibilities.
-7. Regenerate child metadata through `uv run python -m studio.demos index`; do not hand-edit generated JSON if the generator owns it.
+7. Keep the sequel UI thin. Existing Shoal `App.tsx` must not gain sequel-specific responsibilities.
+8. Regenerate child metadata through `uv run python -m studio.demos index`; do not hand-edit generated JSON if the generator owns it.
 
 ## 3. Engineering constraints
 
@@ -65,11 +66,12 @@ Add `ts/tests/test_shoal_evolve_foundation.ts` (or focused files with equivalent
 
 1. The sequel initializes and ticks the existing Shoal simulation contract.
 2. A deterministic control target changes only the selected fish's steering.
-3. The selected fish can consume algae and reach exactly one growth threshold.
+3. Positive grazing deltas accumulate across the existing breeding reset and reach exactly one growth threshold.
 4. Size/speed change at the threshold without NaN or negative state.
 5. AI fish continue consuming algae and competing in the same simulation.
-6. Predation applies a one-stage setback and respawn, not permanent death.
-7. Original Shoal remains unchanged under its existing headless scenarios.
+6. Predation applies a one-stage setback and respawn, not permanent death; sequel state rebinds to the newly spawned fish id.
+7. A stale/dead steering id is a safe no-op.
+8. Original Shoal remains unchanged under its existing headless scenarios.
 
 Run:
 
