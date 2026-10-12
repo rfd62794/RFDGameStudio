@@ -1,4 +1,5 @@
 // types.ts — SlimeCoin TypeScript types
+import type { RoundRecap } from './utils/roundRecap';
 
 export interface SlimeCoin {
   id: number;
@@ -69,6 +70,7 @@ export interface SlimeCoinGameState {
   tokens: number;
   shot_queue: string[];
   exchanges_used: number;
+  last_recap?: RoundRecap;
 }
 
 export interface SlimeCoinInput {
@@ -94,6 +96,9 @@ export interface SlimeCoinRenderState {
   shot_queue: string[];
   vat_coins: SlimeCoin[];
   exchanges_used: number;
+  target?: number;
+  target_met?: boolean;
+  synergy_fired?: Record<string, number>;
   active_synergies: Array<{
     type_a: string;
     type_b: string;

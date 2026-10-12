@@ -15,6 +15,8 @@ import { sound } from './utils/sound';
 import { exchangeCost } from './utils/exchangeCost';
 import BoardCanvas from './components/BoardCanvas';
 import ShopModal from './components/ShopModal';
+import RoundRecap from './components/RoundRecap';
+import { buildRoundRecap } from './utils/roundRecap';
 import PocketPicker from './components/PocketPicker';
 import CoinPrimer from './components/CoinPrimer';
 import { SLIME_COIN_BLURB } from './blurb';
@@ -136,7 +138,7 @@ export default function App({ session }: GameRendererProps) {
 
       // Check for phase transition
       if (result.phase === 'card_select') {
-        setState(prev => prev ? { ...prev, phase: 'card_select', offered_cards: result.offered_cards ?? [] } : prev);
+        setState(prev => prev ? { ...prev, phase: 'card_select', offered_cards: result.offered_cards ?? [], last_recap: buildRoundRecap(result) } : prev);
       } else if (result.phase === 'run_end') {
         sound.playRunEnd(result.score >= state.target_score);
         setState(prev => prev ? { ...prev, phase: 'run_end' } : prev);
@@ -378,6 +380,10 @@ export default function App({ session }: GameRendererProps) {
             } tokens
           </button>
         </div>
+      )}
+
+      {state.phase === 'card_select' && state.last_recap && (
+        <RoundRecap recap={state.last_recap} />
       )}
 
       {state.phase === 'card_select' && state.offered_cards.length > 0 && (
