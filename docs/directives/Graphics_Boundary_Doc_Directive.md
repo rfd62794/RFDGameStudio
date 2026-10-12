@@ -79,7 +79,7 @@ Findings first: the number of table rows and any canvas or SVG user you found be
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-graphics-boundary-doc-directive |
 | Base branch | - |
@@ -91,4 +91,5 @@ Findings first: the number of table rows and any canvas or SVG user you found be
 - 2026-10-12 07:09 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 - 2026-10-12 07:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-graphics-boundary-doc-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QWWAQRDYSG7C3G901SHQMB
 - 2026-10-12 07:10 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-graphics-boundary-doc-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-12 07:33 · devin · In progress → Blocked — Work complete + verified, committed edaab7b1 on the directive branch (docs/GRAPHICS.md + ts/tests/test_graphics_doc.ts only). Push blocked: pre-push check.ps1 Python stage crashes with a native cpython access violation (0xC0000005, GC inside zipfile/RLock at tests/test_intake.py ~21%), reproduced 3x incl. outside the hook; unrelated to this diff (test_intake.py passes standalone 17/17; vitest 2946 pass/0 fail; tsc clean). Needed: git push -u origin directive/rfdgamestudio-graphics-boundary-doc-directive once the env crash is resolved, or Robert pushes/--no-verify.
 <!-- queue:end -->
