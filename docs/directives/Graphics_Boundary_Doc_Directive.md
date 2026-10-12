@@ -79,11 +79,12 @@ Findings first: the number of table rows and any canvas or SVG user you found be
 
 | Field | Value |
 |---|---|
-| Status | Draft |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M6.1 (approved 2026-09-22; Phase 0 of the 2026-09-24 graphics plan) had no directive; docs/GRAPHICS.md does not exist
+- 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 <!-- queue:end -->
