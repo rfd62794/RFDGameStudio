@@ -79,11 +79,12 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Draft |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — slime_coin DIRECTION.md Replan item 3 / first-three directive 3 ("round recap panel"); no directive existed
+- 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 <!-- queue:end -->
