@@ -86,13 +86,15 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-seeded-random-single-copy--9f6854 |
 | Base branch | - |
+| Base commit | c34e1ad106235d66fed00d9a469211541745779a |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.2 (approved 2026-09-22) had no directive; three verified private copies of mulberry32 remain; needs Engine_Systems_Inventory merged first
 - 2026-10-12 07:53 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:53 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
+- 2026-10-12 07:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QZCNN39ZGWTWEVPSH8JAK4
 <!-- queue:end -->
