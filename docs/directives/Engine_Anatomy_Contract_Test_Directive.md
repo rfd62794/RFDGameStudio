@@ -86,7 +86,7 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
@@ -94,4 +94,5 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.3 (approved 2026-09-22), first system; anatomy has only indirect MBB coverage; needs Engine_Systems_Inventory merged first
 - 2026-10-12 07:53 · robert-claude-laptop · Draft → Queued
+- 2026-10-12 07:56 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 <!-- queue:end -->
