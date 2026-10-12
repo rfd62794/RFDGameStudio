@@ -86,11 +86,12 @@ Findings first: golden count and total bytes, whether any render was non-determi
 
 | Field | Value |
 |---|---|
-| Status | Draft |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M5.2 (approved 2026-09-22) had no directive; M5.1 doc is on main; prerequisite for the M6 pixel work
+- 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 <!-- queue:end -->
