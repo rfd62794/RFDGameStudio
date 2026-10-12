@@ -85,13 +85,15 @@ Findings first: the number of rows, and every system with `none yet` consumers o
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-systems-inventory-directive |
 | Base branch | - |
+| Base commit | 4e426b92a4019ba7606d8e866d8dd0b4d6a7d6a3 |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.1 (approved 2026-09-22) had no directive; documentation plus a guard test, no source changes
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:07 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
+- 2026-10-12 07:08 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-systems-inventory-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QWRKGSENVRQCG97VK10JQW
 <!-- queue:end -->
