@@ -86,11 +86,12 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Draft |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.2 (approved 2026-09-22) had no directive; three verified private copies of mulberry32 remain; needs Engine_Systems_Inventory merged first
+- 2026-10-12 07:53 · robert-claude-laptop · Draft → Queued
 <!-- queue:end -->
