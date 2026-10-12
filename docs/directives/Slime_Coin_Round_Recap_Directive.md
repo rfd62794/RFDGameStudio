@@ -79,7 +79,7 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
@@ -91,4 +91,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-10-12 07:44 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 - 2026-10-12 07:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QYTX8CRSTDA265CGY9DZER
 - 2026-10-12 07:44 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-12 18:31 · agentflow-tick · In progress → Blocked — host shutdown/reboot; last activity 2026-10-12T08:05:23, found gone at 2026-10-12T18:14:13 (boot 2026-10-12T18:13:18, trigger lock-takeover); wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 pushed
 <!-- queue:end -->
