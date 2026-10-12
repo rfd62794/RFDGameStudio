@@ -86,7 +86,7 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
@@ -94,4 +94,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.2 (approved 2026-09-22) had no directive; three verified private copies of mulberry32 remain; needs Engine_Systems_Inventory merged first
 - 2026-10-12 07:53 · robert-claude-laptop · Draft → Queued
+- 2026-10-12 07:53 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 <!-- queue:end -->
