@@ -86,13 +86,15 @@ Findings first: golden count and total bytes, whether any render was non-determi
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-creature-golden-snapshots-directive |
 | Base branch | - |
+| Base commit | 0cb06eee855e7ea692900433d17f2b7c9378adf8 |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M5.2 (approved 2026-09-22) had no directive; M5.1 doc is on main; prerequisite for the M6 pixel work
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:42 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
+- 2026-10-12 07:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-creature-golden-snapshots-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QYQPZTCKSKNQFAD26GZNND
 <!-- queue:end -->
