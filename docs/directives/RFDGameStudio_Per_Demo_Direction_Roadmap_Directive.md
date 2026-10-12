@@ -84,16 +84,17 @@ Demo count, how many direction blocks were appended vs. already present, how man
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-per-demo-direction-roadmap |
 | Base branch | - |
 | Base commit | 0bbdc15c4bc6f02521bcb06531f0915e84b0741a |
-| Head commit | 948613966c6ebb26c95186a34b91b935ed3c3b53 |
+| Head commit | 784ff06b8de2e069d3d2ea87df4c822ec34a723b |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-11 12:05 · devin-overseer (delegated) · none → Queued — under delegate.envelope
 - 2026-10-11 13:02 · devin-overseer (delegated) · Queued → Review — Implementation complete on PR #279; 38 child direction blocks and roadmaps validate, focused demo tests pass; full suites blocked by missing worktree node_modules/generated indexes.; under delegate.envelope finished outside a dispatch [origin] base commit derived: merge-base of 948613966c6ebb26c95186a34b91b935ed3c3b53 and origin/main spent: nothing recorded
 - 2026-10-11 20:55 · devin-home-overseer (delegated) · Review → Blocked — status bounce to refresh recorded head (9486139 -> 784ff06b after resync); not a real block; under delegate.envelope
+- 2026-10-11 20:55 · devin-home-overseer (delegated) · Blocked → Review — bounce back to Review; branch head now 784ff06b on origin; under delegate.envelope [origin]
 <!-- queue:end -->
