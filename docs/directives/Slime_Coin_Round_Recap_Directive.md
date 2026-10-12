@@ -79,13 +79,15 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
+| Base commit | ce96bc980905adccc9485a8d6793c5a7d6b24a29 |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — slime_coin DIRECTION.md Replan item 3 / first-three directive 3 ("round recap panel"); no directive existed
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:44 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
+- 2026-10-12 07:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QYTX8CRSTDA265CGY9DZER
 <!-- queue:end -->
