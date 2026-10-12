@@ -79,7 +79,7 @@ Findings first: the number of table rows and any canvas or SVG user you found be
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
@@ -87,4 +87,5 @@ Findings first: the number of table rows and any canvas or SVG user you found be
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M6.1 (approved 2026-09-22; Phase 0 of the 2026-09-24 graphics plan) had no directive; docs/GRAPHICS.md does not exist
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
+- 2026-10-12 07:09 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 <!-- queue:end -->
