@@ -97,4 +97,5 @@ Findings first: golden count and total bytes, whether any render was non-determi
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:42 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 - 2026-10-12 07:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-creature-golden-snapshots-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QYQPZTCKSKNQFAD26GZNND
+- 2026-10-12 07:43 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-creature-golden-snapshots-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
