@@ -97,4 +97,5 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 - 2026-10-12 07:53 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:56 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 - 2026-10-12 07:56 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QZHBR3RWZK9G9ZY34YM2RA
+- 2026-10-12 07:57 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
