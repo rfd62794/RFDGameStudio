@@ -79,13 +79,15 @@ Findings first: the number of table rows and any canvas or SVG user you found be
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-graphics-boundary-doc-directive |
 | Base branch | - |
+| Base commit | 1f3f4116a8bdb6cc816623eb115c0de47d4a75f2 |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M6.1 (approved 2026-09-22; Phase 0 of the 2026-09-24 graphics plan) had no directive; docs/GRAPHICS.md does not exist
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:09 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
+- 2026-10-12 07:10 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-graphics-boundary-doc-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QWWAQRDYSG7C3G901SHQMB
 <!-- queue:end -->
