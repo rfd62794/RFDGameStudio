@@ -86,13 +86,15 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-engine-anatomy-contract-test-directive |
 | Base branch | - |
+| Base commit | 1400b1a005f50f323b421c95fd008c76d7c6c63d |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.3 (approved 2026-09-22), first system; anatomy has only indirect MBB coverage; needs Engine_Systems_Inventory merged first
 - 2026-10-12 07:53 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:56 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
+- 2026-10-12 07:56 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QZHBR3RWZK9G9ZY34YM2RA
 <!-- queue:end -->
