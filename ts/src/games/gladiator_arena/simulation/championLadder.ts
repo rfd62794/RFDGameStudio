@@ -5,19 +5,14 @@
 
 import { ArenaTier, BodySlot, Gladiator } from '../types';
 import { SHOP_PART_CATALOG, STARTER_PARTS } from '../data/defaultParts';
+import { mulberry32 } from '../../../engine/shared/seededRandom';
 
 // ARENA_TIERS is built once at module import, before any caller can inject a
-// seeded Math.random. Enemy generation therefore uses its own fixed-seed PRNG
-// (mulberry32) and a counter instead of Date.now, so the ladder is identical
-// in every process.
+// seeded Math.random. Enemy generation therefore uses the shared mulberry32
+// PRNG with its own fixed seed and a counter instead of Date.now, so the
+// ladder is identical in every process.
 const LADDER_SEED = 0x1adde4;
-let ladderState = LADDER_SEED;
-function ladderRandom(): number {
-  ladderState = (ladderState + 0x6d2b79f5) | 0;
-  let t = Math.imul(ladderState ^ (ladderState >>> 15), 1 | ladderState);
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-}
+const ladderRandom = mulberry32(LADDER_SEED);
 let ladderIdCounter = 0;
 
 function createEnemyGladiator(
