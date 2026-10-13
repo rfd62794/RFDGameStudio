@@ -102,4 +102,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 - 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@a06cb2a8 has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
 - 2026-10-12 21:10 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
 - 2026-10-12 21:10 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCZZV6Q58F0CFR8C1FJ0VM
+- 2026-10-12 21:11 · dispatcher · launched pid=1472; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
