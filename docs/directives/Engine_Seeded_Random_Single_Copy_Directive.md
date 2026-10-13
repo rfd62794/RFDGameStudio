@@ -86,11 +86,13 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-seeded-random-single-copy--9f6854 |
 | Base branch | - |
 | Base commit | 601452e2274c57b437526e1b94be38fa645f0d5b |
+| Head commit | 73f0a4383dfdc5aaab3265d748bcf7de353cfa0d |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.2 (approved 2026-09-22) had no directive; three verified private copies of mulberry32 remain; needs Engine_Systems_Inventory merged first
@@ -103,4 +105,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 - 2026-10-12 21:10 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
 - 2026-10-12 21:10 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCZZV6Q58F0CFR8C1FJ0VM
 - 2026-10-12 21:11 · dispatcher · launched pid=1472; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-12 21:42 · devin (delegated) · In progress → Review — Done on 73f0a438: 3 private mulberry32 copies removed (championLadder.ts, scrapcrawl/playtest.ts, scrapcrawl/utils/simulateRun.ts -> shared mulberry32); new test_seeded_random_single_copy.ts (characterization digests recorded pre-change, unchanged after; guard allow-lists 5 files); ENGINE_SYSTEMS.md sentence + Test cell. Verification: new test 9/9; related 11/11; tsc clean; full suite failing set == baseline (1: test_arcade_metadata_expansion.ts grainworks metadata, pre-existing).; under delegate.envelope [origin]
 <!-- queue:end -->
