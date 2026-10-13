@@ -86,11 +86,13 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-anatomy-contract-test-directive |
 | Base branch | - |
 | Base commit | 0ae5126df7098e446b2b28840e92b4dbc2ccbcb2 |
+| Head commit | dccafe8bc32041aea16120613d2dc69c78e4bbca |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.3 (approved 2026-09-22), first system; anatomy has only indirect MBB coverage; needs Engine_Systems_Inventory merged first
@@ -103,4 +105,5 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 - 2026-10-12 21:09 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
 - 2026-10-12 21:09 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCY74C7F98ZMDTAB9RWD10
 - 2026-10-12 21:10 · dispatcher · launched pid=5884; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-12 21:43 · devin (delegated) · In progress → Review — 14/14 contract tests pass covering items 1-7; KNOWN doc-vs-code gap pinned: applyDamageToSlot doc comment says 'Pure' but it mutates the part. Baseline 1 fail (test_arcade_metadata_expansion.ts, grainworks metadata) = final fail set; tsc clean.; under delegate.envelope [origin]
 <!-- queue:end -->
