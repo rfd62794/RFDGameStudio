@@ -79,11 +79,11 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
-| Base commit | ce96bc980905adccc9485a8d6793c5a7d6b24a29 |
+| Base commit | fa18bff4aae6f98cd5228ed08bf895e8fe325d3c |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — slime_coin DIRECTION.md Replan item 3 / first-three directive 3 ("round recap panel"); no directive existed
@@ -94,4 +94,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-10-12 18:31 · agentflow-tick · In progress → Blocked — host shutdown/reboot; last activity 2026-10-12T08:05:23, found gone at 2026-10-12T18:14:13 (boot 2026-10-12T18:13:18, trigger lock-takeover); wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 pushed
 - 2026-10-12 20:39 · devin (delegated) · Blocked → Queued — devin-home-overseer cycle4: laptop reboot killed run; wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 is preserved on origin; hometower resumes instead, claimed in mail #688879; under delegate.requeue
 - 2026-10-12 20:40 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input, and preserved wip@3333331 is on origin; under delegate.band-normal, delegate.rate-limit
+- 2026-10-12 22:15 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; base origin/main (local main differs); lane=strong; model=default; persona=steady-builder; agent_id=01M4SGNF7QAXH54DVHKNPMM02D
 <!-- queue:end -->
