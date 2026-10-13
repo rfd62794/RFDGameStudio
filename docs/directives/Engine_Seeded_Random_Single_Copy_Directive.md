@@ -86,11 +86,11 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-seeded-random-single-copy--9f6854 |
 | Base branch | - |
-| Base commit | c34e1ad106235d66fed00d9a469211541745779a |
+| Base commit | 601452e2274c57b437526e1b94be38fa645f0d5b |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.2 (approved 2026-09-22) had no directive; three verified private copies of mulberry32 remain; needs Engine_Systems_Inventory merged first
@@ -101,4 +101,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 - 2026-10-12 21:09 · devin (delegated) · In progress → Blocked — Laptop dispatch is dead: no local worktree, no dispatch log/process, no directive branch on origin; wip ref a06cb2a8 is queue bookkeeping only and already ancestor of origin/main.; under delegate.envelope
 - 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@a06cb2a8 has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
 - 2026-10-12 21:10 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
+- 2026-10-12 21:10 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCZZV6Q58F0CFR8C1FJ0VM
 <!-- queue:end -->
