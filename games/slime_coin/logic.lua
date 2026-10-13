@@ -44,6 +44,7 @@ GAME_STATE = {
 
   -- v0.3: Active synergies (from owned cards)
   active_synergies = {},  -- {type_a, type_b, effect_id}
+  synergy_fired = {},  -- {effect_id_or_card_id = count} for the end-of-round recap
 
   -- Obstacles on shelf
   obstacles = {},  -- {id, type_id, x, y, hits_remaining}
@@ -188,6 +189,7 @@ function init_game(config)
   GAME_STATE.vat_coins = {}
   GAME_STATE.exchanges_used = 0
   GAME_STATE.active_synergies = {}
+  GAME_STATE.synergy_fired = {}
   
   -- Set target score for round 1
   GAME_STATE.target_score = 100
@@ -243,6 +245,7 @@ function start_round(round_num)
 
   -- v0.3: Reset exchange counter for new round
   GAME_STATE.exchanges_used = 0
+  GAME_STATE.synergy_fired = {}
 
   -- Apply round modifiers
   GAME_STATE.active_modifiers = {}
@@ -267,6 +270,9 @@ function end_round()
     target = GAME_STATE.target_score,
     target_met = target_met,
     offered_cards = GAME_STATE.offered_cards,
+    synergy_fired = GAME_STATE.synergy_fired,
+    shortfall = math.max(0, GAME_STATE.target_score - GAME_STATE.score),
+    surplus = math.max(0, GAME_STATE.score - GAME_STATE.target_score),
   }
 end
 
@@ -755,15 +761,18 @@ function trigger_chip_synergy(coin1, coin2)
     if card_id == 'zombie_slime' and coin1.type_id == 'basic' then
       -- Convert adjacent to zombie (basic)
       coin2.type_id = 'basic'  -- Simplified: just mark as affected
+      GAME_STATE.synergy_fired[card_id] = (GAME_STATE.synergy_fired[card_id] or 0) + 1
     elseif card_id == 'crystal_burst' and coin1.type_id == 'rare' then
       -- Multiply adjacent value
       coin2.value = coin2.value * 2
+      GAME_STATE.synergy_fired[card_id] = (GAME_STATE.synergy_fired[card_id] or 0) + 1
     elseif card_id == 'bubble_chain' and coin1.type_id == 'light' then
       -- Check for chain
       local chain_count = count_adjacent_type(coin2, 'light')
       if chain_count >= 5 then
         -- Pop chain for bonus
         GAME_STATE.score = GAME_STATE.score + chain_count * 10
+        GAME_STATE.synergy_fired[card_id] = (GAME_STATE.synergy_fired[card_id] or 0) + 1
       end
     end
   end
@@ -790,6 +799,7 @@ end
 
 -- v0.3: Trigger specific synergy effects
 function trigger_synergy_effect(effect_id, coin1, coin2)
+  GAME_STATE.synergy_fired[effect_id] = (GAME_STATE.synergy_fired[effect_id] or 0) + 1
   if effect_id == 'convert_basic_to_zombie' then
     -- Zombie + Basic: convert Basic to Zombie
     if coin1.type_id == 'basic' then

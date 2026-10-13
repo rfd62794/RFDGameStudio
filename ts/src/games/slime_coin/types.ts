@@ -1,5 +1,7 @@
 // types.ts — SlimeCoin TypeScript types
 
+import type { RoundRecap } from './utils/roundRecap';
+
 export interface SlimeCoin {
   id: number;
   type_id: string;
@@ -65,6 +67,7 @@ export interface SlimeCoinGameState {
   combo_timer: number;
   last_score_time: number;
   offered_cards: ChipCard[];
+  last_recap?: RoundRecap;
   selected_card: string | null;
   tokens: number;
   shot_queue: string[];
