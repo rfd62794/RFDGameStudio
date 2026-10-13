@@ -86,7 +86,7 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-seeded-random-single-copy--9f6854 |
 | Base branch | - |
@@ -100,4 +100,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 - 2026-10-12 07:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 21:09 · devin (delegated) · In progress → Blocked — Laptop dispatch is dead: no local worktree, no dispatch log/process, no directive branch on origin; wip ref a06cb2a8 is queue bookkeeping only and already ancestor of origin/main.; under delegate.envelope
 - 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@a06cb2a8 has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
+- 2026-10-12 21:10 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
 <!-- queue:end -->
