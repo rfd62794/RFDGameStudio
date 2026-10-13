@@ -86,7 +86,7 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-anatomy-contract-test-directive |
 | Base branch | - |
@@ -100,4 +100,5 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 - 2026-10-12 07:57 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 21:09 · devin (delegated) · In progress → Blocked — Laptop dispatch is dead: no local worktree, no dispatch log/process, no directive branch on origin; wip ref 6b6253fe is queue bookkeeping only and already ancestor of origin/main.; under delegate.envelope
 - 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@6b6253fe has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
+- 2026-10-12 21:09 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
 <!-- queue:end -->
