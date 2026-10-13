@@ -79,7 +79,7 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
@@ -93,4 +93,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-10-12 07:44 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 18:31 · agentflow-tick · In progress → Blocked — host shutdown/reboot; last activity 2026-10-12T08:05:23, found gone at 2026-10-12T18:14:13 (boot 2026-10-12T18:13:18, trigger lock-takeover); wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 pushed
 - 2026-10-12 20:39 · devin (delegated) · Blocked → Queued — devin-home-overseer cycle4: laptop reboot killed run; wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 is preserved on origin; hometower resumes instead, claimed in mail #688879; under delegate.requeue
+- 2026-10-12 20:40 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input, and preserved wip@3333331 is on origin; under delegate.band-normal, delegate.rate-limit
 <!-- queue:end -->
