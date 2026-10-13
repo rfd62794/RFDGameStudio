@@ -86,7 +86,7 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-seeded-random-single-copy--9f6854 |
 | Base branch | - |
@@ -99,4 +99,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 - 2026-10-12 07:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QZCNN39ZGWTWEVPSH8JAK4
 - 2026-10-12 07:54 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 21:09 · devin (delegated) · In progress → Blocked — Laptop dispatch is dead: no local worktree, no dispatch log/process, no directive branch on origin; wip ref a06cb2a8 is queue bookkeeping only and already ancestor of origin/main.; under delegate.envelope
+- 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@a06cb2a8 has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
 <!-- queue:end -->
