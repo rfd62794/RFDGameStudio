@@ -102,4 +102,5 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 - 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@6b6253fe has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
 - 2026-10-12 21:09 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
 - 2026-10-12 21:09 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCY74C7F98ZMDTAB9RWD10
+- 2026-10-12 21:10 · dispatcher · launched pid=5884; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 <!-- queue:end -->
