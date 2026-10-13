@@ -10,6 +10,7 @@ const config: GameConfig = {
   status: 'dev',
   genre: 'roguelike',
   tags: ['deckbuilding', 'turn-based'],
+  relatedGames: ['dissonance_prototype'],
   component: React.lazy(() => import('./App')),
 };
 

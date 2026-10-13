@@ -45,6 +45,9 @@ export interface ManifestGame {
   pipelineStage: string | null;
   statusReport: { badge: string; tagline: string; body: string; updated: string } | null;
   devlog: DevlogEntry[];
+  relatedGames?: string[];
+  studioStoryUrl?: string;
+  devlogUrl?: string;
 }
 
 export interface ArcadeManifest {
@@ -75,6 +78,12 @@ function itchFor(g: GameConfig): ManifestGame['itch'] {
 }
 
 export function buildArcadeManifest(inputs: ManifestInputs): ArcadeManifest {
+  const catalog = new Set(inputs.registry.map(g => g.gameId));
+  for (const g of inputs.registry) {
+    for (const id of g.relatedGames ?? []) {
+      if (!catalog.has(id)) throw new Error(`${g.gameId}.relatedGames references unknown gameId '${id}'`);
+    }
+  }
   const skipped: string[] = [];
   const games = inputs.registry.map((g): ManifestGame => {
     const devlog: DevlogEntry[] = [];
@@ -128,6 +137,9 @@ export function buildArcadeManifest(inputs: ManifestInputs): ArcadeManifest {
         ? { badge: report.statusBadge, tagline: report.tagline, body: report.bodyContent, updated: report.updated }
         : null,
       devlog,
+      relatedGames: g.relatedGames,
+      studioStoryUrl: g.studioStoryUrl,
+      devlogUrl: g.devlogUrl,
     };
   });
   const now = inputs.now ?? (() => new Date().toISOString());

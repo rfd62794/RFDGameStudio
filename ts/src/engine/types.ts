@@ -62,6 +62,13 @@ export interface GameConfig {
   source?: DemoSource;                    // single source of truth for demo lists (studio_mcp.demos)
   order?: number;                         // display order in GAME_REGISTRY (ascending, then gameId); required for every registered game
   moreGames?: boolean;                    // listed in the "More Games By Me" footer (STANDALONE_BUILD_GAMES is derived from this)
+
+  // Federated arcade relationship contract (Oct 11 2026, see
+  // docs/notes/2026-10-11-federated-identity-handoff.md). All optional/additive —
+  // absence means no relationship, never a title/slug/tag guess.
+  relatedGames?: string[];    // gameIds of related games; each must be a registry entry (validated at manifest build)
+  studioStoryUrl?: string;    // exact Studio story URL (e.g. a studio-status thread page) when one exists
+  devlogUrl?: string;         // exact Blog/devlog URL when one exists
 }
 
 // 'retired' added 2026-09-20: Brewfield was retired in docs/state/StatusBoard.md on
