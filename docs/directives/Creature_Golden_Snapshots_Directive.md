@@ -86,11 +86,13 @@ Findings first: golden count and total bytes, whether any render was non-determi
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-creature-golden-snapshots-directive |
 | Base branch | - |
 | Base commit | 0cb06eee855e7ea692900433d17f2b7c9378adf8 |
+| Head commit | 97c539654d9eab70d6e60773ff7e2c99e0b4e871 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M5.2 (approved 2026-09-22) had no directive; M5.1 doc is on main; prerequisite for the M6 pixel work
@@ -99,4 +101,5 @@ Findings first: golden count and total bytes, whether any render was non-determi
 - 2026-10-12 07:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-creature-golden-snapshots-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QYQPZTCKSKNQFAD26GZNND
 - 2026-10-12 07:43 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-creature-golden-snapshots-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 08:07 · devin · In progress → Blocked — Work complete and verified, committed 97c53965 on directive/rfdgamestudio-creature-golden-snapshots-directive — but push refused twice by .githooks/pre-push: Windows access violation in pygame_gui ui_shadow.py via tests/test_generic_renderer.py:637 test_horse_racing_renderer_uses_generic_pipeline (exit 139), deterministic and unrelated to this TS-only change. Review transition needs the branch pushed; Robert can push --no-verify or fix the hook.
+- 2026-10-12 21:09 · devin (delegated) · Blocked → Review — Laptop push landed; origin branch tip matches expected finished commit 97c53965.; under delegate.envelope [origin]
 <!-- queue:end -->
