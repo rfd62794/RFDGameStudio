@@ -30,3 +30,34 @@ None. Default: keep the preserved Lua copy as is (the migration test requires it
 - Combat stats are already normalized: `ts/src/games/mutant_battle_ball/statsMapper.ts` divides power, endurance, cyber armor and aggression by 6 before the combat system sees them. Replan step 2 became only seeding the symmetry test file (`Mbb_Seed_Symmetry_Tests_Directive`); speed and the disposal skills are passed un-normalized by design.
 - The starter roster has exactly TWO mutants (`starter_mutants` in `games/mutant_battle_ball/data.yaml`) and nothing adds a third, so squad selection has nothing to choose between. Replan step 3 became persistence only (`Mbb_Save_Progress_Directive`); squad pick returns when the roster can grow.
 - Of the two 'flaky' tests the pipeline audit named, `test_symmetric_opportunity_post_fix` was already seeded; the whole `test_mbb_match_rendering_point_cap_symmetry.ts` file was not and is seeded by the directive above. The Infirmary stub is hidden by `Mbb_Hide_Infirmary_Tab_Directive`.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A parts-built 2v2 mutant sports-combat game: assemble mutants from body parts, field a squad, carry the ball to the end zone, salvage the fallen, buy and equip in a shop.'
+done_when:
+- 'mutant_battle_ball: hide the Infirmary stub tab and add a test that nav lists only built tabs. S. Depends: none.'
+- 'mutant_battle_ball: normalize parts-summing stats; seed the two flaky symmetry tests. M. Depends: none.'
+- 'mutant_battle_ball: squad selection plus persistence of roster and credits. M. Depends: 2.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```
+
+## Settled direction 2026-10-11 (Robert)
+
+The persistence, hidden Infirmary stub, and seeded symmetry work described above have landed. The next product arc is **grow the roster, then make the roster matter**:
+
+1. A completed match can yield a salvage recruit, growing the roster beyond the fixed two starters.
+2. Once a third mutant exists, the player chooses exactly two healthy mutants for the active squad.
+3. Injury consequences and the real Infirmary land together, so no intermediate release strands an injured mutant without recovery.
+4. The remaining player/opponent speed and health imbalance is measured first with seeded aggregate matches. The evidence determines whether to normalize player-side effective stats or scale opponent data; do not choose by intuition.
+
+Engineering boundaries:
+
+- Preserve `calculateStats` as the raw parts-summing and modifier pipeline.
+- Keep recruitment, squad selection, injury transitions, and balance policy in separate modules/functions.
+- Preserve the Lua source required by migration tests.
+- Do not add brands, OEM tiers, Gravekeeper systems, or other collection depth until this loop is complete.
+- Every milestone must keep `cd ts && npx vitest run tests/test_mbb_*` green; the verified baseline on 2026-10-11 is 13 files and 210 tests.

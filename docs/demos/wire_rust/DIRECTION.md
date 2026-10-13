@@ -25,3 +25,17 @@ RETHINK.
 3. wire_rust five-run keep-or-retire review note. S. Depends on: 2.
 ## Open question for Robert
 Short fenced attempt, or retire now? Default: attempt Phases 1-2 (about two Devin runs), then decide. Note: `logic.lua` is the shared Lua runtime from the overnight build; I propose no new Lua, and moving its logic to TS is a studio-level call outside this plan.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'Chapter 2 of the "five-chapter demo canon" (`docs/gdd/WireAndRust_Design.md:1-2`): a deck-builder where "your deck IS your salvage pile", Brewfield chemistry reskinned as scrap synergies, 5-8 rooms, D20 checks, and a deck that evolves (salvage adds cards, failed checks destroy them; GDD Core Loop 5 and Pillars).'
+done_when:
+- 'wire_rust Tier A, win condition, seeded headless test. M. Depends on: none.'
+- 'wire_rust scrap shop and card loss (deck evolution). M. Depends on: 1.'
+- 'wire_rust five-run keep-or-retire review note. S. Depends on: 2.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

@@ -515,6 +515,23 @@ milestones:
         path: docs/demos/shoal/ROADMAP.md
         pattern: yaml roadmap
     - test: uv run pytest -q
+  - id: M9.4
+    title: Every child declares lifecycle, kind, registry state, and a real verification contract
+    kind: refactor
+    size: M
+    value: 5
+    needs:
+    - M9.1
+    - M9.2
+    - M9.3
+    status: pending
+    directive: RFDGameStudio_Child_Verification_Contract_Directive.md
+    detail: Extend generated child metadata with deterministic kind, lifecycle, registry state, supersession, and verification commands that resolve to real tests. Correct stale status prose without changing any game's actual registry or lifecycle.
+    accept:
+    - test: uv run pytest -q tests/test_demos.py tests/test_demos_registry_invariants.py
+    - grep:
+        path: docs/children.json
+        pattern: lifecycle
 - id: M10
   title: The Studio exports the source contract for the federated Arcade
   status: pending

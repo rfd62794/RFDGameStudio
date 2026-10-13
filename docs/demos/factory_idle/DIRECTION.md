@@ -31,3 +31,17 @@ POLISH (publish first, per settled decision). 1) The loop is real and sized righ
 ## Open question for Robert
 The storefront sells pistols, shotguns, rifles and SMGs (types.ts:209-215). Publish as is on a business-facing arcade, or reskin item names (tools, gadgets)? Recommended default: reskin the labels only (data in recipes.ts), same mechanics, so the card is safe next to client-facing pages.
 Correction 2026-10-04: the player does not land on an empty grid. getInitialGameState() applies PRESET_FACTORIES[0] (a starter line: power, two spawners, conveyors, a fitter, a packer) and the factory runs from the first second with one customer waiting; the first-step hint therefore says "your line is running, serve customers" (docs/directives/Factory_Idle_Starter_Goal_Hint_Directive.md).
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A Factorio-style tile factory (conveyors, splitters, tunnels, power grid, research) feeding a weapons storefront with impatient customers: "Armory: Storefront & Spindle" (docs/RFDGameStudio_DemoPortingRoadmap.md:65).'
+done_when:
+- 'Factory Idle Tier A publish (already written: docs/directives/Polish_Factory_Idle_TierA_Directive.md). S. depends-on: none.'
+- 'Factory Idle autosave + labelled reset (examples/factory-idle-precision-armory-phase2). S. depends-on: 1.'
+- 'Factory Idle first-step hint + starter goal. S. depends-on: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

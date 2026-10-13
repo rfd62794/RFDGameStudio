@@ -28,3 +28,17 @@ None. Settled decision (honest embed, Tier A only) stands; research found no con
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - Directive 1 is `Antsim_Redux_Player_Copy_Directive` (it also rewords the `Core Directive` banner and points the README at the state doc). Directives 2 and 3 (phone re-measure, A5 screenshot, `embed` label) need a browser and stay controller steps after the embed is rebuilt.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'An ant-colony simulation lab, not a game: pheromone trails, direct food sensing, queen/egg/larva lifecycle, multi-colony Lanchester combat, tunnel pathfinding.'
+done_when:
+- 'antsim_redux: remove dev-speak from the player UI - delete the anchors tab, phase badge and subtitle in `examples/antsim-redux/src/App.tsx`; add a player-facing one-liner. S. Depends: none.'
+- 'antsim_redux: re-measure phone fit at 390x844 and fix any remaining overflow in the embed. S. Depends: 1.'
+- 'antsim_redux: A5 screenshot + "embed" label check (test fails on banned words in config description and UI strings). S. Depends: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

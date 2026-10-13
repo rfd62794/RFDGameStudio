@@ -25,3 +25,17 @@ POLISH (small, once).
 3. Cover and "embed" card text for voiddrift. S. Depends on: the spec's `npm run covers` directive.
 ## Open question for Robert
 VoidDrift or VoidRift? Default: "VoidDrift" for the Rust game and its card (matches repo and README); the itch slug stays unchanged so URLs do not break.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'The studio''s window onto the shipped Rust/Bevy VoidDrift (the paid itch.io release, `VD:docs/roadmap.md:10`; `VD:` = the VoidDrift repo): a no-win idle-mining game, "No win condition.'
+done_when:
+- 'Embed smoke ignores third-party frame console errors. S. Depends on: none.'
+- 'Reconcile voiddrift display name and blurb (needs the answer below). S. Depends on: 1 (same scorecard file).'
+- 'Cover and "embed" card text for voiddrift. S. Depends on: the spec''s `npm run covers` directive.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

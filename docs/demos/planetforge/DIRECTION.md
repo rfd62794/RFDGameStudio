@@ -29,3 +29,17 @@ TRIM. 1) Two engines plus a duplicate directive is accumulated noise; cut it bef
 
 ## Open question for Robert
 Delete the dead `gameLogic.ts` (the Phase 2 directive deferred this to you)? Recommended default: yes, it is unused and its tests assert behaviour the game does not run.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A ring-world god-game: 32 tiles in 8 four-tile sectors, elemental tiers per tile, soil stability that ratchets sectors up, harvesting, and one-shot Monuments that add "Focus" to planetary balance (examples/planetforge/src/App.tsx:1-4, engine/slimeEngine.ts:76-101).'
+done_when:
+- 'PlanetForge trim: delete dead gameLogic, hide Test Runner, label Reset. S. depends-on: none.'
+- 'PlanetForge goal and win/lose state in a new pure module. M. depends-on: 1.'
+- 'PlanetForge autosave + first-step hint. S. depends-on: 2.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

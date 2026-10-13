@@ -88,6 +88,24 @@ TBD, ask Robert. His time per demo varies, so no review cadence is assumed.
 6. Cabinet presentation of both modes: one card, two screenshots, genre/tag wording. config.ts currently comments Shoal as "no-player-agency" and tags it `ecosystem-sim`; that text needs updating once Evolve ships.
 7. Milestone style (accept the PROPOSED playable slices?) and review model per milestone.
 
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A watch-and-seed reef: fish graze, sharks hunt, algae rises and sinks with grazing pressure, no win state (ts/src/games/shoal/config.ts:7-14).'
+done_when:
+- Shoal headless balance test and replace source-text polish asserts - S - none.
+- Shoal session-only label + reef report screen - M - D1 not required; touches App.tsx.
+- Shoal phone layout via rotate-hint - S - redesign D2 phone-layout field.
+do_not:
+- orca/whale
+- new habitats
+- typed arrays
+- layered canvas (ROADMAP backlog
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```
+
 ## Settled decision 2026-10-11 (Robert)
 
 The 2026-10-05 delivery decision "one engine, one page, two modes" is superseded. The product intent remains: Aquarium is ambient and Evolve adds control, growth, and visual evolution. The delivery boundary is now **one shared simulation core, two independently shippable experiences**:

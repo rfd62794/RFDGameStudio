@@ -29,3 +29,19 @@ Do not do: new cards/cultures/floors; moving logic out of Lua (the settled hedge
 3. Dissonance mute + SFX - S - shared SFX module (Polish_Shared_Sfx).
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: '"Dissonance Depths": a turn-based deckbuilding roguelike where cards combine by element relation (ember/ash/spark/cinder x sever/mend/guard/unmake, 56 named combinations) over a 5-floor descent through a fracturing station AI (config.ts:7; games/dissonance/data.yaml, 50569c27).'
+done_when:
+- Dissonance headless bot run test - S - none.
+- Dissonance first-combat hint and remove dev captions - M - none.
+- Dissonance mute + SFX - S - shared SFX module (Polish_Shared_Sfx).
+do_not:
+- new cards/cultures/floors
+- moving logic out of Lua (the settled hedge is YAML data)
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

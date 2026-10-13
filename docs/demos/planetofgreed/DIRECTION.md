@@ -104,3 +104,14 @@ PROPOSED playable-slice milestones are in ts/src/games/planetofgreed/ROADMAP.md 
 3. Ending content and cleanup. S. depends-on: Robert's answer to open question 2 (the screen itself already shipped). Remove the stale "placeholder" comment in endingSystem.ts and extend ENDING_TEXT per Robert's choice; keep Play again.
    Verification: `cd ts && npx vitest run tests/test_planetofgreed_endingSystem.ts tests/test_planetofgreed_ending_view.ts`.
 (The matrix listed "real ending screen" as directive 2; it already landed, so directive 3 is the leftover content and cleanup. A 390x844 phone pass is a controller browser step, not a directive.)
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: BUILD toward the World Conquest identity, in small measured steps.
+done_when: []
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

@@ -25,3 +25,17 @@ POLISH.
 3. Horse_Racing_Status_Cover_First_Race - status beta, cover, first-3-races cooldown skip; S; after 1 (status needs Robert's OK).
 ## Open question for Robert
 Downgrade the public badge `stable` to `beta` for horse_racing (and slimeworld) until Tier B evidence lands? Recommended default: yes, one label pass for both.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: '"Derby Sim": breed horses, race them, bet Win/Place/Show, run a career (config.ts:6-11).'
+done_when:
+- Horse_Racing_New_Game_Reset_And_Build - Continue/New Game, build script; S; none.
+- Horse_Racing_Headless_Balance_Test - 200-race run asserting funds and bankruptcy; S; none.
+- Horse_Racing_Status_Cover_First_Race - status beta, cover, first-3-races cooldown skip; S; after 1 (status needs Robert's OK).
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

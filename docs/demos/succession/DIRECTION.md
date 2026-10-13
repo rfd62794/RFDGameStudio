@@ -51,3 +51,17 @@ TBD, ask Robert.
 5. Cabinet presentation: Inquest as a second cabinet card or a mode inside the one Succession card?
 6. May the M2 feedback prompt and devlog ask go out, and who posts them?
 No support or vendor-scale promises: this is a solo-built demo; feedback is read when read, nothing is guaranteed back.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'Robert''s intent: Clue with the added pressure of vying for a Crown.'
+done_when:
+- 'Succession M0: parkedFeatures flag + title core line + harness ablation + timed run - S/M - none (queue directives touch App.tsx: sequence after them or rebase).'
+- Succession in-play Restart/Abandon + Back to Title - S - already written (Succession_Run_Controls_Directive).
+- Succession per-segment save + Continue + reset - M - after 2 (Succession_Run_Save_Continue_Directive).
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

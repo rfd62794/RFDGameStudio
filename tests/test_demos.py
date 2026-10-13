@@ -72,6 +72,7 @@ def make_repo(tmp_path: Path) -> Path:
     _write(tmp_path / "tests" / "test_folder_demo.py",
            "def test_folder_demo():\n    assert True\n")
     _write(tmp_path / "docs" / "gdd" / "Folder_Demo_Design.md", "# Folder Demo\n")
+    _write(tmp_path / "docs" / "demos" / "folder_demo" / "DIRECTION.md", "# Folder Demo\n")
     return tmp_path
 
 
@@ -86,14 +87,14 @@ def test_list_demos_sorted_with_fields(tmp_path) -> None:
     assert folder.path == "ts/src/games/folder_demo"
     assert folder.stage == "beta"                 # from config.ts status
     assert folder.published is False              # no pipeline evidence
-    assert folder.docs_path == "games/folder_demo"
+    assert folder.docs_path == "docs/demos/folder_demo"
 
     ghost = by_id["ghost_demo"]
     assert ghost.label == "Ghost Demo"            # from the manifest
     assert ghost.path == "ts/src/games/ghost_demo"  # canonical, though absent
     assert ghost.stage == "stable"                # manifest status wins
     assert ghost.published is True                # itch_published
-    assert ghost.docs_path is None                # no games/<id> folder
+    assert ghost.docs_path is None                # no docs/demos/<id> folder
 
 
 def test_demo_paths_are_demo_scoped_only(tmp_path) -> None:
@@ -143,7 +144,12 @@ def test_write_children_index_is_byte_stable(tmp_path) -> None:
     payload = json.loads(first.read_text(encoding="utf-8"))
     assert payload["version"] == 1
     assert payload["children"] == [
-        {"id": "folder_demo", "path": "ts/src/games/folder_demo", "label": "Folder Demo"},
+        {
+            "id": "folder_demo",
+            "path": "ts/src/games/folder_demo",
+            "label": "Folder Demo",
+            "docs_path": "docs/demos/folder_demo",
+        },
         {"id": "ghost_demo", "path": "ts/src/games/ghost_demo", "label": "Ghost Demo"},
     ]
     assert first.read_text(encoding="utf-8").endswith("}\n")
@@ -155,6 +161,26 @@ def test_real_repo_demos_sorted_and_unique() -> None:
     assert ids == sorted(ids)
     assert len(ids) == len(set(ids))
     assert "shoal" in ids
+
+
+def test_real_repo_demos_with_docs_path_have_index_entry() -> None:
+    found = demos.list_demos(REPO_ROOT)
+    for d in found:
+        expected = (REPO_ROOT / "docs" / "demos" / d.id).is_dir()
+        if expected:
+            assert d.docs_path == f"docs/demos/{d.id}"
+        else:
+            assert d.docs_path is None
+    index = json.loads(demos.render_children_index(REPO_ROOT))
+    by_id = {d.id: d for d in found}
+    for child in index["children"]:
+        demo_id = child["id"]
+        assert child["path"] == by_id[demo_id].path
+        has_docs = (REPO_ROOT / "docs" / "demos" / demo_id).is_dir()
+        if has_docs:
+            assert child.get("docs_path") == f"docs/demos/{demo_id}", demo_id
+        else:
+            assert "docs_path" not in child, demo_id
 
 
 def test_real_repo_problems_are_strings_and_flag_known_gaps() -> None:

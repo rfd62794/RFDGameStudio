@@ -24,3 +24,17 @@ TRIM (then Tier A).
 3. Slimegarden_Cover_And_Manifest - screenshot + manifest reference; S; after 2.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: An AI Studio (Gemini) export of a multi-tank slime breeding sandbox with dispatch, mediation, exploration, territory claims and garrison risk over a 15-node hex planet (examples/slimegarden/README.md:5-9).
+done_when:
+- Slimegarden_Remove_Duplicate_SlimeWorld_Example - delete examples/slimeworld, keep tests green; S; none (touches tracked tree and a test map, so worktree-only is fine).
+- Slimegarden_Tier_A_Phone_Fit - fix 390 px overflow, rewrite README, add SlimeWorld link; S; after 1.
+- Slimegarden_Cover_And_Manifest - screenshot + manifest reference; S; after 2.
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

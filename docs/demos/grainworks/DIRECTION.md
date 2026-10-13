@@ -25,3 +25,17 @@ POLISH.
 3. Particle sandbox autosave and seeded golden test. M. Depends on: 1.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: '`particle_void` from roadmap Tier 2 (`docs/RFDGameStudio_DemoPortingRoadmap.md:88`): an AI Studio cellular-automata sandbox with 12 materials, pipes, collectors, processors and four tiers ending in a Reconstruction view (`examples/grainworks/src/types.ts:1-31`).'
+done_when:
+- 'Particle sandbox Tier A (title, Restart, build script). S. Depends on: none.'
+- 'Particle sandbox phone input and progressive Tier 1 build panel. M. Depends on: 1.'
+- 'Particle sandbox autosave and seeded golden test. M. Depends on: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

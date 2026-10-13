@@ -30,3 +30,17 @@ None. Default: keep the Lua sim as is (ADR-013 retired Lua as a portability carv
 - Run logic is not untested: `tests/test_slither_rogue.py` already runs the real Lua headless (14 tests). Replan step 2 became whole-run checks (`Slither_Rogue_Run_Tests_Directive`).
 - There are no 'pre-existing TS errors': `tsc --noEmit` reports nothing in any `slither_rogue` file and a prototype `vite build:slither_rogue` succeeded (661.89 kB JS). The build script is `Slither_Rogue_Hygiene_Build_Directive`.
 - Nobody dies in this game: the only `game_over` is the timer, and rivals steal tail segments (a Shield card blocks it). Replan step 3's 'cause of death' became a 'try this next' tip on the end card (`Slither_Rogue_Run_Tip_Directive`).
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: '"Slither.io meets roguelike": steal segments, collect evolution cards on level-up, survive a timed arena run, chase a high score.'
+done_when:
+- 'slither_rogue: delete `GameCanvas.phase2g.tsx`, label Restart, add `build:slither_rogue` and fix its TS errors. S. Depends: none.'
+- 'slither_rogue: headless run-logic test via the Lua fixtures. M. Depends: none.'
+- 'slither_rogue: game-over cause-of-death line and cover screenshot. S. Depends: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

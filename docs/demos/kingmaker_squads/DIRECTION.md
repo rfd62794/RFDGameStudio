@@ -29,3 +29,17 @@ KEEP-AS-IS (after the restart directive merges). 1) It is finished and tested; r
 
 ## Open question for Robert
 Is "Origin of Planet of Greed" the right label? The redesign's default hides Origin embeds, which would bury the only tactical game in the studio. Recommended default: keep the Origin label but do NOT hide it; surface it from Planet of Greed's title screen (this overrides nothing settled, but narrows the hide-origin default).
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A tactical squad campaign on an 8x8 grid: pick a faction, buy and field squads in a shop phase, move with chess-style rules, fight a deterministic combat engine, take territory, hold the crown, manage loyalty (examples/kingmaker-squads/src: utils/chessMovement.ts, combatEngine.ts, crownLogic.ts, loyaltyLogic.ts; screens New Game, Shop, Forces, Terr'
+done_when:
+- 'Review and merge Kingmaker_Squads_Restart_Directive (controller). S. depends-on: none.'
+- 'Fix kingmaker_squads and corpworld READMEs (shared directive with corpworld). S. depends-on: none.'
+- 'Kingmaker headless campaign balance test (B4: no softlock, win/loss reachable). S. depends-on: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

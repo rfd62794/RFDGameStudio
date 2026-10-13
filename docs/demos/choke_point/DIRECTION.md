@@ -28,3 +28,17 @@ None. Default: leave the Lua logic as is; if a mechanic ever needs new logic, co
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - A headless play-through found that the first wave's second crawler and every later wave never spawned (state numbers return from JavaScript as floats, so the string-keyed wave table lookup missed), and that an enemy outside the core's row walked off the board forever. The real game was 'kill one crawler'. Both are fixed by `Choke_Point_Wave_Solvability_Directive`; content then follows in `Choke_Point_Waves_3_To_6_Directive` and `Choke_Point_Wave_Counter_Stars_Directive`.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A compact turn-based tactical defense puzzle: place barricades and autocannons on a 6x5 grid, see enemy moves and attacks previewed, commit the turn.'
+done_when:
+- 'choke_point: headless all-waves solvability test (win reachable, no softlock). S. Depends: none.'
+- 'choke_point: waves 3-6 and one enemy in `data.yaml`, extend the test to match. M. Depends: 1.'
+- 'choke_point: wave counter, star result card, cover screenshot. S. Depends: 2.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```
