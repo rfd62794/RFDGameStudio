@@ -86,11 +86,11 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-anatomy-contract-test-directive |
 | Base branch | - |
-| Base commit | 1400b1a005f50f323b421c95fd008c76d7c6c63d |
+| Base commit | 0ae5126df7098e446b2b28840e92b4dbc2ccbcb2 |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — roadmap M7.3 (approved 2026-09-22), first system; anatomy has only indirect MBB coverage; needs Engine_Systems_Inventory merged first
@@ -101,4 +101,5 @@ Findings first: the test count, and any behaviour that contradicts a doc comment
 - 2026-10-12 21:09 · devin (delegated) · In progress → Blocked — Laptop dispatch is dead: no local worktree, no dispatch log/process, no directive branch on origin; wip ref 6b6253fe is queue bookkeeping only and already ancestor of origin/main.; under delegate.envelope
 - 2026-10-12 21:09 · devin (delegated) · Blocked → Queued — Requeue the dead laptop run instead of waiting on a missing worktree; wip@6b6253fe has no implementation content, so dispatch fresh on the directive branch.; under delegate.requeue
 - 2026-10-12 21:09 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input.; under delegate.band-normal, delegate.rate-limit
+- 2026-10-12 21:09 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-anatomy-contract-test-directive; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCY74C7F98ZMDTAB9RWD10
 <!-- queue:end -->
