@@ -4,10 +4,11 @@ RFDGameStudio local checks (replaces the GitHub Actions CI).
 
 .DESCRIPTION
 Runs what CI used to run, and exits non-zero at the first failing stage:
-  1. uv sync --frozen
-  2. Generate ts/src/games/game-metadata.json
-  3. Python tests (slow and e2e excluded), retrying known-flaky tests twice
-  4. TypeScript tests (vitest), retrying known-flaky tests twice
+  1. uv sync --frozen, then generate ts/src/games/game-metadata.json (either stage)
+  2. Python tests (slow and e2e excluded), retrying known-flaky tests twice
+  3. TypeScript: tsc --noEmit, then vitest, retrying known-flaky tests twice
+The pre-push hook picks the stages per push via scripts/hook_scope.py
+(-SkipPython / -SkipTypeScript).
 
 Called by .githooks/pre-push. Skip the hook once with: git push --no-verify
 
@@ -44,17 +45,17 @@ function Invoke-Step([string]$Name, [scriptblock]$Command) {
 
 $started = Get-Date
 
-if (-not $SkipPython) {
+# Prep runs for either stage: TS tests read the generated game-metadata.json.
+if (-not ($SkipPython -and $SkipTypeScript)) {
     Invoke-Step "Sync Python environment" { uv sync --frozen }
     Invoke-Step "Generate game metadata" { uv run --no-sync python -m studio_mcp.game_metadata }
-    Invoke-Step "TypeScript type check" {
-        Push-Location (Join-Path $RepoRoot "ts")
-        try {
-            npx tsc --noEmit
-        } finally {
-            Pop-Location
-        }
-    }
+}
+
+if (-not $SkipPython) {
+    # Headless SDL for the Python stage regardless of what the caller exported
+    # (a real video/audio driver init is a native-crash risk on this machine).
+    $env:SDL_VIDEODRIVER = "dummy"
+    $env:SDL_AUDIODRIVER = "dummy"
     # Load the rerun plugin explicitly with autoload off, so this behaves the
     # same whether or not the machine sets PYTEST_DISABLE_PLUGIN_AUTOLOAD.
     $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
@@ -72,6 +73,7 @@ if (-not $SkipTypeScript) {
         # test_shoal_y8_integration.ts rebuilds ts/dist-shoal (npm run build:shoal),
         # which races with the tests that read that build when files run in
         # parallel. Run everything else first, then that file on its own.
+        Invoke-Step "TypeScript type check" { npx tsc --noEmit }
         $buildTest = "tests/test_shoal_y8_integration.ts"
         Invoke-Step "TypeScript tests" { npx vitest run --retry=2 --exclude $buildTest }
         Invoke-Step "TypeScript build test (runs alone)" { npx vitest run --retry=2 $buildTest }
