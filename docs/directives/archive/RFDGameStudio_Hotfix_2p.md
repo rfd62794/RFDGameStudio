@@ -205,3 +205,17 @@ studio_validate_game('slither_rogue')
 ---
 
 *RFDGameStudio Hotfix | June 2026 | RFD IT Services Ltd.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-15 05:47 · agentflow-tick · none → Queued — suggested by heartbeat: Code edits appear applied; needs NSSM env check and §5 verification
+<!-- queue:end -->
