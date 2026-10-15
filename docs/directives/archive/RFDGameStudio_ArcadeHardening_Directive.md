@@ -163,3 +163,17 @@ this phase is TS-only.)
 *RFDGameStudio — Arcade Hardening Directive*
 *RFD IT Services Ltd. | July 2026*
 *A page that happens to work and a Core System are different things — this is what closes the gap.*
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-15 05:48 · agentflow-tick · none → Queued — suggested by heartbeat: TS-only refactor with test anchors; arcade module not yet present; confirm archive placement was not deliberate
+<!-- queue:end -->
