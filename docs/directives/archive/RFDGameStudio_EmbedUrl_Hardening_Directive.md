@@ -158,3 +158,17 @@ def studio_deploy_arcade() -> dict:
 - [ ] Deploy still completes and reports even when verification finds problems
 - [ ] Tier 2's real limitation (size-blind) is documented in code, not just this directive
 - [ ] Tier 3 explicitly left as a future extension point, not built
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | claude |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-15 05:47 · agentflow-tick · none → Queued — suggested by heartbeat: Implementation appears present; verify completion criteria and close out
+<!-- queue:end -->
