@@ -14,7 +14,7 @@ run_checks() {
     # as -1073741819 (0xC0000005); Git for Windows does not treat that status as
     # a hook failure, so the push went through with a failed stage. Collapse any
     # non-zero status to exactly 1.
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$toplevel/scripts/check.ps1"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$toplevel/scripts/check.ps1" $1
     rc=$?
     if [ "$rc" -ne 0 ]; then
         echo "pre-push: checks failed (exit $rc); push blocked. Skip once with: git push --no-verify" >&2

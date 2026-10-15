@@ -48,6 +48,13 @@ $started = Get-Date
 # Prep runs for either stage: TS tests read the generated game-metadata.json.
 if (-not ($SkipPython -and $SkipTypeScript)) {
     Invoke-Step "Sync Python environment" { uv sync --frozen }
+    # The metadata generator loads ts/vite.config.ts, which needs ts/node_modules.
+    if (-not (Test-Path (Join-Path $RepoRoot "ts/node_modules"))) {
+        Invoke-Step "Install TypeScript dependencies" {
+            Push-Location (Join-Path $RepoRoot "ts")
+            try { npm ci } finally { Pop-Location }
+        }
+    }
     Invoke-Step "Generate game metadata" { uv run --no-sync python -m studio_mcp.game_metadata }
 }
 
@@ -67,9 +74,6 @@ if (-not $SkipPython) {
 if (-not $SkipTypeScript) {
     Push-Location (Join-Path $RepoRoot "ts")
     try {
-        if (-not (Test-Path "node_modules")) {
-            Invoke-Step "Install TypeScript dependencies" { npm ci }
-        }
         # test_shoal_y8_integration.ts rebuilds ts/dist-shoal (npm run build:shoal),
         # which races with the tests that read that build when files run in
         # parallel. Run everything else first, then that file on its own.
