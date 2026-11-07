@@ -28,3 +28,17 @@ How should salvage be spent, given a parked hideout? Recommended default: keep p
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - Directive 1 is `Systemic_Extract_Honest_Blurb_Directive` (blurb, tags and a favicon; the cover screenshot is a browser step). Directive 2, the hideout decision page, is `docs/demos/systemic_extract/HIDEOUT_DECISION.md` (created by `Docs_E_Corrections_Directive`). Directive 3 waits for Robert's answer.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A top-down extraction roguelite plus base-builder on one 200x200 megamap: deploy from a sanctuary into four dungeon sectors, survive spreading hazards and escalating hives on a headless ECS simulation, extract salvage, spend it on the base.'
+done_when:
+- 'systemic_extract: favicon, "embed" label, cover screenshot. S. Depends: none.'
+- 'systemic_extract: write the two-option hideout decision page (wire-in vs cut, with file lists). S. Depends: none.'
+- 'systemic_extract: apply the chosen option. M (wire) or S (cut). Depends: Robert''s answer.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

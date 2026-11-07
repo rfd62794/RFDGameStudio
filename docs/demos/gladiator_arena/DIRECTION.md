@@ -25,3 +25,17 @@ TRIM, then POLISH.
 3. Gladiator_Tier5_End_Screen_And_Cover - end-of-ladder screen, cover; S; after 2.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A manager sim: "you never swing the sword, you decide what it''s attached to" (App.tsx:104).'
+done_when:
+- Gladiator_Hide_Balance_Lab_And_Blurb - dev flag for the Balance tab, plain blurb, test; S; none.
+- 'Gladiator_Bout_Result_Card_And_Phone_Check - result card plus next action, 390 px audit; M; after 1 (ArenaCombatView is 851 lines: touch only the result path).'
+- Gladiator_Tier5_End_Screen_And_Cover - end-of-ladder screen, cover; S; after 2.
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

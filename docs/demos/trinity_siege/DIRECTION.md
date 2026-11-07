@@ -28,3 +28,17 @@ None. Default: the Rust three-faction chassis stays Far Future (the board's own 
 
 ## Corrections (2026-10-04, measured while writing the directives)
 - All 12 unit tests of `combat.ts` pass on current code, so the 'fabricated combat logic' worry is closed (`Trinity_Siege_Combat_Tests_Directive`). The 'why it won' line is `Trinity_Siege_Why_It_Won_Directive`; a how-to-play manual already exists, so no separate first-wave hint is added. Phone re-measure and cover screenshot stay controller steps.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: Two ideas share this id.
+done_when:
+- 'trinity_siege: combat unit tests plus correct its status-board row. S. Depends: none.'
+- 'trinity_siege: "why it won" line per resolve and first-wave hint, in `examples/trinity-siege/src`. S. Depends: 1.'
+- 'trinity_siege: phone re-measure and cover screenshot. S. Depends: none.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

@@ -29,3 +29,20 @@ Do not do: new chips or coins, cross-run meta, merging coin_pusher_arcade mechan
 3. SlimeCoin round recap panel - M - directive 1.
 ## Open question for Robert
 None.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A roguelite coin pusher: shoot slime coins onto a two-layer board, hand in coins to hit a rising target over 15 rounds (target_growth 1.5), build with 12 chip cards, 4 pocket coins and a spin wheel (games/slime_coin/data.yaml round_config, chip cards; 3f23f60f, 2026-06-27).'
+done_when:
+- SlimeCoin Lua entry-point sweep test - S - none.
+- SlimeCoin blurb + 390 px board check - S - none.
+- SlimeCoin round recap panel - M - directive 1.
+do_not:
+- new chips or coins
+- cross-run meta
+- merging coin_pusher_arcade mechanics
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

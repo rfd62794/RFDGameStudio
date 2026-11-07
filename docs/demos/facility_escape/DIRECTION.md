@@ -29,3 +29,17 @@ None. Research agrees with the settled embed-only stance; no direction change pr
 ## Corrections (2026-10-04, measured while writing the directives)
 - The room counter (`Room n/8`, about line 577 of `examples/facility-escape/src/App.tsx`) and a final result card (rooms cleared, turns taken, hearts left, about lines 790 to 805) already exist. Replan step 2 therefore shrinks to the three-line turn-one hint (`Facility_Escape_First_Turn_Hint_Directive`).
 - The wording cleanup is `Facility_Escape_Player_Wording_Directive`. The 390x844 phone check and the screenshots need a browser and stay controller steps.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: A turn-based stealth puzzle where guards commit to their next action before you move, so every turn is a read-the-sightlines decision.
+done_when:
+- 'facility_escape: replace prototype wording with player wording in `examples/facility-escape/src/App.tsx`; add a grep test. S. Depends: none.'
+- 'facility_escape: room counter, turn-one hint, and a final result card. M. Depends: 1.'
+- 'facility_escape: 390x844 phone check and screenshot for A4/A5. S. Depends: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

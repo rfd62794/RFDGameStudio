@@ -25,3 +25,17 @@ POLISH.
 3. Redux Details toggle for dev panels plus soft goal. S. Depends on: 1.
 ## Open question for Robert
 Should the family be named apart so the cabinet reads as one story: "VoidDrift" (itch), "VoidDrift: Core Loop" (this), "VoidRift: Sandbox"? Default: yes, labels only, ids unchanged.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A TS-native "core loop" of VoidDrift: Scout/Mining/Hauler drone FSMs, orbital fragments, Aluminum/H3Gas chain, tap-to-dispatch (`config.ts:9`; roadmap `docs/RFDGameStudio_DemoPortingRoadmap.md:84-91`, originally `voiddrift_redux_1`).'
+done_when:
+- 'Redux Tier A: Restart label and build script. S. Depends on: none.'
+- 'Redux save/restore, versioned key, with test. M. Depends on: 1.'
+- 'Redux Details toggle for dev panels plus soft goal. S. Depends on: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

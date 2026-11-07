@@ -29,3 +29,17 @@ No further phases: frozen exhibit, no polish beyond labels.
 
 ## Open question for Robert
 None. (Contradicts nothing settled; slimebreeder's frozen-exhibit decision is the model.)
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A cold-corporate land-grab 4X: Voronoi map, fog of war, weekly orders, Circle/Square/Triangle combat.'
+done_when:
+- 'Fix corpworld and kingmaker_squads READMEs (examples now tracked, base now set). S. depends-on: none.'
+- 'Planet of Greed title screen "Origins" link row (corpworld, kingmaker_squads). S. depends-on: none.'
+- 'Origin entries excluded from the published count and Start-here list (config flag + test). S. depends-on: studio-redesign D0.3.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

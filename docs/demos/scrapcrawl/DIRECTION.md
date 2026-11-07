@@ -29,3 +29,17 @@ None. Default: keep the Lua logic frozen; any new rule goes in TS beside `runEnd
 ## Corrections (2026-10-04, measured while writing the directives)
 - The crawl has FOUR fight rooms (difficulty 8, 12, 15, 18) plus Home Base, not five rooms with three difficulties, and the HUD already shows `Cleared n/4`; the separate `Room 2 of 5` cue in directive 3 is not needed and was dropped.
 - Run odds, measured through the real Lua over 200 seeded runs: no crafting wins 35.0 percent, buying a Beat Stick when affordable wins 75.0 percent. The placeholder numbers (10 HP, 2 per lost fight) are kept and pinned by `Scrapcrawl_Sim_Runs_Directive`. The carry-over work is `Scrapcrawl_Carry_Over_Directive`.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A tiny crafting dungeon-crawl: move between rooms, collect scrap, craft disposable gear, fight on D20 rolls, with win-only proficiency as the hook.'
+done_when:
+- 'scrapcrawl: fixed-roll simulated-run tests (winnable, losable) and replace placeholder HP/damage numbers. M. Depends: none.'
+- 'scrapcrawl: persist and display proficiency across runs plus best-run line. M. Depends: 1.'
+- 'scrapcrawl: cover screenshot and room-progress cue. S. Depends: 1.'
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

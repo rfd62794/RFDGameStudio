@@ -25,3 +25,17 @@ RETHINK (first action: a bug fix).
 3. Chimera_Wilds_Build_Your_Fighter_Spec - spec only, budget rules and starter set; S; after 1 (Robert approves the rule change).
 ## Open question for Robert
 The fix changes the rules (SCOPE.md called rules changes his call). Recommended default: yes, set baseline so a fresh player wins about half the time, then build Phase 2.
+
+```yaml direction
+version: 1
+answered: 2026-10-11 robert
+purpose: 'A deliberately minimal "Phase 1": one D20 roll against a random six-part chimera, plus the first consumer of the shared Paper Doll renderer.'
+done_when:
+- Chimera_Wilds_Fix_Unwinnable_Balance - rebalance baseline, 1,000-run win-rate test, persist record, Reset button; S; none.
+- Chimera_Wilds_Single_Lua_Contract - generate_chimera takes chosen parts; Python and TS tests updated; S; after 1.
+- Chimera_Wilds_Build_Your_Fighter_Spec - spec only, budget rules and starter set; S; after 1 (Robert approves the rule change).
+do_not: []
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```
