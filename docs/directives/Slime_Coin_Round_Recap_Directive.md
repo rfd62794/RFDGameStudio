@@ -79,7 +79,7 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
@@ -102,4 +102,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-11-06 23:21 · robert-claude-laptop · Review → Blocked — PR #288 CHANGES-NEEDED (Haiku review): synergy_fired incremented before the type checks and on every contact tick (inflated counts); no verify evidence; possible shop overlay at 390px. Requeue fix run.
 - 2026-11-07 00:29 · robert-claude-laptop · Blocked → Queued — fix run for PR #288 review findings (see Blocked note)
 - 2026-11-07 00:30 · robert-claude-laptop · Queued → Approved — lint override: fix run on the existing PR #288 branch; the cited fixture is created by this directive (greenfield). Review findings: synergy_fired incremented before the type checks and on every contact tick; no verify; possible shop overlay at 390px.
+- 2026-11-07 00:30 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M6T7RP480R3SVE939AJ15H0M
 <!-- queue:end -->
