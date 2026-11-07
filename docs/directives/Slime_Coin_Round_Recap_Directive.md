@@ -80,14 +80,27 @@ Findings first: files changed, new test count, and anything surprising in how `c
 | Field | Value |
 |---|---|
 | Status | In progress |
-| Assigned to | devin |
+| Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
-| Base commit | ce96bc980905adccc9485a8d6793c5a7d6b24a29 |
+| Base commit | fa18bff4aae6f98cd5228ed08bf895e8fe325d3c |
+| Head commit | 436a96c610212e68553f7e3a1ffa6df2b549b106 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-10-12 · robert-claude-laptop · none → Draft — slime_coin DIRECTION.md Replan item 3 / first-three directive 3 ("round recap panel"); no directive existed
 - 2026-10-12 07:03 · robert-claude-laptop · Draft → Queued
 - 2026-10-12 07:44 · robert-claude-laptop · Queued → Approved — lint override: boilerplate fixture citation (demo_lists_snapshot.json) is template text, not a real dependency; Robert approved all 2026-10-12
 - 2026-10-12 07:44 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M4QYTX8CRSTDA265CGY9DZER
+- 2026-10-12 07:44 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-12 18:31 · agentflow-tick · In progress → Blocked — host shutdown/reboot; last activity 2026-10-12T08:05:23, found gone at 2026-10-12T18:14:13 (boot 2026-10-12T18:13:18, trigger lock-takeover); wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 pushed
+- 2026-10-12 20:39 · devin (delegated) · Blocked → Queued — devin-home-overseer cycle4: laptop reboot killed run; wip/rfdgamestudio-slime-coin-round-recap-directive@3333331 is preserved on origin; hometower resumes instead, claimed in mail #688879; under delegate.requeue
+- 2026-10-12 20:40 · devin (delegated) · Queued → Approved — lint override: dispatch-path-missing cites tests/fixtures/demo_lists_snapshot.json only under Forbidden Actions; it is not a required input, and preserved wip@3333331 is on origin; under delegate.band-normal, delegate.rate-limit
+- 2026-10-12 22:15 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; base origin/main (local main differs); lane=strong; model=default; persona=steady-builder; agent_id=01M4SGNF7QAXH54DVHKNPMM02D
+- 2026-10-12 22:15 · dispatcher · launched pid=6776; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
+- 2026-10-12 22:39 · devin (delegated) · In progress → Review — end-of-round recap: logic.lua records synergy_fired + returns shortfall/surplus; roundRecap.ts view-model + RoundRecap.tsx mounted above ShopModal (App.tsx +11 lines); test_slime_coin_round_recap.ts 10/10 (red->green), 7 slime_coin regression files green, tsc clean; full suite 309/310 files - sole fail test_arcade_metadata_expansion.ts (grainworks missing from provisioned gitignored game-metadata.json; pre-existing env issue, not from this diff); under delegate.envelope [origin]
+- 2026-11-06 23:21 · robert-claude-laptop · Review → Blocked — PR #288 CHANGES-NEEDED (Haiku review): synergy_fired incremented before the type checks and on every contact tick (inflated counts); no verify evidence; possible shop overlay at 390px. Requeue fix run.
+- 2026-11-07 00:29 · robert-claude-laptop · Blocked → Queued — fix run for PR #288 review findings (see Blocked note)
+- 2026-11-07 00:30 · robert-claude-laptop · Queued → Approved — lint override: fix run on the existing PR #288 branch; the cited fixture is created by this directive (greenfield). Review findings: synergy_fired incremented before the type checks and on every contact tick; no verify; possible shop overlay at 390px.
+- 2026-11-07 00:30 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M6T7RP480R3SVE939AJ15H0M
 <!-- queue:end -->

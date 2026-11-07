@@ -183,3 +183,17 @@ invocation pattern for.
 - [ ] `MANIFEST.md` is human-readable, not just a machine-parseable log
 - [ ] Callable via the existing MCP tool surface
 - [ ] Zero changes outside `intake/` and the new `studio_mcp/intake.py`
+
+<!-- queue:start -->
+## Queue
+
+| Field | Value |
+|---|---|
+| Status | Queued |
+| Assigned to | devin |
+| Branch | - |
+| Base branch | - |
+
+**Status log**
+- 2026-10-15 05:47 · agentflow-tick · none → Queued — suggested by heartbeat: Likely already implemented; devin to verify §8/§9 and close out
+<!-- queue:end -->

@@ -8,12 +8,13 @@
 toplevel="$(git rev-parse --show-toplevel)"
 zero="0000000000000000000000000000000000000000"
 run_checks() {
+    # $1: extra check.ps1 switches (stage scoping), e.g. "-SkipPython".
     # 2026-10-10: do NOT `exec` here and do NOT pass check.ps1's raw exit code
     # through. A stage killed by a native crash exits with an NTSTATUS code such
     # as -1073741819 (0xC0000005); Git for Windows does not treat that status as
     # a hook failure, so the push went through with a failed stage. Collapse any
     # non-zero status to exactly 1.
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$toplevel/scripts/check.ps1"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$toplevel/scripts/check.ps1" $1
     rc=$?
     if [ "$rc" -ne 0 ]; then
         echo "pre-push: checks failed (exit $rc); push blocked. Skip once with: git push --no-verify" >&2
@@ -83,4 +84,14 @@ if [ "$docs_only" = "1" ]; then
     exit 0
 fi
 
-run_checks
+# Scope the stages by changed paths (scripts/hook_scope.py). On any failure to
+# classify, run everything.
+flags="$(printf '%s\n' "$all_files" | uv run --no-sync python "$toplevel/scripts/hook_scope.py" 2>/dev/null)"
+skip=""
+case "$flags" in
+    "python=0 typescript=0") echo "pre-push: no code stage needed, skipping checks"; exit 0 ;;
+    "python=1 typescript=0") skip="-SkipTypeScript" ;;
+    "python=0 typescript=1") skip="-SkipPython" ;;
+esac
+echo "pre-push: stages: ${flags:-unclassified (running all)}"
+run_checks "$skip"
