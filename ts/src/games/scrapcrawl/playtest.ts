@@ -4,6 +4,7 @@ import type { GameSession } from '../../engine/types';
 import type { PlaytestAdapter, Policy } from '../../engine/playtest';
 import { newRun, applyFight, applyMove } from '../scrapcrawl/utils/runEnd';
 import type { RunOutcome, RunProgress } from '../scrapcrawl/utils/runEnd';
+import { mulberry32 } from '../../engine/shared/seededRandom';
 
 export type ScrapAction = { kind: 'move'; to: string } | { kind: 'walkHome' } | { kind: 'fight' } | { kind: 'craft' };
 export interface ScrapObs { room: string; hp: number; scrap: number; hasWeapon: boolean; cleared: string[] }
@@ -11,15 +12,7 @@ export interface ScrapObs { room: string; hp: number; scrap: number; hasWeapon: 
 type Rooms = Record<string, { id: string; interaction_types?: string[]; difficulty?: number }>;
 type Player = Record<string, any>;
 
-function seeded(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a |= 0; a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+const seeded = mulberry32;
 
 const CHAIN = ['home_base', 'scrap_pit', 'vent_stack', 'chemical_leak', 'furnace_core'];
 

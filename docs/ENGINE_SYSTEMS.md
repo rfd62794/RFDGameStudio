@@ -20,7 +20,7 @@ One table, one row per entry directly inside `ts/src/engine/shared/` (`index.ts`
 | `persistence.ts` | `ts/src/engine/shared/persistence.ts` | chimera_wilds, coin_pusher_arcade, dissonance, early_learning_buddy, gladiator_arena, grainworks, horse_racing, mutant_battle_ball, planetofgreed, scrapcrawl, shoal, slime_coin, slimeworld, slither_rogue, succession, voiddrift_redux | `ts/tests/test_shared_persistence.ts` | n/a |
 | `saveMigrations.ts` | `ts/src/engine/shared/saveMigrations.ts` | none yet | `ts/tests/test_save_namespace.ts` | n/a |
 | `saveNamespace.ts` | `ts/src/engine/shared/saveNamespace.ts` | none yet | `ts/tests/test_save_namespace.ts` | n/a |
-| `seededRandom.ts` | `ts/src/engine/shared/seededRandom.ts` | chimera_wilds, planetofgreed, slimeworld, wire_rust | `ts/tests/test_shared_mulberry32.ts` | yes |
+| `seededRandom.ts` | `ts/src/engine/shared/seededRandom.ts` | chimera_wilds, planetofgreed, slimeworld, wire_rust | `ts/tests/test_seeded_random_single_copy.ts` | yes |
 | `wheelRelation.ts` | `ts/src/engine/shared/wheelRelation.ts` | brewfield | `ts/tests/test_shared_wheel_relation.ts` | n/a |
 
 ## How to read this table
@@ -29,7 +29,7 @@ One table, one row per entry directly inside `ts/src/engine/shared/` (`index.ts`
 
 ## A second implementation of a shared system is a defect
 
-Roadmap M7.2 enforces this rule: where two copies of a shared system live, one is a bug waiting to drift. The pattern to copy is `ts/src/engine/artGen/seededRandom.ts` — a thin re-export of `shared/seededRandom.ts`, so there is one canonical implementation and existing callers keep working. Three real second implementations this inventory found, listed here rather than fixed: `ts/src/games/early_learning_buddy/utils/speech.ts` still ships its own `SpeechEngine` even though `shared/voiceRecognition/speechEngine.ts` was generalized from it (which is why `voiceRecognition` shows `none yet` consumers), and `shoal` and `slime_coin` each keep a local `utils/sound.ts` Web Audio engine whose own header says to migrate to `shared/sfx`.
+Roadmap M7.2 enforces this rule: where two copies of a shared system live, one is a bug waiting to drift. The pattern to copy is `ts/src/engine/artGen/seededRandom.ts` — a thin re-export of `shared/seededRandom.ts`, so there is one canonical implementation and existing callers keep working. Three real second implementations this inventory found, listed here rather than fixed: `ts/src/games/early_learning_buddy/utils/speech.ts` still ships its own `SpeechEngine` even though `shared/voiceRecognition/speechEngine.ts` was generalized from it (which is why `voiceRecognition` shows `none yet` consumers), and `shoal` and `slime_coin` each keep a local `utils/sound.ts` Web Audio engine whose own header says to migrate to `shared/sfx`. The one allowed seeded generator is `mulberry32` in `seededRandom.ts`; `test_seeded_random_single_copy.ts` lists the only other files allowed to hold the algorithm and why.
 
 ## Adding a system
 
