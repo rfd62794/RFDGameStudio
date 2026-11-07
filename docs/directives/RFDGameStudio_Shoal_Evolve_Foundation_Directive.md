@@ -62,6 +62,9 @@ None. Robert approved the shared-core/two-entry product boundary, ecological com
 
 ## 7. Verification
 
+<!-- new: ts/tests/test_shoal_evolve_foundation.ts -->
+<!-- new: tests/test_shoal_evolve_foundation.ts -->
+
 Add `ts/tests/test_shoal_evolve_foundation.ts` (or focused files with equivalent coverage) proving:
 
 1. The sequel initializes and ticks the existing Shoal simulation contract.
