@@ -12,6 +12,7 @@ const config: GameConfig = {
   status: 'dev',
   genre: 'idle-incremental',
   tags: ['fsm-drones', 'tap-to-dispatch'],
+  relatedGames: ['voiddrift'],
   component: React.lazy(() => import('./App')),
 };
 

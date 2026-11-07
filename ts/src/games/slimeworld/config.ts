@@ -11,6 +11,7 @@ export const slimeworldConfig: GameConfig = {
   status:      'beta',
   genre:       'creature-collector',
   tags:        ['territory-control', 'genetics'],
+  relatedGames: ['slimegarden', 'slimebreeder'],
   component:   React.lazy(() => import('./App')),
 };
 

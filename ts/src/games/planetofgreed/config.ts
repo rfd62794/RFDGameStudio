@@ -11,6 +11,7 @@ export const planetofgreedConfig: GameConfig = {
   status: 'dev',
   genre: 'colony-4x',
   tags: ['territory-control', 'culture-politics'],
+  relatedGames: ['corpworld', 'kingmaker_squads'],
   component: React.lazy(() => import('./App')),
 };
 
