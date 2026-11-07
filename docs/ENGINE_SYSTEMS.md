@@ -5,7 +5,7 @@ One table, one row per entry directly inside `ts/src/engine/shared/` (`index.ts`
 | System | Entry point | Consumers | Test | Seeded |
 |---|---|---|---|---|
 | `aiBehavior` | `ts/src/engine/shared/aiBehavior/index.ts` | shoal | `ts/tests/test_engine_aiBehavior.ts` | n/a |
-| `anatomy` | `ts/src/engine/shared/anatomy/index.ts` | gladiator_arena, mutant_battle_ball | `ts/tests/test_mbb_body_part_synergy.ts` | no |
+| `anatomy` | `ts/src/engine/shared/anatomy/index.ts` | gladiator_arena, mutant_battle_ball | `ts/tests/test_engine_anatomy_contract.ts` | no |
 | `combat` | `ts/src/engine/shared/combat/index.ts` | planetofgreed | `ts/tests/test_shared_combat.ts` | n/a |
 | `components` | `ts/src/engine/shared/components/index.ts` | planetofgreed | none yet | n/a |
 | `firestoreBackend` | `ts/src/engine/shared/firestoreBackend/paths.ts` | none yet | `ts/tests/test_firestore_backend_extraction.ts` | n/a |
