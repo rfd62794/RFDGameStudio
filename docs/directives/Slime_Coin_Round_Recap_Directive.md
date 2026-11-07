@@ -79,7 +79,7 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
@@ -106,4 +106,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-11-07 00:36 · dispatcher · launched pid=3828; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; not fast-forwarded: directive/rfdgamestudio-slime-coin-round-recap-directive has diverged from origin/directive/rfdgamestudio-slime-coin-round-recap-directive; resynced: merged main into directive/rfdgamestudio-slime-coin-round-recap-directive (29 commit(s), clean); provisioned: uv sync --frozen
 - 2026-11-07 00:49 · devin · In progress → Blocked — fix verified+committed locally @9fab50da (synergy_fired deduped per coin pair via record_synergy_fire/synergy_seen, counted only inside firing branches; recap/shop split into non-overlapping zones at 390px; recap test 11/11, 7 regression files 33/33, tsc clean, full suite green after commit) but `git push -u origin directive/rfdgamestudio-slime-coin-round-recap-directive` rejected non-fast-forward: remote tip 436a96c6 (original impl recommit) absent from local history after wip-lineage resync — needs controller `git merge origin/...` or force-push, both refused to runner
 - 2026-11-07 08:20 · robert-claude-laptop · Blocked → Review — Devin fix 9fab50da + no-op merge of remote tip -> 71cbfb66 (ff push); Haiku re-review APPROVE, all 3 earlier findings addressed. Verify next. [origin] spent: devin 657 min est. n/a
+- 2026-11-07 08:30 · robert-claude-laptop · Review → Done
 <!-- queue:end -->
