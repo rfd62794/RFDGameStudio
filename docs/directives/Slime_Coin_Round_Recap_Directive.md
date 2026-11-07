@@ -79,7 +79,7 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
@@ -104,4 +104,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-11-07 00:30 · robert-claude-laptop · Queued → Approved — lint override: fix run on the existing PR #288 branch; the cited fixture is created by this directive (greenfield). Review findings: synergy_fired incremented before the type checks and on every contact tick; no verify; possible shop overlay at 390px.
 - 2026-11-07 00:30 · dispatcher · Approved → In progress — dispatched devin-laptop on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; lane=default; model=swe-2-high; persona=steady-builder; agent_id=01M6T7RP480R3SVE939AJ15H0M
 - 2026-11-07 00:36 · dispatcher · launched pid=3828; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; not fast-forwarded: directive/rfdgamestudio-slime-coin-round-recap-directive has diverged from origin/directive/rfdgamestudio-slime-coin-round-recap-directive; resynced: merged main into directive/rfdgamestudio-slime-coin-round-recap-directive (29 commit(s), clean); provisioned: uv sync --frozen
+- 2026-11-07 00:49 · devin · In progress → Blocked — fix verified+committed locally @9fab50da (synergy_fired deduped per coin pair via record_synergy_fire/synergy_seen, counted only inside firing branches; recap/shop split into non-overlapping zones at 390px; recap test 11/11, 7 regression files 33/33, tsc clean, full suite green after commit) but `git push -u origin directive/rfdgamestudio-slime-coin-round-recap-directive` rejected non-fast-forward: remote tip 436a96c6 (original impl recommit) absent from local history after wip-lineage resync — needs controller `git merge origin/...` or force-push, both refused to runner
 <!-- queue:end -->
