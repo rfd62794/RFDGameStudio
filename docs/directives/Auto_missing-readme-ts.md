@@ -30,6 +30,10 @@ tests), and what it depends on. Match the length and tone of a sibling package's
 
 Do not describe intentions, roadmaps, or anything you cannot see in the code.
 
+## Verification
+
+Run `git diff --stat`; it must pass (the check command for this directive).
+
 ## Rules for this run
 
 - **Write only inside this worktree.** Never `%TEMP%`, never `/tmp`. Scratch goes in `.devin-scratch/`.

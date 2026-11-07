@@ -35,6 +35,10 @@ Follow the existing test file conventions in this repo. Read a neighbouring test
 Verification: `cd ts && npx vitest run` ends with 0 failed, 0 skipped. Run exactly this command to
 verify; do not run builds, type-checkers, process listings or other commands.
 
+## Verification
+
+Run `cd ts && npx vitest run`; it must pass (the check command for this directive).
+
 ## Rules for this run
 
 - **Write only inside this worktree.** Never `%TEMP%`, never `/tmp`. Scratch goes in `.devin-scratch/`.
