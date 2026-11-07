@@ -45,6 +45,9 @@ GAME_STATE = {
   -- v0.3: Active synergies (from owned cards)
   active_synergies = {},  -- {type_a, type_b, effect_id}
 
+  synergy_fired = {},  -- {effect_id_or_card_id = count} for the end-of-round recap
+  synergy_seen = {},  -- {"id:coinA:coinB" = true} so a pair counts once per round
+
   -- Obstacles on shelf
   obstacles = {},  -- {id, type_id, x, y, hits_remaining}
   
@@ -142,6 +145,22 @@ local function draw_from_pool()
   return pool[1].type_id  -- fallback
 end
 
+-- v0.4: Count a synergy fire once per coin pair per round. The collision loop
+-- calls the triggers on every contact tick, so the same pair in sustained
+-- contact would otherwise inflate the count. The effect itself still runs on
+-- every call; only the recap count is deduplicated.
+local function record_synergy_fire(kind_id, coin1, coin2)
+  local a = coin1.id or 0
+  local b = coin2.id or 0
+  if b < a then a, b = b, a end
+  local key = kind_id .. ':' .. a .. ':' .. b
+  if GAME_STATE.synergy_seen[key] then
+    return
+  end
+  GAME_STATE.synergy_seen[key] = true
+  GAME_STATE.synergy_fired[kind_id] = (GAME_STATE.synergy_fired[kind_id] or 0) + 1
+end
+
 -- ── Initialization ─────────────────────────────────────────────────────────
 
 function init_game(config)
@@ -188,7 +207,9 @@ function init_game(config)
   GAME_STATE.vat_coins = {}
   GAME_STATE.exchanges_used = 0
   GAME_STATE.active_synergies = {}
-  
+  GAME_STATE.synergy_fired = {}
+  GAME_STATE.synergy_seen = {}
+
   -- Set target score for round 1
   GAME_STATE.target_score = 100
   
@@ -243,6 +264,8 @@ function start_round(round_num)
 
   -- v0.3: Reset exchange counter for new round
   GAME_STATE.exchanges_used = 0
+  GAME_STATE.synergy_fired = {}
+  GAME_STATE.synergy_seen = {}
 
   -- Apply round modifiers
   GAME_STATE.active_modifiers = {}
@@ -267,6 +290,9 @@ function end_round()
     target = GAME_STATE.target_score,
     target_met = target_met,
     offered_cards = GAME_STATE.offered_cards,
+    synergy_fired = GAME_STATE.synergy_fired,
+    shortfall = math.max(GAME_STATE.target_score - GAME_STATE.score, 0),
+    surplus = math.max(GAME_STATE.score - GAME_STATE.target_score, 0),
   }
 end
 
@@ -755,15 +781,18 @@ function trigger_chip_synergy(coin1, coin2)
     if card_id == 'zombie_slime' and coin1.type_id == 'basic' then
       -- Convert adjacent to zombie (basic)
       coin2.type_id = 'basic'  -- Simplified: just mark as affected
+      record_synergy_fire(card_id, coin1, coin2)
     elseif card_id == 'crystal_burst' and coin1.type_id == 'rare' then
       -- Multiply adjacent value
       coin2.value = coin2.value * 2
+      record_synergy_fire(card_id, coin1, coin2)
     elseif card_id == 'bubble_chain' and coin1.type_id == 'light' then
       -- Check for chain
       local chain_count = count_adjacent_type(coin2, 'light')
       if chain_count >= 5 then
         -- Pop chain for bonus
         GAME_STATE.score = GAME_STATE.score + chain_count * 10
+        record_synergy_fire(card_id, coin1, coin2)
       end
     end
   end
@@ -794,12 +823,15 @@ function trigger_synergy_effect(effect_id, coin1, coin2)
     -- Zombie + Basic: convert Basic to Zombie
     if coin1.type_id == 'basic' then
       coin1.type_id = 'zombie'
+      record_synergy_fire(effect_id, coin1, coin2)
     elseif coin2.type_id == 'basic' then
       coin2.type_id = 'zombie'
+      record_synergy_fire(effect_id, coin1, coin2)
     end
   elseif effect_id == 'double_crystal_tokens' then
     -- Mirror + Crystal: double token yield for both
     GAME_STATE.tokens = GAME_STATE.tokens + 2
+    record_synergy_fire(effect_id, coin1, coin2)
   elseif effect_id == 'clear_area' then
     -- Void + Iron: clear 5-radius area
     local floor_coins = copy_entity(GAME_STATE.floor_coins)
@@ -811,12 +843,14 @@ function trigger_synergy_effect(effect_id, coin1, coin2)
         end
       end
     end
+    record_synergy_fire(effect_id, coin1, coin2)
   elseif effect_id == 'launch_to_shelf' then
     -- Spark + Bubble: launch both back to shelf
     coin1.y = 50
     coin1.vy = -200
     coin2.y = 50
     coin2.vy = -200
+    record_synergy_fire(effect_id, coin1, coin2)
   end
 end
 
