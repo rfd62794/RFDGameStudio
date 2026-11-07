@@ -79,8 +79,8 @@ Findings first: files changed, new test count, and anything surprising in how `c
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
-| Assigned to | devin |
+| Status | Queued |
+| Assigned to | devin-laptop |
 | Branch | directive/rfdgamestudio-slime-coin-round-recap-directive |
 | Base branch | - |
 | Base commit | fa18bff4aae6f98cd5228ed08bf895e8fe325d3c |
@@ -100,4 +100,5 @@ Findings first: files changed, new test count, and anything surprising in how `c
 - 2026-10-12 22:15 · dispatcher · launched pid=6776; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-slime-coin-round-recap-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 22:39 · devin (delegated) · In progress → Review — end-of-round recap: logic.lua records synergy_fired + returns shortfall/surplus; roundRecap.ts view-model + RoundRecap.tsx mounted above ShopModal (App.tsx +11 lines); test_slime_coin_round_recap.ts 10/10 (red->green), 7 slime_coin regression files green, tsc clean; full suite 309/310 files - sole fail test_arcade_metadata_expansion.ts (grainworks missing from provisioned gitignored game-metadata.json; pre-existing env issue, not from this diff); under delegate.envelope [origin]
 - 2026-11-06 23:21 · robert-claude-laptop · Review → Blocked — PR #288 CHANGES-NEEDED (Haiku review): synergy_fired incremented before the type checks and on every contact tick (inflated counts); no verify evidence; possible shop overlay at 390px. Requeue fix run.
+- 2026-11-07 00:29 · robert-claude-laptop · Blocked → Queued — fix run for PR #288 review findings (see Blocked note)
 <!-- queue:end -->
