@@ -86,7 +86,7 @@ Findings first: which copies were removed and whether any had to stay (with the 
 
 | Field | Value |
 |---|---|
-| Status | Review |
+| Status | Done |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-engine-seeded-random-single-copy--9f6854 |
 | Base branch | - |
@@ -106,4 +106,5 @@ Findings first: which copies were removed and whether any had to stay (with the 
 - 2026-10-12 21:10 · dispatcher · Approved → In progress — dispatched devin on hometower in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; lane=strong; model=default; persona=steady-builder; agent_id=01M4SCZZV6Q58F0CFR8C1FJ0VM
 - 2026-10-12 21:11 · dispatcher · launched pid=1472; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-engine-seeded-random-single-copy--9f6854; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-12 21:42 · devin (delegated) · In progress → Review — Done on 73f0a438: 3 private mulberry32 copies removed (championLadder.ts, scrapcrawl/playtest.ts, scrapcrawl/utils/simulateRun.ts -> shared mulberry32); new test_seeded_random_single_copy.ts (characterization digests recorded pre-change, unchanged after; guard allow-lists 5 files); ENGINE_SYSTEMS.md sentence + Test cell. Verification: new test 9/9; related 11/11; tsc clean; full suite failing set == baseline (1: test_arcade_metadata_expansion.ts grainworks metadata, pre-existing).; under delegate.envelope [origin]
+- 2026-11-07 00:15 · robert-claude-laptop · Review → Done — note: PR #287 merged b700def (verify 3952 passed / 0 failed at 73f0a438; Haiku APPROVE + Sonnet merge-prep read)
 <!-- queue:end -->
