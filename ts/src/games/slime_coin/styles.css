@@ -404,7 +404,7 @@
   z-index: 1001;
   width: 90%;
   max-width: 22rem;
-  max-height: 60svh;
+  max-height: 30svh;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -413,6 +413,15 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   color: var(--text);
 }
+/* With the recap pinned to the top zone, the shop panel anchors to the
+   bottom zone so the two can never overlap on a 390x844 phone screen. */
+.sc-recap ~ .modal-overlay { align-items: flex-end; }
+.sc-recap ~ .modal-overlay .modal-panel {
+  max-height: 62svh;
+  display: flex;
+  flex-direction: column;
+}
+.sc-recap ~ .modal-overlay .modal-body { overflow-y: auto; }
 .sc-recap-headline { margin: 0 0 0.25rem; font-size: 0.95rem; }
 .sc-recap-score { margin: 0 0 0.5rem; font-size: 0.8rem; color: var(--text-muted); }
 .sc-recap-list { list-style: none; margin: 0; padding: 0;

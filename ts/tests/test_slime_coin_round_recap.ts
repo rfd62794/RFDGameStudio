@@ -30,6 +30,14 @@ function test_set_round_stats(score, fired_id, fired_count)
   if fired_id ~= nil then
     GAME_STATE.synergy_fired[fired_id] = fired_count
   end
+end
+
+function test_fire_synergy(effect_id, id1, id2, times)
+  local c1 = {id = id1, type_id = 'basic', x = 0, y = 0, vx = 0, vy = 0}
+  local c2 = {id = id2, type_id = 'basic', x = 0, y = 0, vx = 0, vy = 0}
+  for i = 1, times do
+    trigger_synergy_effect(effect_id, c1, c2)
+  end
 end`;
   const executor = new LuaExecutor(
     base.files.logic + '\n' + helper,
@@ -127,6 +135,22 @@ describe('end_round recap fields in the real Lua', () => {
     expect(ended2.synergy_fired).toEqual([]);
     expect(ended2.shortfall).toBe(0);
     expect(ended2.surplus).toBe(100);
+  });
+
+  it('a pair firing the same synergy on repeat contact ticks counts once', () => {
+    const session = sessionWithRecapHelper();
+    lua(session, 'test_fire_synergy', 'double_crystal_tokens', 9001, 9002, 3);
+    const ended = lua(session, 'end_round');
+    expect(ended.synergy_fired).toEqual({ double_crystal_tokens: 1 });
+  });
+
+  it('distinct pairs each count once, and an unmatched effect id is not counted', () => {
+    const session = sessionWithRecapHelper();
+    lua(session, 'test_fire_synergy', 'double_crystal_tokens', 9001, 9002, 2);
+    lua(session, 'test_fire_synergy', 'double_crystal_tokens', 9001, 9003, 2);
+    lua(session, 'test_fire_synergy', 'not_a_real_effect', 9004, 9005, 3);
+    const ended = lua(session, 'end_round');
+    expect(ended.synergy_fired).toEqual({ double_crystal_tokens: 2 });
   });
 });
 
