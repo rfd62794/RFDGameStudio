@@ -88,7 +88,7 @@ List schema, validation rules, fixtures, preserved fields, exact test output and
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Queued |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-federated-arcade-source-contract--6b84f0 |
 | Base branch | main |
@@ -105,4 +105,5 @@ List schema, validation rules, fixtures, preserved fields, exact test output and
 - 2026-10-11 19:17 · dispatcher · worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-federated-arcade-source-contract--6b84f0; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen
 - 2026-10-11 19:42 · devin-overseer (delegated) · In progress → Review — Baseline (pre-change, cd ts && npx vitest run): 306 files passed/1 skipped (307), 2942 tests passed/23 skipped, 0 failures. SCHEMA: three optional GameConfig fields (ts/src/engine/types.ts) mirrored on ManifestGame — relatedGames: string[], studioStoryUrl: string, devlogUrl: string — flat/additive; absent = no relationship, never derived. VALIDATION: buildArcadeManifest throws "<gameId>.relatedGames references unknown gameId '<id>'" when an id is not in the exported catalog; validated before writing. FIXTURES (all repo-verified): planetofgreed->[corpworld,kingmaker_squads] (originGames.ts+supersededBy), slimeworld->[slimegarden,slimebreeder], dissonance->[dissonance_prototype], voiddrift_redux->[voiddrift] (config description). No studioStoryUrl/devlogUrl authored — no verifiable destination from the sandbox (webfetch refused), so absence stands per contract. PRESERVED: all existing ids/URLs/badges/counts byte-for-byte (optional fields drop from JSON when absent). TESTS: new ts/tests/test_arcade_manifest_relationships.ts (4 tests). Focused runs: test_arcade_manifest (+counts+relationships) 15/15, test_registry_export 4/4, test_arcade_devlog 9/9. Final full suite: 307 files/2946 tests passed, 0 failures — identical to baseline plus new tests (a mid-run dirty-tree pass flagged 3 git-cleanliness tests; all pass post-commit). DOC: docs/notes/federated-arcade-site-consumer-contract.md (fields, validation rules, example entry, absence-means-no-relationship). NOTE: documented export command npx vite-node tools/export-arcade-manifest.ts is not in this run's granted commands and was not run; manifest build is covered by vitest. Commit 0619d569 on directive branch; pushed; pre-push hooks all green.; under delegate.envelope [origin] spent: devin 0 min est. n/a
 - 2026-11-06 23:21 · robert-claude-laptop · Review → Blocked — PR #283 CHANGES-NEEDED: code ok but the vitest baseline the directive requires is missing from the PR. Requeue fix run.
+- 2026-11-08 08:56 · devin-laptop-overseer (delegated) · Blocked → Queued — devin-laptop-overseer cycle 146: review bounce (PR #283 CHANGES-NEEDED: add vitest baseline to PR) is a scoped fix run; branch tip 0619d569 on origin; under delegate.requeue
 <!-- queue:end -->
