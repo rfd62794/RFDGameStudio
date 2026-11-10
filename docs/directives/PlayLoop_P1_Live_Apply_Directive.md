@@ -137,12 +137,14 @@ Repo standard: non-interactive; install, download or fetch nothing; no scratch f
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Assigned to | devin |
-| Branch | - |
+| Branch | directive/rfdgamestudio-playloop-p1-live-apply-directive |
 | Base branch | - |
+| Base commit | 8ebbe4b67edbfc303d86b54594c710752f0f9d2b |
 
 **Status log**
 - 2026-11-09 21:30 · robert-claude-laptop · none → Queued — Play loop live apply for tuning knobs. Baseline proof run by author 2026-11-09 21:15 ET at 82907284: 10 files, 73 passed. Robert 2026-11-09: approved the play-loop plan and all recommendations.
 - 2026-11-09 21:31 · robert-claude-laptop · Queued → Approved — lint override: The three flagged paths (applyMode.ts and two new test files) are files this directive creates; all are marked New in its scope table. Author ran the baseline proof 2026-11-09 21:15 ET at 82907284 (10 files, 73 passed). Robert 2026-11-09 21:21 ET: 'I permanently approve all of your recommendations'.
+- 2026-11-09 21:53 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playloop-p1-live-apply-directive; lane=default; model=swe-2-high; perm=accept-edits; persona=steady-builder; agent_id=01M71NZZ4Z2B5CYE0JA315K1JP
 <!-- queue:end -->
