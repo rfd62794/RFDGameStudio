@@ -236,11 +236,12 @@ A measure of demos shipped rewards the supply the studio already over-produces a
 
 | Field | Value |
 |---|---|
-| Status | Queued |
+| Status | Approved |
 | Assigned to | devin |
 | Branch | - |
 | Base branch | - |
 
 **Status log**
 - 2026-11-09 21:30 · robert-claude-laptop · none → Queued — Play loop re-point (docs only). Robert 2026-11-09 21:13 and 21:21 ET: approved the play-loop plan and all recommendations.
+- 2026-11-09 21:31 · robert-claude-laptop · Queued → Approved — lint override: The two flagged paths (ADR-024 and docs/state/play-sessions.md) are files this directive creates; both are marked New in its scope table. Robert 2026-11-09 21:21 ET: 'I permanently approve all of your recommendations', and asked for these to be added to the queue.
 <!-- queue:end -->
