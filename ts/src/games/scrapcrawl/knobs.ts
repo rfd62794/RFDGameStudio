@@ -13,6 +13,7 @@ export const SCRAPCRAWL_KNOBS: KnobDef[] = [
     default: 10,
     affects: 'How many mistakes a run survives.',
     source: { kind: 'const', file: 'ts/src/games/scrapcrawl/utils/runEnd.ts', name: 'PLAYER_MAX_HP' },
+    applies: 'next-run',
   },
   {
     key: 'scrapcrawl.loss_damage',
@@ -24,6 +25,7 @@ export const SCRAPCRAWL_KNOBS: KnobDef[] = [
     default: 2,
     affects: 'How punishing a lost fight is; the main lever on the win rate.',
     source: { kind: 'const', file: 'ts/src/games/scrapcrawl/utils/runEnd.ts', name: 'LOSS_DAMAGE' },
+    applies: 'live',
   },
 ];
 

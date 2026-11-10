@@ -2,3 +2,4 @@
 export * from './types';
 export * from './store';
 export * from './applyData';
+export * from './applyMode';

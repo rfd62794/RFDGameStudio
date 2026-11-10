@@ -1,12 +1,29 @@
 // new: ts/src/components/TuningPanel.tsx
 import { useState } from 'react';
-import type { KnobDef, Overrides } from '../engine/tuning';
-import { clearDevOverrides, getOverrides, writeDevOverrides } from '../engine/tuning';
+import type { ApplyMode, KnobDef, Overrides } from '../engine/tuning';
+import {
+  changedKeys,
+  clearDevOverrides,
+  getOverrides,
+  knobApplyMode,
+  requiredApplyMode,
+  writeDevOverrides,
+} from '../engine/tuning';
 import { formatPatch, formatYaml } from '../engine/tuning/exportFormat';
 import { getTuning } from '../games/tuning-registry';
 import './TuningPanel.css';
 
-export default function TuningPanel({ gameId }: { gameId: string }) {
+function applyModeText(mode: ApplyMode): string {
+  return mode === 'live' ? 'live' : mode === 'next-run' ? 'next run' : 'needs reload';
+}
+
+export default function TuningPanel({
+  gameId,
+  reload = () => window.location.reload(),
+}: {
+  gameId: string;
+  reload?: () => void;
+}) {
   const tuning = getTuning(gameId);
   const knobs: KnobDef[] = tuning?.knobs ?? [];
   const [draft, setDraft] = useState<Overrides>(() => {
@@ -20,6 +37,7 @@ export default function TuningPanel({ gameId }: { gameId: string }) {
   });
   const [copied, setCopied] = useState<'yaml' | 'patch' | null>(null);
   const [fallbackText, setFallbackText] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   if (!tuning) return null;
 
   const changedOnly: Overrides = {};
@@ -44,14 +62,31 @@ export default function TuningPanel({ gameId }: { gameId: string }) {
     setDraft(prev => ({ ...prev, [key]: value }));
   }
 
+  function settle(keys: string[]) {
+    const mode = requiredApplyMode(keys, knobs);
+    if (mode === 'reload') {
+      reload();
+      return;
+    }
+    setStatus(
+      mode === 'live'
+        ? 'Applied live.'
+        : mode === 'next-run'
+          ? 'Saved. Takes effect on the next run.'
+          : null
+    );
+  }
+
   function apply() {
+    const keys = changedKeys(getOverrides(gameId), changedOnly);
     writeDevOverrides(gameId, changedOnly);
-    window.location.reload();
+    settle(keys);
   }
 
   function reset() {
+    const keys = changedKeys(getOverrides(gameId), {});
     clearDevOverrides(gameId);
-    window.location.reload();
+    settle(keys);
   }
 
   async function copyAs(kind: 'yaml' | 'patch') {
@@ -76,10 +111,12 @@ export default function TuningPanel({ gameId }: { gameId: string }) {
           {group.knobs.map(knob => {
             const value = draft[knob.key] ?? knob.default;
             const changed = value !== knob.default;
+            const mode = knobApplyMode(knob);
             return (
               <div
                 key={knob.key}
                 data-tuning-knob={knob.key}
+                data-tuning-apply={mode}
                 className={changed ? 'tuning-row changed' : 'tuning-row'}
               >
                 <div className="tuning-row-head">
@@ -104,7 +141,12 @@ export default function TuningPanel({ gameId }: { gameId: string }) {
                     onChange={e => setValue(knob.key, e.target.value)}
                   />
                 </div>
-                <p className="tuning-affects">{knob.affects}</p>
+                <p className="tuning-affects">
+                  {knob.affects}{' '}
+                  <span className="tuning-apply" data-tuning-apply={mode}>
+                    {applyModeText(mode)}
+                  </span>
+                </p>
               </div>
             );
           })}
@@ -116,6 +158,11 @@ export default function TuningPanel({ gameId }: { gameId: string }) {
         <button type="button" onClick={() => { void copyAs('yaml'); }}>Copy as YAML</button>
         <button type="button" onClick={() => { void copyAs('patch'); }}>Copy as patch</button>
       </div>
+      {status !== null && (
+        <p className="tuning-status" data-tuning-status role="status">
+          {status}
+        </p>
+      )}
       {copied !== null && <p className="tuning-copied">Copied</p>}
       {fallbackText !== null && <textarea className="tuning-fallback" readOnly value={fallbackText} />}
     </aside>
