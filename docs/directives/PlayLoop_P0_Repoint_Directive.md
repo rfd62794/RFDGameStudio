@@ -236,15 +236,18 @@ A measure of demos shipped rewards the supply the studio already over-produces a
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-playloop-p0-repoint-directive |
 | Base branch | - |
 | Base commit | 084671a24151b0c1b16431afb22cb253e0dd29f4 |
+| Head commit | 98d3b1c0081652ad0d49bb2f7bc2a0d861d95820 |
+| Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
 - 2026-11-09 21:30 · robert-claude-laptop · none → Queued — Play loop re-point (docs only). Robert 2026-11-09 21:13 and 21:21 ET: approved the play-loop plan and all recommendations.
 - 2026-11-09 21:31 · robert-claude-laptop · Queued → Approved — lint override: The two flagged paths (ADR-024 and docs/state/play-sessions.md) are files this directive creates; both are marked New in its scope table. Robert 2026-11-09 21:21 ET: 'I permanently approve all of your recommendations', and asked for these to be added to the queue.
 - 2026-11-09 21:42 · dispatcher · Approved → In progress — dispatched devin on personal-laptop in C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playloop-p0-repoint-directive; lane=default; model=swe-2-high; perm=accept-edits; persona=steady-builder; agent_id=01M71NAWM42VPDPRCY62Q6GES8
 - 2026-11-09 21:52 · dispatcher · launched pid=4460; worktree C:\GitHub\.worktrees\RFDGameStudio--rfdgamestudio-playloop-p0-repoint-directive; copied ts/src/games/game-metadata.json; provisioned: uv sync --frozen; permission-mode=accept-edits (no `## Sandbox needs` — default deny)
+- 2026-11-09 21:56 · devin · In progress → Review — Docs-only re-point complete: ADR-024 created (Accepted 2026-11-09), direction v2, M12-M16 appended after M11 (M1-M11 byte-identical), five graphics-decision items moved Now->Later, play-sessions.md created, status.md updated. git status: 2 new + 4 modified, all in scope. tests/test_children_fresh.py: 3 passed. Ambiguity: /ROADMAP.md Now>Graphics&Styles held 6 bullets, not 5 - moved the five graphics-decision items; the M8 foundation-overlay item (not a graphics decision) remains in Now. docs/status.md graphics open-decisions marked parked to match the re-point. [origin] spent: devin 3 min est. n/a
 <!-- queue:end -->
