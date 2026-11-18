@@ -84,12 +84,12 @@ Demo count, how many direction blocks were appended vs. already present, how man
 
 | Field | Value |
 |---|---|
-| Status | Blocked |
+| Status | Review |
 | Assigned to | devin |
 | Branch | directive/rfdgamestudio-per-demo-direction-roadmap |
 | Base branch | - |
 | Base commit | 0bbdc15c4bc6f02521bcb06531f0915e84b0741a |
-| Head commit | 784ff06b8de2e069d3d2ea87df4c822ec34a723b |
+| Head commit | 7dfd0351a37bbc881ec4c1116626e7e927723908 |
 | Head remote | rfd62794/rfdgamestudio |
 
 **Status log**
@@ -98,4 +98,5 @@ Demo count, how many direction blocks were appended vs. already present, how man
 - 2026-10-11 20:55 · devin-home-overseer (delegated) · Review → Blocked — status bounce to refresh recorded head (9486139 -> 784ff06b after resync); not a real block; under delegate.envelope
 - 2026-10-11 20:55 · devin-home-overseer (delegated) · Blocked → Review — bounce back to Review; branch head now 784ff06b on origin; under delegate.envelope [origin]
 - 2026-11-06 23:21 · robert-claude-laptop · Review → Blocked — PR #279 CHANGES-NEEDED: 5 files outside scope; 38 direction blocks claim 'answered: 2026-10-11 robert' but only Robert may answer (needs Robert); unclosed shoal do_not; test plan deselects the only problems() test; prior verify 973 passed / 39 failed. Hold for Robert on the answers.
+- 2026-11-17 20:55 · robert-claude-laptop · Blocked → Review — Robert answered all direction blocks 2026-11-17 ("all rec, defaults stand"); 7dfd0351 applies them (answered: 2026-11-17 robert-claude; 13 parked, slimebreeder retired), reverts 6 out-of-scope files, closes shoal do_not; tests/test_demos.py 9 passed incl. problems() test un-deselected. Needs independent review + full-suite verify on 7dfd0351. [origin] spent: nothing recorded
 <!-- queue:end -->
