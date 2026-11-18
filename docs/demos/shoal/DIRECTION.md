@@ -90,7 +90,7 @@ TBD, ask Robert. His time per demo varies, so no review cadence is assumed.
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A watch-and-seed reef: fish graze, sharks hunt, algae rises and sinks with grazing pressure, no win state (ts/src/games/shoal/config.ts:7-14).'
 done_when:
 - Shoal headless balance test and replace source-text polish asserts - S - none.
@@ -100,7 +100,7 @@ do_not:
 - orca/whale
 - new habitats
 - typed arrays
-- layered canvas (ROADMAP backlog
+- layered canvas (ROADMAP backlog)
 audience: players
 hours_per_week: 1-3
 stakes: medium

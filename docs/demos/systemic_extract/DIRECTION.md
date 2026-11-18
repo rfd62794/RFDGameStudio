@@ -31,7 +31,7 @@ How should salvage be spent, given a parked hideout? Recommended default: keep p
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A top-down extraction roguelite plus base-builder on one 200x200 megamap: deploy from a sanctuary into four dungeon sectors, survive spreading hazards and escalating hives on a headless ECS simulation, extract salvage, spend it on the base.'
 done_when:
 - 'systemic_extract: favicon, "embed" label, cover screenshot. S. Depends: none.'

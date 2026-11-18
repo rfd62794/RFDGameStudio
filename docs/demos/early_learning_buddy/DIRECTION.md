@@ -30,13 +30,11 @@ Is this a product you intend to ship (then it gets its own repo and server decis
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A voice-powered learning companion for young children: practice letters, numbers and words by speaking, a fuzzy matcher accepts approximate pronunciations, AI-generated story beats reward progress, stars and characters persist, parents get settings and can request characters.'
-done_when:
-- 'early_learning_buddy: set the board row to parked and add a SCOPE "N/A" line. S. Depends: none.'
-- 'early_learning_buddy: replace the console-only story-fetch failure with a visible fallback message (only if it is ever shown to anyone). S. Depends: Robert wants it live.'
-- 'early_learning_buddy: privacy and microphone consent review of `utils/speech.ts` and the server env handling. S, review only. Depends: Robert wants it live.'
-do_not: []
+done_when: []
+do_not:
+- 'No work queued: parked by Robert 2026-11-17; un-park needs Robert.'
 audience: players
 hours_per_week: 1-3
 stakes: medium

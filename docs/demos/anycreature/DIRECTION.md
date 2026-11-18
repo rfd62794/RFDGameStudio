@@ -24,3 +24,15 @@ PARK.
 3. Chimera_Wilds_Portrait_Consumer - first real consumer; M; after chimera_wilds Phase 1 and Robert's go.
 ## Open question for Robert
 Keep the C:\Github\anyCreature fork on disk? Recommended default: yes, parked with no spend; delete only if the creature lane is decided vector-only.
+
+```yaml direction
+version: 1
+answered: 2026-11-17 robert-claude
+purpose: ''
+done_when: []
+do_not:
+- 'No work queued: parked by Robert 2026-11-17; un-park needs Robert.'
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

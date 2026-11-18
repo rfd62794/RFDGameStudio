@@ -28,7 +28,7 @@ Short fenced attempt, or retire now? Default: attempt Phases 1-2 (about two Devi
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'Chapter 2 of the "five-chapter demo canon" (`docs/gdd/WireAndRust_Design.md:1-2`): a deck-builder where "your deck IS your salvage pile", Brewfield chemistry reskinned as scrap synergies, 5-8 rooms, D20 checks, and a deck that evolves (salvage adds cards, failed checks destroy them; GDD Core Loop 5 and Pillars).'
 done_when:
 - 'wire_rust Tier A, win condition, seeded headless test. M. Depends on: none.'

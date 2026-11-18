@@ -32,7 +32,7 @@ None. Research agrees with the settled embed-only stance; no direction change pr
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: A turn-based stealth puzzle where guards commit to their next action before you move, so every turn is a read-the-sightlines decision.
 done_when:
 - 'facility_escape: replace prototype wording with player wording in `examples/facility-escape/src/App.tsx`; add a grep test. S. Depends: none.'

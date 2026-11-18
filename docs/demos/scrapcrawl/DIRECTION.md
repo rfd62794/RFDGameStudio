@@ -32,7 +32,7 @@ None. Default: keep the Lua logic frozen; any new rule goes in TS beside `runEnd
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A tiny crafting dungeon-crawl: move between rooms, collect scrap, craft disposable gear, fight on D20 rolls, with win-only proficiency as the hook.'
 done_when:
 - 'scrapcrawl: fixed-roll simulated-run tests (winnable, losable) and replace placeholder HP/damage numbers. M. Depends: none.'

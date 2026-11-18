@@ -31,7 +31,7 @@ None. Settled decision (honest embed, Tier A only) stands; research found no con
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'An ant-colony simulation lab, not a game: pheromone trails, direct food sensing, queen/egg/larva lifecycle, multi-colony Lanchester combat, tunnel pathfinding.'
 done_when:
 - 'antsim_redux: remove dev-speak from the player UI - delete the anchors tab, phase badge and subtitle in `examples/antsim-redux/src/App.tsx`; add a player-facing one-liner. S. Depends: none.'

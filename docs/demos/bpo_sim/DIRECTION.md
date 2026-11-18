@@ -39,7 +39,7 @@ This is the contact-center dialer domain of your day job (fictional names ACBS, 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: '"Call Center Tycoon": you are the remote dialer operator, tuning list purity/freshness and dialer pace against a daily quota while the floor is watched, not commanded (intake/filipino-bpo-simulator/Design.md:6-27 pillars "Limited Control, Full Responsibility", "Agents Are Weather").'
 done_when:
 - 'Re-promote Phase 2b into examples/filipino-bpo-simulator and add `source`. S. depends-on: none.'

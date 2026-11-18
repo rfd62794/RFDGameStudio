@@ -31,7 +31,7 @@ None.
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A tight 10-day trading-and-appraisal run: inspect walk-ins, bid in Dutch auctions, resell into a volatile market, and clear a compounding loan by day 10, with soft lockout for missed payments (examples/ledger/metadata.json; ts/src/games/ledger/config.ts:7).'
 done_when:
 - Ledger Playwright smoke at 1280 and 390 - S - none.

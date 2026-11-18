@@ -27,13 +27,11 @@ None. (Contradiction noted: SlimeBreeder's own ROADMAP still says "active"; reco
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: A standalone offline idle breeding PWA for a Moto G (React 19 + Zustand + Dexie), built 2026-04-10..11 in sibling repo SlimeBreeder (first commit `ec8738b`, scaffold; `5fc00b7` core loop; `7cd3b72` economy spec, 55 commits total).
-done_when:
-- Polish_Slimebreeder_TierA_Directive (exists, Approved) - blurb honesty + Reset control; S; none.
-- SlimeBreeder_Freeze_Docs - mark sibling DIRECTION/ROADMAP frozen, replace Vite README; S; after 1 (sibling repo, so Claude/Robert, not a worktree-only run).
-- Slimebreeder_Screenshot_Cover - one cover/screenshot in the arcade manifest (A5); S; after 1.
-do_not: []
+done_when: []
+do_not:
+- Retired by Robert 2026-10-05 (SlimeWorld/Conquest split); no work.
 audience: players
 hours_per_week: 1-3
 stakes: medium

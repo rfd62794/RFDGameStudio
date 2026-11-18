@@ -31,7 +31,7 @@ None. Default: leave the Lua logic as is; if a mechanic ever needs new logic, co
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A compact turn-based tactical defense puzzle: place barricades and autocannons on a 6x5 grid, see enemy moves and attacks previewed, commit the turn.'
 done_when:
 - 'choke_point: headless all-waves solvability test (win reachable, no softlock). S. Depends: none.'

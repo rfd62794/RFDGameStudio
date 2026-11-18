@@ -33,7 +33,7 @@ None. Default: keep the preserved Lua copy as is (the migration test requires it
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A parts-built 2v2 mutant sports-combat game: assemble mutants from body parts, field a squad, carry the ball to the end zone, salvage the fallen, buy and equip in a shop.'
 done_when:
 - 'mutant_battle_ball: hide the Infirmary stub tab and add a test that nav lists only built tabs. S. Depends: none.'

@@ -28,7 +28,7 @@ Downgrade the public badge `stable` to `beta` for horse_racing (and slimeworld) 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: '"Derby Sim": breed horses, race them, bet Win/Place/Show, run a career (config.ts:6-11).'
 done_when:
 - Horse_Racing_New_Game_Reset_And_Build - Continue/New Game, build script; S; none.

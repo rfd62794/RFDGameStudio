@@ -34,7 +34,7 @@ Correction 2026-10-04: the player does not land on an empty grid. getInitialGame
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A Factorio-style tile factory (conveyors, splitters, tunnels, power grid, research) feeding a weapons storefront with impatient customers: "Armory: Storefront & Spindle" (docs/RFDGameStudio_DemoPortingRoadmap.md:65).'
 done_when:
 - 'Factory Idle Tier A publish (already written: docs/directives/Polish_Factory_Idle_TierA_Directive.md). S. depends-on: none.'

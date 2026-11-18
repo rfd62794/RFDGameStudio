@@ -28,7 +28,7 @@ Should the family be named apart so the cabinet reads as one story: "VoidDrift" 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A TS-native "core loop" of VoidDrift: Scout/Mining/Hauler drone FSMs, orbital fragments, Aluminum/H3Gas chain, tap-to-dispatch (`config.ts:9`; roadmap `docs/RFDGameStudio_DemoPortingRoadmap.md:84-91`, originally `voiddrift_redux_1`).'
 done_when:
 - 'Redux Tier A: Restart label and build script. S. Depends on: none.'

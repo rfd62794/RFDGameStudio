@@ -27,7 +27,7 @@ None.
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: An AI Studio (Gemini) export of a multi-tank slime breeding sandbox with dispatch, mediation, exploration, territory claims and garrison risk over a 15-node hex planet (examples/slimegarden/README.md:5-9).
 done_when:
 - Slimegarden_Remove_Duplicate_SlimeWorld_Example - delete examples/slimeworld, keep tests green; S; none (touches tracked tree and a test map, so worktree-only is fine).

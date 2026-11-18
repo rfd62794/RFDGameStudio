@@ -54,7 +54,7 @@ No support or vendor-scale promises: this is a solo-built demo; feedback is read
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'Robert''s intent: Clue with the added pressure of vying for a Crown.'
 done_when:
 - 'Succession M0: parkedFeatures flag + title core line + harness ablation + timed run - S/M - none (queue directives touch App.tsx: sequence after them or rebase).'

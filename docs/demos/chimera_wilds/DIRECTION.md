@@ -28,7 +28,7 @@ The fix changes the rules (SCOPE.md called rules changes his call). Recommended 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A deliberately minimal "Phase 1": one D20 roll against a random six-part chimera, plus the first consumer of the shared Paper Doll renderer.'
 done_when:
 - Chimera_Wilds_Fix_Unwinnable_Balance - rebalance baseline, 1,000-run win-rate test, persist record, Reset button; S; none.

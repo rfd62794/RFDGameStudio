@@ -24,3 +24,15 @@ PARK (reference only, as settled).
 3. None further.
 ## Open question for Robert
 Is "TurboShells" only ChimeraLab, or is there a React/Supabase repo off this machine? Default: ChimeraLab only; the roadmap text came from a source I could not find, so correct the roadmap.
+
+```yaml direction
+version: 1
+answered: 2026-11-17 robert-claude
+purpose: ''
+done_when: []
+do_not:
+- 'No work queued: parked by Robert 2026-11-17; un-park needs Robert.'
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```

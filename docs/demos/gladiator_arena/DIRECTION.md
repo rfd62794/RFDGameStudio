@@ -28,7 +28,7 @@ None.
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A manager sim: "you never swing the sword, you decide what it''s attached to" (App.tsx:104).'
 done_when:
 - Gladiator_Hide_Balance_Lab_And_Blurb - dev flag for the Balance tab, plain blurb, test; S; none.

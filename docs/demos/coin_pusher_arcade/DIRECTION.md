@@ -35,13 +35,11 @@ Does coin_pusher_arcade stay beside SlimeCoin? Recommended default: PARK at dev 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'An AI Studio export of a physics coin pusher: drops, combos, a reward wheel, special pocket coins, named pressure levels (Neon Entryway, Slate Boulevard...) with push targets, and localStorage meta-progression (examples/coin-pusher-arcade/src/data.ts:182; metadata.json).'
-done_when:
-- 'Coin pusher vs SlimeCoin comparison note: 10 minutes each, 5 questions, one-page verdict - S - none (Claude or Robert, not Devin).'
-- Coin Pusher Arcade title screen + build script (only on a "keep") - S - directive 1.
-- Hide coin_pusher_arcade from featured picks until decided - S - redesign D1 order/featured field.
-do_not: []
+done_when: []
+do_not:
+- 'No work queued: parked by Robert 2026-11-17; un-park needs Robert.'
 audience: players
 hours_per_week: 1-3
 stakes: medium

@@ -33,7 +33,7 @@ None. Default: keep the Lua sim as is (ADR-013 retired Lua as a portability carv
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: '"Slither.io meets roguelike": steal segments, collect evolution cards on level-up, survive a timed arena run, chase a high score.'
 done_when:
 - 'slither_rogue: delete `GameCanvas.phase2g.tsx`, label Restart, add `build:slither_rogue` and fix its TS errors. S. Depends: none.'

@@ -31,13 +31,12 @@ None. Default: the Rust three-faction chassis stays Far Future (the board's own 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: Two ideas share this id.
-done_when:
-- 'trinity_siege: combat unit tests plus correct its status-board row. S. Depends: none.'
-- 'trinity_siege: "why it won" line per resolve and first-wave hint, in `examples/trinity-siege/src`. S. Depends: 1.'
-- 'trinity_siege: phone re-measure and cover screenshot. S. Depends: none.'
-do_not: []
+done_when: []
+do_not:
+- 'No work queued: parked by Robert 2026-11-17; un-park needs Robert.'
+- Two ideas share this id; Robert to pick which before any work.
 audience: players
 hours_per_week: 1-3
 stakes: medium

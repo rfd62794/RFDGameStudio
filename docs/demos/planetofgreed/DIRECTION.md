@@ -107,7 +107,7 @@ PROPOSED playable-slice milestones are in ts/src/games/planetofgreed/ROADMAP.md 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: BUILD toward the World Conquest identity, in small measured steps.
 done_when: []
 do_not: []

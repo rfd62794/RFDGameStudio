@@ -28,7 +28,7 @@ VoidDrift or VoidRift? Default: "VoidDrift" for the Rust game and its card (matc
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'The studio''s window onto the shipped Rust/Bevy VoidDrift (the paid itch.io release, `VD:docs/roadmap.md:10`; `VD:` = the VoidDrift repo): a no-win idle-mining game, "No win condition.'
 done_when:
 - 'Embed smoke ignores third-party frame console errors. S. Depends on: none.'

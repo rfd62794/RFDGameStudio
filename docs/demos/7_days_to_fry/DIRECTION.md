@@ -33,7 +33,7 @@ Embed or TS-native port? SCOPE called a rewrite a Wave 2 candidate (polish spec 
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: '"The Line": a kitchen where a crew of autonomous workers runs a burger joint and you set policy, over seven escalating days where each night''s shop unlock IS the tutorial (examples/7-days-to-fry/docs/Design.md v4: Vision, "The Real Week" table).'
 done_when:
 - '7 Days to Fry Tier A: honest blurb, genre, start-screen restart. S. depends-on: none.'

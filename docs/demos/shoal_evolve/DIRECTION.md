@@ -26,7 +26,7 @@ No trait tree, multiplayer, leaderboard, camera rewrite, new habitats, whales/or
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: A calm ecological survival sequel where the player controls one fish in Shoal's living reef, competes for food, grows, and evolves along visible paths.
 done_when:
 - Shoal and Shoal: Evolve ship as separate entries over one shared simulation core

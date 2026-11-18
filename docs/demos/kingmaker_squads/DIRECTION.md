@@ -32,7 +32,7 @@ Is "Origin of Planet of Greed" the right label? The redesign's default hides Ori
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: 'A tactical squad campaign on an 8x8 grid: pick a faction, buy and field squads in a shop phase, move with chess-style rules, fight a deterministic combat engine, take territory, hold the crown, manage loyalty (examples/kingmaker-squads/src: utils/chessMovement.ts, combatEngine.ts, crownLogic.ts, loyaltyLogic.ts; screens New Game, Shop, Forces, Terr'
 done_when:
 - 'Review and merge Kingmaker_Squads_Restart_Directive (controller). S. depends-on: none.'

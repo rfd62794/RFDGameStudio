@@ -32,7 +32,7 @@ None.
 
 ```yaml direction
 version: 1
-answered: 2026-10-11 robert
+answered: 2026-11-17 robert-claude
 purpose: '"Dissonance Depths": a turn-based deckbuilding roguelike where cards combine by element relation (ember/ash/spark/cinder x sever/mend/guard/unmake, 56 named combinations) over a 5-floor descent through a fracturing station AI (config.ts:7; games/dissonance/data.yaml, 50569c27).'
 done_when:
 - Dissonance headless bot run test - S - none.

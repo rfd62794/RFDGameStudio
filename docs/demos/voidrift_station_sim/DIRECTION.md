@@ -25,3 +25,15 @@ PARK.
 3. Station-sim save migration and phone check. M. Depends on: 2.
 ## Open question for Robert
 None blocking. Default: stay parked until the other two siblings reach Tier A plus a save.
+
+```yaml direction
+version: 1
+answered: 2026-11-17 robert-claude
+purpose: ''
+done_when: []
+do_not:
+- 'No work queued: parked by Robert 2026-11-17; un-park needs Robert.'
+audience: players
+hours_per_week: 1-3
+stakes: medium
+```
