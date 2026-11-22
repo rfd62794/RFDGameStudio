@@ -24,6 +24,15 @@ M9 is new: it makes every demo an addressable child project with its own
 machine-readable direction and roadmap, so AgentFlow can propel per-demo
 work instead of treating the whole studio as one blob.
 
+M12–M16 come from ADR-024 (accepted 2026-11-09): the studio's measure is
+now play sessions in which feedback landed, not demos shipped. M12
+re-points these documents to that measure; M13–M15 build the loop itself —
+a knob change that applies without a reload, a second cartridge under one
+tested contract, and the studio side of the terminal play commands; M16 is
+the first logged session. The graphics decisions that sat in
+`/ROADMAP.md`'s "Now" are parked under ADR-024 until a play session asks
+for them.
+
 ```yaml roadmap
 status: approved
 approved: 2026-09-22 robert-claude
@@ -590,4 +599,94 @@ milestones:
     accept:
     - test: cd ts && npx vitest run tests/test_shoal_evolve_foundation.ts
     - test: cd ts && npx vitest run tests/test_shoal_headless.ts
+- id: M12
+  title: The studio documents name the play loop as the measure
+  status: pending
+  exit:
+  - file: docs/adr/ADR-024-play-loop-is-the-measure.md
+  - file: docs/state/play-sessions.md
+  steps:
+  - id: M12.1
+    title: Re-point direction, roadmaps and status
+    kind: docs
+    size: S
+    value: 5
+    status: pending
+    directive: PlayLoop_P0_Repoint_Directive.md
+    detail: ADR-024, direction v2, roadmap priority note, graphics decisions parked, session log created. Docs only.
+    accept:
+    - file: docs/adr/ADR-024-play-loop-is-the-measure.md
+- id: M13
+  title: A knob change takes effect without reloading the game
+  status: pending
+  exit:
+  - test: cd ts && npx vitest run test_tuning_apply_mode.ts test_tuning_panel_live.tsx
+  steps:
+  - id: M13.1
+    title: Apply modes for knobs and a panel that reloads only when it must
+    kind: feature
+    size: S
+    value: 5
+    needs: [M12.1]
+    status: pending
+    directive: PlayLoop_P1_Live_Apply_Directive.md
+    detail: KnobDef gains an optional applies field; the panel reloads only for reload-mode knobs. Scrapcrawl loss_damage is live, player_max_hp is next-run.
+    accept:
+    - test: cd ts && npx vitest run test_tuning_apply_mode.ts test_tuning_panel_live.tsx
+- id: M14
+  title: A second cartridge is in the play loop and the cartridge contract is tested
+  status: pending
+  exit:
+  - file: ts/src/games/play-loop-registry.ts
+  - test: cd ts && npx vitest run test_play_loop_contract.ts
+  steps:
+  - id: M14.1
+    title: Second cartridge joins; one contract test over every listed cartridge
+    kind: feature
+    size: M
+    value: 5
+    needs: [M13.1]
+    status: pending
+    directive: ''
+    detail: Moved ahead of the first session because switching cartridges while an edit builds is the core of the loop. Directive to be written; default second cartridge is chimera_wilds.
+    accept:
+    - test: cd ts && npx vitest run test_play_loop_contract.ts
+- id: M15
+  title: A request made in the terminal becomes a queued edit for the current cartridge with game state attached
+  status: pending
+  exit:
+  - file: ts/tools/play/devPlugin.ts
+  steps:
+  - id: M15.1
+    title: Studio side of the play commands - state endpoint, snapshot providers, gate
+    kind: feature
+    size: M
+    value: 5
+    needs: [M14.1]
+    status: pending
+    directive: ''
+    detail: The dev server exposes the running cartridge's state so a request filed from the terminal can attach it; the tuning-target and playtest gate runs before an edit is offered back. The play, note and switch commands themselves live in AgentFlow and are tracked on its roadmap. Directive to be written.
+    accept:
+    - file: ts/tools/play/devPlugin.ts
+- id: M16
+  title: Session 1 is logged - a request on one cartridge, a switch to another while it builds, a return to check it
+  status: pending
+  exit:
+  - grep:
+      path: docs/state/play-sessions.md
+      pattern: scrapcrawl
+  steps:
+  - id: M16.1
+    title: Hold and log Session 1
+    kind: test
+    size: S
+    value: 5
+    needs: [M15.1]
+    status: pending
+    directive: ''
+    detail: Robert plays; the controller appends the row from real evidence (the queued directives, the gate output, a recording).
+    accept:
+    - grep:
+        path: docs/state/play-sessions.md
+        pattern: scrapcrawl
 ```

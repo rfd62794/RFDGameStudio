@@ -1,6 +1,6 @@
 # RFDGameStudio — Status
 
-*Last updated: October 11 2026*
+*Last updated: November 9 2026*
 
 > **This file is a short summary.** For full history see
 > [CHANGELOG.md](../CHANGELOG.md). For future plans see
@@ -44,17 +44,18 @@
 |---|---|---|---|
 | Per-demo direction and roadmap for all 38 demos (roadmap M9) | Laptop Claude | `directive/rfdgamestudio-per-demo-direction-roadmap` | Adds docs_path to children.json and creates machine-readable DIRECTION.md/ROADMAP.md files; see `docs/directives/RFDGameStudio_Per_Demo_Direction_Roadmap_Directive.md` |
 | Shoal: Evolve sequel direction, roadmap, and foundation directive | Repo Manager | `plan/shoal-evolve` | Supersedes one-page/two-mode delivery with one shared simulation core and two independently shippable entries |
+| Play loop re-point (roadmap M12) | Devin | `directive/rfdgamestudio-playloop-p0-repoint-directive` | ADR-024 names the play loop as the studio's measure; direction v2, graphics decisions parked, `docs/state/play-sessions.md` created; see `docs/directives/PlayLoop_P0_Repoint_Directive.md` |
 
 ## Infrastructure
 
 - **Arcade:** Vite + React + TS + Tailwind v4 + Vitest. 32 registry entries.
 - **Status Board:** Arcade page (`?page=status`) + Hugo site pages on rfditservices.com.
 - **Publishing:** Butler-based via `RFD_IT_Publishing`. Shoal, Planet of Greed, Dissonance published.
-- **ADRs:** 16 recorded (ADR-001 through ADR-016). ADR-014 (shared engine modules default) is the current governing rule for shared code.
+- **ADRs:** 24 recorded (ADR-001 through ADR-024). ADR-024 (the play loop is the studio's measure) supersedes the engine tooling roadmap's demos-shipped principle; ADR-014 (shared engine modules default) is the current governing rule for shared code.
 - **SDD:** v0.4 is current. v0.1-v0.3 archived.
 
 ## Open Decisions Awaiting Robert
 
-1. **Paper Doll technique winner** — 10 techniques compared side-by-side at `http://localhost:5200/`. Robert picks.
-2. **Bézier curve POC** — `http://localhost:5199/`. Robert judges if organic enough to pursue.
+1. **Paper Doll technique winner** — 10 techniques compared side-by-side at `http://localhost:5200/`. Robert picks. (Parked 2026-11-09 under ADR-024; returns when a play session asks.)
+2. **Bézier curve POC** — `http://localhost:5199/`. Robert judges if organic enough to pursue. (Parked 2026-11-09 under ADR-024; returns when a play session asks.)
 3. **itch.io visibility** — Shoal, Planet of Greed, Dissonance builds are live on Butler. Draft→Public toggle is Robert's call.

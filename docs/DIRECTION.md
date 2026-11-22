@@ -54,6 +54,24 @@ The coordination contract is recorded in
 `docs/notes/2026-10-11-federated-identity-handoff.md`, roadmap M10 and
 `docs/directives/Federated_Arcade_Source_Contract_Directive.md`.
 
+## Play loop (approved 2026-11-09)
+
+The studio's measure is **play sessions in which feedback landed**
+(ADR-024): Robert plays a cartridge, makes at least one request in
+the terminal, and at least one change from a request reaches a
+cartridge he then plays. Sessions are logged in
+`docs/state/play-sessions.md`.
+
+A cartridge is a `ts/src/games/<id>/` folder that satisfies the
+play-loop contract — a `tuning.ts` with at least one knob, one
+target and a `simulate`; a `playtest.ts` adapter; a state snapshot
+provider. Cartridges are disposable: retiring one follows the
+existing retirement pattern, and starting one is not a commitment to
+finish it. No agent change reaches a play session without passing
+the gate (tuning targets under the proposed values, bot-playtest
+invariants). Requests for a cartridge in the loop are
+pre-authorised for dispatch, limited to that cartridge's own folder.
+
 ## Next steps
 
 Drawn from `/ROADMAP.md` and `docs/state/StatusBoard.md` — see the
@@ -115,18 +133,18 @@ machine-readable milestones in `docs/ROADMAP.md`:
 - `AGENTS.md` — build/test commands and conventions.
 
 ```yaml direction
-version: 1
-answered: 2026-09-23 robert-claude
-purpose: The factory that turns game ideas and AI Studio drops into finished, playable games published to the arcade and itch.
+version: 2
+answered: 2026-11-09 robert-claude
+purpose: A place where Robert plays a game while agents design, build and fix it; games are disposable cartridges for that loop.
 done_when:
-- An AI Studio drop becomes a playable, tested arcade game with one command
-- Every published game shares the UI, including a way back to the arcade
-- The suite passes with no skips and the untested-module backlog is cleared
-- Arcade and itch publishing runs without manual steps
+- Robert can make a request in the terminal during or after play and later play the cartridge with that change in it
+- Robert can switch to a second cartridge of a different genre while a request on the first is being built
+- No agent change reaches a play session without passing tuning targets and playtest invariants
 do_not:
 - Never publish a game that doesn't load, or break one that is already live
 - No paid art or asset generation without approval
-audience: players
+- Do not build engine features that no play session asked for
+audience: Robert first, players second
 hours_per_week: 1-3
 stakes: medium
 ```

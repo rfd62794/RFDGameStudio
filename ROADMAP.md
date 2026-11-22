@@ -15,33 +15,32 @@
 
 Active or immediately actionable items.
 
+### Play Loop
+
+The studio's measure is play sessions in which feedback landed — Robert
+plays a cartridge, files a request in the terminal, and plays the
+cartridge with that change in it (ADR-024, accepted 2026-11-09). Sessions
+are logged in [`docs/state/play-sessions.md`](docs/state/play-sessions.md);
+the swarm-facing milestones are `docs/ROADMAP.md` M12–M16.
+
+- **Re-point the studio documents (M12).** ADR-024, direction v2, this
+  priority note, the graphics decisions parked under Later, and the
+  session log. Docs only.
+- **Live knob apply (M13).** A knob change takes effect without
+  reloading the game.
+- **Second cartridge in the loop (M14).** chimera_wilds joins
+  scrapcrawl; one contract test covers every listed cartridge.
+- **Terminal requests become queued edits (M15).** The dev server
+  exposes the running cartridge's state; the tuning-target and
+  playtest gate runs before an edit is offered back.
+- **Session 1 logged (M16).** A request on one cartridge, a switch to
+  another while it builds, a return to check it.
+
 ### Graphics & Styles
 
 One plan joins every graphics thread: [`docs/superpowers/specs/2026-09-24-graphics-and-styles-plan.md`](docs/superpowers/specs/2026-09-24-graphics-and-styles-plan.md). It covers vector and pixel styles, raster,
 sprite sheets and shading, and it is swarm-facing as `docs/ROADMAP.md` M6 and M8.
 
-- **Robert picks a technique winner from the 10-technique comparison POC.**
-  All 10 techniques rendered side by side at `http://localhost:5200/`.
-  No winner declared by the POC. Robert's call which direction(s) to
-  pursue. The plan's reading: the 32x32 pixel grid (technique 9) is a
-  *style* over the same art, not a separate art set. (From: Full
-  Technique Comparison POC)
-- **Robert judges Bézier curve POC.** Open `http://localhost:5199/` and
-  decide whether genuine Bézier curves look organic enough to pursue as
-  a real artGen primitive. If yes, a directive to build it into artGen.
-  If no, throw it away. (From: Bézier Curve POC)
-- **Robert decides on shading.** ChimeraLab's shade factor / edge light
-  was never ported, so every technique is flat colour (technique 10's
-  finding). Yes means `shaded` becomes a style parameter (M6.8). (From:
-  Full Technique Comparison POC)
-- **Robert picks the pixel look and the first creature adopter.** The
-  16-colour palette, 32 or 48 px, the pixel font (the archived
-  `PublicPixel` has no licence file; confirm it or use an OFL font),
-  and Chimera Wilds *or* Mutant Battle Ball as the second adopter after
-  Dissonance. (From: Studio foundation spec §8-9)
-- **Write `docs/GRAPHICS.md` (M6.1).** The source/style model, the
-  vector / raster / canvas rule, and a size and load budget per side.
-  (From: graphics plan)
 - **Foundation overlay, juice and events (M8, foundation steps 2-4).**
   Only step 1 (the glossary) is built, and the spec's promised
   milestone never reached a roadmap. Dissonance's Brewfield residues
@@ -227,6 +226,31 @@ In plan order ([`docs/superpowers/specs/2026-09-24-graphics-and-styles-plan.md`]
 ## Later
 
 Long-term or speculative items, pending foundational work.
+
+### Graphics decisions (parked 2026-11-09, ADR-024)
+
+- **Robert picks a technique winner from the 10-technique comparison POC.**
+  All 10 techniques rendered side by side at `http://localhost:5200/`.
+  No winner declared by the POC. Robert's call which direction(s) to
+  pursue. The plan's reading: the 32x32 pixel grid (technique 9) is a
+  *style* over the same art, not a separate art set. (From: Full
+  Technique Comparison POC)
+- **Robert judges Bézier curve POC.** Open `http://localhost:5199/` and
+  decide whether genuine Bézier curves look organic enough to pursue as
+  a real artGen primitive. If yes, a directive to build it into artGen.
+  If no, throw it away. (From: Bézier Curve POC)
+- **Robert decides on shading.** ChimeraLab's shade factor / edge light
+  was never ported, so every technique is flat colour (technique 10's
+  finding). Yes means `shaded` becomes a style parameter (M6.8). (From:
+  Full Technique Comparison POC)
+- **Robert picks the pixel look and the first creature adopter.** The
+  16-colour palette, 32 or 48 px, the pixel font (the archived
+  `PublicPixel` has no licence file; confirm it or use an OFL font),
+  and Chimera Wilds *or* Mutant Battle Ball as the second adopter after
+  Dissonance. (From: Studio foundation spec §8-9)
+- **Write `docs/GRAPHICS.md` (M6.1).** The source/style model, the
+  vector / raster / canvas rule, and a size and load budget per side.
+  (From: graphics plan)
 
 ### Graphics & Styles
 
